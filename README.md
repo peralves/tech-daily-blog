@@ -1,19 +1,21 @@
 # Tech Daily
 
-Blog statique d'actualité **web, informatique, DevOps et électronique**, alimenté chaque jour à **6h (Paris)** par une édition JSON générée automatiquement. Hébergé sur GitHub Pages, sans build ni dépendance.
+Blog statique d'actualité **web, informatique, DevOps et électronique**, alimenté chaque jour à **6h** par une édition JSON créée par une **tâche planifiée Claude**. Hébergé sur GitHub Pages, sans build ni dépendance côté front.
 
 ## Fonctionnement
 
 ```
-GitHub Actions (cron 6h Paris)
-  └─ scripts/generate.mjs  → API Claude + recherche web
-       └─ data/editions/AAAA-MM-JJ.json   (l'artefact du jour)
-       └─ data/index.json                 (index de toutes les éditions)
-  └─ commit + déploiement GitHub Pages
+Tâche planifiée Claude (app Claude desktop, 6h)
+  └─ recherche web → écrit data/editions/AAAA-MM-JJ.json (l'artefact du jour)
+  └─ git commit + push sur main
+GitHub Actions (pages.yml, au push)
+  └─ valide les éditions, régénère data/index.json, déploie GitHub Pages
 Front (index.html + assets/) : lit les JSON et les affiche
 ```
 
-- **Archives** : page `#/archive` (liste par mois + recherche), navigation jour précédent/suivant.
+**Aucun secret dans le dépôt** : la tâche utilise la session Claude et l'authentification git/`gh` de la machine qui l'exécute. Le dépôt ne contient ni clé API ni token, et le workflow n'en utilise aucun.
+
+- **Archives** : `#/archive` (liste par mois + recherche), navigation jour précédent/suivant.
 - **Thème** clair/sombre (suit le système, bouton pour forcer), responsive mobile/desktop.
 
 ## Format de l'artefact
@@ -28,18 +30,12 @@ Le schéma est **évolutif** :
 
 ## Mise en route
 
-1. **Settings → Pages → Source : GitHub Actions**.
-2. **Settings → Secrets and variables → Actions** : ajouter le secret `ANTHROPIC_API_KEY` (et, optionnellement, la variable `ANTHROPIC_MODEL`).
-3. Lancer une première fois **Actions → Generate daily edition → Run workflow** pour tester.
-
-Le cron GitHub est en UTC : le workflow tourne à 4h et 5h UTC et ne génère que lorsqu'il est 6h à Paris (heure d'été/hiver gérée). Les exécutions programmées peuvent avoir quelques minutes de retard.
+1. **Settings → Pages → Source : GitHub Actions** (déjà fait).
+2. Créer la tâche planifiée dans l'app Claude (voir `docs/scheduled-task.md`) : elle doit s'exécuter sur une machine connectée à GitHub (`gh auth login`). La machine/l'app doit être ouverte à 6h ; sinon la tâche tourne au prochain lancement.
 
 ## Développement local
 
-Le site est 100 % statique, mais `fetch` nécessite un serveur HTTP :
-
 ```bash
-npx serve .          # ou : python -m http.server
-node scripts/build-index.mjs   # valide les éditions et régénère data/index.json
-ANTHROPIC_API_KEY=... node scripts/generate.mjs   # génère l'édition du jour (Node 20+)
+npx serve .                     # le site est statique, fetch exige un serveur HTTP
+node scripts/build-index.mjs    # valide les éditions et régénère data/index.json
 ```
