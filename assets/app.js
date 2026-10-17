@@ -1,4 +1,4 @@
-import { el, renderBlocks, safeUrl, illustration } from "./blocks.js";
+import { el, renderBlocks, safeUrl, illustration } from "./blocks.js?v=__V__";
 
 const main = document.getElementById("main");
 const cache = new Map();
