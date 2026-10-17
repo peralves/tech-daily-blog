@@ -1,0 +1,561 @@
+{
+  "schemaVersion": "1.0",
+  "date": "2026-10-17",
+  "generatedAt": "2026-10-17T16:10:00+02:00",
+  "title": "Linux 7.3 aux portes, Torvalds et le LLM, swap Kubernetes et badges de hackathon",
+  "summary": "Un samedi côté communauté : Interop 2027 et les agents de code, GNOME OS Preview, un noyau 7.3 attendu dimanche, le swap sur SSD local pour densifier Kubernetes, et des projets matériels ouverts — du badge de hackathon au SDK Muse.",
+  "highlights": [
+    "Linux 7.3 est attendu le 18 octobre, avec beaucoup de Valve et une première prise en charge de l'Apple M3 Pro/Max/Ultra",
+    "Linus Torvalds a posté une série de dix correctifs écrite avec l'aide d'un LLM, et un relecteur y a déjà trouvé une condition de concurrence",
+    "Le swap sur SSD local permet jusqu'à 3× plus de sandboxes d'agents IA par nœud Kubernetes dans les tests de Google",
+    "GNOME OS Preview offre enfin une édition stable de GNOME OS pour les non-développeurs",
+    "Un SDK ouvert de Meta relie ESP32 et Raspberry Pi à l'agent Muse"
+  ],
+  "meta": { "generator": "claude-scheduled-task" },
+  "posts": [
+    {
+      "id": "interop-2027-appel-propositions",
+      "category": "web",
+      "title": "Interop 2027 : les navigateurs ouvrent l'appel aux propositions",
+      "summary": "Le projet qui aligne Chrome, Firefox et Safari sur les mêmes tests a lancé sa prochaine édition ; les scores 2026 frôlent déjà les 100 %.",
+      "tags": ["interop", "standards", "navigateurs", "web-platform-tests"],
+      "importance": 3,
+      "readingMinutes": 4,
+      "publishedAt": "2026-10-17T16:10:00+02:00",
+      "sourceDate": "2026-09-03",
+      "icon": "🤝",
+      "cover": { "url": "https://web.dev/static/blog/interop-2027-proposals/image/hero.png", "alt": "Visuel de l'annonce d'Interop 2027 sur web.dev", "credit": "web.dev" },
+      "illustration": { "svg": "<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 640 360'><defs><linearGradient id='g' x1='0' y1='0' x2='1' y2='1'><stop offset='0' stop-color='#0f2a5c'/><stop offset='1' stop-color='#2563eb'/></linearGradient></defs><rect width='640' height='360' fill='url(#g)'/><circle cx='250' cy='180' r='90' fill='#38bdf8' fill-opacity='.45'/><circle cx='390' cy='180' r='90' fill='#fbbf24' fill-opacity='.45'/><circle cx='320' cy='110' r='90' fill='#34d399' fill-opacity='.4'/><circle cx='320' cy='160' r='28' fill='#fff' fill-opacity='.85'/><path d='M306 160 l10 10 l20 -22' stroke='#1d4ed8' stroke-width='8' fill='none' stroke-linecap='round'/><rect x='80' y='310' width='480' height='12' rx='6' fill='#fff' fill-opacity='.2'/><rect x='80' y='310' width='440' height='12' rx='6' fill='#34d399'/></svg>" },
+      "sources": [
+        { "title": "Submit your proposals for Interop 2027", "url": "https://web.dev/blog/interop-2027-proposals", "publisher": "web.dev" }
+      ],
+      "blocks": [
+        { "type": "paragraph", "text": "Chaque année, les éditeurs de navigateurs se mettent d'accord sur une liste de fonctionnalités web à faire fonctionner de la même manière partout, puis mesurent leurs progrès avec une suite de tests commune. Le 3 septembre 2026, le projet **Interop** a lancé son édition 2027 en ouvrant un appel aux propositions. Pour les développeurs, c'est l'un des rares moments où l'on peut peser directement sur ce qui sera réparé en priorité dans les moteurs de rendu." },
+        { "type": "heading", "text": "Comment cela fonctionne", "level": 2 },
+        { "type": "list", "items": [
+          "Les propositions sont déposées sous forme de tickets GitHub dans le dépôt `web-platform-tests/interop`.",
+          "La période de dépôt s'est terminée le **23 septembre 2026** ; toutes les propositions sont ensuite examinées selon un processus de sélection publié.",
+          "Une fonctionnalité candidate doit avoir franchi les étapes de normalisation : spécification stable, aucune objection d'un éditeur de navigateur, et en général au moins une implémentation existante.",
+          "Une bonne suite de tests est indispensable, car le succès se mesure au nombre de tests réussis par chaque moteur."
+        ] },
+        { "type": "keyvalue", "items": [
+          { "label": "Lancement", "value": "3 septembre 2026" },
+          { "label": "Fin du dépôt", "value": "23 septembre 2026" },
+          { "label": "Scores Interop 2026 au 3 septembre (navigateurs expérimentaux)", "value": "Chrome 98, Edge 98, Firefox 96, Safari 92" }
+        ] },
+        { "type": "paragraph", "text": "L'annonce ne dévoile aucun thème pour 2027 : le choix dépend des propositions reçues. Elle rappelle seulement que de nombreux sujets de 2026 venaient de sondages comme State of CSS ou figuraient parmi les vingt demandes les plus fréquentes du dépôt developer-signals." },
+        { "type": "usecases", "title": "Exemples d'utilisation", "items": [
+          { "icon": "🧑‍💻", "title": "Équipe front-end d'une grande application", "text": "Elle consulte webstatus.dev pour repérer les fonctions qu'elle contourne avec des polyfills, puis soutient la proposition correspondante." },
+          { "icon": "📚", "title": "Auteur de bibliothèque", "text": "Il appuie une proposition dont l'adoption lui permettrait de supprimer une couche de compatibilité de son code." },
+          { "icon": "🏫", "title": "Formateur ou chroniqueur web", "text": "Il suit le tableau de bord d'Interop pour savoir quelles fonctions sont sûres à enseigner sans repli." }
+        ] },
+        { "type": "timeline", "title": "D'où l'on vient, où l'on va", "items": [
+          { "label": "3 sept. 2026", "text": "Ouverture de l'appel aux propositions pour Interop 2027." },
+          { "label": "23 sept. 2026", "text": "Clôture du dépôt ; examen des propositions selon la procédure publiée." },
+          { "label": "Ensuite", "text": "La liste des domaines d'intervention 2027 n'est pas encore connue d'après l'annonce." }
+        ] },
+        { "type": "opinion", "title": "Notre avis", "paragraphs": [
+          "Faits mis à part, voici notre analyse : avec des scores 2026 compris entre 92 et 98 %, la marge de progression visible se réduit. Le risque d'une édition 2027 est de se concentrer sur des fonctions pointues que peu de sites utilisent, alors que les vrais irritants sont souvent les comportements anciens et mal testés.",
+          "À un horizon d'un à trois ans, c'est un avis et non un fait : le mécanisme restera probablement le plus efficace pour réduire les écarts entre moteurs, à condition que les retours des développeurs, via les sondages et les tickets, continuent à orienter le choix."
+        ], "verdict": "Un processus ouvert qui a fait ses preuves ; la qualité de 2027 dépendra de la qualité des propositions." },
+        { "type": "callout", "icon": "📌", "title": "À retenir", "text": "Le dépôt est clos depuis le 23 septembre ; pour 2028, gardez un inventaire de vos contournements dès maintenant." }
+      ]
+    },
+    {
+      "id": "agents-de-code-propositions-interop",
+      "category": "web",
+      "title": "Un agent de code pour auditer son projet et préparer une proposition Interop",
+      "summary": "web.dev propose une méthode en trois étapes pour repérer les fonctions web manquantes d'un projet, sous réserve d'écrire soi-même la proposition.",
+      "tags": ["agents", "lighthouse", "baseline", "outillage"],
+      "importance": 2,
+      "readingMinutes": 4,
+      "publishedAt": "2026-10-17T16:11:00+02:00",
+      "sourceDate": "2026-09-18",
+      "icon": "🧭",
+      "cover": { "url": "https://web.dev/static/blog/coding-agents-interop-proposals/image/thumbnail.png", "alt": "Vignette de l'article sur les agents de code et les propositions Interop", "credit": "web.dev" },
+      "illustration": { "svg": "<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 640 360'><defs><linearGradient id='g' x1='0' y1='0' x2='1' y2='1'><stop offset='0' stop-color='#1e3a8a'/><stop offset='1' stop-color='#0ea5e9'/></linearGradient></defs><rect width='640' height='360' fill='url(#g)'/><rect x='90' y='70' width='260' height='220' rx='16' fill='#0b1220' fill-opacity='.7'/><rect x='110' y='95' width='120' height='10' rx='5' fill='#34d399'/><rect x='110' y='120' width='200' height='10' rx='5' fill='#fff' fill-opacity='.4'/><rect x='110' y='145' width='160' height='10' rx='5' fill='#fbbf24'/><rect x='110' y='170' width='190' height='10' rx='5' fill='#fff' fill-opacity='.4'/><rect x='110' y='195' width='90' height='10' rx='5' fill='#f472b6'/><circle cx='470' cy='180' r='62' fill='#fff' fill-opacity='.18'/><circle cx='470' cy='180' r='38' fill='none' stroke='#fff' stroke-width='8'/><path d='M498 208 l40 40' stroke='#fff' stroke-width='12' stroke-linecap='round'/></svg>" },
+      "sources": [
+        { "title": "Using coding agents to write Interop 2027 proposals", "url": "https://web.dev/blog/coding-agents-interop-proposals", "publisher": "web.dev" }
+      ],
+      "blocks": [
+        { "type": "paragraph", "text": "Beaucoup d'équipes maintiennent du code qui contourne des lacunes de la plateforme web : polyfills, bibliothèques d'enrobage, blocs `@supports`, scripts maison. Le 18 septembre 2026, Jeremy Wagner publie sur web.dev une méthode pour confier à un agent de code, dans le terminal ou l'éditeur, l'inventaire de ces contournements afin d'alimenter les propositions Interop 2027." },
+        { "type": "heading", "text": "La démarche en trois étapes", "level": 2 },
+        { "type": "list", "items": [
+          "**Analyser le projet** : lancer l'audit Lighthouse « Baseline Features » via le serveur MCP de DevTools, puis chercher les polyfills, les enrobages et les repli en JavaScript.",
+          "**Rapprocher des propositions ouvertes** : lister avec `gh issue list` les tickets du dépôt `web-platform-tests/interop` portant l'étiquette `focus-area-proposal`, et repérer ceux qui concernent des fonctions que l'on utilise ou voudrait utiliser.",
+          "**Trouver les lacunes sans proposition** : vérifier pour chaque fonction qu'une spécification stable (W3C ou WHATWG) existe, qu'au moins un moteur l'implémente, que des tests WPT existent et qu'aucun éditeur ne bloque."
+        ] },
+        { "type": "paragraph", "text": "Le rapport attendu comporte trois parties : les fonctions déjà utilisées (identifiant web-feature, statut Baseline, occurrences estimées), les propositions à soutenir, et les fonctions à proposer, classées par impact estimé en code ou bibliothèques supprimés." },
+        { "type": "callout", "icon": "⚠️", "title": "Limite à connaître", "tone": "warn", "text": "Les règles de dépôt exigent que les propositions soient **écrites par des humains** : l'agent trouve les candidats, mais la rédaction vous revient. L'article ne publie aucun résultat mesuré et présente les chiffres d'impact comme des estimations." },
+        { "type": "usecases", "title": "Exemples d'utilisation", "items": [
+          { "icon": "🏢", "title": "Éditeur d'une application ancienne", "text": "Il fait cartographier ses polyfills pour décider lesquels retirer dès qu'une fonction passe en Baseline." },
+          { "icon": "🛠️", "title": "Mainteneur de design system", "text": "Il identifie les blocs `@supports` qui n'ont plus d'intérêt et les propositions Interop qui en supprimeraient d'autres." },
+          { "icon": "📝", "title": "Contributeur aux standards", "text": "Il part d'un tableau de candidats vérifiés (spécification, tests WPT) pour rédiger sa proposition." }
+        ] },
+        { "type": "timeline", "title": "D'où l'on vient, où l'on va", "items": [
+          { "label": "3 sept. 2026", "text": "Lancement de l'appel Interop 2027." },
+          { "label": "18 sept. 2026", "text": "Publication de la méthode avec agent de code." },
+          { "label": "23 sept. 2026", "text": "Fin de la période de dépôt." }
+        ] },
+        { "type": "opinion", "title": "Notre avis", "paragraphs": [
+          "L'idée est séduisante parce qu'elle transforme une dette invisible, les contournements dispersés dans le code, en liste priorisée. Mais l'estimation d'impact repose sur un calcul que l'article n'explique pas : à manier comme un ordre de grandeur, pas comme une preuve.",
+          "Vision à un à trois ans, présentée comme une opinion : ce type d'audit assisté deviendra courant pour piloter le retrait des polyfills, et les équipes qui l'utilisent y gagneront surtout du temps de tri. La contrainte d'une rédaction humaine protège la qualité des propositions."
+        ], "verdict": "Un bon outil de tri, pas un substitut au jugement des développeurs." }
+      ]
+    },
+    {
+      "id": "baseline-aout-2026-paused-sibling-count",
+      "category": "web",
+      "title": "Baseline d'août : :paused, sibling-count() et le Shadow DOM déclaratif généralisé",
+      "summary": "Deux nouveautés CSS deviennent disponibles dans tous les navigateurs récents, et le Shadow DOM déclaratif passe en « largement disponible ».",
+      "tags": ["css", "baseline", "web-components", "shadow-dom"],
+      "importance": 3,
+      "readingMinutes": 4,
+      "publishedAt": "2026-10-17T16:12:00+02:00",
+      "sourceDate": "2026-09-28",
+      "icon": "🧩",
+      "cover": { "url": "https://web.dev/static/blog/baseline-digest-aug-2026/image/thumbnail.png", "alt": "Vignette du bilan Baseline d'août 2026 de web.dev", "credit": "web.dev" },
+      "illustration": { "svg": "<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 640 360'><defs><linearGradient id='g' x1='0' y1='0' x2='1' y2='1'><stop offset='0' stop-color='#0c4a6e'/><stop offset='1' stop-color='#6366f1'/></linearGradient></defs><rect width='640' height='360' fill='url(#g)'/><rect x='90' y='110' width='120' height='140' rx='14' fill='#38bdf8'/><rect x='260' y='110' width='120' height='140' rx='14' fill='#fbbf24'/><rect x='430' y='110' width='120' height='140' rx='14' fill='#34d399'/><circle cx='150' cy='300' r='10' fill='#fff'/><circle cx='320' cy='300' r='10' fill='#fff'/><circle cx='490' cy='300' r='10' fill='#fff'/><path d='M150 280 V250 M320 280 V250 M490 280 V250' stroke='#fff' stroke-opacity='.6' stroke-width='4'/><rect x='110' y='140' width='80' height='10' rx='5' fill='#fff' fill-opacity='.6'/><rect x='280' y='140' width='80' height='10' rx='5' fill='#fff' fill-opacity='.6'/><rect x='450' y='140' width='80' height='10' rx='5' fill='#fff' fill-opacity='.6'/></svg>" },
+      "sources": [
+        { "title": "Baseline digest: August 2026", "url": "https://web.dev/blog/baseline-digest-aug-2026", "publisher": "web.dev" }
+      ],
+      "blocks": [
+        { "type": "paragraph", "text": "Le bilan mensuel Baseline de web.dev recense les fonctions web qui atteignent un seuil de compatibilité entre navigateurs. Celui d'août 2026, publié le 28 septembre, annonce deux fonctions « nouvellement disponibles » et une fonction passée au statut « largement disponible »." },
+        { "type": "heading", "text": "Ce qui est annoncé", "level": 2 },
+        { "type": "table", "headers": ["Fonction", "Statut Baseline", "Rôle"], "rows": [
+          ["`:paused`", "Nouvellement disponible", "Cible les éléments audio et vidéo en pause, y compris ceux chargés mais pas encore lancés"],
+          ["`sibling-count()`", "Nouvellement disponible", "Renvoie le nombre d'éléments frères, l'élément lui-même compris"],
+          ["Shadow DOM déclaratif", "Largement disponible", "Définit une racine fantôme directement en HTML via `<template shadowrootmode>`"]
+        ] },
+        { "type": "code", "language": "css", "code": ".galerie > * {\n  width: calc(100% / sibling-count());\n}\n\nvideo:paused + .controles {\n  opacity: 1;\n}" },
+        { "type": "paragraph", "text": "Comme `sibling-count()` renvoie un nombre et non une chaîne, on peut l'utiliser dans `calc()` : les enfants se partagent la place proportionnellement sans une ligne de JavaScript. Quant à `:paused`, il distingue la pause du chargement ou de la recherche, ce qui simplifie les interfaces de lecteur. Le Shadow DOM déclaratif permet enfin de rendre côté serveur des composants web avec leurs styles encapsulés, évitant le flash de contenu non stylé et restant lisible par les moteurs de recherche." },
+        { "type": "usecases", "title": "Exemples d'utilisation", "items": [
+          { "icon": "🖼️", "title": "Grille de vignettes adaptative", "text": "Une galerie répartit la largeur entre ses éléments avec `sibling-count()`, quel que soit leur nombre." },
+          { "icon": "▶️", "title": "Lecteur vidéo maison", "text": "Un lecteur affiche ses commandes uniquement à l'arrêt grâce à `:paused`, sans écouter d'événements." },
+          { "icon": "🧱", "title": "Composants rendus côté serveur", "text": "Une équipe livre ses composants web avec leur Shadow DOM déclaré dans le HTML initial." }
+        ] },
+        { "type": "timeline", "title": "D'où l'on vient, où l'on va", "items": [
+          { "label": "Août 2026", "text": "`:paused` et `sibling-count()` atteignent le statut « nouvellement disponible » ; le Shadow DOM déclaratif devient « largement disponible »." },
+          { "label": "Ensuite", "text": "Le statut « largement disponible » des deux fonctions CSS suivra selon la règle habituelle de Baseline ; l'article ne donne pas de date." }
+        ] },
+        { "type": "opinion", "title": "Notre avis", "paragraphs": [
+          "Ces fonctions sont modestes mais utiles : elles remplacent des petits scripts et des classes CSS ajoutées à la main. Le passage en « largement disponible » du Shadow DOM déclaratif est le plus significatif, car il lève un frein au rendu serveur des composants web.",
+          "À un horizon d'un à trois ans, nous pensons, sans pouvoir l'affirmer, que les frameworks s'appuieront davantage sur ce rendu natif plutôt que sur leurs propres mécanismes d'hydratation."
+        ], "verdict": "Du progrès discret, mais directement utilisable en production." }
+      ]
+    },
+    {
+      "id": "gnome-os-preview-edition-stable",
+      "category": "dev",
+      "title": "GNOME OS Preview : une édition utilisable au quotidien, sans le côté « nightly »",
+      "summary": "Annoncé le 16 octobre, GNOME OS Preview s'appuie sur la dernière version stable de GNOME plutôt que sur les derniers commits.",
+      "tags": ["gnome", "linux", "distribution", "bureau"],
+      "importance": 4,
+      "readingMinutes": 4,
+      "publishedAt": "2026-10-17T16:13:00+02:00",
+      "sourceDate": "2026-10-16",
+      "icon": "🐧",
+      "cover": { "url": "https://www.phoronix.net/image.php?id=2026&image=gnome_os_preview_2", "alt": "Capture de GNOME OS Preview illustrant l'annonce", "credit": "phoronix.com" },
+      "illustration": { "svg": "<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 640 360'><defs><linearGradient id='g' x1='0' y1='0' x2='1' y2='1'><stop offset='0' stop-color='#2e1065'/><stop offset='1' stop-color='#7c3aed'/></linearGradient></defs><rect width='640' height='360' fill='url(#g)'/><rect x='100' y='60' width='440' height='250' rx='18' fill='#0b1220' fill-opacity='.55'/><rect x='100' y='60' width='440' height='34' rx='18' fill='#fff' fill-opacity='.18'/><circle cx='125' cy='77' r='6' fill='#f87171'/><circle cx='147' cy='77' r='6' fill='#fbbf24'/><circle cx='169' cy='77' r='6' fill='#34d399'/><circle cx='320' cy='195' r='60' fill='#a78bfa'/><path d='M290 195 q30 -50 60 0 q-30 50 -60 0z' fill='#fff' fill-opacity='.85'/><rect x='140' y='270' width='360' height='10' rx='5' fill='#fff' fill-opacity='.3'/></svg>" },
+      "sources": [
+        { "title": "Introducing GNOME OS Preview", "url": "https://lwn.net/Articles/1101057/", "publisher": "LWN.net" },
+        { "title": "GNOME OS Preview Announced In Road Toward A Stable Release", "url": "https://www.phoronix.com/news/GNOME-OS-Preview", "publisher": "Phoronix" }
+      ],
+      "blocks": [
+        { "type": "paragraph", "text": "Jusqu'ici, GNOME OS n'existait qu'en version « Nightly », construite à partir des derniers commits et destinée aux seuls développeurs de GNOME. Le 16 octobre 2026, Adrian Vovk a présenté **GNOME OS Preview**, une édition pensée pour les passionnés non développeurs." },
+        { "type": "heading", "text": "Ce que l'on sait", "level": 2 },
+        { "type": "list", "items": [
+          "Selon l'annonce, Preview est la version Nightly actuelle, mais sans l'aspect « nightly » : elle est construite à partir de la dernière version **stable** de GNOME (GNOME 51.1 au moment de la rédaction), et non des derniers commits.",
+          "Elle vit dans les mêmes branches GitLab que les environnements d'exécution Flatpak stables `org.gnome.Platform`.",
+          "L'objectif est de proposer un système assez fiable pour un usage quotidien par des non-développeurs.",
+          "Preview n'a que quelques semaines d'existence et a été peu éprouvée ; elle est jugée nettement plus stable que Nightly, que des dizaines de personnes utilisent au quotidien depuis plus d'un an.",
+          "Plusieurs fonctions restent à implémenter avant que GNOME OS soit « prêt pour le grand public », et aucune date n'est donnée pour une version stable ; une réinstallation sera peut-être nécessaire à ce moment-là."
+        ] },
+        { "type": "diagram", "svg": "<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 640 260' font-family='system-ui,sans-serif'><rect width='640' height='260' rx='16' fill='#f1f5f9' stroke='#cbd5e1'/><text x='320' y='34' text-anchor='middle' font-size='18' font-weight='700' fill='#0f172a'>Les éditions de GNOME OS</text><rect x='30' y='60' width='180' height='130' rx='12' fill='#ede9fe' stroke='#7c3aed'/><text x='120' y='90' text-anchor='middle' font-size='16' font-weight='700' fill='#4c1d95'>Nightly</text><text x='120' y='120' text-anchor='middle' font-size='13' fill='#1e1b4b'>Derniers commits</text><text x='120' y='142' text-anchor='middle' font-size='13' fill='#1e1b4b'>Pour les développeurs</text><rect x='230' y='60' width='180' height='130' rx='12' fill='#dbeafe' stroke='#2563eb'/><text x='320' y='90' text-anchor='middle' font-size='16' font-weight='700' fill='#1e3a8a'>Preview (nouveau)</text><text x='320' y='120' text-anchor='middle' font-size='13' fill='#0f172a'>Dernière version stable</text><text x='320' y='142' text-anchor='middle' font-size='13' fill='#0f172a'>Pour les passionnés</text><rect x='430' y='60' width='180' height='130' rx='12' fill='#e2e8f0' stroke='#64748b' stroke-dasharray='6 4'/><text x='520' y='90' text-anchor='middle' font-size='16' font-weight='700' fill='#334155'>Stable</text><text x='520' y='120' text-anchor='middle' font-size='13' fill='#0f172a'>Pas encore de date</text><text x='520' y='142' text-anchor='middle' font-size='13' fill='#0f172a'>Fonctions à finir</text><path d='M214 125 h12 M414 125 h12' stroke='#475569' stroke-width='3'/><text x='320' y='230' text-anchor='middle' font-size='13' fill='#334155'>Source : annonce d'Adrian Vovk, 16 octobre 2026</text></svg>", "alt": "Trois blocs : Nightly pour les développeurs, Preview pour les passionnés, Stable sans date", "caption": "Où se situe GNOME OS Preview entre Nightly et une future version stable." },
+        { "type": "usecases", "title": "Exemples d'utilisation", "items": [
+          { "icon": "🧪", "title": "Testeur curieux", "text": "Un utilisateur installe Preview sur un second ordinateur pour essayer l'approche « système immuable » de GNOME." },
+          { "icon": "🐛", "title": "Contributeur occasionnel", "text": "Il signale des problèmes sur un système proche de la version stable, plus facile à comparer à ce qu'il connaît." },
+          { "icon": "🏫", "title": "Équipe d'intégration", "text": "Une équipe évalue GNOME OS comme base pour une distribution ou un parc de postes avant d'engager des ressources." }
+        ] },
+        { "type": "timeline", "title": "D'où l'on vient, où l'on va", "items": [
+          { "label": "Jusqu'ici", "text": "GNOME OS n'était disponible qu'en Nightly, pour les développeurs." },
+          { "label": "16 oct. 2026", "text": "Annonce de GNOME OS Preview, basée sur GNOME 51.1." },
+          { "label": "À venir", "text": "Une édition stable, sans date annoncée, après implémentation de fonctions manquantes." }
+        ] },
+        { "type": "opinion", "title": "Notre avis", "paragraphs": [
+          "Distinguer clairement une branche « Preview » rassure : on sait enfin ce que l'on installe. Mais l'absence de calendrier et la possible réinstallation à la sortie de la stable rappellent qu'il s'agit d'un système en construction, pas d'un remplaçant d'une distribution classique.",
+          "Vision à un à trois ans, formulée comme une opinion : si le projet atteint une version stable, GNOME disposera d'une référence maîtrisée de bout en bout, ce qui devrait aussi faciliter les tests de nouvelles fonctions avant leur arrivée dans les grandes distributions."
+        ], "verdict": "Une étape sage vers un GNOME OS grand public, à tester sans y migrer encore son poste principal." }
+      ]
+    },
+    {
+      "id": "linux-7-3-valve-apple-m3",
+      "category": "dev",
+      "title": "Linux 7.3 attendu dimanche : E/S plus rapides, Valve et Apple M3 Pro/Max/Ultra",
+      "summary": "Le noyau 7.3 doit sortir le 18 octobre, sauf imprévu de dernière minute, avec un lot de nouveautés matérielles et des optimisations d'E/S.",
+      "tags": ["linux", "noyau", "valve", "apple-silicon", "btrfs"],
+      "importance": 5,
+      "readingMinutes": 4,
+      "publishedAt": "2026-10-17T16:14:00+02:00",
+      "sourceDate": "2026-10-16",
+      "icon": "🚀",
+      "cover": { "url": "https://www.phoronix.net/image.php?id=2026&image=new_steam_controller", "alt": "Illustration de la nouvelle Steam Controller prise en charge par Linux 7.3", "credit": "phoronix.com" },
+      "illustration": { "svg": "<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 640 360'><defs><linearGradient id='g' x1='0' y1='0' x2='1' y2='1'><stop offset='0' stop-color='#1e1b4b'/><stop offset='1' stop-color='#6d28d9'/></linearGradient></defs><rect width='640' height='360' fill='url(#g)'/><circle cx='320' cy='170' r='96' fill='#fff' fill-opacity='.12'/><path d='M320 90 c40 40 40 100 0 150 c-40 -50 -40 -110 0 -150z' fill='#fbbf24'/><circle cx='320' cy='160' r='16' fill='#1e1b4b'/><path d='M280 232 l-30 50 M360 232 l30 50 M320 245 v45' stroke='#f97316' stroke-width='10' stroke-linecap='round'/><circle cx='120' cy='80' r='3' fill='#fff'/><circle cx='520' cy='120' r='3' fill='#fff'/><circle cx='480' cy='300' r='3' fill='#fff'/><circle cx='150' cy='280' r='3' fill='#fff'/></svg>" },
+      "sources": [
+        { "title": "The Best Features Of Linux 7.3: Performance Improvements, Lots From Valve", "url": "https://www.phoronix.com/news/Linux-7.3-Best-Features", "publisher": "Phoronix" },
+        { "title": "Linux 7.3 Lands Last-Minute Fixes For Samsung 990 PRO & 990 EVO Plus SSDs", "url": "https://www.phoronix.com/news/Linux-7.3-Samsung-990-Immediate", "publisher": "Phoronix" }
+      ],
+      "blocks": [
+        { "type": "paragraph", "text": "Linux 7.3 doit sortir ce dimanche 18 octobre 2026, « sauf problème de dernière minute » d'après Phoronix. Si une régression tardive apparaît, un candidat supplémentaire pourrait décaler la date, comme c'est déjà arrivé pour d'autres versions. Voici ce que contient ce noyau d'après le tour d'horizon publié le 16 octobre." },
+        { "type": "heading", "text": "Les nouveautés principales", "level": 2 },
+        { "type": "list", "items": [
+          "**Performances** : de meilleures performances d'E/S, avec des gains sur des tests synthétiques qui devraient profiter aux bases de données et aux charges lourdes en disque ; l'article ne donne pas de chiffres précis. Btrfs reçoit aussi des améliorations.",
+          "**AMD Zen 6** : travaux préparatoires, dont l'identification d'un nouveau type de cœur basse consommation à côté des cœurs performants et denses.",
+          "**Apple M3** : premiers travaux d'amorçage pour les M3 Pro, Max et Ultra, après la prise en charge du M3 de base dans Linux 7.2 ; ce code n'est pas encore prêt pour les utilisateurs finaux.",
+          "**Valve** : modificateurs de format DRM pour les anciens GPU AMD GCN, meilleure récupération après réinitialisation du GPU, meilleure gestion de la VRAM quand elle est limitée, premier pilote noyau pour la Steam Controller 2026 et pilote de manette MSI Claw."
+        ] },
+        { "type": "paragraph", "text": "Un second article signale par ailleurs des correctifs de dernière minute pour les SSD Samsung 990 PRO et 990 EVO Plus. Nous n'avons pas pu lire le détail de ces correctifs : consultez la source avant de tirer une conclusion pour vos machines." },
+        { "type": "usecases", "title": "Exemples d'utilisation", "items": [
+          { "icon": "🎮", "title": "Joueur sous Linux", "text": "Il bénéficie d'une meilleure gestion de la VRAM et d'un pilote pour la nouvelle Steam Controller." },
+          { "icon": "🗄️", "title": "Administrateur de bases de données", "text": "Il compare les performances d'E/S de son serveur entre 7.2 et 7.3 avant de planifier une montée de version." },
+          { "icon": "🍏", "title": "Passionné d'Asahi et d'Apple Silicon", "text": "Il suit l'avancement de la prise en charge du M3 Pro, Max et Ultra, encore en cours d'amorçage." }
+        ] },
+        { "type": "timeline", "title": "D'où l'on vient, où l'on va", "items": [
+          { "label": "16 août 2026", "text": "Sortie de Linux 7.2, version stable précédente d'après Wikipédia." },
+          { "label": "4 octobre 2026", "text": "Sixième candidat à la publication, selon OSTechnix." },
+          { "label": "18 octobre 2026", "text": "Sortie prévue de Linux 7.3 ; une rc8 pourrait la repousser d'une semaine." }
+        ] },
+        { "type": "opinion", "title": "Notre avis", "paragraphs": [
+          "Le noyau 7.3 illustre un mouvement de fond : les fabricants de matériel et de jeux, ici Valve, financent directement le code qui améliore leur plateforme sous Linux. C'est favorable aux utilisateurs, mais cela oriente les priorités vers le matériel qui a un sponsor.",
+          "À un à trois ans, c'est une opinion et non un fait : la prise en charge d'Apple Silicon continuera de progresser au rythme des contributeurs, tandis que les gains d'E/S se traduiront surtout par des économies côté serveurs."
+        ], "verdict": "Une version solide, sans révolution, dont l'intérêt dépend surtout de votre matériel." },
+        { "type": "callout", "icon": "📌", "title": "À retenir", "text": "Date de sortie : 18 octobre, à confirmer sur kernel.org ; pas de montée en production avant les premiers retours." }
+      ]
+    },
+    {
+      "id": "torvalds-premiers-correctifs-llm",
+      "category": "dev",
+      "title": "Linus Torvalds poste sa première série de correctifs écrite avec un LLM",
+      "summary": "Dix patchs pour accélérer la recherche de folios dans la mémoire : gain d'un ordre de grandeur sur un test de lecture, mais une course critique déjà repérée.",
+      "tags": ["linux", "llm", "mémoire", "rcu", "noyau"],
+      "importance": 5,
+      "readingMinutes": 4,
+      "publishedAt": "2026-10-17T16:15:00+02:00",
+      "sourceDate": "2026-10-14",
+      "icon": "🤖",
+      "illustration": { "svg": "<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 640 360'><defs><linearGradient id='g' x1='0' y1='0' x2='1' y2='1'><stop offset='0' stop-color='#1e1b4b'/><stop offset='1' stop-color='#9333ea'/></linearGradient></defs><rect width='640' height='360' fill='url(#g)'/><rect x='230' y='90' width='180' height='150' rx='24' fill='#e9d5ff'/><circle cx='280' cy='150' r='20' fill='#4c1d95'/><circle cx='360' cy='150' r='20' fill='#4c1d95'/><rect x='275' y='200' width='90' height='10' rx='5' fill='#4c1d95'/><path d='M320 90 V60' stroke='#fbbf24' stroke-width='8'/><circle cx='320' cy='52' r='10' fill='#fbbf24'/><rect x='90' y='290' width='460' height='12' rx='6' fill='#fff' fill-opacity='.2'/><rect x='90' y='290' width='330' height='12' rx='6' fill='#34d399'/><rect x='420' y='290' width='40' height='12' rx='6' fill='#f87171'/></svg>" },
+      "sources": [
+        { "title": "Linus Torvalds's first LLM-assisted patch series", "url": "https://lwn.net/Articles/1100449/", "publisher": "LWN.net" }
+      ],
+      "blocks": [
+        { "type": "paragraph", "text": "Lors du Maintainers Summit, Linus Torvalds a indiqué avoir utilisé un grand modèle de langage pour avancer sur un vieux problème du noyau. Il a ensuite posté la série de correctifs pour relecture. L'information, relayée par LWN le 14 octobre 2026, intéresse bien au-delà du noyau : elle montre comment le mainteneur le plus connu du logiciel libre intègre ces outils." },
+        { "type": "heading", "text": "Ce que contient la série", "level": 2 },
+        { "type": "list", "items": [
+          "Dix correctifs visant à améliorer la recherche de **folios** (les unités de gestion de la mémoire).",
+          "Détecter quand un folio est « chaud » et retarder sa libération jusqu'à la fin d'une période de grâce RCU.",
+          "Étendre la protection RCU de la seule recherche à l'accès aux données du folio.",
+          "Éviter les mises à jour de compteur de références sur le chemin rapide, quand les données sont lues entièrement dans une zone protégée par RCU et que la copie vers l'utilisateur ne provoque pas de défaut de page."
+        ] },
+        { "type": "keyvalue", "items": [
+          { "label": "Nombre de correctifs", "value": "10" },
+          { "label": "Gain annoncé", "value": "Un ordre de grandeur sur un test dominé par `read()`" },
+          { "label": "Outil utilisé", "value": "Non précisé dans l'article" },
+          { "label": "Problème connu", "value": "Une condition de concurrence repérée par des relecteurs" }
+        ] },
+        { "type": "callout", "icon": "⚠️", "title": "Prudence", "tone": "warn", "text": "L'article ne nomme pas le modèle utilisé et n'indique pas encore les réactions des mainteneurs, les commentaires étant masqués pour les anonymes à cause de la charge des robots d'aspiration." },
+        { "type": "usecases", "title": "Exemples d'utilisation", "items": [
+          { "icon": "🔍", "title": "Mainteneur d'un sous-système", "text": "Il se sert d'un LLM pour explorer des variantes d'une optimisation avant de la soumettre à relecture." },
+          { "icon": "🧪", "title": "Équipe de tests", "text": "Elle utilise les gains annoncés comme point de départ pour mesurer l'effet sur ses propres charges de lecture." },
+          { "icon": "📘", "title": "Contributeur débutant", "text": "Il étudie la série comme exemple de découpage d'un changement délicat en dix étapes." }
+        ] },
+        { "type": "timeline", "title": "D'où l'on vient, où l'on va", "items": [
+          { "label": "Maintainers Summit", "text": "Linus Torvalds évoque l'usage d'un LLM sur ce problème." },
+          { "label": "14 oct. 2026", "text": "LWN rapporte la publication de la série pour relecture." },
+          { "label": "Ensuite", "text": "Correction de la condition de concurrence et poursuite de la relecture ; aucune date de fusion n'est annoncée." }
+        ] },
+        { "type": "opinion", "title": "Notre avis", "paragraphs": [
+          "Le fait établi est modeste : un mainteneur a utilisé un outil et soumet le résultat à la relecture habituelle. La course critique repérée rapidement rappelle que ce processus compte plus que l'outil, surtout sur du code de synchronisation où les erreurs sont subtiles.",
+          "Opinion à un à trois ans : l'assistance par LLM deviendra banale pour les mainteneurs expérimentés, mais le goulot d'étranglement restera la relecture, qui coûte plus cher que l'écriture. Les projets feront bien de définir tôt des règles sur la mention de l'outil utilisé."
+        ], "verdict": "Un signal fort par la personne qui l'envoie, pas un changement de méthode du noyau." }
+      ]
+    },
+    {
+      "id": "kubernetes-swap-ssd-local-densite",
+      "category": "devops",
+      "title": "Swap sur SSD local : jusqu'à 3× plus de sandboxes d'agents IA par nœud Kubernetes",
+      "summary": "Des tests menés par Google montrent que le swap de Kubernetes sur disque NVMe local densifie les nœuds, au prix d'un compromis assumé.",
+      "tags": ["kubernetes", "swap", "agents-ia", "gvisor", "kata-containers"],
+      "importance": 5,
+      "readingMinutes": 5,
+      "publishedAt": "2026-10-17T16:16:00+02:00",
+      "sourceDate": "2026-10-05",
+      "icon": "☸️",
+      "cover": { "url": "https://kubernetes.io/blog/2026/10/05/scaling-kubernetes-workloads-with-node-swap/node-swap-chart.svg", "alt": "Graphique du billet sur le swap de nœud Kubernetes", "credit": "kubernetes.io" },
+      "illustration": { "svg": "<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 640 360'><defs><linearGradient id='g' x1='0' y1='0' x2='1' y2='1'><stop offset='0' stop-color='#064e3b'/><stop offset='1' stop-color='#0d9488'/></linearGradient></defs><rect width='640' height='360' fill='url(#g)'/><rect x='80' y='70' width='200' height='220' rx='14' fill='#fff' fill-opacity='.15'/><rect x='95' y='85' width='170' height='28' rx='6' fill='#34d399'/><rect x='95' y='123' width='170' height='28' rx='6' fill='#34d399'/><rect x='95' y='161' width='170' height='28' rx='6' fill='#34d399'/><rect x='95' y='199' width='170' height='28' rx='6' fill='#fbbf24'/><rect x='95' y='237' width='170' height='28' rx='6' fill='#fbbf24'/><path d='M300 180 H360' stroke='#fff' stroke-width='6'/><path d='M345 165 l20 15 l-20 15' fill='none' stroke='#fff' stroke-width='6'/><rect x='390' y='110' width='170' height='140' rx='14' fill='#0f172a' fill-opacity='.6'/><rect x='410' y='135' width='130' height='14' rx='7' fill='#a7f3d0'/><rect x='410' y='165' width='130' height='14' rx='7' fill='#a7f3d0'/><rect x='410' y='195' width='130' height='14' rx='7' fill='#a7f3d0'/></svg>" },
+      "sources": [
+        { "title": "Scaling Kubernetes Workloads with Node Swap", "url": "https://kubernetes.io/blog/2026/10/05/scaling-kubernetes-workloads-with-node-swap/", "publisher": "kubernetes.io" }
+      ],
+      "blocks": [
+        { "type": "paragraph", "text": "La mémoire est souvent la première limite dure d'un cluster Kubernetes : les nœuds manquent de RAM bien avant de manquer de CPU. Les agents IA aggravent le problème, car leurs sandboxes ont besoin de beaucoup de mémoire au démarrage pour exécuter du code non fiable, puis restent inactives en attendant le prochain message, tout en occupant la RAM. Un billet publié le 5 octobre 2026 sur le blog de Kubernetes, signé Ocean Xie et Yuan Wang, mesure ce que rapporte le swap sur SSD local." },
+        { "type": "heading", "text": "Pourquoi le swap devient praticable", "level": 2 },
+        { "type": "paragraph", "text": "La prise en charge du swap sur les nœuds est passée en disponibilité générale avec Kubernetes 1.34. Elle repose sur cgroup v2, qui suit le swap séparément de la mémoire, alors que cgroup v1 additionnait les deux dans une même limite. L'autre frein historique, la lenteur des disques tournants, est largement levé par les SSD NVMe locaux." },
+        { "type": "table", "headers": ["Charge de travail", "Sans swap", "Avec swap sur SSD local", "Écart"], "rows": [
+          ["Compilation du noyau Linux 6.1.1", "Limite de 600 Mo", "Limite de 300 Mo", "−50 % de RAM"],
+          ["Chrome headless (Kata)", "40 pods", "50 pods", "+25 %"],
+          ["Chrome headless (gVisor)", "80 pods", "160 pods", "+100 %"],
+          ["Bac à sable Python (gVisor)", "80 pods", "240 pods", "+200 %"]
+        ] },
+        { "type": "diagram", "svg": "<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 640 280' font-family='system-ui,sans-serif'><rect width='640' height='280' rx='16' fill='#f1f5f9' stroke='#cbd5e1'/><text x='320' y='32' text-anchor='middle' font-size='17' font-weight='700' fill='#0f172a'>Pods gVisor par nœud (c4-standard-32 pour runc)</text><text x='30' y='92' font-size='13' fill='#0f172a'>Chrome, sans swap</text><rect x='170' y='72' width='80' height='28' rx='6' fill='#94a3b8'/><text x='260' y='92' font-size='13' fill='#0f172a'>80</text><text x='30' y='142' font-size='13' fill='#0f172a'>Chrome, avec swap</text><rect x='170' y='122' width='160' height='28' rx='6' fill='#0d9488'/><text x='340' y='142' font-size='13' fill='#0f172a'>160</text><text x='30' y='192' font-size='13' fill='#0f172a'>Python, sans swap</text><rect x='170' y='172' width='80' height='28' rx='6' fill='#94a3b8'/><text x='260' y='192' font-size='13' fill='#0f172a'>80</text><text x='30' y='242' font-size='13' fill='#0f172a'>Python, avec swap</text><rect x='170' y='222' width='240' height='28' rx='6' fill='#0d9488'/><text x='420' y='242' font-size='13' fill='#0f172a'>240</text></svg>", "alt": "Barres comparant 80 pods sans swap à 160 pods Chrome et 240 pods Python avec swap", "caption": "Densité de pods avec runtime gVisor, avec et sans swap sur SSD local (valeurs du billet Kubernetes)." },
+        { "type": "paragraph", "text": "Les auteurs insistent sur le compromis : comprimer la limite de la compilation à 200 Mo pousse l'ensemble de travail actif vers le swap et allonge le temps d'exécution de plus de 40 %. Le swap sert d'assurance pour les pics, pas de remplaçant de la RAM active. Le billet recommande la configuration `LimitedSwap` du kubelet, des pods de classe Burstable (limite mémoire supérieure à la demande) et un disque local rapide ; GKE le propose via son swap mémoire de nœud sur profils SSD local." },
+        { "type": "usecases", "title": "Exemples d'utilisation", "items": [
+          { "icon": "🤖", "title": "Plateforme d'agents IA", "text": "Elle exécute des centaines de sandboxes dormantes par nœud et réserve la RAM à celles qui travaillent." },
+          { "icon": "🏗️", "title": "Usine CI/CD", "text": "Elle réduit la mémoire demandée par les jobs de compilation qui gardent des objets inactifs en mémoire." },
+          { "icon": "🌐", "title": "Service de navigateurs headless", "text": "Elle densifie ses instances Chrome isolées par gVisor ou Kata." }
+        ] },
+        { "type": "timeline", "title": "D'où l'on vient, où l'on va", "items": [
+          { "label": "Kubernetes 1.34", "text": "Le support du swap sur les nœuds atteint la disponibilité générale." },
+          { "label": "5 oct. 2026", "text": "Publication des mesures sur les agents, les builds et les sandboxes Python." },
+          { "label": "À venir", "text": "Le billet ne fixe pas de nouvelle échéance ; il invite à régler la densité selon la latence visée." }
+        ] },
+        { "type": "opinion", "title": "Notre avis", "paragraphs": [
+          "Les gains sont spectaculaires mais mesurés par l'équipe qui promeut aussi la plateforme concernée, sur des charges choisies : à reproduire avec vos propres profils d'inactivité avant d'y croire. Le billet reconnaît d'ailleurs que, à densité maximale, la latence vient surtout de la contention CPU.",
+          "À un à trois ans, nous pensons que le swap rapide deviendra un réglage standard pour les charges bursty, à condition que l'observabilité du swap par pod s'améliore ; c'est une opinion, pas une annonce du projet."
+        ], "verdict": "Une piste sérieuse pour réduire les coûts, à valider charge par charge." },
+        { "type": "callout", "icon": "📌", "title": "À retenir", "text": "cgroup v2, SSD NVMe local, LimitedSwap et pods Burstable : voilà le quatuor à vérifier avant d'essayer." }
+      ]
+    },
+    {
+      "id": "csi-changed-block-tracking-beta",
+      "category": "devops",
+      "title": "Sauvegardes Kubernetes : le suivi des blocs modifiés passe en bêta",
+      "summary": "Les pilotes CSI peuvent signaler quels blocs d'un volume ont changé entre deux instantanés ; l'API v1beta1 supprime la version alpha.",
+      "tags": ["kubernetes", "csi", "stockage", "sauvegarde"],
+      "importance": 3,
+      "readingMinutes": 4,
+      "publishedAt": "2026-10-17T16:17:00+02:00",
+      "sourceDate": "2026-09-14",
+      "icon": "💾",
+      "illustration": { "svg": "<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 640 360'><defs><linearGradient id='g' x1='0' y1='0' x2='1' y2='1'><stop offset='0' stop-color='#052e2b'/><stop offset='1' stop-color='#047857'/></linearGradient></defs><rect width='640' height='360' fill='url(#g)'/><g fill='#34d399'><rect x='90' y='100' width='50' height='50' rx='6'/><rect x='150' y='100' width='50' height='50' rx='6'/><rect x='210' y='100' width='50' height='50' rx='6'/><rect x='90' y='160' width='50' height='50' rx='6'/><rect x='150' y='160' width='50' height='50' rx='6'/><rect x='210' y='160' width='50' height='50' rx='6'/></g><rect x='150' y='160' width='50' height='50' rx='6' fill='#fbbf24'/><rect x='210' y='100' width='50' height='50' rx='6' fill='#fbbf24'/><path d='M300 155 H370' stroke='#fff' stroke-width='6'/><path d='M355 140 l20 15 l-20 15' fill='none' stroke='#fff' stroke-width='6'/><g><rect x='410' y='100' width='50' height='50' rx='6' fill='#fbbf24'/><rect x='470' y='160' width='50' height='50' rx='6' fill='#fbbf24'/></g><ellipse cx='320' cy='290' rx='110' ry='24' fill='#fff' fill-opacity='.2'/></svg>" },
+      "sources": [
+        { "title": "Kubernetes Changed Block Tracking API - Beta Differences", "url": "https://kubernetes.io/blog/2026/09/14/csi-changed-block-tracking-beta/", "publisher": "kubernetes.io" }
+      ],
+      "blocks": [
+        { "type": "paragraph", "text": "Sauvegarder un gros volume en recopiant tout à chaque fois coûte du temps, du réseau et de l'espace. Le suivi des blocs modifiés (Changed Block Tracking, CBT) permet à un pilote CSI d'indiquer précisément quels blocs ont changé entre deux instantanés, afin que l'outil de sauvegarde ne transfère que ceux-là. Proposé en alpha en septembre 2025, il est passé en bêta avec la version 1.0.0 du projet `external-snapshot-metadata` en mars 2026, ce que détaille un billet de Prasad Ghangal (Veeam Kasten) du 14 septembre 2026." },
+        { "type": "heading", "text": "Ce qui change en bêta", "level": 2 },
+        { "type": "list", "items": [
+          "La ressource `SnapshotMetadataService` passe de `v1alpha1` à `cbt.storage.k8s.io/v1beta1`, avec un schéma inchangé.",
+          "L'ancienne version alpha est **supprimée** et non servie en parallèle : il faut réappliquer la définition de ressource de la version 1.0.0, mettre à jour les manifestes et le code client. Aucune conversion automatique n'existe.",
+          "La fonction ne concerne que les volumes en mode bloc ; les volumes de fichiers et les partages réseau ne sont pas couverts."
+        ] },
+        { "type": "keyvalue", "items": [
+          { "label": "Version minimale de Kubernetes", "value": "1.33" },
+          { "label": "Spécification CSI", "value": "1.10 ou plus récente" },
+          { "label": "Image du sidecar", "value": "`registry.k8s.io/sig-storage/csi-snapshot-metadata:v1.0.0`" },
+          { "label": "Appels du client", "value": "`GetMetadataAllocated` et `GetMetadataDelta`" }
+        ] },
+        { "type": "code", "language": "yaml", "code": "apiVersion: cbt.storage.k8s.io/v1beta1\nkind: SnapshotMetadataService\nmetadata:\n  name: mon-pilote-csi" },
+        { "type": "paragraph", "text": "L'extrait montre uniquement la version d'API à adopter ; les champs complets se trouvent dans l'exemple du pilote hostpath cité par le billet." },
+        { "type": "usecases", "title": "Exemples d'utilisation", "items": [
+          { "icon": "🗄️", "title": "Éditeur d'outil de sauvegarde", "text": "Il remplace la lecture complète des volumes par la lecture des seuls blocs modifiés entre deux instantanés." },
+          { "icon": "🌍", "title": "Réplication vers un autre site", "text": "Une équipe n'envoie que le delta nocturne d'un gros volume de base de données." },
+          { "icon": "🔧", "title": "Mainteneur de pilote CSI", "text": "Il ajoute le sidecar et le service de métadonnées pour offrir la fonction à ses utilisateurs." }
+        ] },
+        { "type": "timeline", "title": "D'où l'on vient, où l'on va", "items": [
+          { "label": "Sept. 2025", "text": "Premier support CBT pour les pilotes CSI en alpha." },
+          { "label": "Mars 2026", "text": "Version 1.0.0 de `external-snapshot-metadata` : passage en bêta." },
+          { "label": "Fin du cycle bêta", "text": "Adoption par davantage de pilotes et retours opérationnels avant d'envisager la disponibilité générale ; pas de date annoncée." }
+        ] },
+        { "type": "opinion", "title": "Notre avis", "paragraphs": [
+          "La suppression nette de l'alpha est un bon rappel : un passage en bêta ne rime pas avec compatibilité ascendante. Les éditeurs de sauvegarde qui ont expérimenté devront migrer à la main.",
+          "À un à trois ans, c'est notre pari et non une promesse du projet : la valeur dépendra du nombre de pilotes CSI qui l'implémentent. Sans eux, la fonction restera un mécanisme prêt mais peu utilisé."
+        ], "verdict": "Utile pour les sauvegardes, mais conditionné à l'adoption par les pilotes de stockage." }
+      ]
+    },
+    {
+      "id": "kubernetes-1-37-gestionnaires-ressources-pod",
+      "category": "devops",
+      "title": "Kubernetes 1.37 : les gestionnaires de ressources comprennent enfin le niveau du pod",
+      "summary": "Les gestionnaires CPU, mémoire et topologie du kubelet peuvent exploiter les ressources déclarées au niveau du pod ; la fonction passe en bêta, désactivée par défaut.",
+      "tags": ["kubernetes", "kubelet", "numa", "cpu-manager", "sidecars"],
+      "importance": 3,
+      "readingMinutes": 4,
+      "publishedAt": "2026-10-17T16:18:00+02:00",
+      "sourceDate": "2026-09-15",
+      "icon": "🧮",
+      "illustration": { "svg": "<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 640 360'><defs><linearGradient id='g' x1='0' y1='0' x2='1' y2='1'><stop offset='0' stop-color='#064e3b'/><stop offset='1' stop-color='#15803d'/></linearGradient></defs><rect width='640' height='360' fill='url(#g)'/><rect x='110' y='80' width='420' height='200' rx='20' fill='#fff' fill-opacity='.14'/><rect x='140' y='110' width='170' height='140' rx='12' fill='#34d399'/><rect x='330' y='110' width='80' height='60' rx='10' fill='#fbbf24'/><rect x='420' y='110' width='80' height='60' rx='10' fill='#fbbf24'/><rect x='330' y='190' width='170' height='60' rx='10' fill='#fff' fill-opacity='.3'/><circle cx='225' cy='180' r='30' fill='#064e3b' fill-opacity='.5'/></svg>" },
+      "sources": [
+        { "title": "Kubernetes v1.37: Pod-Level Resource Managers graduated to Beta", "url": "https://kubernetes.io/blog/2026/09/15/kubernetes-v1-37-pod-level-resource-managers-beta/", "publisher": "kubernetes.io" }
+      ],
+      "blocks": [
+        { "type": "paragraph", "text": "Quand une application exige des cœurs de processeur exclusifs, alignés sur un même nœud NUMA, Kubernetes imposait jusqu'ici un choix tout ou rien : donner des demandes entières à chaque conteneur du pod, ou renoncer à l'alignement. Avec Kubernetes 1.37, la fonction **Pod-Level Resource Managers** passe en bêta, désactivée par défaut, comme l'explique Kevin Torres Martinez (Google) le 15 septembre 2026." },
+        { "type": "heading", "text": "Le problème des sidecars", "level": 2 },
+        { "type": "paragraph", "text": "Dans la pratique, un pod embarque souvent des sidecars légers, comme un agent de journalisation ou un exportateur de métriques. Leur réserver des cœurs physiques dédiés est du gaspillage. La nouvelle fonction permet une allocation hybride : le kubelet réserve des ressources exclusives et alignées NUMA pour les conteneurs principaux, et place les sidecars non garantis dans un réservoir partagé propre au pod." },
+        { "type": "diagram", "svg": "<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 640 280' font-family='system-ui,sans-serif'><rect width='640' height='280' rx='16' fill='#f1f5f9' stroke='#cbd5e1'/><text x='320' y='32' text-anchor='middle' font-size='17' font-weight='700' fill='#0f172a'>Un pod, deux modes d'allocation</text><rect x='40' y='56' width='560' height='190' rx='14' fill='#e2e8f0' stroke='#64748b'/><text x='60' y='82' font-size='13' font-weight='700' fill='#334155'>Pod avec ressources au niveau du pod (.spec.resources)</text><rect x='70' y='100' width='230' height='120' rx='12' fill='#bbf7d0' stroke='#15803d'/><text x='185' y='135' text-anchor='middle' font-size='15' font-weight='700' fill='#14532d'>Conteneur principal</text><text x='185' y='160' text-anchor='middle' font-size='13' fill='#14532d'>Cœurs exclusifs</text><text x='185' y='180' text-anchor='middle' font-size='13' fill='#14532d'>alignés sur le nœud NUMA</text><rect x='340' y='100' width='230' height='120' rx='12' fill='#fef3c7' stroke='#d97706'/><text x='455' y='135' text-anchor='middle' font-size='15' font-weight='700' fill='#78350f'>Sidecars</text><text x='455' y='160' text-anchor='middle' font-size='13' fill='#78350f'>Réservoir partagé du pod</text><text x='455' y='180' text-anchor='middle' font-size='13' fill='#78350f'>sans cœur dédié</text></svg>", "alt": "Un pod avec un conteneur principal sur cœurs exclusifs et des sidecars dans un réservoir partagé", "caption": "Allocation hybride : exclusive pour l'application, partagée pour les sidecars." },
+        { "type": "list", "items": [
+          "**Activation** : porte de fonctionnalité `PodLevelResourceManagers`, désactivée par défaut en 1.37 ; introduite en alpha dans la 1.36.",
+          "**Dépendance** : elle s'appuie sur Pod-Level Resources, passé en bêta dans la 1.34.",
+          "**Observabilité** : le service gRPC `PodResources` (v1) gagne les champs `cpu_ids` et `memory` au niveau supérieur, ce qui évite aux outils de supervision de compter deux fois les allocations des conteneurs."
+        ] },
+        { "type": "usecases", "title": "Exemples d'utilisation", "items": [
+          { "icon": "📡", "title": "Fonctions réseau sensibles à la latence", "text": "Un traitement de paquets obtient des cœurs exclusifs, tandis que son agent de télémétrie partage un réservoir." },
+          { "icon": "💹", "title": "Calcul à faible latence", "text": "Un service de calcul garde un alignement NUMA strict sans immobiliser de cœurs pour ses sidecars." },
+          { "icon": "📊", "title": "Outil de supervision", "text": "Il lit les affectations exclusives du pod directement via l'API PodResources." }
+        ] },
+        { "type": "timeline", "title": "D'où l'on vient, où l'on va", "items": [
+          { "label": "Kubernetes 1.34", "text": "Pod-Level Resources passe en bêta." },
+          { "label": "Kubernetes 1.36", "text": "Pod-Level Resource Managers apparaît en alpha." },
+          { "label": "Kubernetes 1.37", "text": "Passage en bêta, désactivé par défaut ; la suite vers la disponibilité générale dépend des retours." }
+        ] },
+        { "type": "opinion", "title": "Notre avis", "paragraphs": [
+          "Cette évolution corrige une aberration pratique : payer des cœurs entiers pour des sidecars qui ne font presque rien. Elle ne concerne toutefois qu'un public restreint, celui qui règle finement NUMA et CPU Manager.",
+          "À un à trois ans, c'est une opinion : si la fonction atteint la disponibilité générale, elle simplifiera la description des pods multi-conteneurs et fera disparaître des contournements à base de quotas entiers par conteneur."
+        ], "verdict": "Une correction bienvenue, réservée à ceux qui exploitent déjà les gestionnaires du kubelet." }
+      ]
+    },
+    {
+      "id": "seeed-xiao-ips-esp32-s3-nrf52840",
+      "category": "electronique",
+      "title": "Seeed XIAO IPS : six cartes avec écran, micro et IMU autour de l'ESP32-S3 ou du nRF52840",
+      "summary": "Trois tailles d'écran IPS de 0,96 à 1,47 pouce, deux microcontrôleurs et des prix de 11,99 à 20,33 dollars.",
+      "tags": ["seeed", "xiao", "esp32-s3", "nrf52840", "écran"],
+      "importance": 3,
+      "readingMinutes": 4,
+      "publishedAt": "2026-10-17T16:19:00+02:00",
+      "sourceDate": "2026-10-17",
+      "icon": "📟",
+      "cover": { "url": "https://www.cnx-software.com/wp-content/uploads/2026/09/XIAO-IPS-Display-Series.jpg", "alt": "Les cartes de la série XIAO IPS de Seeed Studio avec leurs écrans", "credit": "cnx-software.com" },
+      "illustration": { "svg": "<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 640 360'><defs><linearGradient id='g' x1='0' y1='0' x2='1' y2='1'><stop offset='0' stop-color='#431407'/><stop offset='1' stop-color='#ea580c'/></linearGradient></defs><rect width='640' height='360' fill='url(#g)'/><rect x='200' y='50' width='240' height='260' rx='22' fill='#0f172a'/><rect x='222' y='72' width='196' height='150' rx='10' fill='#38bdf8'/><circle cx='320' cy='147' r='32' fill='#fff' fill-opacity='.8'/><rect x='232' y='240' width='40' height='30' rx='8' fill='#fbbf24'/><rect x='368' y='240' width='40' height='30' rx='8' fill='#fbbf24'/><rect x='300' y='286' width='40' height='14' rx='4' fill='#e5e7eb'/><path d='M120 120 H190 M450 120 H520 M120 200 H190 M450 200 H520' stroke='#fdba74' stroke-width='5'/></svg>" },
+      "sources": [
+        { "title": "Seeed Studio XIAO IPS display series features ESP32-S3 or nRF52840 SoC with 0.96-inch to 1.47-inch LCD options", "url": "https://www.cnx-software.com/2026/10/17/seeed-studio-xiao-ips-display-series-features-esp32-s3-or-nrf52840-soc-with-0-96-inch-to-1-47-inch-lcd-options/", "publisher": "CNX Software" }
+      ],
+      "blocks": [
+        { "type": "paragraph", "text": "Seeed Studio élargit sa gamme XIAO avec une famille de six cartes qui intègrent un petit écran IPS. Chaque carte associe soit un XIAO ESP32-S3 Plus, soit un XIAO nRF52840 Plus à l'un de trois écrans, ce qui permet de choisir entre connectivité Wi-Fi et basse consommation. CNX Software détaille la série le 17 octobre 2026." },
+        { "type": "heading", "text": "Les trois écrans", "level": 2 },
+        { "type": "table", "headers": ["Écran", "Résolution et pilote", "Tactile", "microSD", "Dimensions (mm)"], "rows": [
+          ["0,96 pouce", "80×160, ST7789", "Non", "Non", "18,8 × 43,6 × 10,6"],
+          ["1,14 pouce", "135×240, ST7789", "Non", "Non", "26 × 48 × 10,6"],
+          ["1,47 pouce", "172×320, JD9853A", "Capacitif", "Oui", "26,4 × 51,4 × 12,6"]
+        ] },
+        { "type": "heading", "text": "Ce que toutes les cartes partagent", "level": 2 },
+        { "type": "list", "items": [
+          "Une centrale inertielle à 6 axes LSM6DS3, utilisable pour le réveil au mouvement.",
+          "Un microphone numérique PDM, des boutons utilisateur et une alimentation par USB-C ou par batterie LiPo 3,7 V (connecteur JST à deux broches), avec surveillance de la tension.",
+          "Un interrupteur d'alimentation coulissant et un accès au débogage (JTAG pour l'ESP32-S3, SWD pour le nRF52840).",
+          "Une prise en charge d'Arduino IDE avec exemples pour l'écran, le micro, l'IMU, les boutons, la batterie et la carte microSD."
+        ] },
+        { "type": "paragraph", "text": "Côté microcontrôleurs, l'ESP32-S3 offre deux cœurs LX7 jusqu'à 240 MHz, 8 Mo de PSRAM et 16 Mo de flash, avec Wi-Fi et Bluetooth LE. Le nRF52840 est un Cortex-M4F jusqu'à 64 MHz avec 1 Mo de flash, 256 Ko de SRAM et 2 Mo de flash embarquée, plus BLE, 802.15.4 et NFC. Les consommations actives annoncées vont de 159,76 mA (ESP32-S3, 0,96 pouce) à 28,69 mA (nRF52840, 0,96 pouce)." },
+        { "type": "callout", "icon": "⚠️", "title": "Incohérences dans la source", "tone": "warn", "text": "L'article mentionne à la fois Bluetooth 5.4 et 5.0 pour le nRF52840, et place la microSD dans les spécifications de l'ESP32-S3 tout en la limitant au modèle 1,47 pouce. Vérifiez la fiche produit avant d'acheter." },
+        { "type": "usecases", "title": "Exemples d'utilisation", "items": [
+          { "icon": "⌚", "title": "Montre ou badge connecté", "text": "La version nRF52840 à faible consommation sert de petit afficheur portable avec réveil au mouvement." },
+          { "icon": "🏠", "title": "Afficheur domotique", "text": "La version ESP32-S3 tactile 1,47 pouce pilote une interface simple pour la maison connectée." },
+          { "icon": "🎙️", "title": "Prototype d'assistant vocal", "text": "Le micro PDM et les 8 Mo de PSRAM servent de base à un prototype de commande vocale." }
+        ] },
+        { "type": "timeline", "title": "D'où l'on vient, où l'on va", "items": [
+          { "label": "17 oct. 2026", "text": "CNX Software présente la série, vendue de 11,99 à 20,33 dollars sur AliExpress et de 15,90 à 19,90 dollars chez Seeed." },
+          { "label": "Ensuite", "text": "Aucune feuille de route n'est donnée ; l'intérêt dépendra de la maturité des exemples et de la disponibilité." }
+        ] },
+        { "type": "opinion", "title": "Notre avis", "paragraphs": [
+          "L'intérêt est de supprimer le câblage fastidieux écran, micro et capteur : la carte tient dans la main et se programme tout de suite. La consommation de l'ESP32-S3 écran allumé, autour de 130 à 160 mA, reste élevée pour une pile.",
+          "Vision à un à trois ans, présentée comme opinion : ces cartes tout-en-un deviendront le point de départ habituel des prototypes de petits objets connectés, au détriment des assemblages de modules."
+        ], "verdict": "Pratique pour prototyper vite, à choisir selon l'autonomie visée." }
+      ]
+    },
+    {
+      "id": "meta-muse-gadgets-sdk-esp32-raspberry-pi",
+      "category": "electronique",
+      "title": "Muse Gadgets : un SDK ouvert de Meta pour relier ESP32 et Raspberry Pi à un agent IA",
+      "summary": "Un projet annexe, sous licence Apache 2.0 pour l'essentiel du code, qui connecte des cartes de bricolage à l'agent Muse — avec des questions de confiance à poser.",
+      "tags": ["meta", "esp32", "raspberry-pi", "agent-ia", "domotique"],
+      "importance": 3,
+      "readingMinutes": 4,
+      "publishedAt": "2026-10-17T16:20:00+02:00",
+      "sourceDate": "2026-10-12",
+      "icon": "🧰",
+      "cover": { "url": "https://www.cnx-software.com/wp-content/uploads/2026/10/Muse-Gadgets.jpg", "alt": "Matériel compatible avec le SDK Muse Gadgets", "credit": "cnx-software.com" },
+      "illustration": { "svg": "<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 640 360'><defs><linearGradient id='g' x1='0' y1='0' x2='1' y2='1'><stop offset='0' stop-color='#451a03'/><stop offset='1' stop-color='#c2410c'/></linearGradient></defs><rect width='640' height='360' fill='url(#g)'/><circle cx='320' cy='180' r='56' fill='#fde68a'/><circle cx='300' cy='172' r='8' fill='#7c2d12'/><circle cx='340' cy='172' r='8' fill='#7c2d12'/><path d='M296 200 q24 20 48 0' stroke='#7c2d12' stroke-width='6' fill='none' stroke-linecap='round'/><rect x='90' y='140' width='90' height='70' rx='8' fill='#0f172a'/><rect x='460' y='140' width='90' height='70' rx='8' fill='#0f172a'/><path d='M180 175 H264 M376 175 H460' stroke='#fff' stroke-width='5' stroke-dasharray='8 8'/><rect x='100' y='150' width='70' height='36' rx='4' fill='#34d399'/><rect x='470' y='150' width='70' height='36' rx='4' fill='#38bdf8'/></svg>" },
+      "sources": [
+        { "title": "Facebook releases Muse Gadgets SDK for ESP32 and Raspberry Pi/Linux-based devices", "url": "https://www.cnx-software.com/2026/10/12/facebook-releases-muse-gadgets-sdk-for-esp32-and-raspberry-pi-linux-based-devices/", "publisher": "CNX Software" }
+      ],
+      "blocks": [
+        { "type": "paragraph", "text": "Meta publie un kit de développement ouvert nommé **Muse Gadgets**, qui connecte des cartes ESP32 et des ordinateurs Linux monocarte comme le Raspberry Pi à Muse, son agent d'IA personnel. Selon CNX Software, Nat Friedman, responsable produit chez Meta Superintelligence Labs, le présente comme un « projet annexe ». L'objectif : des moniteurs matériels et des applications d'IA physique." },
+        { "type": "heading", "text": "Ce que contient le projet", "level": 2 },
+        { "type": "list", "items": [
+          "**SDK ESP32** : affichage d'images, entrée et sortie audio, interfaces pour capteurs, actionneurs et boutons.",
+          "**SDK Linux** : pour Raspberry Pi et d'autres cartes, avec des usages suggérés comme l'administration système ou Home Assistant.",
+          "**Répertoire de compétences** : intégrations pour des appareils comme l'Apple HomePod Mini, des imprimantes Brother et Epson, des appareils ESPHome, des imprimantes 3D et des téléviseurs.",
+          "**Licence** : Apache 2.0, qui s'applique à la majeure partie du code seulement, d'après l'article."
+        ] },
+        { "type": "keyvalue", "items": [
+          { "label": "Matériel recommandé (Linux)", "value": "Raspberry Pi 5" },
+          { "label": "Matériel recommandé (ESP32)", "value": "Waveshare ESP32-S3-Touch-AMOLED-1.75C, Seeed reTerminal E1002 (e-ink couleur)" },
+          { "label": "Muse Home Link", "value": "5 000 exemplaires d'une carte ESP32-C5, gratuits pour les abonnés Muse aux États-Unis tant que le stock dure" },
+          { "label": "Mise en route", "value": "Jeton SDK Muse, acceptation des conditions, appairage via l'appli (Réglages > Appareils) en mode développeur" }
+        ] },
+        { "type": "callout", "icon": "⚠️", "title": "Points de vigilance", "tone": "warn", "text": "D'après l'article, la prise en charge d'autres cartes demande du travail, la compatibilité HDMI est annoncée sans détail, et la sécurité n'est pas abordée. Des lecteurs s'inquiètent de confier l'administration système à un agent IA." },
+        { "type": "usecases", "title": "Exemples d'utilisation", "items": [
+          { "icon": "🖥️", "title": "Moniteur d'un serveur domestique", "text": "Un Raspberry Pi expose des tâches d'administration à l'agent, avec les limites que l'utilisateur définit." },
+          { "icon": "🖨️", "title": "Atelier d'impression 3D", "text": "L'agent consulte l'état d'une imprimante via une compétence dédiée." },
+          { "icon": "📺", "title": "Afficheur e-ink", "text": "Un écran reTerminal affiche des informations calmes envoyées par l'agent." }
+        ] },
+        { "type": "timeline", "title": "D'où l'on vient, où l'on va", "items": [
+          { "label": "12 oct. 2026", "text": "CNX Software rapporte la publication du SDK sur GitHub." },
+          { "label": "À venir", "text": "La prise en charge des clés HDMI est prévue sans autre précision ; aucune autre date n'est donnée." }
+        ] },
+        { "type": "opinion", "title": "Notre avis", "paragraphs": [
+          "Le kit abaisse la barrière pour donner un corps matériel à un agent, mais il lie ces objets à un service précis et à un jeton fourni par Meta : ouvert dans le code, dépendant dans l'usage. C'est le point à examiner avant de bâtir quoi que ce soit de durable.",
+          "À un à trois ans, c'est notre lecture : les agents domestiques passeront par des protocoles ouverts et locaux pour gagner la confiance, sans quoi la question de l'accès aux machines restera un frein."
+        ], "verdict": "Intéressant pour expérimenter, à n'exposer à aucun système critique." }
+      ]
+    },
+    {
+      "id": "premier-badge-hack-the-north-1750",
+      "category": "electronique",
+      "title": "Premier badge électronique, 1 750 exemplaires : les leçons de Hack The North",
+      "summary": "Nicholas Ficara raconte ses erreurs d'empreintes, d'alimentation et d'orientation de composants, corrigées grâce à des séries de prototypes.",
+      "tags": ["badge", "pcb", "hackathon", "fabrication", "retour-d-expérience"],
+      "importance": 2,
+      "readingMinutes": 4,
+      "publishedAt": "2026-10-17T16:21:00+02:00",
+      "sourceDate": "2026-10-16",
+      "icon": "🪪",
+      "cover": { "url": "https://hackaday.com/wp-content/uploads/2026/10/hackthenorth-featured.jpg", "alt": "Badge électronique conçu pour le hackathon Hack The North", "credit": "hackaday.com" },
+      "illustration": { "svg": "<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 640 360'><defs><linearGradient id='g' x1='0' y1='0' x2='1' y2='1'><stop offset='0' stop-color='#3b0f0f'/><stop offset='1' stop-color='#b45309'/></linearGradient></defs><rect width='640' height='360' fill='url(#g)'/><path d='M320 30 V80' stroke='#fde68a' stroke-width='6'/><rect x='200' y='80' width='240' height='240' rx='20' fill='#14532d'/><rect x='225' y='105' width='190' height='100' rx='8' fill='#0f172a'/><rect x='240' y='120' width='60' height='10' rx='5' fill='#34d399'/><rect x='240' y='140' width='130' height='10' rx='5' fill='#34d399' fill-opacity='.6'/><circle cx='250' cy='250' r='14' fill='#fbbf24'/><circle cx='320' cy='250' r='14' fill='#fbbf24'/><circle cx='390' cy='250' r='14' fill='#fbbf24'/><path d='M225 290 H415' stroke='#fde68a' stroke-width='3' stroke-dasharray='6 5'/></svg>" },
+      "sources": [
+        { "title": "The Trials And Tribulations Of Your First Badge", "url": "https://hackaday.com/2026/10/16/the-trials-and-tribulations-of-your-first-badge/", "publisher": "Hackaday" }
+      ],
+      "blocks": [
+        { "type": "paragraph", "text": "Réaliser un circuit imprimé fonctionnel est une chose ; en livrer plus d'un millier en est une autre. Dans un article du 16 octobre 2026, Jenny List (Hackaday) relaie le retour d'expérience de **Nicholas Ficara**, dont le premier badge électronique, conçu pour le hackathon canadien **Hack The North**, a été fabriqué à 1 750 exemplaires." },
+        { "type": "heading", "text": "Les écueils rencontrés", "level": 2 },
+        { "type": "list", "items": [
+          "Des empreintes de composants incorrectes.",
+          "Des composants mal placés.",
+          "Des problèmes d'alimentation.",
+          "Des pièces pivotées par erreur."
+        ] },
+        { "type": "paragraph", "text": "Ces défauts ont été repérés grâce à une série de prototypes et de versions candidates avant la production complète. Les badges ont été livrés à temps pour l'événement, bien accueillis et réellement utilisés. L'article ne détaille pas les composants de ce badge, et renvoie au billet complet de l'auteur pour le matériel." },
+        { "type": "heading", "text": "Les conseils à retenir", "level": 2 },
+        { "type": "list", "items": [
+          "Prévoir des étapes de prototypes et de versions candidates pour attraper les erreurs avant la production en série.",
+          "Se méfier du passage à l'échelle : faire fonctionner une ou deux cartes est bien plus simple que d'en livrer des centaines ou des milliers qui marchent dès le premier jour.",
+          "Un commentateur recommande une relecture de conception avant toute commande de fabrication, y compris pour un prototype, en confrontant les hypothèses du schéma à la fiche technique du microcontrôleur ; c'est bien moins cher qu'un redépart de carte, qui peut coûter des semaines.",
+          "Après correction, vérifier que chaque remarque de la relecture a bien été résolue."
+        ] },
+        { "type": "usecases", "title": "Exemples d'utilisation", "items": [
+          { "icon": "🎪", "title": "Organisateur de conférence", "text": "Il prévoit trois séries de cartes de test avant de lancer la fabrication des badges de participants." },
+          { "icon": "👥", "title": "Collectif de makers", "text": "Il instaure une relecture croisée du schéma avant chaque commande." },
+          { "icon": "🎓", "title": "Étudiant en électronique", "text": "Il utilise le retour d'expérience comme liste de contrôle pour son premier circuit imprimé." }
+        ] },
+        { "type": "timeline", "title": "D'où l'on vient, où l'on va", "items": [
+          { "label": "Avant l'événement", "text": "Prototypes et versions candidates successifs pour repérer les erreurs." },
+          { "label": "Hack The North", "text": "Livraison des 1 750 badges, bien accueillis par les participants." },
+          { "label": "Ensuite", "text": "L'article cite aussi un badge Hacker Hotel de 2020 dont les auteurs ont dû corriger une erreur de pièce plus grave." }
+        ] },
+        { "type": "opinion", "title": "Notre avis", "paragraphs": [
+          "Le récit rappelle une règle simple : les erreurs de fabrication se paient à l'unité, mais se multiplient avec le tirage. Une heure de relecture de la fiche technique est l'investissement le plus rentable d'un projet matériel.",
+          "Vision à un à trois ans, formulée comme une opinion : les outils de vérification automatique de conception se banaliseront, mais la discipline des prototypes progressifs restera ce qui sauve les projets de badge, car chaque série révèle des défauts que l'on n'avait pas anticipés."
+        ], "verdict": "Un excellent retour d'expérience pour qui prépare sa première production en série." },
+        { "type": "callout", "icon": "📌", "title": "À retenir", "text": "Prototypez par étapes, faites relire votre schéma et vérifiez que chaque correction est effective." }
+      ]
+    }
+  ]
+}
