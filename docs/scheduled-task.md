@@ -10,9 +10,9 @@
 1. Met à jour la copie locale du dépôt (`git pull --no-rebase`).
 2. Lit le schéma, les rubriques et les articles des 3 derniers jours pour éviter les doublons.
 3. Recherche l'actualité réelle et récente pour chaque rubrique (tech, IA, cybersécurité, science, géographie, écologie, énergie, bâtiment, mobilité, droit, politique, finance, crypto, bourse), uniquement ce qui est nouveau depuis la dernière édition.
-4. Crée `data/editions/AAAA-MM-JJ-HHmm.json` (heure de Paris, jamais de remplacement d'une édition existante).
-5. Pour chaque article, rédige en français : contexte et faits sourcés, exemples d'utilisation, chronologie, avis et vision, icône, illustration SVG, image de couverture de la source (`og:image` vérifiée), et 1 à 3 schémas par édition.
-6. Vérifie le JSON, commit le seul nouveau fichier, `git pull --no-rebase` puis `git push origin main`. Le déploiement Pages démarre tout seul.
+4. Publie jusqu'à **trois éditions par exécution**, une par groupe de rubriques (tech ; science, énergie et territoire ; actualité et marchés), chacune dans `data/editions/AAAA-MM-JJ-HHmm.json` (heure de Paris, jamais de remplacement d'une édition existante), avec de 1 à 5 articles par rubrique selon l'actualité.
+5. Pour chaque article, rédige en français (500 à 1 200 mots) : contexte et faits sourcés, exemples d'utilisation, chronologie, avis et vision, icône, illustration SVG, image de couverture de la source (`og:image` vérifiée), et 1 à 3 schémas par édition.
+6. Vérifie le JSON, commit le fichier de chaque groupe juste après l'avoir écrit, `git pull --no-rebase` puis `git push origin main`. Le déploiement Pages démarre tout seul.
 
 ## Règles éditoriales
 
