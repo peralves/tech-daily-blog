@@ -147,9 +147,9 @@ motifs.default = motifs.web;
 export function illustration({ icon, hue = 220, seed = "", cover = null, svg = null, alt = "", motif = "web", cls = "" }) {
   const r = rng(seed);
   const art = el("div", { class: "art " + cls, style: `--h:${hue};--gx:${Math.floor(r() * 80)}%;--gy:${Math.floor(r() * 80)}%` });
-  const svg = el("div", { class: "art-svg", "aria-hidden": "true" });
-  svg.innerHTML = `<svg viewBox="0 0 640 360" preserveAspectRatio="xMidYMid slice" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">${(motifs[motif] || motifs.default)(r)}</svg>`;
-  art.append(svg, el("span", { class: "art-chip", "aria-hidden": "true", text: icon || "📰" }));
+  const layer = el("div", { class: "art-svg", "aria-hidden": "true" });
+  layer.innerHTML = `<svg viewBox="0 0 640 360" preserveAspectRatio="xMidYMid slice" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">${(motifs[motif] || motifs.default)(r)}</svg>`;
+  art.append(layer, el("span", { class: "art-chip", "aria-hidden": "true", text: icon || "📰" }));
   const src = svgUrl(svg) || (cover && safeUrl(cover));
   if (src) {
     const img = el("img", { src, alt, loading: "lazy", decoding: "async", referrerpolicy: "no-referrer" });
