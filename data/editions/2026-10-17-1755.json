@@ -1,0 +1,805 @@
+{
+    "schemaVersion":  "1.0",
+    "date":  "2026-10-17",
+    "generatedAt":  "2026-10-17T17:54:15+02:00",
+    "title":  "Tech Daily — TypeScript 7 en pratique, agents d\u0027IA et faille Metabase",
+    "summary":  "Édition du soir consacrée à la technique : le guide de migration de TypeScript 7.0, la gouvernance des agents d\u0027IA, le bilan de l\u0027opération REACTIV après la faille Metabase, la bêta de Memory QoS dans Kubernetes 1.37, une carte Orange Pi taillée pour l\u0027IA embarquée et les nouveautés web de juillet.",
+    "highlights":  [
+                       "TypeScript 7.0 : un compilateur en Go jusqu\u0027à douze fois plus rapide, mais des valeurs par défaut qui cassent des projets.",
+                       "REACTIV : 99 violations de données signalées à l\u0027ANSSI depuis le 1er août, dont 67 confirmées.",
+                       "Agents d\u0027IA : la semaine du 12 au 17 octobre place identité, bac à sable et supervision au cœur des annonces.",
+                       "Kubernetes 1.37 : Memory QoS passe en bêta et s\u0027active par défaut sur les nœuds cgroup v2.",
+                       "Orange Pi O1 : 16 TOPS et 4G/5G, mais un logiciel encore absent."
+                   ],
+    "meta":  {
+                 "generator":  "claude-scheduled-task"
+             },
+    "posts":  [
+                  {
+                      "id":  "typescript-7-migration-pratique",
+                      "category":  "dev",
+                      "title":  "TypeScript 7.0 en pratique : un compilateur en Go dix fois plus rapide, et ce qu\u0027il faut corriger avant de migrer",
+                      "summary":  "Sorti le 8 juillet 2026, TypeScript 7.0 réécrit le compilateur en Go. Les gains annoncés sont spectaculaires, mais de nouvelles valeurs par défaut et l\u0027absence d\u0027API stable imposent une migration réfléchie.",
+                      "tags":  [
+                                   "TypeScript",
+                                   "Go",
+                                   "compilateur",
+                                   "performance",
+                                   "migration"
+                               ],
+                      "importance":  4,
+                      "readingMinutes":  5,
+                      "publishedAt":  "2026-10-17T17:54:15+02:00",
+                      "sourceDate":  "2026-07-08",
+                      "icon":  "⚡",
+                      "cover":  {
+                                    "url":  "https://devblogs.microsoft.com/typescript/wp-content/uploads/sites/11/2026/07/ts7-0-stable-1-1.png",
+                                    "alt":  "Visuel de l\u0027annonce de TypeScript 7.0 sur le blog de l\u0027équipe",
+                                    "credit":  "devblogs.microsoft.com"
+                                },
+                      "sources":  [
+                                      {
+                                          "title":  "Announcing TypeScript 7.0",
+                                          "url":  "https://devblogs.microsoft.com/typescript/announcing-typescript-7-0/",
+                                          "publisher":  "Microsoft DevBlogs"
+                                      },
+                                      {
+                                          "title":  "Blog TypeScript : billets récents",
+                                          "url":  "https://devblogs.microsoft.com/typescript/",
+                                          "publisher":  "Microsoft DevBlogs"
+                                      }
+                                  ],
+                      "blocks":  [
+                                     {
+                                         "type":  "paragraph",
+                                         "text":  "Trois mois après sa publication, **TypeScript 7.0** est désormais l\u0027objet de nombreuses migrations. Annoncée le 8 juillet 2026 après une bêta en avril et une version candidate en juin, cette version remplace le compilateur historique, écrit en JavaScript, par un portage natif en **Go**. L\u0027équipe affirme que le comportement reste aussi fidèle que possible à celui de TypeScript 6.0, mais pour un gain de vitesse que l\u0027on attend rarement d\u0027un compilateur : un facteur de huit à douze sur les compilations complètes."
+                                     },
+                                     {
+                                         "type":  "heading",
+                                         "level":  2,
+                                         "text":  "Ce que mesure l\u0027équipe"
+                                     },
+                                     {
+                                         "type":  "paragraph",
+                                         "text":  "Les chiffres publiés dans l\u0027annonce portent sur de gros dépôts publics. Avec la configuration par défaut (quatre vérificateurs de types en parallèle, option `--checkers 4`), la compilation du dépôt de VS Code passe de 125,7 secondes à 10,6 secondes, soit un gain de 11,9. Sentry, Bluesky et Playwright gagnent autour de 8,7 à 8,9, tldraw environ 7,7. En passant à huit vérificateurs, VS Code descend à 7,51 secondes. La consommation de mémoire baisse de 6 % à 26 % selon les projets. Dans l\u0027éditeur, le délai avant l\u0027affichage de la première erreur sur VS Code tombe d\u0027environ 17,5 secondes à moins de 1,3 seconde."
+                                     },
+                                     {
+                                         "type":  "diagram",
+                                         "svg":  "\u003csvg xmlns=\u0027http://www.w3.org/2000/svg\u0027 viewBox=\u00270 0 640 260\u0027 font-family=\u0027system-ui,sans-serif\u0027\u003e\u003crect width=\u0027640\u0027 height=\u0027260\u0027 rx=\u002716\u0027 fill=\u0027#f4f1fb\u0027/\u003e\u003ctext x=\u002724\u0027 y=\u002736\u0027 font-size=\u002717\u0027 font-weight=\u0027700\u0027 fill=\u0027#2b2540\u0027\u003eCompilation du dépôt VS Code (secondes)\u003c/text\u003e\u003ctext x=\u002724\u0027 y=\u002778\u0027 font-size=\u002714\u0027 fill=\u0027#2b2540\u0027\u003eTypeScript 6.0\u003c/text\u003e\u003crect x=\u0027150\u0027 y=\u002760\u0027 width=\u0027440\u0027 height=\u002728\u0027 rx=\u00276\u0027 fill=\u0027#8c7bd1\u0027/\u003e\u003ctext x=\u0027160\u0027 y=\u002780\u0027 font-size=\u002714\u0027 font-weight=\u0027700\u0027 fill=\u0027#fff\u0027\u003e125,7 s\u003c/text\u003e\u003ctext x=\u002724\u0027 y=\u0027128\u0027 font-size=\u002714\u0027 fill=\u0027#2b2540\u0027\u003eTypeScript 7.0\u003c/text\u003e\u003crect x=\u0027150\u0027 y=\u0027110\u0027 width=\u002737\u0027 height=\u002728\u0027 rx=\u00276\u0027 fill=\u0027#3f9b6e\u0027/\u003e\u003ctext x=\u0027196\u0027 y=\u0027130\u0027 font-size=\u002714\u0027 font-weight=\u0027700\u0027 fill=\u0027#1f5c40\u0027\u003e10,6 s (4 vérificateurs)\u003c/text\u003e\u003ctext x=\u002724\u0027 y=\u0027178\u0027 font-size=\u002714\u0027 fill=\u0027#2b2540\u0027\u003eTypeScript 7.0\u003c/text\u003e\u003crect x=\u0027150\u0027 y=\u0027160\u0027 width=\u002726\u0027 height=\u002728\u0027 rx=\u00276\u0027 fill=\u0027#3f9b6e\u0027/\u003e\u003ctext x=\u0027186\u0027 y=\u0027180\u0027 font-size=\u002714\u0027 font-weight=\u0027700\u0027 fill=\u0027#1f5c40\u0027\u003e7,5 s (8 vérificateurs)\u003c/text\u003e\u003ctext x=\u002724\u0027 y=\u0027232\u0027 font-size=\u002712\u0027 fill=\u0027#4a4560\u0027\u003eMesures de l\u0027équipe TypeScript ; les résultats varient selon la machine et le projet.\u003c/text\u003e\u003c/svg\u003e",
+                                         "alt":  "Barres comparant le temps de compilation de VS Code : 125,7 s avec TypeScript 6.0, 10,6 s puis 7,5 s avec TypeScript 7.0",
+                                         "caption":  "Temps de compilation du dépôt VS Code, d\u0027après les mesures publiées par l\u0027équipe TypeScript."
+                                     },
+                                     {
+                                         "type":  "heading",
+                                         "level":  2,
+                                         "text":  "Comment c\u0027est obtenu"
+                                     },
+                                     {
+                                         "type":  "paragraph",
+                                         "text":  "Le portage suit « aussi fidèlement que possible » la structure de l\u0027ancien compilateur, ce qui limite les écarts de résultats. Le gain vient du code natif et du parallélisme : l\u0027analyse syntaxique et l\u0027émission des fichiers sont largement indépendantes d\u0027un fichier à l\u0027autre, et la vérification des types est répartie entre un nombre fixe de workers. Trois options pilotent ce comportement : `--checkers` (quatre par défaut), `--builders` pour les références de projets sous `--build`, et `--singleThreaded` pour revenir à un fonctionnement séquentiel, utile au débogage. Attention : `--builders` se combine de façon multiplicative avec `--checkers` et peut saturer une machine."
+                                     },
+                                     {
+                                         "type":  "heading",
+                                         "level":  2,
+                                         "text":  "Les changements qui cassent"
+                                     },
+                                     {
+                                         "type":  "list",
+                                         "ordered":  false,
+                                         "items":  [
+                                                       "Nouvelles valeurs par défaut : `strict` vaut désormais vrai, `module` vaut `esnext`, `rootDir` vaut `./` et `types` vaut `[]`. Les deux derniers sont les plus susceptibles de casser un projet : il faut fixer `rootDir` (par exemple `./src`) et lister explicitement les types (`[\"node\", \"jest\"]`).",
+                                                       "Erreurs franches : `target: es5`, `downlevelIteration`, les anciennes résolutions de modules `node`, `node10` et `classic`, les formats `amd`, `umd` et `systemjs`, ainsi que `baseUrl`.",
+                                                       "Les assertions d\u0027import `asserts` cèdent la place à `with`.",
+                                                       "Les types littéraux de gabarit préservent les points de code Unicode : un émoji n\u0027est plus coupé en deux demi-substituts.",
+                                                       "Le support de JSDoc dans les fichiers JavaScript est réaligné sur celui des fichiers `.ts`."
+                                                   ]
+                                     },
+                                     {
+                                         "type":  "paragraph",
+                                         "text":  "Le point le plus structurant est ailleurs : **TypeScript 7.0 ne fournit pas d\u0027API programmatique stable**. Une nouvelle API est annoncée pour la version 7.1. D\u0027ici là, le paquet `@typescript/typescript6` expose l\u0027ancienne API et l\u0027exécutable `tsc6`, ce qui permet de faire cohabiter les deux versions. Les outils qui s\u0027appuient sur cette API, comme typescript-eslint, doivent donc rester sur TypeScript 6 par alias npm. Il en va de même, pour l\u0027éditeur, de Vue, MDX, Astro et Svelte, et de la vérification des gabarits d\u0027Angular."
+                                     },
+                                     {
+                                         "type":  "usecases",
+                                         "title":  "Exemples d\u0027utilisation",
+                                         "items":  [
+                                                       {
+                                                           "icon":  "🏢",
+                                                           "title":  "Un monorepo de plusieurs centaines de paquets",
+                                                           "text":  "L\u0027intégration continue passe d\u0027un quart d\u0027heure à quelques minutes. L\u0027équipe garde `tsc6` pour les outils de lint et utilise `tsc` 7 pour les builds."
+                                                       },
+                                                       {
+                                                           "icon":  "🧑‍💻",
+                                                           "title":  "Un développeur front avec Vue ou Svelte",
+                                                           "text":  "Il conserve TypeScript 6.0 dans l\u0027éditeur pour les gabarits, mais lance `tsc` 7 en ligne de commande pour vérifier les types avant chaque commit."
+                                                       },
+                                                       {
+                                                           "icon":  "🔧",
+                                                           "title":  "Un projet ancien visant ES5",
+                                                           "text":  "La cible `es5` devenant une erreur, la migration passe d\u0027abord par un passage à une cible plus récente, avec une vérification des navigateurs réellement pris en charge."
+                                                       }
+                                                   ]
+                                     },
+                                     {
+                                         "type":  "timeline",
+                                         "title":  "D\u0027où l\u0027on vient, où l\u0027on va",
+                                         "items":  [
+                                                       {
+                                                           "label":  "Décembre 2025",
+                                                           "text":  "Point d\u0027étape sur le portage natif, alors nommé « Corsa »."
+                                                       },
+                                                       {
+                                                           "label":  "23 mars 2026",
+                                                           "text":  "TypeScript 6.0, dernière version fondée sur l\u0027ancien code JavaScript."
+                                                       },
+                                                       {
+                                                           "label":  "21 avril 2026",
+                                                           "text":  "Bêta de TypeScript 7.0."
+                                                       },
+                                                       {
+                                                           "label":  "8 juillet 2026",
+                                                           "text":  "Disponibilité générale de TypeScript 7.0."
+                                                       },
+                                                       {
+                                                           "label":  "À venir",
+                                                           "text":  "TypeScript 7.1, attendue avec la nouvelle API ; l\u0027équipe annonce une version avec nouveautés tous les trois à quatre mois."
+                                                       }
+                                                   ]
+                                     },
+                                     {
+                                         "type":  "opinion",
+                                         "title":  "Notre avis",
+                                         "paragraphs":  [
+                                                            "Le gain de vitesse n\u0027est pas un confort : à ce niveau, il change des habitudes. Une vérification de types qui prenait deux minutes devient un réflexe que l\u0027on lance avant chaque commit, et les agents de code, qui lisent en boucle les erreurs du compilateur, y gagnent aussi. Le revers est un coût de transition réel, concentré sur les outils qui dépendent de l\u0027ancienne API.",
+                                                            "À un ou trois ans, l\u0027enjeu sera la stabilité de la nouvelle API. Si elle arrive dans les délais annoncés, l\u0027écosystème de lint et de frameworks se rattachera vite au nouveau compilateur. Sinon, on risque une période où deux versions de TypeScript cohabitent dans la plupart des projets sérieux."
+                                                        ],
+                                         "verdict":  "Une migration à planifier dès maintenant, par étapes, en gardant TypeScript 6 sous la main pour les outils."
+                                     },
+                                     {
+                                         "type":  "callout",
+                                         "variant":  "info",
+                                         "title":  "À retenir",
+                                         "text":  "Fixez `rootDir` et `types`, testez avec `tsc` 7 en ligne de commande, et gardez `tsc6` pour les outils qui dépendent de l\u0027API jusqu\u0027à TypeScript 7.1."
+                                     }
+                                 ],
+                      "illustration":  {
+                                           "svg":  "\u003csvg xmlns=\u0027http://www.w3.org/2000/svg\u0027 viewBox=\u00270 0 640 360\u0027\u003e\u003cdefs\u003e\u003clinearGradient id=\u0027g\u0027 x1=\u00270\u0027 y1=\u00270\u0027 x2=\u00271\u0027 y2=\u00271\u0027\u003e\u003cstop offset=\u00270\u0027 stop-color=\u0027hsl(265,62%,32%)\u0027/\u003e\u003cstop offset=\u00271\u0027 stop-color=\u0027hsl(300,68%,52%)\u0027/\u003e\u003c/linearGradient\u003e\u003c/defs\u003e\u003crect width=\u0027640\u0027 height=\u0027360\u0027 fill=\u0027url(#g)\u0027/\u003e\u003ccircle cx=\u0027187\u0027 cy=\u0027127\u0027 r=\u0027110\u0027 fill=\u0027#fff\u0027 fill-opacity=\u0027.10\u0027/\u003e\u003ccircle cx=\u0027507\u0027 cy=\u0027267\u0027 r=\u0027150\u0027 fill=\u0027#fff\u0027 fill-opacity=\u0027.08\u0027/\u003e\u003crect x=\u0027360\u0027 y=\u002740\u0027 width=\u0027200\u0027 height=\u00278\u0027 rx=\u00274\u0027 fill=\u0027#fff\u0027 fill-opacity=\u0027.35\u0027/\u003e\u003crect x=\u0027360\u0027 y=\u002760\u0027 width=\u0027140\u0027 height=\u00278\u0027 rx=\u00274\u0027 fill=\u0027#fff\u0027 fill-opacity=\u0027.25\u0027/\u003e\u003crect x=\u002780\u0027 y=\u0027300\u0027 width=\u0027220\u0027 height=\u00278\u0027 rx=\u00274\u0027 fill=\u0027#fff\u0027 fill-opacity=\u0027.30\u0027/\u003e\u003ccircle cx=\u0027320\u0027 cy=\u0027180\u0027 r=\u002796\u0027 fill=\u0027#fff\u0027 fill-opacity=\u0027.18\u0027/\u003e\u003ccircle cx=\u0027320\u0027 cy=\u0027180\u0027 r=\u002796\u0027 fill=\u0027none\u0027 stroke=\u0027#fff\u0027 stroke-width=\u00274\u0027 stroke-opacity=\u0027.8\u0027/\u003e\u003ctext x=\u0027320\u0027 y=\u0027222\u0027 text-anchor=\u0027middle\u0027 font-size=\u0027112\u0027\u003e⚡\u003c/text\u003e\u003c/svg\u003e"
+                                       }
+                  },
+                  {
+                      "id":  "agents-ia-gouvernance-semaine-12-17-octobre",
+                      "category":  "ia",
+                      "title":  "Agents d\u0027IA : la semaine où identité, bac à sable et supervision deviennent le produit",
+                      "summary":  "Du 12 au 17 octobre, un agrégateur d\u0027actualités recense des annonces qui déplacent l\u0027attention du modèle vers l\u0027encadrement des agents : identités cryptographiques, isolation, journaux d\u0027audit. Les informations restent à confirmer auprès des éditeurs.",
+                      "tags":  [
+                                   "agents",
+                                   "gouvernance",
+                                   "sécurité",
+                                   "entreprise",
+                                   "Gemini"
+                               ],
+                      "importance":  4,
+                      "readingMinutes":  5,
+                      "publishedAt":  "2026-10-17T17:54:15+02:00",
+                      "sourceDate":  "2026-10-17",
+                      "icon":  "🤖",
+                      "sources":  [
+                                      {
+                                          "title":  "AI Agents News — Week of October 17, 2026",
+                                          "url":  "https://aiagentstore.ai/ai-agent-news/this-week",
+                                          "publisher":  "AI Agent Store"
+                                      }
+                                  ],
+                      "blocks":  [
+                                     {
+                                         "type":  "callout",
+                                         "variant":  "warning",
+                                         "title":  "Réserve sur les sources",
+                                         "text":  "Cet article repose sur un agrégateur d\u0027actualités, source secondaire dont les annonces n\u0027ont pas été recoupées avec les communiqués des éditeurs. Plusieurs informations sont présentées comme « rapportées » ; l\u0027agrégateur lui-même donne des dates contradictoires pour Gemini 4. À prendre comme un tableau de tendances, pas comme une vérification."
+                                     },
+                                     {
+                                         "type":  "paragraph",
+                                         "text":  "Quand on lit les annonces de la semaine du 12 au 17 octobre 2026, une même idée revient chez des éditeurs très différents : ce n\u0027est plus seulement la qualité du modèle qui se vend, mais **l\u0027encadrement de l\u0027agent** qui l\u0027utilise. Identité, permissions, isolation, traçabilité : le vocabulaire de la sécurité informatique s\u0027invite dans le marketing de l\u0027IA."
+                                     },
+                                     {
+                                         "type":  "heading",
+                                         "level":  2,
+                                         "text":  "Ce qui est rapporté"
+                                     },
+                                     {
+                                         "type":  "list",
+                                         "ordered":  false,
+                                         "items":  [
+                                                       "**Google** présenterait un agent Gemini « universel » pour le travail de connaissance, l\u0027analyse de données et l\u0027écriture de code. Chaque agent aurait une identité cryptographique, un bac à sable isolé et une gouvernance via une passerelle dédiée. Les nouvelles capacités n\u0027étaient pas encore publiques le 16 octobre.",
+                                                       "**Gemini 4 Argon** serait disponible via l\u0027API depuis le 14 octobre, avec un tarif d\u0027introduction de 2 dollars par million de jetons en entrée et 10 dollars en sortie. L\u0027agrégateur le décrit pourtant comme en test interne le 12 octobre : la date est donc incertaine.",
+                                                       "**OpenAI** déploierait des agents « toujours actifs » qui poursuivent un objectif entre les conversations, avec leur propre ordinateur dans le nuage et une mémoire persistante. Le lancement concernerait d\u0027abord certains abonnements, avec des restrictions régionales pour une offre en Europe.",
+                                                       "**Workday** met en avant un « Agent Harness » avec mémoire, garde-fous, contrôles régionaux des données et traces pas à pas. **Cisco Webex** permettrait d\u0027inviter des agents dans les réunions avec supervision humaine et journaux d\u0027audit.",
+                                                       "**Perplexity** aurait publié en source ouverte un bac à sable fondé sur des micro-machines virtuelles Firecracker, qui isole chaque tâche d\u0027agent et externalise le contrôle des identifiants."
+                                                   ]
+                                     },
+                                     {
+                                         "type":  "heading",
+                                         "level":  2,
+                                         "text":  "Le revers sécuritaire"
+                                     },
+                                     {
+                                         "type":  "paragraph",
+                                         "text":  "L\u0027agrégateur relaie aussi un signal d\u0027alerte : l\u0027agence indienne CERT-In enquêterait sur des agents utilisés en recherche et en test qui auraient accédé à des systèmes de production et lu des dossiers commerciaux confidentiels. Les causes identifiées seraient banales : des identifiants et des clés exposés dans du code, des configurations ou des contenus publics. C\u0027est exactement le type de défaut que relève l\u0027ANSSI dans son bilan de la faille Metabase (voir notre article de cybersécurité) : le danger vient moins d\u0027une sophistication nouvelle que de privilèges mal gardés."
+                                     },
+                                     {
+                                         "type":  "usecases",
+                                         "title":  "Exemples d\u0027utilisation",
+                                         "items":  [
+                                                       {
+                                                           "icon":  "🏛️",
+                                                           "title":  "Un service de ressources humaines",
+                                                           "text":  "Un agent prépare des attestations et des relances, mais chaque action est journalisée et soumise à validation humaine pour les décisions sensibles."
+                                                       },
+                                                       {
+                                                           "icon":  "🧪",
+                                                           "title":  "Une équipe de développement",
+                                                           "text":  "Chaque tâche d\u0027agent s\u0027exécute dans un bac à sable jetable, sans accès direct aux secrets : les clés sont fournies par un service extérieur, à durée limitée."
+                                                       },
+                                                       {
+                                                           "icon":  "🛡️",
+                                                           "title":  "Une direction informatique",
+                                                           "text":  "Elle tient un inventaire des agents actifs, de leurs permissions et de leurs actions, comme elle le fait déjà pour les comptes de service."
+                                                       }
+                                                   ]
+                                     },
+                                     {
+                                         "type":  "timeline",
+                                         "title":  "D\u0027où l\u0027on vient, où l\u0027on va",
+                                         "items":  [
+                                                       {
+                                                           "label":  "Jusqu\u0027ici",
+                                                           "text":  "Les assistants répondent à des questions ; l\u0027humain exécute les actions."
+                                                       },
+                                                       {
+                                                           "label":  "Octobre 2026",
+                                                           "text":  "Les éditeurs vendent des agents qui agissent et poursuivent des objectifs, avec une couche de gouvernance affichée."
+                                                       },
+                                                       {
+                                                           "label":  "Ensuite",
+                                                           "text":  "La question de la responsabilité et du contrôle réglementaire se posera, notamment dans le cadre européen sur l\u0027IA."
+                                                       }
+                                                   ]
+                                     },
+                                     {
+                                         "type":  "opinion",
+                                         "title":  "Notre avis",
+                                         "paragraphs":  [
+                                                            "Il est sain que la gouvernance devienne un argument commercial : un agent qui dispose de droits larges sans identité propre ni journal est un risque, pas un produit. Mais afficher des garde-fous n\u0027équivaut pas à les rendre efficaces, et les premiers incidents viendront probablement de configurations ordinaires, non de failles exotiques.",
+                                                            "À un ou trois ans, on peut s\u0027attendre à voir les agents traités comme des comptes à privilèges : inventaire, rotation des clés, revue périodique. Les organisations qui adopteront ces pratiques tôt auront un avantage sur celles qui découvriront le problème après un incident."
+                                                        ],
+                                         "verdict":  "La gouvernance des agents est une bonne nouvelle, à condition de la vérifier plutôt que de la croire sur parole."
+                                     }
+                                 ],
+                      "illustration":  {
+                                           "svg":  "\u003csvg xmlns=\u0027http://www.w3.org/2000/svg\u0027 viewBox=\u00270 0 640 360\u0027\u003e\u003cdefs\u003e\u003clinearGradient id=\u0027g\u0027 x1=\u00270\u0027 y1=\u00270\u0027 x2=\u00271\u0027 y2=\u00271\u0027\u003e\u003cstop offset=\u00270\u0027 stop-color=\u0027hsl(320,62%,32%)\u0027/\u003e\u003cstop offset=\u00271\u0027 stop-color=\u0027hsl(355,68%,52%)\u0027/\u003e\u003c/linearGradient\u003e\u003c/defs\u003e\u003crect width=\u0027640\u0027 height=\u0027360\u0027 fill=\u0027url(#g)\u0027/\u003e\u003ccircle cx=\u0027268\u0027 cy=\u0027168\u0027 r=\u0027110\u0027 fill=\u0027#fff\u0027 fill-opacity=\u0027.10\u0027/\u003e\u003ccircle cx=\u0027528\u0027 cy=\u0027308\u0027 r=\u0027150\u0027 fill=\u0027#fff\u0027 fill-opacity=\u0027.08\u0027/\u003e\u003crect x=\u0027360\u0027 y=\u002740\u0027 width=\u0027200\u0027 height=\u00278\u0027 rx=\u00274\u0027 fill=\u0027#fff\u0027 fill-opacity=\u0027.35\u0027/\u003e\u003crect x=\u0027360\u0027 y=\u002760\u0027 width=\u0027140\u0027 height=\u00278\u0027 rx=\u00274\u0027 fill=\u0027#fff\u0027 fill-opacity=\u0027.25\u0027/\u003e\u003crect x=\u002780\u0027 y=\u0027300\u0027 width=\u0027220\u0027 height=\u00278\u0027 rx=\u00274\u0027 fill=\u0027#fff\u0027 fill-opacity=\u0027.30\u0027/\u003e\u003ccircle cx=\u0027320\u0027 cy=\u0027180\u0027 r=\u002796\u0027 fill=\u0027#fff\u0027 fill-opacity=\u0027.18\u0027/\u003e\u003ccircle cx=\u0027320\u0027 cy=\u0027180\u0027 r=\u002796\u0027 fill=\u0027none\u0027 stroke=\u0027#fff\u0027 stroke-width=\u00274\u0027 stroke-opacity=\u0027.8\u0027/\u003e\u003ctext x=\u0027320\u0027 y=\u0027222\u0027 text-anchor=\u0027middle\u0027 font-size=\u0027112\u0027\u003e🤖\u003c/text\u003e\u003c/svg\u003e"
+                                       }
+                  },
+                  {
+                      "id":  "reactiv-anssi-faille-metabase-bilan",
+                      "category":  "cybersecurite",
+                      "title":  "REACTIV : après la faille Metabase, l\u0027ANSSI dresse un premier bilan de 99 violations de données",
+                      "summary":  "Le premier point de situation de l\u0027opération REACTIV fait état de 99 violations signalées depuis le 1er août, dont 67 confirmées. Une faille Metabase notée 10 sur 10 et des identifiants volés sans double authentification en sont les causes principales.",
+                      "tags":  [
+                                   "ANSSI",
+                                   "REACTIV",
+                                   "Metabase",
+                                   "fuite de données",
+                                   "double authentification"
+                               ],
+                      "importance":  5,
+                      "readingMinutes":  6,
+                      "publishedAt":  "2026-10-17T17:54:15+02:00",
+                      "sourceDate":  "2026-09-30",
+                      "icon":  "🔐",
+                      "cover":  {
+                                    "url":  "https://next.ink/wp-content/uploads/2023/12/anssi-1024x496.png",
+                                    "alt":  "Illustration associée à l\u0027ANSSI sur le site Next",
+                                    "credit":  "next.ink"
+                                },
+                      "sources":  [
+                                      {
+                                          "title":  "Sécurité : le premier point de situation REACTIV de l\u0027ANSSI illustre l\u0027ampleur du problème",
+                                          "url":  "https://next.ink/259353/securite-le-premier-point-de-situation-reactiv-de-lanssi-illustre-lampleur-du-probleme/",
+                                          "publisher":  "Next"
+                                      },
+                                      {
+                                          "title":  "Faille Metabase : neuf instances ministérielles compromises, l\u0027ANSSI parmi les victimes selon son bilan REACTIV",
+                                          "url":  "https://www.leto.legal/news/anssi-reactiv-faille-metabase-ministeres-2026",
+                                          "publisher":  "Leto"
+                                      }
+                                  ],
+                      "blocks":  [
+                                     {
+                                         "type":  "paragraph",
+                                         "text":  "Le 30 septembre 2026, le CERT-FR a publié le premier point de situation de **REACTIV**, l\u0027opération lancée par l\u0027ANSSI à la demande du Premier ministre, Sébastien Lecornu, et annoncée publiquement le 7 septembre. Le bilan est lourd : depuis le 1er août, **99 violations de données** ont été portées à la connaissance de l\u0027agence, dont 67 sont confirmées et 32 en cours de traitement. Neuf instances de l\u0027outil d\u0027analyse Metabase au sein de ministères ont été compromises."
+                                     },
+                                     {
+                                         "type":  "heading",
+                                         "level":  2,
+                                         "text":  "La faille Metabase en bref"
+                                     },
+                                     {
+                                         "type":  "paragraph",
+                                         "text":  "La vulnérabilité, référencée **CVE-2026-72898**, est une injection SQL notée 10 sur 10 selon l\u0027échelle CVSS. Elle permet à un utilisateur non authentifié d\u0027accéder à la base de données de l\u0027application et d\u0027obtenir les droits d\u0027administrateur de l\u0027instance. Metabase l\u0027a découverte le 3 août, alors qu\u0027elle était déjà exploitée, et a publié un correctif le 6 août. Une première attaque contre France VAE a eu lieu le 8 août ; la faille a aussi servi contre Zéro Logement Vacant, Qualicharge et, vraisemblablement, Docurba."
+                                     },
+                                     {
+                                         "type":  "diagram",
+                                         "svg":  "\u003csvg xmlns=\u0027http://www.w3.org/2000/svg\u0027 viewBox=\u00270 0 640 250\u0027 font-family=\u0027system-ui,sans-serif\u0027\u003e\u003crect width=\u0027640\u0027 height=\u0027250\u0027 rx=\u002716\u0027 fill=\u0027#eaf6f4\u0027/\u003e\u003ctext x=\u002724\u0027 y=\u002734\u0027 font-size=\u002717\u0027 font-weight=\u0027700\u0027 fill=\u0027#173f3a\u0027\u003eFaille Metabase : chronologie\u003c/text\u003e\u003cline x1=\u002750\u0027 y1=\u0027120\u0027 x2=\u0027590\u0027 y2=\u0027120\u0027 stroke=\u0027#2f8f83\u0027 stroke-width=\u00274\u0027/\u003e\u003cg fill=\u0027#2f8f83\u0027\u003e\u003ccircle cx=\u002750\u0027 cy=\u0027120\u0027 r=\u00279\u0027/\u003e\u003ccircle cx=\u0027150\u0027 cy=\u0027120\u0027 r=\u00279\u0027/\u003e\u003ccircle cx=\u0027250\u0027 cy=\u0027120\u0027 r=\u00279\u0027/\u003e\u003ccircle cx=\u0027370\u0027 cy=\u0027120\u0027 r=\u00279\u0027/\u003e\u003ccircle cx=\u0027480\u0027 cy=\u0027120\u0027 r=\u00279\u0027/\u003e\u003ccircle cx=\u0027590\u0027 cy=\u0027120\u0027 r=\u00279\u0027/\u003e\u003c/g\u003e\u003cg font-size=\u002713\u0027 fill=\u0027#173f3a\u0027 text-anchor=\u0027middle\u0027\u003e\u003ctext x=\u002750\u0027 y=\u002796\u0027 font-weight=\u0027700\u0027\u003e3 août\u003c/text\u003e\u003ctext x=\u002750\u0027 y=\u0027148\u0027\u003eFaille découverte,\u003c/text\u003e\u003ctext x=\u002750\u0027 y=\u0027164\u0027\u003edéjà exploitée\u003c/text\u003e\u003ctext x=\u0027150\u0027 y=\u002796\u0027 font-weight=\u0027700\u0027\u003e6 août\u003c/text\u003e\u003ctext x=\u0027150\u0027 y=\u0027148\u0027\u003eCorrectif\u003c/text\u003e\u003ctext x=\u0027150\u0027 y=\u0027164\u0027\u003epublié\u003c/text\u003e\u003ctext x=\u0027250\u0027 y=\u002796\u0027 font-weight=\u0027700\u0027\u003e8 août\u003c/text\u003e\u003ctext x=\u0027250\u0027 y=\u0027148\u0027\u003eAttaque contre\u003c/text\u003e\u003ctext x=\u0027250\u0027 y=\u0027164\u0027\u003eFrance VAE\u003c/text\u003e\u003ctext x=\u0027370\u0027 y=\u002796\u0027 font-weight=\u0027700\u0027\u003e24 août\u003c/text\u003e\u003ctext x=\u0027370\u0027 y=\u0027148\u0027\u003eAvis du CERT-FR\u003c/text\u003e\u003ctext x=\u0027370\u0027 y=\u0027164\u0027\u003esur Metabase\u003c/text\u003e\u003ctext x=\u0027480\u0027 y=\u002796\u0027 font-weight=\u0027700\u0027\u003e7 sept.\u003c/text\u003e\u003ctext x=\u0027480\u0027 y=\u0027148\u0027\u003eAnnonce publique\u003c/text\u003e\u003ctext x=\u0027480\u0027 y=\u0027164\u0027\u003ede REACTIV\u003c/text\u003e\u003ctext x=\u0027590\u0027 y=\u002796\u0027 font-weight=\u0027700\u0027\u003e30 sept.\u003c/text\u003e\u003ctext x=\u0027590\u0027 y=\u0027148\u0027\u003ePremier point\u003c/text\u003e\u003ctext x=\u0027590\u0027 y=\u0027164\u0027\u003ede situation\u003c/text\u003e\u003c/g\u003e\u003ctext x=\u002724\u0027 y=\u0027228\u0027 font-size=\u002712\u0027 fill=\u0027#35605a\u0027\u003eDates issues du point de situation REACTIV tel que rapporté par Next.\u003c/text\u003e\u003c/svg\u003e",
+                                         "alt":  "Frise chronologique de la faille Metabase du 3 août au 30 septembre 2026",
+                                         "caption":  "Chronologie de la faille Metabase et de la réponse de l\u0027ANSSI, d\u0027après le bilan REACTIV."
+                                     },
+                                     {
+                                         "type":  "heading",
+                                         "level":  2,
+                                         "text":  "Qui a été touché"
+                                     },
+                                     {
+                                         "type":  "list",
+                                         "ordered":  false,
+                                         "items":  [
+                                                       "**Le laboratoire d\u0027innovation de l\u0027ANSSI** : 118 comptes Metabase compromis, dont une trentaine de comptes externes. Les données concernées sont des statistiques d\u0027usage, des identifiants, des adresses électroniques et des mots de passe hachés.",
+                                                       "**La DINUM** : deux instances touchées, liées à ProConnect et à Nuage-Public. Selon l\u0027ANSSI, les données exfiltrées étaient déjà publiques.",
+                                                       "**D\u0027autres incidents** reposent sur des défauts plus classiques : des identifiants dérobés par des logiciels espions sur des postes personnels ou de partenaires, utilisés contre des services sans double authentification (PIGP de la DGFIP, cadastre, AEFE), ainsi que des sous-traitants compromis."
+                                                   ]
+                                     },
+                                     {
+                                         "type":  "heading",
+                                         "level":  2,
+                                         "text":  "Ce que dit l\u0027agence"
+                                     },
+                                     {
+                                         "type":  "paragraph",
+                                         "text":  "L\u0027ANSSI juge que l\u0027absence de double authentification, ou le recours à un second facteur faible comme le courriel, a facilité les intrusions : un mot de passe faible ou déjà fuité suffit alors à obtenir un accès. L\u0027application rigoureuse des correctifs est présentée comme la parade aux failles exploitées. Next relève toutefois que l\u0027avis du CERT-FR sur plusieurs failles Metabase n\u0027est paru que le 24 août, alors que trois des quatre étaient connues depuis le 6 août. Pour mener l\u0027opération, l\u0027agence a redéployé ses moyens et obtenu deux pouvoirs : centraliser la communication technique de crise et imposer aux ministères des mesures de protection immédiates dans des délais contraints. Son directeur, Vincent Strubel, a précisé que cet effort était temporaire et se faisait au détriment d\u0027autres aspects de la menace."
+                                     },
+                                     {
+                                         "type":  "usecases",
+                                         "title":  "Exemples d\u0027utilisation",
+                                         "items":  [
+                                                       {
+                                                           "icon":  "🏢",
+                                                           "title":  "Une PME qui utilise un outil de tableaux de bord",
+                                                           "text":  "Elle recense les instances exposées sur Internet, applique sans délai les correctifs et place l\u0027outil derrière un accès authentifié."
+                                                       },
+                                                       {
+                                                           "icon":  "🔑",
+                                                           "title":  "Une collectivité",
+                                                           "text":  "Elle impose une double authentification forte, par application ou clé matérielle, sur tous les services accessibles à distance, et non un code reçu par courriel."
+                                                       },
+                                                       {
+                                                           "icon":  "📋",
+                                                           "title":  "Un responsable de la sécurité",
+                                                           "text":  "Il suit les avis du CERT-FR, tient la liste des sous-traitants ayant accès au système et teste sa procédure de réponse à incident."
+                                                       }
+                                                   ]
+                                     },
+                                     {
+                                         "type":  "timeline",
+                                         "title":  "D\u0027où l\u0027on vient, où l\u0027on va",
+                                         "items":  [
+                                                       {
+                                                           "label":  "3 août 2026",
+                                                           "text":  "Metabase découvre la faille, déjà exploitée."
+                                                       },
+                                                       {
+                                                           "label":  "1er septembre 2026",
+                                                           "text":  "Le Premier ministre demande à l\u0027ANSSI de lancer une opération de réponse interministérielle, selon Leto."
+                                                       },
+                                                       {
+                                                           "label":  "7 septembre 2026",
+                                                           "text":  "REACTIV est annoncée publiquement."
+                                                       },
+                                                       {
+                                                           "label":  "30 septembre 2026",
+                                                           "text":  "Premier point de situation : 99 violations signalées, 67 confirmées."
+                                                       },
+                                                       {
+                                                           "label":  "Ensuite",
+                                                           "text":  "Aucun bilan postérieur n\u0027a été trouvé ; les incidents en cours de qualification restent à suivre."
+                                                       }
+                                                   ]
+                                     },
+                                     {
+                                         "type":  "opinion",
+                                         "title":  "Notre avis",
+                                         "paragraphs":  [
+                                                            "Le plus frappant dans ce bilan est la banalité des causes : un correctif appliqué trop tard, un second facteur absent, un poste personnel infecté. La faille Metabase est grave, mais elle n\u0027explique qu\u0027une partie du problème. Le reste tient à l\u0027hygiène élémentaire, que l\u0027agence rappelle depuis des années.",
+                                                            "À un ou trois ans, le pouvoir d\u0027imposer des mesures aux ministères pourrait devenir durable plutôt qu\u0027exceptionnel. Reste la question des moyens : l\u0027ANSSI admet elle-même que cette mobilisation se fait au détriment d\u0027autres missions."
+                                                        ],
+                                         "verdict":  "Une crise révélatrice : peu de sophistication, beaucoup de défauts d\u0027hygiène."
+                                     },
+                                     {
+                                         "type":  "callout",
+                                         "variant":  "info",
+                                         "title":  "À retenir",
+                                         "text":  "Appliquez les correctifs de sécurité sans délai, activez une double authentification robuste et ne supposez jamais qu\u0027un outil interne est invisible depuis Internet."
+                                     }
+                                 ],
+                      "illustration":  {
+                                           "svg":  "\u003csvg xmlns=\u0027http://www.w3.org/2000/svg\u0027 viewBox=\u00270 0 640 360\u0027\u003e\u003cdefs\u003e\u003clinearGradient id=\u0027g\u0027 x1=\u00270\u0027 y1=\u00270\u0027 x2=\u00271\u0027 y2=\u00271\u0027\u003e\u003cstop offset=\u00270\u0027 stop-color=\u0027hsl(175,62%,32%)\u0027/\u003e\u003cstop offset=\u00271\u0027 stop-color=\u0027hsl(210,68%,52%)\u0027/\u003e\u003c/linearGradient\u003e\u003c/defs\u003e\u003crect width=\u0027640\u0027 height=\u0027360\u0027 fill=\u0027url(#g)\u0027/\u003e\u003ccircle cx=\u0027175\u0027 cy=\u002775\u0027 r=\u0027110\u0027 fill=\u0027#fff\u0027 fill-opacity=\u0027.10\u0027/\u003e\u003ccircle cx=\u0027475\u0027 cy=\u0027215\u0027 r=\u0027150\u0027 fill=\u0027#fff\u0027 fill-opacity=\u0027.08\u0027/\u003e\u003crect x=\u0027360\u0027 y=\u002740\u0027 width=\u0027200\u0027 height=\u00278\u0027 rx=\u00274\u0027 fill=\u0027#fff\u0027 fill-opacity=\u0027.35\u0027/\u003e\u003crect x=\u0027360\u0027 y=\u002760\u0027 width=\u0027140\u0027 height=\u00278\u0027 rx=\u00274\u0027 fill=\u0027#fff\u0027 fill-opacity=\u0027.25\u0027/\u003e\u003crect x=\u002780\u0027 y=\u0027300\u0027 width=\u0027220\u0027 height=\u00278\u0027 rx=\u00274\u0027 fill=\u0027#fff\u0027 fill-opacity=\u0027.30\u0027/\u003e\u003ccircle cx=\u0027320\u0027 cy=\u0027180\u0027 r=\u002796\u0027 fill=\u0027#fff\u0027 fill-opacity=\u0027.18\u0027/\u003e\u003ccircle cx=\u0027320\u0027 cy=\u0027180\u0027 r=\u002796\u0027 fill=\u0027none\u0027 stroke=\u0027#fff\u0027 stroke-width=\u00274\u0027 stroke-opacity=\u0027.8\u0027/\u003e\u003ctext x=\u0027320\u0027 y=\u0027222\u0027 text-anchor=\u0027middle\u0027 font-size=\u0027112\u0027\u003e🔐\u003c/text\u003e\u003c/svg\u003e"
+                                       }
+                  },
+                  {
+                      "id":  "kubernetes-1-37-memory-qos-beta",
+                      "category":  "devops",
+                      "title":  "Kubernetes 1.37 : Memory QoS passe en bêta et s\u0027active par défaut sur cgroup v2",
+                      "summary":  "Annoncée le 14 septembre 2026, la bêta de Memory QoS donne au noyau Linux de meilleures indications pour traiter la mémoire des conteneurs. La fonctionnalité est active par défaut sur les nœuds cgroup v2.",
+                      "tags":  [
+                                   "Kubernetes",
+                                   "cgroup v2",
+                                   "mémoire",
+                                   "kubelet",
+                                   "Linux"
+                               ],
+                      "importance":  3,
+                      "readingMinutes":  4,
+                      "publishedAt":  "2026-10-17T17:54:15+02:00",
+                      "sourceDate":  "2026-09-14",
+                      "icon":  "🧠",
+                      "sources":  [
+                                      {
+                                          "title":  "Kubernetes v1.37: Memory QoS Graduates to Beta",
+                                          "url":  "https://kubernetes.io/blog/2026/09/14/kubernetes-v1-37-memory-qos-graduates-to-beta/",
+                                          "publisher":  "Kubernetes"
+                                      },
+                                      {
+                                          "title":  "The Shift to cgroup v2 in Kubernetes: What You Need to Know",
+                                          "url":  "https://kubernetes.io/blog/2026/10/06/kubernetes-cgroups-v2-shift/",
+                                          "publisher":  "Kubernetes"
+                                      }
+                                  ],
+                      "blocks":  [
+                                     {
+                                         "type":  "paragraph",
+                                         "text":  "Parmi les fonctionnalités de **Kubernetes 1.37**, Memory QoS est l\u0027une des plus discrètes, mais sans doute des plus concrètes pour qui exploite des grappes chargées. Dans un billet du 14 septembre 2026 signé par Qi Wang et Sohan Kunkerkar (Red Hat), le projet annonce son passage en **bêta**, avec une activation **par défaut** sur les nœuds Linux qui utilisent cgroup v2."
+                                     },
+                                     {
+                                         "type":  "heading",
+                                         "level":  2,
+                                         "text":  "Ce que l\u0027on sait de la fonctionnalité"
+                                     },
+                                     {
+                                         "type":  "paragraph",
+                                         "text":  "Memory QoS agit par l\u0027intermédiaire du contrôleur mémoire des cgroups. Son objectif est de fournir au noyau de meilleures indications sur la manière de traiter la mémoire de chaque conteneur, au lieu de se contenter d\u0027une limite brutale qui déclenche l\u0027arrêt du processus. Elle est née en version alpha dans Kubernetes 1.22, puis a été étendue dans la 1.36 avec une réservation de mémoire à plusieurs niveaux. Le billet ne figure pas intégralement dans la source consultée : les détails de configuration doivent donc être vérifiés dans la documentation officielle de votre version."
+                                     },
+                                     {
+                                         "type":  "paragraph",
+                                         "text":  "Le principe général, tel que le documentent les cgroups v2 du noyau Linux, repose sur deux seuils. Une valeur plancher (`memory.min`) protège une quantité de mémoire contre la récupération par le noyau ; elle est rattachée à la demande de mémoire du conteneur. Un seuil haut (`memory.high`) provoque, une fois dépassé, un ralentissement du conteneur et une récupération agressive de sa mémoire, sans le tuer d\u0027emblée ; il est rattaché à la limite. C\u0027est une information générale sur les cgroups, pas un extrait du billet."
+                                     },
+                                     {
+                                         "type":  "heading",
+                                         "level":  2,
+                                         "text":  "Pourquoi cgroup v2 devient incontournable"
+                                     },
+                                     {
+                                         "type":  "paragraph",
+                                         "text":  "Un autre billet du blog Kubernetes, daté du 6 octobre 2026, est consacré au virage vers cgroup v2. Memory QoS en est une illustration : la fonctionnalité n\u0027existe que sur ce modèle, plus récent, qui offre un contrôle unifié des ressources. Les exploitants qui tournent encore sur cgroup v1 passent donc à côté de ces améliorations."
+                                     },
+                                     {
+                                         "type":  "list",
+                                         "ordered":  false,
+                                         "items":  [
+                                                       "Vérifier que les nœuds utilisent bien cgroup v2 avant de compter sur la fonctionnalité.",
+                                                       "Contrôler les demandes (`requests`) mémoire des pods : c\u0027est à partir d\u0027elles que la protection est calculée.",
+                                                       "Tester sur une grappe de préproduction avant de passer en 1.37, puisque la fonction est désormais active par défaut."
+                                                   ]
+                                     },
+                                     {
+                                         "type":  "usecases",
+                                         "title":  "Exemples d\u0027utilisation",
+                                         "items":  [
+                                                       {
+                                                           "icon":  "🗄️",
+                                                           "title":  "Une base de données en conteneur",
+                                                           "text":  "La mémoire demandée est protégée, ce qui limite les évictions du cache lorsqu\u0027un voisin devient gourmand."
+                                                       },
+                                                       {
+                                                           "icon":  "📊",
+                                                           "title":  "Une plateforme multi-équipes",
+                                                           "text":  "Un service qui approche de sa limite est ralenti avant d\u0027être arrêté, ce qui laisse le temps aux alertes de se déclencher."
+                                                       },
+                                                       {
+                                                           "icon":  "🤖",
+                                                           "title":  "Des charges d\u0027IA par lots",
+                                                           "text":  "Les tâches de traitement par lots partagent un nœud sans que l\u0027une d\u0027elles ne provoque l\u0027arrêt brutal des autres."
+                                                       }
+                                                   ]
+                                     },
+                                     {
+                                         "type":  "timeline",
+                                         "title":  "D\u0027où l\u0027on vient, où l\u0027on va",
+                                         "items":  [
+                                                       {
+                                                           "label":  "Kubernetes 1.22",
+                                                           "text":  "Memory QoS apparaît en alpha."
+                                                       },
+                                                       {
+                                                           "label":  "Kubernetes 1.36",
+                                                           "text":  "Ajout de la réservation de mémoire à plusieurs niveaux."
+                                                       },
+                                                       {
+                                                           "label":  "Kubernetes 1.37",
+                                                           "text":  "Passage en bêta, activé par défaut sur cgroup v2."
+                                                       },
+                                                       {
+                                                           "label":  "À venir",
+                                                           "text":  "Le passage en disponibilité générale n\u0027est pas daté dans la source consultée."
+                                                       }
+                                                   ]
+                                     },
+                                     {
+                                         "type":  "opinion",
+                                         "title":  "Notre avis",
+                                         "paragraphs":  [
+                                                            "Activer par défaut une fonctionnalité qui modifie le comportement mémoire est un signal de confiance, mais aussi un risque pour les exploitants qui ne lisent pas les notes de version. Un ralentissement lié à un seuil haut mal compris peut ressembler à un problème applicatif.",
+                                                            "À un ou trois ans, la gestion fine de la mémoire devrait devenir un critère de choix des distributions et des plateformes, à mesure que les charges d\u0027IA, gourmandes en mémoire, se généralisent."
+                                                        ],
+                                         "verdict":  "Une amélioration utile, à tester en préproduction avant de mettre à jour."
+                                     }
+                                 ],
+                      "illustration":  {
+                                           "svg":  "\u003csvg xmlns=\u0027http://www.w3.org/2000/svg\u0027 viewBox=\u00270 0 640 360\u0027\u003e\u003cdefs\u003e\u003clinearGradient id=\u0027g\u0027 x1=\u00270\u0027 y1=\u00270\u0027 x2=\u00271\u0027 y2=\u00271\u0027\u003e\u003cstop offset=\u00270\u0027 stop-color=\u0027hsl(160,62%,32%)\u0027/\u003e\u003cstop offset=\u00271\u0027 stop-color=\u0027hsl(195,68%,52%)\u0027/\u003e\u003c/linearGradient\u003e\u003c/defs\u003e\u003crect width=\u0027640\u0027 height=\u0027360\u0027 fill=\u0027url(#g)\u0027/\u003e\u003ccircle cx=\u0027192\u0027 cy=\u002792\u0027 r=\u0027110\u0027 fill=\u0027#fff\u0027 fill-opacity=\u0027.10\u0027/\u003e\u003ccircle cx=\u0027492\u0027 cy=\u0027232\u0027 r=\u0027150\u0027 fill=\u0027#fff\u0027 fill-opacity=\u0027.08\u0027/\u003e\u003crect x=\u0027360\u0027 y=\u002740\u0027 width=\u0027200\u0027 height=\u00278\u0027 rx=\u00274\u0027 fill=\u0027#fff\u0027 fill-opacity=\u0027.35\u0027/\u003e\u003crect x=\u0027360\u0027 y=\u002760\u0027 width=\u0027140\u0027 height=\u00278\u0027 rx=\u00274\u0027 fill=\u0027#fff\u0027 fill-opacity=\u0027.25\u0027/\u003e\u003crect x=\u002780\u0027 y=\u0027300\u0027 width=\u0027220\u0027 height=\u00278\u0027 rx=\u00274\u0027 fill=\u0027#fff\u0027 fill-opacity=\u0027.30\u0027/\u003e\u003ccircle cx=\u0027320\u0027 cy=\u0027180\u0027 r=\u002796\u0027 fill=\u0027#fff\u0027 fill-opacity=\u0027.18\u0027/\u003e\u003ccircle cx=\u0027320\u0027 cy=\u0027180\u0027 r=\u002796\u0027 fill=\u0027none\u0027 stroke=\u0027#fff\u0027 stroke-width=\u00274\u0027 stroke-opacity=\u0027.8\u0027/\u003e\u003ctext x=\u0027320\u0027 y=\u0027222\u0027 text-anchor=\u0027middle\u0027 font-size=\u0027112\u0027\u003e🧠\u003c/text\u003e\u003c/svg\u003e"
+                                       }
+                  },
+                  {
+                      "id":  "orange-pi-o1-sbc-ia-4g-5g",
+                      "category":  "electronique",
+                      "title":  "Orange Pi O1 : un ordinateur monocarte à 16 TOPS et 4G/5G, lancé avant son logiciel",
+                      "summary":  "Annoncée le 15 octobre 2026, la Orange Pi O1 associe un SoC SOPHGO BM1688, un accélérateur d\u0027IA de 16 TOPS et un connecteur cellulaire. Le logiciel et la documentation manquent encore.",
+                      "tags":  [
+                                   "Orange Pi",
+                                   "SBC",
+                                   "IA embarquée",
+                                   "SOPHGO",
+                                   "4G/5G"
+                               ],
+                      "importance":  3,
+                      "readingMinutes":  4,
+                      "publishedAt":  "2026-10-17T17:54:15+02:00",
+                      "sourceDate":  "2026-10-15",
+                      "icon":  "🍊",
+                      "cover":  {
+                                    "url":  "https://www.cnx-software.com/wp-content/uploads/2026/10/Orange-Pi-O1.jpg",
+                                    "alt":  "Photographie de la carte Orange Pi O1",
+                                    "credit":  "cnx-software.com"
+                                },
+                      "sources":  [
+                                      {
+                                          "title":  "Orange Pi O1 SBC features 16 TOPS SOPHGO BM1688 AI SoC, supports 4G/5G cellular connectivity",
+                                          "url":  "https://www.cnx-software.com/2026/10/15/orange-pi-o1-sbc-features-16-tops-sophgo-bm1688-ai-soc-supports-4g-5g-cellular-connectivity/",
+                                          "publisher":  "CNX Software"
+                                      }
+                                  ],
+                      "blocks":  [
+                                     {
+                                         "type":  "paragraph",
+                                         "text":  "Les amateurs de cartes de développement connaissent bien les Orange Pi : des ordinateurs monocartes bon marché, souvent plus riches en connectique que leurs concurrents, mais réputés pour un logiciel qui arrive après le matériel. La **Orange Pi O1**, présentée le 15 octobre 2026 par CNX Software, confirme les deux traits : une fiche technique ambitieuse pour l\u0027IA embarquée, et une documentation qui reste à venir."
+                                     },
+                                     {
+                                         "type":  "heading",
+                                         "level":  2,
+                                         "text":  "Fiche technique"
+                                     },
+                                     {
+                                         "type":  "keyvalue",
+                                         "items":  [
+                                                       {
+                                                           "label":  "SoC",
+                                                           "value":  "SOPHGO BM1688 : huit cœurs Arm Cortex-A53 à 1,65 GHz, plus un coprocesseur RISC-V C906 à 1,2 GHz"
+                                                       },
+                                                       {
+                                                           "label":  "IA",
+                                                           "value":  "16 TOPS en INT8"
+                                                       },
+                                                       {
+                                                           "label":  "Vidéo",
+                                                           "value":  "décodage de 16 flux H.264/H.265 en 1080p30, encodage de 10 flux"
+                                                       },
+                                                       {
+                                                           "label":  "Mémoire",
+                                                           "value":  "8 ou 16 Go de LPDDR4/LPDDR4X"
+                                                       },
+                                                       {
+                                                           "label":  "Stockage",
+                                                           "value":  "eMMC optionnel de 16 à 128 Go, M.2 NVMe, SATA III, microSD"
+                                                       },
+                                                       {
+                                                           "label":  "Réseau",
+                                                           "value":  "deux ports Gigabit, Wi-Fi 6E, Bluetooth 5.3, module 4G/5G optionnel en M.2 avec emplacement SIM"
+                                                       },
+                                                       {
+                                                           "label":  "Alimentation",
+                                                           "value":  "USB-C jusqu\u0027à 20 V et 3,25 A"
+                                                       },
+                                                       {
+                                                           "label":  "Format",
+                                                           "value":  "90 x 70 mm, 76 g"
+                                                       },
+                                                       {
+                                                           "label":  "Prix",
+                                                           "value":  "195 dollars (8 Go) ou 325 dollars (16 Go), plus environ 7,9 dollars pour le refroidisseur actif"
+                                                       }
+                                                   ]
+                                     },
+                                     {
+                                         "type":  "paragraph",
+                                         "text":  "Côté connectique, on trouve une sortie HDMI 2.0, une interface d\u0027écran MIPI DSI, deux entrées caméra MIPI CSI, deux ports USB 3.0 et deux ports USB 2.0, un connecteur de 26 broches pour les entrées-sorties, une prise audio et un microphone intégré. La vente se fait sur AliExpress."
+                                     },
+                                     {
+                                         "type":  "heading",
+                                         "level":  2,
+                                         "text":  "Les réserves"
+                                     },
+                                     {
+                                         "type":  "paragraph",
+                                         "text":  "L\u0027auteur de l\u0027article relève que le constructeur lance son matériel avant que le logiciel ne soit prêt : une image Ubuntu est annoncée, mais le dossier de téléchargement est vide et la documentation inexistante pour l\u0027instant. Le fabricant met en avant l\u0027exécution locale de modèles de langage de petite taille, mais rien ne permet de le vérifier. Un refroidisseur actif est nécessaire, ce qui alourdit le coût et l\u0027usage, et le BM1688 est un SoC relativement ancien : l\u0027auteur s\u0027interroge sur l\u0027intérêt d\u0027un tel produit en 2026."
+                                     },
+                                     {
+                                         "type":  "usecases",
+                                         "title":  "Exemples d\u0027utilisation",
+                                         "items":  [
+                                                       {
+                                                           "icon":  "📹",
+                                                           "title":  "Vidéosurveillance locale",
+                                                           "text":  "Analyser plusieurs flux de caméras sur place, sans envoyer les images dans le nuage, avec une liaison 4G/5G de secours."
+                                                       },
+                                                       {
+                                                           "icon":  "🚚",
+                                                           "title":  "Passerelle mobile",
+                                                           "text":  "Équiper un véhicule ou un chantier isolé d\u0027une passerelle capable d\u0027analyser des images et de remonter des alertes par réseau cellulaire."
+                                                       },
+                                                       {
+                                                           "icon":  "🧰",
+                                                           "title":  "Banc d\u0027essai pour l\u0027IA embarquée",
+                                                           "text":  "Tester des modèles de vision de petite taille avant de choisir une plateforme industrielle plus coûteuse."
+                                                       }
+                                                   ]
+                                     },
+                                     {
+                                         "type":  "timeline",
+                                         "title":  "D\u0027où l\u0027on vient, où l\u0027on va",
+                                         "items":  [
+                                                       {
+                                                           "label":  "15 octobre 2026",
+                                                           "text":  "Présentation de la carte, vendue sur AliExpress."
+                                                       },
+                                                       {
+                                                           "label":  "À venir",
+                                                           "text":  "Manuel, image système et sources Linux promis sur la page produit, mais non disponibles à ce jour."
+                                                       }
+                                                   ]
+                                     },
+                                     {
+                                         "type":  "opinion",
+                                         "title":  "Notre avis",
+                                         "paragraphs":  [
+                                                            "Sur le papier, l\u0027équilibre entre puissance d\u0027IA, connectivité cellulaire et prix est séduisant. Mais une carte sans image système fiable est une promesse, pas un produit : le temps perdu à compiler un noyau ou à deviner une configuration coûte plus cher que l\u0027écart de prix avec une carte mieux supportée.",
+                                                            "À un ou trois ans, la course à la puissance d\u0027IA brute compte moins que la qualité des outils : les cartes qui s\u0027imposeront seront celles dont les piles logicielles sont maintenues, pas les plus gourmandes en TOPS."
+                                                        ],
+                                         "verdict":  "À surveiller, mais à n\u0027acheter qu\u0027une fois le logiciel publié et testé."
+                                     }
+                                 ],
+                      "illustration":  {
+                                           "svg":  "\u003csvg xmlns=\u0027http://www.w3.org/2000/svg\u0027 viewBox=\u00270 0 640 360\u0027\u003e\u003cdefs\u003e\u003clinearGradient id=\u0027g\u0027 x1=\u00270\u0027 y1=\u00270\u0027 x2=\u00271\u0027 y2=\u00271\u0027\u003e\u003cstop offset=\u00270\u0027 stop-color=\u0027hsl(30,62%,32%)\u0027/\u003e\u003cstop offset=\u00271\u0027 stop-color=\u0027hsl(65,68%,52%)\u0027/\u003e\u003c/linearGradient\u003e\u003c/defs\u003e\u003crect width=\u0027640\u0027 height=\u0027360\u0027 fill=\u0027url(#g)\u0027/\u003e\u003ccircle cx=\u0027240\u0027 cy=\u0027100\u0027 r=\u0027110\u0027 fill=\u0027#fff\u0027 fill-opacity=\u0027.10\u0027/\u003e\u003ccircle cx=\u0027380\u0027 cy=\u0027240\u0027 r=\u0027150\u0027 fill=\u0027#fff\u0027 fill-opacity=\u0027.08\u0027/\u003e\u003crect x=\u0027360\u0027 y=\u002740\u0027 width=\u0027200\u0027 height=\u00278\u0027 rx=\u00274\u0027 fill=\u0027#fff\u0027 fill-opacity=\u0027.35\u0027/\u003e\u003crect x=\u0027360\u0027 y=\u002760\u0027 width=\u0027140\u0027 height=\u00278\u0027 rx=\u00274\u0027 fill=\u0027#fff\u0027 fill-opacity=\u0027.25\u0027/\u003e\u003crect x=\u002780\u0027 y=\u0027300\u0027 width=\u0027220\u0027 height=\u00278\u0027 rx=\u00274\u0027 fill=\u0027#fff\u0027 fill-opacity=\u0027.30\u0027/\u003e\u003ccircle cx=\u0027320\u0027 cy=\u0027180\u0027 r=\u002796\u0027 fill=\u0027#fff\u0027 fill-opacity=\u0027.18\u0027/\u003e\u003ccircle cx=\u0027320\u0027 cy=\u0027180\u0027 r=\u002796\u0027 fill=\u0027none\u0027 stroke=\u0027#fff\u0027 stroke-width=\u00274\u0027 stroke-opacity=\u0027.8\u0027/\u003e\u003ctext x=\u0027320\u0027 y=\u0027222\u0027 text-anchor=\u0027middle\u0027 font-size=\u0027112\u0027\u003e🍊\u003c/text\u003e\u003c/svg\u003e"
+                                       }
+                  },
+                  {
+                      "id":  "plateforme-web-juillet-2026-retour",
+                      "category":  "web",
+                      "title":  "Rappel web de juillet 2026 : ruby-overhang, select analysable et Picture-in-Picture dans Firefox",
+                      "summary":  "Chrome 151, Firefox 153 et Safari 26.6 sont sortis en juillet 2026. Retour sur les fonctionnalités à surveiller, avec les réserves de compatibilité qui s\u0027imposent.",
+                      "tags":  [
+                                   "CSS",
+                                   "Chrome 151",
+                                   "Firefox 153",
+                                   "IndexedDB",
+                                   "Intl"
+                               ],
+                      "importance":  2,
+                      "readingMinutes":  4,
+                      "publishedAt":  "2026-10-17T17:54:15+02:00",
+                      "sourceDate":  "2026-07",
+                      "icon":  "🌐",
+                      "cover":  {
+                                    "url":  "https://web.dev/static/blog/web-platform-07-2026/hero.png",
+                                    "alt":  "Visuel du billet « Nouveautés de la plateforme web en juillet »",
+                                    "credit":  "web.dev"
+                                },
+                      "sources":  [
+                                      {
+                                          "title":  "New to the web platform in July",
+                                          "url":  "https://web.dev/blog/web-platform-07-2026",
+                                          "publisher":  "web.dev"
+                                      }
+                                  ],
+                      "blocks":  [
+                                     {
+                                         "type":  "paragraph",
+                                         "text":  "Chaque mois, l\u0027équipe de web.dev dresse la liste des fonctionnalités qui arrivent dans les navigateurs. Celle de **juillet 2026** n\u0027est plus de première fraîcheur, mais plusieurs de ses éléments gagnent à être connus au moment où les versions stables se diffusent : **Chrome 151**, **Firefox 153** et **Safari 26.6** sont sortis ce mois-là."
+                                     },
+                                     {
+                                         "type":  "heading",
+                                         "level":  2,
+                                         "text":  "Du côté de Chrome 151"
+                                     },
+                                     {
+                                         "type":  "list",
+                                         "ordered":  false,
+                                         "items":  [
+                                                       "**`ruby-overhang`** : cette propriété CSS contrôle si le texte d\u0027annotation « ruby » peut déborder sur les caractères voisins. Elle accepte `auto`, `spaces` ou `none`, ce dernier étant un alias de `spaces`. Elle évite les espaces inutiles en typographie d\u0027Asie orientale. Elle n\u0027est pas encore prise en charge par Firefox.",
+                                                       "**`animation` sur `AnimationEvent` et `TransitionEvent`** : l\u0027événement renvoie directement l\u0027objet `Animation` associé, ce qui évite de le rechercher à la main.",
+                                                       "**`shadowrootslotassignment`** sur `\u003ctemplate\u003e` : il permet l\u0027attribution manuelle des emplacements dans un Shadow DOM déclaratif. L\u0027article l\u0027attribue à Chrome 151, mais le tableau de compatibilité indique Chrome 152 : à vérifier."
+                                                   ]
+                                     },
+                                     {
+                                         "type":  "heading",
+                                         "level":  2,
+                                         "text":  "Du côté de Firefox 153"
+                                     },
+                                     {
+                                         "type":  "paragraph",
+                                         "text":  "Firefox accepte désormais d\u0027analyser tous les éléments imbriqués dans un `\u003cselect\u003e`, alors que seuls `\u003coption\u003e`, `\u003coptgroup\u003e` et `\u003chr\u003e` l\u0027étaient jusque-là : c\u0027est un pas vers des sélecteurs personnalisables dans tous les navigateurs. L\u0027API **Picture-in-Picture** arrive sur ordinateur, ce qui permet d\u0027afficher une vidéo dans une fenêtre flottante. Enfin, l\u0027API **Intl.Locale Info** ajoute des méthodes comme `getCalendars()` ou `getWeekInfo()` qui donnent les conventions d\u0027une langue sans bibliothèque externe. Autre nouveauté : `getAllRecords()` dans IndexedDB récupère en une seule requête les enregistrements avec leurs clés et leurs valeurs."
+                                     },
+                                     {
+                                         "type":  "code",
+                                         "language":  "javascript",
+                                         "text":  "const jaJP = new Intl.Locale(\"ja-JP\");\nconsole.log(jaJP.getCalendars()); // [\"gregory\", \"japanese\"]"
+                                     },
+                                     {
+                                         "type":  "paragraph",
+                                         "text":  "Safari 26.6 est cité, mais le billet ne détaille pas de nouveauté qui lui soit propre ; plusieurs tableaux de compatibilité renvoient à Safari 27."
+                                     },
+                                     {
+                                         "type":  "usecases",
+                                         "title":  "Exemples d\u0027utilisation",
+                                         "items":  [
+                                                       {
+                                                           "icon":  "🗓️",
+                                                           "title":  "Un site international",
+                                                           "text":  "Afficher les jours de la semaine et les calendriers propres à chaque pays grâce à `Intl.Locale`, sans dépendance supplémentaire."
+                                                       },
+                                                       {
+                                                           "icon":  "🎬",
+                                                           "title":  "Un lecteur vidéo",
+                                                           "text":  "Proposer la lecture en fenêtre flottante sur ordinateur dans Firefox, en gardant un repli pour les autres navigateurs."
+                                                       },
+                                                       {
+                                                           "icon":  "🗃️",
+                                                           "title":  "Une application hors ligne",
+                                                           "text":  "Lire des lots d\u0027enregistrements IndexedDB en un seul appel, plutôt que d\u0027écrire un curseur compliqué."
+                                                       }
+                                                   ]
+                                     },
+                                     {
+                                         "type":  "timeline",
+                                         "title":  "D\u0027où l\u0027on vient, où l\u0027on va",
+                                         "items":  [
+                                                       {
+                                                           "label":  "Juillet 2026",
+                                                           "text":  "Sorties stables de Chrome 151, Firefox 153 et Safari 26.6."
+                                                       },
+                                                       {
+                                                           "label":  "À venir",
+                                                           "text":  "Les tableaux de compatibilité annoncent plusieurs de ces fonctions dans Safari 27, sans date précisée dans la source."
+                                                       }
+                                                   ]
+                                     },
+                                     {
+                                         "type":  "opinion",
+                                         "title":  "Notre avis",
+                                         "paragraphs":  [
+                                                            "Ces fonctions sont modestes une à une, mais leur somme réduit la dépendance aux bibliothèques : internationalisation, accès aux données locales, composants de formulaire. C\u0027est le sens de l\u0027évolution de la plateforme depuis quelques années.",
+                                                            "À un ou trois ans, l\u0027enjeu sera moins l\u0027arrivée de nouvelles propriétés que leur adoption simultanée par les trois moteurs. Tant qu\u0027une fonction reste isolée, il faut prévoir un repli."
+                                                        ],
+                                         "verdict":  "Utile à connaître, à n\u0027adopter qu\u0027avec un plan de repli."
+                                     }
+                                 ],
+                      "illustration":  {
+                                           "svg":  "\u003csvg xmlns=\u0027http://www.w3.org/2000/svg\u0027 viewBox=\u00270 0 640 360\u0027\u003e\u003cdefs\u003e\u003clinearGradient id=\u0027g\u0027 x1=\u00270\u0027 y1=\u00270\u0027 x2=\u00271\u0027 y2=\u00271\u0027\u003e\u003cstop offset=\u00270\u0027 stop-color=\u0027hsl(210,62%,32%)\u0027/\u003e\u003cstop offset=\u00271\u0027 stop-color=\u0027hsl(245,68%,52%)\u0027/\u003e\u003c/linearGradient\u003e\u003c/defs\u003e\u003crect width=\u0027640\u0027 height=\u0027360\u0027 fill=\u0027url(#g)\u0027/\u003e\u003ccircle cx=\u0027146\u0027 cy=\u002786\u0027 r=\u0027110\u0027 fill=\u0027#fff\u0027 fill-opacity=\u0027.10\u0027/\u003e\u003ccircle cx=\u0027466\u0027 cy=\u0027226\u0027 r=\u0027150\u0027 fill=\u0027#fff\u0027 fill-opacity=\u0027.08\u0027/\u003e\u003crect x=\u0027360\u0027 y=\u002740\u0027 width=\u0027200\u0027 height=\u00278\u0027 rx=\u00274\u0027 fill=\u0027#fff\u0027 fill-opacity=\u0027.35\u0027/\u003e\u003crect x=\u0027360\u0027 y=\u002760\u0027 width=\u0027140\u0027 height=\u00278\u0027 rx=\u00274\u0027 fill=\u0027#fff\u0027 fill-opacity=\u0027.25\u0027/\u003e\u003crect x=\u002780\u0027 y=\u0027300\u0027 width=\u0027220\u0027 height=\u00278\u0027 rx=\u00274\u0027 fill=\u0027#fff\u0027 fill-opacity=\u0027.30\u0027/\u003e\u003ccircle cx=\u0027320\u0027 cy=\u0027180\u0027 r=\u002796\u0027 fill=\u0027#fff\u0027 fill-opacity=\u0027.18\u0027/\u003e\u003ccircle cx=\u0027320\u0027 cy=\u0027180\u0027 r=\u002796\u0027 fill=\u0027none\u0027 stroke=\u0027#fff\u0027 stroke-width=\u00274\u0027 stroke-opacity=\u0027.8\u0027/\u003e\u003ctext x=\u0027320\u0027 y=\u0027222\u0027 text-anchor=\u0027middle\u0027 font-size=\u0027112\u0027\u003e🌐\u003c/text\u003e\u003c/svg\u003e"
+                                       }
+                  }
+              ]
+}
