@@ -320,7 +320,8 @@ async function route() {
     if (parts[0] === "saved") return pageSaved();
     if (parts[0] === "archive") return pageArchive(new URLSearchParams(qs).get("q") || "");
     if (parts[0] === "d" && /^\d{4}-\d{2}-\d{2}$/.test(parts[1] || "")) return pageDay(parts[1]);
-    if (parts[0] === "p" && parts[1] && parts[2]) return await pagePost(parts[1], parts[2]);
+    // Les segments d'URL servent à construire un chemin de fichier : on n'accepte que le format attendu.
+    if (parts[0] === "p" && /^\d{4}-\d{2}-\d{2}(-\d{4})?$/.test(parts[1] || "") && /^[a-z0-9-]+$/.test(parts[2] || "")) return await pagePost(parts[1], parts[2]);
     notFound();
   } catch (err) {
     console.error(err);
