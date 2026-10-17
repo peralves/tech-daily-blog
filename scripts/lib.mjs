@@ -47,6 +47,15 @@ export function validateEdition(e) {
   return errors;
 }
 
+// Un article ne peut pas être publié après la génération de son édition (ni dans le futur).
+function clampTime(publishedAt, e) {
+  const gen = Date.parse(e.generatedAt);
+  const pub = Date.parse(publishedAt);
+  const fallback = Number.isNaN(gen) ? Date.parse(`${e.date}T06:00:00Z`) : gen;
+  const t = Number.isNaN(pub) ? fallback : Math.min(pub, Number.isNaN(gen) ? pub : gen);
+  return new Date(Math.min(t, Date.now())).toISOString();
+}
+
 export async function buildIndex() {
   const editions = await listEditions();
   const index = {
@@ -71,7 +80,7 @@ export async function buildIndex() {
         illustration: p.illustration?.svg && p.illustration.svg.length <= 8000 ? { svg: p.illustration.svg } : null,
         cover: p.cover?.url ? { url: p.cover.url, alt: p.cover.alt || "" } : null,
         // horodatage de l'article ; à défaut, celui de la génération
-        publishedAt: p.publishedAt || e.generatedAt || `${e.date}T06:00:00Z`,
+        publishedAt: clampTime(p.publishedAt, e),
       })),
     })),
   };

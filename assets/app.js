@@ -28,7 +28,9 @@ async function getJson(url) {
 }
 
 function buildModel() {
-  posts = index.editions.flatMap((e) => e.posts.map((p) => ({ ...p, edition: e.id, ts: Date.parse(p.publishedAt) || 0 })));
+  // Un article ne peut pas être publié après la génération de son édition, ni dans le futur : on plafonne l'horodatage.
+  const clamp = (v, e) => Math.min(Date.parse(v) || 0, Date.parse(e.generatedAt) || Infinity, Date.now());
+  posts = index.editions.flatMap((e) => e.posts.map((p) => ({ ...p, edition: e.id, ts: clamp(p.publishedAt, e) })));
   posts.sort((a, b) => b.ts - a.ts);
   const byDay = new Map();
   for (const p of posts) {
@@ -45,26 +47,121 @@ const catTag = (id) => el("span", { class: "tag", style: catStyle(id) }, cat(id)
 const art = (p, extra = {}) => illustration({ icon: p.icon || cat(p.category).icon, hue: cat(p.category).hue, motif: p.category, seed: p.edition + p.id, cover: p.cover?.url, svg: p.illustration?.svg, alt: p.cover?.alt || p.title, ...extra });
 const href = (p) => `#/p/${p.edition}/${p.id}`;
 
+/* ---------- Favoris & partage (localStorage) ---------- */
+
+const SAVED_KEY = "td:saved";
+let saved = new Set();
+try { saved = new Set(JSON.parse(localStorage.getItem(SAVED_KEY) || "[]")); } catch {}
+const keyOf = (p) => `${p.edition}/${p.id}`;
+const isSaved = (p) => saved.has(keyOf(p));
+function persist() { try { localStorage.setItem(SAVED_KEY, JSON.stringify([...saved])); } catch {} }
+
+// « Lu » : un article est marqué lu quand on l'ouvre ; on peut le remettre en non lu depuis sa page.
+const READ_KEY = "td:read";
+let read = new Set();
+try { read = new Set(JSON.parse(localStorage.getItem(READ_KEY) || "[]")); } catch {}
+const isRead = (p) => read.has(keyOf(p));
+function persistRead() { try { localStorage.setItem(READ_KEY, JSON.stringify([...read])); } catch {} }
+const readBadge = (p) => (isRead(p) ? el("span", { class: "read-badge", text: "✓ Lu" }) : null);
+function setRead(p, on) {
+  const k = keyOf(p);
+  if (on === read.has(k)) return;
+  on ? read.add(k) : read.delete(k);
+  persistRead();
+}
+
+const ICONS = {
+  bookmark: '<path d="M6 3h12a1 1 0 0 1 1 1v17l-7-4-7 4V4a1 1 0 0 1 1-1z"/>',
+  share: '<path d="M10 14a4 4 0 0 0 5.7 0l3-3a4 4 0 0 0-5.7-5.7l-1 1"/><path d="M14 10a4 4 0 0 0-5.7 0l-3 3a4 4 0 0 0 5.7 5.7l1-1"/>',
+};
+function icon(name, filled = false) {
+  const s = el("span", { class: "ico", "aria-hidden": "true" });
+  s.innerHTML = `<svg viewBox="0 0 24 24" width="18" height="18" fill="${filled ? "currentColor" : "none"}" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">${ICONS[name]}</svg>`;
+  return s;
+}
+
+let toastTimer;
+function toast(msg) {
+  document.querySelector(".toast")?.remove();
+  const t = el("div", { class: "toast", role: "status", text: msg });
+  document.body.append(t);
+  clearTimeout(toastTimer);
+  toastTimer = setTimeout(() => t.remove(), 2400);
+}
+
+const postUrl = (p) => `${location.origin}${location.pathname}${href(p)}`;
+async function copyLink(p) {
+  const url = postUrl(p);
+  try { await navigator.clipboard.writeText(url); }
+  catch {
+    const ta = el("textarea", { "aria-hidden": "true", style: "position:fixed;opacity:0" });
+    ta.value = url; document.body.append(ta); ta.select();
+    try { document.execCommand("copy"); } catch {}
+    ta.remove();
+  }
+  toast("Lien copié dans le presse-papiers");
+}
+
+function paintSaveBtn(b, p) {
+  const on = isSaved(p);
+  b.setAttribute("aria-pressed", String(on));
+  const label = on ? "Retirer des favoris" : "Enregistrer dans les favoris";
+  b.title = label;
+  const text = b.querySelector(".btn-text");
+  b.setAttribute("aria-label", label);
+  if (text) text.textContent = on ? "Enregistré" : "Enregistrer";
+  b.querySelector(".ico")?.replaceWith(icon("bookmark", on));
+}
+function paintNavCount() {
+  const n = document.getElementById("saved-count");
+  if (n) { n.textContent = saved.size ? String(saved.size) : ""; n.hidden = !saved.size; }
+}
+function toggleSaved(p) {
+  const k = keyOf(p);
+  if (saved.has(k)) { saved.delete(k); toast("Retiré des favoris"); } else { saved.add(k); toast("Ajouté aux favoris"); }
+  persist();
+  document.querySelectorAll(`.save[data-key="${k}"]`).forEach((b) => paintSaveBtn(b, p));
+  paintNavCount();
+  if (location.hash.startsWith("#/saved")) route();
+}
+function saveBtn(p, labeled = false) {
+  const b = el("button", { class: "save" + (labeled ? " btn" : " mini"), type: "button", "data-key": keyOf(p) }, icon("bookmark"), labeled ? el("span", { class: "btn-text" }) : null);
+  paintSaveBtn(b, p);
+  b.onclick = () => toggleSaved(p);
+  return b;
+}
+function shareBtn(p, labeled = false) {
+  const b = el("button", { class: "share" + (labeled ? " btn" : " mini"), type: "button", title: "Copier le lien", "aria-label": "Copier le lien de l'article" }, icon("share"), labeled ? el("span", { class: "btn-text", text: "Copier le lien" }) : null);
+  b.onclick = () => copyLink(p);
+  return b;
+}
+const matches = (p) => (filter === "all" ? true : filter === "unread" ? !isRead(p) : p.category === filter);
+const cardActions =(p) => el("div", { class: "card-actions" }, saveBtn(p), shareBtn(p));
+
 function postRow(p) {
   return el("div", { class: "row", style: catStyle(p.category) },
-    el("time", { class: "row-time", datetime: p.publishedAt, text: time(p) }),
-    el("a", { class: "card", href: href(p) },
-      art(p),
-      el("div", { class: "card-body" },
-        el("div", { class: "meta" }, catTag(p.category), p.readingMinutes ? `${p.readingMinutes} min` : null),
-        el("h3", { text: p.title }),
-        p.summary ? el("p", { text: p.summary }) : null,
-        el("div", { class: "meta" }, ...(p.tags || []).slice(0, 4).map((t) => "#" + t)))));
+    el("time", { class: "row-time", datetime: new Date(p.ts).toISOString(), text: time(p) }),
+    el("div", { class: "card-wrap" + (isRead(p) ? " is-read" : ""), "data-key": keyOf(p) },
+      el("a", { class: "card", href: href(p) },
+        art(p),
+        el("div", { class: "card-body" },
+          el("div", { class: "meta" }, catTag(p.category), p.readingMinutes ? `${p.readingMinutes} min` : null, readBadge(p)),
+          el("h3", { text: p.title }),
+          p.summary ? el("p", { text: p.summary }) : null,
+          el("div", { class: "meta" }, ...(p.tags || []).slice(0, 4).map((t) => "#" + t)))),
+      cardActions(p)));
 }
 
 function leadCard(p) {
-  return el("a", { class: "lead-card", href: href(p), style: catStyle(p.category) },
-    art(p),
-    el("div", { class: "lead-body" },
-      el("div", { class: "kicker", text: `À la une · ${cat(p.category).label} · ${time(p)}` }),
-      el("h2", { text: p.title }),
-      p.summary ? el("p", { text: p.summary }) : null,
-      el("div", { class: "meta" }, p.readingMinutes ? `${p.readingMinutes} min de lecture` : null, ...(p.tags || []).slice(0, 3).map((t) => "#" + t))));
+  return el("div", { class: "lead-wrap" + (isRead(p) ? " is-read" : ""), "data-key": keyOf(p) },
+    el("a", { class: "lead-card", href: href(p), style: catStyle(p.category) },
+      art(p),
+      el("div", { class: "lead-body" },
+        el("div", { class: "kicker", text: `À la une · ${cat(p.category).label} · ${time(p)}` }),
+        el("h2", { text: p.title }),
+        p.summary ? el("p", { text: p.summary }) : null,
+        el("div", { class: "meta" }, p.readingMinutes ? `${p.readingMinutes} min de lecture` : null, ...(p.tags || []).slice(0, 3).map((t) => "#" + t)))),
+    cardActions(p));
 }
 
 function setNav(name) {
@@ -77,10 +174,10 @@ function show(...nodes) {
 }
 
 function chipsBar(onChange) {
-  const ids = ["all", ...new Set(posts.map((p) => p.category))];
+  const ids = ["all", "unread", ...new Set(posts.map((p) => p.category))];
   const bar = el("div", { class: "chips", role: "group", "aria-label": "Filtrer par rubrique" });
   const paint = () => bar.replaceChildren(...ids.map((id) => {
-    const b = el("button", { class: "chip", type: "button", "data-all": id === "all" ? "" : null, style: id === "all" ? null : catStyle(id), "aria-pressed": String(filter === id) }, id === "all" ? "Tout" : `${cat(id).icon || ""} ${cat(id).label}`);
+    const b = el("button", { class: "chip", type: "button", "data-all": id === "all" || id === "unread" ? "" : null, style: id === "all" || id === "unread" ? null : catStyle(id), "aria-pressed": String(filter === id) }, id === "all" ? "Tout" : id === "unread" ? "Non lus" : `${cat(id).icon || ""} ${cat(id).label}`);
     b.onclick = () => { filter = id; paint(); onChange(); };
     return b;
   }));
@@ -104,7 +201,7 @@ function pageHome() {
   const more = el("button", { class: "more", type: "button", text: "Afficher les jours précédents" });
   more.onclick = () => { shownDays += 3; draw(); };
   function draw() {
-    const vis = days.map((d) => ({ date: d.date, posts: d.posts.filter((p) => (filter === "all" || p.category === filter) && !(filter === "all" && p === lead)) })).filter((d) => d.posts.length);
+    const vis = days.map((d) => ({ date: d.date, posts: d.posts.filter((p) => matches(p) && !(filter === "all" && p === lead)) })).filter((d) => d.posts.length);
     box.replaceChildren(...vis.slice(0, shownDays).map((d) => daySection(d.date, d.posts)), vis.length > shownDays ? more : el("span"));
     if (!vis.length) box.replaceChildren(el("div", { class: "empty", text: "Aucun article dans cette rubrique pour le moment." }));
   }
@@ -124,7 +221,7 @@ function pageDay(date) {
   document.title = `${dayLabel(date)} — Tech Daily`;
   const newer = days[k - 1], older = days[k + 1];
   const box = el("div");
-  const draw = () => box.replaceChildren(el("div", { class: "rail" }, days[k].posts.filter((p) => filter === "all" || p.category === filter).map(postRow)));
+  const draw = () => box.replaceChildren(el("div", { class: "rail" }, days[k].posts.filter((p) => matches(p)).map(postRow)));
   draw();
   show(
     el("section", { class: "hero" }, el("div", { class: "eyebrow" }, `Archives · ${plural(days[k].posts.length, "article")}`), el("h1", { text: dayLabel(date), style: "text-transform:capitalize" })),
@@ -148,8 +245,15 @@ async function pagePost(edId, id) {
   const sources = (p.sources || []).filter((s) => safeUrl(s.url));
   const link = (x, label, cls = "") => el("a", { class: "btn " + cls, href: href(x) }, label);
 
+  setRead(meta, true); // ouvrir un article = le marquer comme lu
+  const readBtn = el("button", { class: "btn", type: "button" });
+  const paintRead = () => { readBtn.textContent = isRead(meta) ? "✓ Lu · marquer non lu" : "Marquer comme lu"; };
+  paintRead();
+  readBtn.onclick = () => { setRead(meta, !isRead(meta)); paintRead(); };
+
   show(el("article", { class: "article", style: catStyle(p.category) },
     el("a", { class: "btn", href: `#/d/${meta.day}` }, "← ", dayLabel(meta.day)),
+    el("div", { class: "actions" }, saveBtn(meta, true), shareBtn(meta, true), readBtn),
     el("div", { class: "meta", style: "margin-top:24px" }, catTag(p.category), el("time", { datetime: new Date(meta.ts).toISOString(), text: `${dayLabel(meta.day)} · ${time(meta)}` }), p.readingMinutes ? `${p.readingMinutes} min de lecture` : null),
     el("h1", { text: p.title }),
     p.summary ? el("p", { class: "lead", text: p.summary }) : null,
@@ -191,6 +295,17 @@ function pageArchive(query = "") {
   show(el("section", { class: "hero" }, el("div", { class: "eyebrow", text: `${plural(posts.length, "article")} · ${plural(days.length, "jour")}` }), el("h1", { text: "Archives" })), input, list);
 }
 
+function pageSaved() {
+  setNav("saved");
+  document.title = "Favoris — Tech Daily";
+  const list = posts.filter(isSaved);
+  show(
+    el("section", { class: "hero" }, el("div", { class: "eyebrow", text: "Stockés sur cet appareil" }), el("h1", { text: "Favoris" }),
+      el("p", { class: "lead", text: list.length ? `${plural(list.length, "article")} enregistré${list.length > 1 ? "s" : ""}. Ils sont gardés dans ce navigateur uniquement.` : "" })),
+    list.length ? el("div", { class: "rail" }, list.map(postRow))
+      : el("div", { class: "empty" }, el("p", { text: "Aucun favori pour le moment. Utilise le marque-page d'une carte ou d'un article pour le retrouver ici." }), el("a", { class: "btn", href: "#/" }, "Parcourir les articles")));
+}
+
 function notFound() {
   show(el("div", { class: "error" }, el("p", { text: "Cette page n'existe pas ou n'existe plus." }), el("a", { class: "btn", href: "#/" }, "Revenir à l'accueil")));
 }
@@ -202,6 +317,7 @@ async function route() {
     const [path, qs] = (location.hash.slice(1) || "/").split("?");
     const parts = path.split("/").filter(Boolean);
     if (!parts.length) return pageHome();
+    if (parts[0] === "saved") return pageSaved();
     if (parts[0] === "archive") return pageArchive(new URLSearchParams(qs).get("q") || "");
     if (parts[0] === "d" && /^\d{4}-\d{2}-\d{2}$/.test(parts[1] || "")) return pageDay(parts[1]);
     if (parts[0] === "p" && parts[1] && parts[2]) return await pagePost(parts[1], parts[2]);
@@ -236,6 +352,7 @@ paintTheme();
 try {
   [index, { categories }] = await Promise.all([getJson("data/index.json"), getJson("data/categories.json")]);
   buildModel();
+  paintNavCount();
   addEventListener("hashchange", route);
   route();
 } catch (err) {
