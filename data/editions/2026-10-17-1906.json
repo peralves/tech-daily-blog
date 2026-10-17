@@ -1,0 +1,701 @@
+{
+ "schemaVersion": "1.0",
+ "date": "2026-10-17",
+ "generatedAt": "2026-10-17T19:09:36+02:00",
+ "title": "Tech Daily — Radios logicielles cachées, PostgreSQL 19, licences GitHub et alerte SonicWall",
+ "summary": "Une édition tech du samedi : des SDR cachées dans l'ESP32 et une puce LoRa, un ordinateur à relais pour le défi Retrocomputing, PostgreSQL 19 en version candidate, la conformité des licences sur GitHub et le suivi de l'alerte SonicWall SMA 1000.",
+ "highlights": [
+  "ESP32 et LR2021 : des modes de débogage transforment des puces courantes en radios logicielles.",
+  "PostgreSQL 19 RC 1 : REPACK, autovacuum parallèle, sortie visée le 19 novembre.",
+  "GitHub : la conformité des licences open source est généralement disponible.",
+  "SonicWall SMA 1000 : alerte CERT-FR close, mais corriger ne suffit pas après compromission."
+ ],
+ "meta": {
+  "generator": "claude-scheduled-task"
+ },
+ "posts": [
+  {
+   "id": "esp32-lora-sdr-caches",
+   "category": "electronique",
+   "title": "Des radios logicielles cachées dans l'ESP32 et dans une puce LoRa",
+   "summary": "Plusieurs bricoleurs exploitent un mode de débogage de l'ESP32 pour lire, puis émettre, des échantillons I/Q bruts ; une puce LoRa suit le même chemin.",
+   "tags": [
+    "SDR",
+    "ESP32",
+    "LoRa",
+    "radio",
+    "open source"
+   ],
+   "importance": 4,
+   "readingMinutes": 4,
+   "publishedAt": "2026-10-17T19:09:36+02:00",
+   "sourceDate": "2026-10-17",
+   "icon": "📻",
+   "sources": [
+    {
+     "title": "Discovering SDRs Everywhere",
+     "url": "https://hackaday.com/2026/10/17/discovering-sdrs-everywhere/",
+     "publisher": "Hackaday"
+    },
+    {
+     "title": "Another Wireless Chip Has A Hidden SDR Revealed",
+     "url": "https://hackaday.com/2026/10/15/another-wireless-chip-has-a-hidden-sdr-revealed/",
+     "publisher": "Hackaday"
+    },
+    {
+     "title": "Various projects find hidden SDR capabilities in ESP32 microcontrollers",
+     "url": "https://blog.adafruit.com/2026/10/12/various-projects-find-hidden-sdr-capabilities-in-esp32-microcontrollers/",
+     "publisher": "Adafruit"
+    }
+   ],
+   "illustration": {
+    "svg": "<svg xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"0 0 640 360\"><defs><linearGradient id=\"g\" x1=\"0\" y1=\"0\" x2=\"1\" y2=\"1\"><stop offset=\"0\" stop-color=\"hsl(30,65%,38%)\"/><stop offset=\"1\" stop-color=\"hsl(70,70%,22%)\"/></linearGradient></defs><rect width=\"640\" height=\"360\" fill=\"url(#g)\"/><g fill=\"none\" stroke=\"#fff\" stroke-width=\"6\" stroke-linecap=\"round\"><path d=\"M200 200a120 120 0 0 1 240 0\" opacity=\".45\"/><path d=\"M240 200a80 80 0 0 1 160 0\" opacity=\".7\"/><path d=\"M280 200a40 40 0 0 1 80 0\"/></g><rect x=\"270\" y=\"215\" width=\"100\" height=\"60\" rx=\"8\" fill=\"#fff\"/><g fill=\"#fff\"><circle cx=\"150\" cy=\"290\" r=\"6\"/><circle cx=\"490\" cy=\"290\" r=\"6\"/><rect x=\"120\" y=\"120\" width=\"30\" height=\"6\" rx=\"3\"/><rect x=\"490\" y=\"120\" width=\"30\" height=\"6\" rx=\"3\"/></g></svg>"
+   },
+   "blocks": [
+    {
+     "type": "paragraph",
+     "text": "Une radio logicielle (SDR, pour *software-defined radio*) est un récepteur dont le traitement du signal est fait par du code plutôt que par des circuits dédiés. Jusqu'ici, il fallait acheter un matériel spécifique. Depuis quelques semaines, des bricoleurs montrent que des puces déjà présentes dans des millions de cartes, à commencer par l'**ESP32**, embarquent un mode caché qui en fait presque une SDR. Hackaday résume l'affaire dans un article du 17 octobre 2026, qui prolonge des travaux relayés par Adafruit le 12 octobre."
+    },
+    {
+     "type": "heading",
+     "level": 2,
+     "text": "Ce qui a été découvert"
+    },
+    {
+     "type": "paragraph",
+     "text": "Selon Hackaday, les développeurs Espargos et h0m3us3r ont, apparemment de façon indépendante, mis au jour un mode de débogage « secret » de la famille ESP32. Au lieu de convertir immédiatement le signal reçu en données Wi-Fi, la puce peut exposer le flux brut de la radio sous forme de données **I/Q**, c'est-à-dire les deux composantes (en phase et en quadrature) qui décrivent entièrement un signal radio. C'est la matière première de n'importe quelle SDR."
+    },
+    {
+     "type": "paragraph",
+     "text": "La suite est venue vite. Toujours d'après Hackaday, un développeur nommé marble a non seulement fait fonctionner l'émission, mais l'a aussi intégrée au flux de données standard *osmosdr*, ce qui permet d'utiliser des outils de radio logicielle existants. Deux autres contributeurs, jochenhammes et z1000biker, ont obtenu en parallèle des montages capables d'émettre. Le projet ESP-SDR, dont Adafruit parlait dès le 30 septembre, propose pour sa part un visualiseur SDR dans le navigateur et un installateur de micrologiciel accessible depuis une page web."
+    },
+    {
+     "type": "heading",
+     "level": 2,
+     "text": "Une puce LoRa suit le même chemin"
+    },
+    {
+     "type": "paragraph",
+     "text": "Le 15 octobre, Hackaday rapportait qu'une autre puce sans fil cachait elle aussi une SDR. Samson1te a révélé la fonction présente dans la puce LoRa **LR2021**, dont la radio couvre de 150 à 960 MHz. Sa première démonstration est la réception de voix numérique au standard P25. Le principe est le même : un accès à des échantillons que le fabricant ne met pas en avant dans la documentation."
+    },
+    {
+     "type": "list",
+     "items": [
+      "**Ce qui est démontré** : réception d'échantillons I/Q bruts sur ESP32, premiers montages d'émission, usages expérimentaux (télévision numérique, voix, transmissions de test).",
+      "**Ce qui est limité** : selon Adafruit, la plupart des puces ne savent exporter que des instantanés vers un ordinateur, ce qui les cantonne au rôle d'analyseur de spectre plutôt que de démodulateur continu. L'exception citée est l'ESP32-S31, capable de diffuser le flux en continu.",
+      "**Ce qui reste incertain** : Hackaday et Adafruit signalent que les plages de fréquences ne sont pas entièrement validées sur le matériel et qu'une partie du micrologiciel a été produite avec l'aide d'une IA."
+     ]
+    },
+    {
+     "type": "diagram",
+     "svg": "<svg xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"0 0 640 260\" font-family=\"system-ui,sans-serif\"><defs><marker id=\"a\" markerWidth=\"8\" markerHeight=\"8\" refX=\"7\" refY=\"4\" orient=\"auto\"><path d=\"M0,0 L8,4 L0,8 z\" fill=\"#5b6b7a\"/></marker></defs><rect width=\"640\" height=\"260\" rx=\"16\" fill=\"#eef2f6\"/><rect x=\"20\" y=\"30\" width=\"160\" height=\"50\" rx=\"10\" fill=\"#fff\" stroke=\"#5b6b7a\"/><text x=\"100.0\" y=\"60.0\" text-anchor=\"middle\" font-size=\"15\" fill=\"#12202b\">Antenne Wi-Fi</text><line x1=\"180\" y1=\"55\" x2=\"215\" y2=\"55\" stroke=\"#5b6b7a\" stroke-width=\"2.5\" marker-end=\"url(#a)\"/><rect x=\"215\" y=\"30\" width=\"170\" height=\"50\" rx=\"10\" fill=\"#fff\" stroke=\"#5b6b7a\"/><text x=\"300.0\" y=\"60.0\" text-anchor=\"middle\" font-size=\"15\" fill=\"#12202b\">Radio du ESP32</text><line x1=\"385\" y1=\"55\" x2=\"420\" y2=\"55\" stroke=\"#5b6b7a\" stroke-width=\"2.5\" marker-end=\"url(#a)\"/><rect x=\"420\" y=\"30\" width=\"200\" height=\"50\" rx=\"10\" fill=\"#fff\" stroke=\"#5b6b7a\"/><text x=\"520.0\" y=\"60.0\" text-anchor=\"middle\" font-size=\"15\" fill=\"#12202b\">Démodulation Wi-Fi</text><line x1=\"520\" y1=\"80\" x2=\"520\" y2=\"110\" stroke=\"#5b6b7a\" stroke-width=\"2.5\" marker-end=\"url(#a)\"/><rect x=\"420\" y=\"110\" width=\"200\" height=\"50\" rx=\"10\" fill=\"#dfe8f1\" stroke=\"#5b6b7a\"/><text x=\"520.0\" y=\"140.0\" text-anchor=\"middle\" font-size=\"15\" fill=\"#12202b\">Paquets 802.11 classiques</text><text x=\"20\" y=\"135\" font-size=\"14\" fill=\"#12202b\" font-weight=\"600\">Chemin habituel</text><rect x=\"20\" y=\"180\" width=\"160\" height=\"50\" rx=\"10\" fill=\"#fff3e0\" stroke=\"#5b6b7a\"/><text x=\"100.0\" y=\"210.0\" text-anchor=\"middle\" font-size=\"15\" fill=\"#12202b\">Antenne</text><line x1=\"180\" y1=\"205\" x2=\"215\" y2=\"205\" stroke=\"#5b6b7a\" stroke-width=\"2.5\" marker-end=\"url(#a)\"/><rect x=\"215\" y=\"180\" width=\"170\" height=\"50\" rx=\"10\" fill=\"#fff3e0\" stroke=\"#5b6b7a\"/><text x=\"300.0\" y=\"210.0\" text-anchor=\"middle\" font-size=\"15\" fill=\"#12202b\">Radio du ESP32</text><line x1=\"385\" y1=\"205\" x2=\"420\" y2=\"205\" stroke=\"#5b6b7a\" stroke-width=\"2.5\" marker-end=\"url(#a)\"/><rect x=\"420\" y=\"180\" width=\"200\" height=\"50\" rx=\"10\" fill=\"#ffe0b2\" stroke=\"#5b6b7a\"/><text x=\"520.0\" y=\"210.0\" text-anchor=\"middle\" font-size=\"15\" fill=\"#12202b\">Échantillons I/Q bruts</text><text x=\"20\" y=\"168\" font-size=\"14\" fill=\"#12202b\" font-weight=\"600\">Mode de débogage détourné</text></svg>",
+     "alt": "Schéma comparant le chemin normal du signal dans un ESP32 et le mode de débogage qui expose les échantillons I/Q bruts.",
+     "caption": "Deux chemins pour le même signal : la démodulation Wi-Fi habituelle, ou la sortie brute exploitée par les projets SDR (schéma simplifié)."
+    },
+    {
+     "type": "usecases",
+     "title": "Exemples d'utilisation",
+     "items": [
+      {
+       "icon": "🔎",
+       "title": "Analyseur de spectre à quelques euros",
+       "text": "Une carte ESP32 déjà dans un tiroir peut servir à observer l'occupation d'une bande, par exemple pour comprendre pourquoi un réseau domestique est brouillé."
+      },
+      {
+       "icon": "🎓",
+       "title": "Atelier d'initiation au traitement du signal",
+       "text": "Un enseignant fait manipuler des données I/Q réelles dans un navigateur, sans acheter de récepteur dédié."
+      },
+      {
+       "icon": "📟",
+       "title": "Veille sur des objets LoRa",
+       "text": "Un passionné étudie le trafic de ses capteurs LoRa entre 150 et 960 MHz pour vérifier leur comportement radio."
+      }
+     ]
+    },
+    {
+     "type": "timeline",
+     "title": "D'où l'on vient, où l'on va",
+     "items": [
+      {
+       "label": "30 septembre 2026",
+       "text": "Adafruit présente ESP-SDR, qui exploite une capture I/Q brute non documentée de l'ESP32."
+      },
+      {
+       "label": "12 octobre 2026",
+       "text": "Adafruit recense plusieurs projets qui trouvent des capacités SDR cachées dans les ESP32."
+      },
+      {
+       "label": "15 octobre 2026",
+       "text": "Hackaday relaie la fonction SDR découverte dans la puce LoRa LR2021."
+      },
+      {
+       "label": "17 octobre 2026",
+       "text": "Hackaday synthétise les travaux sur l'émission et la réception ; les validations matérielles restent à faire."
+      }
+     ]
+    },
+    {
+     "type": "opinion",
+     "title": "Notre avis",
+     "paragraphs": [
+      "Le plus intéressant n'est pas la performance, modeste, mais le déplacement des usages : une puce achetée pour sa connectivité devient un instrument de mesure. Cela ouvre la radio à des publics qui n'auraient jamais investi dans un matériel dédié, et cela rappelle que les modes de débogage constituent une surface d'expérimentation, mais aussi de risque.",
+      "D'ici un à trois ans, on peut raisonnablement s'attendre à ce que les fabricants documentent ou verrouillent ces accès. Le point de vigilance est réglementaire : émettre sur des bandes radio est encadré en France (ANFR, Arcep), et la facilité technique ne dispense pas de respecter ces règles."
+     ],
+     "verdict": "Une découverte ludique et prometteuse, mais encore expérimentale : à suivre avec enthousiasme et prudence."
+    },
+    {
+     "type": "callout",
+     "icon": "📌",
+     "tone": "info",
+     "text": "Les montages d'émission relèvent de la réglementation radio. Les résultats cités viennent de projets communautaires récents, dont certains non validés sur le matériel."
+    }
+   ],
+   "extended": true
+  },
+  {
+   "id": "ordinateur-relais-16-bits-retrocomputing",
+   "category": "electronique",
+   "title": "Un ordinateur 16 bits à relais calcule π et exécute Dijkstra pour le défi Retrocomputing",
+   "summary": "Un amateur construit un ordinateur à relais de 16 bits à accumulateur, présenté au défi Retrocomputing 2026 de Hackaday, ouvert jusqu'au 27 octobre.",
+   "tags": [
+    "retrocomputing",
+    "relais",
+    "Hackaday",
+    "homebrew",
+    "Arduino"
+   ],
+   "importance": 3,
+   "readingMinutes": 5,
+   "publishedAt": "2026-10-17T19:09:36+02:00",
+   "sourceDate": "2026-10-11",
+   "icon": "🔌",
+   "sources": [
+    {
+     "title": "2026 Retrocomputing Challenge: 16-Bit Homebrew Relay Computer",
+     "url": "https://hackaday.com/2026/09/12/2026-retrocomputing-challenge-16-bit-homebrew-relay-computer/",
+     "publisher": "Hackaday"
+    },
+    {
+     "title": "16-bit Relay Computer Runs Pi and Dijkstra",
+     "url": "https://www.open-electronics.org/a-16-bit-relay-computer-runs-pi-and-dijkstra/",
+     "publisher": "Open Electronics"
+    },
+    {
+     "title": "Announcing The 2026 Hackaday Retrocomputing Challenge",
+     "url": "https://hackaday.com/2026/08/18/announcing-the-2026-hackaday-retrocomputing-challenge/",
+     "publisher": "Hackaday"
+    }
+   ],
+   "illustration": {
+    "svg": "<svg xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"0 0 640 360\"><defs><linearGradient id=\"g\" x1=\"0\" y1=\"0\" x2=\"1\" y2=\"1\"><stop offset=\"0\" stop-color=\"hsl(30,65%,38%)\"/><stop offset=\"1\" stop-color=\"hsl(70,70%,22%)\"/></linearGradient></defs><rect width=\"640\" height=\"360\" fill=\"url(#g)\"/><g fill=\"#fff\"><rect x=\"150\" y=\"110\" width=\"70\" height=\"90\" rx=\"8\"/><rect x=\"250\" y=\"110\" width=\"70\" height=\"90\" rx=\"8\"/><rect x=\"350\" y=\"110\" width=\"70\" height=\"90\" rx=\"8\"/><rect x=\"450\" y=\"110\" width=\"70\" height=\"90\" rx=\"8\"/></g><g fill=\"hsl(30,70%,30%)\"><circle cx=\"185\" cy=\"155\" r=\"14\"/><rect x=\"265\" y=\"145\" width=\"40\" height=\"20\"/><circle cx=\"385\" cy=\"155\" r=\"14\"/><rect x=\"465\" y=\"145\" width=\"40\" height=\"20\"/></g><g stroke=\"#fff\" stroke-width=\"5\" fill=\"none\"><path d=\"M150 240h370\"/><path d=\"M185 200v40M285 200v40M385 200v40M485 200v40\"/></g><g fill=\"#ffd54f\"><circle cx=\"190\" cy=\"285\" r=\"6\"/><circle cx=\"290\" cy=\"285\" r=\"6\"/><circle cx=\"440\" cy=\"285\" r=\"6\"/></g></svg>"
+   },
+   "blocks": [
+    {
+     "type": "paragraph",
+     "text": "À l'ère des processeurs à plusieurs milliards de transistors, un amateur construit un ordinateur dont le cœur logique est fait de **relais électromécaniques**, ces petits interrupteurs qui claquent à chaque calcul. Le projet, un ordinateur 16 bits « maison », a été présenté par Hackaday le 12 septembre 2026 dans le cadre du défi Retrocomputing 2026, puis détaillé par Open Electronics le 11 octobre. Il illustre ce que la communauté appelle le *retrocomputing* : refaire, avec des moyens anciens, ce que l'on sait faire aujourd'hui en quelques lignes de code."
+    },
+    {
+     "type": "heading",
+     "level": 2,
+     "text": "Une architecture volontairement simple"
+    },
+    {
+     "type": "paragraph",
+     "text": "Selon Hackaday, la machine est organisée autour d'un seul registre, l'accumulateur (nommé ACCU) : toutes les opérations arithmétiques ainsi que les chargements et rangements de données passent par lui. Le jeu d'instructions compte 19 instructions. Open Electronics ajoute trois modes d'adressage et un registre dédié aux sous-programmes, limité à un seul niveau d'imbrication."
+    },
+    {
+     "type": "paragraph",
+     "text": "La partie logique repose sur des relais à auto-maintien alimentés en 24 V. Particularité notable : la mémoire n'est pas faite de relais mais confiée à un Arduino, et un second Arduino, distinct, génère l'horloge. Ce compromis est classique dans les projets amateurs, car la mémoire à relais est très coûteuse en composants. Le résultat reste un calculateur dont le comportement logique se lit, littéralement, à l'oreille."
+    },
+    {
+     "type": "list",
+     "items": [
+      "**Calculs démontrés** : trois décimales de π, obtenues en environ huit minutes de cliquetis, selon Hackaday ; une racine carrée entière ; l'algorithme de plus court chemin de Dijkstra, d'après Open Electronics.",
+      "**Affichage** : une matrice de LED de 32×32, lente à se rafraîchir. Hackaday prévient qu'il ne faut pas s'attendre à des images fluides.",
+      "**Origine du projet** : une première version figurait déjà au défi « un hertz » de l'année précédente, où elle faisait clignoter un voyant."
+     ]
+    },
+    {
+     "type": "diagram",
+     "svg": "<svg xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"0 0 640 260\" font-family=\"system-ui,sans-serif\"><defs><marker id=\"a\" markerWidth=\"8\" markerHeight=\"8\" refX=\"7\" refY=\"4\" orient=\"auto\"><path d=\"M0,0 L8,4 L0,8 z\" fill=\"#5b6b7a\"/></marker></defs><rect width=\"640\" height=\"260\" rx=\"16\" fill=\"#eef2f6\"/><rect x=\"20\" y=\"20\" width=\"150\" height=\"48\" rx=\"10\" fill=\"#fff\" stroke=\"#5b6b7a\"/><text x=\"95.0\" y=\"49.0\" text-anchor=\"middle\" font-size=\"15\" fill=\"#12202b\">Horloge (Arduino)</text><line x1=\"170\" y1=\"44\" x2=\"215\" y2=\"44\" stroke=\"#5b6b7a\" stroke-width=\"2.5\" marker-end=\"url(#a)\"/><rect x=\"215\" y=\"20\" width=\"200\" height=\"48\" rx=\"10\" fill=\"#fff\" stroke=\"#5b6b7a\"/><text x=\"315.0\" y=\"49.0\" text-anchor=\"middle\" font-size=\"15\" fill=\"#12202b\">Relais 24 V auto-maintenus</text><line x1=\"415\" y1=\"44\" x2=\"460\" y2=\"44\" stroke=\"#5b6b7a\" stroke-width=\"2.5\" marker-end=\"url(#a)\"/><rect x=\"460\" y=\"20\" width=\"160\" height=\"48\" rx=\"10\" fill=\"#fff\" stroke=\"#5b6b7a\"/><text x=\"540.0\" y=\"49.0\" text-anchor=\"middle\" font-size=\"15\" fill=\"#12202b\">Matrice LED 32×32</text><rect x=\"215\" y=\"110\" width=\"200\" height=\"48\" rx=\"10\" fill=\"#ffe0b2\" stroke=\"#5b6b7a\"/><text x=\"315.0\" y=\"139.0\" text-anchor=\"middle\" font-size=\"15\" fill=\"#12202b\">Registre ACCU 16 bits</text><line x1=\"315\" y1=\"68\" x2=\"315\" y2=\"110\" stroke=\"#5b6b7a\" stroke-width=\"2.5\" marker-end=\"url(#a)\"/><rect x=\"20\" y=\"110\" width=\"150\" height=\"48\" rx=\"10\" fill=\"#dfe8f1\" stroke=\"#5b6b7a\"/><text x=\"95.0\" y=\"139.0\" text-anchor=\"middle\" font-size=\"15\" fill=\"#12202b\">Mémoire (Arduino)</text><line x1=\"170\" y1=\"134\" x2=\"215\" y2=\"134\" stroke=\"#5b6b7a\" stroke-width=\"2.5\" marker-end=\"url(#a)\"/><rect x=\"215\" y=\"190\" width=\"200\" height=\"48\" rx=\"10\" fill=\"#fff3e0\" stroke=\"#5b6b7a\"/><text x=\"315.0\" y=\"219.0\" text-anchor=\"middle\" font-size=\"13\" fill=\"#12202b\">19 instructions : calcul, charger, ranger</text><line x1=\"315\" y1=\"158\" x2=\"315\" y2=\"190\" stroke=\"#5b6b7a\" stroke-width=\"2.5\" marker-end=\"url(#a)\"/></svg>",
+     "alt": "Schéma simplifié de l'ordinateur à relais : horloge, relais, registre accumulateur, mémoire sur Arduino, instructions et matrice de LED.",
+     "caption": "Organisation simplifiée de la machine : un accumulateur central, des relais pour la logique, deux Arduino pour la mémoire et l'horloge."
+    },
+    {
+     "type": "heading",
+     "level": 2,
+     "text": "Le défi Retrocomputing 2026"
+    },
+    {
+     "type": "paragraph",
+     "text": "D'après l'annonce de Hackaday, le défi est ouvert jusqu'au 27 octobre 2026 : les participants publient leur projet sur Hackaday.io et trois lauréats recevront chacun un bon d'achat DigiKey de 150 dollars. Il compte quatre catégories : *Old Iron* (restaurer du matériel ancien), *Modern Retro* (du matériel neuf à l'esprit rétro), *Retro-Modern* (des machines anciennes connectées à Internet) et *Coding Like It's 1999* (du logiciel récent pour des plates-formes anciennes). La conférence Supercon est annoncée du 6 au 8 novembre 2026 à Pasadena, en Californie."
+    },
+    {
+     "type": "usecases",
+     "title": "Exemples d'utilisation",
+     "items": [
+      {
+       "icon": "🎓",
+       "title": "Comprendre un processeur",
+       "text": "Un enseignant montre à des élèves ce qu'est un accumulateur et un jeu d'instructions en leur faisant entendre chaque opération."
+      },
+      {
+       "icon": "🧰",
+       "title": "Concevoir un projet de club",
+       "text": "Un club d'électronique répartit la construction par modules (horloge, mémoire, unité logique) pour un projet collectif sur plusieurs mois."
+      },
+      {
+       "icon": "🏁",
+       "title": "Participer au défi",
+       "text": "Un bricoleur qui restaure un vieil ordinateur ou en construit un neuf peut documenter sa réalisation et la soumettre avant le 27 octobre."
+      }
+     ]
+    },
+    {
+     "type": "timeline",
+     "title": "D'où l'on vient, où l'on va",
+     "items": [
+      {
+       "label": "Défi « un hertz » de 2025",
+       "text": "Première version de la machine, qui fait clignoter un voyant."
+      },
+      {
+       "label": "12 septembre 2026",
+       "text": "Hackaday présente l'ordinateur 16 bits dans le cadre du défi Retrocomputing."
+      },
+      {
+       "label": "11 octobre 2026",
+       "text": "Open Electronics détaille l'architecture et les programmes exécutés."
+      },
+      {
+       "label": "27 octobre 2026",
+       "text": "Date de clôture du défi Retrocomputing 2026."
+      }
+     ]
+    },
+    {
+     "type": "opinion",
+     "title": "Notre avis",
+     "paragraphs": [
+      "Un ordinateur à relais n'a aucun intérêt pratique face à un microcontrôleur à deux euros, et c'est précisément sa valeur : il rend visible ce que les circuits modernes cachent. Le recours à des Arduino pour la mémoire et l'horloge nuance l'exploit, mais assume un arbitrage réaliste entre pureté historique et faisabilité.",
+      "Les défis de ce type entretiennent une culture de la compréhension du matériel. À un horizon de un à trois ans, la tendance est plutôt à l'hybridation : des cœurs de calcul anciens ou symboliques, entourés de composants modernes pour la mémoire et les entrées-sorties."
+     ],
+     "verdict": "Peu utile, très instructif : un bel exemple de pédagogie par la construction."
+    },
+    {
+     "type": "callout",
+     "icon": "📌",
+     "tone": "info",
+     "text": "Défi Retrocomputing 2026 de Hackaday : inscription jusqu'au 27 octobre 2026. Les détails du projet proviennent de Hackaday et d'Open Electronics."
+    }
+   ],
+   "extended": true
+  },
+  {
+   "id": "postgresql-19-rc1-repack",
+   "category": "dev",
+   "title": "PostgreSQL 19 RC 1 : REPACK, autovacuum parallèle et une sortie visée au 19 novembre",
+   "summary": "La première version candidate de PostgreSQL 19 arrive avec la commande REPACK, un autovacuum parallèle et la suppression du support RADIUS.",
+   "tags": [
+    "PostgreSQL",
+    "base de données",
+    "REPACK",
+    "autovacuum",
+    "open source"
+   ],
+   "importance": 4,
+   "readingMinutes": 5,
+   "publishedAt": "2026-10-17T19:09:36+02:00",
+   "sourceDate": "2026-10-15",
+   "icon": "🐘",
+   "sources": [
+    {
+     "title": "PostgreSQL 19 RC 1 Released!",
+     "url": "https://www.postgresql.org/about/news/postgresql-19-rc-1-released-3409/",
+     "publisher": "PostgreSQL"
+    },
+    {
+     "title": "PostgreSQL: Release Notes (19.0)",
+     "url": "https://www.postgresql.org/docs/release/19.0/",
+     "publisher": "PostgreSQL"
+    }
+   ],
+   "illustration": {
+    "svg": "<svg xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"0 0 640 360\"><defs><linearGradient id=\"g\" x1=\"0\" y1=\"0\" x2=\"1\" y2=\"1\"><stop offset=\"0\" stop-color=\"hsl(265,65%,38%)\"/><stop offset=\"1\" stop-color=\"hsl(305,70%,22%)\"/></linearGradient></defs><rect width=\"640\" height=\"360\" fill=\"url(#g)\"/><g fill=\"#fff\"><ellipse cx=\"320\" cy=\"120\" rx=\"110\" ry=\"30\"/><path d=\"M210 120v110c0 17 49 30 110 30s110-13 110-30V120c0 17-49 30-110 30s-110-13-110-30z\" opacity=\".85\"/></g><g stroke=\"hsl(265,60%,35%)\" stroke-width=\"4\" fill=\"none\"><path d=\"M210 175c0 17 49 30 110 30s110-13 110-30\"/></g><g fill=\"#fff\"><path d=\"M470 90l30 30-30 30z\"/><path d=\"M170 210l-30-30 30-30z\" opacity=\".7\"/></g></svg>"
+   },
+   "blocks": [
+    {
+     "type": "paragraph",
+     "text": "Le projet PostgreSQL a publié le 15 octobre 2026 la première version candidate (RC 1) de **PostgreSQL 19**. À ce stade, le périmètre fonctionnel est figé : les changements depuis la quatrième bêta sont surtout des corrections de bogues, dont plusieurs touchent la nouvelle commande REPACK. Une seconde candidate est annoncée pour le 12 novembre, avec une version de maintenance, et la disponibilité générale est prévue le 19 novembre 2026, d'après l'annonce officielle."
+    },
+    {
+     "type": "heading",
+     "level": 2,
+     "text": "REPACK : réorganiser une table sans la bloquer"
+    },
+    {
+     "type": "paragraph",
+     "text": "La nouveauté la plus visible est la commande **REPACK**. Elle récupère l'espace disque et réorganise le contenu d'une table en réunissant les fonctions de deux commandes existantes, `VACUUM FULL` et `CLUSTER`. Son option `CONCURRENTLY` permet d'effectuer l'opération sans bloquer les lectures ni les écritures sur la table, ce qui répond à une difficulté ancienne : compacter une table très sollicitée imposait jusqu'ici un verrou lourd ou le recours à des extensions externes."
+    },
+    {
+     "type": "diagram",
+     "svg": "<svg xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"0 0 640 250\" font-family=\"system-ui,sans-serif\"><defs><marker id=\"a\" markerWidth=\"8\" markerHeight=\"8\" refX=\"7\" refY=\"4\" orient=\"auto\"><path d=\"M0,0 L8,4 L0,8 z\" fill=\"#5b6b7a\"/></marker></defs><rect width=\"640\" height=\"250\" rx=\"16\" fill=\"#eef2f6\"/><rect x=\"20\" y=\"30\" width=\"170\" height=\"48\" rx=\"10\" fill=\"#ffe0e0\" stroke=\"#5b6b7a\"/><text x=\"105.0\" y=\"59.0\" text-anchor=\"middle\" font-size=\"15\" fill=\"#12202b\">Table gonflée (vide)</text><line x1=\"190\" y1=\"54\" x2=\"240\" y2=\"54\" stroke=\"#5b6b7a\" stroke-width=\"2.5\" marker-end=\"url(#a)\"/><rect x=\"240\" y=\"30\" width=\"160\" height=\"48\" rx=\"10\" fill=\"#ffe0b2\" stroke=\"#5b6b7a\"/><text x=\"320.0\" y=\"59.0\" text-anchor=\"middle\" font-size=\"15\" fill=\"#12202b\">REPACK</text><line x1=\"400\" y1=\"54\" x2=\"450\" y2=\"54\" stroke=\"#5b6b7a\" stroke-width=\"2.5\" marker-end=\"url(#a)\"/><rect x=\"450\" y=\"30\" width=\"170\" height=\"48\" rx=\"10\" fill=\"#dcedc8\" stroke=\"#5b6b7a\"/><text x=\"535.0\" y=\"59.0\" text-anchor=\"middle\" font-size=\"15\" fill=\"#12202b\">Table compacte</text><rect x=\"20\" y=\"120\" width=\"170\" height=\"48\" rx=\"10\" fill=\"#fff\" stroke=\"#5b6b7a\"/><text x=\"105.0\" y=\"149.0\" text-anchor=\"middle\" font-size=\"15\" fill=\"#12202b\">VACUUM FULL</text><rect x=\"20\" y=\"180\" width=\"170\" height=\"48\" rx=\"10\" fill=\"#fff\" stroke=\"#5b6b7a\"/><text x=\"105.0\" y=\"209.0\" text-anchor=\"middle\" font-size=\"15\" fill=\"#12202b\">CLUSTER</text><line x1=\"190\" y1=\"144\" x2=\"240\" y2=\"70\" stroke=\"#5b6b7a\" stroke-width=\"2.5\" marker-end=\"url(#a)\"/><line x1=\"190\" y1=\"204\" x2=\"240\" y2=\"76\" stroke=\"#5b6b7a\" stroke-width=\"2.5\" marker-end=\"url(#a)\"/><text x=\"240\" y=\"150\" font-size=\"14\" fill=\"#12202b\">REPACK regroupe les deux commandes ;</text><text x=\"240\" y=\"172\" font-size=\"14\" fill=\"#12202b\">l'option CONCURRENTLY évite de bloquer</text><text x=\"240\" y=\"194\" font-size=\"14\" fill=\"#12202b\">lectures et écritures.</text></svg>",
+     "alt": "Schéma montrant REPACK qui regroupe VACUUM FULL et CLUSTER pour transformer une table gonflée en table compacte.",
+     "caption": "REPACK réunit deux commandes historiques ; la variante CONCURRENTLY évite de bloquer les accès (schéma simplifié)."
+    },
+    {
+     "type": "heading",
+     "level": 2,
+     "text": "Autovacuum, réplication et cohérence sur les réplicas"
+    },
+    {
+     "type": "list",
+     "items": [
+      "**Autovacuum parallèle** : il peut désormais mobiliser plusieurs processus pour traiter les index d'une table, et un nouveau système de score priorise les tables qui ont le plus besoin d'être nettoyées ou analysées.",
+      "**Réplication logique** : les valeurs des séquences sont répliquées, et la fonction peut être activée sans redémarrer le serveur lorsque `wal_level` vaut `replica`.",
+      "**Commande WAIT** : elle permet d'obtenir une cohérence « lire ses propres écritures » sur les serveurs de secours, selon la présentation de la version."
+     ]
+    },
+    {
+     "type": "heading",
+     "level": 2,
+     "text": "Ce qu'il faut vérifier avant de migrer"
+    },
+    {
+     "type": "paragraph",
+     "text": "Les notes de version indiquent que le support de **RADIUS** est supprimé, au motif que PostgreSQL ne le prenait en charge que sur UDP, un transport jugé impossible à sécuriser. Les installations qui s'authentifient ainsi devront changer de méthode. Une source secondaire évoque aussi un JIT désactivé par défaut, point à confirmer dans la documentation officielle. Enfin, les requêtes de graphes SQL/PGQ, un temps espérées, ne figurent pas dans cette version candidate et sont visées pour PostgreSQL 20."
+    },
+    {
+     "type": "usecases",
+     "title": "Exemples d'utilisation",
+     "items": [
+      {
+       "icon": "🛒",
+       "title": "Boutique en ligne à fort trafic",
+       "text": "Une table de commandes très mise à jour accumule de l'espace mort ; REPACK CONCURRENTLY permet de la compacter pendant les heures d'activité, après test préalable."
+      },
+      {
+       "icon": "📊",
+       "title": "Entrepôt de données",
+       "text": "Un autovacuum qui traite les index en parallèle réduit le temps de maintenance des grosses tables."
+      },
+      {
+       "icon": "🔁",
+       "title": "Bascule vers un réplica",
+       "text": "Une application qui lit sur un serveur de secours peut utiliser WAIT pour s'assurer qu'il a bien reçu ses dernières écritures."
+      }
+     ]
+    },
+    {
+     "type": "timeline",
+     "title": "D'où l'on vient, où l'on va",
+     "items": [
+      {
+       "label": "15 octobre 2026",
+       "text": "Publication de PostgreSQL 19 RC 1."
+      },
+      {
+       "label": "12 novembre 2026",
+       "text": "RC 2 attendue, avec une version de maintenance."
+      },
+      {
+       "label": "19 novembre 2026",
+       "text": "Date prévue pour la disponibilité générale de PostgreSQL 19."
+      },
+      {
+       "label": "PostgreSQL 20",
+       "text": "Cible annoncée pour les requêtes de graphes SQL/PGQ."
+      }
+     ]
+    },
+    {
+     "type": "opinion",
+     "title": "Notre avis",
+     "paragraphs": [
+      "REPACK ne révolutionne rien, mais il supprime une corvée d'exploitation redoutée : réorganiser une table sans interrompre le service. Pour les équipes qui s'appuyaient sur des extensions tierces, l'intégration au cœur est un gain de simplicité et de confiance.",
+      "À un à trois ans, la tendance est à l'automatisation de la maintenance (autovacuum plus intelligent, réplication moins manuelle). La prudence reste de mise : une version candidate ne se met pas en production, et les corrections encore apportées à REPACK invitent à attendre la version stable et ses premiers correctifs."
+     ],
+     "verdict": "Une version mûre qui soulage l'exploitation ; attendre la sortie stable avant de migrer."
+    },
+    {
+     "type": "callout",
+     "icon": "📌",
+     "tone": "info",
+     "text": "Sortie stable prévue le 19 novembre 2026. Testez la RC 1 sur un environnement de préproduction et vérifiez l'usage de RADIUS avant toute migration."
+    }
+   ],
+   "extended": true
+  },
+  {
+   "id": "github-license-compliance-disponibilite-generale",
+   "category": "devops",
+   "title": "GitHub : la conformité des licences open source devient généralement disponible",
+   "summary": "GitHub Enterprise Cloud peut désormais bloquer la fusion d'une pull request qui introduit une dépendance non conforme à la politique de licences de l'entreprise.",
+   "tags": [
+    "GitHub",
+    "licences",
+    "open source",
+    "conformité",
+    "supply chain"
+   ],
+   "importance": 3,
+   "readingMinutes": 5,
+   "publishedAt": "2026-10-17T19:09:36+02:00",
+   "sourceDate": "2026-10-16",
+   "icon": "📜",
+   "sources": [
+    {
+     "title": "Open source license compliance generally available",
+     "url": "https://github.blog/changelog/2026-10-16-open-source-license-compliance-generally-available/",
+     "publisher": "GitHub Changelog"
+    },
+    {
+     "title": "Open source license compliance is in public preview",
+     "url": "https://github.blog/changelog/2026-06-30-open-source-license-compliance-is-in-public-preview/",
+     "publisher": "GitHub Changelog"
+    }
+   ],
+   "illustration": {
+    "svg": "<svg xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"0 0 640 360\"><defs><linearGradient id=\"g\" x1=\"0\" y1=\"0\" x2=\"1\" y2=\"1\"><stop offset=\"0\" stop-color=\"hsl(160,65%,38%)\"/><stop offset=\"1\" stop-color=\"hsl(200,70%,22%)\"/></linearGradient></defs><rect width=\"640\" height=\"360\" fill=\"url(#g)\"/><g fill=\"#fff\"><rect x=\"200\" y=\"90\" width=\"240\" height=\"180\" rx=\"14\"/></g><g fill=\"hsl(160,60%,28%)\"><rect x=\"225\" y=\"120\" width=\"120\" height=\"14\" rx=\"7\"/><rect x=\"225\" y=\"150\" width=\"170\" height=\"14\" rx=\"7\"/><rect x=\"225\" y=\"180\" width=\"90\" height=\"14\" rx=\"7\"/></g><circle cx=\"400\" cy=\"230\" r=\"30\" fill=\"#ffd54f\"/><path d=\"M386 230l10 10 20-22\" stroke=\"hsl(160,60%,22%)\" stroke-width=\"6\" fill=\"none\" stroke-linecap=\"round\"/></svg>"
+   },
+   "blocks": [
+    {
+     "type": "paragraph",
+     "text": "Chaque dépendance ajoutée à un projet apporte du code, mais aussi une licence, avec ses obligations. Pour les entreprises, vérifier que ces licences sont compatibles avec leurs usages est un travail souvent manuel et tardif. Le 16 octobre 2026, GitHub a annoncé la disponibilité générale de la **conformité des licences open source** pour les clients de GitHub Enterprise Cloud, y compris l'offre à résidence des données, sur les dépôts où GitHub Code Security est activé."
+    },
+    {
+     "type": "heading",
+     "level": 2,
+     "text": "Comment cela fonctionne"
+    },
+    {
+     "type": "paragraph",
+     "text": "La fonction prolonge l'action de revue des dépendances (*dependency review*) en y ajoutant une **politique de licences à l'échelle de l'entreprise**. Elle s'active en ciblant des dépôts avec un jeu de règles (*ruleset*) comportant la nouvelle condition « Exiger les résultats de conformité des licences avant fusion ». Le contrôle examine les dépendances nouvelles ou modifiées dans les pull requests, y compris les dépendances transitives détectées par le graphe de dépendances."
+    },
+    {
+     "type": "diagram",
+     "svg": "<svg xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"0 0 640 260\" font-family=\"system-ui,sans-serif\"><defs><marker id=\"a\" markerWidth=\"8\" markerHeight=\"8\" refX=\"7\" refY=\"4\" orient=\"auto\"><path d=\"M0,0 L8,4 L0,8 z\" fill=\"#5b6b7a\"/></marker></defs><rect width=\"640\" height=\"260\" rx=\"16\" fill=\"#eef2f6\"/><rect x=\"20\" y=\"30\" width=\"150\" height=\"48\" rx=\"10\" fill=\"#fff\" stroke=\"#5b6b7a\"/><text x=\"95.0\" y=\"59.0\" text-anchor=\"middle\" font-size=\"15\" fill=\"#12202b\">Pull request</text><line x1=\"170\" y1=\"54\" x2=\"215\" y2=\"54\" stroke=\"#5b6b7a\" stroke-width=\"2.5\" marker-end=\"url(#a)\"/><rect x=\"215\" y=\"30\" width=\"200\" height=\"48\" rx=\"10\" fill=\"#e3f2fd\" stroke=\"#5b6b7a\"/><text x=\"315.0\" y=\"59.0\" text-anchor=\"middle\" font-size=\"12\" fill=\"#12202b\">Dépendances ajoutées ou modifiées</text><line x1=\"415\" y1=\"54\" x2=\"460\" y2=\"54\" stroke=\"#5b6b7a\" stroke-width=\"2.5\" marker-end=\"url(#a)\"/><rect x=\"460\" y=\"30\" width=\"160\" height=\"48\" rx=\"10\" fill=\"#fff3e0\" stroke=\"#5b6b7a\"/><text x=\"540.0\" y=\"59.0\" text-anchor=\"middle\" font-size=\"15\" fill=\"#12202b\">Politique de licences</text><line x1=\"540\" y1=\"78\" x2=\"540\" y2=\"110\" stroke=\"#5b6b7a\" stroke-width=\"2.5\" marker-end=\"url(#a)\"/><rect x=\"460\" y=\"110\" width=\"160\" height=\"48\" rx=\"10\" fill=\"#ffe0b2\" stroke=\"#5b6b7a\"/><text x=\"540.0\" y=\"139.0\" text-anchor=\"middle\" font-size=\"15\" fill=\"#12202b\">Conforme ?</text><line x1=\"460\" y1=\"134\" x2=\"415\" y2=\"134\" stroke=\"#5b6b7a\" stroke-width=\"2.5\" marker-end=\"url(#a)\"/><rect x=\"215\" y=\"110\" width=\"200\" height=\"48\" rx=\"10\" fill=\"#dcedc8\" stroke=\"#5b6b7a\"/><text x=\"315.0\" y=\"139.0\" text-anchor=\"middle\" font-size=\"15\" fill=\"#12202b\">Fusion autorisée</text><line x1=\"540\" y1=\"158\" x2=\"540\" y2=\"190\" stroke=\"#5b6b7a\" stroke-width=\"2.5\" marker-end=\"url(#a)\"/><rect x=\"380\" y=\"190\" width=\"240\" height=\"48\" rx=\"10\" fill=\"#ffe0e0\" stroke=\"#5b6b7a\"/><text x=\"500.0\" y=\"219.0\" text-anchor=\"middle\" font-size=\"11\" fill=\"#12202b\">Bloquée : remplacer, modifier la politique ou créer une exception</text></svg>",
+     "alt": "Schéma du contrôle de licences : une pull request modifie des dépendances, la politique d'entreprise les évalue, puis la fusion est autorisée ou bloquée.",
+     "caption": "Du dépôt à la fusion : la politique de licences d'entreprise évalue chaque changement de dépendances (schéma simplifié)."
+    },
+    {
+     "type": "paragraph",
+     "text": "Lorsqu'une dépendance est signalée, il faut la retirer ou la remplacer, modifier la politique, ou créer une exception pour le paquet concerné. Un nouveau rôle prédéfini, *Enterprise Open-Source License Manager*, est destiné aux personnes ou équipes chargées d'examiner et d'approuver les demandes de clôture."
+    },
+    {
+     "type": "heading",
+     "level": 2,
+     "text": "Ce qui a changé depuis l'aperçu de juin"
+    },
+    {
+     "type": "list",
+     "items": [
+      "Des informations de licence pour les clients à résidence des données.",
+      "Des événements dans le journal d'audit lors des changements de politique.",
+      "De nouveaux points d'accès d'API pour gérer la politique, dont un destiné aux agents de code, qui peuvent vérifier la conformité d'un paquet avant de le recommander.",
+      "Un mode **Évaluation**, qui permet de mesurer l'effet de la politique avant de la rendre bloquante."
+     ]
+    },
+    {
+     "type": "paragraph",
+     "text": "GitHub précise qu'il ne s'agit pas d'un blocage universel de l'open source : aucune licence n'est déclarée acceptable pour toutes les entreprises, chacune définit sa propre liste de licences autorisées."
+    },
+    {
+     "type": "usecases",
+     "title": "Exemples d'utilisation",
+     "items": [
+      {
+       "icon": "🏢",
+       "title": "Éditeur de logiciels",
+       "text": "Une équipe juridique interdit les licences à copyleft fort dans les produits distribués ; le contrôle bloque les pull requests qui les introduisent."
+      },
+      {
+       "icon": "🧪",
+       "title": "Déploiement progressif",
+       "text": "Une direction technique active d'abord le mode Évaluation pour chiffrer les dépôts concernés avant d'imposer la règle."
+      },
+      {
+       "icon": "🤖",
+       "title": "Agent de code",
+       "text": "Un agent qui propose une bibliothèque interroge le point d'accès d'API pour éviter de suggérer un paquet interdit par la politique."
+      }
+     ]
+    },
+    {
+     "type": "timeline",
+     "title": "D'où l'on vient, où l'on va",
+     "items": [
+      {
+       "label": "30 juin 2026",
+       "text": "Aperçu public de la conformité des licences open source."
+      },
+      {
+       "label": "16 octobre 2026",
+       "text": "Disponibilité générale pour GitHub Enterprise Cloud."
+      },
+      {
+       "label": "Prochaines étapes",
+       "text": "Non précisées dans l'annonce ; les évolutions seront à suivre sur le journal des modifications de GitHub."
+      }
+     ]
+    },
+    {
+     "type": "opinion",
+     "title": "Notre avis",
+     "paragraphs": [
+      "La conformité des licences est un sujet peu spectaculaire mais coûteux quand il est négligé : un audit tardif peut forcer à réécrire des composants. Déplacer le contrôle au moment de la pull request, là où le développeur peut corriger à bas coût, est la bonne approche, d'autant que les agents de code multiplient les dépendances proposées.",
+      "Le risque est de transformer l'outil en barrière bureaucratique, avec des faux positifs et des exceptions à gérer. Le mode Évaluation et le rôle de responsable des licences montrent que GitHub l'a anticipé. D'ici un à trois ans, ce type de contrôle devrait devenir un réflexe, au même titre que l'analyse de vulnérabilités."
+     ],
+     "verdict": "Un contrôle utile s'il est introduit progressivement et assorti d'une gouvernance claire."
+    },
+    {
+     "type": "callout",
+     "icon": "📌",
+     "tone": "info",
+     "text": "Réservé aux clients GitHub Enterprise Cloud disposant de GitHub Code Security. La liste des licences autorisées reste à définir par chaque entreprise ; ceci n'est pas un conseil juridique."
+    }
+   ],
+   "extended": true
+  },
+  {
+   "id": "sonicwall-sma-1000-cert-fr-alerte-cloturee",
+   "category": "cybersecurite",
+   "title": "SonicWall SMA 1000 : l'alerte du CERT-FR est close, mais les correctifs ne suffisent pas toujours",
+   "summary": "Deux failles des passerelles SMA 1000, dont une SSRF notée 10, ont été exploitées ; le CERT-FR a clos son alerte le 13 octobre, sur fond d'avis de l'éditeur plus récent.",
+   "tags": [
+    "SonicWall",
+    "SMA 1000",
+    "CERT-FR",
+    "SSRF",
+    "VPN"
+   ],
+   "importance": 4,
+   "readingMinutes": 5,
+   "publishedAt": "2026-10-17T19:09:36+02:00",
+   "sourceDate": "2026-10-13",
+   "icon": "🛡️",
+   "sources": [
+    {
+     "title": "Multiples vulnérabilités dans SonicWall Secure Mobile Access (CERTFR-2026-ALE-009)",
+     "url": "https://www.cert.ssi.gouv.fr/alerte/CERTFR-2026-ALE-009/",
+     "publisher": "CERT-FR"
+    },
+    {
+     "title": "Retour à la case pour les utilisateurs de SonicWall SMA 1000",
+     "url": "https://www.lemagit.fr/actualites/366650062/Retour-a-la-case-pour-les-utilisateurs-de-SonicWall-SMA-1000",
+     "publisher": "LeMagIT"
+    }
+   ],
+   "illustration": {
+    "svg": "<svg xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"0 0 640 360\"><defs><linearGradient id=\"g\" x1=\"0\" y1=\"0\" x2=\"1\" y2=\"1\"><stop offset=\"0\" stop-color=\"hsl(175,65%,38%)\"/><stop offset=\"1\" stop-color=\"hsl(215,70%,22%)\"/></linearGradient></defs><rect width=\"640\" height=\"360\" fill=\"url(#g)\"/><path d=\"M320 70l110 40v80c0 60-45 100-110 125-65-25-110-65-110-125v-80z\" fill=\"#fff\"/><g stroke=\"hsl(175,60%,25%)\" stroke-width=\"10\" stroke-linecap=\"round\"><path d=\"M270 190l35 35 65-70\"/></g><g fill=\"#ffd54f\"><circle cx=\"150\" cy=\"120\" r=\"8\"/><circle cx=\"500\" cy=\"250\" r=\"8\"/><circle cx=\"520\" cy=\"110\" r=\"5\"/></g></svg>"
+   },
+   "blocks": [
+    {
+     "type": "paragraph",
+     "text": "Les passerelles d'accès à distance sont des cibles de choix : exposées sur Internet, elles ouvrent la porte du réseau interne. Le CERT-FR, rattaché à l'ANSSI, a publié le 2 septembre 2026 l'alerte **CERTFR-2026-ALE-009** sur plusieurs vulnérabilités de SonicWall Secure Mobile Access (SMA) 1000. L'alerte est désormais close, depuis le 13 octobre 2026, mais l'épisode contient des enseignements qui valent toujours pour les équipes qui exploitent ces équipements."
+    },
+    {
+     "type": "heading",
+     "level": 2,
+     "text": "Les deux failles de l'alerte"
+    },
+    {
+     "type": "list",
+     "items": [
+      "**CVE-2026-83548** : une falsification de requête côté serveur (SSRF), exploitable avant toute authentification, dans le portail utilisateur *Appliance Work Place*. Son score CVSS est de 10, le maximum.",
+      "**CVE-2026-83549** : une exécution de code à distance après authentification, dans la console d'administration, notée 7,8.",
+      "**Enchaînement** : selon Rapid7, citée par LeMagIT, les deux failles peuvent être combinées pour obtenir une exécution de code à distance sans authentification. L'alerte du CERT-FR, elle, ne précise pas si un attaquant non authentifié peut les enchaîner."
+     ]
+    },
+    {
+     "type": "paragraph",
+     "text": "Le CERT-FR indique que, selon l'éditeur, les deux failles sont exploitées. Les modèles concernés sont les 6210, 7210 et 8200v, dans des versions antérieures à 12.5.0-02952 et 12.4.3-03526."
+    },
+    {
+     "type": "diagram",
+     "svg": "<svg xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"0 0 640 260\" font-family=\"system-ui,sans-serif\"><defs><marker id=\"a\" markerWidth=\"8\" markerHeight=\"8\" refX=\"7\" refY=\"4\" orient=\"auto\"><path d=\"M0,0 L8,4 L0,8 z\" fill=\"#5b6b7a\"/></marker></defs><rect width=\"640\" height=\"260\" rx=\"16\" fill=\"#eef2f6\"/><rect x=\"20\" y=\"30\" width=\"150\" height=\"50\" rx=\"10\" fill=\"#ffe0e0\" stroke=\"#5b6b7a\"/><text x=\"95.0\" y=\"60.0\" text-anchor=\"middle\" font-size=\"15\" fill=\"#12202b\">Faille 1 : SSRF</text><text x=\"95\" y=\"102\" font-size=\"12\" text-anchor=\"middle\" fill=\"#12202b\">sans authentification</text><line x1=\"170\" y1=\"55\" x2=\"230\" y2=\"55\" stroke=\"#5b6b7a\" stroke-width=\"2.5\" marker-end=\"url(#a)\"/><rect x=\"230\" y=\"30\" width=\"170\" height=\"50\" rx=\"10\" fill=\"#ffe0b2\" stroke=\"#5b6b7a\"/><text x=\"315.0\" y=\"60.0\" text-anchor=\"middle\" font-size=\"15\" fill=\"#12202b\">Faille 2 : exécution</text><text x=\"315\" y=\"102\" font-size=\"12\" text-anchor=\"middle\" fill=\"#12202b\">console d'administration</text><line x1=\"400\" y1=\"55\" x2=\"450\" y2=\"55\" stroke=\"#5b6b7a\" stroke-width=\"2.5\" marker-end=\"url(#a)\"/><rect x=\"450\" y=\"30\" width=\"170\" height=\"50\" rx=\"10\" fill=\"#ffcdd2\" stroke=\"#5b6b7a\"/><text x=\"535.0\" y=\"60.0\" text-anchor=\"middle\" font-size=\"15\" fill=\"#12202b\">Code à distance ?</text><rect x=\"20\" y=\"140\" width=\"600\" height=\"48\" rx=\"10\" fill=\"#dfe8f1\" stroke=\"#5b6b7a\"/><text x=\"320.0\" y=\"169.0\" text-anchor=\"middle\" font-size=\"14\" fill=\"#12202b\">Réponse du CERT-FR : appliquer les correctifs, mais aussi réinstaller si compromission</text><rect x=\"20\" y=\"200\" width=\"600\" height=\"40\" rx=\"10\" fill=\"#dcedc8\" stroke=\"#5b6b7a\"/><text x=\"320.0\" y=\"225.0\" text-anchor=\"middle\" font-size=\"14\" fill=\"#12202b\">Puis changer les mots de passe et réinitialiser les secrets TOTP</text></svg>",
+     "alt": "Schéma montrant l'enchaînement de deux failles SonicWall et la réponse recommandée : correctifs, réinstallation, changement des mots de passe et des secrets TOTP.",
+     "caption": "Deux failles potentiellement chaînables, et une réponse qui ne se limite pas à l'application du correctif (schéma simplifié)."
+    },
+    {
+     "type": "heading",
+     "level": 2,
+     "text": "Corriger ne suffit pas"
+    },
+    {
+     "type": "paragraph",
+     "text": "Le point le plus important de l'épisode concerne la réponse à incident. LeMagIT rapporte que, pour un équipement déjà compromis, appliquer le correctif ne suffit pas : l'éditeur recommande de **réinstaller le système**, de changer tous les mots de passe des utilisateurs et des administrateurs, et de réinitialiser les secrets TOTP, qui servent à la double authentification. Un attaquant qui a déjà exécuté du code sur la passerelle peut en effet avoir conservé des identifiants ou des accès persistants."
+    },
+    {
+     "type": "heading",
+     "level": 2,
+     "text": "Des informations à recouper"
+    },
+    {
+     "type": "paragraph",
+     "text": "Les sources secondaires ne s'accordent pas toutes. Un article plus récent mentionne un avis distinct de SonicWall, SNWLID-2026-0017, publié le 6 octobre, qui cite un autre identifiant (CVE-2026-102255) et des versions corrigées 12.4.3-03670 et 12.5.0-03082, avec une absence d'exploitation signalée par l'éditeur, alors que d'autres sources évoquent des tentatives observées depuis le 8 octobre. Ces éléments n'ont pas pu être recoupés avec l'avis officiel : les exploitants doivent se référer à l'avis de SonicWall et à l'alerte du CERT-FR avant d'agir."
+    },
+    {
+     "type": "usecases",
+     "title": "Exemples d'utilisation",
+     "items": [
+      {
+       "icon": "🏥",
+       "title": "PME avec accès distant",
+       "text": "Une PME qui utilise une SMA 1000 pour ses télétravailleurs vérifie la version installée et la compare aux versions corrigées de l'avis."
+      },
+      {
+       "icon": "🔍",
+       "title": "Équipe de sécurité",
+       "text": "Une équipe examine les journaux de la passerelle à la recherche de requêtes anormales sur le portail avant la date de correction."
+      },
+      {
+       "icon": "🔁",
+       "title": "Après une compromission",
+       "text": "Un prestataire planifie la réinstallation de l'appareil, le renouvellement des mots de passe et la réinitialisation des secrets TOTP."
+      }
+     ]
+    },
+    {
+     "type": "timeline",
+     "title": "D'où l'on vient, où l'on va",
+     "items": [
+      {
+       "label": "2 septembre 2026",
+       "text": "Le CERT-FR publie l'alerte CERTFR-2026-ALE-009."
+      },
+      {
+       "label": "6 octobre 2026",
+       "text": "Avis SonicWall SNWLID-2026-0017, selon une source secondaire."
+      },
+      {
+       "label": "13 octobre 2026",
+       "text": "Clôture de l'alerte du CERT-FR."
+      },
+      {
+       "label": "Ensuite",
+       "text": "Surveiller l'avis de l'éditeur et les bulletins hebdomadaires du CERT-FR."
+      }
+     ]
+    },
+    {
+     "type": "opinion",
+     "title": "Notre avis",
+     "paragraphs": [
+      "Cet épisode rappelle une règle simple : sur un équipement exposé, la date du correctif compte moins que la date d'exploitation. Si la faille a été utilisée avant le correctif, le patch ferme la porte mais ne chasse pas l'intrus. La clôture d'une alerte ne signifie pas que le risque a disparu.",
+      "D'ici un à trois ans, la pression devrait pousser les organisations à réduire l'exposition de ces passerelles (accès conditionnels, segmentation, journalisation centralisée). Les contradictions entre sources montrent aussi l'intérêt de s'en tenir aux avis officiels."
+     ],
+     "verdict": "Appliquer le correctif, puis supposer la compromission tant qu'un contrôle n'a pas prouvé le contraire."
+    },
+    {
+     "type": "callout",
+     "icon": "📌",
+     "tone": "info",
+     "text": "Information générale : vérifiez les versions et identifiants sur l'avis officiel de SonicWall et sur l'alerte CERTFR-2026-ALE-009 du CERT-FR avant toute opération."
+    }
+   ],
+   "extended": true
+  }
+ ]
+}
