@@ -141,6 +141,36 @@ const motifs = {
     }
     return s;
   },
+  geographie(r) { // globe, méridiens et repères
+    let s = `<circle cx="320" cy="180" r="110"/><ellipse cx="320" cy="180" rx="45" ry="110" opacity=".6"/><ellipse cx="320" cy="180" rx="90" ry="110" opacity=".4"/><path d="M210 180H430M230 120H410M230 240H410" opacity=".5"/>`;
+    for (let i = 0; i < 3; i++) { const x = f(250 + r() * 140), y = f(110 + r() * 140); s += `<circle cx="${x}" cy="${y}" r="7" fill="currentColor" stroke="none"/><circle cx="${x}" cy="${y}" r="16" opacity=".5"/>`; }
+    return s;
+  },
+  ecologie(r) { // feuilles et nervures
+    let s = "";
+    for (let i = 0; i < 5; i++) { const x = 150 + i * 85, h = 70 + r() * 90, w = 28 + r() * 16; s += `<path d="M${x} 300 C${x - w} ${300 - h * .5} ${x - w * .4} ${300 - h} ${x} ${300 - h - 20} C${x + w * .4} ${300 - h} ${x + w} ${300 - h * .5} ${x} 300z" opacity="${.45 + i * .1}"/><path d="M${x} 300V${300 - h}" opacity=".5"/>`; }
+    return s + `<circle cx="${f(480 + r() * 80)}" cy="90" r="34" opacity=".7"/>`;
+  },
+  politique(r) { // fronton et colonnes
+    let s = `<path d="M170 140L320 80L470 140z"/><path d="M185 150H455"/><path d="M170 285H470"/>`;
+    for (let i = 0; i < 5; i++) s += `<rect x="${195 + i * 52}" y="165" width="22" height="105" rx="4" opacity="${.55 + r() * .4}"/>`;
+    return s + `<circle cx="320" cy="122" r="9" fill="currentColor" stroke="none"/>`;
+  },
+  finance(r) { // barres, courbe et pièce
+    let s = "";
+    for (let i = 0; i < 7; i++) { const h = 40 + r() * 140; s += `<rect x="${130 + i * 48}" y="${290 - h}" width="30" height="${f(h)}" rx="6" opacity="${.35 + i * .08}"/>`; }
+    return s + `<path d="M135 250L230 200L300 220L400 140L470 110" stroke-width="4"/><circle cx="500" cy="100" r="30"/><path d="M490 100h20M500 90v20" opacity=".7"/>`;
+  },
+  crypto(r) { // hexagones chaînés
+    let s = "";
+    for (let i = 0; i < 4; i++) { const x = 160 + i * 105, y = 180 + (i % 2 ? -40 : 30) + (r() - .5) * 30; s += `<path d="M${x} ${y - 46}l40 23v46l-40 23-40-23v-46z" opacity="${.5 + i * .15}"/><circle cx="${x}" cy="${f(y)}" r="7" fill="currentColor" stroke="none"/>`; if (i < 3) s += `<path d="M${x + 40} ${f(y)}L${x + 65} ${f(y + (i % 2 ? 70 : -70))}" stroke-dasharray="4 6" opacity=".6"/>`; }
+    return s;
+  },
+  bourse(r) { // chandeliers japonais
+    let s = "", y = 180;
+    for (let i = 0; i < 10; i++) { const d = (r() - .5) * 70, y2 = Math.max(110, Math.min(250, y + d)), top = Math.min(y, y2), h = Math.abs(y2 - y) + 12, x = 135 + i * 40; s += `<path d="M${x} ${f(top - 22)}V${f(top + h + 22)}" opacity=".6"/><rect x="${x - 11}" y="${f(top)}" width="22" height="${f(h)}" rx="3" ${d < 0 ? 'fill="currentColor" stroke="none" opacity=".9"' : 'opacity=".8"'}/>`; y = y2; }
+    return s;
+  },
 };
 motifs.default = motifs.web;
 

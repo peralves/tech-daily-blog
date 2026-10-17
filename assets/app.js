@@ -3,7 +3,8 @@ import { el, renderBlocks, safeUrl, illustration } from "./blocks.js?v=__V__";
 const main = document.getElementById("main");
 const cache = new Map();
 let index, categories;
-let posts = [];   // tous les articles de toutes les éditions, du plus récent au plus ancien
+let allPosts = []; // tous les articles de toutes les éditions, du plus récent au plus ancien
+let posts = [];   // ceux qui restent visibles après application des préférences
 let days = [];    // [{ date, posts }] du plus récent au plus ancien
 let filter = "all";
 let shownDays = 3;
@@ -30,15 +31,35 @@ async function getJson(url) {
 function buildModel() {
   // Un article ne peut pas être publié après la génération de son édition, ni dans le futur : on plafonne l'horodatage.
   const clamp = (v, e) => Math.min(Date.parse(v) || 0, Date.parse(e.generatedAt) || Infinity, Date.now());
-  posts = index.editions.flatMap((e) => e.posts.map((p) => ({ ...p, edition: e.id, ts: clamp(p.publishedAt, e) })));
-  posts.sort((a, b) => b.ts - a.ts);
+  allPosts = index.editions.flatMap((e) => e.posts.map((p) => ({ ...p, edition: e.id, ts: clamp(p.publishedAt, e) })));
+  allPosts.sort((a, b) => b.ts - a.ts);
+  for (const p of allPosts) p.day = fmtDayKey.format(new Date(p.ts));
+  applyPrefs();
+}
+
+/* ---------- Préférences (rubriques et mots masqués, localStorage) ---------- */
+
+const PREFS_KEY = "td:prefs";
+let prefs = { hidden: [], muted: [] };
+try {
+  const raw = JSON.parse(localStorage.getItem(PREFS_KEY) || "{}");
+  prefs = { hidden: Array.isArray(raw.hidden) ? raw.hidden.map(String) : [], muted: Array.isArray(raw.muted) ? raw.muted.map(String) : [] };
+} catch {}
+function savePrefs() { try { localStorage.setItem(PREFS_KEY, JSON.stringify(prefs)); } catch {} }
+const hasPrefs = () => prefs.hidden.length > 0 || prefs.muted.length > 0;
+const isVisible = (p) => !prefs.hidden.includes(p.category)
+  && !(prefs.muted.length && prefs.muted.some((w) => norm([p.title, p.summary, (p.tags || []).join(" ")].join(" ")).includes(w)));
+
+// Recalcule les listes affichées (accueil, jours, archives) à partir des préférences.
+function applyPrefs() {
+  posts = allPosts.filter(isVisible);
   const byDay = new Map();
   for (const p of posts) {
-    p.day = fmtDayKey.format(new Date(p.ts));
     if (!byDay.has(p.day)) byDay.set(p.day, []);
     byDay.get(p.day).push(p);
   }
   days = [...byDay].map(([date, list]) => ({ date, posts: list }));
+  if (!["all", "unread"].includes(filter) && !posts.some((p) => p.category === filter)) filter = "all";
 }
 
 const cat = (id) => categories.find((c) => c.id === id) || { id, label: id, icon: "📄", hue: 220 };
@@ -194,7 +215,7 @@ const daySection = (date, list, link = true) =>
 
 function pageHome() {
   setNav("home");
-  document.title = "Tech Daily — veille web, dev, devops, électronique";
+  document.title = "Tech Daily — l'actualité, heure par heure";
   const today = days[0];
   const lead = today && [...today.posts].sort((a, b) => (b.importance || 1) - (a.importance || 1) || b.ts - a.ts)[0];
   const box = el("div");
@@ -209,9 +230,9 @@ function pageHome() {
   show(
     el("section", { class: "hero" },
       el("div", { class: "eyebrow" }, el("span", { class: "live" }), today ? `Dernière mise à jour · ${dayLabel(today.date)} · ${time(today.posts[0])}` : "En attente de la première édition"),
-      el("h1", { text: "L'actualité tech, heure par heure." }),
-      el("p", { class: "lead", text: `Web, informatique, DevOps et électronique : ${posts.length} articles synthétisés en français, avec leurs sources.` })),
-    lead ? leadCard(lead) : null, chipsBar(draw), box);
+      el("h1", { text: "L'actualité, heure par heure." }),
+      el("p", { class: "lead", text: `Tech, science, monde et marchés : ${plural(posts.length, "article")} synthétisés en français, avec leurs sources.` })),
+    prefsNote(), lead ? leadCard(lead) : null, chipsBar(draw), box);
 }
 
 function pageDay(date) {
@@ -237,9 +258,10 @@ async function pagePost(edId, id) {
   const e = await getJson(`data/editions/${edId}.json`);
   const p = e.posts.find((x) => x.id === id);
   if (!p) return notFound();
-  const meta = posts.find((x) => x.edition === edId && x.id === id) || { ...p, edition: edId, ts: Date.parse(p.publishedAt || e.generatedAt) || 0, day: e.date };
+  const meta = allPosts.find((x) => x.edition === edId && x.id === id) || { ...p, edition: edId, ts: Date.parse(p.publishedAt || e.generatedAt) || 0, day: e.date };
   document.title = `${p.title} — Tech Daily`;
-  const siblings = posts.filter((x) => x.day === meta.day);
+  // Précédent/suivant : uniquement les articles visibles selon les préférences (et l'article courant).
+  const siblings = allPosts.filter((x) => x.day === meta.day && (isVisible(x) || (x.edition === edId && x.id === id)));
   const k = siblings.findIndex((x) => x.edition === edId && x.id === id);
   const newer = siblings[k - 1], older = siblings[k + 1];
   const sources = (p.sources || []).filter((s) => safeUrl(s.url));
@@ -257,6 +279,7 @@ async function pagePost(edId, id) {
     el("div", { class: "meta", style: "margin-top:24px" }, catTag(p.category), el("time", { datetime: new Date(meta.ts).toISOString(), text: `${dayLabel(meta.day)} · ${time(meta)}` }), p.readingMinutes ? `${p.readingMinutes} min de lecture` : null),
     el("h1", { text: p.title }),
     p.summary ? el("p", { class: "lead", text: p.summary }) : null,
+    cat(p.category).disclaimer ? el("p", { class: "disclaimer", role: "note", text: "⚠️ " + cat(p.category).disclaimer }) : null,
     art({ ...p, edition: edId }, { alt: p.cover?.alt || p.title }),
     p.cover?.credit ? el("p", { class: "credit", text: "Image : " + p.cover.credit }) : el("p", { class: "credit" }),
     renderBlocks(p.blocks),
@@ -298,12 +321,82 @@ function pageArchive(query = "") {
 function pageSaved() {
   setNav("saved");
   document.title = "Favoris — Tech Daily";
-  const list = posts.filter(isSaved);
+  const list = allPosts.filter(isSaved); // les favoris restent visibles même si leur rubrique est masquée
   show(
     el("section", { class: "hero" }, el("div", { class: "eyebrow", text: "Stockés sur cet appareil" }), el("h1", { text: "Favoris" }),
       el("p", { class: "lead", text: list.length ? `${plural(list.length, "article")} enregistré${list.length > 1 ? "s" : ""}. Ils sont gardés dans ce navigateur uniquement.` : "" })),
     list.length ? el("div", { class: "rail" }, list.map(postRow))
       : el("div", { class: "empty" }, el("p", { text: "Aucun favori pour le moment. Utilise le marque-page d'une carte ou d'un article pour le retrouver ici." }), el("a", { class: "btn", href: "#/" }, "Parcourir les articles")));
+}
+
+// Bandeau affiché quand des préférences masquent une partie des articles.
+function prefsNote() {
+  const hidden = allPosts.length - posts.length;
+  if (!hasPrefs()) return null;
+  return el("p", { class: "prefs-note" },
+    hidden ? `${plural(hidden, "article")} masqué${hidden > 1 ? "s" : ""} par vos préférences. ` : "Vos préférences sont actives. ",
+    el("a", { href: "#/settings", text: "Modifier" }));
+}
+
+function pageSettings() {
+  setNav("settings");
+  document.title = "Préférences — Tech Daily";
+  const known = new Set(categories.map((c) => c.id));
+  const extra = [...new Set(allPosts.map((p) => p.category))].filter((id) => !known.has(id)).map((id) => cat(id));
+  const rows = el("div", { class: "pref-list" });
+  const summary = el("p", { class: "lead" });
+
+  const refresh = () => {
+    applyPrefs();
+    paintSummary();
+  };
+  const paintSummary = () => {
+    const hidden = allPosts.length - posts.length;
+    summary.textContent = hasPrefs()
+      ? `${plural(posts.length, "article")} affichés, ${plural(hidden, "article")} masqué${hidden > 1 ? "s" : ""}.`
+      : "Aucun filtre : tous les articles sont affichés.";
+  };
+
+  for (const c of [...categories, ...extra]) {
+    const count = allPosts.filter((p) => p.category === c.id).length;
+    const input = el("input", { type: "checkbox", role: "switch", id: `pref-${c.id}` });
+    input.checked = !prefs.hidden.includes(c.id);
+    input.onchange = () => {
+      prefs.hidden = input.checked ? prefs.hidden.filter((x) => x !== c.id) : [...new Set([...prefs.hidden, c.id])];
+      savePrefs();
+      refresh();
+    };
+    rows.append(el("label", { class: "pref-row", for: `pref-${c.id}`, style: `--h:${c.hue ?? 220}` },
+      el("span", { class: "pref-ico", "aria-hidden": "true", text: c.icon || "📄" }),
+      el("span", { class: "pref-name" }, el("strong", { text: c.label }), el("small", { text: count ? plural(count, "article") : "pas encore d'article" })),
+      input, el("span", { class: "switch", "aria-hidden": "true" })));
+  }
+
+  const words = el("input", { class: "search", type: "text", id: "pref-words", placeholder: "ex. élection, bitcoin, NFT", "aria-describedby": "pref-words-help", value: prefs.muted.join(", ") });
+  words.oninput = () => {
+    prefs.muted = [...new Set(words.value.split(",").map((w) => norm(w.trim())).filter((w) => w.length >= 2))];
+    savePrefs();
+    refresh();
+  };
+  const reset = el("button", { class: "btn", type: "button", text: "Tout réafficher" });
+  reset.onclick = () => {
+    prefs = { hidden: [], muted: [] };
+    savePrefs();
+    applyPrefs();
+    pageSettings();
+    toast("Préférences réinitialisées");
+  };
+  paintSummary();
+
+  show(
+    el("section", { class: "hero" }, el("div", { class: "eyebrow", text: "Stockées sur cet appareil" }), el("h1", { text: "Préférences" }), summary),
+    el("h2", { class: "pref-h", text: "Rubriques" }),
+    el("p", { class: "pref-help", text: "Désactive une rubrique pour ne plus voir ses articles dans le fil, les archives et la recherche." }),
+    rows,
+    el("h2", { class: "pref-h", text: "Mots masqués" }),
+    el("p", { class: "pref-help", id: "pref-words-help", text: "Les articles dont le titre, le résumé ou les tags contiennent l'un de ces mots (séparés par des virgules) sont masqués." }),
+    words,
+    el("div", { class: "actions" }, reset, el("a", { class: "btn", href: "#/" }, "Retour au fil")));
 }
 
 function notFound() {
@@ -318,6 +411,7 @@ async function route() {
     const parts = path.split("/").filter(Boolean);
     if (!parts.length) return pageHome();
     if (parts[0] === "saved") return pageSaved();
+    if (parts[0] === "settings") return pageSettings();
     if (parts[0] === "archive") return pageArchive(new URLSearchParams(qs).get("q") || "");
     if (parts[0] === "d" && /^\d{4}-\d{2}-\d{2}$/.test(parts[1] || "")) return pageDay(parts[1]);
     // Les segments d'URL servent à construire un chemin de fichier : on n'accepte que le format attendu.
