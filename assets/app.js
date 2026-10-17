@@ -14,7 +14,9 @@ const fmtMonth = new Intl.DateTimeFormat("fr-FR", { month: "long", year: "numeri
 const fmtTime = new Intl.DateTimeFormat("fr-FR", { hour: "2-digit", minute: "2-digit", timeZone: TZ });
 const fmtDayKey = new Intl.DateTimeFormat("en-CA", { timeZone: TZ });
 const dayLabel = (s) => fmtDay.format(new Date(s + "T12:00:00Z"));
+const time = (p) => fmtTime.format(new Date(p.ts));
 const norm = (s) => String(s).toLowerCase().normalize("NFD").replace(/[̀-ͯ]/g, "");
+const plural = (n, w) => `${n} ${w}${n > 1 ? "s" : ""}`;
 
 async function getJson(url) {
   if (cache.has(url)) return cache.get(url);
@@ -38,15 +40,31 @@ function buildModel() {
 }
 
 const cat = (id) => categories.find((c) => c.id === id) || { id, label: id, icon: "📄", hue: 220 };
-const catTag = (id) => el("span", { class: "tag", style: `--h:${cat(id).hue ?? 220}` }, cat(id).icon || "", " ", cat(id).label);
+const catStyle = (id) => `--h:${cat(id).hue ?? 220}`;
+const catTag = (id) => el("span", { class: "tag", style: catStyle(id) }, cat(id).label);
+const art = (p, extra = {}) => illustration({ icon: p.icon || cat(p.category).icon, hue: cat(p.category).hue, motif: p.category, seed: p.edition + p.id, cover: p.cover?.url, alt: p.cover?.alt || p.title, ...extra });
+const href = (p) => `#/p/${p.edition}/${p.id}`;
 
-function postCard(p, top = false) {
-  return el("a", { class: "card" + (top ? " top" : ""), href: `#/p/${p.edition}/${p.id}`, style: `--h:${cat(p.category).hue ?? 220}` },
-    illustration({ icon: p.icon || cat(p.category).icon, hue: cat(p.category).hue, seed: p.edition + p.id, cover: p.cover?.url, alt: p.cover?.alt || p.title }),
-    el("div", { class: "meta" }, catTag(p.category), el("time", { datetime: p.publishedAt, text: fmtTime.format(new Date(p.ts)) })),
-    el("h3", { text: p.title }),
-    p.summary ? el("p", { text: p.summary }) : null,
-    el("div", { class: "meta" }, p.readingMinutes ? `${p.readingMinutes} min de lecture` : null, ...(p.tags || []).slice(0, 3).map((t) => "#" + t)));
+function postRow(p) {
+  return el("div", { class: "row", style: catStyle(p.category) },
+    el("time", { class: "row-time", datetime: p.publishedAt, text: time(p) }),
+    el("a", { class: "card", href: href(p) },
+      art(p),
+      el("div", { class: "card-body" },
+        el("div", { class: "meta" }, catTag(p.category), p.readingMinutes ? `${p.readingMinutes} min` : null),
+        el("h3", { text: p.title }),
+        p.summary ? el("p", { text: p.summary }) : null,
+        el("div", { class: "meta" }, ...(p.tags || []).slice(0, 4).map((t) => "#" + t)))));
+}
+
+function leadCard(p) {
+  return el("a", { class: "lead-card", href: href(p), style: catStyle(p.category) },
+    art(p),
+    el("div", { class: "lead-body" },
+      el("div", { class: "kicker", text: `À la une · ${cat(p.category).label} · ${time(p)}` }),
+      el("h2", { text: p.title }),
+      p.summary ? el("p", { text: p.summary }) : null,
+      el("div", { class: "meta" }, p.readingMinutes ? `${p.readingMinutes} min de lecture` : null, ...(p.tags || []).slice(0, 3).map((t) => "#" + t))));
 }
 
 function setNav(name) {
@@ -60,9 +78,9 @@ function show(...nodes) {
 
 function chipsBar(onChange) {
   const ids = ["all", ...new Set(posts.map((p) => p.category))];
-  const bar = el("div", { class: "chips", role: "group", "aria-label": "Filtrer par catégorie" });
+  const bar = el("div", { class: "chips", role: "group", "aria-label": "Filtrer par rubrique" });
   const paint = () => bar.replaceChildren(...ids.map((id) => {
-    const b = el("button", { class: "chip", type: "button", "aria-pressed": String(filter === id) }, id === "all" ? "Tout" : `${cat(id).icon || ""} ${cat(id).label}`);
+    const b = el("button", { class: "chip", type: "button", "data-all": id === "all" ? "" : null, style: id === "all" ? null : catStyle(id), "aria-pressed": String(filter === id) }, id === "all" ? "Tout" : `${cat(id).icon || ""} ${cat(id).label}`);
     b.onclick = () => { filter = id; paint(); onChange(); };
     return b;
   }));
@@ -72,46 +90,48 @@ function chipsBar(onChange) {
 
 const daySection = (date, list, link = true) =>
   el("section", { class: "day" },
-    el("h2", { class: "day-h" }, link ? el("a", { href: `#/d/${date}`, text: dayLabel(date) }) : dayLabel(date), el("span", { class: "count", text: `${list.length} article${list.length > 1 ? "s" : ""}` })),
-    el("div", { class: "grid" }, list.map((p) => postCard(p))));
+    el("h2", { class: "day-h" }, link ? el("a", { href: `#/d/${date}`, text: dayLabel(date) }) : dayLabel(date), el("span", { class: "count", text: plural(list.length, "article") })),
+    el("div", { class: "rail" }, list.map(postRow)));
 
 /* ---------- Pages ---------- */
 
 function pageHome() {
   setNav("home");
   document.title = "Tech Daily — veille web, dev, devops, électronique";
+  const today = days[0];
+  const lead = today && [...today.posts].sort((a, b) => (b.importance || 1) - (a.importance || 1) || b.ts - a.ts)[0];
   const box = el("div");
-  const more = el("button", { class: "btn more", type: "button", text: "Voir les jours précédents" });
+  const more = el("button", { class: "more", type: "button", text: "Afficher les jours précédents" });
   more.onclick = () => { shownDays += 3; draw(); };
   function draw() {
-    const vis = days.map((d) => ({ date: d.date, posts: d.posts.filter((p) => filter === "all" || p.category === filter) })).filter((d) => d.posts.length);
+    const vis = days.map((d) => ({ date: d.date, posts: d.posts.filter((p) => (filter === "all" || p.category === filter) && !(filter === "all" && p === lead)) })).filter((d) => d.posts.length);
     box.replaceChildren(...vis.slice(0, shownDays).map((d) => daySection(d.date, d.posts)), vis.length > shownDays ? more : el("span"));
-    if (!vis.length) box.replaceChildren(el("div", { class: "empty", text: "Aucun article pour le moment." }));
+    if (!vis.length) box.replaceChildren(el("div", { class: "empty", text: "Aucun article dans cette rubrique pour le moment." }));
   }
   draw();
   show(
-    el("section", { class: "hero" }, el("h1", { text: "L'actualité tech, au fil de l'eau" }),
-      el("p", { class: "lead", text: "Web, informatique, DevOps et électronique : tous les articles, horodatés, du plus récent au plus ancien." })),
-    chipsBar(draw), box);
+    el("section", { class: "hero" },
+      el("div", { class: "eyebrow" }, el("span", { class: "live" }), today ? `Dernière mise à jour · ${dayLabel(today.date)} · ${time(today.posts[0])}` : "En attente de la première édition"),
+      el("h1", { text: "L'actualité tech, heure par heure." }),
+      el("p", { class: "lead", text: `Web, informatique, DevOps et électronique : ${posts.length} articles synthétisés en français, avec leurs sources.` })),
+    lead ? leadCard(lead) : null, chipsBar(draw), box);
 }
 
-async function pageDay(date) {
+function pageDay(date) {
   setNav("archive");
   const k = days.findIndex((d) => d.date === date);
   if (k < 0) return notFound();
   document.title = `${dayLabel(date)} — Tech Daily`;
   const newer = days[k - 1], older = days[k + 1];
-  const eds = index.editions.filter((e) => e.posts.some((p) => fmtDayKey.format(new Date(Date.parse(p.publishedAt))) === date));
   const box = el("div");
-  const draw = () => box.replaceChildren(el("div", { class: "grid" }, days[k].posts.filter((p) => filter === "all" || p.category === filter).map((p) => postCard(p))));
+  const draw = () => box.replaceChildren(el("div", { class: "rail" }, days[k].posts.filter((p) => filter === "all" || p.category === filter).map(postRow)));
   draw();
   show(
-    el("section", { class: "hero" }, el("div", { class: "eyebrow", text: "Édition du jour" }), el("h1", { text: dayLabel(date) }),
-      ...eds.filter((e) => e.summary).map((e) => el("p", { class: "lead", text: e.summary }))),
+    el("section", { class: "hero" }, el("div", { class: "eyebrow" }, `Archives · ${plural(days[k].posts.length, "article")}`), el("h1", { text: dayLabel(date), style: "text-transform:capitalize" })),
     el("div", { class: "daynav" },
       el("a", { class: "btn", href: older ? `#/d/${older.date}` : "#", "aria-disabled": String(!older) }, "← Jour précédent"),
       el("a", { class: "btn", href: newer ? `#/d/${newer.date}` : "#", "aria-disabled": String(!newer) }, "Jour suivant →"),
-      el("a", { class: "btn", href: "#/archive" }, "Archives")),
+      el("a", { class: "btn", href: "#/archive" }, "Toutes les archives")),
     chipsBar(draw), box);
 }
 
@@ -120,42 +140,39 @@ async function pagePost(edId, id) {
   const e = await getJson(`data/editions/${edId}.json`);
   const p = e.posts.find((x) => x.id === id);
   if (!p) return notFound();
-  const meta = posts.find((x) => x.edition === edId && x.id === id);
-  const ts = meta?.ts || Date.parse(p.publishedAt || e.generatedAt) || 0;
+  const meta = posts.find((x) => x.edition === edId && x.id === id) || { ...p, edition: edId, ts: Date.parse(p.publishedAt || e.generatedAt) || 0, day: e.date };
   document.title = `${p.title} — Tech Daily`;
-  const siblings = posts.filter((x) => x.day === meta?.day);
+  const siblings = posts.filter((x) => x.day === meta.day);
   const k = siblings.findIndex((x) => x.edition === edId && x.id === id);
   const newer = siblings[k - 1], older = siblings[k + 1];
-  const cover = p.cover && safeUrl(p.cover.url);
   const sources = (p.sources || []).filter((s) => safeUrl(s.url));
-  const link = (x, label) => el("a", { class: "btn", href: `#/p/${x.edition}/${x.id}` }, label);
+  const link = (x, label, cls = "") => el("a", { class: "btn " + cls, href: href(x) }, label);
 
-  show(el("article", { class: "article", style: `--h:${cat(p.category).hue ?? 220}` },
-    el("a", { class: "btn", href: `#/d/${meta?.day || e.date}` }, "← ", dayLabel(meta?.day || e.date)),
-    el("div", { class: "meta", style: "margin-top:20px" }, catTag(p.category),
-      ts ? el("time", { datetime: new Date(ts).toISOString(), text: `${dayLabel(meta.day)} à ${fmtTime.format(new Date(ts))}` }) : null),
+  show(el("article", { class: "article", style: catStyle(p.category) },
+    el("a", { class: "btn", href: `#/d/${meta.day}` }, "← ", dayLabel(meta.day)),
+    el("div", { class: "meta", style: "margin-top:24px" }, catTag(p.category), el("time", { datetime: new Date(meta.ts).toISOString(), text: `${dayLabel(meta.day)} · ${time(meta)}` }), p.readingMinutes ? `${p.readingMinutes} min de lecture` : null),
     el("h1", { text: p.title }),
     p.summary ? el("p", { class: "lead", text: p.summary }) : null,
-    el("div", { class: "meta" }, p.readingMinutes ? `${p.readingMinutes} min de lecture` : null, ...(p.tags || []).map((t) => "#" + t)),
-    illustration({ icon: p.icon || cat(p.category).icon, hue: cat(p.category).hue, seed: edId + p.id, cover, alt: p.cover?.alt || p.title }),
-    p.cover?.credit ? el("p", { class: "meta", text: "Image : " + p.cover.credit }) : null,
-    el("div", { style: "margin-top:24px" }, renderBlocks(p.blocks)),
+    art({ ...p, edition: edId }, { alt: p.cover?.alt || p.title }),
+    p.cover?.credit ? el("p", { class: "credit", text: "Image : " + p.cover.credit }) : el("p", { class: "credit" }),
+    renderBlocks(p.blocks),
+    (p.tags || []).length ? el("div", { class: "meta", style: "margin-top:20px" }, ...p.tags.map((t) => "#" + t)) : null,
     sources.length ? el("section", { class: "sources" }, el("h2", { text: "Sources" }),
       el("ul", {}, sources.map((s) => el("li", {}, el("a", { href: safeUrl(s.url), target: "_blank", rel: "noopener noreferrer", text: s.title || s.url }), s.publisher ? ` — ${s.publisher}` : "")))) : null,
-    el("nav", { class: "pager" }, older ? link(older, "← " + older.title) : el("span"), newer ? link(newer, newer.title + " →") : null)));
+    el("nav", { class: "pager" }, older ? link(older, "← " + older.title) : el("span"), newer ? link(newer, newer.title + " →", "next") : null)));
 }
 
 function pageArchive(query = "") {
   setNav("archive");
   document.title = "Archives — Tech Daily";
-  const input = el("input", { class: "search", type: "search", placeholder: "Rechercher dans tous les articles…", "aria-label": "Rechercher", value: query });
+  const input = el("input", { class: "search", type: "search", placeholder: "Rechercher un sujet, un outil, un tag…", "aria-label": "Rechercher dans les archives", value: query });
   const list = el("div");
   function draw() {
     const q = norm(input.value.trim());
     const nodes = [];
     if (q) {
       const hits = posts.filter((p) => norm([p.title, p.summary, (p.tags || []).join(" "), cat(p.category).label].join(" ")).includes(q));
-      nodes.push(hits.length ? el("div", { class: "grid" }, hits.map((p) => postCard(p))) : el("div", { class: "empty", text: "Aucun résultat." }));
+      nodes.push(hits.length ? el("div", { class: "rail" }, hits.map(postRow)) : el("div", { class: "empty", text: "Aucun article ne correspond à cette recherche." }));
     } else {
       let month = "";
       for (const d of days) {
@@ -163,19 +180,19 @@ function pageArchive(query = "") {
         if (m !== month) { month = m; nodes.push(el("h2", { class: "month", text: m })); }
         nodes.push(el("a", { class: "ed", href: `#/d/${d.date}` },
           el("h3", { text: dayLabel(d.date) }),
-          el("div", { class: "meta", style: "margin-top:8px" }, ...[...new Set(d.posts.map((p) => p.category))].map(catTag), `${d.posts.length} article${d.posts.length > 1 ? "s" : ""}`)));
+          el("div", { class: "meta" }, ...[...new Set(d.posts.map((p) => p.category))].map(catTag), plural(d.posts.length, "article"))));
       }
-      if (!nodes.length) nodes.push(el("div", { class: "empty", text: "Aucune archive." }));
+      if (!nodes.length) nodes.push(el("div", { class: "empty", text: "Aucune archive pour le moment." }));
     }
     list.replaceChildren(...nodes);
   }
   input.addEventListener("input", draw);
   draw();
-  show(el("section", { class: "hero" }, el("h1", { text: "Archives" }), el("p", { class: "lead", text: `${posts.length} articles sur ${days.length} jour(s).` })), input, list);
+  show(el("section", { class: "hero" }, el("div", { class: "eyebrow", text: `${plural(posts.length, "article")} · ${plural(days.length, "jour")}` }), el("h1", { text: "Archives" })), input, list);
 }
 
 function notFound() {
-  show(el("div", { class: "error" }, el("p", { text: "Page introuvable." }), el("a", { class: "btn", href: "#/" }, "Retour à l'accueil")));
+  show(el("div", { class: "error" }, el("p", { text: "Cette page n'existe pas ou n'existe plus." }), el("a", { class: "btn", href: "#/" }, "Revenir à l'accueil")));
 }
 
 /* ---------- Router ---------- */
@@ -186,7 +203,7 @@ async function route() {
     const parts = path.split("/").filter(Boolean);
     if (!parts.length) return pageHome();
     if (parts[0] === "archive") return pageArchive(new URLSearchParams(qs).get("q") || "");
-    if (parts[0] === "d" && /^\d{4}-\d{2}-\d{2}$/.test(parts[1] || "")) return await pageDay(parts[1]);
+    if (parts[0] === "d" && /^\d{4}-\d{2}-\d{2}$/.test(parts[1] || "")) return pageDay(parts[1]);
     if (parts[0] === "p" && parts[1] && parts[2]) return await pagePost(parts[1], parts[2]);
     notFound();
   } catch (err) {
