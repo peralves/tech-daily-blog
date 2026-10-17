@@ -1,0 +1,53 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "edition.schema.json",
+  "title": "Edition quotidienne",
+  "description": "Un artefact = une édition = un jour. Le front ignore les champs inconnus (additionalProperties autorisé partout) : le schéma peut donc évoluer sans casser l'affichage. Incrémenter schemaVersion (mineur) pour tout ajout, (majeur) pour toute rupture.",
+  "type": "object",
+  "required": ["schemaVersion", "date", "title", "posts"],
+  "properties": {
+    "schemaVersion": { "type": "string", "pattern": "^\\d+\\.\\d+$", "examples": ["1.0"] },
+    "date": { "type": "string", "pattern": "^\\d{4}-\\d{2}-\\d{2}$", "description": "Jour de l'édition (fuseau Europe/Paris). Sert aussi de nom de fichier." },
+    "generatedAt": { "type": "string", "format": "date-time" },
+    "title": { "type": "string" },
+    "summary": { "type": "string", "description": "Chapô de l'édition." },
+    "highlights": { "type": "array", "items": { "type": "string" }, "description": "Points clés affichés en tête." },
+    "meta": { "type": "object", "description": "Libre : modèle, outils, notes de génération…" },
+    "posts": { "type": "array", "items": { "$ref": "#/$defs/post" } }
+  },
+  "additionalProperties": true,
+  "$defs": {
+    "post": {
+      "type": "object",
+      "required": ["id", "category", "title", "blocks"],
+      "properties": {
+        "id": { "type": "string", "pattern": "^[a-z0-9-]+$", "description": "Slug unique dans l'édition." },
+        "category": { "type": "string", "description": "Identifiant défini dans data/categories.json. Une catégorie inconnue reste affichable (style neutre)." },
+        "title": { "type": "string" },
+        "summary": { "type": "string" },
+        "tags": { "type": "array", "items": { "type": "string" } },
+        "importance": { "type": "integer", "minimum": 1, "maximum": 5, "description": "5 = à la une." },
+        "readingMinutes": { "type": "integer", "minimum": 1 },
+        "publishedAt": { "type": "string", "description": "Date de la source si connue." },
+        "cover": { "type": "object", "properties": { "url": { "type": "string" }, "alt": { "type": "string" } } },
+        "sources": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "required": ["url"],
+            "properties": { "title": { "type": "string" }, "url": { "type": "string" }, "publisher": { "type": "string" } }
+          }
+        },
+        "blocks": { "type": "array", "items": { "$ref": "#/$defs/block" } }
+      },
+      "additionalProperties": true
+    },
+    "block": {
+      "type": "object",
+      "required": ["type"],
+      "description": "Bloc de contenu. Types connus : paragraph, heading, list, quote, code, callout, image, link, table, keyvalue. Un type inconnu est affiché via son champ 'text' s'il existe, sinon ignoré. Texte inline : **gras**, *italique*, `code`, [libellé](https://url).",
+      "properties": { "type": { "type": "string" } },
+      "additionalProperties": true
+    }
+  }
+}
