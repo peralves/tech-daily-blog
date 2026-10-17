@@ -16,7 +16,7 @@ export function el(tag, props = {}, ...kids) {
     else if (k === "text") n.textContent = v;
     else n.setAttribute(k, v === true ? "" : v);
   }
-  const wrap = props.class && /bmetab/.test(props.class);
+  const wrap = props.class && /\bmeta\b/.test(props.class);
   for (const k of kids.flat()) if (k != null) n.append(wrap && typeof k === "string" ? el("span", { text: k }) : k);
   return n;
 }
