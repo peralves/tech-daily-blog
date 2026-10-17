@@ -1,0 +1,314 @@
+{
+  "schemaVersion": "1.0",
+  "date": "2026-10-17",
+  "generatedAt": "2026-10-17T18:31:00+02:00",
+  "title": "Tech Daily — Attaque via ConnectWise, Drupal à corriger, DeepSeek V4.1 et les graines des courbes NIST",
+  "summary": "Édition technique de la fin d'après-midi : une attaque de chaîne d'approvisionnement qui touche des locataires Microsoft 365, deux failles critiques dans Drupal, une mise à jour du modèle ouvert DeepSeek, l'énigme des courbes ECDSA résolue par un modèle d'IA, un comparatif de formats d'image et deux projets de bidouille, un émulateur ESP32 et un PS5 transformé en serveur de modèles.",
+  "highlights": [
+    "ConnectWise Cloud Backup : des identités d'application détournées, au moins 162 locataires Microsoft 365 compromis chez Huntress.",
+    "Drupal : deux failles d'exécution de code à distance corrigées, avec un risque d'exploitation rapide.",
+    "DeepSeek-V4.1-Flash-1017 : un modèle de 763 milliards de paramètres sous licence MIT, en hausse sur la plupart des tests.",
+    "Courbes NIST : les « graines » ECDSA viennent d'un générateur pseudo-aléatoire des années 1990, pas d'un secret.",
+    "JPEG XL contre AVIF : l'AVIF reste plus compact pour la plupart des usages web."
+  ],
+  "meta": { "generator": "claude-scheduled-task" },
+  "posts": [
+    {
+      "id": "connectwise-cloud-backup-microsoft-365",
+      "category": "cybersecurite",
+      "title": "ConnectWise Cloud Backup : une attaque de chaîne d'approvisionnement ouvre des locataires Microsoft 365",
+      "summary": "Des attaquants se sont authentifiés comme l'application de sauvegarde de ConnectWise et ont compromis des locataires Microsoft 365. Le service est suspendu, et les administrateurs doivent vérifier leurs journaux Entra.",
+      "tags": ["ConnectWise", "Microsoft 365", "Entra ID", "chaîne d'approvisionnement", "Huntress"],
+      "importance": 5,
+      "readingMinutes": 5,
+      "publishedAt": "2026-10-17T18:31:00+02:00",
+      "sourceDate": "2026-10-17",
+      "icon": "🔓",
+      "illustration": { "svg": "<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 640 360'><defs><linearGradient id='g1' x1='0' y1='0' x2='1' y2='1'><stop offset='0' stop-color='hsl(175,60%,32%)'/><stop offset='1' stop-color='hsl(205,60%,16%)'/></linearGradient></defs><rect width='640' height='360' fill='url(#g1)'/><g fill='none' stroke='#fff' stroke-width='6' stroke-linecap='round'><rect x='90' y='120' width='120' height='120' rx='14'/><rect x='430' y='120' width='120' height='120' rx='14'/><path d='M210 180h220' stroke-dasharray='14 12'/><path d='M410 160l20 20-20 20'/></g><circle cx='150' cy='180' r='26' fill='#fff'/><rect x='480' y='160' width='20' height='40' rx='4' fill='#fff'/><path d='M320 90l30 55h-60z' fill='#fff' opacity='.85'/><rect x='312' y='108' width='16' height='22' fill='hsl(190,60%,22%)'/></svg>" },
+      "cover": { "url": "https://www.bleepstatic.com/content/hl-images/2026/09/07/ConnectWise.jpg", "alt": "Logo ConnectWise, éditeur de la solution de sauvegarde Cloud Backup", "credit": "bleepstatic.com" },
+      "sources": [
+        { "title": "Hackers breach Microsoft 365 tenants via ConnectWise supply-chain attack", "url": "https://www.bleepingcomputer.com/news/security/hackers-breach-microsoft-365-tenants-via-connectwise-supply-chain-attack/", "publisher": "BleepingComputer" }
+      ],
+      "blocks": [
+        { "type": "paragraph", "text": "Le 17 octobre 2026, ConnectWise a coupé l'accès à son service **Cloud Backup** (anciennement SkyKick Cloud Backup) après avoir constaté un accès non autorisé aux identités d'application de cet environnement. Selon BleepingComputer, des administrateurs avaient signalé des accès suspects aux données de leurs clients dans Microsoft 365, et Microsoft qualifie l'épisode d'attaque de chaîne d'approvisionnement active. La société de sécurité Huntress a confirmé au moins 162 locataires compromis dans son propre périmètre de surveillance." },
+        { "type": "heading", "text": "Le mécanisme : s'authentifier comme l'application", "level": 2 },
+        { "type": "paragraph", "text": "Le service de sauvegarde s'appuie sur des autorisations accordées via Microsoft Entra ID. Son identité d'application (un *service principal*) disposait, chez les clients, de droits étendus accordés bien avant l'incident. L'attaquant s'est authentifié directement comme cette application, avec son secret, au moyen de scripts. Aucun utilisateur n'étant connecté, l'authentification multifacteur n'est jamais entrée en jeu : c'est le point qui rend ce type d'attaque redoutable." },
+        { "type": "diagram", "svg": "<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 640 260' font-family='system-ui, sans-serif'><rect width='640' height='260' rx='16' fill='#f1f5f9'/><g font-size='14' fill='#0f172a' text-anchor='middle'><rect x='20' y='90' width='150' height='70' rx='10' fill='#fecaca' stroke='#b91c1c'/><text x='95' y='120'>Attaquant</text><text x='95' y='140' font-size='12'>secret de l'application</text><rect x='245' y='90' width='150' height='70' rx='10' fill='#bfdbfe' stroke='#1d4ed8'/><text x='320' y='120'>Entra ID</text><text x='320' y='140' font-size='12'>pas de MFA applicatif</text><rect x='470' y='90' width='150' height='70' rx='10' fill='#bbf7d0' stroke='#15803d'/><text x='545' y='120'>Locataire M365</text><text x='545' y='140' font-size='12'>courrier, fichiers, Teams</text></g><g stroke='#334155' stroke-width='3' fill='none'><path d='M170 125h72'/><path d='M395 125h72'/><path d='M236 119l8 6-8 6'/><path d='M461 119l8 6-8 6'/></g><text x='320' y='210' font-size='13' fill='#334155' text-anchor='middle'>Connexion sans utilisateur : l'authentification multifacteur ne s'applique pas</text></svg>", "alt": "Schéma : l'attaquant s'authentifie comme l'application auprès d'Entra ID puis accède au locataire Microsoft 365", "caption": "Le parcours de l'attaque, d'après les analyses de Huntress, Todyl et Microsoft." },
+        { "type": "heading", "text": "Ce que montrent les analyses", "level": 2 },
+        { "type": "keyvalue", "items": [
+          { "label": "13–14 octobre", "value": "Tentatives de connexion scriptées depuis une même adresse IP, avec l'agent utilisateur curl/7.88.1 (Huntress)" },
+          { "label": "15 octobre", "value": "Activité malveillante confirmée par Microsoft, avec des tentatives d'authentification non autorisées" },
+          { "label": "17 octobre, 5 h 01 UTC", "value": "ConnectWise annonce l'interruption du service, sans calendrier de reprise" },
+          { "label": "Étendue connue", "value": "Au moins 162 locataires chez Huntress ; le total des victimes reste inconnu" }
+        ] },
+        { "type": "paragraph", "text": "Les constats divergent selon les éditeurs. Todyl, qui a examiné neuf locataires, n'a trouvé que des connexions, sans création de compte, changement de mot de passe ni persistance. Huntress, sur près de cinquante locataires surveillés, a vu des applications ConnectWise s'attribuer elles-mêmes des rôles d'annuaire, surtout *Exchange Administrator* ; dans un cas, l'application « Cloud Management - MS Teams » s'est donné le rôle d'administrateur général en cinq minutes environ. Microsoft a observé une porte dérobée après l'authentification, puis une reconnaissance via l'API Microsoft Graph." },
+        { "type": "heading", "text": "Que faire", "level": 2 },
+        { "type": "list", "items": [
+          "Examiner dans Entra les connexions de l'application Cloud Backup et repérer toute adresse source inattendue.",
+          "Désactiver les applications ConnectWise concernées ; les jetons déjà émis restent valides jusqu'à leur expiration, et la révocation des sessions utilisateur ne coupe pas l'accès applicatif.",
+          "Passer en revue les identifiants et certificats ajoutés aux applications depuis le 13 octobre, ainsi que les rôles d'annuaire attribués à des *service principals*.",
+          "Contrôler les journaux PIM et d'audit à la recherche d'auto-attributions de rôles."
+        ] },
+        { "type": "usecases", "title": "Exemples d'utilisation", "items": [
+          { "icon": "🛠️", "title": "Prestataire informatique", "text": "Un infogéreur qui sauvegarde les locataires de dizaines de clients vérifie en priorité les rôles attribués aux applications et prévient ses clients." },
+          { "icon": "🏢", "title": "PME sans équipe sécurité", "text": "Une PME dont le prestataire utilise Cloud Backup demande à celui-ci un état des lieux écrit et fait contrôler les journaux Entra." },
+          { "icon": "📋", "title": "Responsable conformité", "text": "Si des données personnelles ont pu être consultées, la question d'une notification à la CNIL se pose et doit être examinée avec le délégué à la protection des données." }
+        ] },
+        { "type": "timeline", "title": "D'où l'on vient, où l'on va", "items": [
+          { "label": "13 octobre 2026", "text": "Premières connexions scriptées observées." },
+          { "label": "15 octobre 2026", "text": "Activité malveillante confirmée, alertes d'administrateurs." },
+          { "label": "17 octobre 2026", "text": "Service suspendu ; l'origine de la fuite du secret n'est pas connue." }
+        ] },
+        { "type": "opinion", "title": "Notre avis", "paragraphs": [
+          "L'incident rappelle que les applications tierces disposant de droits larges dans un locataire sont des identités privilégiées à part entière, rarement surveillées avec le même soin que les comptes d'administrateurs. Le fait que l'authentification multifacteur ne protège pas contre ce scénario est le vrai enseignement.",
+          "À un ou trois ans, on peut s'attendre à ce que les organisations inventorient et réduisent systématiquement les permissions applicatives, et que Microsoft durcisse la gestion des secrets d'application. Il s'agit d'une projection, pas d'un fait établi."
+        ], "verdict": "Une sauvegarde mal encadrée peut devenir la porte d'entrée de tout un locataire." },
+        { "type": "callout", "icon": "📌", "title": "À retenir", "text": "Inventoriez les applications ayant des droits dans votre locataire Microsoft 365 et surveillez leurs connexions : elles échappent à l'authentification multifacteur. Les faits ci-dessus datent du 17 octobre 2026 et peuvent évoluer." }
+      ]
+    },
+    {
+      "id": "drupal-failles-rce-field-ui",
+      "category": "cybersecurite",
+      "title": "Drupal : deux failles critiques d'exécution de code à distance, des exploits attendus rapidement",
+      "summary": "Drupal corrige deux failles RCE touchant le cœur (module Field UI) et le module contribué Entity List. L'équipe de sécurité prévient que des exploits pourraient apparaître en quelques heures ou jours.",
+      "tags": ["Drupal", "RCE", "CVE-2026-108097", "CMS", "correctif"],
+      "importance": 4,
+      "readingMinutes": 4,
+      "publishedAt": "2026-10-17T18:31:00+02:00",
+      "sourceDate": "2026-10-17",
+      "icon": "💧",
+      "illustration": { "svg": "<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 640 360'><defs><linearGradient id='g2' x1='0' y1='0' x2='1' y2='1'><stop offset='0' stop-color='hsl(175,60%,30%)'/><stop offset='1' stop-color='hsl(210,60%,17%)'/></linearGradient></defs><rect width='640' height='360' fill='url(#g2)'/><path d='M320 60c60 80 100 130 100 180a100 100 0 0 1-200 0c0-50 40-100 100-180z' fill='#fff' opacity='.92'/><g stroke='hsl(190,60%,22%)' stroke-width='10' stroke-linecap='round' fill='none'><path d='M290 210l-24 24 24 24'/><path d='M350 210l24 24-24 24'/><path d='M332 200l-24 50'/></g></svg>" },
+      "sources": [
+        { "title": "Drupal patches critical RCE flaws, warns exploits may emerge soon", "url": "https://www.bleepingcomputer.com/news/security/drupal-patches-critical-rce-flaws-warns-exploits-may-emerge-soon/", "publisher": "BleepingComputer" }
+      ],
+      "blocks": [
+        { "type": "paragraph", "text": "L'équipe de sécurité de Drupal a publié des correctifs pour deux vulnérabilités critiques d'exécution de code à distance. Elle avait annoncé en début de semaine, par un avis préalable (PSA-2026-10-12), que des exploits pourraient être développés « en quelques heures ou quelques jours ». Selon BleepingComputer, toutes les versions du cœur encore prises en charge sont concernées. Drupal est un système de gestion de contenu libre utilisé notamment par des administrations, des universités et des associations, et revendique plus d'un million de sites." },
+        { "type": "heading", "text": "Les deux failles", "level": 2 },
+        { "type": "table", "headers": ["Identifiant", "Composant", "Avis", "Particularité"], "rows": [
+          ["CVE-2026-108097", "Cœur de Drupal, module Field UI", "SA-CORE-2026-014", "Non exploitable par le cœur seul ; des modules contribués offrent plusieurs chemins, dont un sans authentification"],
+          ["CVE-2026-108099", "Module contribué Entity List", "SA-CONTRIB-2026-218", "Même logique : interaction avec des modules ou du code sur mesure, au moins un chemin sans authentification"]
+        ] },
+        { "type": "heading", "text": "Versions corrigées et mesure de contournement", "level": 2 },
+        { "type": "list", "items": [
+          "Cœur : passer à la version 10.6.19, 11.3.19 ou 11.4.10 selon la branche utilisée.",
+          "Entity List : passer à la version 3.0.10.",
+          "Drupal 12 : les préversions antérieures à beta2 sont touchées ; la version finale 12.0 contient les correctifs.",
+          "Si la mise à jour est impossible, désinstaller le module `field_ui` du cœur est une mesure de contournement efficace.",
+          "Drupal Steward protège contre certains vecteurs connus mais ne remplace pas le correctif."
+        ] },
+        { "type": "paragraph", "text": "Les versions antérieures à la 10.6 et, pour la branche 11, antérieures à la 11.3, ne sont plus maintenues : aucun correctif n'est prévu pour elles, et les sites concernés doivent d'abord migrer. Le point sensible tient à la formulation de l'éditeur : la faille du cœur n'est pas exploitable seule, mais la combinaison avec des modules contribués ou du code propre à un site rend l'exposition difficile à évaluer sans audit." },
+        { "type": "usecases", "title": "Exemples d'utilisation", "items": [
+          { "icon": "🏛️", "title": "Site de collectivité", "text": "Une mairie dont le site est géré par un prestataire demande la date exacte de la mise à jour et la version installée." },
+          { "icon": "🎓", "title": "Université", "text": "Une équipe qui administre des dizaines de sites Drupal priorise ceux qui exposent des formulaires publics et désinstalle `field_ui` en attendant la migration." },
+          { "icon": "🧪", "title": "Agence web", "text": "Une agence inventorie les modules contribués de chaque projet pour repérer Entity List et Field UI avant tout déploiement." }
+        ] },
+        { "type": "timeline", "title": "D'où l'on vient, où l'on va", "items": [
+          { "label": "12 octobre 2026", "text": "Avis préalable PSA-2026-10-12 recommandant de mettre à jour avant le 14 octobre." },
+          { "label": "17 octobre 2026", "text": "Publication des correctifs et des avis de sécurité." },
+          { "label": "Prochains jours", "text": "Des preuves de concept publiques sont possibles, selon l'équipe de sécurité ; ce point reste une hypothèse." }
+        ] },
+        { "type": "opinion", "title": "Notre avis", "paragraphs": [
+          "L'annonce préalable d'une fenêtre de correctifs est une bonne pratique : elle laisse aux équipes le temps de se préparer. Elle suppose toutefois des sites à jour, ce qui n'est pas le cas de ceux restés sur des branches arrêtées.",
+          "À un ou trois ans, la pression devrait pousser davantage de sites vers des mises à jour automatisées. C'est une projection, non un fait."
+        ], "verdict": "Mettre à jour tout de suite, ou désinstaller Field UI en attendant." },
+        { "type": "callout", "icon": "📌", "title": "À retenir", "text": "Cœur 10.6.19, 11.3.19 ou 11.4.10 ; Entity List 3.0.10 ; à défaut, retirer le module `field_ui`." }
+      ]
+    },
+    {
+      "id": "deepseek-v4-1-flash-1017",
+      "category": "ia",
+      "title": "DeepSeek-V4.1-Flash-1017 : un modèle ouvert de 763 milliards de paramètres, plus fort en code et en agents",
+      "summary": "DeepSeek publie sous licence MIT une mise à jour de son modèle V4.1 Flash, avec des gains sur le raisonnement, le code, les tâches d'agent et la vision, pour des réponses plus courtes.",
+      "tags": ["DeepSeek", "modèle ouvert", "MIT", "agents", "Hugging Face"],
+      "importance": 4,
+      "readingMinutes": 4,
+      "publishedAt": "2026-10-17T18:31:00+02:00",
+      "sourceDate": "2026-10-17",
+      "icon": "🐋",
+      "illustration": { "svg": "<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 640 360'><defs><linearGradient id='g3' x1='0' y1='0' x2='1' y2='1'><stop offset='0' stop-color='hsl(320,55%,34%)'/><stop offset='1' stop-color='hsl(280,55%,16%)'/></linearGradient></defs><rect width='640' height='360' fill='url(#g3)'/><g fill='#fff'><circle cx='200' cy='180' r='14'/><circle cx='320' cy='110' r='14'/><circle cx='320' cy='250' r='14'/><circle cx='440' cy='180' r='14'/><circle cx='320' cy='180' r='20'/></g><g stroke='#fff' stroke-width='4' opacity='.8'><path d='M200 180L320 110L440 180L320 250Z' fill='none'/><path d='M200 180H440M320 110V250'/></g></svg>" },
+      "cover": { "url": "https://cdn-thumbnails.huggingface.co/social-thumbnails/models/deepseek-ai/DeepSeek-V4.1-Flash-1017.png", "alt": "Vignette de la fiche Hugging Face du modèle DeepSeek-V4.1-Flash-1017", "credit": "huggingface.co" },
+      "sources": [
+        { "title": "DeepSeek-V4.1-Flash-1017", "url": "https://huggingface.co/deepseek-ai/DeepSeek-V4.1-Flash-1017", "publisher": "Hugging Face" }
+      ],
+      "blocks": [
+        { "type": "paragraph", "text": "DeepSeek a mis en ligne sur Hugging Face **DeepSeek-V4.1-Flash-1017**, présenté comme une mise à jour mineure de V4.1 Flash. L'éditeur annonce de meilleures performances en raisonnement, en programmation, sur les tâches d'agent et en vision, avec un temps d'exécution et une longueur de sortie réduits, donc un coût d'usage moindre. Le modèle compte environ 763 milliards de paramètres, accepte des images entrelacées au texte et est publié sous licence MIT, poids compris." },
+        { "type": "heading", "text": "Les chiffres annoncés par l'éditeur", "level": 2 },
+        { "type": "table", "headers": ["Test", "V4.1 Flash", "1017"], "rows": [
+          ["Humanity's Last Exam (sans outils)", "36,8", "42,6"],
+          ["Terminal-Bench 4.0", "31,2", "42,3"],
+          ["DeepSWE v1.1", "74,2", "77,0"],
+          ["ProgramBench", "20,3", "29,1"],
+          ["Automation-Bench v1.0.6", "54,8", "60,5"],
+          ["BabyVision (avec outils)", "89,6", "92,5"]
+        ] },
+        { "type": "paragraph", "text": "Ces résultats proviennent de la fiche du modèle : ils n'ont pas été reproduits de façon indépendante. La fiche compare aussi le modèle à des concurrents, dont Opus 5, qui obtient de meilleurs scores sur la plupart des lignes ; DeepSeek-V4.1-Flash-1017 le devance sur DeepSWE v1.1 et s'en approche sur plusieurs autres." },
+        { "type": "heading", "text": "Utilisation", "level": 2 },
+        { "type": "keyvalue", "items": [
+          { "label": "Contexte recommandé", "value": "1 million de jetons, avec 256 000 jetons de sortie ou plus" },
+          { "label": "Échantillonnage", "value": "Température 1,0 et top_p 1,0" },
+          { "label": "Licence", "value": "MIT (code et poids)" },
+          { "label": "Outils locaux", "value": "vLLM, SGLang, Docker Model Runner, quantifications compatibles llama.cpp" },
+          { "label": "Hébergement", "value": "Aucun fournisseur d'inférence ne l'héberge pour l'instant, selon la fiche" }
+        ] },
+        { "type": "paragraph", "text": "Aucun modèle de gabarit Jinja n'est fourni : l'encodage des conversations, des appels d'outils et du mode de réflexion passe par un fichier Python de référence, et un projet distinct propose des bibliothèques Rust pour plusieurs formats d'API. La fiche ne donne aucun tarif." },
+        { "type": "usecases", "title": "Exemples d'utilisation", "items": [
+          { "icon": "💻", "title": "Agent de code interne", "text": "Une équipe héberge le modèle sur ses propres serveurs pour automatiser des corrections dans un dépôt, sans envoyer de code à un tiers." },
+          { "icon": "📊", "title": "Lecture de graphiques", "text": "Un service d'analyse l'utilise pour extraire des chiffres de rapports contenant des graphiques." },
+          { "icon": "🔬", "title": "Recherche académique", "text": "Un laboratoire étudie le comportement du modèle, rendu possible par la licence permissive." }
+        ] },
+        { "type": "timeline", "title": "D'où l'on vient, où l'on va", "items": [
+          { "label": "Avant le 17 octobre 2026", "text": "Version V4.1 Flash disponible." },
+          { "label": "17 octobre 2026", "text": "Publication de la révision 1017, avec la fiche et les poids." },
+          { "label": "Ensuite", "text": "Hébergement chez des fournisseurs et évaluations indépendantes à attendre." }
+        ] },
+        { "type": "opinion", "title": "Notre avis", "paragraphs": [
+          "Publier un modèle de cette taille sous licence MIT reste un levier fort pour les entreprises qui veulent garder la main sur leurs données. Mais 763 milliards de paramètres exigent du matériel sérieux, et les gains annoncés doivent être confirmés hors des tests choisis par l'éditeur.",
+          "À un ou trois ans, la pression sur les prix des modèles fermés devrait se poursuivre. Cette perspective relève de l'opinion."
+        ], "verdict": "Une avancée intéressante, à valider par des mesures indépendantes." },
+        { "type": "callout", "icon": "📌", "title": "À retenir", "text": "Licence MIT, 1 million de jetons de contexte, chiffres non vérifiés de façon indépendante." }
+      ]
+    },
+    {
+      "id": "courbes-nist-graines-ecdsa-anthropic",
+      "category": "ia",
+      "title": "Courbes NIST : un modèle d'IA retrouve l'origine des « graines » ECDSA",
+      "summary": "Des chercheurs d'Anthropic expliquent comment un modèle a montré que les graines des courbes elliptiques du NIST proviennent d'un générateur pseudo-aléatoire des années 1990, ce qui rend une porte dérobée peu plausible.",
+      "tags": ["ECDSA", "NIST", "cryptographie", "Anthropic", "recherche"],
+      "importance": 4,
+      "readingMinutes": 5,
+      "publishedAt": "2026-10-17T18:31:00+02:00",
+      "sourceDate": "2026-10-17",
+      "icon": "🔑",
+      "illustration": { "svg": "<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 640 360'><defs><linearGradient id='g4' x1='0' y1='0' x2='1' y2='1'><stop offset='0' stop-color='hsl(320,55%,34%)'/><stop offset='1' stop-color='hsl(250,55%,16%)'/></linearGradient></defs><rect width='640' height='360' fill='url(#g4)'/><path d='M120 270C200 60 320 60 400 180S520 270 540 120' fill='none' stroke='#fff' stroke-width='8' stroke-linecap='round'/><circle cx='260' cy='110' r='12' fill='#fff'/><circle cx='400' cy='180' r='12' fill='#fff'/><circle cx='500' cy='230' r='12' fill='#fff'/></svg>" },
+      "cover": { "url": "https://www-cdn.anthropic.com/images/4zrzovbb/website/d0c862c5cabd703c0fcbaad939385133f02b694c-1200x630.jpg", "alt": "Visuel de l'article d'Anthropic sur l'origine des courbes ECDSA", "credit": "anthropic.com" },
+      "sources": [
+        { "title": "Claude reveals ECDSA curve origins", "url": "https://www.anthropic.com/research/ecdsa-curve-origins", "publisher": "Anthropic" }
+      ],
+      "blocks": [
+        { "type": "paragraph", "text": "Quand le NIST a adopté l'algorithme de signature ECDSA en 2000 (norme FIPS 186-2), les courbes recommandées étaient accompagnées de « graines » fournies par la NSA, sans explication. Ces valeurs déterminent le coefficient b de chaque courbe, et leur opacité a nourri depuis des années les soupçons de porte dérobée. Anthropic publie un article de recherche selon lequel l'origine de ces graines a enfin été reconstituée, avec l'aide d'un modèle interne." },
+        { "type": "heading", "text": "Ce que le modèle a trouvé", "level": 2 },
+        { "type": "paragraph", "text": "Un employé a demandé au modèle de déterminer comment les graines avaient été produites, sans lui donner l'indice d'une phrase de passe humoristique parfois évoquée, qui s'est révélée fausse. Le modèle a établi que les graines des courbes P-192, P-224, P-256, P-384 et P-521 ne sont pas des empreintes de hachage : elles proviennent du générateur `lrand48` de la bibliothèque C, initialisé avec un horodatage Unix. Chaque graine se construit à partir de candidats de 20 octets, la valeur publiée correspondant à un certain nombre d'itérations (le candidat 1 842 pour P-256)." },
+        { "type": "list", "items": [
+          "Indice statistique : le bit de poids fort des mots de 32 bits est nul dans quatre graines, un hasard d'environ une chance sur 5 810.",
+          "Courbes premières : l'état interne du générateur a été retrouvé par réduction de réseau (algorithme LLL) ; chaque état régénère les 160 bits de sa graine.",
+          "Dates : les horodatages correspondent à une période allant de mai 1997 à avril 1998.",
+          "Points de base : ceux de P-192 et de cinq courbes d'exemple ANSI X9.62 viennent du générateur de la bibliothèque FreeLIP de Lenstra."
+        ] },
+        { "type": "heading", "text": "Portée et limites", "level": 2 },
+        { "type": "paragraph", "text": "Les auteurs précisent qu'il ne s'agit ni d'une cassure ni d'une faiblesse cryptographique. Leur argument : des graines issues d'un processus simple et reproductible rendent une porte dérobée délibérée beaucoup moins plausible. Des zones d'ombre subsistent : certains candidats valides ont été écartés pour des critères inconnus, la graine de B-163 reste inexpliquée, et les points de base de P-224, P-256, P-384 et P-521 ne sont pas élucidés. Une prime de 36 864 dollars pour cette énigme sera reversée à l'Internet Security Research Group, et le code permettant de reproduire les résultats est placé dans le domaine public." },
+        { "type": "usecases", "title": "Exemples d'utilisation", "items": [
+          { "icon": "🔍", "title": "Audit de cryptographie", "text": "Un cabinet d'audit s'appuie sur ces résultats pour documenter le choix des courbes dans un dossier de conformité." },
+          { "icon": "🎓", "title": "Enseignement", "text": "Un cours de cryptographie reprend le code public pour illustrer la rétro-ingénierie d'un générateur pseudo-aléatoire." },
+          { "icon": "🧰", "title": "Recherche assistée par IA", "text": "Une équipe de recherche confie à un modèle la vérification de vieux mystères techniques, en recoupant ensuite les résultats à la main." }
+        ] },
+        { "type": "timeline", "title": "D'où l'on vient, où l'on va", "items": [
+          { "label": "2000", "text": "Adoption d'ECDSA par le NIST (FIPS 186-2)." },
+          { "label": "1997–1998", "text": "Horodatages déduits des graines des courbes premières." },
+          { "label": "17 octobre 2026", "text": "Publication de l'analyse ; restent à expliquer plusieurs points de base." }
+        ] },
+        { "type": "opinion", "title": "Notre avis", "paragraphs": [
+          "Le résultat éclaire un débat ancien sans le clore : démontrer l'absence de porte dérobée est impossible, mais la reconstitution d'un procédé banal en réduit nettement la probabilité. L'épisode illustre aussi l'intérêt d'assistants capables d'explorer des hypothèses de façon systématique.",
+          "À un ou trois ans, ce type de recherche devrait devenir courant pour auditer d'anciens standards. Il s'agit d'une projection."
+        ], "verdict": "Un mystère de vingt-cinq ans largement éclairci, sans vulnérabilité à la clé." },
+        { "type": "callout", "icon": "📌", "title": "À retenir", "text": "Les graines viennent de lrand48 et d'horodatages de 1997–1998 ; pas de faille, mais des points de base encore inexpliqués. Résultats publiés par Anthropic, non encore validés par une relecture indépendante." }
+      ]
+    },
+    {
+      "id": "jpeg-xl-contre-avif-web",
+      "category": "web",
+      "title": "JPEG XL contre AVIF : un comparatif chiffré donne l'avantage à l'AVIF sur le web",
+      "summary": "Jake Archibald a mesuré taille, temps d'encodage et de décodage des deux formats. Pour la plupart des usages web, l'AVIF en 4:4:4 reste plus compact ; le JPEG XL l'emporte en sans perte et pour recompresser des JPEG.",
+      "tags": ["AVIF", "JPEG XL", "images", "performance web", "formats"],
+      "importance": 3,
+      "readingMinutes": 5,
+      "publishedAt": "2026-10-17T18:31:00+02:00",
+      "sourceDate": "2026-10-17",
+      "icon": "🖼️",
+      "illustration": { "svg": "<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 640 360'><defs><linearGradient id='g5' x1='0' y1='0' x2='1' y2='1'><stop offset='0' stop-color='hsl(210,60%,34%)'/><stop offset='1' stop-color='hsl(240,60%,18%)'/></linearGradient></defs><rect width='640' height='360' fill='url(#g5)'/><rect x='120' y='90' width='170' height='180' rx='12' fill='none' stroke='#fff' stroke-width='6'/><rect x='350' y='90' width='170' height='180' rx='12' fill='none' stroke='#fff' stroke-width='6'/><path d='M135 250l50-70 40 45 25-30 25 55z' fill='#fff'/><path d='M365 250l50-70 40 45 25-30 25 55z' fill='#fff' opacity='.7'/><circle cx='250' cy='125' r='14' fill='#fff'/><circle cx='480' cy='125' r='14' fill='#fff' opacity='.7'/></svg>" },
+      "cover": { "url": "https://jakearchibald.com/c/img-B1T1kkPz.jpg", "alt": "Visuel de l'article de Jake Archibald comparant JPEG XL et AVIF", "credit": "jakearchibald.com" },
+      "sources": [
+        { "title": "JPEG XL vs. AVIF for web use-cases", "url": "https://jakearchibald.com/2026/jpeg-xl-vs-avif/", "publisher": "jakearchibald.com" }
+      ],
+      "blocks": [
+        { "type": "paragraph", "text": "Le débat entre JPEG XL et AVIF agite le web depuis des années, souvent à coups d'opinions. Le développeur Jake Archibald publie cette fois des mesures : encodeurs avifenc 1.4.2, libjxl 0.12.0 et jixel 0.4.2, métriques SSIMULACRA2 et ColorVideoVDP, essais sur un MacBook Pro M4 Pro et dans Firefox, Chrome et Safari. Sa conclusion : pour le web, l'AVIF en 4:4:4 au meilleur niveau d'effort supportable est le choix le plus sûr, le JPEG XL (via jixel) pouvant dépanner quand un fichier AVIF paraît anormalement gros." },
+        { "type": "heading", "text": "Les résultats par type d'image", "level": 2 },
+        { "type": "table", "headers": ["Cas", "Résultat"], "rows": [
+          ["Photos avec perte", "AVIF plus petit ; JPEG XL de 15 à 25 % plus gros par défaut, de 6 à 20 % à l'effort maximal"],
+          ["Captures d'écran et illustrations", "AVIF nettement plus petit ; JPEG XL de 30 à 90 % plus gros par défaut"],
+          ["Transparence", "AVIF nettement plus petit ; libjxl de 31 à 44 % plus gros, jixel de 2 à 3 fois"],
+          ["Décodage", "AVIF plus rapide ; le JPEG XL demande 2 à 3 fois plus de temps à qualité moyenne"],
+          ["Sans perte", "JPEG XL gagne : WebP sans perte est de 9 à 17 % plus gros sur les photos"],
+          ["Recompression de JPEG existants", "Le JPEG XL économise de 9 à 20 % sans perte supplémentaire"]
+        ] },
+        { "type": "heading", "text": "Affichage progressif et HDR", "level": 2 },
+        { "type": "paragraph", "text": "Le JPEG XL propose un affichage progressif à très faible coût à fort effort, visible dans Firefox et Chrome mais pas dans Safari, qui n'affiche que l'image finale. L'AVIF progressif ne fonctionne pour l'instant que dans Chrome. Côté HDR, l'AVIF gère les cartes de gain, prises en charge et dégradées proprement ; le JPEG XL les prévoit dans le format, mais aucun navigateur ne les décode encore." },
+        { "type": "paragraph", "text": "L'auteur reconnaît les limites de l'exercice : échantillon réduit et surtout composé de ses propres images, largeur de test de 1 598 pixels, encodeur jixel encore récent, et métriques qui divergent parfois. Il invite à tester avec ses propres visuels." },
+        { "type": "usecases", "title": "Exemples d'utilisation", "items": [
+          { "icon": "🛒", "title": "Boutique en ligne", "text": "Une boutique convertit ses visuels produits en AVIF 4:4:4 pour réduire le poids des pages sans dégrader les détails." },
+          { "icon": "📰", "title": "Média avec archives JPEG", "text": "Un journal recompresse ses archives en JPEG XL pour gagner 9 à 20 % de volume sans perte supplémentaire." },
+          { "icon": "🎨", "title": "Site de portfolio", "text": "Un illustrateur garde des fichiers sans perte en JPEG XL pour les téléchargements et sert de l'AVIF dans les pages." }
+        ] },
+        { "type": "timeline", "title": "D'où l'on vient, où l'on va", "items": [
+          { "label": "Années récentes", "text": "L'AVIF s'impose dans les navigateurs ; le JPEG XL progresse plus lentement." },
+          { "label": "17 octobre 2026", "text": "Publication du comparatif chiffré." },
+          { "label": "À suivre", "text": "Cartes de gain HDR du JPEG XL et progressivité de l'AVIF dans Firefox, encore en chantier." }
+        ] },
+        { "type": "opinion", "title": "Notre avis", "paragraphs": [
+          "Le mérite de ce comparatif est de remplacer les convictions par des mesures reproductibles. Il ne tranche pas pour tous les cas : le sans perte et la recompression de JPEG restent des points forts du JPEG XL, et le temps de décodage pèse sur les mobiles.",
+          "À un ou trois ans, les deux formats devraient coexister, avec un choix guidé par l'outillage de diffusion d'images. C'est une projection."
+        ], "verdict": "L'AVIF par défaut, le JPEG XL en renfort pour des cas précis." },
+        { "type": "callout", "icon": "📌", "title": "À retenir", "text": "Testez sur vos propres images : les écarts varient selon le contenu et l'encodeur." }
+      ]
+    },
+    {
+      "id": "esp32sim-emulateur-esp32-rust",
+      "category": "electronique",
+      "title": "esp32sim : un émulateur ESP32 en Rust qui fait tourner le vrai firmware, jusque dans le navigateur",
+      "summary": "Le projet libre esp32sim émule les ESP32, S3, C3 et C6 au niveau des instructions, avec la ROM d'origine, un point d'accès Wi-Fi virtuel et une version WebAssembly.",
+      "tags": ["ESP32", "émulateur", "Rust", "WebAssembly", "firmware"],
+      "importance": 3,
+      "readingMinutes": 5,
+      "publishedAt": "2026-10-17T18:31:00+02:00",
+      "sourceDate": "2026-10-17",
+      "icon": "🧪",
+      "illustration": { "svg": "<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 640 360'><defs><linearGradient id='g6' x1='0' y1='0' x2='1' y2='1'><stop offset='0' stop-color='hsl(30,70%,36%)'/><stop offset='1' stop-color='hsl(10,60%,18%)'/></linearGradient></defs><rect width='640' height='360' fill='url(#g6)'/><rect x='220' y='110' width='200' height='140' rx='14' fill='none' stroke='#fff' stroke-width='6'/><g stroke='#fff' stroke-width='6' stroke-linecap='round'><path d='M250 110v-30M290 110v-30M330 110v-30M370 110v-30M250 250v30M290 250v30M330 250v30M370 250v30M220 150h-30M220 210h-30M420 150h30M420 210h30'/></g><rect x='270' y='150' width='100' height='60' rx='8' fill='#fff' opacity='.9'/></svg>" },
+      "cover": { "url": "https://opengraph.githubassets.com/d8248955f168bfc62187d6d2743c4c12e18ac1e32e7a88384e2e774488b51288/mikroverk/esp32sim", "alt": "Aperçu du dépôt GitHub esp32sim", "credit": "github.com" },
+      "sources": [
+        { "title": "mikroverk/esp32sim", "url": "https://github.com/mikroverk/esp32sim", "publisher": "GitHub" }
+      ],
+      "blocks": [
+        { "type": "paragraph", "text": "Tester un firmware pour microcontrôleur oblige d'ordinaire à brancher une carte. **esp32sim**, un projet libre sous licence MIT écrit en Rust, propose une autre voie : émuler les puces Espressif au niveau des instructions et y faire tourner un firmware non modifié, avec la ROM d'origine, le chargeur d'amorçage de second niveau et l'image applicative. Aucun matériel, service en ligne ni compte n'est requis." },
+        { "type": "heading", "text": "Puces prises en charge", "level": 2 },
+        { "type": "table", "headers": ["Puce", "Cœur", "État annoncé"], "rows": [
+          ["ESP32-S3", "2 × Xtensa LX7, 240 MHz", "« mature », plusieurs cartes avec écran, caméra, audio"],
+          ["ESP32-C3", "1 × RISC-V, 160 MHz", "ébauche, console seulement"],
+          ["ESP32-C6", "1 × RISC-V, 160 MHz", "ébauche, une carte Waveshare, modèle 802.15.4"],
+          ["ESP32 classique", "2 × Xtensa LX6", "démarre, avec GPIO, UART et minuteries"]
+        ] },
+        { "type": "paragraph", "text": "Les périphériques sont en grande partie partagés entre puces ; seuls les cœurs de processeur diffèrent. Le S3 profite d'un interpréteur par blocs et d'un compilateur à la volée pour AArch64, de l'ordre de 150 à 240 millions d'instructions par seconde. Des modèles de cartes traduisent les événements de broches en comportements de composants, et le modèle Wi-Fi fournit un point d'accès virtuel : le firmware peut scanner, s'authentifier en WPA2, obtenir une adresse DHCP et joindre le réseau de l'hôte par NAT." },
+        { "type": "heading", "text": "Limites et vérification", "level": 2 },
+        { "type": "list", "items": [
+          "Un firmware gourmand en affichage peut prendre du retard sur le temps réel : un rafraîchissement complet d'écran atteint environ 70 millions d'instructions par seconde sur un Mac à puce M, contre 240 nécessaires.",
+          "Les comparaisons avec le matériel ne sont pas exactes au cycle près.",
+          "Le NAT n'est pas disponible dans le navigateur ; le C6 a besoin d'une option particulière pour le Wi-Fi.",
+          "Sur le S3, 3 000 pas depuis le reset ont été comparés par JTAG à une carte réelle sans divergence (25 août 2026) ; sur C3 et C6, 205 lignes sur 208 et 203 sur 204 de la console sont identiques à celles du matériel."
+        ] },
+        { "type": "usecases", "title": "Exemples d'utilisation", "items": [
+          { "icon": "🧰", "title": "Tests automatisés", "text": "Une équipe exécute en intégration continue des scénarios de démarrage et de réseau, sans banc de cartes." },
+          { "icon": "🎓", "title": "Enseignement", "text": "Un enseignant fait écrire du firmware à des élèves qui le testent dans le navigateur." },
+          { "icon": "🐞", "title": "Débogage", "text": "Un développeur trace, place des points d'arrêt et profile un programme avec les options de l'émulateur." }
+        ] },
+        { "type": "timeline", "title": "D'où l'on vient, où l'on va", "items": [
+          { "label": "25 août 2026", "text": "Vérification du S3 par JTAG sans divergence." },
+          { "label": "17 octobre 2026", "text": "Projet présenté sur Hacker News, avec une démonstration en ligne." },
+          { "label": "À suivre", "text": "Cartes pour le C3 et maturité du C6." }
+        ] },
+        { "type": "opinion", "title": "Notre avis", "paragraphs": [
+          "Émuler la vraie ROM plutôt qu'une approximation est le choix qui rend l'outil crédible : les bogues de démarrage et de réseau deviennent reproductibles. L'écart de vitesse avec le matériel pour les écrans lourds rappelle toutefois que l'émulation ne remplace pas un test sur carte.",
+          "À un ou trois ans, la simulation devrait s'imposer dans les chaînes de test embarquées. C'est une projection."
+        ], "verdict": "Prometteur pour le test, à compléter par du matériel réel." },
+        { "type": "callout", "icon": "📌", "title": "À retenir", "text": "Licence MIT, ROM d'origine, démonstration en ligne ; S3 mature, C3 et C6 en ébauche." }
+      ]
+    }
+  ]
+}
