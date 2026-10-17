@@ -1,4 +1,4 @@
-import { el, renderBlocks, safeUrl } from "./blocks.js";
+import { el, renderBlocks, safeUrl, illustration } from "./blocks.js";
 
 const main = document.getElementById("main");
 const cache = new Map();
@@ -42,6 +42,7 @@ const catTag = (id) => el("span", { class: "tag", style: `--h:${cat(id).hue ?? 2
 
 function postCard(p, top = false) {
   return el("a", { class: "card" + (top ? " top" : ""), href: `#/p/${p.edition}/${p.id}`, style: `--h:${cat(p.category).hue ?? 220}` },
+    illustration({ icon: p.icon || cat(p.category).icon, hue: cat(p.category).hue, seed: p.edition + p.id, cover: p.cover?.url, alt: p.cover?.alt || p.title }),
     el("div", { class: "meta" }, catTag(p.category), el("time", { datetime: p.publishedAt, text: fmtTime.format(new Date(p.ts)) })),
     el("h3", { text: p.title }),
     p.summary ? el("p", { text: p.summary }) : null,
@@ -136,7 +137,8 @@ async function pagePost(edId, id) {
     el("h1", { text: p.title }),
     p.summary ? el("p", { class: "lead", text: p.summary }) : null,
     el("div", { class: "meta" }, p.readingMinutes ? `${p.readingMinutes} min de lecture` : null, ...(p.tags || []).map((t) => "#" + t)),
-    cover ? el("img", { class: "cover", src: cover, alt: p.cover.alt || "", referrerpolicy: "no-referrer" }) : null,
+    illustration({ icon: p.icon || cat(p.category).icon, hue: cat(p.category).hue, seed: edId + p.id, cover, alt: p.cover?.alt || p.title }),
+    p.cover?.credit ? el("p", { class: "meta", text: "Image : " + p.cover.credit }) : null,
     el("div", { style: "margin-top:24px" }, renderBlocks(p.blocks)),
     sources.length ? el("section", { class: "sources" }, el("h2", { text: "Sources" }),
       el("ul", {}, sources.map((s) => el("li", {}, el("a", { href: safeUrl(s.url), target: "_blank", rel: "noopener noreferrer", text: s.title || s.url }), s.publisher ? ` — ${s.publisher}` : "")))) : null,

@@ -43,7 +43,7 @@ export const renderers = {
   list: (b) => el(b.ordered ? "ol" : "ul", {}, (b.items || []).map((i) => el("li", {}, inline(i)))),
   quote: (b) => el("blockquote", {}, el("p", {}, inline(b.text)), b.author ? el("footer", { text: "— " + b.author }) : null),
   code: (b) => el("pre", {}, el("code", { text: b.code ?? b.text ?? "", "data-lang": b.language })),
-  callout: (b) => el("div", { class: "callout " + (b.tone || "info"), role: "note" }, b.title ? el("strong", { class: "t", text: b.title }) : null, el("span", {}, inline(b.text))),
+  callout: (b) => el("div", { class: "callout " + (b.tone || "info"), role: "note" }, b.title || b.icon ? el("strong", { class: "t", text: [b.icon, b.title].filter(Boolean).join(" ") }) : null, el("span", {}, inline(b.text))),
   image: (b) => {
     const src = safeUrl(b.url);
     return src ? el("figure", {}, el("img", { src, alt: b.alt || "", loading: "lazy", referrerpolicy: "no-referrer" }), b.caption ? el("figcaption", { text: b.caption }) : null) : null;
@@ -67,4 +67,23 @@ export function renderBlocks(blocks = []) {
     if (node) root.append(node);
   }
   return root;
+}
+
+// Illustration générée : dégradé à la teinte de la catégorie + formes + icône (emoji) de l'article.
+// Si l'article fournit une image de couverture valide, elle est utilisée ; sinon (ou si elle échoue) on retombe sur l'illustration.
+function hash(s) { let h = 0; for (const c of String(s)) h = (h * 31 + c.codePointAt(0)) >>> 0; return h; }
+export function illustration({ icon, hue = 220, seed = "", cover = null, alt = "", cls = "" }) {
+  const h = hash(seed);
+  const art = el("div", { class: "art " + cls, "aria-hidden": cover ? null : "true", style: `--h:${hue};--x:${h % 70}%;--y:${(h >> 7) % 70}%;--r:${(h >> 3) % 360}deg` },
+    el("span", { class: "art-icon", text: icon || "📰" }));
+  const src = cover && safeUrl(cover);
+  if (src) {
+    const img = el("img", { src, alt, loading: "lazy", referrerpolicy: "no-referrer" });
+    img.onerror = () => img.remove();
+    art.classList.add("has-cover");
+    art.append(img);
+    art.setAttribute("role", "img");
+    art.setAttribute("aria-label", alt);
+  }
+  return art;
 }

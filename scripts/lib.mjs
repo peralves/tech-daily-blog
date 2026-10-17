@@ -66,6 +66,8 @@ export async function buildIndex() {
         tags: p.tags || [],
         importance: p.importance || 1,
         readingMinutes: p.readingMinutes || null,
+        icon: p.icon || null,
+        cover: p.cover?.url ? { url: p.cover.url, alt: p.cover.alt || "" } : null,
         // horodatage de l'article ; à défaut, celui de la génération
         publishedAt: p.publishedAt || e.generatedAt || `${e.date}T06:00:00Z`,
       })),
