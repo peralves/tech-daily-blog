@@ -1,6 +1,6 @@
 # Tech Daily
 
-Blog d'actualité **web, informatique, DevOps et électronique**, en français. Chaque matin, une **tâche planifiée Claude** recherche l'actualité et publie une édition au format JSON ; le site statique la lit et l'affiche. Hébergé sur GitHub Pages, sans build ni dépendance côté front.
+Blog d'actualité en français : **tech** (web, informatique, DevOps, électronique), **géographie, écologie, politique, finance, crypto et bourse**. Toutes les 4 heures, une **tâche planifiée Claude** recherche l'actualité et publie une édition au format JSON ; le site statique la lit et l'affiche. Hébergé sur GitHub Pages, sans build ni dépendance côté front.
 
 **Site** : https://peralves.github.io/tech-daily-blog/
 
@@ -11,12 +11,13 @@ Blog d'actualité **web, informatique, DevOps et électronique**, en français. 
 - **Illustrations** : image de couverture de la source quand elle existe, illustration SVG générée par article, schémas explicatifs, icônes.
 - **Archives** : liste par jour et par mois, recherche plein texte, navigation jour précédent/suivant (`#/archive`).
 - **Favoris, lu/non lu, partage** : marque-page, état « lu » (filtre « Non lus ») et copie du lien, stockés dans le `localStorage` du navigateur (rien n'est envoyé nulle part).
+- **Préférences** : page « Préférences » pour masquer des rubriques (ex. la politique) ou des mots-clés ; appliqué au fil, aux archives et à la recherche, stocké dans le navigateur. Les rubriques sensibles (finance, crypto, bourse) affichent un avertissement « pas un conseil en investissement ».
 - **Design** : thème clair/sombre (suit le système, bouton pour forcer), responsive mobile et ordinateur, accents de couleur par rubrique.
 
 ## Fonctionnement
 
 ```
-Tâche planifiée Claude (app Claude desktop, chaque jour à 6h)
+Tâche planifiée Claude (app Claude desktop, toutes les 4 h : 2h, 6h, 10h, 14h, 18h, 22h)
   └─ recherche web, rédaction, illustrations SVG
   └─ écrit data/editions/AAAA-MM-JJ-HHmm.json  (l'artefact)
   └─ git commit + push sur main
@@ -35,7 +36,7 @@ Plusieurs éditions par jour sont possibles : chaque fichier est indépendant et
 | `index.html`, `assets/` | Front statique (`app.js` : routeur et pages, `blocks.js` : rendu des blocs et illustrations, `style.css`, `theme.js`) |
 | `data/editions/` | Une édition JSON par génération |
 | `data/index.json` | Index de toutes les éditions (généré au déploiement) |
-| `data/categories.json` | Rubriques : id, libellé, icône, teinte |
+| `data/categories.json` | Rubriques : id, libellé, icône, teinte, avertissement éventuel |
 | `schema/edition.schema.json` | Schéma JSON de l'artefact |
 | `scripts/` | `build-index.mjs` (validation et index), `lib.mjs` |
 | `.github/workflows/pages.yml` | Déploiement GitHub Pages |
@@ -66,7 +67,7 @@ Le schéma est **évolutif** :
 ## Mise en route
 
 1. **Settings → Pages → Source : GitHub Actions**.
-2. Créer la tâche planifiée dans l'app Claude (voir [`docs/scheduled-task.md`](docs/scheduled-task.md)). La machine doit avoir `git` et `gh` authentifiés (`gh auth login`) et l'application doit être ouverte à 6h ; sinon la tâche s'exécute au prochain lancement.
+2. Créer la tâche planifiée dans l'app Claude (voir [`docs/scheduled-task.md`](docs/scheduled-task.md)). La machine doit avoir `git` et `gh` authentifiés (`gh auth login`) et l'application doit être ouverte aux heures prévues ; sinon la tâche s'exécute au prochain lancement.
 3. Option : activer « Keep my email private » sur GitHub pour que les commits de la tâche n'exposent pas d'adresse personnelle.
 
 ## Développement local
