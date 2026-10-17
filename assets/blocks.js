@@ -55,7 +55,7 @@ export const renderers = {
   table: (b) => el("div", { class: "table-wrap" }, el("table", {},
     b.headers ? el("thead", {}, el("tr", {}, b.headers.map((h) => el("th", {}, inline(h))))) : null,
     el("tbody", {}, (b.rows || []).map((r) => el("tr", {}, r.map((c) => el("td", {}, inline(c)))))))),
-  keyvalue: (b) => el("dl", { class: "kv" }, (b.items || []).flatMap((i) => [el("dt", { text: i.label }), el("dd", {}, inline(i.value))])),
+  keyvalue: (b) => el("dl", { class: "kv" }, (b.items || []).flatMap((i) => [el("dt", { text: i.label ?? i.key ?? i.name ?? i.term ?? "" }), el("dd", {}, inline(i.value))])),
   // Illustration SVG écrite par l'auteur (schéma, infographie). Rendue via <img> : aucun script ne peut s'exécuter.
   diagram: (b) => {
     const src = svgUrl(b.svg);

@@ -189,7 +189,7 @@ function setNav(name) {
   document.querySelectorAll("[data-nav]").forEach((a) => (a.dataset.nav === name ? a.setAttribute("aria-current", "page") : a.removeAttribute("aria-current")));
 }
 function show(...nodes) {
-  main.replaceChildren(...nodes);
+  main.replaceChildren(...nodes.filter(Boolean)); // ignore les null (sinon affichés comme du texte)
   window.scrollTo(0, 0);
   main.focus({ preventScroll: true });
 }
