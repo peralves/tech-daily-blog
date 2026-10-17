@@ -11,4 +11,4 @@ for (const e of await listEditions()) {
 }
 if (bad) process.exit(1);
 const idx = await buildIndex();
-console.log(`index.json : ${idx.editions.length} édition(s)`);
+console.log(`index : ${idx.days.length} jour(s), ${idx.days.reduce((n, d) => n + d.posts, 0)} article(s)`);

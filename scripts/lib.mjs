@@ -1,4 +1,4 @@
-import { readdir, readFile, writeFile } from "node:fs/promises";
+import { readdir, readFile, writeFile, mkdir, rm } from "node:fs/promises";
 import { join, dirname } from "node:path";
 import { fileURLToPath } from "node:url";
 
@@ -56,34 +56,57 @@ function clampTime(publishedAt, e) {
   return new Date(Math.min(t, Date.now())).toISOString();
 }
 
+export const INDEX_DIR = join(ROOT, "data", "index");
+
+// Découpage par période (un fichier par jour) : le site ne charge que les jours affichés.
+//  - data/index.json            : manifeste léger, une ligne par jour (nombre d'articles, par rubrique) ;
+//  - data/index/AAAA-MM-JJ.json : les éditions et les résumés d'articles de ce jour.
 export async function buildIndex() {
   const editions = await listEditions();
-  const index = {
-    schemaVersion: "1.1",
-    updatedAt: new Date().toISOString(),
-    editions: editions.map((e) => ({
-      id: e.id,
-      date: e.date,
-      generatedAt: e.generatedAt || null,
-      title: e.title,
-      summary: e.summary || "",
-      posts: e.posts.map((p) => ({
-        id: p.id,
-        category: p.category,
-        title: p.title,
-        summary: p.summary || "",
-        tags: p.tags || [],
-        importance: p.importance || 1,
-        readingMinutes: p.readingMinutes || null,
-        icon: p.icon || null,
-        // illustration SVG de couverture, embarquée dans l'index seulement si elle est compacte
-        illustration: p.illustration?.svg && p.illustration.svg.length <= 8000 ? { svg: p.illustration.svg } : null,
-        cover: p.cover?.url ? { url: p.cover.url, alt: p.cover.alt || "" } : null,
-        // horodatage de l'article ; à défaut, celui de la génération
-        publishedAt: clampTime(p.publishedAt, e),
+  const byDate = new Map();
+  for (const e of editions) {
+    if (!byDate.has(e.date)) byDate.set(e.date, []);
+    byDate.get(e.date).push(e);
+  }
+
+  await rm(INDEX_DIR, { recursive: true, force: true }); // pas de fichiers périmés
+  await mkdir(INDEX_DIR, { recursive: true });
+
+  const days = [];
+  for (const [date, list] of [...byDate].sort((a, b) => b[0].localeCompare(a[0]))) {
+    const shard = {
+      schemaVersion: "2.0",
+      date,
+      editions: list.map((e) => ({
+        id: e.id,
+        date: e.date,
+        generatedAt: e.generatedAt || null,
+        title: e.title,
+        summary: e.summary || "",
+        posts: e.posts.map((p) => ({
+          id: p.id,
+          category: p.category,
+          title: p.title,
+          summary: p.summary || "",
+          tags: p.tags || [],
+          importance: p.importance || 1,
+          readingMinutes: p.readingMinutes || null,
+          icon: p.icon || null,
+          // illustration SVG de couverture, embarquée seulement si elle est compacte
+          illustration: p.illustration?.svg && p.illustration.svg.length <= 8000 ? { svg: p.illustration.svg } : null,
+          cover: p.cover?.url ? { url: p.cover.url, alt: p.cover.alt || "" } : null,
+          // horodatage de l'article ; à défaut, celui de la génération
+          publishedAt: clampTime(p.publishedAt, e),
+        })),
       })),
-    })),
-  };
-  await writeFile(INDEX_PATH, JSON.stringify(index, null, 2) + "\n");
-  return index;
+    };
+    await writeFile(join(INDEX_DIR, `${date}.json`), JSON.stringify(shard));
+    const categories = {};
+    for (const e of list) for (const p of e.posts) categories[p.category] = (categories[p.category] || 0) + 1;
+    days.push({ date, editions: list.length, posts: Object.values(categories).reduce((a, b) => a + b, 0), categories });
+  }
+
+  const manifest = { schemaVersion: "2.0", updatedAt: new Date().toISOString(), days };
+  await writeFile(INDEX_PATH, JSON.stringify(manifest) + "\n");
+  return manifest;
 }

@@ -1,6 +1,6 @@
 # Tech Daily
 
-Blog d'actualité en français : **tech** (web, informatique, IA, cybersécurité, DevOps, électronique), **science et espace, géographie, écologie, énergie, bâtiment, mobilité et automobile, droit et numérique, politique, finance, crypto et bourse**. Toute législation ou aide publique évoquée concerne la France. Toutes les 4 heures, une **tâche planifiée Claude** recherche l'actualité et publie une édition au format JSON ; le site statique la lit et l'affiche. Hébergé sur GitHub Pages, sans build ni dépendance côté front.
+Blog d'actualité en français : **tech** (web, informatique, IA, cybersécurité, DevOps, électronique), **science et espace, géographie, écologie, énergie, bâtiment, mobilité et automobile, droit et numérique, politique, finance, crypto et bourse**. Toute législation ou aide publique évoquée concerne la France. Toutes les 6 heures, une **tâche planifiée Claude** recherche l'actualité et publie une édition au format JSON ; le site statique la lit et l'affiche. Hébergé sur GitHub Pages, sans build ni dépendance côté front.
 
 **Site** : https://peralves.github.io/tech-daily-blog/
 
@@ -17,14 +17,14 @@ Blog d'actualité en français : **tech** (web, informatique, IA, cybersécurit�
 ## Fonctionnement
 
 ```
-Tâche planifiée Claude (app Claude desktop, toutes les 4 h : 2h, 6h, 10h, 14h, 18h, 22h)
+Tâche planifiée Claude (app Claude desktop, toutes les 6 h : 0h, 6h, 12h, 18h)
   └─ recherche web, rédaction, illustrations SVG
   └─ écrit data/editions/AAAA-MM-JJ-HHmm.json  (l'artefact)
   └─ git commit + push sur main
 GitHub Actions (.github/workflows/pages.yml, à chaque push)
-  └─ node scripts/build-index.mjs : valide les éditions, régénère data/index.json
+  └─ node scripts/build-index.mjs : valide les éditions, génère data/index.json (manifeste) et data/index/AAAA-MM-JJ.json (un fichier par jour)
   └─ versionne les fichiers statiques (anti-cache) et déploie GitHub Pages
-Front (index.html + assets/) : charge data/index.json, puis une édition à l'ouverture d'un article
+Front (index.html + assets/) : charge le manifeste, puis seulement les jours affichés (à la demande), puis l'édition complète à l'ouverture d'un article
 ```
 
 Plusieurs éditions par jour sont possibles : chaque fichier est indépendant et tous les articles sont affichés.

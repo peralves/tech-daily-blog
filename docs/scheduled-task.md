@@ -1,7 +1,7 @@
 # Tâche planifiée Claude : édition quotidienne
 
 - **Identifiant** : `tech-daily-edition`
-- **Planification** : toutes les 4 heures à 2h, 6h, 10h, 14h, 18h et 22h (heure locale, cron `0 2-22/4 * * *`)
+- **Planification** : toutes les 6 heures à 0h, 6h, 12h et 18h (heure locale, cron `0 0-18/6 * * *`)
 - **Prompt** : stocké dans `~/.claude/scheduled-tasks/tech-daily-edition/SKILL.md` (il n'est pas dans ce dépôt)
 - **Prérequis** : application Claude ouverte, `git` et `gh` authentifiés, copie locale du dépôt
 

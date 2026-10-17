@@ -2,7 +2,7 @@ import { el, renderBlocks, safeUrl, illustration } from "./blocks.js?v=__V__";
 
 const main = document.getElementById("main");
 const cache = new Map();
-let index, categories;
+let manifest, categories;
 let allPosts = []; // tous les articles de toutes les éditions, du plus récent au plus ancien
 let posts = [];   // ceux qui restent visibles après application des préférences
 let days = [];    // [{ date, posts }] du plus récent au plus ancien
@@ -28,13 +28,39 @@ async function getJson(url) {
   return j;
 }
 
-function buildModel() {
-  // Un article ne peut pas être publié après la génération de son édition, ni dans le futur : on plafonne l'horodatage.
-  const clamp = (v, e) => Math.min(Date.parse(v) || 0, Date.parse(e.generatedAt) || Infinity, Date.now());
-  allPosts = index.editions.flatMap((e) => e.posts.map((p) => ({ ...p, edition: e.id, ts: clamp(p.publishedAt, e) })));
-  allPosts.sort((a, b) => b.ts - a.ts);
-  for (const p of allPosts) p.day = fmtDayKey.format(new Date(p.ts));
-  applyPrefs();
+// Les données sont découpées par jour : data/index.json (manifeste léger : une ligne par jour) puis data/index/AAAA-MM-JJ.json
+// chargé à la demande. Le site reste rapide même avec des milliers d'articles.
+const loadedDays = new Set();
+const loadingDays = new Map();
+const clampTs = (v, e) => Math.min(Date.parse(v) || 0, Date.parse(e.generatedAt) || Infinity, Date.now()); // jamais dans le futur ni après la génération
+
+async function loadDay(date) {
+  if (loadedDays.has(date)) return;
+  if (!loadingDays.has(date)) {
+    loadingDays.set(date, (async () => {
+      let shard = { editions: [] };
+      try { shard = await getJson(`data/index/${date}.json`); } catch (err) { console.warn(err); }
+      const add = shard.editions.flatMap((e) => e.posts.map((p) => ({ ...p, edition: e.id, day: e.date, ts: clampTs(p.publishedAt, e) })));
+      allPosts.push(...add);
+      allPosts.sort((a, b) => b.ts - a.ts);
+      loadedDays.add(date);
+      applyPrefs();
+    })());
+  }
+  await loadingDays.get(date);
+}
+const loadDays = (dates) => Promise.all(dates.map(loadDay));
+
+// Statistiques issues du manifeste (sans charger les jours) : tiennent compte des rubriques masquées.
+const catCount = (d) => Object.entries(d.categories || {}).reduce((n, [id, c]) => n + (prefs.hidden.includes(id) ? 0 : c), 0);
+const visibleDays = () => manifest.days.filter((d) => catCount(d) > 0);
+const totalVisible = () => manifest.days.reduce((n, d) => n + catCount(d), 0);
+const totalAll = () => manifest.days.reduce((n, d) => n + d.posts, 0);
+const hiddenByCats = () => totalAll() - totalVisible();
+function presentCats() {
+  const s = new Set();
+  manifest.days.forEach((d) => Object.keys(d.categories || {}).forEach((id) => s.add(id)));
+  return [...categories.map((c) => c.id).filter((id) => s.has(id)), ...[...s].filter((id) => !categories.some((c) => c.id === id))];
 }
 
 /* ---------- Préférences (rubriques et mots masqués, localStorage) ---------- */
@@ -59,7 +85,7 @@ function applyPrefs() {
     byDay.get(p.day).push(p);
   }
   days = [...byDay].map(([date, list]) => ({ date, posts: list }));
-  if (!["all", "unread"].includes(filter) && !posts.some((p) => p.category === filter)) filter = "all";
+  if (!["all", "unread"].includes(filter) && !presentCats().includes(filter)) filter = "all";
 }
 
 const cat = (id) => categories.find((c) => c.id === id) || { id, label: id, icon: "📄", hue: 220 };
@@ -195,7 +221,7 @@ function show(...nodes) {
 }
 
 function chipsBar(onChange) {
-  const ids = ["all", "unread", ...new Set(posts.map((p) => p.category))];
+  const ids = ["all", "unread", ...presentCats().filter((id) => !prefs.hidden.includes(id))];
   const bar = el("div", { class: "chips", role: "group", "aria-label": "Filtrer par rubrique" });
   const paint = () => bar.replaceChildren(...ids.map((id) => {
     const b = el("button", { class: "chip", type: "button", "data-all": id === "all" || id === "unread" ? "" : null, style: id === "all" || id === "unread" ? null : catStyle(id), "aria-pressed": String(filter === id) }, id === "all" ? "Tout" : id === "unread" ? "Non lus" : `${cat(id).icon || ""} ${cat(id).label}`);
@@ -213,42 +239,56 @@ const daySection = (date, list, link = true) =>
 
 /* ---------- Pages ---------- */
 
-function pageHome() {
+async function pageHome() {
   setNav("home");
   document.title = "Tech Daily — l'actualité, heure par heure";
+  const dates = () => visibleDays().map((d) => d.date);
+  await loadDays(dates().slice(0, shownDays));
   const today = days[0];
   const lead = today && [...today.posts].sort((a, b) => (b.importance || 1) - (a.importance || 1) || b.ts - a.ts)[0];
   const box = el("div");
   const more = el("button", { class: "more", type: "button", text: "Afficher les jours précédents" });
-  more.onclick = () => { shownDays += 3; draw(); };
+  more.onclick = async () => {
+    more.disabled = true; more.textContent = "Chargement…";
+    shownDays += 3;
+    await loadDays(dates().slice(0, shownDays));
+    draw();
+  };
   function draw() {
-    const vis = days.map((d) => ({ date: d.date, posts: d.posts.filter((p) => matches(p) && !(filter === "all" && p === lead)) })).filter((d) => d.posts.length);
-    box.replaceChildren(...vis.slice(0, shownDays).map((d) => daySection(d.date, d.posts)), vis.length > shownDays ? more : el("span"));
-    if (!vis.length) box.replaceChildren(el("div", { class: "empty", text: "Aucun article dans cette rubrique pour le moment." }));
+    const shown = new Set(dates().slice(0, shownDays));
+    const vis = days.filter((d) => shown.has(d.date)).map((d) => ({ date: d.date, posts: d.posts.filter((p) => matches(p) && !(filter === "all" && p === lead)) })).filter((d) => d.posts.length);
+    const hasMore = dates().length > shownDays;
+    const nodes = vis.map((d) => daySection(d.date, d.posts));
+    if (!vis.length) nodes.push(el("div", { class: "empty", text: hasMore ? "Aucun article correspondant sur les derniers jours." : "Aucun article correspondant pour le moment." }));
+    if (hasMore) { more.disabled = false; more.textContent = "Afficher les jours précédents"; nodes.push(more); }
+    box.replaceChildren(...nodes);
   }
   draw();
   show(
     el("section", { class: "hero" },
       el("div", { class: "eyebrow" }, el("span", { class: "live" }), today ? `Dernière mise à jour · ${dayLabel(today.date)} · ${time(today.posts[0])}` : "En attente de la première édition"),
       el("h1", { text: "L'actualité, heure par heure." }),
-      el("p", { class: "lead", text: `Tech, IA, science, énergie, bâtiment, droit, monde et marchés : ${plural(posts.length, "article")} synthétisés en français, avec leurs sources.` })),
+      el("p", { class: "lead", text: `Tech, IA, science, énergie, bâtiment, droit, monde et marchés : ${plural(totalVisible(), "article")} synthétisés en français, avec leurs sources.` })),
     prefsNote(), lead ? leadCard(lead) : null, chipsBar(draw), box);
 }
 
-function pageDay(date) {
+async function pageDay(date) {
   setNav("archive");
-  const k = days.findIndex((d) => d.date === date);
-  if (k < 0) return notFound();
+  const all = visibleDays().map((d) => d.date);
+  if (!manifest.days.some((d) => d.date === date)) return notFound();
+  await loadDay(date);
   document.title = `${dayLabel(date)} — Tech Daily`;
-  const newer = days[k - 1], older = days[k + 1];
+  const k = all.indexOf(date);
+  const newer = k > 0 ? all[k - 1] : null, older = k >= 0 && k < all.length - 1 ? all[k + 1] : null;
+  const list = posts.filter((p) => p.day === date);
   const box = el("div");
-  const draw = () => box.replaceChildren(el("div", { class: "rail" }, days[k].posts.filter((p) => matches(p)).map(postRow)));
+  const draw = () => box.replaceChildren(el("div", { class: "rail" }, list.filter((p) => matches(p)).map(postRow)));
   draw();
   show(
-    el("section", { class: "hero" }, el("div", { class: "eyebrow" }, `Archives · ${plural(days[k].posts.length, "article")}`), el("h1", { text: dayLabel(date), style: "text-transform:capitalize" })),
+    el("section", { class: "hero" }, el("div", { class: "eyebrow" }, `Archives · ${plural(list.length, "article")}`), el("h1", { text: dayLabel(date), style: "text-transform:capitalize" })),
     el("div", { class: "daynav" },
-      el("a", { class: "btn", href: older ? `#/d/${older.date}` : "#", "aria-disabled": String(!older) }, "← Jour précédent"),
-      el("a", { class: "btn", href: newer ? `#/d/${newer.date}` : "#", "aria-disabled": String(!newer) }, "Jour suivant →"),
+      el("a", { class: "btn", href: older ? `#/d/${older}` : "#", "aria-disabled": String(!older) }, "← Jour précédent"),
+      el("a", { class: "btn", href: newer ? `#/d/${newer}` : "#", "aria-disabled": String(!newer) }, "Jour suivant →"),
       el("a", { class: "btn", href: "#/archive" }, "Toutes les archives")),
     chipsBar(draw), box);
 }
@@ -258,6 +298,7 @@ async function pagePost(edId, id) {
   const e = await getJson(`data/editions/${edId}.json`);
   const p = e.posts.find((x) => x.id === id);
   if (!p) return notFound();
+  await loadDay(edId.slice(0, 10)); // le jour de l'édition, pour l'horodatage et la navigation précédent/suivant
   const meta = allPosts.find((x) => x.edition === edId && x.id === id) || { ...p, edition: edId, ts: Date.parse(p.publishedAt || e.generatedAt) || 0, day: e.date };
   document.title = `${p.title} — Tech Daily`;
   // Précédent/suivant : uniquement les articles visibles selon les préférences (et l'article courant).
@@ -294,33 +335,48 @@ function pageArchive(query = "") {
   document.title = "Archives — Tech Daily";
   const input = el("input", { class: "search", type: "search", placeholder: "Rechercher un sujet, un outil, un tag…", "aria-label": "Rechercher dans les archives", value: query });
   const list = el("div");
-  function draw() {
+  let run = 0;
+  // La liste des jours vient du manifeste (aucun jour à charger). La recherche charge les jours un par un, du plus récent au plus ancien.
+  async function draw() {
     const q = norm(input.value.trim());
-    const nodes = [];
+    const token = ++run;
     if (q) {
-      const hits = posts.filter((p) => norm([p.title, p.summary, (p.tags || []).join(" "), cat(p.category).label].join(" ")).includes(q));
-      nodes.push(hits.length ? el("div", { class: "rail" }, hits.map(postRow)) : el("div", { class: "empty", text: "Aucun article ne correspond à cette recherche." }));
-    } else {
-      let month = "";
-      for (const d of days) {
-        const m = fmtMonth.format(new Date(d.date + "T12:00:00Z"));
-        if (m !== month) { month = m; nodes.push(el("h2", { class: "month", text: m })); }
-        nodes.push(el("a", { class: "ed", href: `#/d/${d.date}` },
-          el("h3", { text: dayLabel(d.date) }),
-          el("div", { class: "meta" }, ...[...new Set(d.posts.map((p) => p.category))].map(catTag), plural(d.posts.length, "article"))));
+      const dates = visibleDays().map((d) => d.date);
+      const pending = dates.filter((d) => !loadedDays.has(d));
+      if (pending.length) {
+        list.replaceChildren(el("div", { class: "empty", text: `Recherche dans ${plural(dates.length, "jour")}…` }));
+        for (let i = 0; i < pending.length; i += 6) {
+          await loadDays(pending.slice(i, i + 6));
+          if (token !== run) return; // une saisie plus récente a pris le relais
+        }
       }
-      if (!nodes.length) nodes.push(el("div", { class: "empty", text: "Aucune archive pour le moment." }));
+      const hits = posts.filter((p) => norm([p.title, p.summary, (p.tags || []).join(" "), cat(p.category).label].join(" ")).includes(q));
+      list.replaceChildren(hits.length ? el("div", { class: "rail" }, hits.slice(0, 60).map(postRow)) : el("div", { class: "empty", text: "Aucun article ne correspond à cette recherche." }),
+        hits.length > 60 ? el("p", { class: "pref-help", text: `${hits.length} résultats : affinez la recherche pour voir les suivants.` }) : null);
+      return;
     }
+    const nodes = [];
+    let month = "";
+    for (const d of visibleDays()) {
+      const m = fmtMonth.format(new Date(d.date + "T12:00:00Z"));
+      if (m !== month) { month = m; nodes.push(el("h2", { class: "month", text: m })); }
+      const ids = Object.keys(d.categories || {}).filter((id) => !prefs.hidden.includes(id));
+      nodes.push(el("a", { class: "ed", href: `#/d/${d.date}` },
+        el("h3", { text: dayLabel(d.date) }),
+        el("div", { class: "meta" }, ...ids.map(catTag), plural(catCount(d), "article"))));
+    }
+    if (!nodes.length) nodes.push(el("div", { class: "empty", text: "Aucune archive pour le moment." }));
     list.replaceChildren(...nodes);
   }
   input.addEventListener("input", draw);
   draw();
-  show(el("section", { class: "hero" }, el("div", { class: "eyebrow", text: `${plural(posts.length, "article")} · ${plural(days.length, "jour")}` }), el("h1", { text: "Archives" })), input, list);
+  show(el("section", { class: "hero" }, el("div", { class: "eyebrow", text: `${plural(totalVisible(), "article")} · ${plural(visibleDays().length, "jour")}` }), el("h1", { text: "Archives" })), input, list);
 }
 
-function pageSaved() {
+async function pageSaved() {
   setNav("saved");
   document.title = "Favoris — Tech Daily";
+  await loadDays([...new Set([...saved].map((k) => k.slice(0, 10)))]);
   const list = allPosts.filter(isSaved); // les favoris restent visibles même si leur rubrique est masquée
   show(
     el("section", { class: "hero" }, el("div", { class: "eyebrow", text: "Stockés sur cet appareil" }), el("h1", { text: "Favoris" }),
@@ -331,7 +387,7 @@ function pageSaved() {
 
 // Bandeau affiché quand des préférences masquent une partie des articles.
 function prefsNote() {
-  const hidden = allPosts.length - posts.length;
+  const hidden = hiddenByCats();
   if (!hasPrefs()) return null;
   return el("p", { class: "prefs-note" },
     hidden ? `${plural(hidden, "article")} masqué${hidden > 1 ? "s" : ""} par vos préférences. ` : "Vos préférences sont actives. ",
@@ -342,7 +398,7 @@ function pageSettings() {
   setNav("settings");
   document.title = "Préférences — Tech Daily";
   const known = new Set(categories.map((c) => c.id));
-  const extra = [...new Set(allPosts.map((p) => p.category))].filter((id) => !known.has(id)).map((id) => cat(id));
+  const extra = presentCats().filter((id) => !known.has(id)).map((id) => cat(id));
   const rows = el("div", { class: "pref-list" });
   const summary = el("p", { class: "lead" });
 
@@ -351,14 +407,14 @@ function pageSettings() {
     paintSummary();
   };
   const paintSummary = () => {
-    const hidden = allPosts.length - posts.length;
+    const hidden = hiddenByCats();
     summary.textContent = hasPrefs()
-      ? `${plural(posts.length, "article")} affichés, ${plural(hidden, "article")} masqué${hidden > 1 ? "s" : ""}.`
+      ? `${plural(totalVisible(), "article")} affichés${hidden ? `, ${plural(hidden, "article")} masqué${hidden > 1 ? "s" : ""} par rubrique` : ""}${prefs.muted.length ? ", plus ceux qui contiennent un mot masqué" : ""}.`
       : "Aucun filtre : tous les articles sont affichés.";
   };
 
   for (const c of [...categories, ...extra]) {
-    const count = allPosts.filter((p) => p.category === c.id).length;
+    const count = manifest.days.reduce((n, d) => n + ((d.categories || {})[c.id] || 0), 0);
     const input = el("input", { type: "checkbox", role: "switch", id: `pref-${c.id}` });
     input.checked = !prefs.hidden.includes(c.id);
     input.onchange = () => {
@@ -409,11 +465,11 @@ async function route() {
   try {
     const [path, qs] = (location.hash.slice(1) || "/").split("?");
     const parts = path.split("/").filter(Boolean);
-    if (!parts.length) return pageHome();
-    if (parts[0] === "saved") return pageSaved();
+    if (!parts.length) return await pageHome();
+    if (parts[0] === "saved") return await pageSaved();
     if (parts[0] === "settings") return pageSettings();
     if (parts[0] === "archive") return pageArchive(new URLSearchParams(qs).get("q") || "");
-    if (parts[0] === "d" && /^\d{4}-\d{2}-\d{2}$/.test(parts[1] || "")) return pageDay(parts[1]);
+    if (parts[0] === "d" && /^\d{4}-\d{2}-\d{2}$/.test(parts[1] || "")) return await pageDay(parts[1]);
     // Les segments d'URL servent à construire un chemin de fichier : on n'accepte que le format attendu.
     if (parts[0] === "p" && /^\d{4}-\d{2}-\d{2}(-\d{4})?$/.test(parts[1] || "") && /^[a-z0-9-]+$/.test(parts[2] || "")) return await pagePost(parts[1], parts[2]);
     notFound();
@@ -445,8 +501,7 @@ paintTheme();
 /* ---------- Démarrage ---------- */
 
 try {
-  [index, { categories }] = await Promise.all([getJson("data/index.json"), getJson("data/categories.json")]);
-  buildModel();
+  [manifest, { categories }] = await Promise.all([getJson("data/index.json"), getJson("data/categories.json")]);
   paintNavCount();
   addEventListener("hashchange", route);
   route();
