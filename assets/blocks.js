@@ -210,6 +210,11 @@ const motifs = {
     for (let i = 0; i < 3; i++) s += `<path d="M${f(90 + r() * 50)} ${60 + i * 30}h${f(30 + r() * 40)}" opacity="${f(.2 + r() * .3)}"/>`;
     return s;
   },
+  entreprise(r) { // mallette, barres de croissance et pièce
+    let s = `<rect x="150" y="170" width="190" height="120" rx="16"/><path d="M215 170v-22a14 14 0 0 1 14-14h42a14 14 0 0 1 14 14v22"/><path d="M150 220h190M230 220v22h30v-22" opacity=".7"/>`;
+    for (let i = 0; i < 4; i++) { const h = 40 + i * 28 + r() * 20; s += `<rect x="${380 + i * 42}" y="${f(290 - h)}" width="28" height="${f(h)}" rx="6" opacity="${f(.4 + i * .15)}"/>`; }
+    return s + `<path d="M385 190L430 160L470 172L525 120" stroke-width="4"/><circle cx="525" cy="120" r="9" fill="currentColor" stroke="none"/><circle cx="110" cy="110" r="30" opacity=".6"/><path d="M118 100h-12a8 8 0 0 0 0 16h12M104 108h14" opacity=".8"/>`;
+  },
 };
 motifs.default = motifs.web;
 
