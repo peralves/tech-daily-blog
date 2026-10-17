@@ -171,6 +171,45 @@ const motifs = {
     for (let i = 0; i < 10; i++) { const d = (r() - .5) * 70, y2 = Math.max(110, Math.min(250, y + d)), top = Math.min(y, y2), h = Math.abs(y2 - y) + 12, x = 135 + i * 40; s += `<path d="M${x} ${f(top - 22)}V${f(top + h + 22)}" opacity=".6"/><rect x="${x - 11}" y="${f(top)}" width="22" height="${f(h)}" rx="3" ${d < 0 ? 'fill="currentColor" stroke="none" opacity=".9"' : 'opacity=".8"'}/>`; y = y2; }
     return s;
   },
+  ia(r) { // réseau de neurones en couches
+    const layers = [[150, 3], [260, 5], [380, 5], [490, 3]];
+    const pts = layers.map(([x, n]) => Array.from({ length: n }, (_, i) => [x, f(180 + (i - (n - 1) / 2) * 52 + (r() - .5) * 10)]));
+    let s = "";
+    for (let l = 0; l < pts.length - 1; l++) pts[l].forEach((a) => pts[l + 1].forEach((b) => { s += `<path d="M${a[0]} ${a[1]}L${b[0]} ${b[1]}" opacity="${f(.12 + r() * .3)}"/>`; }));
+    pts.flat().forEach(([x, y], i) => { s += `<circle cx="${x}" cy="${y}" r="${i % 4 === 0 ? 11 : 8}" fill="currentColor" stroke="none" opacity="${f(.55 + r() * .4)}"/>`; });
+    return s;
+  },
+  cybersecurite(r) { // cadenas et grille de données
+    let s = `<rect x="250" y="170" width="140" height="110" rx="16"/><path d="M280 170v-38a40 40 0 0 1 80 0v38"/><circle cx="320" cy="215" r="13" fill="currentColor" stroke="none"/><path d="M320 226v22" stroke-width="5"/>`;
+    for (let i = 0; i < 8; i++) { const y = 70 + i * 32; s += `<path d="M70 ${y}h${f(40 + r() * 90)}M${f(470 + r() * 40)} ${y}h${f(40 + r() * 80)}" opacity="${f(.2 + r() * .4)}"/>`; }
+    return s;
+  },
+  science(r) { // planète, anneau, orbite et étoiles
+    let s = `<circle cx="320" cy="185" r="72"/><ellipse cx="320" cy="185" rx="150" ry="36" transform="rotate(-18 320 185)" opacity=".7"/><circle cx="${f(430 + r() * 40)}" cy="110" r="10" fill="currentColor" stroke="none"/>`;
+    for (let i = 0; i < 14; i++) s += `<circle cx="${f(60 + r() * 520)}" cy="${f(40 + r() * 280)}" r="${f(1.5 + r() * 2.5)}" fill="currentColor" stroke="none" opacity="${f(.3 + r() * .6)}"/>`;
+    return s;
+  },
+  batiment(r) { // grue et immeubles
+    let s = `<path d="M180 300V110M180 110H430M180 140l60-30M430 110v50" /><path d="M430 160v28" stroke-dasharray="4 5"/><rect x="415" y="188" width="30" height="20" rx="3"/>`;
+    for (let i = 0; i < 4; i++) { const h = 70 + r() * 110, x = 250 + i * 70; s += `<rect x="${x}" y="${f(300 - h)}" width="52" height="${f(h)}" rx="3" opacity="${f(.4 + i * .15)}"/><path d="M${x + 12} ${f(300 - h + 18)}h28M${x + 12} ${f(300 - h + 40)}h28" opacity=".5"/>`; }
+    return s + `<path d="M100 300H540" />`;
+  },
+  energie(r) { // éclair et éolienne
+    let s = `<path d="M330 70L255 195h60l-25 95 95-135h-62l30-85z" fill="currentColor" fill-opacity=".9" stroke="none"/>`;
+    s += `<path d="M470 290V190M470 190l0-55M470 190l48 28M470 190l-48 28"/><circle cx="470" cy="190" r="8" fill="currentColor" stroke="none"/>`;
+    for (let i = 0; i < 6; i++) s += `<circle cx="${f(70 + r() * 150)}" cy="${f(90 + r() * 200)}" r="${f(3 + r() * 5)}" opacity="${f(.2 + r() * .4)}"/>`;
+    return s;
+  },
+  mobilite(r) { // voiture, route et éclair de recharge
+    let s = `<path d="M130 235V205c0-14 8-24 22-27l50-12 28-38c6-8 14-12 24-12h110c12 0 22 5 29 14l36 38 46 10c15 3 23 13 23 28v31z"/><circle cx="210" cy="240" r="30" fill="currentColor" fill-opacity=".25"/><circle cx="440" cy="240" r="30" fill="currentColor" fill-opacity=".25"/><path d="M290 130l-26 44M360 120v48" opacity=".6"/>`;
+    s += `<path d="M70 296H570" stroke-dasharray="26 18" opacity=".55"/><path d="M510 90l-18 30h22l-14 28" stroke-width="4"/>`;
+    return s;
+  },
+  droit(r) { // balance de la justice
+    let s = `<path d="M320 90V280M270 280H370M200 130H440"/><circle cx="320" cy="90" r="8" fill="currentColor" stroke="none"/><path d="M200 130L150 220H250z M440 130L390 220H490z" opacity=".8"/><path d="M150 220a50 22 0 0 0 100 0M390 220a50 22 0 0 0 100 0"/>`;
+    for (let i = 0; i < 3; i++) s += `<path d="M${f(90 + r() * 50)} ${60 + i * 30}h${f(30 + r() * 40)}" opacity="${f(.2 + r() * .3)}"/>`;
+    return s;
+  },
 };
 motifs.default = motifs.web;
 

@@ -1,6 +1,6 @@
 # Tech Daily
 
-Blog d'actualité en français : **tech** (web, informatique, DevOps, électronique), **géographie, écologie, politique, finance, crypto et bourse**. Toutes les 4 heures, une **tâche planifiée Claude** recherche l'actualité et publie une édition au format JSON ; le site statique la lit et l'affiche. Hébergé sur GitHub Pages, sans build ni dépendance côté front.
+Blog d'actualité en français : **tech** (web, informatique, IA, cybersécurité, DevOps, électronique), **science et espace, géographie, écologie, énergie, bâtiment, mobilité et automobile, droit et numérique, politique, finance, crypto et bourse**. Toute législation ou aide publique évoquée concerne la France. Toutes les 4 heures, une **tâche planifiée Claude** recherche l'actualité et publie une édition au format JSON ; le site statique la lit et l'affiche. Hébergé sur GitHub Pages, sans build ni dépendance côté front.
 
 **Site** : https://peralves.github.io/tech-daily-blog/
 

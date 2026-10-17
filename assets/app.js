@@ -231,7 +231,7 @@ function pageHome() {
     el("section", { class: "hero" },
       el("div", { class: "eyebrow" }, el("span", { class: "live" }), today ? `Dernière mise à jour · ${dayLabel(today.date)} · ${time(today.posts[0])}` : "En attente de la première édition"),
       el("h1", { text: "L'actualité, heure par heure." }),
-      el("p", { class: "lead", text: `Tech, science, monde et marchés : ${plural(posts.length, "article")} synthétisés en français, avec leurs sources.` })),
+      el("p", { class: "lead", text: `Tech, IA, science, énergie, bâtiment, droit, monde et marchés : ${plural(posts.length, "article")} synthétisés en français, avec leurs sources.` })),
     prefsNote(), lead ? leadCard(lead) : null, chipsBar(draw), box);
 }
 
