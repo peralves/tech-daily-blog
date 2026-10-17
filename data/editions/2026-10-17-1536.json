@@ -1,0 +1,562 @@
+{
+  "schemaVersion": "1.0",
+  "date": "2026-10-17",
+  "generatedAt": "2026-10-17T15:36:00+02:00",
+  "title": "Certificats à 64 jours, Python 3.15, Deno chez Cloudflare et un téléphone 4G à monter soi-même",
+  "summary": "Édition du samedi : Let's Encrypt raccourcit la durée de vie de ses certificats, Python 3.15 arrive avec imports paresseux et UTF-8 par défaut, Cloudflare absorbe Deno, pendant que la communauté open source invente le carbone dans OpenTelemetry, la sécurité runtime par eBPF et un téléphone 4G en kit.",
+  "highlights": [
+    "Let's Encrypt passera à des certificats de 64 jours le 10 février 2027 : vos scripts de renouvellement à intervalle fixe sont à revoir.",
+    "Python 3.15 est sorti le 9 octobre : mot-clé lazy, UTF-8 par défaut et JIT un peu plus rapide.",
+    "Cloudflare rachète Deno : le runtime autonome ne recevra plus que des correctifs pendant un an.",
+    "OpenTelemetry réfléchit à faire du carbone un signal de première classe, et Kyverno descend dans le noyau avec eBPF pour surveiller les agents IA.",
+    "Côté matériel : des écouteurs notés 10/10 en réparabilité et le MAKERphone 2.0, un téléphone 4G assemblé sans soudure."
+  ],
+  "meta": { "generator": "claude-scheduled-task" },
+  "posts": [
+    {
+      "id": "css-progress-alpha-light-dark-septembre",
+      "category": "web",
+      "title": "CSS de septembre : progress(), alpha() et des images dans light-dark()",
+      "summary": "Le bilan web.dev de septembre 2026 met en avant plusieurs fonctions CSS qui deviennent utilisables dans les trois grands moteurs, de progress() à alpha().",
+      "tags": ["CSS", "Baseline", "Interop", "navigateurs"],
+      "importance": 3,
+      "readingMinutes": 4,
+      "publishedAt": "2026-10-17T15:40:00+02:00",
+      "sourceDate": "2026-10-02",
+      "icon": "🎨",
+      "cover": { "url": "https://web.dev/static/blog/web-platform-09-2026/hero.png", "alt": "Visuel du bilan « Nouveautés de la plateforme web en septembre » de web.dev", "credit": "web.dev" },
+      "illustration": { "svg": "<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 640 360'><defs><linearGradient id='g' x1='0' y1='0' x2='1' y2='1'><stop offset='0' stop-color='#1e3a8a'/><stop offset='1' stop-color='#2563eb'/></linearGradient></defs><rect width='640' height='360' fill='url(#g)'/><rect x='70' y='90' width='500' height='180' rx='18' fill='#fff' fill-opacity='.12'/><circle cx='150' cy='180' r='46' fill='#60a5fa'/><circle cx='150' cy='180' r='46' fill='#fff' fill-opacity='.35'/><rect x='230' y='150' width='300' height='16' rx='8' fill='#fff' fill-opacity='.25'/><rect x='230' y='150' width='190' height='16' rx='8' fill='#fbbf24'/><rect x='230' y='190' width='300' height='16' rx='8' fill='#fff' fill-opacity='.25'/><rect x='230' y='190' width='120' height='16' rx='8' fill='#34d399'/><path d='M70 300 Q 200 250 320 300 T 570 300' stroke='#fff' stroke-opacity='.4' stroke-width='4' fill='none'/></svg>" },
+      "sources": [
+        { "title": "New to the web platform in September", "url": "https://web.dev/blog/web-platform-09-2026", "publisher": "web.dev" },
+        { "title": "Submit your proposals for Interop 2027", "url": "https://web.dev/blog/interop-2027-proposals", "publisher": "web.dev" }
+      ],
+      "blocks": [
+        { "type": "paragraph", "text": "Chaque mois, l'équipe web.dev recense les fonctionnalités qui viennent d'atterrir dans les navigateurs stables et bêta. Le bilan de septembre 2026 est dense : Chrome 153 et 154, Firefox 155 à 157 et Safari 27 sont passés en version stable, et plusieurs fonctions CSS ont atteint le statut Baseline « Newly available », c'est-à-dire qu'elles fonctionnent désormais dans les trois moteurs principaux." },
+        { "type": "paragraph", "text": "Rien de spectaculaire pris isolément, mais l'ensemble raconte une tendance nette : le CSS absorbe peu à peu des calculs qui exigeaient du JavaScript ou des astuces avec des variables personnalisées. Voyons ce qui change concrètement pour qui écrit des feuilles de style." },
+        { "type": "heading", "text": "Les fonctions à retenir", "level": 2 },
+        { "type": "table", "headers": ["Fonctionnalité", "Support annoncé", "Rôle"], "rows": [
+          ["`progress()`", "Chrome/Edge 138, Firefox 155, Safari 26", "Renvoie la position d'une valeur entre un début et une fin"],
+          ["`alpha()`", "Chrome/Edge 151, Firefox 155, Safari 27", "Change la transparence d'une couleur d'origine"],
+          ["`revert-rule`", "Chrome/Edge 148, Firefox 150, Safari 27", "Annule une valeur pour retrouver celle qu'aurait donnée la cascade sans la règle courante"],
+          ["Images dans `light-dark()`", "Chrome/Edge 150, Firefox 150, Safari 27", "Alterne deux images ou dégradés selon le `color-scheme`"],
+          ["`overflow-anchor`", "Chrome 56, Edge 79, Firefox 66, Safari 27", "Évite que le contenu saute quand le DOM change au-dessus de la zone visible"]
+        ] },
+        { "type": "paragraph", "text": "La fonction `progress()` calcule où se situe une valeur entre deux bornes et renvoie un nombre, limité par défaut entre 0 et 1. On peut ainsi piloter une opacité ou une taille en fonction de la largeur de fenêtre. L'option `no-clamp`, arrivée avec Firefox 155 et Safari 27, autorise le résultat à sortir de cet intervalle." },
+        { "type": "code", "language": "css", "code": ".card {\n  opacity: progress(100vw, 320px, 1200px);\n  background-color: alpha(var(--brand-color) / 50%);\n}" },
+        { "type": "paragraph", "text": "Le second exemple utilise `alpha()`, qui conserve les canaux et l'espace colorimétrique de la couleur de départ : fini les `rgba()` recopiés à la main pour chaque variante d'une couleur de marque. Côté thèmes, `light-dark()` n'était limité qu'aux couleurs ; il accepte maintenant deux valeurs `<image>`, par exemple deux dégradés ou deux `url()`." },
+        { "type": "usecases", "title": "Exemples d'utilisation", "items": [
+          { "icon": "📱", "title": "Typographie et espacements fluides", "text": "Une équipe design system remplace des `clamp()` imbriqués par `progress()` pour dériver plusieurs valeurs (marges, opacité d'un bandeau) d'une même plage de largeurs." },
+          { "icon": "🌗", "title": "Bannières adaptées au thème sombre", "text": "Un site éditorial affiche un fond de héros différent en mode clair et en mode sombre via `light-dark()` avec deux images, sans media query dédiée." },
+          { "icon": "📰", "title": "Pages de lecture stables", "text": "Un lecteur de flux qui injecte des publicités ou des commentaires au-dessus du fil évite les sauts de page grâce à `overflow-anchor`, désormais pris en charge par Safari 27." }
+        ] },
+        { "type": "timeline", "title": "D'où l'on vient, où l'on va", "items": [
+          { "label": "3 septembre 2026", "text": "Lancement de l'appel à propositions Interop 2027, par tickets GitHub dans le dépôt web-platform-tests/interop." },
+          { "label": "23 septembre 2026", "text": "Fin de la période de propositions." },
+          { "label": "Aujourd'hui", "text": "Le tableau de bord Interop 2026 affiche, en versions expérimentales, Chrome 98, Edge 98, Firefox 96 et Safari 92 sur l'objectif de 100 %." }
+        ] },
+        { "type": "opinion", "title": "Notre avis", "paragraphs": [
+          "Ces fonctions sont modestes mais cumulatives : chacune supprime une petite dette (un calcul en JavaScript, une variable de couleur dupliquée). La vraie nouveauté est le rythme d'alignement des moteurs, que mesure Interop : les scores très proches de 100 % indiquent que le casse-tête de la compatibilité se déplace des fonctionnalités vers les cas limites. Attention toutefois : la table de compatibilité de MDN peut être en retard, et certaines mentions (comme `font-width` côté Chrome) restent contradictoires dans le bilan lui-même.",
+          "Dans un à trois ans, on peut raisonnablement s'attendre à ce que ces fonctions deviennent le réglage par défaut des design systems, et à ce que les processus Interop pèsent de plus en plus sur les priorités des éditeurs de navigateurs. C'est une projection, pas un fait."
+        ], "verdict": "De petites briques CSS qui, mises bout à bout, rendent la feuille de style plus déclarative et moins dépendante du JavaScript." },
+        { "type": "callout", "icon": "📌", "title": "À retenir", "text": "Vérifiez le statut Baseline avant d'adopter une fonction, et gardez un repli pour les navigateurs plus anciens." }
+      ]
+    },
+    {
+      "id": "lets-encrypt-certificats-64-jours",
+      "category": "web",
+      "title": "Let's Encrypt passe à des certificats de 64 jours en février 2027",
+      "summary": "Le 10 février 2027, la durée par défaut des certificats Let's Encrypt passera de 90 à 64 jours, en prévision d'un palier à 45 jours en 2028.",
+      "tags": ["TLS", "ACME", "sécurité", "certificats"],
+      "importance": 5,
+      "readingMinutes": 4,
+      "publishedAt": "2026-10-17T15:42:00+02:00",
+      "sourceDate": "2026-10-07",
+      "icon": "🔒",
+      "cover": { "url": "https://letsencrypt.org/images/LetsEncrypt-SocialShare.png", "alt": "Visuel de partage de Let's Encrypt", "credit": "letsencrypt.org" },
+      "illustration": { "svg": "<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 640 360'><defs><linearGradient id='g' x1='0' y1='0' x2='1' y2='1'><stop offset='0' stop-color='#0f2a5c'/><stop offset='1' stop-color='#1d4ed8'/></linearGradient></defs><rect width='640' height='360' fill='url(#g)'/><rect x='250' y='150' width='140' height='110' rx='14' fill='#fbbf24'/><path d='M280 150 v-30 a40 40 0 0 1 80 0 v30' stroke='#fde68a' stroke-width='14' fill='none'/><circle cx='320' cy='200' r='14' fill='#1e3a8a'/><rect x='314' y='205' width='12' height='32' rx='5' fill='#1e3a8a'/><rect x='60' y='300' width='520' height='14' rx='7' fill='#fff' fill-opacity='.2'/><rect x='60' y='300' width='360' height='14' rx='7' fill='#34d399'/><circle cx='420' cy='307' r='12' fill='#fff'/></svg>" },
+      "sources": [
+        { "title": "64-Day Certificate Lifetimes Coming Feb 2027", "url": "https://letsencrypt.org/2026/10/07/64-day-certs", "publisher": "Let's Encrypt" }
+      ],
+      "blocks": [
+        { "type": "paragraph", "text": "Les certificats TLS gratuits d'Let's Encrypt vont vivre moins longtemps. Dans un billet daté du 7 octobre 2026, l'autorité annonce que la durée par défaut passera de 90 à 64 jours le 10 février 2027. C'est une étape intermédiaire : un défaut à 45 jours est prévu pour 2028. Pour la plupart des sites qui renouvellent automatiquement, le changement passera inaperçu ; pour les autres, il peut provoquer des pannes bien réelles." },
+        { "type": "heading", "text": "Ce qui est annoncé", "level": 2 },
+        { "type": "keyvalue", "items": [
+          { "label": "Bascule en production", "value": "10 février 2027 : les certificats émis ou renouvelés à partir de cette date durent 64 jours par défaut" },
+          { "label": "Test en préproduction", "value": "Les certificats de 64 jours sont émis dans l'environnement de staging depuis le 14 octobre 2026" },
+          { "label": "Options", "value": "Les abonnés peuvent choisir un profil de 45 jours ou de 6 jours" },
+          { "label": "Fin des 90 jours", "value": "Le dernier certificat de 90 jours devrait expirer le 11 mai 2027 ; aucun certificat valide n'est révoqué" },
+          { "label": "Réutilisation des validations", "value": "De 30 à 10 jours en 2027, puis sept heures prévues en 2028" }
+        ] },
+        { "type": "paragraph", "text": "Selon Let's Encrypt, les clients compatibles avec ACME Renewal Info (ARI) n'ont presque rien à faire : l'autorité leur indique elle-même quand renouveler. Le risque se concentre sur les scripts cron et les wrappers qui renouvellent un nombre de jours fixe avant l'expiration." },
+        { "type": "diagram", "svg": "<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 640 260'><rect width='640' height='260' rx='16' fill='#f1f5f9'/><text x='320' y='34' font-family='system-ui,sans-serif' font-size='18' font-weight='700' text-anchor='middle' fill='#0f172a'>Durée de vie par défaut des certificats</text><rect x='40' y='70' width='500' height='36' rx='8' fill='#94a3b8'/><text x='50' y='94' font-family='system-ui,sans-serif' font-size='15' fill='#0f172a'>Aujourd'hui : 90 jours</text><rect x='40' y='124' width='356' height='36' rx='8' fill='#2563eb'/><text x='50' y='148' font-family='system-ui,sans-serif' font-size='15' fill='#ffffff'>10 février 2027 : 64 jours</text><rect x='40' y='178' width='250' height='36' rx='8' fill='#059669'/><text x='50' y='202' font-family='system-ui,sans-serif' font-size='15' fill='#ffffff'>2028 (prévu) : 45 jours</text><text x='320' y='244' font-family='system-ui,sans-serif' font-size='13' text-anchor='middle' fill='#334155'>Largeur des barres proportionnelle à la durée</text></svg>", "alt": "Trois barres horizontales comparant des durées de 90, 64 et 45 jours", "caption": "Trajectoire annoncée : de 90 à 64 jours en 2027, puis 45 jours en 2028." },
+        { "type": "usecases", "title": "Exemples d'utilisation", "items": [
+          { "icon": "🛠️", "title": "Auditer ses crons", "text": "Un administrateur système cherche dans ses crons et runbooks les valeurs codées en dur (83, 80 ou 60 jours, citées par Let's Encrypt) et les remplace par un renouvellement à environ deux tiers de la durée de vie." },
+          { "icon": "🧪", "title": "Tester dès maintenant", "text": "Une équipe plateforme pointe un environnement de pré-production vers le staging de Let's Encrypt pour vérifier que ses renouvellements tiennent avec des certificats de 64 jours." },
+          { "icon": "🏭", "title": "Parc hétérogène", "text": "Un hébergeur qui gère des centaines de domaines vérifie quels clients ACME gèrent ARI avant la bascule, et planifie la migration de ceux qui ne le font pas." }
+        ] },
+        { "type": "timeline", "title": "D'où l'on vient, où l'on va", "items": [
+          { "label": "7 octobre 2026", "text": "Annonce officielle du passage à 64 jours." },
+          { "label": "14 octobre 2026", "text": "Début de l'émission de certificats de 64 jours en staging." },
+          { "label": "10 février 2027", "text": "Bascule du défaut en production." },
+          { "label": "11 mai 2027", "text": "Date prévue d'expiration du dernier certificat de 90 jours." },
+          { "label": "2028", "text": "Défaut à 45 jours prévu, et réutilisation des validations ramenée à sept heures." }
+        ] },
+        { "type": "opinion", "title": "Notre avis", "paragraphs": [
+          "Raccourcir la durée de vie limite la fenêtre d'exploitation d'une clé volée et force l'automatisation, ce qui est sain. Le coût est reporté sur les organisations qui renouvellent encore à la main ou avec des scripts figés : pour elles, 64 jours est une dette qui se matérialise sous forme de pannes un soir de week-end. Notez qu'un renouvellement à deux tiers de la durée de vie revient à environ 43 jours — un calcul de notre part, pas une consigne officielle.",
+          "À un à trois ans, la gestion manuelle des certificats devrait devenir marginale, et la fiabilité de l'ACME (ARI, supervision des échecs) deviendra un critère de choix d'outils. C'est notre lecture de la trajectoire, pas une certitude."
+        ], "verdict": "Une bonne nouvelle pour la sécurité, à condition d'avoir automatisé et supervisé ses renouvellements avant février." },
+        { "type": "callout", "icon": "📌", "title": "À retenir", "text": "Testez vos renouvellements sur le staging dès maintenant et supprimez toute durée codée en dur." }
+      ]
+    },
+    {
+      "id": "cloudflare-rachete-deno",
+      "category": "web",
+      "title": "Cloudflare rachète Deno : que devient le runtime de Ryan Dahl ?",
+      "summary": "Cloudflare absorbe Deno pour renforcer Workers ; le runtime autonome ne recevra plus que de la maintenance pendant un an et Deno Deploy fermera dans six mois.",
+      "tags": ["Deno", "Cloudflare", "JavaScript", "Workers"],
+      "importance": 4,
+      "readingMinutes": 4,
+      "publishedAt": "2026-10-17T15:44:00+02:00",
+      "sourceDate": "2026-10-09",
+      "icon": "🦕",
+      "cover": { "url": "https://cdn.thenewstack.io/media/2026/10/fafc4fee-prize-deno-kv-sticker-set-1024x563.png", "alt": "Autocollants aux couleurs de Deno", "credit": "thenewstack.io" },
+      "illustration": { "svg": "<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 640 360'><defs><linearGradient id='g' x1='0' y1='0' x2='1' y2='1'><stop offset='0' stop-color='#0b3b6f'/><stop offset='1' stop-color='#2563eb'/></linearGradient></defs><rect width='640' height='360' fill='url(#g)'/><path d='M120 250 q60 -120 140 -60 q40 30 20 70 z' fill='#fff' fill-opacity='.85'/><circle cx='235' cy='205' r='9' fill='#0b3b6f'/><path d='M360 140 a70 70 0 1 1 90 100 h-120 a45 45 0 0 1 30 -100z' fill='#f97316'/><path d='M290 262 h240' stroke='#fff' stroke-opacity='.4' stroke-width='4'/><path d='M300 300 l40 -20 m0 0 l-12 -2 m12 2 l-4 12' stroke='#fff' stroke-width='5' fill='none'/></svg>" },
+      "sources": [
+        { "title": "Cloudflare acquires Deno", "url": "https://thenewstack.io/cloudflare-acquires-deno-ryan-dahl/", "publisher": "The New Stack" },
+        { "title": "Linuxiac Weekly Wrap-Up: Week 41, 2026", "url": "https://linuxiac.com/linuxiac-weekly-wrap-up-week-41-2026-october-5-11/", "publisher": "Linuxiac" }
+      ],
+      "blocks": [
+        { "type": "paragraph", "text": "Le runtime JavaScript et TypeScript Deno, fondé par Ryan Dahl (le créateur de Node.js) et Bert Belder, passe sous pavillon Cloudflare. Les conditions financières n'ont pas été divulguées, mais la direction technique est claire : l'équipe rejoint la plateforme Workers, et le produit autonome entre en phase de maintenance." },
+        { "type": "heading", "text": "Ce que l'on sait", "level": 2 },
+        { "type": "list", "items": [
+          "Le rachat a été rapporté par The New Stack autour du 9 octobre 2026 ; les conditions financières restent confidentielles.",
+          "Le runtime Deno ne recevra plus que des correctifs de bogues et de sécurité pendant encore un an, après quoi son développement principal cessera.",
+          "Deno Deploy, l'offre d'hébergement, fermera dans six mois ; les clients payants se voient proposer une aide à la migration.",
+          "Le registre de paquets JSR continue sous l'égide de Cloudflare.",
+          "Deno aurait levé environ 26 millions de dollars au total, dont une série A de 21 millions menée par Sequoia, selon les sources concordantes de la presse."
+        ] },
+        { "type": "paragraph", "text": "Côté discours, Ryan Dahl présente l'opération comme un moyen de faire de Workers une manière courante de construire des serveurs. Kenton Varda, de Cloudflare, rejette l'idée d'un enfermement volontaire des clients : il défend que l'open source et la possibilité de partir sont bons pour les affaires. Le rachat survient peu après la publication par Deno d'une implémentation open source de Workers." },
+        { "type": "usecases", "title": "Exemples d'utilisation", "items": [
+          { "icon": "🚀", "title": "Projets hébergés sur Deno Deploy", "text": "Une startup qui déploie ses API sur Deno Deploy doit planifier sa migration dans les six mois, vers Workers ou un autre hébergeur." },
+          { "icon": "🧰", "title": "Scripts et outils en local", "text": "Un développeur qui utilise Deno comme outil en ligne de commande pour ses scripts TypeScript continue de bénéficier des correctifs pendant un an, mais doit anticiper une alternative." },
+          { "icon": "📦", "title": "Bibliothèques publiées sur JSR", "text": "Un mainteneur de bibliothèques TypeScript publiées sur JSR peut continuer à y publier : le registre est maintenu." }
+        ] },
+        { "type": "timeline", "title": "D'où l'on vient, où l'on va", "items": [
+          { "label": "Début octobre 2026", "text": "Annonce du rachat de Deno par Cloudflare." },
+          { "label": "Dans six mois", "text": "Arrêt de Deno Deploy." },
+          { "label": "Dans un an", "text": "Fin du développement principal du runtime autonome, selon les annonces." }
+        ] },
+        { "type": "opinion", "title": "Notre avis", "paragraphs": [
+          "Pour Cloudflare, c'est un gain de crédibilité auprès des développeurs JavaScript et une équipe d'ingénieurs de premier plan sur le runtime. Pour les utilisateurs de Deno, c'est une mauvaise surprise : l'argument historique du projet était d'être une alternative indépendante à Node.js, et l'on assiste à sa dilution dans une plateforme propriétaire, même avec des garanties d'ouverture. Les engagements sur l'open source ne couvrent, dans les informations publiées, que le calendrier de maintenance.",
+          "À un à trois ans, on peut anticiper un resserrement autour de deux pôles, Node.js (et ses concurrents comme Bun) d'un côté, Workers de l'autre. C'est une analyse, pas un fait établi."
+        ], "verdict": "Une consolidation logique pour Cloudflare, mais qui fragilise l'idée d'un runtime indépendant." },
+        { "type": "callout", "icon": "📌", "title": "À retenir", "text": "Si vous dépendez de Deno Deploy, comptez six mois pour migrer ; pour le runtime, un an de maintenance." }
+      ]
+    },
+    {
+      "id": "python-3-15-lazy-imports-utf8",
+      "category": "dev",
+      "title": "Python 3.15 : imports paresseux, UTF-8 par défaut et JIT un peu plus rapide",
+      "summary": "Sortie le 9 octobre 2026, Python 3.15 introduit le mot-clé lazy, impose UTF-8 par défaut et améliore le JIT expérimental de 7 à 8 %.",
+      "tags": ["Python", "JIT", "PEP 810", "PEP 686"],
+      "importance": 5,
+      "readingMinutes": 4,
+      "publishedAt": "2026-10-17T15:46:00+02:00",
+      "sourceDate": "2026-10-09",
+      "icon": "🐍",
+      "cover": { "url": "https://linuxiac.com/wp-content/uploads/2026/10/python315.jpg", "alt": "Illustration de la sortie de Python 3.15", "credit": "linuxiac.com" },
+      "illustration": { "svg": "<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 640 360'><defs><linearGradient id='g' x1='0' y1='0' x2='1' y2='1'><stop offset='0' stop-color='#3b1d8a'/><stop offset='1' stop-color='#7c3aed'/></linearGradient></defs><rect width='640' height='360' fill='url(#g)'/><path d='M250 90 h90 a30 30 0 0 1 30 30 v40 h-100 a30 30 0 0 0 -30 30 v30 h-30 a30 30 0 0 1 -30 -30 v-70 a30 30 0 0 1 30 -30z' fill='#fbbf24'/><path d='M390 270 h-90 a30 30 0 0 1 -30 -30 v-40 h100 a30 30 0 0 0 30 -30 v-30 h30 a30 30 0 0 1 30 30 v70 a30 30 0 0 1 -30 30z' fill='#60a5fa'/><circle cx='260' cy='120' r='8' fill='#3b1d8a'/><circle cx='380' cy='240' r='8' fill='#3b1d8a'/><text x='320' y='335' font-family='system-ui,sans-serif' font-size='34' font-weight='700' text-anchor='middle' fill='#fff'>3.15</text></svg>" },
+      "sources": [
+        { "title": "Python 3.15 Released with Faster JIT, Lazy Imports, and UTF-8 by Default", "url": "https://linuxiac.com/?p=220865", "publisher": "Linuxiac" },
+        { "title": "Python 3.15 is here with faster JIT compiler, explicit lazy imports, and UTF-8 by default", "url": "https://alternativeto.net/news/2026/10/python-3-15-is-here-with-faster-jit-compiler-explicit-lazy-imports-and-utf-8-by-default/", "publisher": "AlternativeTo" }
+      ],
+      "blocks": [
+        { "type": "paragraph", "text": "Python 3.15 a été publié le 9 octobre 2026, soit un peu après la date initialement prévue par la PEP 790. Cette version ne révolutionne pas le langage, mais elle règle deux irritants anciens, le coût de démarrage des programmes qui importent beaucoup de modules et les surprises d'encodage sous Windows, tout en poursuivant le travail sur la performance." },
+        { "type": "heading", "text": "Les nouveautés principales", "level": 2 },
+        { "type": "list", "items": [
+          "**Imports paresseux (PEP 810)** : un nouveau mot-clé `lazy` retarde le chargement d'un module jusqu'à sa première utilisation. Rien ne change tant que l'on ne l'active pas.",
+          "**UTF-8 par défaut (PEP 686)** : l'encodage de texte par défaut devient UTF-8. C'est un changement incompatible qui concerne surtout Windows.",
+          "**JIT expérimental** : environ 7 à 8 % de gain en moyenne géométrique sur x86-64 Linux par rapport à l'interpréteur standard (les bêtas annonçaient 8 à 9 %).",
+          "**Autres ajouts** : un type `frozendict` (dictionnaire immuable), un type sentinelle pour les marqueurs uniques, une ABI stable pour les builds free-threaded et un profileur par échantillonnage nommé Tachyon."
+        ] },
+        { "type": "code", "language": "python", "code": "lazy import json\n\ndef charge(chemin):\n    # json n'est réellement importé qu'ici, au premier appel\n    with open(chemin, encoding='utf-8') as f:\n        return json.load(f)" },
+        { "type": "paragraph", "text": "Les chiffres du JIT proviennent de sources secondaires qui citent les notes de version ; la page officielle « What's New » de docs.python.org reste la référence à consulter avant de décider d'une migration." },
+        { "type": "usecases", "title": "Exemples d'utilisation", "items": [
+          { "icon": "⚡", "title": "Outils en ligne de commande", "text": "Un CLI qui importe une dizaine de bibliothèques lourdes ne charge que celles dont la sous-commande appelée a besoin, ce qui accélère les commandes simples." },
+          { "icon": "🪟", "title": "Scripts sous Windows", "text": "Une équipe qui lisait des fichiers sans préciser l'encodage n'a plus à s'inquiéter des erreurs liées à la page de codes locale, mais doit vérifier les fichiers historiques non UTF-8." },
+          { "icon": "🔬", "title": "Profilage en production", "text": "Un développeur backend utilise le profileur par échantillonnage pour repérer un goulot d'étranglement sans ralentir fortement son service." }
+        ] },
+        { "type": "timeline", "title": "D'où l'on vient, où l'on va", "items": [
+          { "label": "Mai 2026", "text": "Première bêta et gel des fonctionnalités de la 3.15." },
+          { "label": "9 octobre 2026", "text": "Version finale de Python 3.15." },
+          { "label": "Ensuite", "text": "Le JIT reste expérimental : son évolution dépendra des prochaines versions." }
+        ] },
+        { "type": "opinion", "title": "Notre avis", "paragraphs": [
+          "L'import paresseux explicite est un compromis intelligent : il apporte le gain recherché sans changer la sémantique du code existant. En revanche, le passage à UTF-8 par défaut mérite une vraie campagne de tests dans les bases de code Windows qui lisent d'anciens fichiers. Quant au JIT, un gain de 7 à 8 % est réel mais modeste ; il ne change pas la hiérarchie des performances.",
+          "À un à trois ans, la combinaison free-threading, JIT et profileur peut faire de Python une option plus crédible pour des charges parallèles, mais cela reste à démontrer en production."
+        ], "verdict": "Une version pragmatique : peu de rupture, quelques vraies améliorations de confort." },
+        { "type": "callout", "icon": "📌", "title": "À retenir", "text": "Avant de passer à la 3.15, testez vos lectures de fichiers sous Windows : UTF-8 devient le défaut." }
+      ]
+    },
+    {
+      "id": "openssh-10-6-signatures-post-quantiques",
+      "category": "dev",
+      "title": "OpenSSH 10.6 : signature post-quantique stabilisée et compression durcie",
+      "summary": "OpenSSH 10.6 stabilise la signature hybride ssh-mldsa44-ed25519, désactive LZ77 dans la compression et resserre plusieurs contrôles.",
+      "tags": ["OpenSSH", "post-quantique", "sécurité", "SSH"],
+      "importance": 4,
+      "readingMinutes": 4,
+      "publishedAt": "2026-10-17T15:48:00+02:00",
+      "sourceDate": "2026-10-06",
+      "icon": "🔑",
+      "cover": { "url": "https://img.helpnetsecurity.com/wp-content/uploads/2026/07/06145725/openssh-1500.webp", "alt": "Illustration d'OpenSSH", "credit": "helpnetsecurity.com" },
+      "illustration": { "svg": "<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 640 360'><defs><linearGradient id='g' x1='0' y1='0' x2='1' y2='1'><stop offset='0' stop-color='#2e1065'/><stop offset='1' stop-color='#6d28d9'/></linearGradient></defs><rect width='640' height='360' fill='url(#g)'/><rect x='70' y='80' width='500' height='200' rx='16' fill='#0f0a24'/><circle cx='95' cy='105' r='6' fill='#f87171'/><circle cx='115' cy='105' r='6' fill='#fbbf24'/><circle cx='135' cy='105' r='6' fill='#34d399'/><text x='95' y='160' font-family='ui-monospace,monospace' font-size='20' fill='#a7f3d0'>$ ssh-keygen -t ssh-mldsa44-ed25519</text><text x='95' y='200' font-family='ui-monospace,monospace' font-size='20' fill='#c4b5fd'>Generating public/private key pair...</text><circle cx='520' cy='250' r='46' fill='#fbbf24'/><circle cx='520' cy='250' r='18' fill='#2e1065'/><rect x='500' y='250' width='40' height='60' rx='6' fill='#fbbf24'/></svg>" },
+      "sources": [
+        { "title": "OpenSSH 10.6 enables a post-quantum signature algorithm, so experimental keys need replacing", "url": "https://helpnetsecurity.com/2026/10/07/openssh-10-6-released", "publisher": "Help Net Security" },
+        { "title": "OpenSSH 10.6 Released with Security Hardening, Post-Quantum Support", "url": "https://linuxiac.com/?p=220640", "publisher": "Linuxiac" }
+      ],
+      "blocks": [
+        { "type": "paragraph", "text": "OpenSSH 10.6 est sorti le 6 octobre 2026. Au-delà du numéro de version, la publication met un terme à une période d'expérimentation : l'algorithme de signature hybride post-quantique devient stable, ce qui oblige à régénérer les clés créées avec l'ancien nom expérimental." },
+        { "type": "heading", "text": "Ce qui change", "level": 2 },
+        { "type": "list", "items": [
+          "**Signature post-quantique** : `ssh-mldsa44-ed25519` est désormais un nom stable. Les clés générées sous l'ancien nom expérimental en `@openssh.com` doivent être remplacées ; un témoignage signale qu'elles cessent de se charger sans bruit après la mise à jour depuis la 10.4.",
+          "**WarnWeakCrypto** : le serveur journalise, par défaut, les connexions qui utilisent un échange de clés non jugé résistant au quantique.",
+          "**Dérivation de clé** : le nombre de tours par défaut pour les clés privées passe de 24 à 32.",
+          "**Compression** : le codage par dictionnaire LZ77 est désactivé dans ssh et sshd pour atténuer un canal auxiliaire entre canaux (travaux « Crossing the Streams » de Bäumer et Brinkmann). L'option Compression perd donc en efficacité.",
+          "**Durcissements divers** : les noms d'utilisateur en ligne de commande contenant `$` ou `\\` sont refusés ; sshd ne stocke les identifiants GSSAPI qu'après authentification réussie ; sftp valide plus strictement les chemins renvoyés par le serveur.",
+          "**Dépréciation** : l'option `scp -R` fonctionne encore mais affiche un avertissement."
+        ] },
+        { "type": "callout", "icon": "⚠️", "title": "Attention", "tone": "warn", "text": "Si vous aviez testé des clés post-quantiques expérimentales, régénérez-les avant la mise à jour en production." },
+        { "type": "usecases", "title": "Exemples d'utilisation", "items": [
+          { "icon": "🧑‍💻", "title": "Équipe sécurité", "text": "Une équipe active WarnWeakCrypto sur ses bastions pour cartographier quels clients se connectent encore avec des échanges de clés non post-quantiques." },
+          { "icon": "🔁", "title": "Laboratoire d'expérimentation", "text": "Un laboratoire qui testait les clés post-quantiques régénère ses paires avec le nom stable et met à jour ses configurations." },
+          { "icon": "🧹", "title": "Scripts de copie", "text": "Un administrateur passe en revue ses scripts qui utilisent `scp -R` avant que l'option ne disparaisse." }
+        ] },
+        { "type": "timeline", "title": "D'où l'on vient, où l'on va", "items": [
+          { "label": "Avant la 10.6", "text": "La signature hybride existait sous un nom expérimental." },
+          { "label": "6 octobre 2026", "text": "Publication d'OpenSSH 10.6 avec le nom stable." },
+          { "label": "À venir", "text": "Les mainteneurs prévoient des versions plus fréquentes, en raison du nombre élevé de rapports de sécurité assistés par IA, selon LWN." }
+        ] },
+        { "type": "opinion", "title": "Notre avis", "paragraphs": [
+          "Stabiliser un nom d'algorithme peut sembler anecdotique, mais c'est le préalable à tout déploiement sérieux : on ne généralise pas des clés sous un identifiant expérimental. Le durcissement de la compression est un rappel utile : une option activée par habitude peut ouvrir des canaux auxiliaires.",
+          "À un à trois ans, la question sera moins de savoir si l'on migre vers le post-quantique que de l'inventorier proprement ; WarnWeakCrypto est un bon outil pour cela. C'est une opinion, pas un engagement de l'équipe OpenSSH."
+        ], "verdict": "Une mise à jour à planifier plutôt qu'à subir, surtout si vous avez déjà des clés expérimentales." }
+      ]
+    },
+    {
+      "id": "memoire-ordinateur-abstraction-qui-fuit",
+      "category": "dev",
+      "title": "Votre mémoire d'ordinateur est un mensonge : caches, pages et CRAM",
+      "summary": "Hackaday démonte l'image d'une mémoire plate et uniforme : caches, mémoire virtuelle, NUMA, swap et le projet CRAM de Meta de mémoire compressée.",
+      "tags": ["mémoire", "cache", "Linux", "performance"],
+      "importance": 3,
+      "readingMinutes": 5,
+      "publishedAt": "2026-10-17T15:50:00+02:00",
+      "sourceDate": "2026-10-12",
+      "icon": "🧠",
+      "cover": { "url": "https://hackaday.com/wp-content/uploads/2017/08/memory.jpg", "alt": "Barrettes de mémoire vive", "credit": "hackaday.com" },
+      "illustration": { "svg": "<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 640 360'><defs><linearGradient id='g' x1='0' y1='0' x2='1' y2='1'><stop offset='0' stop-color='#312e81'/><stop offset='1' stop-color='#7c3aed'/></linearGradient></defs><rect width='640' height='360' fill='url(#g)'/><rect x='260' y='60' width='120' height='40' rx='6' fill='#fbbf24'/><rect x='220' y='120' width='200' height='50' rx='6' fill='#f472b6'/><rect x='170' y='190' width='300' height='60' rx='6' fill='#60a5fa'/><rect x='110' y='270' width='420' height='60' rx='6' fill='#34d399'/><text x='320' y='88' font-family='system-ui,sans-serif' font-size='18' text-anchor='middle' fill='#312e81'>L1</text><text x='320' y='152' font-family='system-ui,sans-serif' font-size='18' text-anchor='middle' fill='#312e81'>L2 / L3</text><text x='320' y='226' font-family='system-ui,sans-serif' font-size='20' text-anchor='middle' fill='#1e1b4b'>RAM</text><text x='320' y='306' font-family='system-ui,sans-serif' font-size='20' text-anchor='middle' fill='#064e3b'>SSD</text></svg>" },
+      "sources": [
+        { "title": "Your Computer Memory Is A Lie", "url": "https://hackaday.com/2026/10/12/your-computer-memory-is-a-lie/", "publisher": "Hackaday" }
+      ],
+      "blocks": [
+        { "type": "paragraph", "text": "On apprend aux débutants que la mémoire est un grand tableau d'octets, chacun avec son adresse. Dans un article du 12 octobre 2026, Al Williams explique pourquoi ce modèle est presque entièrement fictif sur une machine moderne : l'adresse n'est pas physique, la donnée ne vient pas forcément de la RAM, et le SSD fait lui-même partie de la hiérarchie. L'abstraction est utile, mais elle fuit dès que la performance compte." },
+        { "type": "heading", "text": "Une hiérarchie, pas un tableau", "level": 2 },
+        { "type": "list", "items": [
+          "**Caches** : un processeur exécute plusieurs instructions par cycle alors qu'un accès à la DRAM coûte des centaines de cycles. D'où les niveaux L1, L2 et L3, qui travaillent par lignes de cache, couramment de 64 octets.",
+          "**Faux partage** : deux cœurs qui modifient des variables indépendantes situées dans la même ligne se gênent mutuellement. Des protocoles comme MESI assurent la cohérence, sans dispenser des règles de synchronisation.",
+          "**Mémoire virtuelle** : chaque programme voit son propre espace d'adressage, traduit par la MMU via des tables de pages (souvent de 4 Ko), avec un TLB pour mémoriser les traductions récentes.",
+          "**NUMA** : sur certaines machines, la mémoire d'un autre nœud est plus lente d'accès ; déplacer un thread peut donc changer ses performances sans changer ses adresses.",
+          "**Défauts de page et swap** : une page peut être absente de la RAM, chargée depuis un fichier ou récupérée du swap ; un swap excessif peut paralyser une machine.",
+          "**Le SSD aussi** : le cache de pages garde les fichiers en RAM, et les SSD ont leur propre couche de traduction (FTL)."
+        ] },
+        { "type": "heading", "text": "Compresser le milieu : zram, zswap et CRAM", "level": 2 },
+        { "type": "paragraph", "text": "Pour gagner de la capacité, Linux sait compresser des pages en RAM : zram crée un périphérique bloc compressé souvent utilisé comme swap, zswap met un cache compressé devant le swap. Le projet CRAM (Compressed RAM), présenté par Gregory Price de Meta à la Linux Plumbers Conference d'octobre 2026, pousse l'idée plus loin en exposant la mémoire compressée comme un nœud NUMA spécial, avec compression assistée par le matériel. Les développeurs évoquent des lectures proches de la DRAM dans certains tests ; l'auteur de l'article tempère, car écritures, taux de compression et exigences matérielles comptent, et le projet reste en développement." },
+        { "type": "usecases", "title": "Exemples d'utilisation", "items": [
+          { "icon": "🧮", "title": "Parcours de tableaux", "text": "Un développeur qui traite un grand tableau préfère un parcours séquentiel à des accès aléatoires pour tirer parti des lignes de cache et du préchargement matériel." },
+          { "icon": "🧵", "title": "Compteurs multithread", "text": "Une équipe qui observe des ralentissements sur des compteurs par thread sépare les variables sur des lignes de cache distinctes pour éviter le faux partage." },
+          { "icon": "🖥️", "title": "Serveurs à forte densité", "text": "Un opérateur de serveurs envisage zram ou zswap pour gagner de la capacité mémoire au prix de temps CPU." }
+        ] },
+        { "type": "timeline", "title": "D'où l'on vient, où l'on va", "items": [
+          { "label": "Aujourd'hui", "text": "Caches, mémoire virtuelle, NUMA, zram et zswap sont des mécanismes courants sous Linux." },
+          { "label": "Octobre 2026", "text": "Présentation de CRAM à la Linux Plumbers Conference ; l'auteur précise que c'est un travail en cours, non prêt pour l'usage courant." }
+        ] },
+        { "type": "opinion", "title": "Notre avis", "paragraphs": [
+          "L'intérêt de ce texte est pédagogique : il rappelle que la plupart des « mystères » de performance viennent de l'écart entre le modèle mental et la machine réelle. Il ne chiffre pas les gains de CRAM, et nous n'avons pas consulté la présentation d'origine : les performances annoncées sont à prendre comme des promesses de développeurs.",
+          "À un à trois ans, la montée de CXL, des chiplets et de la mémoire hétérogène va multiplier les niveaux de la hiérarchie ; savoir raisonner en latences plutôt qu'en octets sera de plus en plus utile. C'est une projection, pas une certitude."
+        ], "verdict": "Une lecture qui remet à plat le modèle mémoire, et un projet (CRAM) à suivre sans s'emballer." }
+      ]
+    },
+    {
+      "id": "carbone-signal-opentelemetry-sci",
+      "category": "devops",
+      "title": "Le carbone, nouveau signal d'observabilité : le projet SCI pour OpenTelemetry",
+      "summary": "Une initiative de la Green Software Foundation explore comment représenter l'intensité carbone logicielle dans les conventions sémantiques d'OpenTelemetry.",
+      "tags": ["OpenTelemetry", "observabilité", "GreenOps", "SCI"],
+      "importance": 3,
+      "readingMinutes": 5,
+      "publishedAt": "2026-10-17T15:52:00+02:00",
+      "sourceDate": "2026-10-15",
+      "icon": "🌱",
+      "cover": { "url": "https://www.cncf.io/wp-content/uploads/2026/10/Carbon-as-a-first-class-signal.jpg", "alt": "Visuel de l'article sur le carbone comme signal de première classe", "credit": "cncf.io" },
+      "illustration": { "svg": "<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 640 360'><defs><linearGradient id='g' x1='0' y1='0' x2='1' y2='1'><stop offset='0' stop-color='#064e3b'/><stop offset='1' stop-color='#059669'/></linearGradient></defs><rect width='640' height='360' fill='url(#g)'/><path d='M80 260 L180 200 L270 225 L370 140 L470 170 L560 90' stroke='#fff' stroke-width='6' fill='none'/><circle cx='180' cy='200' r='9' fill='#fbbf24'/><circle cx='270' cy='225' r='9' fill='#fbbf24'/><circle cx='370' cy='140' r='9' fill='#fbbf24'/><circle cx='470' cy='170' r='9' fill='#fbbf24'/><path d='M520 250 q50 -90 100 -20 q-50 40 -100 20z' fill='#86efac'/><path d='M520 250 q40 -30 80 -26' stroke='#064e3b' stroke-width='3' fill='none'/><rect x='60' y='290' width='520' height='6' rx='3' fill='#fff' fill-opacity='.3'/></svg>" },
+      "sources": [
+        { "title": "Carbon as a first-class signal: Bringing software carbon intensity to OpenTelemetry", "url": "https://www.cncf.io/blog/2026/10/15/carbon-as-a-first-class-signal-bringing-software-carbon-intensity-to-opentelemetry/", "publisher": "CNCF" }
+      ],
+      "blocks": [
+        { "type": "paragraph", "text": "L'observabilité cloud native sait mesurer le processeur, la mémoire, la latence ou l'allocation des ressources, mais rarement les émissions de carbone. Dans un billet publié le 15 octobre 2026 sur le blog de la CNCF, Diana Todea, mainteneuse de Kepler et approbatrice de la documentation OpenTelemetry, résume une keynote donnée à l'Observability Summit Europe à Prague : il s'agit de définir comment un signal carbone pourrait s'intégrer à OpenTelemetry." },
+        { "type": "heading", "text": "Mesurer ne suffit pas : attribuer", "level": 2 },
+        { "type": "paragraph", "text": "L'idée centrale est que connaître la consommation d'une machine ne dit pas combien une application en consomme, surtout quand l'infrastructure est partagée et l'échelle dynamique. Le billet s'appuie sur Kepler, qui expose des métriques énergétiques dans Kubernetes, et sur la spécification Software Carbon Intensity (SCI) de la Green Software Foundation, qui rapporte les émissions à une unité fonctionnelle (requête, transaction, utilisateur)." },
+        { "type": "diagram", "svg": "<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 640 280'><rect width='640' height='280' rx='16' fill='#f0fdf4'/><text x='320' y='34' font-family='system-ui,sans-serif' font-size='18' font-weight='700' text-anchor='middle' fill='#064e3b'>Les ingrédients du score SCI</text><rect x='30' y='70' width='130' height='70' rx='10' fill='#059669'/><text x='95' y='100' font-family='system-ui,sans-serif' font-size='24' font-weight='700' text-anchor='middle' fill='#fff'>E</text><text x='95' y='124' font-family='system-ui,sans-serif' font-size='13' text-anchor='middle' fill='#fff'>Énergie</text><rect x='180' y='70' width='130' height='70' rx='10' fill='#0d9488'/><text x='245' y='100' font-family='system-ui,sans-serif' font-size='24' font-weight='700' text-anchor='middle' fill='#fff'>I</text><text x='245' y='124' font-family='system-ui,sans-serif' font-size='13' text-anchor='middle' fill='#fff'>Intensité carbone</text><rect x='330' y='70' width='130' height='70' rx='10' fill='#0f766e'/><text x='395' y='100' font-family='system-ui,sans-serif' font-size='24' font-weight='700' text-anchor='middle' fill='#fff'>M</text><text x='395' y='124' font-family='system-ui,sans-serif' font-size='13' text-anchor='middle' fill='#fff'>Émissions incorporées</text><rect x='480' y='70' width='130' height='70' rx='10' fill='#115e59'/><text x='545' y='100' font-family='system-ui,sans-serif' font-size='24' font-weight='700' text-anchor='middle' fill='#fff'>R</text><text x='545' y='124' font-family='system-ui,sans-serif' font-size='13' text-anchor='middle' fill='#fff'>Unité fonctionnelle</text><path d='M95 140 v40 h450 v-40' stroke='#064e3b' stroke-width='3' fill='none'/><path d='M320 180 v30' stroke='#064e3b' stroke-width='3'/><rect x='200' y='210' width='240' height='44' rx='10' fill='#064e3b'/><text x='320' y='238' font-family='system-ui,sans-serif' font-size='15' text-anchor='middle' fill='#fff'>Émissions par unité de travail</text></svg>", "alt": "Schéma des quatre composantes E, I, M et R convergeant vers un score d'émissions par unité de travail", "caption": "Les composantes de la spécification SCI telles que décrites dans l'article de la CNCF." },
+        { "type": "table", "headers": ["Version", "Émissions totales", "Transactions", "Par transaction"], "rows": [
+          ["A", "100 kg CO₂e", "1 million", "0,0001 kg CO₂e"],
+          ["B", "110 kg CO₂e", "2 millions", "0,000055 kg CO₂e"]
+        ] },
+        { "type": "paragraph", "text": "L'exemple chiffré du billet illustre la subtilité : la version B émet plus au total mais est plus efficace par unité de travail. Réduire le total et améliorer l'efficacité sont deux objectifs distincts. Les défis listés sont l'attribution sur l'infrastructure partagée, la distinction entre valeurs mesurées et modélisées, la provenance des données, et la clarté des périmètres et des unités de travail." },
+        { "type": "usecases", "title": "Exemples d'utilisation", "items": [
+          { "icon": "📊", "title": "Mesurer l'effet d'un changement", "text": "Une équipe SRE compare l'énergie consommée avant et après une optimisation, à charge de travail égale, pour savoir quel composant fait grimper la facture carbone." },
+          { "icon": "⚖️", "title": "Comparer des options", "text": "Une équipe plateforme compare deux fournisseurs ou une migration, à condition de documenter périmètres, méthodes et charges communes." },
+          { "icon": "🤖", "title": "Décisions automatisées", "text": "Un ordonnanceur décale un traitement batch vers une heure où l'électricité est moins carbonée, en distinguant clairement prévision et mesure." }
+        ] },
+        { "type": "timeline", "title": "D'où l'on vient, où l'on va", "items": [
+          { "label": "Phase 1", "text": "Périmètre et cas d'usage : conclue par un consensus de la communauté à la date du billet." },
+          { "label": "Prochaines phases", "text": "Définir le namespace SCI et représenter énergie opérationnelle, émissions incorporées et unités fonctionnelles dans des conventions sémantiques soumises à la revue de la communauté." }
+        ] },
+        { "type": "opinion", "title": "Notre avis", "paragraphs": [
+          "Le mérite de cette initiative est d'exiger de la transparence : périmètre, méthode, nature de la valeur (mesurée, estimée, prévue). C'est le garde-fou contre le greenwashing par métriques. Mais les conventions proposées sont en cours d'élaboration et ne doivent pas être confondues avec des conventions OpenTelemetry adoptées ; le billet ne chiffre d'ailleurs pas la participation.",
+          "À un à trois ans, la pression réglementaire et les coûts énergétiques pourraient faire du carbone une métrique d'ingénierie courante. Le risque est de standardiser des estimations fragiles ; c'est ce qu'il faudra surveiller."
+        ], "verdict": "Une piste sérieuse, encore au stade de la normalisation ; à suivre avant de l'intégrer dans vos tableaux de bord." }
+      ]
+    },
+    {
+      "id": "kyverno-runtime-ebpf-agents-ia",
+      "category": "devops",
+      "title": "Kyverno descend dans le noyau : une sécurité runtime pour les agents IA",
+      "summary": "Nirmata propose Runtime for Kyverno, un projet alpha qui applique des politiques via eBPF et BPF-LSM pour contrôler exec, fichiers, réseau et protocoles des pods.",
+      "tags": ["Kyverno", "eBPF", "Kubernetes", "agents IA"],
+      "importance": 4,
+      "readingMinutes": 5,
+      "publishedAt": "2026-10-17T15:54:00+02:00",
+      "sourceDate": "2026-10-15",
+      "icon": "🛡️",
+      "illustration": { "svg": "<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 640 360'><defs><linearGradient id='g' x1='0' y1='0' x2='1' y2='1'><stop offset='0' stop-color='#064e3b'/><stop offset='1' stop-color='#0f766e'/></linearGradient></defs><rect width='640' height='360' fill='url(#g)'/><path d='M320 50 L450 95 V190 C450 250 390 290 320 315 C250 290 190 250 190 190 V95 Z' fill='#34d399'/><path d='M320 80 L420 112 V190 C420 235 375 265 320 285 C265 265 220 235 220 190 V112 Z' fill='#064e3b'/><path d='M275 190 l30 30 l60 -70' stroke='#fff' stroke-width='14' fill='none' stroke-linecap='round'/><circle cx='110' cy='120' r='5' fill='#a7f3d0'/><circle cx='540' cy='250' r='5' fill='#a7f3d0'/><path d='M80 300 h90 M470 80 h90' stroke='#a7f3d0' stroke-width='4'/></svg>" },
+      "sources": [
+        { "title": "Extending Kubernetes policy enforcement to runtime security for AI workloads", "url": "https://www.cncf.io/blog/2026/10/15/extending-kubernetes-policy-enforcement-to-runtime-security-for-ai-workloads/", "publisher": "CNCF" }
+      ],
+      "blocks": [
+        { "type": "paragraph", "text": "Le contrôle d'admission de Kubernetes vérifie la spécification d'une charge de travail au moment du déploiement, mais ne dit rien de ce qu'elle fait ensuite. Un second binaire téléchargé après démarrage, un sidecar qui contacte une destination non approuvée : rien de tout cela n'est vu à l'admission. Le problème s'aggrave avec les agents IA, dont une partie du comportement est générée à l'exécution. Dans un billet du 15 octobre 2026, Nirmata, éditeur de Kyverno, présente Runtime for Kyverno pour combler ce trou." },
+        { "type": "heading", "text": "Comment ça marche", "level": 2 },
+        { "type": "paragraph", "text": "Le projet, open source et en version alpha (`runtime.nirmata.io/v1alpha1`), applique des politiques dans le noyau grâce à eBPF et aux Linux Security Modules. La décision est synchrone : un `exec` refusé renvoie `-EPERM` avant que le processus ne démarre. Selon l'article, le contrôle s'exécute « sous » le workload plutôt qu'à côté, ce qui évite qu'il soit contourné depuis l'espace utilisateur ; c'est un argument de conception de l'éditeur, non un résultat de tests publiés." },
+        { "type": "diagram", "svg": "<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 640 300'><rect width='640' height='300' rx='16' fill='#ecfdf5'/><text x='320' y='32' font-family='system-ui,sans-serif' font-size='18' font-weight='700' text-anchor='middle' fill='#064e3b'>Du manifeste au noyau</text><rect x='30' y='60' width='170' height='64' rx='10' fill='#059669'/><text x='115' y='88' font-family='system-ui,sans-serif' font-size='14' text-anchor='middle' fill='#fff'>RuntimePolicy</text><text x='115' y='108' font-family='system-ui,sans-serif' font-size='12' text-anchor='middle' fill='#d1fae5'>règles en CEL</text><rect x='235' y='60' width='170' height='64' rx='10' fill='#0f766e'/><text x='320' y='88' font-family='system-ui,sans-serif' font-size='14' text-anchor='middle' fill='#fff'>Opérateur</text><text x='320' y='108' font-family='system-ui,sans-serif' font-size='12' text-anchor='middle' fill='#ccfbf1'>compile et charge</text><rect x='440' y='60' width='170' height='64' rx='10' fill='#115e59'/><text x='525' y='88' font-family='system-ui,sans-serif' font-size='14' text-anchor='middle' fill='#fff'>Noyau Linux</text><text x='525' y='108' font-family='system-ui,sans-serif' font-size='12' text-anchor='middle' fill='#ccfbf1'>eBPF + BPF-LSM</text><path d='M200 92 h35 M405 92 h35' stroke='#064e3b' stroke-width='3'/><rect x='30' y='170' width='130' height='50' rx='8' fill='#fff' stroke='#059669' stroke-width='2'/><text x='95' y='200' font-family='system-ui,sans-serif' font-size='14' text-anchor='middle' fill='#064e3b'>exec</text><rect x='180' y='170' width='130' height='50' rx='8' fill='#fff' stroke='#059669' stroke-width='2'/><text x='245' y='200' font-family='system-ui,sans-serif' font-size='14' text-anchor='middle' fill='#064e3b'>open</text><rect x='330' y='170' width='130' height='50' rx='8' fill='#fff' stroke='#059669' stroke-width='2'/><text x='395' y='200' font-family='system-ui,sans-serif' font-size='14' text-anchor='middle' fill='#064e3b'>network / protocol</text><rect x='480' y='170' width='130' height='50' rx='8' fill='#fff' stroke='#d97706' stroke-width='2'/><text x='545' y='200' font-family='system-ui,sans-serif' font-size='14' text-anchor='middle' fill='#064e3b'>dns (observé)</text><path d='M525 124 v28 h-430 v18 M525 152 h-130 v18 M525 152 h-280 v18 M525 152 h20 v18' stroke='#064e3b' stroke-width='2' fill='none'/><text x='320' y='265' font-family='system-ui,sans-serif' font-size='13' text-anchor='middle' fill='#334155'>Mode monitor par défaut, puis enforce une fois les règles réglées</text></svg>", "alt": "Schéma montrant une RuntimePolicy compilée par un opérateur puis appliquée dans le noyau sur exec, open, réseau et DNS", "caption": "Architecture simplifiée de Runtime for Kyverno d'après l'article de Nirmata." },
+        { "type": "table", "headers": ["Comportement", "Effet"], "rows": [
+          ["`exec`", "Refuse l'exécution selon le chemin résolu dans le noyau"],
+          ["`open`", "Refuse l'accès à un fichier selon son chemin"],
+          ["`network`", "Refuse les connexions sortantes selon la destination"],
+          ["`protocol`", "Refuse selon le protocole réellement utilisé, indépendamment du port"],
+          ["`dns`", "Observe et signale sans bloquer"]
+        ] },
+        { "type": "paragraph", "text": "Les politiques sont des ressources `RuntimePolicy` ciblées par sélecteurs, écrites en CEL comme dans Kyverno. Le mode `monitor` est le défaut : il signale ce qui serait refusé (`WouldDeny`) avant de passer en `enforce`. Le contrôle `open` exige BPF-LSM actif sur le nœud, et `network` et `protocol` demandent cgroup v2 et BPF." },
+        { "type": "usecases", "title": "Exemples d'utilisation", "items": [
+          { "icon": "🌐", "title": "Limiter l'agent à une passerelle LLM", "text": "Une politique n'autorise que la passerelle LLM interne et le DNS du cluster, et refuse toute autre sortie réseau." },
+          { "icon": "🗝️", "title": "Protéger les secrets", "text": "L'accès aux identifiants AWS, au kubeconfig, à une clé SSH et au token du service account est refusé au pod de l'agent." },
+          { "icon": "🔍", "title": "Détecter les CLI d'agents non déclarés", "text": "Une politique de détection signale l'invocation de CLI d'agents ou de paquets lancés via npx ou uvx dans des images où ils ne sont pas attendus." }
+        ] },
+        { "type": "timeline", "title": "D'où l'on vient, où l'on va", "items": [
+          { "label": "2020", "text": "Kyverno, créé par Nirmata, est donné à la CNCF ; il est aujourd'hui un projet graduated." },
+          { "label": "Octobre 2026", "text": "Présentation de Runtime for Kyverno en version alpha." },
+          { "label": "À venir", "text": "L'éditeur annonce des exceptions fines, sur le modèle de Kyverno." }
+        ] },
+        { "type": "opinion", "title": "Notre avis", "paragraphs": [
+          "L'approche est cohérente : appliquer au runtime la même grammaire de politiques qu'à l'admission réduit la charge cognitive des équipes plateforme. Mais le billet est écrit par l'éditeur, ne donne aucune mesure de surcoût ni d'adoption, le projet est alpha, le DNS n'est pas bloqué et BPF-LSM plus cgroup v2 restreignent les environnements compatibles.",
+          "À un à trois ans, on peut attendre que la sécurité runtime fondée sur eBPF devienne un prérequis pour les charges d'agents autonomes, mais il faudra des retours d'exploitation sérieux. Opinion, pas fait."
+        ], "verdict": "Idée solide, outil encore jeune : à tester en mode monitor avant toute application stricte." }
+      ]
+    },
+    {
+      "id": "kagent-agent-builder-portable",
+      "category": "devops",
+      "title": "kagent sur un portable : un agent qui fabrique d'autres agents dans Kubernetes",
+      "summary": "Un tutoriel CNCF montre comment monter un « agent builder » avec kagent, kind et un modèle local, en insistant sur trois garde-fous indépendants du prompt.",
+      "tags": ["kagent", "Kubernetes", "agents IA", "Ollama"],
+      "importance": 3,
+      "readingMinutes": 5,
+      "publishedAt": "2026-10-17T15:56:00+02:00",
+      "sourceDate": "2026-10-12",
+      "icon": "🤖",
+      "cover": { "url": "https://www.cncf.io/wp-content/uploads/2026/10/From-zero-to-agent-builder-1.png", "alt": "Visuel du tutoriel kagent « From zero to agent builder »", "credit": "cncf.io" },
+      "illustration": { "svg": "<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 640 360'><defs><linearGradient id='g' x1='0' y1='0' x2='1' y2='1'><stop offset='0' stop-color='#065f46'/><stop offset='1' stop-color='#10b981'/></linearGradient></defs><rect width='640' height='360' fill='url(#g)'/><rect x='90' y='110' width='140' height='110' rx='18' fill='#fff'/><circle cx='135' cy='160' r='12' fill='#065f46'/><circle cx='185' cy='160' r='12' fill='#065f46'/><rect x='125' y='190' width='70' height='8' rx='4' fill='#065f46'/><path d='M230 165 h90' stroke='#fff' stroke-width='5' stroke-dasharray='10 8'/><rect x='320' y='80' width='90' height='70' rx='12' fill='#fbbf24'/><rect x='320' y='180' width='90' height='70' rx='12' fill='#fbbf24'/><rect x='430' y='130' width='110' height='90' rx='12' fill='#fff' fill-opacity='.85'/><path d='M410 115 L430 150 M410 215 L430 195' stroke='#fff' stroke-width='4'/></svg>" },
+      "sources": [
+        { "title": "From zero to agent builder: Running kagent on your laptop", "url": "https://www.cncf.io/blog/2026/10/12/from-zero-to-agent-builder-running-kagent-on-your-laptop/", "publisher": "CNCF" }
+      ],
+      "blocks": [
+        { "type": "paragraph", "text": "Peut-on, en une après-midi et sans cloud, mettre en place un agent capable de créer d'autres agents dans un cluster Kubernetes ? C'est le pari d'un tutoriel publié le 12 octobre 2026 sur le blog de la CNCF par Antonio Berben (Solo.io) et Felipe Vicens (Telefónica). Il s'appuie sur kagent, un projet Sandbox de la CNCF, sur un cluster kind et sur un modèle servi localement par Ollama." },
+        { "type": "heading", "text": "La recette", "level": 2 },
+        { "type": "list", "ordered": true, "items": [
+          "Prérequis : Docker, kind, kubectl, helm, jq et Ollama (ou une clé d'API d'un fournisseur hébergé). Le modèle recommandé, `qwen3-coder:30b-a3b-q4_K_M`, occupe environ 18 Go.",
+          "Créer le cluster : `kind create cluster --name kagent-builder`.",
+          "Écrire un fichier de valeurs Helm qui fixe le modèle par défaut, limite le serveur d'outils au module Kubernetes en lecture seule et autorise uniquement la création et la modification des ressources `agents.kagent.dev`.",
+          "Installer les CRD puis kagent en version 0.10.2.",
+          "Déclarer l'agent `agent-builder` avec un prompt strict, une liste blanche de trois outils et une approbation obligatoire pour `k8s_apply_manifest`.",
+          "Utiliser l'interface via `kubectl port-forward`, ou automatiser via l'API A2A en JSON-RPC."
+        ] },
+        { "type": "paragraph", "text": "Les auteurs précisent que seul ce modèle a produit un manifeste valide à chaque essai ; des modèles plus petits (qwen2.5 en 7 ou 14 milliards de paramètres) inventaient leur propre format d'appel d'outil ou ne l'appelaient pas." },
+        { "type": "heading", "text": "Trois garde-fous qui ne dépendent pas du prompt", "level": 2 },
+        { "type": "keyvalue", "items": [
+          { "label": "Liste blanche d'outils", "value": "un outil absent de la liste n'est pas visible par le modèle" },
+          { "label": "Approbation humaine", "value": "le manifeste est affiché avant d'être appliqué" },
+          { "label": "RBAC Kubernetes", "value": "même approuvé, le serveur d'API refuse tout ce qui n'est pas un `Agent`" }
+        ] },
+        { "type": "paragraph", "text": "Un cas réel illustre l'intérêt de cet empilement : le modèle a produit un agent pointant vers un mauvais serveur d'outils, et le contrôleur l'a rejeté (`Accepted=False`) sans dommage. Les limites sont assumées : authentification `unsecure`, mot de passe PostgreSQL par défaut, configuration Linux non testée, et aucune gouvernance sur qui demande quels agents et à quel coût ; les auteurs évoquent agentgateway, un projet de la Linux Foundation, pour cette couche." },
+        { "type": "usecases", "title": "Exemples d'utilisation", "items": [
+          { "icon": "🧑‍🏫", "title": "Laboratoire de formation", "text": "Un formateur monte un atelier où chaque stagiaire décrit en langage naturel l'agent voulu et le voit apparaître dans son cluster kind." },
+          { "icon": "🧪", "title": "Prototypage en équipe plateforme", "text": "Une équipe teste la génération de manifestes d'agents avec validation humaine avant d'envisager un déploiement partagé." },
+          { "icon": "🔐", "title": "Étude des garde-fous", "text": "Une équipe sécurité s'inspire des trois couches (outils, humain, RBAC) pour cadrer ses propres agents." }
+        ] },
+        { "type": "timeline", "title": "D'où l'on vient, où l'on va", "items": [
+          { "label": "Aujourd'hui", "text": "kagent est un projet Sandbox de la CNCF, ici en version 0.10.2." },
+          { "label": "Ensuite", "text": "Les auteurs renvoient à la documentation pour d'autres serveurs d'outils, d'autres fournisseurs de modèles et la création d'agents en code ; ils ne donnent pas de calendrier." }
+        ] },
+        { "type": "opinion", "title": "Notre avis", "paragraphs": [
+          "Le tutoriel a le bon réflexe : au lieu de prétendre que le prompt protège, il empile des contrôles techniques indépendants du modèle. C'est la bonne leçon pour tout agent qui touche à une API d'infrastructure. En revanche, 18 Go de modèle et un mode d'authentification ouvert rappellent que nous sommes loin d'un usage partagé.",
+          "À un à trois ans, la gouvernance (identité, coûts, validation) sera probablement le sujet central, plus que la génération d'agents. C'est notre pronostic."
+        ], "verdict": "Un excellent bac à sable pour comprendre, pas un modèle de déploiement." },
+        { "type": "callout", "icon": "📌", "title": "À retenir", "text": "Nettoyage : `kind delete cluster --name kagent-builder` supprime tout l'environnement du tutoriel." }
+      ]
+    },
+    {
+      "id": "fairbuds-2-reparabilite-ifixit",
+      "category": "electronique",
+      "title": "Fairbuds 2 : des écouteurs IP54 dont la batterie se change sans colle",
+      "summary": "Le démontage d'iFixit relayé par Hackaday montre une batterie extractible d'une simple traction, peu de colle et une note de réparabilité de 10/10.",
+      "tags": ["réparabilité", "iFixit", "audio", "teardown"],
+      "importance": 3,
+      "readingMinutes": 4,
+      "publishedAt": "2026-10-17T15:58:00+02:00",
+      "sourceDate": "2026-10-16",
+      "icon": "🎧",
+      "cover": { "url": "https://hackaday.com/wp-content/uploads/2026/10/fairbuds_2_disassembly_ifixit_youtube.jpg", "alt": "Écouteur Fairbuds 2 démonté lors du teardown d'iFixit", "credit": "hackaday.com" },
+      "illustration": { "svg": "<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 640 360'><defs><linearGradient id='g' x1='0' y1='0' x2='1' y2='1'><stop offset='0' stop-color='#9a3412'/><stop offset='1' stop-color='#f97316'/></linearGradient></defs><rect width='640' height='360' fill='url(#g)'/><path d='M180 230 a140 140 0 0 1 280 0' stroke='#fff' stroke-width='16' fill='none'/><rect x='150' y='220' width='56' height='90' rx='24' fill='#fff'/><rect x='434' y='220' width='56' height='90' rx='24' fill='#fff'/><rect x='270' y='240' width='100' height='56' rx='8' fill='#fde68a'/><rect x='282' y='252' width='76' height='32' rx='4' fill='#92400e'/><path d='M375 255 h50' stroke='#fff' stroke-width='5' stroke-dasharray='8 6'/><text x='320' y='110' font-family='system-ui,sans-serif' font-size='38' font-weight='700' text-anchor='middle' fill='#fff'>10 / 10</text></svg>" },
+      "sources": [
+        { "title": "Fairbuds 2 Teardown Shows Little Glue, Easy Battery Swap", "url": "https://hackaday.com/2026/10/16/fairbuds-2-teardown-shows-little-glue-easy-battery-swap/", "publisher": "Hackaday" }
+      ],
+      "blocks": [
+        { "type": "paragraph", "text": "Les écouteurs sans fil sont souvent jetés dès que la batterie fatigue, car elle est collée et inaccessible. Les Fairbuds 2 prennent le contre-pied : iFixit les a entièrement démontés, de la batterie à la carte électronique, et leur attribue une note de réparabilité de 10 sur 10. Maya Posch en rend compte sur Hackaday le 16 octobre 2026, à partir de la vidéo du démontage." },
+        { "type": "heading", "text": "Ce que révèle le démontage", "level": 2 },
+        { "type": "keyvalue", "items": [
+          { "label": "Batterie", "value": "cellule rechargeable LIR1054, lithium-ion 3,6 V, dans un support ; une traction sur la trappe suffit à l'extraire, sans colle" },
+          { "label": "Étanchéité", "value": "certification IP54 (protection contre les projections d'eau) malgré cette conception" },
+          { "label": "Boîtier", "value": "coques tenues par des clips plastique et quelques points de colle ; la colle est surtout dans la section pilote, vraisemblablement contre la sueur" },
+          { "label": "Étui", "value": "démontable avec des vis" },
+          { "label": "Électronique", "value": "SoC Airoha AB1577S à cœur ARM Cortex-M4F, gérant Bluetooth Low Energy et commande tactile" },
+          { "label": "Point faible", "value": "port USB-C soudé sur la carte, critiqué par iFixit" }
+        ] },
+        { "type": "paragraph", "text": "Après le démontage, iFixit a réassemblé l'écouteur, qui fonctionnait toujours. La carte principale reste accessible, ce qui permet en principe de remplacer un composant défaillant, comme un condensateur en court-circuit. L'article rappelle aussi qu'iFixit a récemment salué une amélioration modeste de la réparabilité des derniers AirPods, avec un changement de batterie non destructif encore possible, au moins en partie." },
+        { "type": "usecases", "title": "Exemples d'utilisation", "items": [
+          { "icon": "🔋", "title": "Prolonger la vie des écouteurs", "text": "Un utilisateur remplace lui-même la cellule LIR1054 lorsque l'autonomie baisse, au lieu de racheter une paire." },
+          { "icon": "🧑‍🔧", "title": "Réparation en atelier", "text": "Un réparateur indépendant diagnostique et remplace un composant de la carte, rendue accessible par le montage à clips." },
+          { "icon": "🎓", "title": "Référence de conception", "text": "Un bureau d'études s'inspire du support de batterie sans colle et de la seule zone collée pour concevoir un produit étanche mais réparable." }
+        ] },
+        { "type": "timeline", "title": "D'où l'on vient, où l'on va", "items": [
+          { "label": "Avant", "text": "La plupart des écouteurs sans fil, batterie collée, sont vus comme jetables." },
+          { "label": "Octobre 2026", "text": "Démontage des Fairbuds 2 par iFixit, noté 10/10 en réparabilité." },
+          { "label": "À venir", "text": "Certains commentateurs estiment que les évolutions réglementaires pourraient renverser la tendance ; c'est une opinion de lecteurs, non un fait." }
+        ] },
+        { "type": "opinion", "title": "Notre avis", "paragraphs": [
+          "La note de 10/10 est méritée sur le plan technique, mais les commentaires de l'article rappellent le vrai frein : sur un produit à environ 50 dollars, la main-d'œuvre rend la réparation peu rentable, et beaucoup d'appareils finissent dans un tiroir simplement parce qu'on en a acheté un autre. Réparable ne veut pas dire réparé. L'USB-C soudé, point faible classique, aurait pu être évité.",
+          "À un à trois ans, on peut espérer que des pièces détachées bon marché et la pression réglementaire transforment cette exception en norme ; rien ne le garantit."
+        ], "verdict": "Un vrai bon élève de la réparabilité, qui prouve que l'étanchéité et l'absence de colle sont compatibles." }
+      ]
+    },
+    {
+      "id": "makerphone-2-telephone-4g-en-kit",
+      "category": "electronique",
+      "title": "MAKERphone 2.0 : un téléphone 4G à monter soi-même, sans soudure",
+      "summary": "CircuitMess lance un kit de téléphone 4G LTE Cat-1 sur ESP32-S3, assemblable en deux heures et programmable en MicroPython ou Arduino C++.",
+      "tags": ["ESP32-S3", "DIY", "4G", "CircuitMess"],
+      "importance": 3,
+      "readingMinutes": 4,
+      "publishedAt": "2026-10-17T16:00:00+02:00",
+      "sourceDate": "2026-10-05",
+      "icon": "📱",
+      "cover": { "url": "https://img.helpnetsecurity.com/wp-content/uploads/2026/10/05114231/makerphone_2-1500.webp", "alt": "Le kit de téléphone MAKERphone 2.0", "credit": "helpnetsecurity.com" },
+      "illustration": { "svg": "<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 640 360'><defs><linearGradient id='g' x1='0' y1='0' x2='1' y2='1'><stop offset='0' stop-color='#9a3412'/><stop offset='1' stop-color='#fb923c'/></linearGradient></defs><rect width='640' height='360' fill='url(#g)'/><rect x='250' y='40' width='140' height='280' rx='20' fill='#1c1917'/><rect x='264' y='62' width='112' height='90' rx='6' fill='#38bdf8'/><g fill='#fde68a'><rect x='268' y='170' width='28' height='20' rx='4'/><rect x='306' y='170' width='28' height='20' rx='4'/><rect x='344' y='170' width='28' height='20' rx='4'/><rect x='268' y='200' width='28' height='20' rx='4'/><rect x='306' y='200' width='28' height='20' rx='4'/><rect x='344' y='200' width='28' height='20' rx='4'/><rect x='268' y='230' width='28' height='20' rx='4'/><rect x='306' y='230' width='28' height='20' rx='4'/><rect x='344' y='230' width='28' height='20' rx='4'/></g><path d='M130 120 a60 60 0 0 1 60 60 M110 120 a80 80 0 0 1 80 80' stroke='#fff' stroke-width='5' fill='none'/><path d='M450 130 h70 M450 190 h90 M450 250 h60' stroke='#fff' stroke-opacity='.6' stroke-width='6'/></svg>" },
+      "sources": [
+        { "title": "MAKERphone 2: A DIY 4G phone with plug-in camera, speaker and prototyping board", "url": "https://helpnetsecurity.com/2026/10/05/makerphone-2-diy-4g-phone", "publisher": "Help Net Security" },
+        { "title": "MAKERphone 2.0 Is an Open, Hackable 4G Phone You Build Yourself", "url": "https://linuxiac.com/?p=220558", "publisher": "Linuxiac" }
+      ],
+      "blocks": [
+        { "type": "paragraph", "text": "Le fabricant CircuitMess relance son kit de téléphone à construire soi-même. Le MAKERphone d'origine, sorti en 2018, demandait environ sept heures de soudure ; la version 2.0 s'assemble en deux heures environ, sans soudure : les pièces se clipsent, se vissent ou se branchent. Elle est présentée comme un téléphone ouvert et hackable, financé sur Kickstarter." },
+        { "type": "heading", "text": "Fiche technique", "level": 2 },
+        { "type": "keyvalue", "items": [
+          { "label": "Réseau", "value": "voix et SMS en 4G LTE Cat-1, repli 2G, carte nano-SIM" },
+          { "label": "Processeur", "value": "ESP32-S3 double cœur" },
+          { "label": "Écran et clavier", "value": "écran couleur de 1,77 pouce et clavier de 12 touches" },
+          { "label": "Connectivité", "value": "Wi-Fi, Bluetooth, lecteur microSD" },
+          { "label": "Batterie", "value": "1 000 mAh" },
+          { "label": "Programmation", "value": "MicroPython et Arduino C++ ; un outil de codage assisté par IA, VibeBoy, est proposé" },
+          { "label": "Prix", "value": "129 $ sur Kickstarter contre 169 $ prévus en vente normale" }
+        ] },
+        { "type": "paragraph", "text": "Le fabricant propose aussi un bracelet de type montre connectée, MAKERband, vendu séparément, et des modules enfichables comme une caméra, un haut-parleur et une carte de prototypage selon la presse spécialisée. Les sources datent du lancement fin septembre et début octobre ; une campagne dont la clôture était annoncée au 10 octobre est probablement terminée, donc prix et disponibilité sont à vérifier sur le site officiel." },
+        { "type": "usecases", "title": "Exemples d'utilisation", "items": [
+          { "icon": "🏫", "title": "Atelier scolaire", "text": "Un club de technologie assemble des téléphones en deux heures, puis programme de petites applications en MicroPython." },
+          { "icon": "📡", "title": "Prototype connecté", "text": "Un bricoleur s'en sert comme plateforme de test cellulaire pour un objet qui doit envoyer des SMS." },
+          { "icon": "🧑‍💻", "title": "Apprendre l'embarqué", "text": "Un étudiant découvre l'ESP32-S3 et la pile 4G à travers un appareil qu'il comprend de bout en bout." }
+        ] },
+        { "type": "timeline", "title": "D'où l'on vient, où l'on va", "items": [
+          { "label": "2018", "text": "Premier MAKERphone, environ sept heures de soudure." },
+          { "label": "Septembre-octobre 2026", "text": "Lancement du MAKERphone 2.0 sur Kickstarter." },
+          { "label": "10 octobre 2026", "text": "Date de clôture annoncée de la campagne par l'une des sources consultées." }
+        ] },
+        { "type": "opinion", "title": "Notre avis", "paragraphs": [
+          "L'intérêt est pédagogique plus que pratique : un téléphone à écran de 1,77 pouce et 12 touches ne remplacera aucun smartphone, mais il rend lisible ce qui se passe entre la carte SIM et l'application. La suppression de la soudure ouvre le kit aux plus jeunes et aux classes. L'ajout d'un outil de codage assisté par IA est plus discutable : il accélère le démarrage, mais peut masquer la compréhension.",
+          "À un à trois ans, les kits cellulaires ouverts pourraient devenir un format courant d'initiation à l'embarqué. C'est une conjecture."
+        ], "verdict": "Un excellent jouet d'apprentissage, à acheter pour construire plutôt que pour téléphoner." }
+      ]
+    },
+    {
+      "id": "fpga-chronicles-analyseur-logique-tang-nano-20k",
+      "category": "electronique",
+      "title": "FPGA Chronicles : sonder un design avec l'analyseur logique GOWIN sur Tang Nano 20K",
+      "summary": "Le troisième volet de la série de Hackaday montre comment embarquer un analyseur logique dans un FPGA et rappelle quelques bonnes pratiques Verilog.",
+      "tags": ["FPGA", "Verilog", "Tang Nano 20K", "débogage"],
+      "importance": 2,
+      "readingMinutes": 4,
+      "publishedAt": "2026-10-17T16:02:00+02:00",
+      "sourceDate": "2026-10-13",
+      "icon": "🔬",
+      "cover": { "url": "https://hackaday.com/wp-content/uploads/2026/09/FPGAchronicles.jpg", "alt": "Visuel de la série FPGA Chronicles", "credit": "hackaday.com" },
+      "illustration": { "svg": "<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 640 360'><defs><linearGradient id='g' x1='0' y1='0' x2='1' y2='1'><stop offset='0' stop-color='#7c2d12'/><stop offset='1' stop-color='#ea580c'/></linearGradient></defs><rect width='640' height='360' fill='url(#g)'/><rect x='220' y='90' width='200' height='180' rx='12' fill='#1c1917'/><g fill='#fbbf24'><rect x='200' y='115' width='20' height='8'/><rect x='200' y='155' width='20' height='8'/><rect x='200' y='195' width='20' height='8'/><rect x='200' y='235' width='20' height='8'/><rect x='420' y='115' width='20' height='8'/><rect x='420' y='155' width='20' height='8'/><rect x='420' y='195' width='20' height='8'/><rect x='420' y='235' width='20' height='8'/></g><path d='M240 220 h30 v-40 h30 v40 h30 v-40 h30 v40 h20' stroke='#34d399' stroke-width='5' fill='none'/><path d='M240 150 h50 v-24 h50 v24 h40' stroke='#38bdf8' stroke-width='5' fill='none'/><text x='320' y='320' font-family='ui-monospace,monospace' font-size='22' text-anchor='middle' fill='#fff'>27 MHz</text></svg>" },
+      "sources": [
+        { "title": "The FPGA Chronicles: Ready To Probe", "url": "https://hackaday.com/2026/10/13/the-fpga-chronicles-ready-to-probe/", "publisher": "Hackaday" }
+      ],
+      "blocks": [
+        { "type": "paragraph", "text": "Quand un design FPGA ne se comporte pas comme prévu, impossible de brancher une sonde sur un signal interne. La solution consiste à synthétiser un analyseur logique dans le circuit lui-même. Dans le troisième épisode de sa série « FPGA Chronicles », publié le 13 octobre 2026, Al Williams montre comment le faire avec les outils GOWIN sur une carte Tang Nano 20K, dont l'horloge d'entrée est de 27 MHz." },
+        { "type": "heading", "text": "Mettre en place l'analyseur", "level": 2 },
+        { "type": "list", "items": [
+          "Un fichier GAO actif demande à l'outil de construire l'analyseur dans le design et définit les conditions de déclenchement.",
+          "Un seul fichier GAO peut être actif à la fois ; un clic droit dans l'onglet Design permet d'en exclure un du build, pratique pour alterner entre test et production.",
+          "L'auteur recommande le mode Standard plutôt que Lite, et généralement le mode RTL, qui affiche les symboles définis par l'utilisateur.",
+          "Les épisodes précédents comparaient outils GOWIN et outils open source : ces derniers permettent la simulation avant programmation, mais l'analyseur GOWIN est jugé très simple d'emploi."
+        ] },
+        { "type": "heading", "text": "Le design de démonstration", "level": 2 },
+        { "type": "paragraph", "text": "L'exemple fait clignoter des LED en comptant des cycles d'horloge, utilise un UART en IP GOWIN configuré dans l'IP Core Generator, et filtre un bouton avec un module de debounce de 10 ms. Un bouton renvoie les caractères reçus tels quels, l'autre ajoute 1 au caractère ; un astérisque est envoyé à chaque pression. Une vidéo montre la capture simultanée d'impulsions rapides sur les LED et de données série lentes." },
+        { "type": "code", "language": "verilog", "code": "`default_nettype none\n\nalways @(posedge Clock) begin\n  compteur <= compteur + 1;  // affectation non bloquante\nend\n\n`default_nettype wire" },
+        { "type": "callout", "icon": "🧠", "title": "Bonnes pratiques citées", "text": "`default_nettype none` pour repérer les fautes de frappe (à rétablir en `wire` en fin de fichier pour les outils GOWIN), affectation non bloquante `<=` dans les blocs synchrones, et attention aux temps de setup et de hold et à la métastabilité pour les signaux asynchrones." },
+        { "type": "usecases", "title": "Exemples d'utilisation", "items": [
+          { "icon": "🎛️", "title": "Débogage d'un UART", "text": "Un amateur capture les échanges série à l'intérieur du FPGA pour comprendre pourquoi un caractère n'est pas renvoyé." },
+          { "icon": "🕹️", "title": "Contrôleur de périphérique", "text": "Un concepteur de cartes vérifie le comportement d'un bouton filtré avant de l'intégrer à un design plus complexe." },
+          { "icon": "📚", "title": "Enseignement", "text": "Un enseignant utilise une carte à bas prix et un analyseur embarqué pour montrer comment un signal se propage de cycle en cycle." }
+        ] },
+        { "type": "timeline", "title": "D'où l'on vient, où l'on va", "items": [
+          { "label": "Épisodes précédents", "text": "Comparaison des outils GOWIN et open source sur la même carte." },
+          { "label": "13 octobre 2026", "text": "Troisième volet : sonder le design avec l'analyseur logique." },
+          { "label": "À suivre", "text": "La suite de la série n'est pas détaillée dans l'article." }
+        ] },
+        { "type": "opinion", "title": "Notre avis", "paragraphs": [
+          "Montrer l'analyseur embarqué est précieux : c'est ce qui sépare un tutoriel de LED qui clignotent d'un vrai travail de conception. Les lecteurs, dans les commentaires, ont d'ailleurs relevé des points d'amélioration : séparer les conditions indépendantes dans le debounce, et prévoir des contraintes de temporisation pour franchir les domaines d'horloge plutôt que d'enchaîner de simples bascules.",
+          "À un à trois ans, la disponibilité de cartes FPGA peu chères et de chaînes ouvertes pourrait élargir le public. L'outillage propriétaire gardera l'avantage de la simplicité. C'est une opinion."
+        ], "verdict": "Un tutoriel accessible, à compléter par les remarques de la communauté sur le style Verilog." }
+      ]
+    }
+  ]
+}
