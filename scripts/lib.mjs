@@ -67,6 +67,8 @@ export async function buildIndex() {
         importance: p.importance || 1,
         readingMinutes: p.readingMinutes || null,
         icon: p.icon || null,
+        // illustration SVG de couverture, embarquée dans l'index seulement si elle est compacte
+        illustration: p.illustration?.svg && p.illustration.svg.length <= 8000 ? { svg: p.illustration.svg } : null,
         cover: p.cover?.url ? { url: p.cover.url, alt: p.cover.alt || "" } : null,
         // horodatage de l'article ; à défaut, celui de la génération
         publishedAt: p.publishedAt || e.generatedAt || `${e.date}T06:00:00Z`,

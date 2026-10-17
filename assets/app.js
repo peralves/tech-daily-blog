@@ -42,7 +42,7 @@ function buildModel() {
 const cat = (id) => categories.find((c) => c.id === id) || { id, label: id, icon: "📄", hue: 220 };
 const catStyle = (id) => `--h:${cat(id).hue ?? 220}`;
 const catTag = (id) => el("span", { class: "tag", style: catStyle(id) }, cat(id).label);
-const art = (p, extra = {}) => illustration({ icon: p.icon || cat(p.category).icon, hue: cat(p.category).hue, motif: p.category, seed: p.edition + p.id, cover: p.cover?.url, alt: p.cover?.alt || p.title, ...extra });
+const art = (p, extra = {}) => illustration({ icon: p.icon || cat(p.category).icon, hue: cat(p.category).hue, motif: p.category, seed: p.edition + p.id, cover: p.cover?.url, svg: p.illustration?.svg, alt: p.cover?.alt || p.title, ...extra });
 const href = (p) => `#/p/${p.edition}/${p.id}`;
 
 function postRow(p) {

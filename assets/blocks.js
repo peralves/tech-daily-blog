@@ -56,7 +56,33 @@ export const renderers = {
     b.headers ? el("thead", {}, el("tr", {}, b.headers.map((h) => el("th", {}, inline(h))))) : null,
     el("tbody", {}, (b.rows || []).map((r) => el("tr", {}, r.map((c) => el("td", {}, inline(c)))))))),
   keyvalue: (b) => el("dl", { class: "kv" }, (b.items || []).flatMap((i) => [el("dt", { text: i.label }), el("dd", {}, inline(i.value))])),
+  // Illustration SVG écrite par l'auteur (schéma, infographie). Rendue via <img> : aucun script ne peut s'exécuter.
+  diagram: (b) => {
+    const src = svgUrl(b.svg);
+    return src ? el("figure", { class: "diagram" }, el("img", { src, alt: b.alt || b.caption || "Illustration", loading: "lazy" }), b.caption ? el("figcaption", { text: b.caption }) : null) : null;
+  },
+  // Avis / vision de la rédaction
+  opinion: (b) => el("aside", { class: "opinion" },
+    el("div", { class: "opinion-k", text: b.title || "Notre avis" }),
+    ...(Array.isArray(b.paragraphs) ? b.paragraphs : [b.text]).filter(Boolean).map((t) => el("p", {}, inline(t))),
+    b.verdict ? el("p", { class: "verdict" }, inline(b.verdict)) : null),
+  // Exemples d'usage concrets : [{icon, title, text}]
+  usecases: (b) => el("section", { class: "usecases" },
+    el("h2", { text: b.title || "Exemples d'utilisation" }),
+    el("div", { class: "uc-grid" }, (b.items || []).map((i) => el("div", { class: "uc" },
+      el("span", { class: "uc-ico", "aria-hidden": "true", text: i.icon || "✦" }), el("h3", { text: i.title }), el("p", {}, inline(i.text)))))),
+  // Évolution / jalons : [{label, text}]
+  timeline: (b) => el("section", { class: "tl" },
+    b.title ? el("h2", { text: b.title }) : null,
+    el("ol", {}, (b.items || []).map((i) => el("li", {}, el("strong", { text: i.label }), el("span", {}, inline(i.text)))))),
 };
+
+export function svgUrl(svg) {
+  if (typeof svg !== "string") return null;
+  const s = svg.trim();
+  if (!/^<svg[\s>]/i.test(s) || s.length > 80000 || /<script|<foreignObject|javascript:/i.test(s)) return null;
+  return "data:image/svg+xml;charset=utf-8," + encodeURIComponent(s);
+}
 
 export function renderBlocks(blocks = []) {
   const root = el("div", { class: "body" });
@@ -118,13 +144,13 @@ const motifs = {
 };
 motifs.default = motifs.web;
 
-export function illustration({ icon, hue = 220, seed = "", cover = null, alt = "", motif = "web", cls = "" }) {
+export function illustration({ icon, hue = 220, seed = "", cover = null, svg = null, alt = "", motif = "web", cls = "" }) {
   const r = rng(seed);
   const art = el("div", { class: "art " + cls, style: `--h:${hue};--gx:${Math.floor(r() * 80)}%;--gy:${Math.floor(r() * 80)}%` });
   const svg = el("div", { class: "art-svg", "aria-hidden": "true" });
   svg.innerHTML = `<svg viewBox="0 0 640 360" preserveAspectRatio="xMidYMid slice" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">${(motifs[motif] || motifs.default)(r)}</svg>`;
   art.append(svg, el("span", { class: "art-chip", "aria-hidden": "true", text: icon || "📰" }));
-  const src = cover && safeUrl(cover);
+  const src = svgUrl(svg) || (cover && safeUrl(cover));
   if (src) {
     const img = el("img", { src, alt, loading: "lazy", decoding: "async", referrerpolicy: "no-referrer" });
     img.onerror = () => img.remove();
