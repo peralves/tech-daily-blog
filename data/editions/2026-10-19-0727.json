@@ -1,0 +1,1446 @@
+{
+ "schemaVersion": "1.0",
+ "date": "2026-10-19",
+ "generatedAt": "2026-10-19T07:31:40+02:00",
+ "title": "Tech Daily — 19 octobre 2026, matin : faille d'évasion KVM, WAF exploité, Linux 7.3 et IA locale",
+ "summary": "Au programme : une évasion de machine virtuelle dans KVM, un pare-feu applicatif exploité en production, un spyware livré par la publicité, la sortie de Linux 7.3, le report de PostgreSQL 19, le poids croissant des modèles ouverts et deux cartes électroniques.",
+ "highlights": [
+  "PwnEscape (CVE-2026-99999) : une faille critique de KVM, notée 9,3, permet de viser l'hôte depuis une machine virtuelle.",
+  "SiteGuard : l'éditeur confirme l'exploitation d'une injection de commandes donnant les droits root ou SYSTEM.",
+  "Linux 7.3 est publié ; PostgreSQL 19 est retardée au 19 novembre.",
+  "Modèles ouverts : plus de 70 % des tokens de la passerelle Vercel, près d'un quart des dépenses.",
+  "Axera AX8860P et M5Stack PaperDIY : l'IA locale et l'encre électronique à bas coût."
+ ],
+ "meta": {
+  "generator": "claude-scheduled-task"
+ },
+ "posts": [
+  {
+   "id": "pwnescape-kvm-evasion-invite-hote-cve-2026-99999",
+   "category": "cybersecurite",
+   "icon": "🧨",
+   "title": "PwnEscape : une faille critique de KVM permet de s'échapper d'une machine virtuelle",
+   "summary": "Notée 9,3, la vulnérabilité CVE-2026-99999 du noyau Linux permet à un invité malveillant d'attaquer l'hôte KVM avec quelques paquets IPv4 mal formés. Les correctifs arrivent dans Debian, RHEL et Ubuntu.",
+   "tags": [
+    "KVM",
+    "Linux",
+    "virtualisation",
+    "CVE-2026-99999",
+    "PwnEscape"
+   ],
+   "importance": 5,
+   "sourceDate": "2026-10-19",
+   "cover": {
+    "url": "https://image.theregister.com/5265166.jpg?imageId=5265166&x=0&y=0&cropw=100&croph=100&panox=0&panoy=0&panow=100&panoh=100&width=1200&height=683",
+    "alt": "Illustration d'actualité de The Register consacrée à la faille de virtualisation de Linux KVM",
+    "credit": "theregister.com"
+   },
+   "sources": [
+    {
+     "title": "Linux KVM guest-host escape rated critical, may represent a new way to attack penguin-powered networking",
+     "url": "https://www.theregister.com/virtualization/2026/10/19/linux-kvm-guest-host-escape-rated-critical-may-represent-a-new-way-to-attack-penguin-powered-networking/5303744",
+     "publisher": "The Register"
+    }
+   ],
+   "blocks": [
+    {
+     "type": "paragraph",
+     "text": "Dans un nuage public ou sur un serveur de virtualisation, l'isolation entre machine virtuelle et hôte est le socle de la sécurité. Une vulnérabilité baptisée **PwnEscape** vient de la mettre en défaut : référencée **CVE-2026-99999** et notée **9,3 sur 10**, elle touche **KVM**, l'hyperviseur du noyau Linux utilisé par la plupart des grands clouds. Elle a été signalée début octobre 2026 par le chercheur Paulos Yibelo, qui lui a donné son nom."
+    },
+    {
+     "type": "heading",
+     "level": 2,
+     "text": "Comment l'attaque fonctionne"
+    },
+    {
+     "type": "paragraph",
+     "text": "D'après les explications citées par The Register, un invité envoie quelques paquets IPv4 mal formés. Des métadonnées de somme de contrôle (*checksum*), contrôlées par l'invité et donc non fiables, atteignent la pile réseau de l'hôte. La fonction `skb_checksum_help` peut alors corrompre l'en-tête du paquet. Le point délicat est que ces métadonnées permettent de **modifier une écriture après que le paquet a déjà été validé**, et que l'opération peut être répétée à volonté. Michael S. Tsirkin, de Red Hat, a détaillé le mécanisme dans un message rattaché au correctif."
+    },
+    {
+     "type": "diagram",
+     "svg": "<svg xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"0 0 640 300\" font-family=\"system-ui,sans-serif\"><rect width=\"640\" height=\"300\" rx=\"14\" fill=\"#f3f6fb\"/><rect x=\"30\" y=\"40\" width=\"190\" height=\"220\" rx=\"10\" fill=\"#dbe7f7\" stroke=\"#2b5fa5\" stroke-width=\"2\"/><text x=\"125\" y=\"68\" text-anchor=\"middle\" font-size=\"16\" font-weight=\"700\" fill=\"#17375e\">Machine invitée</text><rect x=\"52\" y=\"95\" width=\"146\" height=\"50\" rx=\"6\" fill=\"#fff\" stroke=\"#2b5fa5\"/><text x=\"125\" y=\"125\" text-anchor=\"middle\" font-size=\"13\" fill=\"#17375e\">Paquets IPv4 mal formés</text><rect x=\"52\" y=\"170\" width=\"146\" height=\"50\" rx=\"6\" fill=\"#fff\" stroke=\"#2b5fa5\"/><text x=\"125\" y=\"195\" text-anchor=\"middle\" font-size=\"13\" fill=\"#17375e\">Métadonnées de</text><text x=\"125\" y=\"212\" text-anchor=\"middle\" font-size=\"13\" fill=\"#17375e\">checksum piégées</text><path d=\"M220 120 H290\" stroke=\"#c0392b\" stroke-width=\"3\" marker-end=\"url(#a)\"/><path d=\"M220 195 H290\" stroke=\"#c0392b\" stroke-width=\"3\" marker-end=\"url(#a)\"/><defs><marker id=\"a\" markerWidth=\"8\" markerHeight=\"8\" refX=\"6\" refY=\"4\" orient=\"auto\"><path d=\"M0 0 L8 4 L0 8 Z\" fill=\"#c0392b\"/></marker></defs><rect x=\"290\" y=\"40\" width=\"320\" height=\"220\" rx=\"10\" fill=\"#fdecea\" stroke=\"#c0392b\" stroke-width=\"2\"/><text x=\"450\" y=\"68\" text-anchor=\"middle\" font-size=\"16\" font-weight=\"700\" fill=\"#7b1e14\">Hôte Linux (KVM)</text><rect x=\"310\" y=\"90\" width=\"130\" height=\"56\" rx=\"6\" fill=\"#fff\" stroke=\"#c0392b\"/><text x=\"375\" y=\"115\" text-anchor=\"middle\" font-size=\"13\" fill=\"#7b1e14\">Pile IPv4</text><text x=\"375\" y=\"132\" text-anchor=\"middle\" font-size=\"12\" fill=\"#7b1e14\">paquet déjà validé</text><rect x=\"460\" y=\"90\" width=\"130\" height=\"56\" rx=\"6\" fill=\"#fff\" stroke=\"#c0392b\"/><text x=\"525\" y=\"115\" text-anchor=\"middle\" font-size=\"13\" fill=\"#7b1e14\">skb_checksum_help</text><text x=\"525\" y=\"132\" text-anchor=\"middle\" font-size=\"12\" fill=\"#7b1e14\">écriture détournée</text><path d=\"M440 118 H460\" stroke=\"#7b1e14\" stroke-width=\"2\"/><rect x=\"310\" y=\"175\" width=\"280\" height=\"62\" rx=\"6\" fill=\"#7b1e14\"/><text x=\"450\" y=\"200\" text-anchor=\"middle\" font-size=\"14\" font-weight=\"700\" fill=\"#fff\">Corruption mémoire de l'hôte</text><text x=\"450\" y=\"221\" text-anchor=\"middle\" font-size=\"12\" fill=\"#fff\">code arbitraire, plantage ou fuite</text><path d=\"M525 146 V175\" stroke=\"#7b1e14\" stroke-width=\"3\"/></svg>",
+     "alt": "Schéma : des paquets IPv4 mal formés envoyés par une machine invitée traversent la pile réseau de l'hôte KVM et corrompent sa mémoire.",
+     "caption": "Chaîne d'attaque simplifiée de PwnEscape, d'après les descriptions publiées."
+    },
+    {
+     "type": "paragraph",
+     "text": "Red Hat évoque trois conséquences possibles : **exécution de code arbitraire sur l'hôte**, plantage du système (déni de service) ou divulgation d'informations sensibles présentes en mémoire. L'article ne précise pas les versions du noyau concernées ; il faut donc s'en remettre aux avis de sécurité de chaque distribution."
+    },
+    {
+     "type": "heading",
+     "level": 2,
+     "text": "Correctifs et exposition"
+    },
+    {
+     "type": "keyvalue",
+     "items": [
+      {
+       "label": "Correctif amont",
+       "value": "commit dans l'arbre stable du noyau Linux (début de l'identifiant : 0fab003ef469)"
+      },
+      {
+       "label": "Distributions",
+       "value": "déploiement en cours dans Debian, RHEL et Ubuntu"
+      },
+      {
+       "label": "Produits dérivés",
+       "value": "Nutanix et Proxmox devraient suivre, selon l'article"
+      },
+      {
+       "label": "Fournisseurs de cloud",
+       "value": "AWS indique que EC2 n'est pas exposé ; Google Cloud serait probablement épargné"
+      }
+     ]
+    },
+    {
+     "type": "paragraph",
+     "text": "Aucune parade de contournement n'est décrite : la solution passe par l'application des correctifs de distribution, suivie d'un redémarrage ou d'une migration à chaud des machines virtuelles lorsque l'hôte est mis à jour."
+    },
+    {
+     "type": "usecases",
+     "title": "Exemples d'utilisation",
+     "items": [
+      {
+       "icon": "🏭",
+       "title": "Hébergeur de serveurs virtuels",
+       "text": "Un hébergeur qui loue des machines virtuelles à des clients inconnus doit traiter cette faille en priorité, car n'importe quel locataire pourrait en théorie viser l'hôte."
+      },
+      {
+       "icon": "🧪",
+       "title": "Laboratoire de développement",
+       "text": "Une équipe qui fait tourner des machines virtuelles de test sous Proxmox surveille la publication du paquet noyau et planifie un redémarrage groupé des hôtes."
+      },
+      {
+       "icon": "🏛️",
+       "title": "Service informatique d'une collectivité",
+       "text": "Un service qui héberge ses applications sur un cluster KVM interne vérifie le versionnement du noyau et priorise les hôtes qui accueillent des charges exposées sur Internet."
+      }
+     ]
+    },
+    {
+     "type": "timeline",
+     "title": "D'où l'on vient, où l'on va",
+     "items": [
+      {
+       "label": "Début octobre 2026",
+       "text": "Signalement de la faille par Paulos Yibelo, qui la baptise PwnEscape."
+      },
+      {
+       "label": "19 octobre 2026",
+       "text": "Publication de l'article de The Register ; les distributions déploient les correctifs."
+      },
+      {
+       "label": "À suivre",
+       "text": "Publication éventuelle d'un code d'exploitation et disponibilité des correctifs pour les produits dérivés de KVM."
+      }
+     ]
+    },
+    {
+     "type": "opinion",
+     "title": "Notre avis",
+     "paragraphs": [
+      "Les évasions de machine virtuelle sont rares et, quand elles surviennent, elles remettent en question une hypothèse que les clients du cloud tiennent pour acquise. Ici, la faille se situe moins dans l'hyperviseur lui-même que dans la pile réseau du noyau, qui fait confiance à des métadonnées venues d'un invité. Cela rappelle que la frontière hôte-invité traverse des dizaines de composants, chacun susceptible d'oublier de se méfier.",
+      "Dans les années à venir, la réponse probable passera par davantage de composants réseau écrits dans des langages plus sûrs, par des tests de fuzzing ciblés sur l'interface invité-hôte et par une segmentation plus stricte des hôtes. Il s'agit d'une tendance plausible, pas d'une certitude."
+     ],
+     "verdict": "Appliquer les correctifs du noyau sans attendre : l'isolation des machines virtuelles n'est jamais un acquis."
+    },
+    {
+     "type": "callout",
+     "variant": "warning",
+     "title": "À retenir",
+     "text": "CVE-2026-99999 (PwnEscape) touche KVM, note 9,3 et se corrige par la mise à jour du noyau de l'hôte. Les clients de AWS EC2 ne sont pas concernés selon AWS."
+    }
+   ],
+   "publishedAt": "2026-10-19T07:31:30+02:00",
+   "illustration": {
+    "svg": "<svg xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"0 0 640 360\"><defs><linearGradient id=\"g\" x1=\"0\" y1=\"0\" x2=\"1\" y2=\"1\"><stop offset=\"0\" stop-color=\"hsl(175,62%,38%)\"/><stop offset=\"1\" stop-color=\"hsl(210,70%,20%)\"/></linearGradient></defs><rect width=\"640\" height=\"360\" fill=\"url(#g)\"/><circle cx=\"540\" cy=\"60\" r=\"120\" fill=\"#fff\" opacity=\".07\"/><circle cx=\"90\" cy=\"320\" r=\"150\" fill=\"#fff\" opacity=\".06\"/><g fill=\"none\" stroke=\"#fff\" stroke-width=\"6\" stroke-linecap=\"round\" stroke-linejoin=\"round\"><rect x=\"170\" y=\"90\" width=\"300\" height=\"190\" rx=\"14\"/><rect x=\"215\" y=\"130\" width=\"100\" height=\"70\" rx=\"8\"/><rect x=\"335\" y=\"130\" width=\"100\" height=\"70\" rx=\"8\"/><path d=\"M265 165 L265 55 M265 55 l-20 22 M265 55 l20 22\" /><circle cx=\"320\" cy=\"245\" r=\"8\" fill=\"#fff\"/></g></svg>"
+   },
+   "readingMinutes": 3
+  },
+  {
+   "id": "siteguard-waf-faille-critique-exploitee-root-system",
+   "category": "cybersecurite",
+   "icon": "🛡️",
+   "title": "SiteGuard WAF : une faille critique déjà exploitée donne les droits root ou SYSTEM",
+   "summary": "L'éditeur japonais SiteGuard et le JPCERT/CC confirment l'exploitation d'une injection de commandes dans la fonction de statistiques de son pare-feu applicatif. Des mises à jour et un correctif pour les versions en fin de vie sont disponibles.",
+   "tags": [
+    "SiteGuard",
+    "WAF",
+    "injection de commandes",
+    "JPCERT/CC",
+    "exploitation active"
+   ],
+   "importance": 4,
+   "sourceDate": "2026-10-18",
+   "sources": [
+    {
+     "title": "Hackers exploit SiteGuard WAF flaw to run commands as admins",
+     "url": "https://www.bleepingcomputer.com/news/security/hackers-exploit-siteguard-waf-flaw-to-run-commands-as-system-root/",
+     "publisher": "BleepingComputer"
+    }
+   ],
+   "blocks": [
+    {
+     "type": "paragraph",
+     "text": "Un pare-feu applicatif web (WAF) est censé protéger un site ; ici, c'est lui qui est devenu la porte d'entrée. Le fournisseur japonais SiteGuard a publié le **18 octobre 2026** une alerte confirmant qu'une vulnérabilité critique de sa gamme *Server Edition* est exploitée dans la nature. Le CERT japonais, le JPCERT/CC, a relayé l'avis le même jour. La faille, référencée **CVE-2026-106931**, est une injection de commandes du système d'exploitation : un attaquant peut faire exécuter ses propres instructions avec les privilèges **root** (sous Linux et FreeBSD) ou **SYSTEM** (sous Windows)."
+    },
+    {
+     "type": "heading",
+     "level": 2,
+     "text": "Ce que l'on sait de la faille"
+    },
+    {
+     "type": "paragraph",
+     "text": "Le défaut se situe dans la fonction de statistiques du produit, intégrée aux instances hébergées sur le serveur lui-même. Cette fonction est **activée par défaut**, ce qui élargit mécaniquement la surface d'attaque. Selon l'éditeur, l'exploitation n'est possible que si elle est active : la vérifier est donc la première mesure à prendre. SiteGuard revendique plus de 1,5 million de sites protégés ; d'après les statistiques de WordPress.org, la version destinée à ce CMS serait active sur environ 500 000 sites, mais ce chiffre ne dit rien du nombre d'installations *Server Edition* réellement vulnérables."
+    },
+    {
+     "type": "keyvalue",
+     "items": [
+      {
+       "label": "Identifiant",
+       "value": "CVE-2026-106931 (injection de commandes, gravité critique)"
+      },
+      {
+       "label": "Apache httpd, Nginx, IIS (hors FreeBSD)",
+       "value": "versions 2.20 et ultérieures, avant 8.00 Update 5"
+      },
+      {
+       "label": "Apache httpd et Nginx sous FreeBSD",
+       "value": "versions 2.20 et ultérieures, avant 7.00 Update 6"
+      },
+      {
+       "label": "Non concernées",
+       "value": "éditions IIS de la 3.10 à la 4.00 Update 4 incluse, selon le JPCERT/CC"
+      },
+      {
+       "label": "Exploitation",
+       "value": "confirmée par l'éditeur ; auteurs, victimes et ampleur non précisés"
+      }
+     ]
+    },
+    {
+     "type": "paragraph",
+     "text": "On ignore à ce stade qui exploite la faille, contre quelles cibles et par quel mode opératoire précis : ni l'éditeur ni le JPCERT/CC ne le détaillent. Cette absence d'information invite à la prudence plutôt qu'à la panique, mais elle impose de traiter tout serveur exposé comme potentiellement compromis tant qu'il n'a pas été vérifié."
+    },
+    {
+     "type": "heading",
+     "level": 2,
+     "text": "Conserver les preuves avant de corriger"
+    },
+    {
+     "type": "paragraph",
+     "text": "L'éditeur formule une recommandation peu banale : **sauvegarder les preuves avant toute intervention**. La remédiation peut en effet effacer les traces d'une attaque. Il demande de télécharger les « informations de diagnostic » depuis l'interface web de gestion avant d'appliquer la mise à jour. Pour les installations qui ne peuvent pas être migrées, y compris celles en fin de vie, un correctif spécifique remplace les fichiers utilisés par le traitement des statistiques."
+    },
+    {
+     "type": "list",
+     "items": [
+      "Vérifier si la fonction de statistiques est activée sur chaque instance.",
+      "Télécharger les informations de diagnostic pour préserver d'éventuelles traces.",
+      "Passer à la version 8.00 Update 5 (ou 7.00 Update 6 sous FreeBSD), ou appliquer le correctif prévu pour les versions anciennes.",
+      "Examiner les journaux système et les comptes créés récemment, puis, en cas de doute, isoler la machine et déclencher une procédure de réponse à incident."
+     ]
+    },
+    {
+     "type": "usecases",
+     "title": "Exemples d'utilisation",
+     "items": [
+      {
+       "icon": "🏢",
+       "title": "Hébergeur ou PME web",
+       "text": "Une PME qui protège sa boutique en ligne avec SiteGuard doit identifier la version installée et savoir si les statistiques sont actives, avant d'ouvrir le moindre ticket de support."
+      },
+      {
+       "icon": "🧑‍💻",
+       "title": "Administrateur système",
+       "text": "Un administrateur chargé de plusieurs serveurs Nginx peut s'appuyer sur un inventaire des versions pour prioriser les machines exposées sur Internet."
+      },
+      {
+       "icon": "🔎",
+       "title": "Équipe de réponse à incident",
+       "text": "Après correction, l'équipe compare les journaux et les diagnostics conservés pour déterminer si le serveur a été visité avant la mise à jour."
+      }
+     ]
+    },
+    {
+     "type": "timeline",
+     "title": "D'où l'on vient, où l'on va",
+     "items": [
+      {
+       "label": "29 septembre 2026",
+       "text": "L'éditeur informe les clients disposant d'un contact de support direct."
+      },
+      {
+       "label": "18 octobre 2026",
+       "text": "Publication de l'alerte publique, de l'avis JPCERT/CC (JVN88474777) et confirmation de l'exploitation."
+      },
+      {
+       "label": "À suivre",
+       "text": "Les détails techniques et d'éventuels indicateurs de compromission pourraient être publiés ; aucune date n'est annoncée."
+      }
+     ]
+    },
+    {
+     "type": "opinion",
+     "title": "Notre avis",
+     "paragraphs": [
+      "Le plus embarrassant, dans cette affaire, est la nature de l'outil touché : un composant de sécurité qui s'exécute avec des privilèges maximaux et dont une fonction annexe, les statistiques, est ouverte par défaut. C'est un rappel classique : chaque fonctionnalité activée d'office sur un équipement de sécurité agrandit la surface d'attaque. Les dix-neuf jours entre l'information des clients directs et l'alerte publique laissent aussi supposer que tous les exploitants n'ont pas été prévenus au même moment.",
+      "À un horizon d'un à trois ans, la pression devrait s'accentuer sur les éditeurs de pare-feu et de passerelles : plusieurs alertes récentes visent des équipements de bordure. On peut s'attendre à des fonctions minimales par défaut, à des correctifs plus faciles à appliquer sur les versions anciennes et à une transparence accrue sur les premières exploitations. C'est une projection, non un fait établi."
+     ],
+     "verdict": "Quand le pare-feu devient la faille, l'inventaire et la mise à jour rapide valent plus que la promesse de protection."
+    },
+    {
+     "type": "callout",
+     "variant": "info",
+     "title": "À retenir",
+     "text": "Mettre à jour vers la 8.00 Update 5 ou la 7.00 Update 6 (FreeBSD), après avoir téléchargé les informations de diagnostic. Vérifier si la fonction de statistiques est active."
+    }
+   ],
+   "publishedAt": "2026-10-19T07:31:31+02:00",
+   "illustration": {
+    "svg": "<svg xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"0 0 640 360\"><defs><linearGradient id=\"g\" x1=\"0\" y1=\"0\" x2=\"1\" y2=\"1\"><stop offset=\"0\" stop-color=\"hsl(175,62%,38%)\"/><stop offset=\"1\" stop-color=\"hsl(210,70%,20%)\"/></linearGradient></defs><rect width=\"640\" height=\"360\" fill=\"url(#g)\"/><circle cx=\"540\" cy=\"60\" r=\"120\" fill=\"#fff\" opacity=\".07\"/><circle cx=\"90\" cy=\"320\" r=\"150\" fill=\"#fff\" opacity=\".06\"/><g fill=\"none\" stroke=\"#fff\" stroke-width=\"6\" stroke-linecap=\"round\" stroke-linejoin=\"round\"><path d=\"M320 70 L440 110 V190 C440 250 390 285 320 310 C250 285 200 250 200 190 V110 Z\"/><path d=\"M300 120 L338 170 L305 200 L345 250\"/><rect x=\"90\" y=\"250\" width=\"110\" height=\"60\" rx=\"8\"/><path d=\"M110 275 l18 12 -18 12 M140 300 h40\"/></g></svg>"
+   },
+   "readingMinutes": 4
+  },
+  {
+   "id": "adfection-publicites-ciblees-spyware-candiru-al-jazeera",
+   "category": "cybersecurite",
+   "icon": "📱",
+   "title": "AdFection : des publicités ciblées ont servi à installer le spyware Candiru sans aucun clic",
+   "summary": "Citizen Lab documente pour la première fois la diffusion d'un logiciel espion de mercenaires via la publicité en ligne. Au moins 45 appareils d'Al Jazeera ont été visés entre 2024 et 2025.",
+   "tags": [
+    "Candiru",
+    "Citizen Lab",
+    "spyware",
+    "publicité",
+    "zero-click"
+   ],
+   "importance": 4,
+   "sourceDate": "2026-10-16",
+   "sources": [
+    {
+     "title": "Targeted ads installed Candiru spyware in zero-click attacks",
+     "url": "https://www.bleepingcomputer.com/news/security/zero-click-attacks-used-targeted-ads-to-deliver-candiru-spyware/",
+     "publisher": "BleepingComputer"
+    }
+   ],
+   "blocks": [
+    {
+     "type": "paragraph",
+     "text": "Recevoir un logiciel espion sans cliquer sur quoi que ce soit n'est plus l'apanage des messageries piégées : une publicité affichée à l'écran peut suffire. Le laboratoire **Citizen Lab** vient de documenter une technique qu'il nomme **AdFection** : la livraison du spyware **Candiru**, vendu par une société israélienne à des gouvernements, par l'intermédiaire de publicités ciblées. C'est, selon le rapport relayé par BleepingComputer le 16 octobre 2026, la première confirmation technique publique d'un spyware mercenaire diffusé de cette façon."
+    },
+    {
+     "type": "heading",
+     "level": 2,
+     "text": "Le mécanisme"
+    },
+    {
+     "type": "paragraph",
+     "text": "Au centre du dispositif se trouve l'entreprise israélienne **Discover-Tech**, qui aurait fait le lien entre les vendeurs de spyware et l'écosystème publicitaire. Sa plateforme, **Controlium**, permet de cibler des appareils précis, de les profiler et de les identifier par empreinte numérique. Discover-Tech achetait des espaces publicitaires via des réseaux et des places d'échange grand public ; les annonces contenaient du JavaScript qui contactait un serveur de validation à l'affichage. Ce serveur contrôlait notamment l'adresse IP et les identifiants publicitaires pour décider si l'appareil était une cible légitime."
+    },
+    {
+     "type": "diagram",
+     "svg": "<svg xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"0 0 640 260\" font-family=\"system-ui,sans-serif\"><rect width=\"640\" height=\"260\" rx=\"14\" fill=\"#f3f6fb\"/><defs><marker id=\"b\" markerWidth=\"8\" markerHeight=\"8\" refX=\"6\" refY=\"4\" orient=\"auto\"><path d=\"M0 0 L8 4 L0 8 Z\" fill=\"#1c4f5c\"/></marker></defs><g font-size=\"13\" fill=\"#10303a\" text-anchor=\"middle\"><rect x=\"15\" y=\"85\" width=\"110\" height=\"80\" rx=\"8\" fill=\"#fff\" stroke=\"#1c4f5c\" stroke-width=\"2\"/><text x=\"70\" y=\"120\">Publicité</text><text x=\"70\" y=\"140\">affichée</text><rect x=\"165\" y=\"85\" width=\"120\" height=\"80\" rx=\"8\" fill=\"#fff\" stroke=\"#1c4f5c\" stroke-width=\"2\"/><text x=\"225\" y=\"120\">Serveur de</text><text x=\"225\" y=\"140\">validation</text><rect x=\"325\" y=\"85\" width=\"120\" height=\"80\" rx=\"8\" fill=\"#fff\" stroke=\"#1c4f5c\" stroke-width=\"2\"/><text x=\"385\" y=\"115\">Cible</text><text x=\"385\" y=\"135\">éligible ?</text><text x=\"385\" y=\"152\" font-size=\"11\">IP, identifiants</text><rect x=\"485\" y=\"30\" width=\"140\" height=\"70\" rx=\"8\" fill=\"#1c4f5c\"/><text x=\"555\" y=\"60\" fill=\"#fff\">Code</text><text x=\"555\" y=\"80\" fill=\"#fff\">supplémentaire</text><rect x=\"485\" y=\"150\" width=\"140\" height=\"70\" rx=\"8\" fill=\"#e8eef0\" stroke=\"#7a9097\"/><text x=\"555\" y=\"182\">Rien n'est</text><text x=\"555\" y=\"202\">envoyé</text></g><path d=\"M125 125 H165 M285 125 H325\" stroke=\"#1c4f5c\" stroke-width=\"3\" marker-end=\"url(#b)\"/><path d=\"M445 110 L485 75\" stroke=\"#1c4f5c\" stroke-width=\"3\" marker-end=\"url(#b)\"/><path d=\"M445 140 L485 175\" stroke=\"#7a9097\" stroke-width=\"3\" marker-end=\"url(#b)\"/><text x=\"465\" y=\"68\" font-size=\"12\" fill=\"#1c4f5c\" text-anchor=\"end\">oui</text><text x=\"465\" y=\"190\" font-size=\"12\" fill=\"#5d7077\" text-anchor=\"end\">non</text></svg>",
+     "alt": "Schéma : une publicité contacte un serveur de validation ; seule une cible éligible reçoit du code supplémentaire.",
+     "caption": "Principe d'AdFection : un tri silencieux des appareils avant toute livraison de code."
+    },
+    {
+     "type": "paragraph",
+     "text": "Les appareils non retenus ne recevaient rien, ce qui rendait l'opération plus discrète et plus difficile à détecter par les outils d'analyse. Les journaux réseau d'Al Jazeera montrent la chaîne complète : infrastructure de Discover-Tech, serveurs de validation de Candiru, puis serveurs de commande et de contrôle du logiciel espion."
+    },
+    {
+     "type": "heading",
+     "level": 2,
+     "text": "Victimes et ampleur"
+    },
+    {
+     "type": "keyvalue",
+     "items": [
+      {
+       "label": "Cibles confirmées",
+       "value": "au moins 45 appareils d'Al Jazeera Media Network, entre 2024 et 2025"
+      },
+      {
+       "label": "Enchères publicitaires (mars à juin 2026)",
+       "value": "3,77 milliards d'enchères jouées, 442 millions remportées"
+      },
+      {
+       "label": "Présence de balises malveillantes",
+       "value": "75 373 applications Android et iOS, 120 768 sites web"
+      },
+      {
+       "label": "Estimation de Citizen Lab",
+       "value": "des centaines de milliers à des millions d'utilisateurs ont pu être redirigés vers ces domaines"
+      }
+     ]
+    },
+    {
+     "type": "paragraph",
+     "text": "Ces derniers chiffres mesurent l'exposition aux balises, non le nombre d'infections. Une technique similaire, appelée **Aladdin**, avait été décrite fin 2025 par Amnesty International pour le spyware Predator, d'après des documents de la société Intellexa ; AdFection a, elle, été observée lors d'attaques réelles. Après les signalements de Citizen Lab, Google, IAB Europe, Beeswax, Eskimi et Vungle ont supprimé les comptes concernés et bloqué l'accès aux domaines identifiés. L'article ne contient pas de recommandations explicites pour les utilisateurs."
+    },
+    {
+     "type": "usecases",
+     "title": "Exemples d'utilisation",
+     "items": [
+      {
+       "icon": "📰",
+       "title": "Rédaction ou ONG",
+       "text": "Une rédaction qui travaille sur des sujets sensibles peut limiter le profilage publicitaire en désactivant l'identifiant publicitaire sur les téléphones professionnels."
+      },
+      {
+       "icon": "🛠️",
+       "title": "Équipe sécurité d'entreprise",
+       "text": "Un service informatique peut filtrer les domaines publicitaires au niveau du DNS et maintenir les appareils à jour pour réduire la fenêtre d'exploitation."
+      },
+      {
+       "icon": "📣",
+       "title": "Acteur de la publicité en ligne",
+       "text": "Une plateforme d'achat d'espaces publicitaires peut renforcer la vérification de ses annonceurs et signaler les scripts qui contactent des serveurs inhabituels."
+      }
+     ]
+    },
+    {
+     "type": "timeline",
+     "title": "D'où l'on vient, où l'on va",
+     "items": [
+      {
+       "label": "2024 à 2025",
+       "text": "Au moins 45 appareils d'Al Jazeera sont ciblés."
+      },
+      {
+       "label": "Fin 2025",
+       "text": "Amnesty International décrit la méthode Aladdin liée à Predator."
+      },
+      {
+       "label": "Mars à juin 2026",
+       "text": "Discover-Tech joue des milliards d'enchères publicitaires."
+      },
+      {
+       "label": "16 octobre 2026",
+       "text": "Citizen Lab publie son rapport ; les plateformes suppriment les comptes."
+      }
+     ]
+    },
+    {
+     "type": "opinion",
+     "title": "Notre avis",
+     "paragraphs": [
+      "La publicité en ligne repose sur un système d'enchères en temps réel qui expose, par construction, des informations sur les appareils. Le rapport montre que ce système peut servir de canal de ciblage pour des opérations d'espionnage : un lien désormais documenté, non plus seulement soupçonné. Les mesures prises par les plateformes sont utiles, mais elles réagissent à des comptes identifiés ; les acteurs concernés peuvent en recréer d'autres.",
+      "À un horizon d'un à trois ans, il est plausible que la régulation et les navigateurs s'intéressent davantage au profilage publicitaire comme vecteur de sécurité, et que la protection de l'identifiant publicitaire devienne un sujet de politique de sécurité à part entière. C'est une hypothèse de travail, rien de plus."
+     ],
+     "verdict": "La publicité ciblée n'est pas qu'un sujet de vie privée : elle peut aussi devenir un canal d'attaque."
+    },
+    {
+     "type": "callout",
+     "variant": "info",
+     "title": "À retenir",
+     "text": "AdFection : une publicité affichée suffit à déclencher l'infection d'une cible triée à l'avance. Citizen Lab dénombre au moins 45 appareils visés chez Al Jazeera."
+    }
+   ],
+   "publishedAt": "2026-10-19T07:31:32+02:00",
+   "illustration": {
+    "svg": "<svg xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"0 0 640 360\"><defs><linearGradient id=\"g\" x1=\"0\" y1=\"0\" x2=\"1\" y2=\"1\"><stop offset=\"0\" stop-color=\"hsl(175,62%,38%)\"/><stop offset=\"1\" stop-color=\"hsl(210,70%,20%)\"/></linearGradient></defs><rect width=\"640\" height=\"360\" fill=\"url(#g)\"/><circle cx=\"540\" cy=\"60\" r=\"120\" fill=\"#fff\" opacity=\".07\"/><circle cx=\"90\" cy=\"320\" r=\"150\" fill=\"#fff\" opacity=\".06\"/><g fill=\"none\" stroke=\"#fff\" stroke-width=\"6\" stroke-linecap=\"round\" stroke-linejoin=\"round\"><rect x=\"250\" y=\"60\" width=\"140\" height=\"240\" rx=\"22\"/><rect x=\"268\" y=\"110\" width=\"104\" height=\"60\" rx=\"6\"/><path d=\"M280 128 h50 M280 148 h30\"/><circle cx=\"320\" cy=\"225\" r=\"26\"/><circle cx=\"320\" cy=\"225\" r=\"8\" fill=\"#fff\"/><path d=\"M160 150 C190 110 230 110 250 150 M160 150 C190 190 230 190 250 150\"/></g></svg>"
+   },
+   "readingMinutes": 3
+  },
+  {
+   "id": "broadcom-wifi-faille-ecos-linux-box-belges-hexacon",
+   "category": "cybersecurite",
+   "icon": "📶",
+   "title": "Wi-Fi Broadcom : un bogue vieux de 2010 menace des centaines de milliers de box, sans CVE ni correctif public",
+   "summary": "Présentée à Hexacon à Paris, une recherche de Quentin Kaiser décrit deux dépassements de tampon dans le SDK Wi-Fi de Broadcom, exploitables à distance sans clé réseau. Au 15 octobre, aucun appareil concerné n'est corrigé.",
+   "tags": [
+    "Broadcom",
+    "Wi-Fi",
+    "WPS",
+    "eCos",
+    "box internet",
+    "Hexacon"
+   ],
+   "importance": 3,
+   "sourceDate": "2026-10-16",
+   "sources": [
+    {
+     "title": "One parser, two bugs, many routers: Exploiting Broadcom WiFi across eCos, Linux",
+     "url": "https://quentinkaiser.be/security/2026/10/16/one-parser-two-bugs/",
+     "publisher": "quentinkaiser.be"
+    }
+   ],
+   "blocks": [
+    {
+     "type": "paragraph",
+     "text": "Votre box internet fait peut-être tourner un code vieux de plus de quinze ans. Le chercheur belge **Quentin Kaiser** a présenté le 16 octobre 2026, à la conférence Hexacon à Paris, une analyse de deux vulnérabilités dans le SDK Wi-Fi 802.11 propriétaire de **Broadcom**. Le défaut, présent depuis au moins 2010, avait fait l'objet d'un correctif incomplet en 2018. Au 15 octobre 2026, selon l'auteur, **aucun des appareils concernés n'est corrigé**."
+    },
+    {
+     "type": "heading",
+     "level": 2,
+     "text": "Deux bogues, un même analyseur"
+    },
+    {
+     "type": "paragraph",
+     "text": "Les deux rapports décrivent un dépassement de tampon dans le réassemblage de messages EAP du protocole WPS : l'un concerne les plateformes **eCos** (BCM3380, BCM3383, BCM33834), l'autre les plateformes **Linux** (BCM3390, BCM65xx, BCM68xx). L'attaque se déclenche à distance par Wi-Fi, **sans connaître la clé du réseau** ni mener à terme un enrôlement WPS. L'auteur a obtenu une divulgation d'informations contrôlée, puis l'exécution de code arbitraire."
+    },
+    {
+     "type": "paragraph",
+     "text": "Deux démonstrations illustrent la portée. Sur une passerelle Orange Belgique (ASKEY TCG3000), du code injecté lit la clé Wi-Fi stockée en NVRAM et la renvoie à l'attaquant par trames 802.11 ; l'auteur rejoint ensuite le réseau avec cette clé. Sur une Proximus BBOX3V+, un shell inversé passe lui aussi par des trames 802.11, sans serveur de commande et de contrôle sur Internet."
+    },
+    {
+     "type": "heading",
+     "level": 2,
+     "text": "Un défaut sans identifiant officiel"
+    },
+    {
+     "type": "paragraph",
+     "text": "Broadcom, qui est une autorité de numérotation de CVE (CNA), a refusé d'enregistrer un identifiant. Le dossier a donc été clos par le CERT/CC dès le 4 août 2026. Broadcom affirme qu'un correctif existe, sans l'avoir publié, et renvoie vers les fabricants. Sur les plateformes eCos, le bogue est décrit comme un défaut qui ne sera jamais corrigé de fait."
+    },
+    {
+     "type": "keyvalue",
+     "items": [
+      {
+       "label": "Appareils cités (Belgique)",
+       "value": "Proximus BBOX 3 et BBOX3V+ ; VOO Netgear CG3100, CG3700, Technicolor TC7210, CGA4233 ; Orange ASKEY TCG3000 ; Telenet F@ST3896LG et F@ST5685LGB (à confirmer)"
+      },
+      {
+       "label": "Estimation Proximus",
+       "value": "850 000 passerelles sur 2 318 000 abonnés"
+      },
+      {
+       "label": "Estimation VOO",
+       "value": "500 000 passerelles (parc historique)"
+      },
+      {
+       "label": "Estimation Orange Belgique",
+       "value": "210 000 passerelles sur environ 547 000 abonnés"
+      },
+      {
+       "label": "Total estimé",
+       "value": "environ 1,56 million de passerelles pour ces trois opérateurs (estimations de l'auteur, confiance moyenne)"
+      }
+     ]
+    },
+    {
+     "type": "paragraph",
+     "text": "Ces chiffres sont des estimations de l'auteur, non des décomptes officiels. Il précise que le problème touche des dizaines de fabricants et des centaines de produits, ce qui dépasse largement le cas belge."
+    },
+    {
+     "type": "usecases",
+     "title": "Exemples d'utilisation",
+     "items": [
+      {
+       "icon": "🏠",
+       "title": "Particulier",
+       "text": "Un foyer dont la box date de plusieurs années peut vérifier le modèle exact auprès de son opérateur et demander s'il est concerné, sans attendre un éventuel remplacement."
+      },
+      {
+       "icon": "📡",
+       "title": "Opérateur télécom",
+       "text": "Un opérateur peut inventorier les passerelles à base de puces Broadcom, déployer une mise à jour distante et, à défaut, envisager de désactiver WPS à distance."
+      },
+      {
+       "icon": "🔒",
+       "title": "Petite entreprise",
+       "text": "Une entreprise qui utilise la box de son fournisseur d'accès comme routeur principal peut isoler les postes sensibles sur un réseau filaire séparé ou ajouter son propre routeur."
+      }
+     ]
+    },
+    {
+     "type": "timeline",
+     "title": "D'où l'on vient, où l'on va",
+     "items": [
+      {
+       "label": "Vers 2010",
+       "text": "Introduction du bogue dans le SDK Wi-Fi."
+      },
+      {
+       "label": "2018",
+       "text": "Correctif jugé incomplet ; Broadcom connaît le défaut."
+      },
+      {
+       "label": "Juillet 2026",
+       "text": "Deux rapports transmis à Broadcom, les 18 et 27 juillet."
+      },
+      {
+       "label": "4 août 2026",
+       "text": "Dossier CERT/CC clos, faute d'identifiant CVE."
+      },
+      {
+       "label": "16 octobre 2026",
+       "text": "Présentation à Hexacon, après un délai de divulgation de 90 jours."
+      }
+     ]
+    },
+    {
+     "type": "opinion",
+     "title": "Notre avis",
+     "paragraphs": [
+      "Le cas illustre un angle mort de la sécurité des objets connectés : une chaîne d'approvisionnement où le fondeur, le fabricant et l'opérateur se renvoient la responsabilité, et où l'absence d'identifiant CVE réduit la visibilité du problème dans les outils de gestion des vulnérabilités. Les estimations restent à confirmer, mais l'ordre de grandeur invite les opérateurs à ne pas attendre un correctif amont.",
+      "Les obligations européennes sur la sécurité des produits numériques, qui doivent progressivement s'appliquer aux équipements connectés, pourraient forcer des délais de correction et une meilleure transparence à un horizon de deux à trois ans. C'est une perspective, non un fait établi."
+     ],
+     "verdict": "Une box ancienne peut rester une porte d'entrée pour longtemps : le remplacement est parfois le seul vrai correctif."
+    },
+    {
+     "type": "callout",
+     "variant": "warning",
+     "title": "À retenir",
+     "text": "Pas de CVE, pas de correctif public au 15 octobre 2026 : les chiffres d'appareils touchés sont des estimations de l'auteur. Les box d'ancienne génération sont les plus exposées."
+    }
+   ],
+   "publishedAt": "2026-10-19T07:31:33+02:00",
+   "illustration": {
+    "svg": "<svg xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"0 0 640 360\"><defs><linearGradient id=\"g\" x1=\"0\" y1=\"0\" x2=\"1\" y2=\"1\"><stop offset=\"0\" stop-color=\"hsl(175,62%,38%)\"/><stop offset=\"1\" stop-color=\"hsl(210,70%,20%)\"/></linearGradient></defs><rect width=\"640\" height=\"360\" fill=\"url(#g)\"/><circle cx=\"540\" cy=\"60\" r=\"120\" fill=\"#fff\" opacity=\".07\"/><circle cx=\"90\" cy=\"320\" r=\"150\" fill=\"#fff\" opacity=\".06\"/><g fill=\"none\" stroke=\"#fff\" stroke-width=\"6\" stroke-linecap=\"round\" stroke-linejoin=\"round\"><rect x=\"180\" y=\"220\" width=\"280\" height=\"60\" rx=\"12\"/><circle cx=\"215\" cy=\"250\" r=\"6\" fill=\"#fff\"/><circle cx=\"245\" cy=\"250\" r=\"6\" fill=\"#fff\"/><path d=\"M270 220 L255 140 M370 220 L385 140\"/><path d=\"M250 120 A100 100 0 0 1 390 120 M275 90 A60 60 0 0 1 365 90 M300 62 A22 22 0 0 1 340 62\"/><path d=\"M500 80 l30 30 m0 -30 l-30 30\"/></g></svg>"
+   },
+   "readingMinutes": 3
+  },
+  {
+   "id": "linux-7-3-publie-fenetre-de-fusion-7-4",
+   "category": "dev",
+   "icon": "🐧",
+   "title": "Linux 7.3 est publié : une dernière semaine de corrections et la fenêtre 7.4 s'ouvre",
+   "summary": "Linus Torvalds a annoncé dimanche 18 octobre la version 7.3 du noyau. La fenêtre de fusion de la 7.4 débute le 19 octobre, avec un calendrier un peu plus souple que d'habitude.",
+   "tags": [
+    "Linux",
+    "noyau",
+    "Linux 7.3",
+    "Linux 7.4",
+    "Linus Torvalds"
+   ],
+   "importance": 3,
+   "sourceDate": "2026-10-18",
+   "sources": [
+    {
+     "title": "The 7.3 kernel has been released",
+     "url": "https://lwn.net/Articles/1101170/",
+     "publisher": "LWN.net"
+    }
+   ],
+   "blocks": [
+    {
+     "type": "paragraph",
+     "text": "Le noyau Linux franchit un nouveau cap : **Linus Torvalds** a annoncé le dimanche **18 octobre 2026** la publication de la version **7.3**, comme le relaie LWN.net. Le rythme est celui, désormais très régulier, d'une version tous les deux mois environ : sept versions candidates, puis la version finale. L'annonce ouvre aussi, dès le lendemain, la fenêtre de fusion de la **7.4**."
+    },
+    {
+     "type": "heading",
+     "level": 2,
+     "text": "Une dernière semaine de corrections"
+    },
+    {
+     "type": "paragraph",
+     "text": "L'annonce de Torvalds ne détaille pas de nouvelles fonctionnalités : la version finale reflète le travail accumulé depuis la sortie de la 7.2. Il décrit en revanche la dernière semaine comme faite de « corrections un peu partout ». Le résumé des changements donne un aperçu des domaines touchés :"
+    },
+    {
+     "type": "list",
+     "items": [
+      "**Systèmes de fichiers** : une série de corrections de Christian Brauner libère les données de superbloc et de montage après une période de grâce RCU, pour ext4, ntfs3, 9p, AFS et d'autres.",
+      "**Ordonnancement** : plusieurs correctifs pour sched_ext, dont des cas d'utilisation après libération.",
+      "**KVM et x86** : correctifs pour SEV, VMX imbriqué, AVIC et kCFI.",
+      "**Matériel** : ajouts pour Tegra264 (PWM, ports racine PCIe) et mises à jour Qualcomm.",
+      "**Réseau, traçage et pilotes** : corrections pour netlink, l'ordonnanceur de paquets, le traçage et la mesure de performances, ainsi que pour les pilotes graphiques (amdgpu, i915, xe), SCSI, I2C, GPIO, SPI et audio."
+     ]
+    },
+    {
+     "type": "heading",
+     "level": 2,
+     "text": "Fenêtre de fusion de la 7.4"
+    },
+    {
+     "type": "paragraph",
+     "text": "Torvalds indique être en vacances en famille et ne pas pouvoir commencer à fusionner avant l'après-midi du premier jour. Il espère terminer dans le délai habituel de deux semaines, mais prévient que cela pourrait prendre une semaine de plus pour rattraper le retard. Il rappelle aussi que ce délai supplémentaire n'excuse pas les retardataires : le code doit être *prêt avant* l'ouverture de la fenêtre."
+    },
+    {
+     "type": "usecases",
+     "title": "Exemples d'utilisation",
+     "items": [
+      {
+       "icon": "🖥️",
+       "title": "Administrateur de serveurs",
+       "text": "Un administrateur qui suit les noyaux stables peut attendre les premières mises à jour 7.3.x avant de basculer, et tester sur une machine non critique."
+      },
+      {
+       "icon": "🎮",
+       "title": "Utilisateur de poste Linux",
+       "text": "Un utilisateur d'une distribution à publication continue verra arriver la 7.3 dans les semaines suivantes, avec les correctifs graphiques d'amdgpu, i915 et xe."
+      },
+      {
+       "icon": "🧩",
+       "title": "Développeur de pilotes",
+       "text": "Un mainteneur de pilote prépare ses demandes de fusion pour la 7.4 en veillant à ce qu'elles soient prêtes avant l'ouverture de la fenêtre."
+      }
+     ]
+    },
+    {
+     "type": "timeline",
+     "title": "D'où l'on vient, où l'on va",
+     "items": [
+      {
+       "label": "14 octobre 2026",
+       "text": "LWN rapporte la première série de correctifs de Linus Torvalds écrite avec l'aide d'un grand modèle de langage."
+      },
+      {
+       "label": "18 octobre 2026",
+       "text": "Publication de Linux 7.3."
+      },
+      {
+       "label": "19 octobre 2026",
+       "text": "Ouverture de la fenêtre de fusion de la 7.4, avec un calendrier peut-être étendu d'une semaine."
+      }
+     ]
+    },
+    {
+     "type": "opinion",
+     "title": "Notre avis",
+     "paragraphs": [
+      "Une version « sans surprise » est précisément le signe d'un processus mûr : une dernière semaine de corrections dispersées est ce que l'on attend d'un projet qui livre à rythme fixe. Le point à surveiller est plutôt humain : la fenêtre de fusion repose sur un seul arbitre, parti en vacances en pleine ouverture, ce qui rappelle la place centrale de quelques personnes dans l'organisation.",
+      "À un horizon d'un à trois ans, la question sera la capacité du noyau à absorber davantage de code assisté par des outils d'IA et de Rust sans allonger les cycles de relecture. L'équilibre entre vitesse de fusion et qualité sera le véritable enjeu. C'est une projection, non un fait."
+     ],
+     "verdict": "Une version stable de plus, un calendrier tenu : l'ennui est la meilleure nouvelle pour un noyau."
+    },
+    {
+     "type": "callout",
+     "variant": "info",
+     "title": "À retenir",
+     "text": "Linux 7.3 est sorti le 18 octobre 2026 ; la fenêtre de la 7.4 s'ouvre le 19 octobre et pourrait durer trois semaines."
+    }
+   ],
+   "publishedAt": "2026-10-19T07:31:34+02:00",
+   "illustration": {
+    "svg": "<svg xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"0 0 640 360\"><defs><linearGradient id=\"g\" x1=\"0\" y1=\"0\" x2=\"1\" y2=\"1\"><stop offset=\"0\" stop-color=\"hsl(265,62%,38%)\"/><stop offset=\"1\" stop-color=\"hsl(300,70%,20%)\"/></linearGradient></defs><rect width=\"640\" height=\"360\" fill=\"url(#g)\"/><circle cx=\"540\" cy=\"60\" r=\"120\" fill=\"#fff\" opacity=\".07\"/><circle cx=\"90\" cy=\"320\" r=\"150\" fill=\"#fff\" opacity=\".06\"/><g fill=\"none\" stroke=\"#fff\" stroke-width=\"6\" stroke-linecap=\"round\" stroke-linejoin=\"round\"><ellipse cx=\"320\" cy=\"210\" rx=\"85\" ry=\"100\"/><ellipse cx=\"320\" cy=\"225\" rx=\"50\" ry=\"65\"/><circle cx=\"290\" cy=\"130\" r=\"9\" fill=\"#fff\"/><circle cx=\"350\" cy=\"130\" r=\"9\" fill=\"#fff\"/><path d=\"M300 150 L320 170 L340 150 Z\" fill=\"#fff\"/><path d=\"M255 305 l-30 15 h50 M385 305 l30 15 h-50\"/></g></svg>"
+   },
+   "readingMinutes": 3
+  },
+  {
+   "id": "postgresql-19-retardee-relecteurs-ia-sql-pgq-retire",
+   "category": "dev",
+   "icon": "🐘",
+   "title": "PostgreSQL 19 retardée : des relecteurs IA trouvent plus de défauts que l'équipe ne peut en corriger",
+   "summary": "La sortie visée au 19 novembre s'accompagne du retrait de huit à dix fonctionnalités, dont SQL/PGQ, reportées à PostgreSQL 20. Le cœur de l'équipe invoque l'afflux de rapports issus de relectures assistées par IA.",
+   "tags": [
+    "PostgreSQL",
+    "SQL/PGQ",
+    "revue de code",
+    "IA",
+    "bases de données"
+   ],
+   "importance": 3,
+   "sourceDate": "2026-10-16",
+   "cover": {
+    "url": "https://image.theregister.com/228745.jpg?imageId=228745&x=0&y=0&cropw=100&croph=100&panox=0&panoy=0&panow=100&panoh=100&width=1200&height=683",
+    "alt": "Image d'illustration de The Register pour un article consacré à PostgreSQL",
+    "credit": "theregister.com"
+   },
+   "sources": [
+    {
+     "title": "Postgres 19 delayed after AI reviewers find more bugs than humans can fix",
+     "url": "https://www.theregister.com/databases/2026/10/16/postgres-19-delayed-after-ai-reviewers-find-more-bugs-than-humans-can-fix/5303471",
+     "publisher": "The Register"
+    }
+   ],
+   "blocks": [
+    {
+     "type": "paragraph",
+     "text": "La prochaine version majeure de la base de données **PostgreSQL** arrivera plus tard et plus légère que prévu. Selon The Register, la sortie de la version 19, initialement attendue fin septembre ou début octobre 2026, est désormais visée vers le **19 novembre 2026**. Entre **huit et dix fonctionnalités** significatives ont été retirées de la version et reportées à PostgreSQL 20, l'an prochain. La raison avancée est inédite : des relectures de code assistées par IA ont fait remonter plus de défauts que les contributeurs ne peuvent en traiter."
+    },
+    {
+     "type": "heading",
+     "level": 2,
+     "text": "Ce qui sort de la version 19"
+    },
+    {
+     "type": "paragraph",
+     "text": "Le cas le plus notable est **SQL/PGQ**, les requêtes de graphes de propriétés, intégrées à la norme SQL en 2023. Son implémentation a été retirée en raison de problèmes non résolus. Peter Eisentraut, contributeur et responsable chez EDB, explique que certaines fonctionnalités présentaient des défauts d'architecture difficiles à corriger vite pendant la phase bêta. Tom Lane avait de son côté averti que livrer ces fonctions dans la 19 conduirait à des bogues impossibles à corriger avant la 20."
+    },
+    {
+     "type": "paragraph",
+     "text": "La version 19 conservera notamment `REPACK CONCURRENTLY`, qui remplace l'opération `VACUUM FULL` et son verrou de table pour récupérer de l'espace disque. Eisentraut assure que ce sera « une excellente version »."
+    },
+    {
+     "type": "heading",
+     "level": 2,
+     "text": "Le rôle des relecteurs IA"
+    },
+    {
+     "type": "paragraph",
+     "text": "Les relectures par grands modèles de langage ont produit une longue liste de petits problèmes touchant des cas limites, qui auraient sans doute été découverts bien plus tard, dans les cinq années suivant la sortie. Chaque correction, même triviale, a un coût fixe de traitement : Eisentraut cite une liste d'environ **40 rapports**, chacun demandant en moyenne un correctif de trois lignes, ce qui suffit à épuiser le temps disponible. La barre de qualité effective a donc monté *après* l'écriture et l'intégration des fonctionnalités. Il précise que ces retraits ne relèvent pas du « vibe coding », car ces outils n'existaient pas lors de l'écriture de la plupart des fonctions concernées."
+    },
+    {
+     "type": "keyvalue",
+     "items": [
+      {
+       "label": "Date de sortie visée",
+       "value": "19 novembre 2026 (contre fin septembre ou début octobre)"
+      },
+      {
+       "label": "Fonctionnalités retirées",
+       "value": "8 à 10, reportées à PostgreSQL 20"
+      },
+      {
+       "label": "Fonction emblématique reportée",
+       "value": "SQL/PGQ (requêtes de graphes de propriétés)"
+      },
+      {
+       "label": "Fonction conservée",
+       "value": "REPACK CONCURRENTLY"
+      }
+     ]
+    },
+    {
+     "type": "usecases",
+     "title": "Exemples d'utilisation",
+     "items": [
+      {
+       "icon": "🗄️",
+       "title": "Administrateur de bases de données",
+       "text": "Un administrateur qui prévoyait une migration en 2026 ajuste son calendrier et teste la version candidate sur une copie des données, sans promettre de date à ses équipes."
+      },
+      {
+       "icon": "📊",
+       "title": "Équipe d'analyse de données",
+       "text": "Une équipe qui attendait les requêtes de graphes SQL/PGQ continue à utiliser des extensions ou des jointures récursives jusqu'à la version 20."
+      },
+      {
+       "icon": "🧑‍🏫",
+       "title": "Mainteneur de projet libre",
+       "text": "Un projet qui accueille de nombreuses relectures automatisées peut apprendre de ce cas : filtrer, regrouper et prioriser les rapports pour que les humains ne soient pas submergés."
+      }
+     ]
+    },
+    {
+     "type": "timeline",
+     "title": "D'où l'on vient, où l'on va",
+     "items": [
+      {
+       "label": "2023",
+       "text": "Le standard SQL intègre les requêtes de graphes de propriétés (SQL/PGQ)."
+      },
+      {
+       "label": "16 octobre 2026",
+       "text": "The Register rapporte le report de la sortie et le retrait de fonctionnalités."
+      },
+      {
+       "label": "19 novembre 2026",
+       "text": "Date visée pour PostgreSQL 19."
+      },
+      {
+       "label": "2027",
+       "text": "PostgreSQL 20 doit accueillir les fonctionnalités reportées."
+      }
+     ]
+    },
+    {
+     "type": "opinion",
+     "title": "Notre avis",
+     "paragraphs": [
+      "Le paradoxe est intéressant : des outils censés accélérer le développement ralentissent ici une sortie, parce qu'ils font apparaître des défauts qui existaient déjà. À court terme, c'est un gain de qualité pour les utilisateurs ; à court terme aussi, c'est une surcharge pour des mainteneurs bénévoles ou à temps partiel. Le goulot n'est plus de trouver les bogues, mais de les trier et de les corriger.",
+      "À un horizon d'un à trois ans, il est plausible que les grands projets libres adoptent des filtres et des règles de contribution adaptés aux rapports générés par IA, et que les outils proposent eux-mêmes des correctifs vérifiés. Rien de cela n'est acquis."
+     ],
+     "verdict": "Mieux vaut une version plus tardive et plus propre qu'une fonctionnalité de plus qu'on ne saura pas réparer."
+    },
+    {
+     "type": "callout",
+     "variant": "info",
+     "title": "À retenir",
+     "text": "PostgreSQL 19 est visée au 19 novembre 2026, sans SQL/PGQ ni sept à neuf autres fonctions reportées à la version 20."
+    }
+   ],
+   "publishedAt": "2026-10-19T07:31:35+02:00",
+   "illustration": {
+    "svg": "<svg xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"0 0 640 360\"><defs><linearGradient id=\"g\" x1=\"0\" y1=\"0\" x2=\"1\" y2=\"1\"><stop offset=\"0\" stop-color=\"hsl(265,62%,38%)\"/><stop offset=\"1\" stop-color=\"hsl(300,70%,20%)\"/></linearGradient></defs><rect width=\"640\" height=\"360\" fill=\"url(#g)\"/><circle cx=\"540\" cy=\"60\" r=\"120\" fill=\"#fff\" opacity=\".07\"/><circle cx=\"90\" cy=\"320\" r=\"150\" fill=\"#fff\" opacity=\".06\"/><g fill=\"none\" stroke=\"#fff\" stroke-width=\"6\" stroke-linecap=\"round\" stroke-linejoin=\"round\"><ellipse cx=\"320\" cy=\"110\" rx=\"110\" ry=\"36\"/><path d=\"M210 110 V240 C210 262 260 276 320 276 C380 276 430 262 430 240 V110\"/><path d=\"M210 175 C210 197 260 211 320 211 C380 211 430 197 430 175\"/><circle cx=\"500\" cy=\"230\" r=\"42\"/><path d=\"M500 205 V232 L520 245\"/></g></svg>"
+   },
+   "readingMinutes": 3
+  },
+  {
+   "id": "modeles-poids-ouverts-vercel-ai-gateway-majorite-tokens",
+   "category": "ia",
+   "icon": "🔓",
+   "title": "Modèles à poids ouverts : plus de sept tokens sur dix sur Vercel AI Gateway, mais un quart des dépenses seulement",
+   "summary": "Le rapport de production de Vercel montre un basculement du volume vers les modèles ouverts, souvent hébergés par des fournisseurs américains. La part des dépenses a plus que quadruplé en trois mois.",
+   "tags": [
+    "modèles ouverts",
+    "Vercel",
+    "DeepSeek",
+    "coûts",
+    "souveraineté"
+   ],
+   "importance": 4,
+   "sourceDate": "2026-10-17",
+   "cover": {
+    "url": "https://image.theregister.com/5303708.jpg?imageId=5303708&x=0&y=0&cropw=100&croph=100&panox=0&panoy=0&panow=100&panoh=100&width=1200&height=683",
+    "alt": "Illustration de The Register accompagnant un article sur les modèles d'IA à poids ouverts",
+    "credit": "theregister.com"
+   },
+   "sources": [
+    {
+     "title": "Open-weight models win hearts, minds, and wallets",
+     "url": "https://www.theregister.com/ai-and-ml/2026/10/17/open-weight-models-win-hearts-minds-and-wallets/5303704",
+     "publisher": "The Register"
+    }
+   ],
+   "blocks": [
+    {
+     "type": "paragraph",
+     "text": "Les modèles d'IA dont les poids sont publiés ne sont plus l'option des bricoleurs : ils traitent désormais l'essentiel du trafic d'une grande passerelle d'accès aux modèles. D'après le rapport « AI Gateway Production Index » de Vercel, d'octobre 2026, relayé par The Register le 17 octobre, les modèles à poids ouverts ont traité **plus de sept tokens sur dix** (71,5 %) entre juin et septembre 2026. Le chiffre est à manier avec précaution : il ne couvre que la passerelle de Vercel."
+    },
+    {
+     "type": "heading",
+     "level": 2,
+     "text": "Un basculement dans les volumes"
+    },
+    {
+     "type": "paragraph",
+     "text": "En août, ces modèles ont traité la majorité du volume de tokens de la passerelle pour la première fois. Leur part des dépenses est passée d'**un dollar sur vingt** en juin à **près d'un dollar sur quatre** en septembre, soit plus qu'un quadruplement en trois mois. Dans le même temps, les dépenses totales sur la passerelle étaient environ **treize fois** supérieures à celles de décembre 2025, tandis que le prix moyen par token avait baissé d'environ **47 %**. Près d'une équipe sur trois a changé de fournisseur principal en septembre, signe d'une concurrence qui limite l'enfermement chez un seul fournisseur."
+    },
+    {
+     "type": "diagram",
+     "svg": "<svg xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"0 0 640 300\" font-family=\"system-ui,sans-serif\"><rect width=\"640\" height=\"300\" rx=\"14\" fill=\"#f6f2fa\"/><text x=\"320\" y=\"32\" text-anchor=\"middle\" font-size=\"16\" font-weight=\"700\" fill=\"#4a1f63\">Modèles à poids ouverts sur Vercel AI Gateway</text><g font-size=\"13\" fill=\"#3b2a48\"><text x=\"40\" y=\"95\" font-weight=\"700\">Part des tokens</text><rect x=\"40\" y=\"105\" width=\"560\" height=\"26\" rx=\"5\" fill=\"#e4d9ee\"/><rect x=\"40\" y=\"105\" width=\"400\" height=\"26\" rx=\"5\" fill=\"#8e3fb5\"/><text x=\"48\" y=\"123\" fill=\"#fff\" font-weight=\"700\">71,5 % (juin à septembre)</text><text x=\"40\" y=\"170\" font-weight=\"700\">Part des dépenses, juin</text><rect x=\"40\" y=\"180\" width=\"560\" height=\"26\" rx=\"5\" fill=\"#e4d9ee\"/><rect x=\"40\" y=\"180\" width=\"28\" height=\"26\" rx=\"5\" fill=\"#8e3fb5\"/><text x=\"78\" y=\"198\">environ 5 %</text><text x=\"40\" y=\"235\" font-weight=\"700\">Part des dépenses, septembre</text><rect x=\"40\" y=\"245\" width=\"560\" height=\"26\" rx=\"5\" fill=\"#e4d9ee\"/><rect x=\"40\" y=\"245\" width=\"140\" height=\"26\" rx=\"5\" fill=\"#8e3fb5\"/><text x=\"190\" y=\"263\">près de 25 %</text></g></svg>",
+     "alt": "Barres comparant la part des tokens traités par les modèles ouverts (71,5 %) et leur part des dépenses en juin (environ 5 %) et en septembre (près de 25 %).",
+     "caption": "Beaucoup de volume, une part de dépenses encore modeste : les modèles ouverts coûtent moins cher par token."
+    },
+    {
+     "type": "heading",
+     "level": 2,
+     "text": "Qui gagne quoi"
+    },
+    {
+     "type": "keyvalue",
+     "items": [
+      {
+       "label": "Premier en dépenses (septembre)",
+       "value": "Claude Opus 5.5, 11,03 % des dépenses"
+      },
+      {
+       "label": "Deuxième",
+       "value": "GPT-6 Astra, 4,86 %"
+      },
+      {
+       "label": "Troisième",
+       "value": "DeepSeek V4.1 Flash, 4,19 %, premier modèle ouvert du classement"
+      },
+      {
+       "label": "Kimi (Moonshot AI)",
+       "value": "3,6 % des tokens pour 13,2 % des dépenses"
+      },
+      {
+       "label": "DeepSeek",
+       "value": "58 % des tokens mais 6,6 % des dépenses"
+      },
+      {
+       "label": "GLM-5.3 (Z.ai)",
+       "value": "7,2 % des tokens pour 4,5 % des dépenses"
+      }
+     ]
+    },
+    {
+     "type": "paragraph",
+     "text": "Autre enseignement : plus des deux tiers des dépenses consacrées à des modèles chinois sont allés à des **fournisseurs américains** qui les hébergent, contre moins d'un dixième en décembre 2025. L'article relève enfin un contraste : le modèle Jev, de TypeSafe AI, séduit 35 % des équipes payantes en quatorze jours, mais ne pèse que 1 % des tokens. Popularité et dépenses ne vont pas toujours de pair."
+    },
+    {
+     "type": "callout",
+     "variant": "warning",
+     "title": "Limites des données",
+     "text": "Vercel ne voit ni l'usage qui passe par d'autres passerelles, ni l'accès direct aux fournisseurs, ni l'hébergement sur site : ces chiffres ne représentent pas le marché mondial."
+    },
+    {
+     "type": "usecases",
+     "title": "Exemples d'utilisation",
+     "items": [
+      {
+       "icon": "🏢",
+       "title": "Développeur dans une PME",
+       "text": "Une PME qui fait résumer des courriels en grand nombre peut basculer vers un modèle ouvert hébergé pour réduire sa facture, après un test de qualité sur ses propres documents."
+      },
+      {
+       "icon": "🔐",
+       "title": "Équipe soumise à des contraintes de confidentialité",
+       "text": "Une équipe qui traite des données sensibles peut héberger un modèle ouvert dans son propre environnement, à condition d'évaluer la charge d'exploitation."
+      },
+      {
+       "icon": "🧪",
+       "title": "Chercheur ou étudiant",
+       "text": "Un laboratoire peut comparer plusieurs modèles ouverts derrière une même interface, sans renégocier de contrat avec chaque fournisseur."
+      }
+     ]
+    },
+    {
+     "type": "timeline",
+     "title": "D'où l'on vient, où l'on va",
+     "items": [
+      {
+       "label": "Décembre 2025",
+       "text": "Moins d'un dixième des dépenses sur les modèles chinois va à des hébergeurs américains."
+      },
+      {
+       "label": "Juin 2026",
+       "text": "Les modèles ouverts représentent environ 5 % des dépenses de la passerelle."
+      },
+      {
+       "label": "Août 2026",
+       "text": "Premier mois où ils traitent la majorité des tokens."
+      },
+      {
+       "label": "Septembre 2026",
+       "text": "Leur part des dépenses approche 25 % ; The Register publie l'analyse le 17 octobre."
+      }
+     ]
+    },
+    {
+     "type": "opinion",
+     "title": "Notre avis",
+     "paragraphs": [
+      "Le message principal est économique : l'ouverture des poids fait baisser le coût par token et nourrit une concurrence réelle entre hébergeurs. En revanche, l'ouverture n'est pas la souveraineté. Quand les deux tiers des dépenses sur des modèles chinois profitent à des fournisseurs américains, la dépendance change de nature sans disparaître. L'article évoque aussi des projets de restrictions américaines et une proposition chinoise de contrôle des exportations qui pourraient bousculer cet équilibre.",
+      "À un horizon d'un à trois ans, on peut raisonnablement s'attendre à une architecture « multimodèles » dans les entreprises : un modèle de pointe fermé pour les tâches délicates, des modèles ouverts pour le volume. Mais le risque réglementaire et de licence reste réel, comme le souligne un expert cité. Cette projection est une opinion, pas un fait."
+     ],
+     "verdict": "Les modèles ouverts gagnent le volume ; reste à savoir qui en contrôlera l'hébergement et les règles."
+    },
+    {
+     "type": "callout",
+     "variant": "info",
+     "title": "À retenir",
+     "text": "Sur Vercel AI Gateway, les modèles à poids ouverts traitent 71,5 % des tokens de juin à septembre 2026, mais leur part des dépenses est proche de 25 % en septembre."
+    }
+   ],
+   "publishedAt": "2026-10-19T07:31:36+02:00",
+   "illustration": {
+    "svg": "<svg xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"0 0 640 360\"><defs><linearGradient id=\"g\" x1=\"0\" y1=\"0\" x2=\"1\" y2=\"1\"><stop offset=\"0\" stop-color=\"hsl(320,62%,38%)\"/><stop offset=\"1\" stop-color=\"hsl(355,70%,20%)\"/></linearGradient></defs><rect width=\"640\" height=\"360\" fill=\"url(#g)\"/><circle cx=\"540\" cy=\"60\" r=\"120\" fill=\"#fff\" opacity=\".07\"/><circle cx=\"90\" cy=\"320\" r=\"150\" fill=\"#fff\" opacity=\".06\"/><g fill=\"none\" stroke=\"#fff\" stroke-width=\"6\" stroke-linecap=\"round\" stroke-linejoin=\"round\"><rect x=\"205\" y=\"195\" width=\"60\" height=\"85\" rx=\"4\"/><rect x=\"290\" y=\"150\" width=\"60\" height=\"130\" rx=\"4\"/><rect x=\"375\" y=\"100\" width=\"60\" height=\"180\" rx=\"4\"/><rect x=\"460\" y=\"150\" width=\"50\" height=\"40\" rx=\"8\"/><path d=\"M472 150 v-18 a13 13 0 0 1 26 -4\"/></g></svg>"
+   },
+   "readingMinutes": 3
+  },
+  {
+   "id": "ryan-dahl-quitte-deno-cloudflare-workers-workerd",
+   "category": "devops",
+   "icon": "☁️",
+   "title": "Ryan Dahl rejoint Cloudflare : Deno entre en maintenance, Workers vise un runtime autonome",
+   "summary": "Après le rachat de Deno par Cloudflare, le créateur de Node.js travaillera sur la plateforme Workers. Cloudflare assurera un an de maintenance pour Deno, que Dahl voudrait confier à une fondation.",
+   "tags": [
+    "Deno",
+    "Cloudflare Workers",
+    "workerd",
+    "Node.js",
+    "runtime JavaScript"
+   ],
+   "importance": 3,
+   "sourceDate": "2026-10-16",
+   "cover": {
+    "url": "https://image.theregister.com/5303681.jpg?imageId=5303681&x=0&y=0&cropw=100&croph=100&panox=0&panoy=0&panow=100&panoh=100&width=1200&height=683",
+    "alt": "Illustration de The Register pour un article sur Ryan Dahl, Deno et Cloudflare Workers",
+    "credit": "theregister.com"
+   },
+   "sources": [
+    {
+     "title": "Node.js creator ditches Deno to work on open source Cloudflare Workers",
+     "url": "https://www.theregister.com/devops/2026/10/16/nodejs-creator-ditches-deno-to-work-on-open-source-cloudflare-workers/5303662",
+     "publisher": "The Register"
+    }
+   ],
+   "blocks": [
+    {
+     "type": "paragraph",
+     "text": "Le créateur de Node.js change de cap pour la seconde fois. D'après The Register (16 octobre 2026), **Ryan Dahl** quitte l'aventure Deno, qu'il avait lancée en 2018 comme une réécriture de Node.js, pour rejoindre **Cloudflare** et travailler sur la plateforme **Workers**. L'opération, qui suit le rachat de Deno par Cloudflare annoncé la semaine précédente, prend la forme d'un recrutement d'équipe : Dahl et douze collègues rejoignent l'entreprise."
+    },
+    {
+     "type": "heading",
+     "level": 2,
+     "text": "Ce qui change pour Deno"
+    },
+    {
+     "type": "paragraph",
+     "text": "Cloudflare assurera la maintenance de Deno pendant un an, avec des corrections de bogues et des correctifs de sécurité, puis le développement s'arrêtera. Dahl cherche un nouveau foyer pour ce projet sous licence MIT, par exemple l'OpenJS Foundation, selon l'article. Deno comptait 400 000 utilisateurs mensuels en août 2026 et avait levé 21 millions de dollars auprès de Sequoia en 2022. Dahl dit, en substance, que s'éloigner de Node.js est très difficile et que choisir Node pour des serveurs est une erreur : des propos cités par The Register, à prendre comme des opinions."
+    },
+    {
+     "type": "heading",
+     "level": 2,
+     "text": "Ce que Workers doit devenir"
+    },
+    {
+     "type": "paragraph",
+     "text": "En août 2026, Dahl avait publié **celld**, une implémentation libre des *Durable Objects* de Cloudflare, ces micro-serveurs à fil d'exécution unique dotés de leur propre stockage SQLite. Cloudflare avait publié **workerd** en 2022, mais surtout pour les tests des développeurs : le runtime n'était pas auto-hébergeable et ne gérait pas l'état distribué. L'équipe de Dahl doit fusionner celld et workerd en un runtime JavaScript et WebAssembly autonome, intégré à Workers ; celld sera abandonné."
+    },
+    {
+     "type": "keyvalue",
+     "items": [
+      {
+       "label": "Équipe recrutée",
+       "value": "Ryan Dahl et 12 collègues de Deno"
+      },
+      {
+       "label": "Maintenance de Deno",
+       "value": "un an (bogues et sécurité), puis arrêt du développement"
+      },
+      {
+       "label": "Licence de Deno",
+       "value": "MIT ; recherche d'une fondation d'accueil"
+      },
+      {
+       "label": "Objectif annoncé pour Workers",
+       "value": "runtime autonome intégrant workerd et les Durable Objects, avec ouverture en logiciel libre visée"
+      }
+     ]
+    },
+    {
+     "type": "paragraph",
+     "text": "L'article avance qu'un tel runtime pourrait consommer environ 300 Ko de mémoire par instance, contre plusieurs centaines de Mo pour Node ou Deno ; cette estimation n'est pas vérifiée et doit être lue comme un objectif ambitieux. Il note aussi que le marché des runtimes indépendants se réduit, Node.js devant désormais avancer sans concurrent historique."
+    },
+    {
+     "type": "usecases",
+     "title": "Exemples d'utilisation",
+     "items": [
+      {
+       "icon": "🧑‍💻",
+       "title": "Équipe qui utilise Deno en production",
+       "text": "Une équipe dispose d'environ un an pour décider de rester sur Deno via un éventuel repreneur, de migrer vers Node.js ou d'évaluer Workers."
+      },
+      {
+       "icon": "⚡",
+       "title": "Développeur d'applications distribuées",
+       "text": "Un développeur peut suivre l'évolution de workerd et des Durable Objects pour tester, en local, un état distribué sans dépendre du service hébergé."
+      },
+      {
+       "icon": "🏛️",
+       "title": "Entreprise attachée à la maîtrise de son hébergement",
+       "text": "Une entreprise qui veut éviter l'enfermement chez un fournisseur surveille la possibilité d'auto-héberger le futur runtime."
+      }
+     ]
+    },
+    {
+     "type": "timeline",
+     "title": "D'où l'on vient, où l'on va",
+     "items": [
+      {
+       "label": "2009",
+       "text": "Lancement de Node.js, fondé sur le moteur V8 de Google."
+      },
+      {
+       "label": "2018",
+       "text": "Ryan Dahl lance Deno."
+      },
+      {
+       "label": "Août 2026",
+       "text": "Publication de celld, implémentation libre des Durable Objects."
+      },
+      {
+       "label": "Octobre 2026",
+       "text": "Rachat de Deno par Cloudflare et arrivée de l'équipe de Dahl."
+      },
+      {
+       "label": "Vers octobre 2027",
+       "text": "Fin prévisible de la période de maintenance d'un an annoncée pour Deno."
+      }
+     ]
+    },
+    {
+     "type": "opinion",
+     "title": "Notre avis",
+     "paragraphs": [
+      "Le mouvement est cohérent sur le plan technique : le modèle d'isolation léger de Workers correspond à ce que Deno cherchait à faire avec les permissions et les standards web. Pour les utilisateurs de Deno, en revanche, l'annonce est un rappel que la durabilité d'un outil dépend de son modèle économique. Un an de maintenance est un délai honnête, mais il crée un travail de migration subi.",
+      "À un horizon d'un à trois ans, la réussite se jugera à l'ouverture effective du nouveau runtime et à sa capacité à tourner hors du cloud de Cloudflare. Si l'ouverture reste partielle, la promesse d'un runtime libre perdra de sa portée. C'est une opinion argumentée, non un fait."
+     ],
+     "verdict": "Le créateur de Node.js parie sur le serveur léger et distribué ; les utilisateurs de Deno, eux, doivent déjà penser à la suite."
+    },
+    {
+     "type": "callout",
+     "variant": "info",
+     "title": "À retenir",
+     "text": "Deno : un an de maintenance par Cloudflare, puis arrêt ; Workers vise un runtime autonome fusionnant celld et workerd."
+    }
+   ],
+   "publishedAt": "2026-10-19T07:31:37+02:00",
+   "illustration": {
+    "svg": "<svg xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"0 0 640 360\"><defs><linearGradient id=\"g\" x1=\"0\" y1=\"0\" x2=\"1\" y2=\"1\"><stop offset=\"0\" stop-color=\"hsl(160,62%,38%)\"/><stop offset=\"1\" stop-color=\"hsl(195,70%,20%)\"/></linearGradient></defs><rect width=\"640\" height=\"360\" fill=\"url(#g)\"/><circle cx=\"540\" cy=\"60\" r=\"120\" fill=\"#fff\" opacity=\".07\"/><circle cx=\"90\" cy=\"320\" r=\"150\" fill=\"#fff\" opacity=\".06\"/><g fill=\"none\" stroke=\"#fff\" stroke-width=\"6\" stroke-linecap=\"round\" stroke-linejoin=\"round\"><path d=\"M200 270 H460 C510 270 540 235 540 200 C540 160 505 135 470 140 C460 95 420 70 375 78 C335 85 312 110 308 140 C260 135 225 165 225 205 C190 210 170 235 180 255 C182 262 190 270 200 270 Z\"/><path d=\"M340 160 L305 215 H335 L320 255 L370 195 H340 Z\" fill=\"#fff\"/></g></svg>"
+   },
+   "readingMinutes": 3
+  },
+  {
+   "id": "axera-ax8860p-soc-16-coeurs-256-tops-concurrent-dgx-spark",
+   "category": "electronique",
+   "icon": "🧠",
+   "title": "Axera AX8860P : un SoC à 16 cœurs Cortex-A55 et jusqu'à 256 TOPS pour défier le DGX Spark",
+   "summary": "Radxa et Sipeed préparent des machines d'IA locale fondées sur cette puce en 6 nm, avec jusqu'à 128 Go de LPDDR5x. Les comparaisons avec NVIDIA proviennent des fabricants et restent à vérifier.",
+   "tags": [
+    "Axera",
+    "AX8860P",
+    "Sipeed MaixStation",
+    "Radxa",
+    "IA locale"
+   ],
+   "importance": 4,
+   "sourceDate": "2026-10-19",
+   "cover": {
+    "url": "https://www.cnx-software.com/wp-content/uploads/2026/10/Axera-AX8860-products.jpg",
+    "alt": "Produits annoncés autour du SoC Axera AX8860P, dont la MaixStation de Sipeed",
+    "credit": "cnx-software.com"
+   },
+   "sources": [
+    {
+     "title": "Axera AX8860P 16-core Cortex-A55 SoC takes on NVIDIA DGX Spark at fraction of the cost",
+     "url": "https://www.cnx-software.com/2026/10/19/axera-ax8860p-16-core-cortex-a55-soc-takes-on-nvidia-dgx-spark-at-fraction-of-the-cost/",
+     "publisher": "CNX Software"
+    }
+   ],
+   "blocks": [
+    {
+     "type": "paragraph",
+     "text": "Faire tourner de gros modèles de langage sur un boîtier de bureau, sans carte graphique ni abonnement : c'est la promesse d'une nouvelle génération de petits ordinateurs d'IA. Le fabricant chinois **Axera** a présenté le SoC **AX8860P**, relayé par CNX Software le 19 octobre 2026, et plusieurs partenaires, dont **Sipeed** et **Radxa**, préparent des machines autour de cette puce. Sipeed la compare directement au **NVIDIA DGX Spark**, un positionnement qui reste à confirmer par des tests indépendants."
+    },
+    {
+     "type": "heading",
+     "level": 2,
+     "text": "Ce que contient la puce"
+    },
+    {
+     "type": "keyvalue",
+     "items": [
+      {
+       "label": "Processeur",
+       "value": "16 cœurs Arm Cortex-A55"
+      },
+      {
+       "label": "Accélérateur d'IA (NPU)",
+       "value": "jusqu'à 256 TOPS (128 TOPS selon l'introduction de la source ; 256 en FP4)"
+      },
+      {
+       "label": "Gravure",
+       "value": "6 nm, environ 40 W en charge"
+      },
+      {
+       "label": "Mémoire",
+       "value": "jusqu'à 128 Go de LPDDR5x sur un bus de 256 bits, 273 Go/s"
+      },
+      {
+       "label": "Interfaces",
+       "value": "PCIe 5.0 et AXLink, une liaison puce à puce pour associer plusieurs puces"
+      },
+      {
+       "label": "Vidéo",
+       "value": "décodage de 64 canaux, encodage de 16 canaux"
+      },
+      {
+       "label": "Logiciels",
+       "value": "compatible vLLM, SGLang, PyTorch, ONNX, Hugging Face et API de type OpenAI"
+      }
+     ]
+    },
+    {
+     "type": "heading",
+     "level": 2,
+     "text": "Les machines annoncées"
+    },
+    {
+     "type": "paragraph",
+     "text": "Le **Sipeed MaixStation** est un mini-ordinateur de 110 × 110 × 30 mm, alimenté en USB PD 65 W pour environ 40 W de consommation typique, avec 32 ou 128 Go de LPDDR5x, un port USB 3.0 Type-C et une interface 10 GbE SFP+. Une version à quatre nœuds, la **MaixStation Pro**, atteint 512 Go. Radxa prépare de son côté un « Pocket Supercomputer » dont les détails ne sont pas publiés. Sipeed annonce moins de 2 000 dollars pour le modèle 32 Go et moins de 4 000 dollars pour le 128 Go, avec un lancement sur Kickstarter dans quelques mois."
+    },
+    {
+     "type": "paragraph",
+     "text": "Selon Sipeed, un nœud de 32 Go exécute Qwen3.8-27B, un nœud de 128 Go un modèle de 125 milliards de paramètres, deux nœuds DeepSeek V4-Flash 284B et quatre nœuds DeepSeek V4.1-Flash 552B. Sur les modèles Qwen, la machine de 128 Go serait « légèrement plus rapide » qu'un DGX Spark de même capacité, avec le décodage spéculatif désactivé pour ces mesures. La bande passante mémoire est identique, à 273 Go/s. Pour le prix, le DGX Spark est vendu 6 949,99 dollars selon l'article, après un lancement à 3 000–4 000 dollars en mars 2025."
+    },
+    {
+     "type": "callout",
+     "variant": "warning",
+     "title": "Précautions",
+     "text": "Les performances comparées, les chiffres de TOPS et les prix viennent des fabricants. Axera estime que les 1 000 TOPS de NVIDIA correspondent à du FP4 creux, peu exploité par les modèles réels : un argument commercial, non une mesure indépendante."
+    },
+    {
+     "type": "usecases",
+     "title": "Exemples d'utilisation",
+     "items": [
+      {
+       "icon": "🏠",
+       "title": "Bricoleur d'IA locale",
+       "text": "Un passionné peut héberger un assistant de code ou un moteur de recherche personnel sur un boîtier silencieux, sans envoyer ses données dans le nuage."
+      },
+      {
+       "icon": "🏥",
+       "title": "Petite structure sensible à la confidentialité",
+       "text": "Un cabinet ou une association peut traiter des documents internes avec un modèle local, en limitant les transferts de données vers des services extérieurs."
+      },
+      {
+       "icon": "🎓",
+       "title": "Atelier ou école d'ingénieurs",
+       "text": "Un établissement peut mettre à disposition plusieurs boîtiers chaînés par câble pour faire tourner des modèles de plusieurs centaines de milliards de paramètres."
+      }
+     ]
+    },
+    {
+     "type": "timeline",
+     "title": "D'où l'on vient, où l'on va",
+     "items": [
+      {
+       "label": "Mars 2025",
+       "text": "Lancement du NVIDIA DGX Spark, à 3 000–4 000 dollars."
+      },
+      {
+       "label": "19 octobre 2026",
+       "text": "Présentation de l'AX8860P et de la MaixStation de Sipeed."
+      },
+      {
+       "label": "Dans quelques mois",
+       "text": "Campagne Kickstarter de la MaixStation et sortie du Pocket Supercomputer de Radxa."
+      }
+     ]
+    },
+    {
+     "type": "opinion",
+     "title": "Notre avis",
+     "paragraphs": [
+      "L'intérêt de l'annonce n'est pas tant le prix que la voie ouverte : un SoC à cœurs modestes, associé à une grosse mémoire rapide, suffit pour exécuter localement de grands modèles quantifiés, pourvu que la pile logicielle suive. Elle reste le principal risque, car un matériel puissant mais mal pris en charge par les outils ne sert pas à grand-chose. Les comparaisons de performance devront être refaites hors des conditions du fabricant.",
+      "À un horizon d'un à trois ans, la baisse du coût de l'IA locale devrait élargir le marché des machines dédiées, avec une concurrence croissante venue d'Asie. Si les promesses de prix tiennent, ce segment pourrait sortir du cercle des spécialistes. C'est une projection, non un fait."
+     ],
+     "verdict": "Une alternative crédible aux boîtiers d'IA occidentaux, à condition que les logiciels et les tests indépendants confirment les annonces."
+    },
+    {
+     "type": "callout",
+     "variant": "info",
+     "title": "À retenir",
+     "text": "AX8860P : 16 cœurs A55, jusqu'à 128 Go de LPDDR5x à 273 Go/s, MaixStation annoncée sous 2 000 dollars (32 Go) et 4 000 dollars (128 Go), lancement dans quelques mois."
+    }
+   ],
+   "publishedAt": "2026-10-19T07:31:38+02:00",
+   "illustration": {
+    "svg": "<svg xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"0 0 640 360\"><defs><linearGradient id=\"g\" x1=\"0\" y1=\"0\" x2=\"1\" y2=\"1\"><stop offset=\"0\" stop-color=\"hsl(30,62%,38%)\"/><stop offset=\"1\" stop-color=\"hsl(65,70%,20%)\"/></linearGradient></defs><rect width=\"640\" height=\"360\" fill=\"url(#g)\"/><circle cx=\"540\" cy=\"60\" r=\"120\" fill=\"#fff\" opacity=\".07\"/><circle cx=\"90\" cy=\"320\" r=\"150\" fill=\"#fff\" opacity=\".06\"/><g fill=\"none\" stroke=\"#fff\" stroke-width=\"6\" stroke-linecap=\"round\" stroke-linejoin=\"round\"><rect x=\"230\" y=\"100\" width=\"180\" height=\"160\" rx=\"14\"/><rect x=\"275\" y=\"140\" width=\"90\" height=\"80\" rx=\"6\"/><path d=\"M260 100 V70 M300 100 V70 M340 100 V70 M380 100 V70 M260 260 V290 M300 260 V290 M340 260 V290 M380 260 V290 M230 135 H200 M230 180 H200 M230 225 H200 M410 135 H440 M410 180 H440 M410 225 H440\"/></g></svg>"
+   },
+   "readingMinutes": 3
+  },
+  {
+   "id": "m5stack-paperdiy-esp32-s3-ecran-epaper-4-7-pouces",
+   "category": "electronique",
+   "icon": "📄",
+   "title": "M5Stack PaperDIY : un ESP32-S3 et un écran e-paper de 4,7 pouces, sans tactile, à partir de 25 dollars",
+   "summary": "Successeur du M5Paper (2020), le PaperDIY existe en kit à assembler ou monté dans un boîtier imprimé en 3D. Il abandonne l'écran tactile et les capteurs au profit d'un prix réduit.",
+   "tags": [
+    "M5Stack",
+    "ESP32-S3",
+    "e-paper",
+    "carte de développement",
+    "Arduino"
+   ],
+   "importance": 2,
+   "sourceDate": "2026-10-18",
+   "cover": {
+    "url": "https://www.cnx-software.com/wp-content/uploads/2026/10/PaperDIY-Complete-Kit.jpg",
+    "alt": "Le kit complet M5Stack PaperDIY avec son écran e-paper de 4,7 pouces",
+    "credit": "cnx-software.com"
+   },
+   "sources": [
+    {
+     "title": "M5Stack PaperDIY Kits pair an ESP32-S3 MCU with a 4.7-inch e-Paper display",
+     "url": "https://www.cnx-software.com/2026/10/18/m5stack-paperdiy-kits-pair-an-esp32-s3-mcu-with-a-4-7-inch-e-paper-display/",
+     "publisher": "CNX Software"
+    }
+   ],
+   "blocks": [
+    {
+     "type": "paragraph",
+     "text": "L'encre électronique n'a pas besoin de rétroéclairage : un affichage reste lisible au soleil et ne consomme de l'énergie que lorsqu'il change. **M5Stack** relance cette idée avec la gamme **PaperDIY**, successeur du M5Paper lancé en 2020, présentée par CNX Software le 18 octobre 2026. Le principe : un écran e-paper de 4,7 pouces, un ESP32-S3 et rien de superflu."
+    },
+    {
+     "type": "heading",
+     "level": 2,
+     "text": "Deux versions"
+    },
+    {
+     "type": "paragraph",
+     "text": "Le **PaperDIY Complete Kit** arrive monté dans un boîtier imprimé en 3D (PLA) de 120 × 68,2 × 6,3 mm pour 43,1 g. Le **PaperDIY Assembly Kit** (115,3 × 62,5 × 5,5 mm, 26,4 g) est destiné à être intégré dans un projet sur mesure. L'écran est un modèle ED047TC1 de 960 × 540 pixels à 16 niveaux de gris, relié par une interface parallèle de 8 bits."
+    },
+    {
+     "type": "keyvalue",
+     "items": [
+      {
+       "label": "Module",
+       "value": "ESP32-S3-WROOM-1-N16R8 : double cœur LX7 jusqu'à 240 MHz, 512 Ko de SRAM, 8 Mo de PSRAM, 16 Mo de flash"
+      },
+      {
+       "label": "Connectivité",
+       "value": "Wi-Fi 4 (802.11 b/g/n) et Bluetooth 5.0 LE"
+      },
+      {
+       "label": "Stockage et ports",
+       "value": "lecteur microSD, USB Type-C, deux connecteurs FPC à 12 broches (signaux I2S et SPI)"
+      },
+      {
+       "label": "Alimentation",
+       "value": "batterie lithium de 140 mAh, circuit de gestion M5PM1, consommation de 40,95 mA sous 4,2 V (pointes à 161 mA)"
+      },
+      {
+       "label": "Plage de fonctionnement",
+       "value": "0 °C à 40 °C"
+      },
+      {
+       "label": "Prix",
+       "value": "25 dollars (Assembly Kit) ; 29,90 dollars (Complete Kit, en rupture de stock à la date de l'article)"
+      }
+     ]
+    },
+    {
+     "type": "heading",
+     "level": 2,
+     "text": "Logiciel et limites"
+    },
+    {
+     "type": "paragraph",
+     "text": "Le kit se programme avec l'IDE Arduino grâce aux bibliothèques M5Unified, M5GFX et M5PM1. Le code source du micrologiciel d'usine, fondé sur ESP-IDF, est publié avec des exemples : surveillance de la batterie, scan Wi-Fi, accès à la carte microSD et gestion des boutons. Le flashage se fait avec l'outil WebBurner de M5Stack. À la date de l'article, UiFlow, la programmation graphique de M5Stack, n'est pas encore pris en charge. Par rapport au M5Paper, le PaperDIY supprime l'écran tactile et les capteurs et réduit la batterie ; la source le compare aussi au LILYGO T5 4.7-inch E-Paper S3 Pro, qui utilise le même écran et le même ESP32-S3."
+    },
+    {
+     "type": "callout",
+     "variant": "warning",
+     "title": "Attention aux vis",
+     "text": "Sur le Complete Kit, les vis des trous de montage M2 doivent avoir une longueur de filetage inférieure à 3 mm : des vis plus longues peuvent appuyer sur l'écran et l'endommager définitivement."
+    },
+    {
+     "type": "usecases",
+     "title": "Exemples d'utilisation",
+     "items": [
+      {
+       "icon": "🗓️",
+       "title": "Calendrier mural",
+       "text": "Un bricoleur affiche l'agenda familial et la météo sur l'écran, rafraîchi quelques fois par heure pour économiser la batterie."
+      },
+      {
+       "icon": "🏷️",
+       "title": "Étiquette ou panneau d'information",
+       "text": "Un atelier ou une boutique remplace des étiquettes papier par un petit panneau mis à jour en Wi-Fi."
+      },
+      {
+       "icon": "📚",
+       "title": "Mini-liseuse ou carnet de notes",
+       "text": "Un projet personnel affiche des textes et des listes de tâches, sans rétroéclairage fatigant."
+      }
+     ]
+    },
+    {
+     "type": "timeline",
+     "title": "D'où l'on vient, où l'on va",
+     "items": [
+      {
+       "label": "2020",
+       "text": "Lancement du M5Paper, avec écran tactile."
+      },
+      {
+       "label": "18 octobre 2026",
+       "text": "Présentation du PaperDIY, sans tactile ni capteurs."
+      },
+      {
+       "label": "À suivre",
+       "text": "Prise en charge d'UiFlow, non disponible à la date de l'article."
+      }
+     ]
+    },
+    {
+     "type": "opinion",
+     "title": "Notre avis",
+     "paragraphs": [
+      "Le PaperDIY est une proposition pragmatique : moins de fonctions, un prix plus bas et un matériel documenté. Le choix de retirer le tactile limite les usages interactifs, mais convient à l'affichage d'informations, où l'e-paper excelle. La faible capacité de la batterie, 140 mAh, limite en revanche l'autonomie hors secteur, à moins d'accepter des rafraîchissements rares.",
+      "À un horizon d'un à trois ans, les kits e-paper à bas coût devraient s'imposer dans les projets domestiques et les affichages d'information, portés par la disponibilité d'ESP32 plus puissants. C'est une tendance probable, pas une certitude."
+     ],
+     "verdict": "Un kit sobre, bien documenté et peu cher : il convient aux affichages, moins aux projets interactifs."
+    },
+    {
+     "type": "callout",
+     "variant": "info",
+     "title": "À retenir",
+     "text": "PaperDIY : ESP32-S3, écran 4,7 pouces de 960 × 540, 16 niveaux de gris, 25 dollars en kit à assembler ; le kit complet est à 29,90 dollars."
+    }
+   ],
+   "publishedAt": "2026-10-19T07:31:39+02:00",
+   "illustration": {
+    "svg": "<svg xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"0 0 640 360\"><defs><linearGradient id=\"g\" x1=\"0\" y1=\"0\" x2=\"1\" y2=\"1\"><stop offset=\"0\" stop-color=\"hsl(30,62%,38%)\"/><stop offset=\"1\" stop-color=\"hsl(65,70%,20%)\"/></linearGradient></defs><rect width=\"640\" height=\"360\" fill=\"url(#g)\"/><circle cx=\"540\" cy=\"60\" r=\"120\" fill=\"#fff\" opacity=\".07\"/><circle cx=\"90\" cy=\"320\" r=\"150\" fill=\"#fff\" opacity=\".06\"/><g fill=\"none\" stroke=\"#fff\" stroke-width=\"6\" stroke-linecap=\"round\" stroke-linejoin=\"round\"><rect x=\"170\" y=\"70\" width=\"300\" height=\"220\" rx=\"16\"/><rect x=\"195\" y=\"95\" width=\"250\" height=\"150\" rx=\"6\"/><path d=\"M215 125 h130 M215 150 h200 M215 175 h170 M215 200 h110\"/><circle cx=\"280\" cy=\"268\" r=\"8\" fill=\"#fff\"/><circle cx=\"360\" cy=\"268\" r=\"8\" fill=\"#fff\"/></g></svg>"
+   },
+   "readingMinutes": 3
+  }
+ ]
+}
