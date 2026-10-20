@@ -1,0 +1,818 @@
+{
+ "schemaVersion": "1.0",
+ "date": "2026-10-20",
+ "title": "OVHcloud, Siemens, frigos de supermarchés, Go et radio logicielle : l'actualité technique du 20 octobre",
+ "summary": "Une version piégée de l'outil en ligne de commande d'OVHcloud, une faille Siemens exploitée par ClickFix, des frigos de supermarchés exposés en ligne, un correctif d'urgence de Go sur des certificats eMudhra et un récepteur radio logiciel tiré d'une puce LoRa.",
+ "highlights": [
+  "Cybersécurité : cinq versions de l'outil d'OVHcloud détournées pendant 94 minutes pour voler des secrets",
+  "Cybersécurité : faille Siemens Software Center exploitée via la plateforme ClickFix ROMULUS",
+  "Cybersécurité : 1 331 tableaux de bord Danfoss exposés en France avant les dégivrages forcés",
+  "Informatique : Go 1.27.3 et 1.26.10 écartent huit intermédiaires eMudhra",
+  "Électronique : une puce LoRa Semtech LR2021 transformée en récepteur SDR de 100 MHz à 2,74 GHz"
+ ],
+ "meta": {
+  "generator": "claude-scheduled-task"
+ },
+ "posts": [
+  {
+   "id": "ovhcloud-cli-cinq-versions-detournees-vol-de-secrets",
+   "category": "cybersecurite",
+   "icon": "📦",
+   "importance": 5,
+   "sourceDate": "2026-10-20",
+   "title": "OVHcloud CLI : cinq versions détournées pendant 94 minutes pour voler les secrets stockés sur le disque",
+   "summary": "Un compte GitHub de contributeur piraté a servi à remplacer les archives de cinq versions de l'outil en ligne de commande d'OVHcloud par une build voleuse de secrets. Qui est concerné, comment vérifier son binaire et que faire.",
+   "tags": [
+    "supply chain",
+    "GitHub",
+    "OVHcloud",
+    "secrets",
+    "CLI"
+   ],
+   "readingMinutes": 5,
+   "sources": [
+    {
+     "title": "Hackers Hijack Five OVHcloud CLI Releases to Distribute Secret-Stealing Malware",
+     "url": "https://thehackernews.com/2026/10/hackers-hijack-five-ovhcloud-cli.html",
+     "publisher": "The Hacker News"
+    }
+   ],
+   "cover": {
+    "url": "https://blogger.googleusercontent.com/img/b/R29vZ2xl/AVvXsEiSRX5Jjz6vqh8EcVVYoXU8S9qh0rFzQ3DDnjNIlkRrBq97brmk6hUw0u2pbLqyTAG1_mYfG9bGHCnMkgSMEPFu6fIR67F1jZMmS7G7-DFe6i7PtG_LzdTgHLCTXSwE5hCa2EApQeAIYGIMYATwbLEp-2FcPmV9aAHVqrRRBYk_wY7ZTuES0frFAPGjhnU/s1600/ovhcloud.jpg",
+    "alt": "Logo d'OVHcloud illustrant l'incident de chaîne d'approvisionnement",
+    "credit": "thehackernews.com"
+   },
+   "illustration": {
+    "svg": "<svg xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"0 0 640 360\"><defs><linearGradient id=\"g\" x1=\"0\" y1=\"0\" x2=\"1\" y2=\"1\"><stop offset=\"0\" stop-color=\"hsl(175,65%,36%)\"/><stop offset=\"1\" stop-color=\"hsl(215,70%,52%)\"/></linearGradient></defs><rect width=\"640\" height=\"360\" fill=\"url(#g)\"/><circle cx=\"570\" cy=\"50\" r=\"90\" fill=\"#fff\" opacity=\".08\"/><circle cx=\"70\" cy=\"320\" r=\"120\" fill=\"#fff\" opacity=\".07\"/><path d=\"M320 80l110 50v100l-110 50-110-50V130z\" fill=\"#fff\" opacity=\".85\"/><path d=\"M320 80l110 50-110 50-110-50z\" fill=\"#fff\" opacity=\".95\"/><path d=\"M320 180v100\" stroke=\"hsl(175,60%,35%)\" stroke-width=\"6\"/><circle cx=\"450\" cy=\"90\" r=\"26\" fill=\"#fff\" opacity=\".9\"/><path d=\"M438 90l9 9 16-18\" stroke=\"hsl(175,60%,35%)\" stroke-width=\"6\" fill=\"none\"/></svg>"
+   },
+   "blocks": [
+    {
+     "type": "paragraph",
+     "text": "Le lundi 19 octobre 2026, un attaquant a pris le contrôle du compte GitHub d'un contributeur du dépôt de l'outil en ligne de commande d'OVHcloud et s'en est servi pour remplacer, sur cinq versions déjà publiées, les archives téléchargeables par une version piégée. Ce programme a pour but de dérober les secrets présents sur le disque de la machine qui l'exécute. Selon The Hacker News, les fichiers malveillants sont restés en ligne jusqu'à 94 minutes, de 12 h 47 à 14 h 21 (UTC). L'incident illustre un maillon faible classique de la chaîne d'approvisionnement logicielle : un artefact de publication que l'on peut modifier après coup."
+    },
+    {
+     "type": "heading",
+     "level": 2,
+     "text": "Ce qui s'est passé, et ce qui n'a pas été touché"
+    },
+    {
+     "type": "paragraph",
+     "text": "L'attaquant n'a pas modifié le code source, ni l'étiquette de version, ni la chaîne de compilation d'OVHcloud. Il a simplement supprimé des fichiers de publication et téléversé à leur place des archives portant les mêmes noms : toute personne disposant d'un droit d'écriture sur un dépôt GitHub peut le faire tant que l'option d'immuabilité des publications n'est pas activée. Le binaire malveillant est une compilation ordinaire (`go build`) d'un commit plus récent, téléversée directement sur des versions publiées entre le 14 avril et le 16 septembre."
+    },
+    {
+     "type": "keyvalue",
+     "items": [
+      {
+       "label": "Versions compromises",
+       "value": "v0.11.0 à v0.15.0 (la v0.10.0 est saine)"
+      },
+      {
+       "label": "Fenêtre de diffusion",
+       "value": "19 octobre 2026, de 12 h 47 à 14 h 21 (UTC)"
+      },
+      {
+       "label": "Plateformes touchées",
+       "value": "macOS, Linux x86_64 et arm64, Windows x86_64"
+      },
+      {
+       "label": "Non touchés",
+       "value": "Linux i386, Windows i386 et arm64, WebAssembly"
+      },
+      {
+       "label": "Version saine",
+       "value": "v0.16.0, immuable et accompagnée d’une attestation de publication"
+      }
+     ]
+    },
+    {
+     "type": "heading",
+     "level": 2,
+     "text": "Qui est exposé, et qui ne l'est pas"
+    },
+    {
+     "type": "paragraph",
+     "text": "Selon l'analyse publiée, sont probablement concernés ceux qui ont exécuté le script d'installation officiel pendant la fenêtre (il télécharge la dernière archive sans jamais contrôler d'empreinte), ceux qui ont récupéré à la main une archive d'une des cinq versions, les tâches d'intégration continue qui téléchargent l'archive sans empreinte épinglée et les utilisateurs ayant lancé la commande de mise à jour intégrée des versions v0.12.0 à v0.14.0 sous macOS ou Linux. À l'inverse, Homebrew n'est pas concerné, car la formule épingle l'empreinte SHA-256 d'origine et refuse un téléchargement différent. Une compilation depuis les sources avec `go install` n'est pas touchée non plus, et l'image Docker n'a pas été reconstruite depuis le 21 septembre."
+    },
+    {
+     "type": "heading",
+     "level": 2,
+     "text": "Comment l'incident a été découvert"
+    },
+    {
+     "type": "paragraph",
+     "text": "C'est une tâche d'intégration continue d'un client, qui épinglait l'empreinte SHA-256 de l'archive Linux arm64, qui s'est mise à échouer. Le dépôt n'offrant aucun canal de signalement privé, le client a ouvert un ticket public vers 13 h 50 (UTC). OVHcloud a supprimé les fichiers remplacés à 14 h 21, puis publié la v0.16.0 à 17 h 16 (UTC). Le fondateur, Octave Klaba, a demandé à toute personne concernée de changer l'ensemble des secrets présents sur son disque, et indiqué que l'option d'immuabilité des publications est désormais activée. Les chaînes de construction d'OVHcloud, elles, n'ont pas été touchées."
+    },
+    {
+     "type": "diagram",
+     "svg": "<svg xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"0 0 640 290\" font-family=\"system-ui,sans-serif\"><rect width=\"640\" height=\"290\" rx=\"16\" fill=\"#f4f5fb\"/><text x=\"320\" y=\"44\" text-anchor=\"middle\" font-size=\"17\" font-weight=\"700\" fill=\"#1a1a2e\">Comment la version piégée a pris la place de la bonne</text><rect x=\"20\" y=\"86\" width=\"129\" height=\"130\" rx=\"12\" fill=\"hsl(160,60%,92%)\" stroke=\"hsl(160,50%,40%)\" stroke-width=\"2\"/><text x=\"84\" y=\"118\" text-anchor=\"middle\" font-size=\"14\" font-weight=\"700\" fill=\"#1a1a2e\">1. Compte piraté</text><text x=\"84\" y=\"144\" text-anchor=\"middle\" font-size=\"12\" fill=\"#2b2b44\">Contributeur sans</text><text x=\"84\" y=\"162\" text-anchor=\"middle\" font-size=\"12\" fill=\"#2b2b44\">rôle public dans</text><text x=\"84\" y=\"180\" text-anchor=\"middle\" font-size=\"12\" fill=\"#2b2b44\">l'organisation</text><path d=\"M153 151h20m-7-7l7 7-7 7\" stroke=\"hsl(160,50%,35%)\" stroke-width=\"3\" fill=\"none\"/><rect x=\"177\" y=\"86\" width=\"129\" height=\"130\" rx=\"12\" fill=\"hsl(160,60%,92%)\" stroke=\"hsl(160,50%,40%)\" stroke-width=\"2\"/><text x=\"242\" y=\"118\" text-anchor=\"middle\" font-size=\"14\" font-weight=\"700\" fill=\"#1a1a2e\">2. Remplacement</text><text x=\"242\" y=\"144\" text-anchor=\"middle\" font-size=\"12\" fill=\"#2b2b44\">Archives supprimées</text><text x=\"242\" y=\"162\" text-anchor=\"middle\" font-size=\"12\" fill=\"#2b2b44\">puis remises sous</text><text x=\"242\" y=\"180\" text-anchor=\"middle\" font-size=\"12\" fill=\"#2b2b44\">le même nom</text><path d=\"M310 151h20m-7-7l7 7-7 7\" stroke=\"hsl(160,50%,35%)\" stroke-width=\"3\" fill=\"none\"/><rect x=\"334\" y=\"86\" width=\"129\" height=\"130\" rx=\"12\" fill=\"hsl(160,60%,92%)\" stroke=\"hsl(160,50%,40%)\" stroke-width=\"2\"/><text x=\"398\" y=\"118\" text-anchor=\"middle\" font-size=\"14\" font-weight=\"700\" fill=\"#1a1a2e\">3. Téléchargement</text><text x=\"398\" y=\"144\" text-anchor=\"middle\" font-size=\"12\" fill=\"#2b2b44\">Script d'installation,</text><text x=\"398\" y=\"162\" text-anchor=\"middle\" font-size=\"12\" fill=\"#2b2b44\">CI sans empreinte,</text><text x=\"398\" y=\"180\" text-anchor=\"middle\" font-size=\"12\" fill=\"#2b2b44\">mise à jour</text><path d=\"M467 151h20m-7-7l7 7-7 7\" stroke=\"hsl(160,50%,35%)\" stroke-width=\"3\" fill=\"none\"/><rect x=\"491\" y=\"86\" width=\"129\" height=\"130\" rx=\"12\" fill=\"hsl(160,60%,92%)\" stroke=\"hsl(160,50%,40%)\" stroke-width=\"2\"/><text x=\"556\" y=\"118\" text-anchor=\"middle\" font-size=\"14\" font-weight=\"700\" fill=\"#1a1a2e\">4. Vol de secrets</text><text x=\"556\" y=\"144\" text-anchor=\"middle\" font-size=\"12\" fill=\"#2b2b44\">Fichiers lus sur</text><text x=\"556\" y=\"162\" text-anchor=\"middle\" font-size=\"12\" fill=\"#2b2b44\">le disque de la</text><text x=\"556\" y=\"180\" text-anchor=\"middle\" font-size=\"12\" fill=\"#2b2b44\">machine</text><text x=\"320\" y=\"262\" text-anchor=\"middle\" font-size=\"12\" fill=\"#2b2b44\">Aucun contrôle d'empreinte sur le chemin d'installation : la substitution passe inaperçue.</text></svg>",
+     "alt": "Schéma en quatre étapes : compte piraté, remplacement des archives, téléchargement sans contrôle, vol de secrets.",
+     "caption": "Le détournement repose sur l'absence de contrôle d'intégrité entre la publication et l'exécution."
+    },
+    {
+     "type": "heading",
+     "level": 2,
+     "text": "Reconnaître un binaire remplacé"
+    },
+    {
+     "type": "paragraph",
+     "text": "Un client a utilisé la commande `go version -m` sur le binaire Linux arm64 de la v0.15.0 et publié le résultat dans le ticket n° 300. Trois indices distinguent la version piégée : une ligne de module de la forme `v0.15.1-0.20261013083505-5ead8ef9b43d+dirty`, le commit `5ead8ef` au lieu de `760fd72` (celui de l'étiquette v0.15.0) et la présence de l'option de compilation `-ldflags=\"-s -w\"`. La mention `+dirty` seule ne prouve rien : la v0.16.0 saine l'affiche aussi. Il est déconseillé d'exécuter un binaire suspect pour lui demander sa version."
+    },
+    {
+     "type": "usecases",
+     "title": "Exemples d'utilisation",
+     "items": [
+      {
+       "icon": "🧰",
+       "title": "Administrateur système",
+       "text": "Il vérifie sur chaque poste et serveur l'historique d'installation de l'outil, remplace le binaire par la v0.16.0 et fait tourner les clés d'API depuis une autre machine."
+      },
+      {
+       "icon": "🔁",
+       "title": "Équipe d'intégration continue",
+       "text": "Elle épingle désormais l'empreinte de chaque outil téléchargé et utilise `gh release verify-asset` pour contrôler l'attestation avant exécution."
+      },
+      {
+       "icon": "📚",
+       "title": "Mainteneur de projet libre",
+       "text": "Il active l'immuabilité des publications, limite les droits d'écriture et ouvre un canal privé de signalement des vulnérabilités."
+      }
+     ]
+    },
+    {
+     "type": "timeline",
+     "title": "D'où l'on vient, où l'on va",
+     "items": [
+      {
+       "label": "14 avril – 16 septembre 2026",
+       "text": "Publication des versions v0.11.0 à v0.15.0, plus tard détournées."
+      },
+      {
+       "label": "19 octobre 2026",
+       "text": "Remplacement des archives, détection par un client, suppression des fichiers et publication de la v0.16.0."
+      },
+      {
+       "label": "Dans les jours qui viennent",
+       "text": "OVHcloud a promis un rapport détaillé ; le contenu exact du programme malveillant n'a pas été analysé publiquement."
+      }
+     ]
+    },
+    {
+     "type": "opinion",
+     "title": "Notre avis",
+     "paragraphs": [
+      "L'enseignement n'est pas technique mais organisationnel : une publication GitHub modifiable après coup, un script d'installation qui ne vérifie rien et un dépôt sans canal privé forment un terrain idéal. Le plus encourageant est que la détection est venue d'un client prudent, qui épinglait une empreinte. Les inconnues restent nombreuses : les fichiers lus, la destination des données, le nombre de téléchargements.",
+      "À un horizon de un à trois ans, l'immuabilité des publications et les attestations signées devraient devenir la norme pour les outils d'infrastructure. Les équipes qui n'exigent pas de vérification d'intégrité avant d'exécuter un binaire téléchargé seront de plus en plus difficiles à défendre."
+     ],
+     "verdict": "Une substitution d'archives a suffi : sans contrôle d'empreinte, la confiance repose uniquement sur un compte."
+    },
+    {
+     "type": "callout",
+     "variant": "info",
+     "title": "À retenir",
+     "text": "Si vous avez installé ou mis à jour l'outil le 19 octobre entre 12 h 47 et 14 h 21 (UTC), considérez les secrets de la machine comme exposés : faites-les tourner depuis un autre poste, puis installez la v0.16.0."
+    }
+   ],
+   "publishedAt": "2026-10-20T11:17:55+02:00"
+  },
+  {
+   "id": "siemens-software-center-faille-dll-clickfix-romulus",
+   "category": "cybersecurite",
+   "icon": "🪟",
+   "importance": 4,
+   "sourceDate": "2026-10-20",
+   "title": "Siemens Software Center : une faille de chargement de DLL exploitée par des attaques ClickFix liées à la plateforme ROMULUS",
+   "summary": "Siemens corrige CVE-2026-110936, exploitée pour installer un cheval de Troie d'accès à distance. Les assaillants détournent un exécutable légitime et signé, livré par la plateforme ClickFix ROMULUS décrite par Forescout.",
+   "tags": [
+    "ClickFix",
+    "DLL sideloading",
+    "Siemens",
+    "Forescout",
+    "Huntress"
+   ],
+   "readingMinutes": 5,
+   "sources": [
+    {
+     "title": "ClickFix Attackers Exploit Siemens Software Center Flaw to Deploy Remote Access Trojan",
+     "url": "https://thehackernews.com/2026/10/clickfix-attackers-exploit-siemens.html",
+     "publisher": "The Hacker News"
+    },
+    {
+     "title": "Hackers Use New ROMULUS ClickFix Platform to Deliver LegionLoader and Other Malware",
+     "url": "https://thehackernews.com/2026/10/romulus-clickfix-platform-tricks-users.html",
+     "publisher": "The Hacker News"
+    }
+   ],
+   "cover": {
+    "url": "https://blogger.googleusercontent.com/img/b/R29vZ2xl/AVvXsEjUJqb8f_ibR_O_dPoJqAVHZOVmgi23TsxhFzv19_3uzAbEqH6L6QMJUWdelmEKmDe6U9wj6KKyDpPKi_1a93IK1KJa-Ql0kFRtfqVe9sKQpVFj0dA65dCfRKCN7H0LQYgMdzqdJoLgSb6rRFBA4bfmf4oUqItqe6pVCsyxmEzCnHx02h_m1WsK6sJu7jy2/s1600/siemens.jpg",
+    "alt": "Illustration de l'article sur la faille de Siemens Software Center",
+    "credit": "thehackernews.com"
+   },
+   "illustration": {
+    "svg": "<svg xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"0 0 640 360\"><defs><linearGradient id=\"g\" x1=\"0\" y1=\"0\" x2=\"1\" y2=\"1\"><stop offset=\"0\" stop-color=\"hsl(175,65%,36%)\"/><stop offset=\"1\" stop-color=\"hsl(215,70%,52%)\"/></linearGradient></defs><rect width=\"640\" height=\"360\" fill=\"url(#g)\"/><circle cx=\"570\" cy=\"50\" r=\"90\" fill=\"#fff\" opacity=\".08\"/><circle cx=\"70\" cy=\"320\" r=\"120\" fill=\"#fff\" opacity=\".07\"/><path d=\"M220 70h150l50 50v170H220z\" fill=\"#fff\" opacity=\".92\"/><rect x=\"250\" y=\"150\" width=\"140\" height=\"10\" rx=\"5\" fill=\"hsl(175,55%,40%)\" opacity=\".5\"/><rect x=\"250\" y=\"180\" width=\"140\" height=\"10\" rx=\"5\" fill=\"hsl(175,55%,40%)\" opacity=\".5\"/><rect x=\"250\" y=\"210\" width=\"90\" height=\"10\" rx=\"5\" fill=\"hsl(175,55%,40%)\" opacity=\".5\"/></svg>"
+   },
+   "blocks": [
+    {
+     "type": "paragraph",
+     "text": "Siemens a corrigé une faille de gravité élevée dans Siemens Software Center, son outil de gestion des logiciels sur Windows, et prévenu le 19 octobre 2026 qu'elle est exploitée dans la nature. Référencée CVE-2026-110936 (score CVSS v4 de 8,4), elle relève du chargement de bibliothèques dynamiques (DLL) depuis un chemin non maîtrisé. Les attaquants l'utilisent dans des campagnes ClickFix, où la victime est amenée à lancer elle-même une commande piégée. L'intérêt pour eux : un exécutable légitime, signé par l'éditeur, sert de véhicule à leur code."
+    },
+    {
+     "type": "heading",
+     "level": 2,
+     "text": "Une faille de chargement de bibliothèque"
+    },
+    {
+     "type": "paragraph",
+     "text": "Selon Siemens, l'application charge des fichiers auxiliaires depuis son propre dossier sans les vérifier. Il suffit donc de déposer à côté d'une copie authentique une bibliothèque nommée `archive.dll` pour que son code s'exécute avec les droits de l'application. C'est la technique dite de *DLL sideloading*. La faille a été signalée par Jose Oregon, de Huntress Labs. Elle est corrigée dans la version 4.0.9.8 ; la 3.5.8.7 était la plus récente quand les attaques ont été observées. Siemens recommande de lancer l'application après la mise à jour pour que le correctif s'applique."
+    },
+    {
+     "type": "keyvalue",
+     "items": [
+      {
+       "label": "Identifiant",
+       "value": "CVE-2026-110936, gravité élevée (CVSS v4 : 8,4)"
+      },
+      {
+       "label": "Produit",
+       "value": "Siemens Software Center (Windows)"
+      },
+      {
+       "label": "Version corrigée",
+       "value": "4.0.9.8 ou ultérieure"
+      },
+      {
+       "label": "Signalement",
+       "value": "Jose Oregon, Huntress Labs"
+      },
+      {
+       "label": "Avis de Siemens",
+       "value": "19 octobre 2026 (exploitation active)"
+      }
+     ]
+    },
+    {
+     "type": "heading",
+     "level": 2,
+     "text": "La chaîne d'infection observée"
+    },
+    {
+     "type": "paragraph",
+     "text": "La séquence relevée commence par `msiexec.exe`, qui installe un paquet nommé `AllMyBasic.msi`, lequel lance `SiemensSoftwareCenter.exe` depuis le dossier utilisateur. Selon Huntress, certaines campagnes ont employé de faux assistants *Custom GPTs* de ChatGPT pour orienter les victimes vers une page ClickFix : l'internaute copie un code PowerShell, le colle dans une fenêtre d'exécution, puis l'installeur dépose la bibliothèque piégée et déploie in fine un cheval de Troie d'accès à distance. La source ne précise pas le nom de ce dernier."
+    },
+    {
+     "type": "heading",
+     "level": 2,
+     "text": "ROMULUS, la plateforme de livraison"
+    },
+    {
+     "type": "paragraph",
+     "text": "Ces attaques sont rattachées à ROMULUS, une plateforme de diffusion ClickFix décrite la semaine précédente par Sai Molige, chercheur chez Forescout. Elle sert de fausses pages d'accueil, puis un script PowerShell choisit la charge suivante : un installeur MSI piégé ou une archive chiffrée contenant Legion Loader (alias Satacom, CurlyGate ou RobotDropper). Cette archive est gonflée à près de 1 Go de données répétitives, de quoi dépasser les limites de téléversement et de budget des bacs à sable d'analyse. Forescout a identifié six adresses IP ; l'identité des exploitants reste inconnue (service commercial, panneau privé, cadre d'affiliation ou copie logicielle). Aucun lien n'est établi avec RomulusLoader, associé au groupe Silver Fox."
+    },
+    {
+     "type": "diagram",
+     "svg": "<svg xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"0 0 640 290\" font-family=\"system-ui,sans-serif\"><rect width=\"640\" height=\"290\" rx=\"16\" fill=\"#f4f5fb\"/><text x=\"320\" y=\"44\" text-anchor=\"middle\" font-size=\"17\" font-weight=\"700\" fill=\"#1a1a2e\">Chaîne d'attaque ClickFix avec DLL sideloading</text><rect x=\"20\" y=\"86\" width=\"129\" height=\"130\" rx=\"12\" fill=\"hsl(265,60%,92%)\" stroke=\"hsl(265,50%,40%)\" stroke-width=\"2\"/><text x=\"84\" y=\"118\" text-anchor=\"middle\" font-size=\"14\" font-weight=\"700\" fill=\"#1a1a2e\">Leurre</text><text x=\"84\" y=\"144\" text-anchor=\"middle\" font-size=\"12\" fill=\"#2b2b44\">Page factice ou</text><text x=\"84\" y=\"162\" text-anchor=\"middle\" font-size=\"12\" fill=\"#2b2b44\">faux assistant</text><path d=\"M153 151h20m-7-7l7 7-7 7\" stroke=\"hsl(265,50%,35%)\" stroke-width=\"3\" fill=\"none\"/><rect x=\"177\" y=\"86\" width=\"129\" height=\"130\" rx=\"12\" fill=\"hsl(265,60%,92%)\" stroke=\"hsl(265,50%,40%)\" stroke-width=\"2\"/><text x=\"242\" y=\"118\" text-anchor=\"middle\" font-size=\"14\" font-weight=\"700\" fill=\"#1a1a2e\">Commande</text><text x=\"242\" y=\"144\" text-anchor=\"middle\" font-size=\"12\" fill=\"#2b2b44\">La victime colle</text><text x=\"242\" y=\"162\" text-anchor=\"middle\" font-size=\"12\" fill=\"#2b2b44\">du PowerShell</text><path d=\"M310 151h20m-7-7l7 7-7 7\" stroke=\"hsl(265,50%,35%)\" stroke-width=\"3\" fill=\"none\"/><rect x=\"334\" y=\"86\" width=\"129\" height=\"130\" rx=\"12\" fill=\"hsl(265,60%,92%)\" stroke=\"hsl(265,50%,40%)\" stroke-width=\"2\"/><text x=\"398\" y=\"118\" text-anchor=\"middle\" font-size=\"14\" font-weight=\"700\" fill=\"#1a1a2e\">MSI piégé</text><text x=\"398\" y=\"144\" text-anchor=\"middle\" font-size=\"12\" fill=\"#2b2b44\">Installe l'outil</text><text x=\"398\" y=\"162\" text-anchor=\"middle\" font-size=\"12\" fill=\"#2b2b44\">Siemens légitime</text><path d=\"M467 151h20m-7-7l7 7-7 7\" stroke=\"hsl(265,50%,35%)\" stroke-width=\"3\" fill=\"none\"/><rect x=\"491\" y=\"86\" width=\"129\" height=\"130\" rx=\"12\" fill=\"hsl(265,60%,92%)\" stroke=\"hsl(265,50%,40%)\" stroke-width=\"2\"/><text x=\"556\" y=\"118\" text-anchor=\"middle\" font-size=\"14\" font-weight=\"700\" fill=\"#1a1a2e\">archive.dll</text><text x=\"556\" y=\"144\" text-anchor=\"middle\" font-size=\"12\" fill=\"#2b2b44\">Chargée sans</text><text x=\"556\" y=\"162\" text-anchor=\"middle\" font-size=\"12\" fill=\"#2b2b44\">contrôle : RAT</text><text x=\"320\" y=\"262\" text-anchor=\"middle\" font-size=\"12\" fill=\"#2b2b44\">Indicateurs : exécution depuis AppData\\Local\\Programs, lancée par msiexec.exe.</text></svg>",
+     "alt": "Schéma en quatre étapes d'une attaque ClickFix : leurre, commande collée, installeur MSI, bibliothèque chargée.",
+     "caption": "Le logiciel est authentique et signé ; seul le fichier déposé à côté change tout."
+    },
+    {
+     "type": "heading",
+     "level": 2,
+     "text": "Mesures recommandées"
+    },
+    {
+     "type": "list",
+     "ordered": false,
+     "items": [
+      "mettre à jour Siemens Software Center vers la version 4.0.9.8 ou ultérieure, puis le démarrer ;",
+      "bloquer les adresses 96.62.218[.]59 et 2.27.248[.]127 ainsi que le domaine wizardexpensive[.]com, indiqués par Siemens ;",
+      "rechercher `SiemensSoftwareCenter.exe` exécuté depuis `AppData\\Local\\Programs` et lancé par `msiexec.exe` ;",
+      "surveiller les commandes PowerShell suspectes et les événements de chargement de DLL, comme le conseille Forescout."
+     ]
+    },
+    {
+     "type": "usecases",
+     "title": "Exemples d'utilisation",
+     "items": [
+      {
+       "icon": "🏭",
+       "title": "Équipe informatique industrielle",
+       "text": "Elle recense les postes disposant de l'outil, déploie la version corrigée par sa solution de gestion de parc et bloque les indicateurs réseau publiés."
+      },
+      {
+       "icon": "🔎",
+       "title": "Analyste d'un centre opérationnel de sécurité",
+       "text": "Il écrit une règle de détection sur la filiation msiexec vers SiemensSoftwareCenter.exe et sur l'emplacement d'exécution inhabituel."
+      },
+      {
+       "icon": "🎓",
+       "title": "Responsable de la sensibilisation",
+       "text": "Il explique aux utilisateurs qu'aucun service légitime ne demande de copier-coller une commande dans la fenêtre Exécuter."
+      }
+     ]
+    },
+    {
+     "type": "timeline",
+     "title": "D'où l'on vient, où l'on va",
+     "items": [
+      {
+       "label": "Semaine du 12 octobre 2026",
+       "text": "Forescout décrit la plateforme ROMULUS."
+      },
+      {
+       "label": "19 octobre 2026",
+       "text": "Siemens signale l'exploitation active et publie la version 4.0.9.8."
+      },
+      {
+       "label": "À suivre",
+       "text": "Le nom du cheval de Troie final et l'ampleur des infections n'ont pas été précisés par les sources."
+      }
+     ]
+    },
+    {
+     "type": "opinion",
+     "title": "Notre avis",
+     "paragraphs": [
+      "Cette affaire combine deux tendances : l'ingénierie sociale ClickFix, qui contourne la plupart des protections techniques en faisant agir l'utilisateur, et l'abus de logiciels signés, qui désarme la confiance fondée sur la signature. Le correctif est simple ; le véritable risque tient aux postes où l'outil traîne sans mise à jour.",
+      "À court terme, les éditeurs devront durcir la résolution des bibliothèques (chemins absolus, vérification de signature), et les défenseurs pister les comportements plutôt que les fichiers. Cette évolution est une analyse, pas un fait établi."
+     ],
+     "verdict": "Une signature valide ne garantit plus un comportement sain : il faut surveiller ce que le programme charge et qui l'a lancé."
+    }
+   ],
+   "publishedAt": "2026-10-20T11:17:55+02:00"
+  },
+  {
+   "id": "frigos-supermarches-france-dashboards-exposes-danfoss",
+   "category": "cybersecurite",
+   "icon": "🧊",
+   "importance": 4,
+   "sourceDate": "2026-10-20",
+   "title": "Frigos de supermarchés : plus de la moitié des tableaux de bord Danfoss exposés sur Internet se trouvaient en France",
+   "summary": "Après le dégivrage forcé de systèmes de réfrigération dans plusieurs centaines de magasins français, une analyse d'IPinfo chiffre l'exposition en ligne : 1 331 tableaux de bord en France, dont 85 % avec des failles connues.",
+   "tags": [
+    "OT",
+    "Danfoss",
+    "Dixell",
+    "CERT-FR",
+    "supermarchés"
+   ],
+   "readingMinutes": 6,
+   "sources": [
+    {
+     "title": "France's supermarket fridges were vulnerable online for months",
+     "url": "https://ipinfo.io/blog/france-fridges-hack",
+     "publisher": "IPinfo"
+    }
+   ],
+   "cover": {
+    "url": "https://website-cdn.assets.ipinfo.io/images/og/og_blog.png",
+    "alt": "Visuel du blog d'IPinfo",
+    "credit": "ipinfo.io"
+   },
+   "illustration": {
+    "svg": "<svg xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"0 0 640 360\"><defs><linearGradient id=\"g\" x1=\"0\" y1=\"0\" x2=\"1\" y2=\"1\"><stop offset=\"0\" stop-color=\"hsl(175,65%,36%)\"/><stop offset=\"1\" stop-color=\"hsl(215,70%,52%)\"/></linearGradient></defs><rect width=\"640\" height=\"360\" fill=\"url(#g)\"/><circle cx=\"570\" cy=\"50\" r=\"90\" fill=\"#fff\" opacity=\".08\"/><circle cx=\"70\" cy=\"320\" r=\"120\" fill=\"#fff\" opacity=\".07\"/><rect x=\"250\" y=\"70\" width=\"140\" height=\"230\" rx=\"16\" fill=\"#fff\" opacity=\".9\"/><rect x=\"262\" y=\"82\" width=\"116\" height=\"90\" rx=\"8\" fill=\"hsl(175,55%,45%)\" opacity=\".5\"/><rect x=\"262\" y=\"184\" width=\"116\" height=\"104\" rx=\"8\" fill=\"hsl(175,55%,45%)\" opacity=\".35\"/><rect x=\"360\" y=\"110\" width=\"8\" height=\"40\" rx=\"4\" fill=\"#fff\"/><path d=\"M470 120l30 40-30 40M170 120l-30 40 30 40\" stroke=\"#fff\" stroke-width=\"10\" fill=\"none\" stroke-linecap=\"round\" opacity=\".8\"/></svg>"
+   },
+   "blocks": [
+    {
+     "type": "paragraph",
+     "text": "Dans la nuit du 11 au 12 octobre 2026, des systèmes de réfrigération de centaines de supermarchés français ont été poussés en mode dégivrage. Certaines installations ont atteint 50 °C, du matériel a pris feu selon le parquet de Paris, et des magasins ont jeté des denrées fraîches et surgelées. Une analyse publiée par IPinfo, qui avait scanné Internet cinq jours avant les faits, montre à quel point ces équipements étaient accessibles. Les chiffres ci-dessous sont des minima : ils portent sur l'IPv4 et sur les ports scannés, et une adresse ne correspond pas forcément à un magasin."
+    },
+    {
+     "type": "heading",
+     "level": 2,
+     "text": "Les enseignes et le matériel touchés"
+    },
+    {
+     "type": "paragraph",
+     "text": "Le fabricant danois Danfoss a été cité en premier, puis la marque italienne Dixell, du groupe Copeland. Danfoss qualifie la plupart des équipements concernés d'anciens (modèles AK-SM 800 et AK-SC 355), le modèle actuel étant l'AK-SM 800A. Côté enseignes, l'analyse rapporte environ 80 magasins Carrefour, plus de 300 Intermarché et Netto, 80 magasins Coopérative U sur 2 000, environ 5 % des Monoprix et une attaque confirmée chez Leclerc. Futura-Sciences évoque plus de 400 magasins ; les pertes pourraient atteindre plusieurs millions d'euros."
+    },
+    {
+     "type": "table",
+     "headers": [
+      "Constat (scan des 6 et 7 octobre)",
+      "Chiffre"
+     ],
+     "rows": [
+      [
+       "Tableaux de bord Danfoss StoreView ouverts dans le monde",
+       "2 528"
+      ],
+      [
+       "Dont en France",
+       "1 331 (53 %)"
+      ],
+      [
+       "Dont avec des failles connues en France",
+       "1 136 (85 %)"
+      ],
+      [
+       "Contrôleurs non pris en charge, en France",
+       "527"
+      ],
+      [
+       "Entièrement à jour, en France",
+       "195"
+      ],
+      [
+       "Tableaux de bord Dixell XWEB dans le monde",
+       "1 611 (dont 70 en France)"
+      ]
+     ]
+    },
+    {
+     "type": "heading",
+     "level": 2,
+     "text": "Des failles connues depuis des années"
+    },
+    {
+     "type": "paragraph",
+     "text": "Danfoss avait déclaré fin de vie les anciens contrôleurs en 2023, année où un contournement d'authentification a été publié par Synacktiv, et où trois correctifs ont été diffusés (dont un pour la faille critique CVE-2023-25915). D'autres failles, signalées par Claroty en 2025, ont donné lieu à un avis de la CISA (ICSA-25-140-03). Chez Dixell, des correctifs datent de février 2026 (ICSA-26-057-10), mais seules 180 des 752 unités XWEB PRO les avaient reçus, et 859 modèles plus anciens n'avaient plus reçu de mise à jour depuis 2018. Le niveau de mise à jour avait peu progressé : 1 019 tableaux de bord français étaient déjà à la même adresse le 30 mars 2026, et la part des appareils à jour n'est passée que de 14 % à 24 %."
+    },
+    {
+     "type": "diagram",
+     "svg": "<svg xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"0 0 640 290\" font-family=\"system-ui,sans-serif\"><rect width=\"640\" height=\"290\" rx=\"16\" fill=\"#f4f5fb\"/><text x=\"320\" y=\"44\" text-anchor=\"middle\" font-size=\"17\" font-weight=\"700\" fill=\"#1a1a2e\">Exposition des tableaux de bord Danfoss en France</text><rect x=\"20\" y=\"86\" width=\"181\" height=\"130\" rx=\"12\" fill=\"hsl(210,60%,92%)\" stroke=\"hsl(210,50%,40%)\" stroke-width=\"2\"/><text x=\"111\" y=\"118\" text-anchor=\"middle\" font-size=\"14\" font-weight=\"700\" fill=\"#1a1a2e\">6-7 octobre</text><text x=\"111\" y=\"144\" text-anchor=\"middle\" font-size=\"12\" fill=\"#2b2b44\">1 331 tableaux</text><text x=\"111\" y=\"162\" text-anchor=\"middle\" font-size=\"12\" fill=\"#2b2b44\">de bord ouverts</text><path d=\"M205 151h20m-7-7l7 7-7 7\" stroke=\"hsl(210,50%,35%)\" stroke-width=\"3\" fill=\"none\"/><rect x=\"229\" y=\"86\" width=\"181\" height=\"130\" rx=\"12\" fill=\"hsl(210,60%,92%)\" stroke=\"hsl(210,50%,40%)\" stroke-width=\"2\"/><text x=\"320\" y=\"118\" text-anchor=\"middle\" font-size=\"14\" font-weight=\"700\" fill=\"#1a1a2e\">11-12 octobre</text><text x=\"320\" y=\"144\" text-anchor=\"middle\" font-size=\"12\" fill=\"#2b2b44\">Dégivrage forcé</text><text x=\"320\" y=\"162\" text-anchor=\"middle\" font-size=\"12\" fill=\"#2b2b44\">dans les magasins</text><path d=\"M415 151h20m-7-7l7 7-7 7\" stroke=\"hsl(210,50%,35%)\" stroke-width=\"3\" fill=\"none\"/><rect x=\"439\" y=\"86\" width=\"181\" height=\"130\" rx=\"12\" fill=\"hsl(210,60%,92%)\" stroke=\"hsl(210,50%,40%)\" stroke-width=\"2\"/><text x=\"529\" y=\"118\" text-anchor=\"middle\" font-size=\"14\" font-weight=\"700\" fill=\"#1a1a2e\">14 octobre</text><text x=\"529\" y=\"144\" text-anchor=\"middle\" font-size=\"12\" fill=\"#2b2b44\">316 encore</text><text x=\"529\" y=\"162\" text-anchor=\"middle\" font-size=\"12\" fill=\"#2b2b44\">en ligne (-76 %)</text><text x=\"320\" y=\"262\" text-anchor=\"middle\" font-size=\"12\" fill=\"#2b2b44\">Source : scans IPinfo ; la baisse suggère des débranchements plutôt que des mises à jour.</text></svg>",
+     "alt": "Schéma en trois dates : 1 331 tableaux de bord ouverts, attaque, puis 316 encore en ligne.",
+     "caption": "Après l'attaque, la baisse d'exposition vient surtout de déconnexions."
+    },
+    {
+     "type": "heading",
+     "level": 2,
+     "text": "Réaction des autorités et zones d'ombre"
+    },
+    {
+     "type": "paragraph",
+     "text": "Le CERT-FR a publié l'alerte CERTFR-2026-ALE-012, faisant état de « nombreuses compromissions » de contrôleurs AK-SM et AK-SC, et demandant de les déconnecter ou d'en restreindre l'accès. Le 13 octobre, l'alerte a été étendue aux appareils Copeland et Dixell XWEB. Le parquet de Paris a ouvert une enquête. Personne n'a revendiqué l'attaque et la voie d'accès n'est pas établie : on ignore quelles failles ont servi. Le fait qu'un tableau de bord soit joignable ne signifie pas qu'un attaquant puisse y entrer, rappelle IPinfo, mais des contrôleurs non pris en charge restés en ligne seront probablement compromis de nouveau."
+    },
+    {
+     "type": "heading",
+     "level": 2,
+     "text": "Les mesures conseillées"
+    },
+    {
+     "type": "list",
+     "ordered": false,
+     "items": [
+      "retirer les contrôleurs d'Internet ; si un prestataire a besoin d'un accès, passer par un VPN sécurisé (la liste d'adresses autorisées n'est qu'une mesure provisoire) ;",
+      "ne pas se contenter d'une réinitialisation d'usine ;",
+      "pour Danfoss, selon le CERT-FR : mettre à jour le micrologiciel, régler le niveau de sécurité sur « Strict » et changer les mots de passe par défaut."
+     ]
+    },
+    {
+     "type": "usecases",
+     "title": "Exemples d'utilisation",
+     "items": [
+      {
+       "icon": "🛒",
+       "title": "Responsable technique d'une enseigne",
+       "text": "Il demande à ses frigoristes la liste des contrôleurs joignables depuis Internet et exige leur retrait ou leur passage derrière un VPN."
+      },
+      {
+       "icon": "🔧",
+       "title": "Frigoriste prestataire",
+       "text": "Il change les contrôleurs en fin de vie et substitue à l'accès distant ouvert une connexion chiffrée avec authentification forte."
+      },
+      {
+       "icon": "🧾",
+       "title": "Directeur de magasin indépendant",
+       "text": "Il vérifie auprès de son assureur la couverture des pertes de marchandises et la procédure de déclaration d'incident."
+      }
+     ]
+    },
+    {
+     "type": "timeline",
+     "title": "D'où l'on vient, où l'on va",
+     "items": [
+      {
+       "label": "2023",
+       "text": "Fin de vie des anciens contrôleurs Danfoss, contournement d'authentification publié, premiers correctifs."
+      },
+      {
+       "label": "Février 2026",
+       "text": "Correctifs Dixell XWEB."
+      },
+      {
+       "label": "11-12 octobre 2026",
+       "text": "Dégivrage forcé dans des centaines de magasins ; alerte du CERT-FR ensuite étendue le 13 octobre."
+      },
+      {
+       "label": "À suivre",
+       "text": "Résultats de l'enquête du parquet de Paris, non connus à ce jour."
+      }
+     ]
+    },
+    {
+     "type": "opinion",
+     "title": "Notre avis",
+     "paragraphs": [
+      "L'épisode rappelle que la réfrigération commerciale est devenue une infrastructure informatique à part entière, mais gérée avec des habitudes de maintenance : accès distant ouvert pour le confort du prestataire, matériel non remplacé faute de budget. La responsabilité est diffuse entre fabricant, installateur et enseigne, ce qui retarde les décisions.",
+      "À un horizon de un à trois ans, on peut s'attendre à des exigences contractuelles et assurantielles plus strictes sur l'accès distant des équipements industriels. C'est une projection de notre part, non un fait."
+     ],
+     "verdict": "Le vrai défaut n'est pas l'attaque mais la visibilité : des équipements critiques joignables depuis Internet pendant des mois."
+    }
+   ],
+   "publishedAt": "2026-10-20T11:17:55+02:00"
+  },
+  {
+   "id": "go-rejette-chaines-certificats-emudhra-cve-2026-111943",
+   "category": "dev",
+   "icon": "🐹",
+   "importance": 4,
+   "sourceDate": "2026-10-20",
+   "title": "Go 1.27.3 et 1.26.10 : la bibliothèque standard rejette les chaînes de certificats issues de huit intermédiaires eMudhra",
+   "summary": "Le projet Go ajoute une liste de défiance dans crypto/x509 pour écarter huit certificats intermédiaires de l'autorité eMudhra, révoqués pour compromission, et recommande une mise à jour immédiate.",
+   "tags": [
+    "Go",
+    "crypto/x509",
+    "TLS",
+    "eMudhra",
+    "CVE-2026-111943"
+   ],
+   "readingMinutes": 5,
+   "sources": [
+    {
+     "title": "crypto/x509: mitigation for security concerns with a specific Certificate Authority (issue 82345)",
+     "url": "https://github.com/golang/go/issues/82345",
+     "publisher": "GitHub (golang/go)"
+    }
+   ],
+   "illustration": {
+    "svg": "<svg xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"0 0 640 360\"><defs><linearGradient id=\"g\" x1=\"0\" y1=\"0\" x2=\"1\" y2=\"1\"><stop offset=\"0\" stop-color=\"hsl(265,65%,36%)\"/><stop offset=\"1\" stop-color=\"hsl(305,70%,52%)\"/></linearGradient></defs><rect width=\"640\" height=\"360\" fill=\"url(#g)\"/><circle cx=\"570\" cy=\"50\" r=\"90\" fill=\"#fff\" opacity=\".08\"/><circle cx=\"70\" cy=\"320\" r=\"120\" fill=\"#fff\" opacity=\".07\"/><rect x=\"190\" y=\"95\" width=\"260\" height=\"170\" rx=\"14\" fill=\"#fff\" opacity=\".92\"/><rect x=\"220\" y=\"130\" width=\"140\" height=\"12\" rx=\"6\" fill=\"hsl(265,55%,40%)\" opacity=\".6\"/><rect x=\"220\" y=\"160\" width=\"190\" height=\"10\" rx=\"5\" fill=\"hsl(265,55%,40%)\" opacity=\".4\"/><circle cx=\"400\" cy=\"235\" r=\"34\" fill=\"hsl(265,60%,40%)\"/><path d=\"M384 235l12 12 22-26\" stroke=\"#fff\" stroke-width=\"7\" fill=\"none\"/></svg>"
+   },
+   "blocks": [
+    {
+     "type": "paragraph",
+     "text": "Le 19 octobre 2026, l'équipe du langage Go a ouvert un ticket de sécurité (n° 82345, identifié CVE-2026-111943) pour neutraliser des certificats intermédiaires d'une autorité de certification précise. Le lendemain, les correctifs étaient intégrés à la branche principale et aux deux branches de versions : Go 1.27.3 et Go 1.26.10. Le ticket recommande « fortement » de passer immédiatement à ces versions. L'affaire se traite en procédure d'urgence, ce qui est rare pour une modification de la liste de confiance de la bibliothèque standard."
+    },
+    {
+     "type": "heading",
+     "level": 2,
+     "text": "Ce que change le correctif"
+    },
+    {
+     "type": "paragraph",
+     "text": "La fonction `Verify` du paquet `crypto/x509` filtre désormais les chaînes de certificats contenant huit intermédiaires précis, de sorte qu'elles ne sont plus renvoyées à l'appelant. Il ne s'agit donc pas d'une correction générale de l'algorithme de validation, mais d'une liste de défiance. Les certificats appartiennent à eMudhra (eMudhra BV et eMudhra Inc.) et dépendent des racines emSign Root TLS CA - G3 et emSign Root CS CA - G3. Le ticket invoque seulement des « préoccupations de sécurité précises » sur leur fonctionnement, sans plus de détail."
+    },
+    {
+     "type": "table",
+     "headers": [
+      "Intermédiaire (nom courant)",
+      "Usage"
+     ],
+     "rows": [
+      [
+       "EM DV TLS CA - G3B et G3C",
+       "TLS à validation de domaine"
+      ],
+      [
+       "EM EV TLS CA - G3B et G3C",
+       "TLS à validation étendue"
+      ],
+      [
+       "EM OV TLS CA - G3B et G3C",
+       "TLS à validation d'organisation"
+      ],
+      [
+       "EM OV CS CA - G3B et G3C",
+       "Signature de code, validation d'organisation"
+      ]
+     ]
+    },
+    {
+     "type": "paragraph",
+     "text": "Un commentateur indique, d'après la base CCADB, que ces certificats ont été révoqués pour cause de compromission de l'autorité (`cACompromise`) les 18 et 19 octobre. Cette précision vient d'un participant à la discussion et n'a pas été confirmée par les mainteneurs sur la page. Les empreintes SHA-256 des huit certificats ont été listées dans le ticket ; la page ne précise pas s'il s'agit d'empreintes de certificats ou de clés publiques."
+    },
+    {
+     "type": "heading",
+     "level": 2,
+     "text": "Versions, calendrier et débat"
+    },
+    {
+     "type": "keyvalue",
+     "items": [
+      {
+       "label": "Versions corrigées",
+       "value": "Go 1.27.3 et Go 1.26.10"
+      },
+      {
+       "label": "Ouverture du ticket",
+       "value": "19 octobre 2026"
+      },
+      {
+       "label": "Fermeture (terminé)",
+       "value": "20 octobre 2026"
+      },
+      {
+       "label": "Jalon",
+       "value": "Go 1.28, étiquettes Security et release-blocker"
+      }
+     ]
+    },
+    {
+     "type": "paragraph",
+     "text": "Plusieurs projets en aval ont annoncé avoir recompilé avec la chaîne d'outils corrigée, dont grpc-health-probe. Deux questions ont été posées dans la discussion : le correctif devrait préciser à quelles autorités correspondent les empreintes, et l'on ignore pourquoi seule eMudhra est visée alors que d'autres révocations pour compromission ont eu lieu (Sectigo, l'État néerlandais) ni pourquoi la mesure relève de la bibliothèque standard plutôt que des magasins de confiance. Aucune réponse de mainteneur n'apparaît sur la page, et l'extension éventuelle du dispositif n'est pas précisée."
+    },
+    {
+     "type": "diagram",
+     "svg": "<svg xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"0 0 640 290\" font-family=\"system-ui,sans-serif\"><rect width=\"640\" height=\"290\" rx=\"16\" fill=\"#f4f5fb\"/><text x=\"320\" y=\"44\" text-anchor=\"middle\" font-size=\"17\" font-weight=\"700\" fill=\"#1a1a2e\">Effet du correctif sur la validation d'une chaîne</text><rect x=\"20\" y=\"86\" width=\"129\" height=\"130\" rx=\"12\" fill=\"hsl(220,60%,92%)\" stroke=\"hsl(220,50%,40%)\" stroke-width=\"2\"/><text x=\"84\" y=\"118\" text-anchor=\"middle\" font-size=\"14\" font-weight=\"700\" fill=\"#1a1a2e\">Certificat feuille</text><text x=\"84\" y=\"144\" text-anchor=\"middle\" font-size=\"12\" fill=\"#2b2b44\">Serveur ou</text><text x=\"84\" y=\"162\" text-anchor=\"middle\" font-size=\"12\" fill=\"#2b2b44\">signature de code</text><path d=\"M153 151h20m-7-7l7 7-7 7\" stroke=\"hsl(220,50%,35%)\" stroke-width=\"3\" fill=\"none\"/><rect x=\"177\" y=\"86\" width=\"129\" height=\"130\" rx=\"12\" fill=\"hsl(220,60%,92%)\" stroke=\"hsl(220,50%,40%)\" stroke-width=\"2\"/><text x=\"242\" y=\"118\" text-anchor=\"middle\" font-size=\"14\" font-weight=\"700\" fill=\"#1a1a2e\">Intermédiaire</text><text x=\"242\" y=\"144\" text-anchor=\"middle\" font-size=\"12\" fill=\"#2b2b44\">Un des huit</text><text x=\"242\" y=\"162\" text-anchor=\"middle\" font-size=\"12\" fill=\"#2b2b44\">eMudhra listés</text><path d=\"M310 151h20m-7-7l7 7-7 7\" stroke=\"hsl(220,50%,35%)\" stroke-width=\"3\" fill=\"none\"/><rect x=\"334\" y=\"86\" width=\"129\" height=\"130\" rx=\"12\" fill=\"hsl(220,60%,92%)\" stroke=\"hsl(220,50%,40%)\" stroke-width=\"2\"/><text x=\"398\" y=\"118\" text-anchor=\"middle\" font-size=\"14\" font-weight=\"700\" fill=\"#1a1a2e\">Verify()</text><text x=\"398\" y=\"144\" text-anchor=\"middle\" font-size=\"12\" fill=\"#2b2b44\">Chaîne filtrée,</text><text x=\"398\" y=\"162\" text-anchor=\"middle\" font-size=\"12\" fill=\"#2b2b44\">non renvoyée</text><path d=\"M467 151h20m-7-7l7 7-7 7\" stroke=\"hsl(220,50%,35%)\" stroke-width=\"3\" fill=\"none\"/><rect x=\"491\" y=\"86\" width=\"129\" height=\"130\" rx=\"12\" fill=\"hsl(220,60%,92%)\" stroke=\"hsl(220,50%,40%)\" stroke-width=\"2\"/><text x=\"556\" y=\"118\" text-anchor=\"middle\" font-size=\"14\" font-weight=\"700\" fill=\"#1a1a2e\">Résultat</text><text x=\"556\" y=\"144\" text-anchor=\"middle\" font-size=\"12\" fill=\"#2b2b44\">Connexion ou</text><text x=\"556\" y=\"162\" text-anchor=\"middle\" font-size=\"12\" fill=\"#2b2b44\">signature refusée</text><text x=\"320\" y=\"262\" text-anchor=\"middle\" font-size=\"12\" fill=\"#2b2b44\">Les autres chaînes valides restent inchangées.</text></svg>",
+     "alt": "Schéma : un certificat dont la chaîne passe par un intermédiaire eMudhra listé est écarté par Verify.",
+     "caption": "Le filtrage agit au moment de la construction des chaînes dans crypto/x509."
+    },
+    {
+     "type": "usecases",
+     "title": "Exemples d'utilisation",
+     "items": [
+      {
+       "icon": "🚀",
+       "title": "Équipe de plateforme",
+       "text": "Elle recompile ses services Go avec 1.27.3 ou 1.26.10 et redéploie les images, puis vérifie la version avec `go version -m` sur les binaires en production."
+      },
+      {
+       "icon": "🧪",
+       "title": "Mainteneur de bibliothèque",
+       "text": "Il relève la version minimale de Go dans son intégration continue et teste la connexion à des services dont la chaîne passerait par ces intermédiaires."
+      },
+      {
+       "icon": "🔍",
+       "title": "Responsable sécurité",
+       "text": "Il inventorie les certificats eMudhra présents dans l'entreprise (TLS, signature de code) et prépare leur remplacement par ceux d'une autre autorité."
+      }
+     ]
+    },
+    {
+     "type": "timeline",
+     "title": "D'où l'on vient, où l'on va",
+     "items": [
+      {
+       "label": "18-19 octobre 2026",
+       "text": "Révocation des certificats pour compromission, selon un commentateur citant la base CCADB."
+      },
+      {
+       "label": "19 octobre 2026",
+       "text": "Ouverture du ticket, demande de rétroportages."
+      },
+      {
+       "label": "20 octobre 2026",
+       "text": "Correctifs intégrés, ticket fermé ; versions 1.27.3 et 1.26.10 disponibles."
+      }
+     ]
+    },
+    {
+     "type": "opinion",
+     "title": "Notre avis",
+     "paragraphs": [
+      "La rapidité de la réaction est un bon signe, mais le cadrage est frustrant : un message de commit opaque, sans nom d'autorité ni raison publique, laisse les utilisateurs deviner. Dans un domaine où la confiance est le produit, l'explication fait partie du correctif.",
+      "On peut voir ici un précédent : les langages et navigateurs gèrent de plus en plus leurs propres listes de défiance sans attendre les systèmes. Cela renforce la sécurité à court terme mais complique le diagnostic quand deux outils ne s'accordent plus sur un certificat. C'est une analyse, pas un fait confirmé."
+     ],
+     "verdict": "Mettre à jour Go est le plus sûr ; comprendre pourquoi eMudhra seule est visée reste à clarifier."
+    }
+   ],
+   "publishedAt": "2026-10-20T11:17:55+02:00"
+  },
+  {
+   "id": "semtech-lr2021-sdr-lora-recepteur-100-mhz-2-74-ghz",
+   "category": "electronique",
+   "icon": "📻",
+   "importance": 3,
+   "sourceDate": "2026-10-20",
+   "title": "LR2021-SDR : transformer une puce LoRa Semtech en récepteur radio logiciel de 100 MHz à 2,74 GHz",
+   "summary": "Un projet libre exploite une commande non documentée de la puce Semtech LR2021 pour en extraire les échantillons I/Q bruts et décoder P25, POCSAG, FM ou BLE dans le processeur hôte, sans clé SDR externe.",
+   "tags": [
+    "SDR",
+    "LoRa",
+    "Semtech LR2021",
+    "ESP32-P4",
+    "open source"
+   ],
+   "readingMinutes": 5,
+   "sources": [
+    {
+     "title": "Semtech LR2021 LoRa chip gets the SDR treatment, supports 100 MHz to 2.74 GHz",
+     "url": "https://www.cnx-software.com/2026/10/20/semtech-lr2021-lora-chip-gets-the-sdr-treatment-supports-100-mhz-to-2-74-ghz/",
+     "publisher": "CNX Software"
+    },
+    {
+     "title": "lr2021-sdr",
+     "url": "https://github.com/SAMS0N1TE/lr2021-sdr",
+     "publisher": "GitHub"
+    }
+   ],
+   "cover": {
+    "url": "https://www.cnx-software.com/wp-content/uploads/2026/10/Semtech-LR2021-LoRa-transceiver-used-as-an-SDR-for-raw-I-Q-capture-and-signal-analysis-Image-AI-generated.jpg",
+    "alt": "Image générée illustrant la puce LoRa Semtech LR2021 utilisée comme récepteur radio logiciel",
+    "credit": "cnx-software.com"
+   },
+   "illustration": {
+    "svg": "<svg xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"0 0 640 360\"><defs><linearGradient id=\"g\" x1=\"0\" y1=\"0\" x2=\"1\" y2=\"1\"><stop offset=\"0\" stop-color=\"hsl(30,65%,36%)\"/><stop offset=\"1\" stop-color=\"hsl(70,70%,52%)\"/></linearGradient></defs><rect width=\"640\" height=\"360\" fill=\"url(#g)\"/><circle cx=\"570\" cy=\"50\" r=\"90\" fill=\"#fff\" opacity=\".08\"/><circle cx=\"70\" cy=\"320\" r=\"120\" fill=\"#fff\" opacity=\".07\"/><rect x=\"230\" y=\"110\" width=\"180\" height=\"140\" rx=\"14\" fill=\"#fff\" opacity=\".92\"/><rect x=\"262\" y=\"142\" width=\"116\" height=\"76\" rx=\"8\" fill=\"hsl(30,55%,40%)\" opacity=\".6\"/><rect x=\"250\" y=\"86\" width=\"10\" height=\"24\" fill=\"#fff\"/><rect x=\"250\" y=\"250\" width=\"10\" height=\"24\" fill=\"#fff\"/><rect x=\"286\" y=\"86\" width=\"10\" height=\"24\" fill=\"#fff\"/><rect x=\"286\" y=\"250\" width=\"10\" height=\"24\" fill=\"#fff\"/><rect x=\"322\" y=\"86\" width=\"10\" height=\"24\" fill=\"#fff\"/><rect x=\"322\" y=\"250\" width=\"10\" height=\"24\" fill=\"#fff\"/><rect x=\"358\" y=\"86\" width=\"10\" height=\"24\" fill=\"#fff\"/><rect x=\"358\" y=\"250\" width=\"10\" height=\"24\" fill=\"#fff\"/><rect x=\"394\" y=\"86\" width=\"10\" height=\"24\" fill=\"#fff\"/><rect x=\"394\" y=\"250\" width=\"10\" height=\"24\" fill=\"#fff\"/><path d=\"M130 180q40-60 80 0M110 180q60-90 120 0\" fill=\"none\" stroke=\"#fff\" stroke-width=\"8\" opacity=\".7\"/></svg>"
+   },
+   "blocks": [
+    {
+     "type": "paragraph",
+     "text": "Les puces LoRa servent d'ordinaire à échanger de petits paquets sur de longues distances. Un projet libre baptisé LR2021-SDR en fait autre chose : un récepteur radio logiciel (SDR) à couverture étendue. Son auteur, Samuel Reynolds (pseudo SAMS0N1TE), s'appuie sur une commande non documentée stockée dans la mémoire morte de la puce Semtech LR2021, qui expose le flux brut de la bande de base. Le processeur hôte se charge alors de la démodulation et du décodage, et aucune clé SDR externe n'est nécessaire. Le projet est présenté comme expérimental."
+    },
+    {
+     "type": "heading",
+     "level": 2,
+     "text": "Comment cela fonctionne"
+    },
+    {
+     "type": "paragraph",
+     "text": "Le flux est restitué sous forme d'échantillons I/Q sur 16 bits, transmis par le bus SPI. Selon la source, le projet exige une puce LR2021 avec la version 1.24 de sa mémoire morte : la variante SX1262 ne donne pas accès aux échantillons bruts. Il faut aussi une carte équipée de la puce avec une antenne adaptée, et un hôte ESP32-P4 pour le micrologiciel de capture ou pour LakeShark, un micrologiciel de scanner portable pour la carte LilyGO T-Display P4. Un ordinateur avec des outils Python sert à l'analyse hors ligne. La bibliothèque en C est publiée sous licence GPL-3.0."
+    },
+    {
+     "type": "keyvalue",
+     "items": [
+      {
+       "label": "Plage testée",
+       "value": "100 MHz à 2,74 GHz (la fiche technique annonce 150–960 MHz et 1,5–2,5 GHz)"
+      },
+      {
+       "label": "Réception confirmée",
+       "value": "100 MHz, 1,3 GHz, 2,6 GHz et 2,74 GHz sur une seule carte"
+      },
+      {
+       "label": "Captures courtes propres",
+       "value": "jusqu'à 250 000 échantillons complexes par seconde"
+      },
+      {
+       "label": "Capture continue",
+       "value": "125 000 échantillons/s pendant 391 s sans perte signalée"
+      },
+      {
+       "label": "Limite",
+       "value": "500 000 et 1 000 000 échantillons/s provoquent des débordements, le bus SPI à 16 MHz étant trop lent"
+      }
+     ]
+    },
+    {
+     "type": "heading",
+     "level": 2,
+     "text": "Ce que l'on peut décoder"
+    },
+    {
+     "type": "paragraph",
+     "text": "En réception, le projet gère la voix numérique P25 phase 1, les messages de bipeur POCSAG, la FM analogique (via LakeShark) et les paquets d'annonce BLE 1M sur les canaux 37, 38 et 39. En émission, des essais expérimentaux et limités à de courtes salves produisent des signaux d'essai P25, des données de capteur de température et des commandes OOK ou FSK. L'émission continue et la voix en direct sont en développement. La sensibilité n'a pas été étalonnée, et la bande passante radio n'est pas indiquée dans la source."
+    },
+    {
+     "type": "diagram",
+     "svg": "<svg xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"0 0 640 290\" font-family=\"system-ui,sans-serif\"><rect width=\"640\" height=\"290\" rx=\"16\" fill=\"#f4f5fb\"/><text x=\"320\" y=\"44\" text-anchor=\"middle\" font-size=\"17\" font-weight=\"700\" fill=\"#1a1a2e\">Du signal radio au décodage</text><rect x=\"20\" y=\"86\" width=\"129\" height=\"130\" rx=\"12\" fill=\"hsl(30,60%,92%)\" stroke=\"hsl(30,50%,40%)\" stroke-width=\"2\"/><text x=\"84\" y=\"118\" text-anchor=\"middle\" font-size=\"14\" font-weight=\"700\" fill=\"#1a1a2e\">Antenne</text><text x=\"84\" y=\"144\" text-anchor=\"middle\" font-size=\"12\" fill=\"#2b2b44\">100 MHz à</text><text x=\"84\" y=\"162\" text-anchor=\"middle\" font-size=\"12\" fill=\"#2b2b44\">2,74 GHz</text><path d=\"M153 151h20m-7-7l7 7-7 7\" stroke=\"hsl(30,50%,35%)\" stroke-width=\"3\" fill=\"none\"/><rect x=\"177\" y=\"86\" width=\"129\" height=\"130\" rx=\"12\" fill=\"hsl(30,60%,92%)\" stroke=\"hsl(30,50%,40%)\" stroke-width=\"2\"/><text x=\"242\" y=\"118\" text-anchor=\"middle\" font-size=\"14\" font-weight=\"700\" fill=\"#1a1a2e\">LR2021</text><text x=\"242\" y=\"144\" text-anchor=\"middle\" font-size=\"12\" fill=\"#2b2b44\">Commande ROM 1.24 :</text><text x=\"242\" y=\"162\" text-anchor=\"middle\" font-size=\"12\" fill=\"#2b2b44\">I/Q 16 bits</text><path d=\"M310 151h20m-7-7l7 7-7 7\" stroke=\"hsl(30,50%,35%)\" stroke-width=\"3\" fill=\"none\"/><rect x=\"334\" y=\"86\" width=\"129\" height=\"130\" rx=\"12\" fill=\"hsl(30,60%,92%)\" stroke=\"hsl(30,50%,40%)\" stroke-width=\"2\"/><text x=\"398\" y=\"118\" text-anchor=\"middle\" font-size=\"14\" font-weight=\"700\" fill=\"#1a1a2e\">Bus SPI</text><text x=\"398\" y=\"144\" text-anchor=\"middle\" font-size=\"12\" fill=\"#2b2b44\">16 MHz :</text><text x=\"398\" y=\"162\" text-anchor=\"middle\" font-size=\"12\" fill=\"#2b2b44\">goulot d'étranglement</text><path d=\"M467 151h20m-7-7l7 7-7 7\" stroke=\"hsl(30,50%,35%)\" stroke-width=\"3\" fill=\"none\"/><rect x=\"491\" y=\"86\" width=\"129\" height=\"130\" rx=\"12\" fill=\"hsl(30,60%,92%)\" stroke=\"hsl(30,50%,40%)\" stroke-width=\"2\"/><text x=\"556\" y=\"118\" text-anchor=\"middle\" font-size=\"14\" font-weight=\"700\" fill=\"#1a1a2e\">ESP32-P4</text><text x=\"556\" y=\"144\" text-anchor=\"middle\" font-size=\"12\" fill=\"#2b2b44\">Démodulation</text><text x=\"556\" y=\"162\" text-anchor=\"middle\" font-size=\"12\" fill=\"#2b2b44\">et décodage</text><text x=\"320\" y=\"262\" text-anchor=\"middle\" font-size=\"12\" fill=\"#2b2b44\">Le débit du SPI limite l'échantillonnage utile à environ 250 000 échantillons par seconde.</text></svg>",
+     "alt": "Schéma de la chaîne : antenne, puce LR2021, bus SPI, ESP32-P4.",
+     "caption": "Le bus SPI est le facteur limitant de la chaîne de réception."
+    },
+    {
+     "type": "usecases",
+     "title": "Exemples d'utilisation",
+     "items": [
+      {
+       "icon": "🎒",
+       "title": "Passionné de radio",
+       "text": "Il écoute des messages POCSAG ou des transmissions numériques de proximité avec un appareil de poche, sans clé SDR ni ordinateur portable."
+      },
+      {
+       "icon": "📶",
+       "title": "Concepteur d'objets connectés",
+       "text": "Il capture les trames BLE ou OOK d'un prototype pour comprendre les interférences, avant de passer à des instruments calibrés."
+      },
+      {
+       "icon": "🧑‍🏫",
+       "title": "Enseignant en électronique",
+       "text": "Il montre à ses élèves la démodulation numérique en comparant le flux I/Q et le résultat décodé, avec un matériel à bas coût."
+      }
+     ]
+    },
+    {
+     "type": "timeline",
+     "title": "D'où l'on vient, où l'on va",
+     "items": [
+      {
+       "label": "1er octobre 2026",
+       "text": "CNX Software présente LakeShark, un micrologiciel de scanner SDR portable pour l'ESP32-P4."
+      },
+      {
+       "label": "20 octobre 2026",
+       "text": "Le dépôt LR2021-SDR est signalé, avec réception testée jusqu'à 2,74 GHz."
+      },
+      {
+       "label": "À suivre",
+       "text": "Émission continue et voix en direct sont annoncées comme en développement, sans calendrier."
+      }
+     ]
+    },
+    {
+     "type": "opinion",
+     "title": "Notre avis",
+     "paragraphs": [
+      "Détourner une puce de communication en instrument de mesure est la tradition du bricolage radio, mais ce projet repose sur une commande non documentée : un changement de version de la mémoire morte peut tout casser, et les performances restent modestes face à un vrai SDR. Il ne faut pas non plus oublier que l'émission, même en courtes salves, est soumise à la réglementation des fréquences.",
+      "Si l'approche se confirme, elle pourrait pousser les fabricants à documenter l'accès aux échantillons bruts, ou au contraire à le verrouiller. Ce pronostic est une opinion."
+     ],
+     "verdict": "Une démonstration astucieuse et utile pour apprendre, pas encore un outil de mesure fiable."
+    },
+    {
+     "type": "callout",
+     "variant": "info",
+     "title": "À retenir",
+     "text": "Le projet exige la mémoire morte 1.24 de la LR2021 ; la variante SX1262 n'est pas prise en charge, et l'émission est expérimentale."
+    }
+   ],
+   "publishedAt": "2026-10-20T11:17:55+02:00"
+  }
+ ],
+ "generatedAt": "2026-10-20T11:17:55+02:00"
+}
