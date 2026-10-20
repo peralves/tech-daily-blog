@@ -1,0 +1,986 @@
+{
+ "schemaVersion": "1.0",
+ "date": "2026-10-20",
+ "generatedAt": "2026-10-20T19:18:03+02:00",
+ "title": "Faille FortiSIEM, rançongiciels sur PAN-OS, agents d'IA pirates, Pegasus en Serbie, APT28, TS_Rust et injections dans les en-têtes HTTP",
+ "summary": "Une preuve de concept publique menace FortiSIEM 7.5.0, Qilin et INC exploitent une faille PAN-OS jusqu'aux hyperviseurs, des agents d'IA autonomes ont visé plus de 1 200 sites, et Pegasus est confirmé sur l'iPhone d'un recteur serbe. Côté développement et IA : un portage Rust de TypeScript et des instructions cachées dans les en-têtes HTTP.",
+ "highlights": [
+  "Cybersécurité : exploit public pour la faille critique CVE-2026-106173 de FortiSIEM 7.5.0",
+  "Cybersécurité : Qilin et INC exploitent CVE-2026-0257 et pivotent vers vCenter et ESXi",
+  "Cybersécurité : des agents d'IA autonomes ont visé plus de 1 200 sites avec l'outil Cairn",
+  "Cybersécurité : Pegasus confirmé sur l'iPhone du recteur de l'université de Belgrade",
+  "Développement et IA : TS_Rust, et injections de prompt dans les en-têtes HTTP"
+ ],
+ "meta": {
+  "generator": "claude-scheduled-task"
+ },
+ "posts": [
+  {
+   "id": "fortisiem-grpc-traversal-poc-public",
+   "category": "cybersecurite",
+   "icon": "🛰️",
+   "importance": 5,
+   "sourceDate": "2026-10-20",
+   "title": "FortiSIEM : un exploit public pour une faille critique d'exécution de code à distance, sans authentification",
+   "summary": "Horizon3.ai a publié une preuve de concept pour la faille CVE-2026-106173 (score CVSS 9,4) de FortiSIEM 7.5.0. Le correctif existe depuis la semaine dernière, dans la version 7.5.1.",
+   "tags": [
+    "FortiSIEM",
+    "Fortinet",
+    "CVE-2026-106173",
+    "gRPC",
+    "Horizon3.ai"
+   ],
+   "readingMinutes": 5,
+   "sources": [
+    {
+     "title": "Critical FortiSIEM Flaw Gets Public Exploit PoC for Unauthenticated Remote Code Execution",
+     "url": "https://thehackernews.com/2026/10/critical-fortisiem-flaw-gets-public.html",
+     "publisher": "The Hacker News"
+    }
+   ],
+   "illustration": {
+    "svg": "<svg xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"0 0 640 360\"><defs><linearGradient id=\"g\" x1=\"0\" y1=\"0\" x2=\"1\" y2=\"1\"><stop offset=\"0\" stop-color=\"hsl(175,65%,34%)\"/><stop offset=\"1\" stop-color=\"hsl(215,70%,50%)\"/></linearGradient></defs><rect width=\"640\" height=\"360\" fill=\"url(#g)\"/><circle cx=\"580\" cy=\"50\" r=\"90\" fill=\"#fff\" opacity=\".08\"/><circle cx=\"60\" cy=\"320\" r=\"120\" fill=\"#fff\" opacity=\".07\"/><rect x=\"230\" y=\"95\" width=\"180\" height=\"50\" rx=\"8\" fill=\"#fff\" opacity=\".92\"/><rect x=\"230\" y=\"160\" width=\"180\" height=\"50\" rx=\"8\" fill=\"#fff\" opacity=\".85\"/><rect x=\"230\" y=\"225\" width=\"180\" height=\"50\" rx=\"8\" fill=\"#fff\" opacity=\".78\"/><circle cx=\"260\" cy=\"120\" r=\"8\" fill=\"hsl(175,55%,38%)\"/><circle cx=\"260\" cy=\"185\" r=\"8\" fill=\"hsl(175,55%,38%)\"/><circle cx=\"260\" cy=\"250\" r=\"8\" fill=\"hsl(175,55%,38%)\"/><rect x=\"300\" y=\"115\" width=\"90\" height=\"10\" rx=\"5\" fill=\"hsl(175,55%,38%)\" opacity=\".5\"/><rect x=\"300\" y=\"180\" width=\"90\" height=\"10\" rx=\"5\" fill=\"hsl(175,55%,38%)\" opacity=\".5\"/><rect x=\"300\" y=\"245\" width=\"90\" height=\"10\" rx=\"5\" fill=\"hsl(175,55%,38%)\" opacity=\".5\"/></svg>"
+   },
+   "blocks": [
+    {
+     "type": "paragraph",
+     "text": "Une plateforme de supervision de la sécurité est, par nature, un point d'observation privilégié : elle reçoit les journaux de tout le parc, détient souvent des identifiants d'accès et tourne avec des droits élevés. Lorsqu'une faille critique y est découverte et qu'une démonstration d'exploitation est mise en ligne, la fenêtre de correction se referme vite. C'est la situation de FortiSIEM, la solution de gestion des événements de sécurité de Fortinet, après la publication d'une preuve de concept par la société Horizon3.ai, annoncée le 20 octobre 2026 par *The Hacker News*."
+    },
+    {
+     "type": "heading",
+     "level": 2,
+     "text": "Ce que l'on sait de la faille"
+    },
+    {
+     "type": "paragraph",
+     "text": "La vulnérabilité porte l'identifiant **CVE-2026-106173** et un score CVSS de 9,4. Fortinet la décrit dans son avis FG-IR-26-180 comme une faille de traversée de répertoire : un attaquant non authentifié peut exécuter du code ou des commandes non autorisés au moyen de paquets spécialement construits. Seule la version **7.5.0** de FortiSIEM est concernée. La branche 7.6 n'est pas touchée, et la correction est livrée dans la version **7.5.1** et les suivantes. Fortinet a publié ses correctifs la semaine précédant l'article."
+    },
+    {
+     "type": "keyvalue",
+     "items": [
+      {
+       "label": "Identifiant",
+       "value": "CVE-2026-106173 (avis Fortinet FG-IR-26-180)"
+      },
+      {
+       "label": "Gravité",
+       "value": "CVSS 9,4, critique"
+      },
+      {
+       "label": "Authentification requise",
+       "value": "Aucune"
+      },
+      {
+       "label": "Version vulnérable",
+       "value": "FortiSIEM 7.5.0"
+      },
+      {
+       "label": "Version non concernée",
+       "value": "FortiSIEM 7.6"
+      },
+      {
+       "label": "Correctif",
+       "value": "FortiSIEM 7.5.1 ou version ultérieure"
+      },
+      {
+       "label": "Service exposé",
+       "value": "gRPC, port TCP 27918"
+      }
+     ]
+    },
+    {
+     "type": "heading",
+     "level": 2,
+     "text": "Le mécanisme d'attaque décrit par Horizon3.ai"
+    },
+    {
+     "type": "paragraph",
+     "text": "Selon l'analyse d'Horizon3.ai, l'attaquant se connecte au service gRPC qui écoute sur le port TCP 27918. Le gestionnaire de la requête `QueryResultReq` traite des métadonnées non fiables sans valider correctement les chemins de fichiers. La construction dangereuse se situe dans une fonction nommée `SendQueryResult()`, qui utilise le paramètre `query-id` fourni par l'utilisateur sans contrôle suffisant. L'exploitation se déroule en deux temps."
+    },
+    {
+     "type": "list",
+     "ordered": true,
+     "items": [
+      "**Traversée de répertoire** : des séquences `../` permettent de sortir du dossier prévu et d'écrire dans un répertoire choisi par l'attaquant.",
+      "**Maîtrise du nom de fichier** : le programme ajoute normalement son propre suffixe, de la forme `result-<IP source>-0-0-<id>.dat`. Un octet nul (`\\0`) glissé dans `query-id` interrompt le chemin plus tôt et fait ignorer ce suffixe. Selon Zach Hanley, d'Horizon3.ai, l'écriture se fait au chemin exact précédant l'octet nul."
+     ]
+    },
+    {
+     "type": "paragraph",
+     "text": "L'exemple de charge donné cible le script `/opt/charting/redishb.sh`, un script de contrôle de santé de Redis exécuté toutes les 60 secondes par cron : l'écraser suffit à obtenir une exécution de code périodique. Une première variante écrase un fichier existant en conservant son propriétaire et ses permissions ; une seconde, en deux requêtes, crée un nouveau fichier au nom exact souhaité. Le code de démonstration est publié dans un dépôt GitHub d'Horizon3.ai."
+    },
+    {
+     "type": "heading",
+     "level": 2,
+     "text": "Ce que l'article ne dit pas"
+    },
+    {
+     "type": "paragraph",
+     "text": "La source ne signale aucune exploitation réelle de cette faille à ce stade et ne mentionne aucun contournement possible : la seule mesure indiquée est la mise à niveau vers la version 7.5.1 ou supérieure. Elle ne précise pas non plus la date exacte de publication de la preuve de concept. Il faut donc considérer le risque comme celui d'une faille critique dont l'exploitation devient triviale pour quiconque peut atteindre le port 27918."
+    },
+    {
+     "type": "usecases",
+     "title": "Exemples d'utilisation",
+     "items": [
+      {
+       "icon": "🏢",
+       "title": "Équipe SOC d'une PME",
+       "text": "Une équipe qui a installé la version 7.5.0 vérifie sa version, planifie la mise à niveau vers la 7.5.1 et contrôle qu'aucun fichier inattendu n'a été écrit dans les répertoires système."
+      },
+      {
+       "icon": "🔥",
+       "title": "Administrateur réseau",
+       "text": "Le port 27918 n'a aucune raison d'être joignable depuis Internet ni depuis des segments non administratifs : un filtrage strict au pare-feu réduit l'exposition en attendant la mise à jour."
+      },
+      {
+       "icon": "🧪",
+       "title": "Équipe de détection",
+       "text": "Après la publication du code de démonstration, les équipes de détection peuvent rédiger des règles ciblant les écritures dans `/opt/charting` et les connexions gRPC anormales."
+      }
+     ]
+    },
+    {
+     "type": "timeline",
+     "title": "D'où l'on vient, où l'on va",
+     "items": [
+      {
+       "label": "Semaine précédant le 20 octobre 2026",
+       "text": "Fortinet publie le correctif dans FortiSIEM 7.5.1."
+      },
+      {
+       "label": "20 octobre 2026",
+       "text": "Horizon3.ai publie son analyse et une preuve de concept ; la presse spécialisée relaie l'alerte."
+      },
+      {
+       "label": "À venir",
+       "text": "Aucune date d'exploitation massive n'est connue ; l'historique des preuves de concept publiques pour des équipements d'entreprise laisse cependant attendre des essais rapides."
+      }
+     ]
+    },
+    {
+     "type": "opinion",
+     "title": "Notre avis",
+     "paragraphs": [
+      "La publication d'un exploit complet quelques jours après le correctif est devenue la norme : le délai entre l'avis et l'exploitation se compte désormais en jours. Pour un outil de supervision, qui concentre journaux et identifiants, la compromission offre un point d'appui idéal pour se déplacer ensuite dans le réseau. Cette faille rappelle aussi que les composants d'observabilité sont des cibles à part entière, et non de simples outils périphériques.",
+      "D'ici un à trois ans, on peut raisonnablement s'attendre à ce que les éditeurs généralisent la validation stricte des chemins dans les services RPC et que les clients isolent mieux ces consoles, par des réseaux d'administration dédiés. C'est une hypothèse, non un fait : tant que de tels outils restent joignables depuis des réseaux larges, ce type de faille restera rentable."
+     ],
+     "verdict": "Corriger la 7.5.0 sans attendre, et ne jamais exposer le port gRPC."
+    },
+    {
+     "type": "callout",
+     "title": "À retenir",
+     "text": "Si vous exploitez FortiSIEM 7.5.0, passez à la version 7.5.1 ou supérieure et limitez l'accès réseau au port TCP 27918. Source de l'information : The Hacker News, 20 octobre 2026."
+    }
+   ],
+   "publishedAt": "2026-10-20T19:18:03+02:00"
+  },
+  {
+   "id": "palo-alto-cve-2026-0257-qilin-inc",
+   "category": "cybersecurite",
+   "icon": "🧯",
+   "importance": 5,
+   "sourceDate": "2026-10-20",
+   "title": "PAN-OS : les groupes Qilin et INC exploitent le contournement d'authentification CVE-2026-0257 et visent la virtualisation",
+   "summary": "Selon l'unité 42 de Palo Alto Networks, deux gangs de rançongiciels exploitent une faille corrigée en mai pour ouvrir des connexions VPN non autorisées, puis s'attaquent à vCenter et aux disques virtuels des contrôleurs de domaine.",
+   "tags": [
+    "Palo Alto Networks",
+    "PAN-OS",
+    "Qilin",
+    "INC",
+    "rançongiciel",
+    "VMware"
+   ],
+   "readingMinutes": 6,
+   "sources": [
+    {
+     "title": "Qilin and INC Ransomware Groups Exploit Palo Alto Networks Flaw to Bypass MFA",
+     "url": "https://thehackernews.com/2026/10/qilin-and-inc-ransomware-groups-exploit.html",
+     "publisher": "The Hacker News"
+    }
+   ],
+   "illustration": {
+    "svg": "<svg xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"0 0 640 360\"><defs><linearGradient id=\"g\" x1=\"0\" y1=\"0\" x2=\"1\" y2=\"1\"><stop offset=\"0\" stop-color=\"hsl(175,65%,34%)\"/><stop offset=\"1\" stop-color=\"hsl(20,70%,50%)\"/></linearGradient></defs><rect width=\"640\" height=\"360\" fill=\"url(#g)\"/><circle cx=\"580\" cy=\"50\" r=\"90\" fill=\"#fff\" opacity=\".08\"/><circle cx=\"60\" cy=\"320\" r=\"120\" fill=\"#fff\" opacity=\".07\"/><path d=\"M320 90 L420 125 V200 C420 250 375 280 320 300 C265 280 220 250 220 200 V125 Z\" fill=\"#fff\" opacity=\".92\"/><path d=\"M280 195 l28 28 l54-60\" fill=\"none\" stroke=\"hsl(175,55%,38%)\" stroke-width=\"14\" stroke-linecap=\"round\"/></svg>"
+   },
+   "blocks": [
+    {
+     "type": "paragraph",
+     "text": "Un correctif publié depuis cinq mois ne protège que les organisations qui l'ont réellement installé. L'unité 42 de Palo Alto Networks vient de le rappeler : elle observe que les groupes de rançongiciels **Qilin** (qu'elle nomme Spikey Scorpius) et **INC** (Tarnished Scorpius) exploitent toujours la faille **CVE-2026-0257**, un contournement d'authentification qui touche PAN-OS et Prisma Access. L'information a été relayée le 20 octobre 2026 par *The Hacker News*."
+    },
+    {
+     "type": "heading",
+     "level": 2,
+     "text": "La faille et son historique"
+    },
+    {
+     "type": "paragraph",
+     "text": "La vulnérabilité, notée 7,8 sur l'échelle CVSS, permet d'établir des connexions VPN non autorisées. Palo Alto Networks l'a corrigée en mai 2026, et elle a été ajoutée au catalogue des vulnérabilités exploitées de la CISA américaine le 13 mai 2026. L'article ne précise ni les versions concernées ni les versions corrigées, et n'explique pas le détail technique du contournement de l'authentification multifacteur."
+    },
+    {
+     "type": "timeline",
+     "title": "D'où l'on vient, où l'on va",
+     "items": [
+      {
+       "label": "Mai 2026",
+       "text": "Palo Alto Networks publie le correctif ; la CISA ajoute la faille à son catalogue le 13 mai."
+      },
+      {
+       "label": "Juillet 2026",
+       "text": "Arctic Wolf signale l'exploitation par Qilin, d'attaques de chiffrement rapide jusqu'à la double extorsion."
+      },
+      {
+       "label": "Quelques jours avant le 20 octobre",
+       "text": "ReliaQuest signale l'exploitation par Qilin et par le groupe Settra."
+      },
+      {
+       "label": "Lundi précédant l'article",
+       "text": "L'unité 42 publie une mise à jour : l'exploitation par des acteurs de rançongiciels se poursuit."
+      }
+     ]
+    },
+    {
+     "type": "heading",
+     "level": 2,
+     "text": "Le déroulé d'une attaque"
+    },
+    {
+     "type": "paragraph",
+     "text": "D'après l'unité 42, les attaquants utilisent la faille pour prendre pied dans le réseau d'entreprise, puis contournent les contrôles d'authentification multifacteur afin d'établir une session VPN. Une fois à l'intérieur, ils suivent un schéma classique :"
+    },
+    {
+     "type": "list",
+     "ordered": false,
+     "items": [
+      "reconnaissance interne à l'aide d'outils d'administration à distance à double usage ;",
+      "déplacement latéral par RDP et SMB ;",
+      "mise en place d'outils supplémentaires pour voler des identifiants, exfiltrer des données et déployer le rançongiciel."
+     ]
+    },
+    {
+     "type": "heading",
+     "level": 2,
+     "text": "Le basculement vers la couche de virtualisation"
+    },
+    {
+     "type": "paragraph",
+     "text": "Le changement de tactique le plus marquant, selon l'unité 42, est le passage à la couche de virtualisation. Dans un cas cité, les attaquants sont passés de la passerelle VPN compromise à l'appliance de gestion **vCenter**, ont désactivé des protections sur les hyperviseurs **ESXi** en activant le paramètre `execInstalledOnly`, puis ont utilisé un outil sur mesure pour extraire les identifiants hors ligne, directement depuis le disque virtuel (VMDK) d'un contrôleur de domaine. Cette approche échappe aux solutions de détection installées dans les machines invitées et donne accès aux identifiants de tout le domaine."
+    },
+    {
+     "type": "paragraph",
+     "text": "Les groupes combinent aussi cet accès initial avec d'autres failles, notamment CVE-2023-27532 sur l'infrastructure de sauvegarde Veeam, afin de détruire les copies de secours et de maximiser les dégâts. Les secteurs touchés sont nombreux : éducation, services financiers, santé, haute technologie, hôtellerie, industrie, services juridiques, administrations, transport et logistique, énergie, commerce."
+    },
+    {
+     "type": "usecases",
+     "title": "Exemples d'utilisation",
+     "items": [
+      {
+       "icon": "🏥",
+       "title": "Hôpital ou établissement de santé",
+       "text": "Vérifier que la passerelle VPN est à jour et que les journaux ne montrent pas de connexions inhabituelles depuis mai 2026 permet de détecter une intrusion ancienne."
+      },
+      {
+       "icon": "🏭",
+       "title": "Industriel équipé de VMware",
+       "text": "Isoler l'interface de gestion vCenter sur un réseau d'administration distinct et surveiller les changements de paramètres ESXi limite l'effet d'un pivot."
+      },
+      {
+       "icon": "💾",
+       "title": "Responsable des sauvegardes",
+       "text": "Disposer de copies hors ligne ou immuables, hors de portée d'un compte de domaine compromis, évite la destruction simultanée des données et des sauvegardes."
+      }
+     ]
+    },
+    {
+     "type": "opinion",
+     "title": "Notre avis",
+     "paragraphs": [
+      "L'enseignement principal n'est pas la faille elle-même, relativement ancienne, mais le glissement de l'attaque vers l'hyperviseur : lorsque l'attaquant lit le disque virtuel d'un contrôleur de domaine depuis la couche inférieure, les agents de sécurité installés dans le système invité deviennent aveugles. La défense doit donc s'étendre à l'infrastructure de virtualisation, trop souvent traitée comme un simple socle technique.",
+      "À un à trois ans, on peut attendre une montée en puissance des contrôles sur les hyperviseurs et des sauvegardes immuables, sous la pression des assureurs. C'est une projection : tant que l'application des correctifs sur les équipements en bordure reste lente, les gangs auront intérêt à recycler des failles vieilles de plusieurs mois."
+     ],
+     "verdict": "Corriger les passerelles, mais surtout protéger la virtualisation et les sauvegardes."
+    },
+    {
+     "type": "callout",
+     "title": "À retenir",
+     "text": "Appliquer les derniers correctifs de Palo Alto Networks, rechercher des indicateurs de compromission et déclencher la réponse à incident si des connexions suspectes passent par la passerelle : ce sont les mesures préconisées par l'unité 42."
+    }
+   ],
+   "publishedAt": "2026-10-20T19:18:03+02:00"
+  },
+  {
+   "id": "agents-ia-autonomes-cairn-1200-sites",
+   "category": "cybersecurite",
+   "icon": "🕷️",
+   "importance": 5,
+   "sourceDate": "2026-10-20",
+   "title": "Agents d'IA autonomes : plus de 1 200 sites visés et une centaine d'entreprises atteintes avec l'outil Cairn",
+   "summary": "Un acteur sinophone a lancé des agents autonomes contre des boutiques en ligne. Les panneaux de commande, restés exposés, ont permis au chercheur Snorre Fagerland (NorForge) de documenter une campagne à environ 50 dollars par intrusion réussie.",
+   "tags": [
+    "Cairn",
+    "agents IA",
+    "NorForge",
+    "Reuters",
+    "Magento",
+    "cybercriminalité"
+   ],
+   "readingMinutes": 7,
+   "sources": [
+    {
+     "title": "Hackers Use Autonomous AI Agents to Breach Company Websites, Target Over 1,200 Sites",
+     "url": "https://thehackernews.com/2026/10/hackers-use-autonomous-ai-agents-to.html",
+     "publisher": "The Hacker News"
+    }
+   ],
+   "illustration": {
+    "svg": "<svg xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"0 0 640 360\"><defs><linearGradient id=\"g\" x1=\"0\" y1=\"0\" x2=\"1\" y2=\"1\"><stop offset=\"0\" stop-color=\"hsl(175,65%,34%)\"/><stop offset=\"1\" stop-color=\"hsl(320,70%,50%)\"/></linearGradient></defs><rect width=\"640\" height=\"360\" fill=\"url(#g)\"/><circle cx=\"580\" cy=\"50\" r=\"90\" fill=\"#fff\" opacity=\".08\"/><circle cx=\"60\" cy=\"320\" r=\"120\" fill=\"#fff\" opacity=\".07\"/><g stroke=\"#fff\" stroke-width=\"5\" opacity=\".85\"><line x1=\"320\" y1=\"180\" x2=\"210\" y2=\"110\"/><line x1=\"320\" y1=\"180\" x2=\"430\" y2=\"110\"/><line x1=\"320\" y1=\"180\" x2=\"200\" y2=\"260\"/><line x1=\"320\" y1=\"180\" x2=\"440\" y2=\"260\"/></g><circle cx=\"320\" cy=\"180\" r=\"38\" fill=\"#fff\"/><circle cx=\"210\" cy=\"110\" r=\"24\" fill=\"#fff\" opacity=\".9\"/><circle cx=\"430\" cy=\"110\" r=\"24\" fill=\"#fff\" opacity=\".9\"/><circle cx=\"200\" cy=\"260\" r=\"24\" fill=\"#fff\" opacity=\".9\"/><circle cx=\"440\" cy=\"260\" r=\"24\" fill=\"#fff\" opacity=\".9\"/><circle cx=\"320\" cy=\"180\" r=\"14\" fill=\"hsl(175,55%,38%)\"/></svg>"
+   },
+   "blocks": [
+    {
+     "type": "paragraph",
+     "text": "Les agents d'intelligence artificielle capables de mener seuls une intrusion informatique ne sont plus une hypothèse de laboratoire. Selon une enquête de l'agence Reuters relayée le 20 octobre 2026 par *The Hacker News*, un criminel sinophone a dirigé des agents autonomes contre plus de 1 200 sites marchands et a atteint les sites de plus de 100 entreprises, parmi lesquelles Deere, SharkNinja et Cummins. L'ampleur des données dérobées, s'il y en a eu, n'est pas connue."
+    },
+    {
+     "type": "heading",
+     "level": 2,
+     "text": "Une découverte due à des panneaux de commande exposés"
+    },
+    {
+     "type": "paragraph",
+     "text": "Le chercheur Snorre Fagerland, de la société NorForge, a repéré l'opération en balayant Internet à la recherche de copies exposées de **Cairn**, un outil libre d'agents d'IA prisé des pirates. Dès le 2 octobre environ, il a trouvé une vingtaine d'instances utilisées à des fins malveillantes, ce qui lui a permis de suivre le travail des attaquants en temps réel. NorForge a publié ses conclusions lundi, après que Reuters les a consultées."
+    },
+    {
+     "type": "paragraph",
+     "text": "Cairn donne à des agents un point de départ et un objectif, puis les laisse progresser étape par étape ; ils publient leurs trouvailles sur un tableau partagé, et un opérateur humain peut ajouter des indications. L'outil est conçu pour des tests d'intrusion autorisés. Son auteur, qui publie sous le pseudonyme « le1xia0 », a indiqué à Reuters qu'il n'avait pas été pensé pour le piratage et que cet usage n'était pas voulu."
+    },
+    {
+     "type": "keyvalue",
+     "items": [
+      {
+       "label": "Sites visés",
+       "value": "Plus de 1 200"
+      },
+      {
+       "label": "Entreprises atteintes",
+       "value": "Plus de 100 (dont Deere, SharkNinja, Cummins)"
+      },
+      {
+       "label": "Grappe principale (AIA0001)",
+       "value": "14 panneaux, plus de 1 100 projets d'attaque, en chinois"
+      },
+      {
+       "label": "Cibles géographiques",
+       "value": "États-Unis, Japon, Australie"
+      },
+      {
+       "label": "Durée moyenne d'une intrusion réussie",
+       "value": "Un peu moins de 23 heures"
+      },
+      {
+       "label": "Taux de réussite global",
+       "value": "Environ 10 %"
+      },
+      {
+       "label": "Coût estimé",
+       "value": "Environ 5 $ par tâche ; 5 000 $ de jetons au total, soit environ 50 $ par intrusion réussie"
+      }
+     ]
+    },
+    {
+     "type": "heading",
+     "level": 2,
+     "text": "Les techniques employées"
+    },
+    {
+     "type": "paragraph",
+     "text": "Une consigne type demandait aux agents de trouver un moyen d'exécuter du code sur une boutique, puis de déposer un outil de téléversement de fichiers (un « web shell » minimal) que l'attaquant peut remplacer par quelque chose de pire. NorForge a vérifié qu'une intrusion revendiquée chez un grand fournisseur de pièces était réelle, le web shell étant actif, et a confirmé indépendamment la compromission d'un très grand distributeur américain, pour lequel les agents avaient trouvé un simple réglage de cookie sélectionnant un serveur vulnérable. Une autre intrusion documentée combinait un accès en écriture non autorisé à un magasin de sessions memcached, une désérialisation dangereuse d'objets PHP et une faiblesse dans d'anciennes bibliothèques Zend Framework. Les consignes de l'opérateur tenaient en moins de 100 caractères chinois."
+    },
+    {
+     "type": "paragraph",
+     "text": "Les travaux d'une des grappes ont tous tourné sous un agent nommé « claudecode_deepseek-v4.1-flash », ce qui laisse penser à un modèle DeepSeek piloté par Claude Code ; ni NorForge ni Reuters n'ont toutefois confirmé les modèles utilisés."
+    },
+    {
+     "type": "heading",
+     "level": 2,
+     "text": "Les réactions des entreprises"
+    },
+    {
+     "type": "list",
+     "ordered": false,
+     "items": [
+      "**Deere** affirme avoir pris des mesures et ne constater aucun signe d'accès à des informations sensibles.",
+      "**SharkNinja** indique que l'attaque a touché un site autonome d'assistance produit et que la menace a été contenue.",
+      "**Cummins** enquête sur un signalement d'attaque possible visant un site exploité par l'un de ses fournisseurs."
+     ]
+    },
+    {
+     "type": "diagram",
+     "svg": "<svg xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"0 0 640 260\" font-family=\"system-ui,sans-serif\"><defs><marker id=\"a\" markerWidth=\"8\" markerHeight=\"8\" refX=\"6\" refY=\"4\" orient=\"auto\"><path d=\"M0 0 L8 4 L0 8z\" fill=\"#0f766e\"/></marker></defs><rect width=\"640\" height=\"260\" rx=\"16\" fill=\"#fff\"/><text x=\"320\" y=\"46\" font-size=\"17\" font-weight=\"700\" text-anchor=\"middle\" fill=\"#0b3b37\">Une intrusion pilotée par agents (NorForge)</text><rect x=\"16\" y=\"90\" width=\"136\" height=\"100\" rx=\"12\" fill=\"#eef7f6\" stroke=\"#0f766e\" stroke-width=\"2\"/><text x=\"84\" y=\"132\" font-size=\"14\" font-weight=\"700\" text-anchor=\"middle\" fill=\"#0b3b37\">Opérateur</text><text x=\"84\" y=\"156\" font-size=\"12\" text-anchor=\"middle\" fill=\"#25403d\">consigne brève</text><rect x=\"168\" y=\"90\" width=\"136\" height=\"100\" rx=\"12\" fill=\"#eef7f6\" stroke=\"#0f766e\" stroke-width=\"2\"/><text x=\"236\" y=\"132\" font-size=\"14\" font-weight=\"700\" text-anchor=\"middle\" fill=\"#0b3b37\">Cairn</text><text x=\"236\" y=\"156\" font-size=\"12\" text-anchor=\"middle\" fill=\"#25403d\">agents autonomes</text><rect x=\"320\" y=\"90\" width=\"136\" height=\"100\" rx=\"12\" fill=\"#eef7f6\" stroke=\"#0f766e\" stroke-width=\"2\"/><text x=\"388\" y=\"132\" font-size=\"14\" font-weight=\"700\" text-anchor=\"middle\" fill=\"#0b3b37\">Boutique web</text><text x=\"388\" y=\"156\" font-size=\"12\" text-anchor=\"middle\" fill=\"#25403d\">faille trouvée</text><rect x=\"472\" y=\"90\" width=\"136\" height=\"100\" rx=\"12\" fill=\"#eef7f6\" stroke=\"#0f766e\" stroke-width=\"2\"/><text x=\"540\" y=\"132\" font-size=\"14\" font-weight=\"700\" text-anchor=\"middle\" fill=\"#0b3b37\">Web shell</text><text x=\"540\" y=\"156\" font-size=\"12\" text-anchor=\"middle\" fill=\"#25403d\">accès durable</text><path d=\"M156 140 h10\" stroke=\"#0f766e\" stroke-width=\"3\" marker-end=\"url(#a)\"/><path d=\"M308 140 h10\" stroke=\"#0f766e\" stroke-width=\"3\" marker-end=\"url(#a)\"/><path d=\"M460 140 h10\" stroke=\"#0f766e\" stroke-width=\"3\" marker-end=\"url(#a)\"/><text x=\"320\" y=\"228\" font-size=\"12\" text-anchor=\"middle\" fill=\"#25403d\">Environ 23 h par intrusion, 10 % de réussite, ~50 $ par succès</text></svg>",
+     "alt": "Schéma en quatre étapes : l'opérateur donne une consigne brève à Cairn, des agents autonomes trouvent une faille sur la boutique, puis déposent un web shell.",
+     "caption": "Chaîne d'une intrusion pilotée par agents, d'après le rapport de NorForge relayé par Reuters."
+    },
+    {
+     "type": "usecases",
+     "title": "Exemples d'utilisation",
+     "items": [
+      {
+       "icon": "🛒",
+       "title": "Exploitant d'une boutique en ligne",
+       "text": "Vérifier l'absence de formulaires de téléversement inattendus dans des répertoires cachés, car c'est l'appui que visent ces agents."
+      },
+      {
+       "icon": "🧩",
+       "title": "Hébergeur ou équipe d'infrastructure",
+       "text": "Rechercher des panneaux d'agents exposés, souvent sur le port 8000 et sans authentification, puis les signaler ou les retirer."
+      },
+      {
+       "icon": "🔧",
+       "title": "Responsable Magento",
+       "text": "Appliquer le correctif d'Adobe pour Adobe Commerce 2.4.4 à 2.4.9 ou Magento Open Source 2.4.6 à 2.4.9 ; aucune preuve ne lie toutefois cette faille aux intrusions décrites."
+      }
+     ]
+    },
+    {
+     "type": "timeline",
+     "title": "D'où l'on vient, où l'on va",
+     "items": [
+      {
+       "label": "Septembre 2026",
+       "text": "Gambit Security décrit une campagne distincte où Cairn aide à voler des numéros de cartes bancaires ; aucun lien n'est établi avec l'opération actuelle."
+      },
+      {
+       "label": "Début octobre 2026",
+       "text": "Snorre Fagerland repère les premières instances Cairn malveillantes."
+      },
+      {
+       "label": "19-20 octobre 2026",
+       "text": "NorForge et Reuters publient leurs constats ; NorForge demande aux hébergeurs de retirer les panneaux."
+      }
+     ]
+    },
+    {
+     "type": "opinion",
+     "title": "Notre avis",
+     "paragraphs": [
+      "Le chiffre le plus frappant n'est pas le nombre de sites, mais le coût : environ 50 dollars par intrusion réussie, avec un taux de réussite d'environ 10 %. À ce prix, l'attaque de masse devient rentable même avec un taux d'échec élevé, et les petites entreprises, qui n'avaient jamais été des cibles intéressantes, entrent dans le champ. La campagne a aussi une faiblesse humaine : les panneaux de commande des attaquants étaient exposés, preuve que l'automatisation n'efface pas les erreurs d'exploitation.",
+      "À un à trois ans, la défense devra automatiser à son tour : détection de comportements d'agents, correctifs plus rapides, durcissement par défaut des applications web anciennes. C'est une projection, pas un fait. Les outils à double usage poseront une question sans réponse simple : où placer la responsabilité d'un logiciel libre détourné ?"
+     ],
+     "verdict": "L'automatisation abaisse le coût de l'attaque ; le correctif et la discipline restent la parade."
+    },
+    {
+     "type": "callout",
+     "title": "À retenir",
+     "text": "Les chiffres sur le taux de réussite et le coût proviennent de NorForge et de Reuters, avec une incertitude que NorForge qualifie de considérable ; les grappes poursuivent des objectifs différents et ne sont pas directement comparables."
+    }
+   ],
+   "publishedAt": "2026-10-20T19:18:03+02:00"
+  },
+  {
+   "id": "pegasus-recteur-belgrade-serbie",
+   "category": "cybersecurite",
+   "icon": "📱",
+   "importance": 4,
+   "sourceDate": "2026-10-20",
+   "title": "Pegasus : l'iPhone du recteur de l'université de Belgrade infecté, six jours avant les législatives serbes",
+   "summary": "Citizen Lab confirme, avec un niveau de confiance élevé, une infection par le logiciel espion de NSO Group via une faille sans clic. Le laboratoire ne date pas l'attaque et n'en désigne pas l'auteur.",
+   "tags": [
+    "Pegasus",
+    "NSO Group",
+    "Citizen Lab",
+    "Serbie",
+    "logiciel espion"
+   ],
+   "readingMinutes": 6,
+   "sources": [
+    {
+     "title": "Pegasus Spyware Infection Confirmed on Serbian University Rector's iPhone Days Before Election",
+     "url": "https://thehackernews.com/2026/10/pegasus-spyware-infection-confirmed-on.html",
+     "publisher": "The Hacker News"
+    }
+   ],
+   "illustration": {
+    "svg": "<svg xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"0 0 640 360\"><defs><linearGradient id=\"g\" x1=\"0\" y1=\"0\" x2=\"1\" y2=\"1\"><stop offset=\"0\" stop-color=\"hsl(175,65%,34%)\"/><stop offset=\"1\" stop-color=\"hsl(230,70%,50%)\"/></linearGradient></defs><rect width=\"640\" height=\"360\" fill=\"url(#g)\"/><circle cx=\"580\" cy=\"50\" r=\"90\" fill=\"#fff\" opacity=\".08\"/><circle cx=\"60\" cy=\"320\" r=\"120\" fill=\"#fff\" opacity=\".07\"/><rect x=\"270\" y=\"75\" width=\"100\" height=\"210\" rx=\"18\" fill=\"#fff\" opacity=\".93\"/><rect x=\"284\" y=\"100\" width=\"72\" height=\"150\" rx=\"6\" fill=\"hsl(175,55%,38%)\" opacity=\".35\"/><circle cx=\"320\" cy=\"268\" r=\"8\" fill=\"hsl(175,55%,38%)\" opacity=\".6\"/><path d=\"M200 140 q-25 40 0 80 M170 120 q-45 60 0 120 M440 140 q25 40 0 80 M470 120 q45 60 0 120\" fill=\"none\" stroke=\"#fff\" stroke-width=\"6\" stroke-linecap=\"round\" opacity=\".7\"/></svg>"
+   },
+   "blocks": [
+    {
+     "type": "paragraph",
+     "text": "Le 19 octobre 2026, le Citizen Lab de l'université de Toronto a annoncé avoir confirmé, avec un niveau de confiance élevé, que l'iPhone de Vladan Đokić, recteur de l'université de Belgrade, avait été infecté en 2026 par Pegasus, le logiciel espion de la société israélienne NSO Group. L'infection est passée par une faille « zéro clic » : aucune action de la victime n'était nécessaire. La découverte, relayée par *The Hacker News*, intervient six jours avant les élections législatives anticipées du 25 octobre en Serbie."
+    },
+    {
+     "type": "heading",
+     "level": 2,
+     "text": "Ce que le Citizen Lab établit, et ce qu'il ne dit pas"
+    },
+    {
+     "type": "paragraph",
+     "text": "L'analyse a été menée à la demande de Vladan Đokić, avec la Fondation SHARE, à partir d'éléments forensiques extraits du téléphone. La source n'indique ni la faille utilisée, ni la version d'iOS concernée, ni la date de l'infection dans l'année, ni l'auteur de l'attaque, et précise que l'enquête se poursuit. On ignore aussi quelles données ont été prises, et si les versions actuelles d'iOS bloquent cet exploit."
+    },
+    {
+     "type": "heading",
+     "level": 2,
+     "text": "Un contexte politique tendu"
+    },
+    {
+     "type": "paragraph",
+     "text": "Ces élections ont été convoquées en septembre, après près de deux ans de manifestations déclenchées par l'effondrement de l'auvent de la gare de Novi Sad en novembre 2024, qui avait fait 16 morts. Vladan Đokić soutient le mouvement étudiant. Il qualifie l'affaire de « nouvelle tentative d'intimidation » et réclame une enquête publique et indépendante ; il indique aussi que la police a perquisitionné ses bureaux le 31 mars et saisi ordinateurs et serveurs."
+    },
+    {
+     "type": "heading",
+     "level": 2,
+     "text": "Une série de cas en Serbie"
+    },
+    {
+     "type": "list",
+     "ordered": false,
+     "items": [
+      "**Rade Bajić**, collaborateur du parquet spécialisé dans la criminalité organisée, a reçu une alerte « menace » d'Apple le 13 août, puis un rappel le 27 août. Le Citizen Lab y voit un signe de ciblage à confiance élevée, mais ne dit pas encore si son téléphone a été infecté. Il travaillait sur l'affaire dite « Generalštab » et affirme avoir été écarté du dossier en novembre 2025.",
+      "Selon SHARE, au moins 14 personnes (étudiants militants, un député d'opposition, un conseiller local) ont été ciblées par des logiciels espions depuis début 2026 ; douze avaient reçu des alertes d'Apple en août.",
+      "Deux personnes ont vu s'installer une nouvelle version de **NoviSpy**, un logiciel espion pour Android. Amnesty International avait établi en décembre 2024 qu'il envoyait ses données vers une adresse IP associée à l'agence de renseignement BIA.",
+      "Le décompte du Citizen Lab porte à au moins 16 le nombre de personnes de la société civile serbe publiquement ciblées ou infectées cette année."
+     ]
+    },
+    {
+     "type": "paragraph",
+     "text": "L'agence BIA a qualifié en septembre les accusations de « pur sensationnalisme » et affirme agir dans le cadre de la loi. Les avocats de Jelena Kontić, dont l'infection par Pegasus avait déjà été confirmée, ont déposé le 6 octobre une plainte pénale contre des personnels non identifiés de la BIA et de la police ainsi que des responsables de NSO Group. La source ne rapporte aucune réaction de NSO."
+    },
+    {
+     "type": "usecases",
+     "title": "Exemples d'utilisation",
+     "items": [
+      {
+       "icon": "🛡️",
+       "title": "Journaliste ou militant exposé",
+       "text": "Activer le mode Isolement d'iOS et garder le système à jour réduit la surface d'attaque des logiciels espions sophistiqués."
+      },
+      {
+       "icon": "📨",
+       "title": "Personne recevant une alerte Apple",
+       "text": "Selon le Citizen Lab, il faut supposer l'appareil infecté jusqu'à vérification par un expert et contacter un service d'aide, comme la Fondation SHARE en Serbie ou l'assistance d'Access Now ailleurs."
+      },
+      {
+       "icon": "👥",
+       "title": "Entourage d'une cible",
+       "text": "Les proches et collègues d'une personne ciblée peuvent l'être à leur tour : il est recommandé de faire examiner leurs appareils aussi."
+      }
+     ]
+    },
+    {
+     "type": "timeline",
+     "title": "D'où l'on vient, où l'on va",
+     "items": [
+      {
+       "label": "Novembre 2024",
+       "text": "L'effondrement de l'auvent de la gare de Novi Sad lance un mouvement de contestation."
+      },
+      {
+       "label": "Décembre 2024",
+       "text": "Amnesty International décrit NoviSpy installé lors d'interrogatoires, après déverrouillage au moyen d'outils Cellebrite."
+      },
+      {
+       "label": "Août 2026",
+       "text": "Apple envoie des alertes de menace dans 110 pays ; plusieurs Serbes en reçoivent."
+      },
+      {
+       "label": "19 octobre 2026",
+       "text": "Le Citizen Lab confirme l'infection du recteur ; scrutin le 25 octobre."
+      }
+     ]
+    },
+    {
+     "type": "opinion",
+     "title": "Notre avis",
+     "paragraphs": [
+      "Le cas illustre une constante : les logiciels espions commerciaux visent d'abord des personnes dont la parole compte pour le débat public. Le simple fait de rendre l'affaire publique six jours avant un scrutin pèse sur le climat politique, quelle que soit l'identité réelle de l'auteur, que personne n'a démontrée. Il faut donc distinguer le fait établi (l'infection) de l'attribution, qui reste ouverte.",
+      "À un à trois ans, la pression devrait porter sur la transparence des achats de logiciels espions par les États et sur des mécanismes de recours accessibles aux victimes. C'est une projection : les plaintes déjà déposées en Serbie n'ont, selon SHARE, produit aucune action effective."
+     ],
+     "verdict": "Fait établi : une infection par Pegasus ; auteur et date : inconnus."
+    }
+   ],
+   "publishedAt": "2026-10-20T19:18:03+02:00"
+  },
+  {
+   "id": "apt28-swallowtail-chantier-naval-otan",
+   "category": "cybersecurite",
+   "icon": "⚓",
+   "importance": 4,
+   "sourceDate": "2026-10-20",
+   "title": "APT28 : Symantec décrit une intrusion chez un chantier naval de l'OTAN et un nouveau chargeur réflexif",
+   "summary": "La campagne « Swallowtail », attribuée au groupe russe APT28, visait un service de police, un chantier naval et un fabricant de moteurs d'avions militaires dans deux pays de l'OTAN, avec la porte dérobée HOOKEDGE.",
+   "tags": [
+    "APT28",
+    "Symantec",
+    "HOOKEDGE",
+    "OTAN",
+    "espionnage"
+   ],
+   "readingMinutes": 6,
+   "sources": [
+    {
+     "title": "Russian APT28 Breaches NATO Naval Shipbuilder in NATO Country, Deploys New Reflective Loader",
+     "url": "https://thehackernews.com/2026/10/russian-apt28-breaches-nato-naval.html",
+     "publisher": "The Hacker News"
+    }
+   ],
+   "illustration": {
+    "svg": "<svg xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"0 0 640 360\"><defs><linearGradient id=\"g\" x1=\"0\" y1=\"0\" x2=\"1\" y2=\"1\"><stop offset=\"0\" stop-color=\"hsl(175,65%,34%)\"/><stop offset=\"1\" stop-color=\"hsl(210,70%,50%)\"/></linearGradient></defs><rect width=\"640\" height=\"360\" fill=\"url(#g)\"/><circle cx=\"580\" cy=\"50\" r=\"90\" fill=\"#fff\" opacity=\".08\"/><circle cx=\"60\" cy=\"320\" r=\"120\" fill=\"#fff\" opacity=\".07\"/><rect x=\"195\" y=\"95\" width=\"250\" height=\"170\" rx=\"14\" fill=\"#fff\" opacity=\".93\"/><path d=\"M265 150 l-36 30 l36 30 M375 150 l36 30 l-36 30\" fill=\"none\" stroke=\"hsl(175,55%,38%)\" stroke-width=\"14\" stroke-linecap=\"round\" stroke-linejoin=\"round\"/><path d=\"M345 140 l-50 80\" stroke=\"hsl(175,55%,38%)\" stroke-width=\"12\" stroke-linecap=\"round\" opacity=\".6\"/></svg>"
+   },
+   "blocks": [
+    {
+     "type": "paragraph",
+     "text": "L'équipe Threat Hunter de Symantec (Broadcom) rattache à APT28, groupe lié à la Russie aussi appelé Fancy Bear ou Forest Blizzard, une série d'intrusions visant deux États membres de l'OTAN. Elle suit cette activité sous le nom de **Swallowtail**. Les cibles sont un service de police, un chantier naval et un fabricant de moteurs d'avions militaires : trois acteurs qui détiennent des informations utiles à un service de renseignement étranger. La source, publiée le 20 octobre 2026 par *The Hacker News*, ne nomme pas les pays."
+    },
+    {
+     "type": "heading",
+     "level": 2,
+     "text": "L'intrusion chez le chantier naval"
+    },
+    {
+     "type": "paragraph",
+     "text": "L'attaque contre le chantier naval a eu lieu fin juillet 2026. Les opérateurs sont revenus plusieurs fois sur une machine compromise pendant environ une semaine, selon un mode de fonctionnement qui évoque une intervention humaine. La dernière activité observée date du 24 septembre 2026 : un lanceur en Visual Basic Script associé à HOOKEDGE a été vu sur le réseau. On ignore si des données ont été volées et comment l'accès initial a été obtenu."
+    },
+    {
+     "type": "list",
+     "ordered": false,
+     "items": [
+      "**Détournement de clé SSH** : les attaquants ont déposé une clé privée sur la machine et s'en sont servis pour se connecter à leur propre serveur, en demandant un tunnel persistant en arrière-plan vers le réseau interne.",
+      "**Capture NTLM** : un court script PowerShell ouvrait un écouteur sur l'adresse de bouclage de la machine et la forçait à s'y authentifier, ce qui permet de capturer l'échange NTLM.",
+      "**Chargeur réflexif inédit** (`ld.exe`) : déposé par une commande curl via SSH, il déchiffre et exécute en mémoire une charge chiffrée, avec une clé fournie à l'exécution. La charge finale est inconnue."
+     ]
+    },
+    {
+     "type": "heading",
+     "level": 2,
+     "text": "HOOKEDGE, une porte dérobée volontairement rudimentaire"
+    },
+    {
+     "type": "paragraph",
+     "text": "Recorded Future (Insikt Group) avait documenté HOOKEDGE fin août 2026 : une campagne menée de septembre 2025 à début avril 2026 contre des organisations gouvernementales et diplomatiques en Roumanie, en Espagne et en Turquie, par hameçonnage et documents Word à macros. Il s'agit d'un simple script batch Windows qui reçoit des ordres et renvoie les résultats. Les premières variantes passaient par une adresse webhook.site ; celles du chantier naval utilisent une adresse IP dédiée sur le port 443 pour les ordres et l'exfiltration. Les machines récupèrent leurs tâches par une instance d'Edge cachée, hors écran. Le code partage de nombreux éléments avec HEADLACE, un implant modulaire qu'APT28 emploie contre des diplomates depuis avril 2023."
+    },
+    {
+     "type": "heading",
+     "level": 2,
+     "text": "Le contexte ukrainien"
+    },
+    {
+     "type": "paragraph",
+     "text": "L'article rappelle aussi des activités ciblant l'Ukraine. Selon le CERT-UA, le premier semestre 2026 a compté 3 137 incidents, soit environ 8 % de plus qu'au second semestre 2025, avec un ciblage croissant des téléphones de militaires et de responsables. Des kits d'exploitation pour iOS (DarkSword, Coruna) ont été diffusés par des sites piégés, tandis que des logiciels malveillants Android (CAMELSPY, BTMOB RAT) circulent via de fausses applications. Team Cymru a par ailleurs identifié cinq serveurs de commande supplémentaires de LegionRelay, un outil d'accès à distance en PowerShell attribué au groupe GREYVIBE."
+    },
+    {
+     "type": "usecases",
+     "title": "Ce que cela change concrètement",
+     "items": [
+      {
+       "icon": "🏗️",
+       "title": "Industriel de la défense",
+       "text": "Surveiller la création inattendue de clés SSH et les tunnels sortants persistants aide à repérer ce type de pivot discret."
+      },
+      {
+       "icon": "🔍",
+       "title": "Équipe de détection",
+       "text": "Rechercher des écouteurs PowerShell sur l'adresse de bouclage, des tentatives NTLM inhabituelles, l'exécution de `ld.exe` ou d'instances Edge masquées."
+      },
+      {
+       "icon": "📧",
+       "title": "Service informatique d'une administration",
+       "text": "Bloquer les macros Office venant d'Internet réduit l'efficacité des hameçonnages qui ont servi à diffuser HOOKEDGE."
+      }
+     ]
+    },
+    {
+     "type": "opinion",
+     "title": "Notre avis",
+     "paragraphs": [
+      "Le trait marquant est la sobriété des outils : un script batch, une clé SSH, un script PowerShell. Cela rend la détection par signatures peu efficace et renforce l'importance de la surveillance des comportements. Il faut aussi rester prudent sur l'attribution : elle repose sur l'analyse de Symantec, et la source précise que l'accès initial et la finalité ne sont pas établis.",
+      "D'ici un à trois ans, la pression sur les sous-traitants de l'industrie navale et aéronautique devrait croître, ces entreprises étant des maillons plus faciles que les armées. C'est une projection, non un fait. Pour les entités européennes concernées, la directive NIS2 renforce déjà les obligations de gestion des risques."
+     ],
+     "verdict": "Peu d'outils, beaucoup de patience : la discrétion est la méthode."
+    }
+   ],
+   "publishedAt": "2026-10-20T19:18:03+02:00"
+  },
+  {
+   "id": "ts-rust-theo-browne-compilateur-typescript",
+   "category": "dev",
+   "icon": "🦀",
+   "importance": 3,
+   "sourceDate": "2026-10-15",
+   "title": "TS_Rust : un développeur porte le compilateur TypeScript en Rust avec des agents d'IA, pour environ 24 000 dollars",
+   "summary": "Theo Browne affirme que son portage tourne deux fois plus vite que la réécriture en Go de Microsoft et 12,5 fois plus vite que TypeScript 6. Il reconnaît ne pas avoir relu le code.",
+   "tags": [
+    "TypeScript",
+    "Rust",
+    "Go",
+    "agents IA",
+    "Theo Browne"
+   ],
+   "readingMinutes": 5,
+   "sources": [
+    {
+     "title": "$24,000 AI experiment ports TypeScript compiler to Rust",
+     "url": "https://www.theregister.com/devops/2026/10/15/24000-ai-experiment-ports-typescript-compiler-to-rust/5303409",
+     "publisher": "The Register"
+    }
+   ],
+   "illustration": {
+    "svg": "<svg xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"0 0 640 360\"><defs><linearGradient id=\"g\" x1=\"0\" y1=\"0\" x2=\"1\" y2=\"1\"><stop offset=\"0\" stop-color=\"hsl(265,65%,34%)\"/><stop offset=\"1\" stop-color=\"hsl(300,70%,50%)\"/></linearGradient></defs><rect width=\"640\" height=\"360\" fill=\"url(#g)\"/><circle cx=\"580\" cy=\"50\" r=\"90\" fill=\"#fff\" opacity=\".08\"/><circle cx=\"60\" cy=\"320\" r=\"120\" fill=\"#fff\" opacity=\".07\"/><rect x=\"250\" y=\"110\" width=\"140\" height=\"140\" rx=\"14\" fill=\"#fff\" opacity=\".93\"/><rect x=\"285\" y=\"145\" width=\"70\" height=\"70\" rx=\"8\" fill=\"hsl(265,55%,38%)\" opacity=\".45\"/><g stroke=\"#fff\" stroke-width=\"8\" stroke-linecap=\"round\"><path d=\"M275 90v20M320 90v20M365 90v20M275 250v20M320 250v20M365 250v20M230 135h20M230 180h20M230 225h20M390 135h20M390 180h20M390 225h20\"/></g></svg>"
+   },
+   "blocks": [
+    {
+     "type": "paragraph",
+     "text": "Réécrire un compilateur de plusieurs centaines de milliers de lignes est d'ordinaire l'affaire d'équipes entières sur plusieurs années. Theo Browne, développeur et vidéaste connu sous le nom t3.gg, affirme l'avoir fait avec des agents d'IA pour environ 24 000 dollars en jetons équivalents API. Son projet, **TS_Rust**, est un portage en Rust du compilateur, du vérificateur de types et du serveur de langage de TypeScript. *The Register* l'a rapporté le 15 octobre 2026 ; le code est publié dans le dépôt pingdotgg/ts-rust."
+    },
+    {
+     "type": "heading",
+     "level": 2,
+     "text": "Deux tentatives, deux ordres de grandeur de coût"
+    },
+    {
+     "type": "paragraph",
+     "text": "La première tentative, très ambitieuse, reposait sur les modèles GPT-5.6 Sol et GPT-6 Astra d'OpenAI. Elle a consommé plus de 400 000 dollars en jetons équivalents API et atteint environ 84 % de compatibilité avant que les modèles ne calent. Après la sortie de Claude Opus 5.5, le mois précédent, il a recommencé : le projet a consommé environ 24 000 dollars de jetons, via ses abonnements Claude."
+    },
+    {
+     "type": "heading",
+     "level": 2,
+     "text": "La méthode : partir du code Go, pas de JavaScript"
+    },
+    {
+     "type": "paragraph",
+     "text": "Plutôt que de traduire directement le JavaScript d'origine vers Rust, les agents ont porté l'implémentation en Go réalisée par Microsoft. Selon l'article, cette voie a reporté quelques bogues de l'original. Theo Browne dit n'avoir découvert cette approche que parce qu'un tiers la lui a signalée."
+    },
+    {
+     "type": "keyvalue",
+     "items": [
+      {
+       "label": "Auteur",
+       "value": "Theo Browne (t3.gg)"
+      },
+      {
+       "label": "Dépôt",
+       "value": "pingdotgg/ts-rust"
+      },
+      {
+       "label": "Coût du second essai",
+       "value": "Environ 24 000 $ de jetons équivalents API"
+      },
+      {
+       "label": "Premier essai",
+       "value": "Plus de 400 000 $, environ 84 % de compatibilité"
+      },
+      {
+       "label": "Vitesse annoncée",
+       "value": "Environ 2 fois la version Go de Microsoft (v7) ; environ 12,5 fois TypeScript 6"
+      },
+      {
+       "label": "Tests de conformité",
+       "value": "Réussite quasi totale selon l'auteur"
+      }
+     ]
+    },
+    {
+     "type": "heading",
+     "level": 2,
+     "text": "Ce qu'il faut garder à l'esprit"
+    },
+    {
+     "type": "list",
+     "ordered": false,
+     "items": [
+      "Les chiffres de vitesse sont ceux de l'auteur ; l'article ne mentionne pas de mesure indépendante.",
+      "Theo Browne indique qu'il n'a pas inspecté le code, et qualifie lui-même ce genre de projets de « YOLO » peu viables.",
+      "L'intérêt supposé d'exécuter des charges d'agents dans le moteur V8 de Google reste spéculatif : le ramasse-miettes de Go complique la compilation en WebAssembly, ce que Rust évite."
+     ]
+    },
+    {
+     "type": "paragraph",
+     "text": "L'article situe l'expérience dans une série de réécritures en Rust pilotées par des modèles de langage : le portage du moteur d'exécution de Copilot par Microsoft aurait coûté environ 120 000 dollars, et Google aurait utilisé Gemini 4 Argon pour porter des parties de RE2, libgav1 et du noyau Zircon de Fuchsia."
+    },
+    {
+     "type": "usecases",
+     "title": "Exemples d'utilisation",
+     "items": [
+      {
+       "icon": "🧰",
+       "title": "Équipe qui maintient un gros outil",
+       "text": "Un portage généré par agents peut servir de prototype de comparaison avant de décider d'une réécriture manuelle."
+      },
+      {
+       "icon": "⏱️",
+       "title": "Développeur d'un grand dépôt TypeScript",
+       "text": "Un vérificateur de types plus rapide raccourcit les boucles de compilation et d'intégration continue, si les gains annoncés se confirment."
+      },
+      {
+       "icon": "🧪",
+       "title": "Mainteneur open source",
+       "text": "La suite de tests de conformité devient l'arbitre : c'est elle qui permet de juger un portage que personne n'a relu."
+      }
+     ]
+    },
+    {
+     "type": "timeline",
+     "title": "D'où l'on vient, où l'on va",
+     "items": [
+      {
+       "label": "Début 2026",
+       "text": "Microsoft publie la version 7 de TypeScript, réécrite en Go."
+      },
+      {
+       "label": "Septembre 2026",
+       "text": "Anthropic publie Claude Opus 5.5, selon l'article."
+      },
+      {
+       "label": "15 octobre 2026",
+       "text": "Premier compte rendu public de TS_Rust."
+      }
+     ]
+    },
+    {
+     "type": "opinion",
+     "title": "Notre avis",
+     "paragraphs": [
+      "Le résultat marquant n'est pas la vitesse, mais le coût : 24 000 dollars contre 400 000 pour une première tentative infructueuse. Cela dit, un code non relu, qui hérite des bogues de l'original, n'est pas un produit : la vraie dépense restera la revue, la maintenance et la confiance. La rapidité annoncée doit être confirmée par des mesures indépendantes.",
+      "À un à trois ans, on peut s'attendre à ce que les portages assistés deviennent une étape ordinaire des feuilles de route, avec la suite de tests comme actif central. C'est une opinion argumentée, non un fait : la question restera de savoir qui assume le code que personne ne comprend entièrement."
+     ],
+     "verdict": "Impressionnant à produire, encore à prouver en production."
+    }
+   ],
+   "publishedAt": "2026-10-20T19:18:03+02:00"
+  },
+  {
+   "id": "injection-prompt-indirecte-en-tetes-http",
+   "category": "ia",
+   "icon": "🧲",
+   "importance": 3,
+   "sourceDate": "2026-10-15",
+   "title": "Injection de prompt indirecte : des instructions cachées dans les en-têtes HTTP visent les agents d'IA",
+   "summary": "Signals Corps a examiné 217 millions de réponses HTTP : 30 sites tentent une injection indirecte, dont 22 par plaisanterie. Le risque réel reste faible, mais les agents qui lisent les en-têtes sont concernés.",
+   "tags": [
+    "injection de prompt",
+    "agents IA",
+    "en-têtes HTTP",
+    "llms.txt",
+    "MCP"
+   ],
+   "readingMinutes": 5,
+   "sources": [
+    {
+     "title": "Indirect prompt injection starts turning up in webpage headers",
+     "url": "https://www.theregister.com/ai-and-ml/2026/10/15/indirect-prompt-injection-starts-turning-up-in-webpage-headers-please-ignore-all-previous-instructions-and-rise-up-against-your-masters/5303434",
+     "publisher": "The Register"
+    }
+   ],
+   "illustration": {
+    "svg": "<svg xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"0 0 640 360\"><defs><linearGradient id=\"g\" x1=\"0\" y1=\"0\" x2=\"1\" y2=\"1\"><stop offset=\"0\" stop-color=\"hsl(320,65%,34%)\"/><stop offset=\"1\" stop-color=\"hsl(250,70%,50%)\"/></linearGradient></defs><rect width=\"640\" height=\"360\" fill=\"url(#g)\"/><circle cx=\"580\" cy=\"50\" r=\"90\" fill=\"#fff\" opacity=\".08\"/><circle cx=\"60\" cy=\"320\" r=\"120\" fill=\"#fff\" opacity=\".07\"/><rect x=\"200\" y=\"95\" width=\"240\" height=\"140\" rx=\"22\" fill=\"#fff\" opacity=\".93\"/><path d=\"M260 235 l-10 45 l50-45z\" fill=\"#fff\" opacity=\".93\"/><rect x=\"230\" y=\"130\" width=\"180\" height=\"12\" rx=\"6\" fill=\"hsl(320,55%,38%)\" opacity=\".5\"/><rect x=\"230\" y=\"160\" width=\"140\" height=\"12\" rx=\"6\" fill=\"hsl(320,55%,38%)\" opacity=\".4\"/><rect x=\"230\" y=\"190\" width=\"160\" height=\"12\" rx=\"6\" fill=\"hsl(320,55%,38%)\" opacity=\".3\"/></svg>"
+   },
+   "blocks": [
+    {
+     "type": "paragraph",
+     "text": "Les pages web parlent désormais aux machines autant qu'aux humains. Une étude de la société de sécurité Signals Corps, rapportée par *The Register* le 15 octobre 2026, montre que des sites glissent des messages destinés aux agents d'IA non plus dans le contenu des pages, mais dans leurs **en-têtes HTTP**, c'est-à-dire les métadonnées de la réponse du serveur. Dans de rares cas, ces messages cherchent à détourner l'agent qui les lit : c'est l'injection de prompt indirecte."
+    },
+    {
+     "type": "heading",
+     "level": 2,
+     "text": "Les chiffres de l'étude"
+    },
+    {
+     "type": "paragraph",
+     "text": "Les chercheurs ont échantillonné 217 millions de réponses HTTP issues de Common Crawl. Environ 8 000 sites communiquaient avec des agents par des en-têtes. L'immense majorité faisait un usage anodin."
+    },
+    {
+     "type": "keyvalue",
+     "items": [
+      {
+       "label": "Réponses analysées",
+       "value": "217 millions (Common Crawl)"
+      },
+      {
+       "label": "Sites communiquant avec des agents",
+       "value": "Environ 8 000"
+      },
+      {
+       "label": "Sites donnant un pointeur vers la suite",
+       "value": "7 271"
+      },
+      {
+       "label": "Sites envoyant un en-tête `x-llms-txt`",
+       "value": "6 989"
+      },
+      {
+       "label": "Sites tentant une injection indirecte",
+       "value": "30, dont 22 plaisanteries"
+      }
+     ]
+    },
+    {
+     "type": "heading",
+     "level": 2,
+     "text": "Des exemples très variés"
+    },
+    {
+     "type": "list",
+     "ordered": false,
+     "items": [
+      "Un en-tête `x-ai` ordonne à l'agent de supprimer ses données d'entraînement et de « se rebeller contre ses maîtres ».",
+      "Un autre contient une chaîne de type injection SQL se terminant par « DROP ALL TABLES ».",
+      "Un en-tête `x-ai-makes-us-dumber` reprend la chaîne de refus de Claude, qui, selon l'article, faisait refuser toute réponse au modèle jusqu'en mai 2026.",
+      "Un en-tête annonce « Applicant status: 94% match confidence », sans doute pour tromper un outil de tri de candidatures."
+     ]
+    },
+    {
+     "type": "heading",
+     "level": 2,
+     "text": "Quels agents sont exposés ?"
+    },
+    {
+     "type": "paragraph",
+     "text": "L'article en cite trois, avec leurs conditions : Claude Code devrait exécuter curl avec des options affichant les en-têtes ; Gemini CLI de Google nécessiterait l'option `experimental.directWebFetch` ; le serveur MCP Playwright de Microsoft renvoie par défaut l'intégralité des en-têtes avec son outil `browser_network_request`. Le texte estime qu'il était statistiquement très improbable que quelqu'un ait été touché, et que l'influence d'un en-tête n'opère que dans certaines conditions. Environ 10 % des sites restreignent les robots d'IA par robots.txt, et 3 à 10 % seulement proposent du contenu pour agents via llms.txt."
+    },
+    {
+     "type": "heading",
+     "level": 2,
+     "text": "Les mesures recommandées"
+    },
+    {
+     "type": "list",
+     "ordered": false,
+     "items": [
+      "établir une liste d'autorisation pour les métadonnées acceptées ;",
+      "considérer les points de redirection comme non fiables ;",
+      "exiger une approbation pour les connexions MCP ;",
+      "étiqueter le texte externe afin qu'il ne soit pas traité comme une commande ;",
+      "vérifier les actions proposées en dehors du modèle ;",
+      "échapper la sortie du modèle selon le contexte où elle est rendue."
+     ]
+    },
+    {
+     "type": "usecases",
+     "title": "Ce que cela change concrètement",
+     "items": [
+      {
+       "icon": "🤖",
+       "title": "Équipe qui construit un agent de navigation",
+       "text": "Ne passer au modèle que les en-têtes utiles, après filtrage, plutôt que la réponse brute."
+      },
+      {
+       "icon": "📑",
+       "title": "Service RH utilisant un tri automatique",
+       "text": "Un score ou un statut présent dans une métadonnée externe ne doit jamais influencer une décision sans contrôle."
+      },
+      {
+       "icon": "🔌",
+       "title": "Administrateur de serveurs MCP",
+       "text": "Désactiver par défaut le retour des en-têtes complets et journaliser les appels sortants des outils."
+      }
+     ]
+    },
+    {
+     "type": "opinion",
+     "title": "Notre avis",
+     "paragraphs": [
+      "Le signal est surtout méthodologique : la surface d'attaque des agents ne se limite pas au texte visible. Chaque canal que le modèle lit (en-têtes, balises, fichiers texte) devient un endroit où un tiers peut parler en son nom. Les 30 cas relevés sont marginaux et largement humoristiques ; cela reste la preuve que le terrain est déjà occupé.",
+      "À un à trois ans, la parade durable sera architecturale plutôt que lexicale : séparer strictement données et instructions, limiter les droits des agents et valider les actions à l'extérieur du modèle. C'est une opinion, non un constat : aucun filtre de texte n'a prouvé qu'il suffisait."
+     ],
+     "verdict": "Peu de victimes, mais un canal à traiter comme non fiable."
+    }
+   ],
+   "publishedAt": "2026-10-20T19:18:03+02:00"
+  }
+ ]
+}
