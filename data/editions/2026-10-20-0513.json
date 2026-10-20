@@ -1,0 +1,2272 @@
+{
+  "schemaVersion": "1.0",
+  "date": "2026-10-20",
+  "generatedAt": "2026-10-20T05:20:36+02:00",
+  "title": "Tech : Plex2Shell, AOMEI détourné, DeepSeek banni des agences américaines, OpenBSD 8.0 et les nouveautés CSS",
+  "summary": "Cette édition tech revient sur l'exploitation de la chaîne de failles Plex2Shell, le détournement des serveurs de mise à jour d'AOMEI, la cyberattaque chez Ahold Delhaize, l'interdiction de DeepSeek aux agences fédérales civiles américaines, la sortie d'OpenBSD 8.0 et plusieurs nouveautés matérielles et CSS.",
+  "highlights": [
+    "Plex2Shell : quatre failles de Plex Media Server enchaînées et exploitées depuis la publication de la preuve de concept, correctif disponible depuis août",
+    "AOMEI Backupper : des serveurs de mise à jour détournés par intermittence, entre mai et juillet, pour diffuser un chargeur et une porte dérobée",
+    "DeepSeek : le DHS ordonne aux agences fédérales civiles américaines de cesser son usage, avec une clause sur les services « développés avec » qui reste floue",
+    "OpenBSD 8.0 est publié, avec 512 Go d'espace noyau sur amd64 et l'hibernation sur arm64",
+    "Windows Server d'octobre : une limite d'appels du Endpoint Mapper met Exchange en difficulté, contournement par le registre"
+  ],
+  "meta": {
+    "generator": "claude-scheduled-task"
+  },
+  "posts": [
+    {
+      "id": "web-dev-septembre-progress-alpha-revert-rule",
+      "category": "web",
+      "icon": "🎨",
+      "importance": 3,
+      "sourceDate": "2026-10-02",
+      "title": "CSS : progress(), alpha(), revert-rule et light-dark() pour les images, les nouveautés de septembre côté navigateurs",
+      "summary": "Le bilan web.dev de septembre 2026, premier mois de versions bimensuelles pour Chrome et Firefox, recense plusieurs fonctions CSS devenues disponibles dans les trois moteurs, dont progress(), alpha() et revert-rule.",
+      "tags": [
+        "CSS",
+        "Baseline",
+        "Firefox 155",
+        "Safari 27",
+        "Chrome"
+      ],
+      "sources": [
+        {
+          "title": "Nouveautés de la plateforme web en septembre",
+          "url": "https://web.dev/blog/web-platform-09-2026",
+          "publisher": "web.dev"
+        }
+      ],
+      "blocks": [
+        {
+          "type": "paragraph",
+          "text": "Septembre 2026 marque un changement de rythme pour la plateforme web : c'est le premier mois pendant lequel Chrome et Firefox ont publié des versions toutes les deux semaines. D'après le bilan mensuel de web.dev signé Rachel Andrew et publié le 2 octobre, Chrome 153 et 154, Firefox 155, 156 et 157 ainsi que Safari 27 sont passés en version stable. Cette cadence accélère l'arrivée des fonctions dans les trois moteurs, donc leur passage au statut « Baseline », qui indique qu'une fonction peut être utilisée sans précaution particulière."
+        },
+        {
+          "type": "paragraph",
+          "text": "Le billet ne donne pas de noms de code aux fonctions : elles sont ici désignées par le nom de leur spécification. Il précise que les données de compatibilité viennent de MDN et peuvent retarder sur les versions les plus récentes."
+        },
+        {
+          "type": "heading",
+          "level": 2,
+          "text": "Les nouveautés CSS du mois"
+        },
+        {
+          "type": "table",
+          "headers": [
+            "Fonction",
+            "Navigateurs",
+            "Statut"
+          ],
+          "rows": [
+            [
+              "`progress()`",
+              "Firefox 155 ; Safari 27 pour l'option `no-clamp`",
+              "Baseline « Newly available »"
+            ],
+            [
+              "`alpha()` (couleurs relatives)",
+              "Chrome 151, Firefox 155, Safari 27",
+              "Baseline « Newly available »"
+            ],
+            [
+              "`revert-rule`",
+              "Safari 27, après Chrome 148 et Firefox 150",
+              "Baseline « Newly available »"
+            ],
+            [
+              "Images dans `light-dark()`",
+              "Chrome 150, Firefox 150, Safari 27",
+              "Baseline « Newly available »"
+            ],
+            [
+              "Ancrage du défilement et `overflow-anchor`",
+              "Safari 27 (déjà présent dans Chrome 56, Edge 79, Firefox 66)",
+              "Baseline « Newly available »"
+            ],
+            [
+              "`font-width`",
+              "Firefox 155 ; Safari déjà compatible ; Chrome 154 pour le descripteur, selon l'article",
+              "Baseline « Newly available »"
+            ]
+          ]
+        },
+        {
+          "type": "heading",
+          "level": 2,
+          "text": "À quoi servent ces fonctions"
+        },
+        {
+          "type": "list",
+          "ordered": false,
+          "items": [
+            "**`progress()`** renvoie un nombre indiquant la position d'un calcul entre une valeur de départ et une valeur d'arrivée, normalement limité entre 0 et 1. Il convient aux tailles fluides ou à l'opacité liées à la largeur d'un conteneur ; l'exemple du billet fait varier l'opacité avec la largeur de la fenêtre entre 320 et 1 200 pixels. L'option `no-clamp` permet de sortir de cet intervalle ;",
+            "**`alpha()`** prend une couleur d'origine et renvoie la même couleur avec une transparence modifiée, sans toucher aux canaux ni à l'espace colorimétrique : un fond de couleur de marque à 50 % de transparence, par exemple ;",
+            "**`revert-rule`** rétablit une propriété à la valeur qu'elle aurait sans la règle de style courante. `revert` revient à l'origine utilisateur ou navigateur et `revert-layer` à la couche de cascade précédente, tandis que `revert-rule` annule seulement la règle en cours ;",
+            "**`light-dark()`** n'acceptait que des couleurs ; il accepte désormais des images (`url()` ou dégradés) selon le schéma de couleurs actif ;",
+            "**L'ancrage du défilement** ajuste la position de défilement quand du contenu change au-dessus de la zone visible, pour que le texte lu ne saute pas. `overflow-anchor: none` exclut un élément ;",
+            "**`font-width`** est le nom canonique pour choisir des variantes normales, condensées ou étendues d'une police ; `font-stretch` reste un alias historique."
+          ]
+        },
+        {
+          "type": "diagram",
+          "svg": "<svg xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"0 0 640 190\" font-family=\"system-ui,sans-serif\"><defs><marker id=\"a\" markerWidth=\"8\" markerHeight=\"8\" refX=\"6\" refY=\"4\" orient=\"auto\"><path d=\"M0 0 L8 4 L0 8z\" fill=\"#1d4ed8\"/></marker></defs><rect width=\"640\" height=\"190\" rx=\"14\" fill=\"#f4f6fb\"/><text x=\"320\" y=\"28\" font-size=\"14\" font-weight=\"700\" fill=\"#1b2340\" text-anchor=\"middle\">progress() : où se situe une valeur entre deux bornes</text><rect x=\"20\" y=\"52\" width=\"133\" height=\"114\" rx=\"10\" fill=\"#fff\" stroke=\"#1d4ed8\" stroke-width=\"2\"/><text x=\"86.5\" y=\"82\" font-size=\"13\" font-weight=\"700\" fill=\"#1b2340\" text-anchor=\"middle\">Valeur de départ</text><text x=\"86.5\" y=\"106\" font-size=\"11\" fill=\"#3a4466\" text-anchor=\"middle\">320 px</text><text x=\"86.5\" y=\"124\" font-size=\"11\" fill=\"#3a4466\" text-anchor=\"middle\">largeur minimale</text><line x1=\"155\" y1=\"109.0\" x2=\"173\" y2=\"109.0\" stroke=\"#1d4ed8\" stroke-width=\"2.5\" marker-end=\"url(#a)\"/><rect x=\"175\" y=\"52\" width=\"133\" height=\"114\" rx=\"10\" fill=\"#fff\" stroke=\"#1d4ed8\" stroke-width=\"2\"/><text x=\"241.5\" y=\"82\" font-size=\"13\" font-weight=\"700\" fill=\"#1b2340\" text-anchor=\"middle\">progress()</text><text x=\"241.5\" y=\"106\" font-size=\"11\" fill=\"#3a4466\" text-anchor=\"middle\">position entre 0 et 1</text><text x=\"241.5\" y=\"124\" font-size=\"11\" fill=\"#3a4466\" text-anchor=\"middle\">calcul fluide</text><line x1=\"310\" y1=\"109.0\" x2=\"328\" y2=\"109.0\" stroke=\"#1d4ed8\" stroke-width=\"2.5\" marker-end=\"url(#a)\"/><rect x=\"330\" y=\"52\" width=\"133\" height=\"114\" rx=\"10\" fill=\"#fff\" stroke=\"#1d4ed8\" stroke-width=\"2\"/><text x=\"396.5\" y=\"82\" font-size=\"13\" font-weight=\"700\" fill=\"#1b2340\" text-anchor=\"middle\">Résultat</text><text x=\"396.5\" y=\"106\" font-size=\"11\" fill=\"#3a4466\" text-anchor=\"middle\">opacité</text><text x=\"396.5\" y=\"124\" font-size=\"11\" fill=\"#3a4466\" text-anchor=\"middle\">de 0 à 1</text><line x1=\"465\" y1=\"109.0\" x2=\"483\" y2=\"109.0\" stroke=\"#1d4ed8\" stroke-width=\"2.5\" marker-end=\"url(#a)\"/><rect x=\"485\" y=\"52\" width=\"133\" height=\"114\" rx=\"10\" fill=\"#fff\" stroke=\"#1d4ed8\" stroke-width=\"2\"/><text x=\"551.5\" y=\"82\" font-size=\"13\" font-weight=\"700\" fill=\"#1b2340\" text-anchor=\"middle\">no-clamp</text><text x=\"551.5\" y=\"106\" font-size=\"11\" fill=\"#3a4466\" text-anchor=\"middle\">hors intervalle</text><text x=\"551.5\" y=\"124\" font-size=\"11\" fill=\"#3a4466\" text-anchor=\"middle\">si nécessaire</text></svg>",
+          "alt": "Schéma en quatre étapes montrant comment progress() convertit une largeur comprise entre deux bornes en nombre entre 0 et 1, utilisable pour l'opacité.",
+          "caption": "La fonction progress() convertit une position entre deux bornes en nombre exploitable dans d'autres calculs CSS."
+        },
+        {
+          "type": "usecases",
+          "title": "Exemples d'utilisation",
+          "items": [
+            {
+              "icon": "🌗",
+              "title": "Un site avec thème clair et sombre",
+              "text": "Une équipe remplace deux images de fond conditionnées par un media query par un seul `light-dark()` appliqué à des dégradés."
+            },
+            {
+              "icon": "📐",
+              "title": "Une interface fluide",
+              "text": "Un développeur règle l'opacité d'un bandeau de page avec `progress()` en fonction de la largeur de la fenêtre, sans script ni requête média."
+            },
+            {
+              "icon": "🎨",
+              "title": "Une charte graphique",
+              "text": "Un système de conception définit une couleur de marque et en tire des variantes translucides avec `alpha()` plutôt que de multiplier les variables."
+            }
+          ]
+        },
+        {
+          "type": "timeline",
+          "title": "D'où l'on vient, où l'on va",
+          "items": [
+            {
+              "label": "Chrome 148 et Firefox 150",
+              "text": "`revert-rule` y devient disponible."
+            },
+            {
+              "label": "Septembre 2026",
+              "text": "Premier mois de versions bimensuelles pour Chrome et Firefox ; Safari 27 sort en version stable."
+            },
+            {
+              "label": "2 octobre 2026",
+              "text": "Publication du bilan sur web.dev."
+            }
+          ]
+        },
+        {
+          "type": "opinion",
+          "title": "Notre avis",
+          "paragraphs": [
+            "Ces fonctions ne changent pas la façon de concevoir un site, mais elles retirent des contournements : un script pour calculer une opacité, des variables supplémentaires pour déclinaisons de couleur, une feuille de style à part pour chaque thème. Le statut « Baseline » est surtout utile à ceux qui doivent justifier un choix technique devant un client ou une équipe qualité, car il évite de multiplier les vérifications de compatibilité.",
+            "À un horizon d'un à trois ans, on peut penser que la cadence bimensuelle réduira l'écart entre moteurs, mais fera aussi apparaître plus vite des fonctions à tester avant de les adopter. Il s'agit d'une prévision d'analyste : les éditeurs de navigateurs n'ont pas publié de calendrier pour l'ensemble des fonctions."
+          ],
+          "verdict": "Du CSS plus expressif, à adopter avec la table de compatibilité sous les yeux."
+        },
+        {
+          "type": "callout",
+          "variant": "info",
+          "title": "À retenir",
+          "text": "Firefox 155 et Safari 27 complètent le support de plusieurs fonctions CSS, désormais « Baseline Newly available ». La cadence des versions de Chrome et Firefox est passée à deux semaines."
+        }
+      ],
+      "cover": {
+        "url": "https://web.dev/static/blog/web-platform-09-2026/hero.png",
+        "alt": "Visuel du bilan web.dev de septembre 2026",
+        "credit": "web.dev"
+      },
+      "illustration": {
+        "svg": "<svg xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"0 0 640 360\"><defs><linearGradient id=\"g\" x1=\"0\" y1=\"0\" x2=\"1\" y2=\"1\"><stop offset=\"0\" stop-color=\"hsl(210,65%,38%)\"/><stop offset=\"1\" stop-color=\"hsl(250,70%,22%)\"/></linearGradient></defs><rect width=\"640\" height=\"360\" fill=\"url(#g)\"/><circle cx=\"268\" cy=\"105\" r=\"35\" fill=\"#fff\" opacity=\"0.12\"/><circle cx=\"393\" cy=\"225\" r=\"29\" fill=\"#fff\" opacity=\"0.06\"/><circle cx=\"158\" cy=\"186\" r=\"42\" fill=\"#fff\" opacity=\"0.06\"/><circle cx=\"542\" cy=\"100\" r=\"17\" fill=\"#fff\" opacity=\"0.09\"/><circle cx=\"447\" cy=\"121\" r=\"39\" fill=\"#fff\" opacity=\"0.12\"/><circle cx=\"480\" cy=\"179\" r=\"17\" fill=\"#fff\" opacity=\"0.12\"/><circle cx=\"490\" cy=\"174\" r=\"29\" fill=\"#fff\" opacity=\"0.06\"/><circle cx=\"320\" cy=\"140\" r=\"78\" fill=\"#fff\" opacity=\"0.16\"/><circle cx=\"320\" cy=\"140\" r=\"56\" fill=\"#fff\" opacity=\"0.18\"/><text x=\"320\" y=\"165\" font-size=\"76\" text-anchor=\"middle\">🎨</text><rect x=\"60\" y=\"250\" width=\"310\" height=\"6\" rx=\"3\" fill=\"#fff\" opacity=\"0.35\"/><rect x=\"68\" y=\"268\" width=\"459\" height=\"6\" rx=\"3\" fill=\"#fff\" opacity=\"0.28\"/><rect x=\"76\" y=\"286\" width=\"411\" height=\"6\" rx=\"3\" fill=\"#fff\" opacity=\"0.21\"/><rect x=\"84\" y=\"304\" width=\"378\" height=\"6\" rx=\"3\" fill=\"#fff\" opacity=\"0.14\"/></svg>"
+      },
+      "readingMinutes": 4,
+      "publishedAt": "2026-10-20T05:20:36+02:00"
+    },
+    {
+      "id": "openbsd-8-0-publie-wine-en-preparation",
+      "category": "dev",
+      "icon": "🐡",
+      "importance": 4,
+      "sourceDate": "2026-10-20",
+      "title": "OpenBSD 8.0 est publié : plus de mémoire noyau sur amd64, hibernation sur arm64 et durcissement des démons",
+      "summary": "La 61e version d'OpenBSD arrive le 20 octobre 2026 avec un espace d'adressage noyau de 512 Go sur amd64, de nouvelles extensions RISC-V, des pilotes graphiques issus de Linux 6.18 et OpenSSH 10.6. Un port de Wine est par ailleurs proposé à la relecture.",
+      "tags": [
+        "OpenBSD",
+        "système d'exploitation",
+        "sécurité",
+        "Wine",
+        "RISC-V"
+      ],
+      "sources": [
+        {
+          "title": "OpenBSD 8.0",
+          "url": "https://www.openbsd.org/80.html",
+          "publisher": "OpenBSD"
+        },
+        {
+          "title": "Port de Wine pour OpenBSD (emulators/wine)",
+          "url": "https://marc.info/?l=openbsd-ports&m=179236125692175",
+          "publisher": "openbsd-ports"
+        }
+      ],
+      "blocks": [
+        {
+          "type": "paragraph",
+          "text": "OpenBSD, le système libre réputé pour sa sobriété et son exigence en matière de sécurité, publie le 20 octobre 2026 sa **version 8.0**, la 61e de son histoire. On y met à jour depuis la 7.9. Cette livraison ne bouleverse rien, ce qui est dans la tradition du projet, mais elle apporte plusieurs évolutions de fond sur les architectures, le matériel et la sécurité."
+        },
+        {
+          "type": "heading",
+          "level": 2,
+          "text": "Architectures et noyau"
+        },
+        {
+          "type": "table",
+          "headers": [
+            "Plateforme",
+            "Principales nouveautés"
+          ],
+          "rows": [
+            [
+              "amd64",
+              "Espace d'adressage virtuel du noyau porté de 4 Go à 512 Go ; table de correspondance directe placée à une adresse aléatoire ; chiffrement du swap accéléré par les instructions AES du processeur"
+            ],
+            [
+              "arm64",
+              "Prise en charge de l'hibernation, tampons de rebond, même accélération AES du chiffrement du swap"
+            ],
+            [
+              "riscv64",
+              "Extension vectorielle « V » et extension de minuterie Sstc, extensions annoncées aux programmes, nouveaux pilotes imsic(4) et aplic(4) pour l'architecture d'interruptions avancée"
+            ],
+            [
+              "sparc64",
+              "Passage à la chaîne d'outils LLVM"
+            ],
+            [
+              "loongson",
+              "Prise en charge retirée, faute de compatibilité avec Clang 22"
+            ]
+          ]
+        },
+        {
+          "type": "paragraph",
+          "text": "La mise en veille et l'hibernation sont étendues à de nouveaux composants (nvme(4), ufshci(4), qwz(4), qcuart(4)), avec des validations supplémentaires contre les débordements dans les images d'hibernation. Le sous-système graphique drm(4) passe à Linux 6.18.53, et inteldrm(4) prend en charge les cartes Intel Arc de série A. L'hyperviseur vmm(4) et son démon vmd(8) acceptent jusqu'à 64 processeurs virtuels par invité, le mode x2apic, les interruptions MSI/MSI-X pour virtio et le déchargement des sommes de contrôle."
+        },
+        {
+          "type": "heading",
+          "level": 2,
+          "text": "Réseau, sécurité et services"
+        },
+        {
+          "type": "list",
+          "ordered": false,
+          "items": [
+            "pilotes réseau : em(4) pour Panther Lake et Wildcat Lake, ix(4) pour l'Intel E610, nombreuses corrections pour qwx(4) et qwz(4), avec le 802.11n et les canaux de 40 MHz ;",
+            "pf(4) corrigé contre des lectures hors limites et un déréférencement nul, bpf(4) avec une validation plus stricte des programmes ;",
+            "durcissement de la séparation des privilèges et de la validation des entrées dans smtpd(8), httpd(8), relayd(8), isakmpd(8) et dhcpd(8) ;",
+            "httpd(8) rejette désormais les schémas de contrebande de requêtes et utilise le chiffrement TLS « secure » par défaut ;",
+            "unveil(2) restreint désormais man(1), makewhatis(8) et man.cgi(8) ;",
+            "nouveau démon rtrd(8) et outil rtrctl(8) pour le protocole RPKI vers routeur ; acme-client(1) gère la liaison de compte externe."
+          ]
+        },
+        {
+          "type": "keyvalue",
+          "items": [
+            {
+              "label": "LibreSSL",
+              "value": "4.4.0"
+            },
+            {
+              "label": "OpenSSH",
+              "value": "10.6, avec prise en charge des signatures post-quantiques"
+            },
+            {
+              "label": "GCC",
+              "value": "16.1.0"
+            },
+            {
+              "label": "LLVM/Clang",
+              "value": "22.1.8"
+            },
+            {
+              "label": "Firefox",
+              "value": "157.0"
+            },
+            {
+              "label": "Go",
+              "value": "1.27.1"
+            },
+            {
+              "label": "Python",
+              "value": "3.14.7"
+            },
+            {
+              "label": "PostgreSQL",
+              "value": "18.6"
+            }
+          ]
+        },
+        {
+          "type": "paragraph",
+          "text": "Les paquets sont disponibles pour sept architectures (aarch64, amd64, i386, mips64, powerpc64, riscv64 et sparc64), à raison de plus de 9 000 par architecture. Plusieurs failles ont aussi été corrigées dans libexpat (2.8.4), perl, nsd(8) et des composants du serveur X, ainsi que des fuites d'informations dans le noyau et un problème de lecture et d'écriture mémoire sans privilège sur m88k."
+        },
+        {
+          "type": "heading",
+          "level": 2,
+          "text": "Wine arrive sur OpenBSD, avec des limites"
+        },
+        {
+          "type": "paragraph",
+          "text": "Séparément, Thomas Frohwein a soumis le 18 octobre sur la liste openbsd-ports un projet de port de **Wine** (`emulators/wine`), en créditant surtout Andrii et Fabien pour le travail. L'obstacle principal tenait au registre de segment %gs : le système ne pouvant pas modifier le gsbase, une solution émule le préfixe %gs. Plusieurs dizaines de programmes Windows 64 bits ont été essayés, la plupart avec succès. Certains jeux exigent des composants additionnels comme vkd3d-proton. Les limites sont nettes : la couche WoW64 ne fonctionne pas, donc aucun logiciel 32 bits, et les tests intégrés de Wine sont désactivés. Frohwein recommande d'exécuter ces logiciels sous un utilisateur distinct et non privilégié. Ce port n'est qu'un projet soumis à relecture et n'est pas inclus dans la 8.0 telle que décrite."
+        },
+        {
+          "type": "usecases",
+          "title": "Exemples d'utilisation",
+          "items": [
+            {
+              "icon": "🧱",
+              "title": "Un administrateur de pare-feu",
+              "text": "Un administrateur de passerelles pf(4) met à jour depuis la 7.9 pour bénéficier des correctifs de pf(4) et de bgpd(8) ; il consulte le guide de mise à niveau avant de procéder."
+            },
+            {
+              "icon": "🖥️",
+              "title": "Un utilisateur de portable",
+              "text": "Un utilisateur de portable arm64 teste l'hibernation, désormais prise en charge, et le chiffrement du swap accéléré par AES."
+            },
+            {
+              "icon": "🧪",
+              "title": "Un développeur de logiciels",
+              "text": "Un développeur qui teste son logiciel sous plusieurs systèmes ajoute OpenBSD 8.0 à son intégration continue, avec Go 1.27.1 et Python 3.14.7."
+            }
+          ]
+        },
+        {
+          "type": "timeline",
+          "title": "D'où l'on vient, où l'on va",
+          "items": [
+            {
+              "label": "OpenBSD 7.9",
+              "text": "Version précédente, point de départ de la mise à niveau vers la 8.0."
+            },
+            {
+              "label": "18 octobre 2026",
+              "text": "Proposition d'un port de Wine à la relecture."
+            },
+            {
+              "label": "20 octobre 2026",
+              "text": "Publication d'OpenBSD 8.0, 61e version du projet."
+            }
+          ]
+        },
+        {
+          "type": "opinion",
+          "title": "Notre avis",
+          "paragraphs": [
+            "OpenBSD 8.0 illustre une méthode : peu de nouveautés spectaculaires, beaucoup de durcissement et de corrections, jusque dans les démons de base. La grande fenêtre mémoire du noyau amd64 et l'hibernation sur arm64 répondent à des besoins concrets, notamment sur les ordinateurs portables et les machines récentes. Le retrait de loongson rappelle qu'un projet à ressources limitées doit parfois renoncer à une architecture.",
+            "À un horizon d'un à trois ans, on peut penser que l'intérêt pour OpenBSD restera concentré sur les pare-feu, routeurs et serveurs exigeants en sécurité, tandis que l'arrivée possible de Wine ouvrirait un usage de bureau plus large, avec le risque d'y exposer un système sûr à des logiciels non sûrs. C'est une analyse, non une feuille de route du projet."
+          ],
+          "verdict": "Une version sobre, mais qui continue de renforcer ce qui fait la raison d'être du système."
+        },
+        {
+          "type": "callout",
+          "variant": "info",
+          "title": "À retenir",
+          "text": "OpenBSD 8.0 est disponible depuis le 20 octobre 2026, avec une mise à niveau possible depuis la 7.9. Le port de Wine n'est encore qu'une proposition soumise à relecture."
+        }
+      ],
+      "illustration": {
+        "svg": "<svg xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"0 0 640 360\"><defs><linearGradient id=\"g\" x1=\"0\" y1=\"0\" x2=\"1\" y2=\"1\"><stop offset=\"0\" stop-color=\"hsl(265,65%,38%)\"/><stop offset=\"1\" stop-color=\"hsl(305,70%,22%)\"/></linearGradient></defs><rect width=\"640\" height=\"360\" fill=\"url(#g)\"/><circle cx=\"449\" cy=\"96\" r=\"24\" fill=\"#fff\" opacity=\"0.12\"/><circle cx=\"267\" cy=\"229\" r=\"20\" fill=\"#fff\" opacity=\"0.12\"/><circle cx=\"103\" cy=\"175\" r=\"15\" fill=\"#fff\" opacity=\"0.06\"/><circle cx=\"517\" cy=\"76\" r=\"23\" fill=\"#fff\" opacity=\"0.06\"/><circle cx=\"58\" cy=\"218\" r=\"18\" fill=\"#fff\" opacity=\"0.06\"/><circle cx=\"187\" cy=\"91\" r=\"38\" fill=\"#fff\" opacity=\"0.09\"/><circle cx=\"194\" cy=\"211\" r=\"39\" fill=\"#fff\" opacity=\"0.09\"/><circle cx=\"320\" cy=\"140\" r=\"78\" fill=\"#fff\" opacity=\"0.16\"/><circle cx=\"320\" cy=\"140\" r=\"56\" fill=\"#fff\" opacity=\"0.18\"/><text x=\"320\" y=\"165\" font-size=\"76\" text-anchor=\"middle\">🐡</text><rect x=\"60\" y=\"250\" width=\"425\" height=\"6\" rx=\"3\" fill=\"#fff\" opacity=\"0.35\"/><rect x=\"68\" y=\"268\" width=\"387\" height=\"6\" rx=\"3\" fill=\"#fff\" opacity=\"0.28\"/><rect x=\"76\" y=\"286\" width=\"420\" height=\"6\" rx=\"3\" fill=\"#fff\" opacity=\"0.21\"/><rect x=\"84\" y=\"304\" width=\"399\" height=\"6\" rx=\"3\" fill=\"#fff\" opacity=\"0.14\"/></svg>"
+      },
+      "readingMinutes": 4,
+      "publishedAt": "2026-10-20T05:20:36+02:00"
+    },
+    {
+      "id": "minimax-m3-1-flash-agents-prix-bas",
+      "category": "ia",
+      "icon": "⚡",
+      "importance": 4,
+      "sourceDate": "2026-10-19",
+      "title": "MiniMax M3.1 Flash : un modèle d'agents rapide à 0,15 dollar le million de jetons en entrée",
+      "summary": "MiniMax déploie M3.1 Flash, présenté comme un modèle de nouvelle génération pour les tâches d'agents, le code, l'usage d'ordinateur et la cybersécurité. Les résultats avancés sont ceux de l'éditeur, et les poids ne sont pas encore publiés.",
+      "tags": [
+        "MiniMax",
+        "M3.1 Flash",
+        "agents",
+        "modèle de langage",
+        "prix"
+      ],
+      "sources": [
+        {
+          "title": "MiniMax M3.1 Flash",
+          "url": "https://www.minimax.io/blog/minimax-m31f",
+          "publisher": "MiniMax"
+        }
+      ],
+      "blocks": [
+        {
+          "type": "paragraph",
+          "text": "Les laboratoires d'IA chinois continuent de miser sur la vitesse et le prix pour séduire les développeurs d'agents. Le 19 octobre 2026, **MiniMax** a annoncé le déploiement de **M3.1 Flash**, qu'il décrit comme un « modèle Flash de nouvelle génération », en net progrès sur les tâches d'agents, le code, l'usage d'ordinateur et la cybersécurité. Selon l'éditeur, une version préliminaire du modèle, apparue de façon anonyme sous le nom de « Space Bunny », aurait déjà traité plus de 200 000 milliards de jetons."
+        },
+        {
+          "type": "paragraph",
+          "text": "Précaution de lecture : tous les chiffres ci-dessous proviennent de l'article de présentation de MiniMax. Les graphiques de comparaison de l'éditeur sont des images dont le détail n'a pas pu être consulté, et aucune évaluation indépendante n'est citée à ce stade."
+        },
+        {
+          "type": "heading",
+          "level": 2,
+          "text": "Les résultats annoncés"
+        },
+        {
+          "type": "table",
+          "headers": [
+            "Domaine",
+            "Banc d'essai",
+            "Résultat annoncé"
+          ],
+          "rows": [
+            [
+              "Tâches d'agents en entreprise",
+              "AutomationBench-AA",
+              "Parmi les meilleurs résultats, selon MiniMax"
+            ],
+            [
+              "Finance",
+              "BankerToolBench",
+              "76,2 points"
+            ],
+            [
+              "Programmation",
+              "DeepSWE v1.1",
+              "73,7 %"
+            ],
+            [
+              "Usage d'ordinateur",
+              "OSWorld V2",
+              "61,7 points"
+            ],
+            [
+              "Usage d'ordinateur",
+              "Agents' Last Exam (ALE)",
+              "29,6 points"
+            ],
+            [
+              "Cybersécurité",
+              "CyberGym",
+              "82 %"
+            ]
+          ]
+        },
+        {
+          "type": "paragraph",
+          "text": "MiniMax affirme que M3.1 Flash se classe premier parmi les modèles chinois sur OSWorld V2 et ALE. Pour la cybersécurité, l'éditeur ajoute que des experts internes ont constaté de bons résultats en audit de code, correction de failles, tests d'intrusion, analyse de logiciels malveillants et rétro-ingénierie."
+        },
+        {
+          "type": "heading",
+          "level": 2,
+          "text": "Vitesse et prix"
+        },
+        {
+          "type": "paragraph",
+          "text": "L'argument central est l'efficacité. MiniMax annonce une inférence en ligne près de trois fois plus rapide qu'avant, avec une production courante de plus de 200 jetons par seconde et une médiane constamment supérieure à 170. Cette accélération viendrait d'une parcimonie plus poussée du modèle lors de l'inférence. Pour les tâches d'agents, le coût d'usage global serait inférieur de 70 % à celui du modèle précédent."
+        },
+        {
+          "type": "keyvalue",
+          "items": [
+            {
+              "label": "Entrée",
+              "value": "0,15 $ par million de jetons"
+            },
+            {
+              "label": "Sortie",
+              "value": "0,60 $ par million de jetons"
+            },
+            {
+              "label": "Entrée en cache",
+              "value": "0,015 $ par million de jetons"
+            },
+            {
+              "label": "Accès",
+              "value": "API MiniMax, abonnement M Plan, application de bureau MiniMax Code"
+            },
+            {
+              "label": "Poids du modèle",
+              "value": "Non publiés, annoncés pour plus tard"
+            },
+            {
+              "label": "Suite annoncée",
+              "value": "Un modèle « Pro » plus capable"
+            }
+          ]
+        },
+        {
+          "type": "paragraph",
+          "text": "La fiche ne précise ni le nombre de paramètres, ni la taille du contexte, ni la licence, ni les modalités prises en charge. Ces éléments manquent pour juger de l'intérêt réel du modèle face à ses concurrents, notamment pour ceux qui voudraient l'héberger eux-mêmes."
+        },
+        {
+          "type": "usecases",
+          "title": "Exemples d'utilisation",
+          "items": [
+            {
+              "icon": "🤖",
+              "title": "Un agent de traitement de commandes",
+              "text": "Une équipe e-commerce confie à l'agent le suivi des remboursements entre plusieurs outils, et profite d'un coût par tâche réduit grâce au tarif d'entrée de 0,15 dollar."
+            },
+            {
+              "icon": "🛠️",
+              "title": "Un assistant de programmation",
+              "text": "Un développeur utilise le modèle comme relecteur rapide dans son éditeur : la vitesse d'environ 200 jetons par seconde réduit l'attente entre deux suggestions."
+            },
+            {
+              "icon": "🔍",
+              "title": "Une équipe de sécurité",
+              "text": "Une équipe d'audit teste le modèle sur du code ancien pour repérer des failles évidentes, en vérifiant chaque résultat à la main avant tout correctif."
+            }
+          ]
+        },
+        {
+          "type": "timeline",
+          "title": "D'où l'on vient, où l'on va",
+          "items": [
+            {
+              "label": "Avant le 19 octobre 2026",
+              "text": "Une version préliminaire circule de façon anonyme sous le nom de « Space Bunny »."
+            },
+            {
+              "label": "19 octobre 2026",
+              "text": "Déploiement officiel de M3.1 Flash via l'API, M Plan et MiniMax Code."
+            },
+            {
+              "label": "Date non précisée",
+              "text": "Publication annoncée des poids du modèle."
+            },
+            {
+              "label": "Date non précisée",
+              "text": "Arrivée d'un modèle « Pro » plus capable."
+            }
+          ]
+        },
+        {
+          "type": "opinion",
+          "title": "Notre avis",
+          "paragraphs": [
+            "Le pari de MiniMax est classique mais efficace : proposer un modèle suffisamment bon pour les agents à un prix qui rend leur usage massif envisageable. Un agent consomme énormément de jetons, car il boucle sur de nombreuses étapes ; diviser le coût par tâche change donc l'économie du produit plus que quelques points de précision. En revanche, les scores annoncés relèvent de bancs d'essai choisis par l'éditeur, et l'absence de poids, de taille de contexte et de licence interdit toute vérification indépendante pour l'instant.",
+            "À un horizon d'un à trois ans, on peut penser que la compétition se jouera moins sur le meilleur score que sur le coût par tâche accomplie, ce qui avantage les modèles légers et parcimonieux. Pour les entreprises françaises, le choix dépendra aussi de l'hébergement des données et de la conformité au règlement européen sur l'IA, deux points que la fiche de MiniMax n'aborde pas. Il s'agit d'une analyse, non d'un fait."
+          ],
+          "verdict": "Un modèle rapide et bon marché, certes, mais des promesses à vérifier avant de lui confier des tâches sensibles."
+        },
+        {
+          "type": "callout",
+          "variant": "info",
+          "title": "À retenir",
+          "text": "M3.1 Flash est disponible via l'API de MiniMax à 0,15 dollar le million de jetons en entrée et 0,60 dollar en sortie. Les performances sont celles annoncées par l'éditeur et les poids ne sont pas encore publiés."
+        }
+      ],
+      "cover": {
+        "url": "https://filecdn.minimax.chat/public/m31-flash-zh-1-1792403273121.png?x-oss-process=image/format,webp",
+        "alt": "Visuel de présentation de MiniMax M3.1 Flash",
+        "credit": "minimax.io"
+      },
+      "illustration": {
+        "svg": "<svg xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"0 0 640 360\"><defs><linearGradient id=\"g\" x1=\"0\" y1=\"0\" x2=\"1\" y2=\"1\"><stop offset=\"0\" stop-color=\"hsl(320,65%,38%)\"/><stop offset=\"1\" stop-color=\"hsl(0,70%,22%)\"/></linearGradient></defs><rect width=\"640\" height=\"360\" fill=\"url(#g)\"/><circle cx=\"57\" cy=\"225\" r=\"34\" fill=\"#fff\" opacity=\"0.12\"/><circle cx=\"488\" cy=\"68\" r=\"18\" fill=\"#fff\" opacity=\"0.09\"/><circle cx=\"93\" cy=\"177\" r=\"21\" fill=\"#fff\" opacity=\"0.06\"/><circle cx=\"185\" cy=\"206\" r=\"23\" fill=\"#fff\" opacity=\"0.09\"/><circle cx=\"114\" cy=\"96\" r=\"40\" fill=\"#fff\" opacity=\"0.06\"/><circle cx=\"63\" cy=\"98\" r=\"20\" fill=\"#fff\" opacity=\"0.09\"/><circle cx=\"77\" cy=\"74\" r=\"20\" fill=\"#fff\" opacity=\"0.12\"/><circle cx=\"320\" cy=\"140\" r=\"78\" fill=\"#fff\" opacity=\"0.16\"/><circle cx=\"320\" cy=\"140\" r=\"56\" fill=\"#fff\" opacity=\"0.18\"/><text x=\"320\" y=\"165\" font-size=\"76\" text-anchor=\"middle\">⚡</text><rect x=\"60\" y=\"250\" width=\"307\" height=\"6\" rx=\"3\" fill=\"#fff\" opacity=\"0.35\"/><rect x=\"68\" y=\"268\" width=\"338\" height=\"6\" rx=\"3\" fill=\"#fff\" opacity=\"0.28\"/><rect x=\"76\" y=\"286\" width=\"348\" height=\"6\" rx=\"3\" fill=\"#fff\" opacity=\"0.21\"/><rect x=\"84\" y=\"304\" width=\"363\" height=\"6\" rx=\"3\" fill=\"#fff\" opacity=\"0.14\"/></svg>"
+      },
+      "readingMinutes": 4,
+      "publishedAt": "2026-10-20T05:20:36+02:00"
+    },
+    {
+      "id": "deepseek-interdit-agences-federales-civiles-etats-unis",
+      "category": "ia",
+      "icon": "🚫",
+      "importance": 4,
+      "sourceDate": "2026-10-20",
+      "title": "DeepSeek banni des agences fédérales civiles américaines : un ordre large, et des zones d'ombre",
+      "summary": "Le département américain de la Sécurité intérieure ordonne aux agences civiles de cesser d'utiliser DeepSeek et ses produits dérivés. La mention des services « développés avec » DeepSeek reste floue, et les passerelles d'IA ne sont pas évoquées.",
+      "tags": [
+        "DeepSeek",
+        "États-Unis",
+        "DHS",
+        "souveraineté",
+        "modèles ouverts"
+      ],
+      "sources": [
+        {
+          "title": "DeepSeek banni de toutes les agences fédérales civiles américaines",
+          "url": "https://www.theregister.com/security/2026/10/20/deepseek-deep-sixed-at-all-us-federal-civilian-agencies/5304010",
+          "publisher": "The Register"
+        }
+      ],
+      "blocks": [
+        {
+          "type": "paragraph",
+          "text": "Les modèles chinois à poids ouverts sont devenus incontournables pour de nombreuses équipes, en raison de leurs capacités et de leur faible coût. Le 19 octobre 2026, Washington a pourtant tranché pour ses administrations : selon The Register, le **département de la Sécurité intérieure (DHS)** a ordonné aux agences fédérales civiles de cesser d'utiliser les technologies de **DeepSeek** et de retirer toute mise en œuvre existante."
+        },
+        {
+          "type": "heading",
+          "level": 2,
+          "text": "Ce que dit l'ordre"
+        },
+        {
+          "type": "paragraph",
+          "text": "Le périmètre est volontairement large. Il vise « tous les produits de DeepSeek et de ses affiliés », mais aussi les « produits et services tiers développés à l'aide d'implémentations de DeepSeek ». C'est cette seconde formule qui pose problème : elle ne dit pas si elle concerne un accès continu aux modèles par API, ou toute application dont les développeurs auraient utilisé un outil DeepSeek, par exemple un assistant qui aurait aidé à écrire le code. Un porte-parole du DHS n'avait pas répondu avant la publication."
+        },
+        {
+          "type": "paragraph",
+          "text": "L'ordre n'aborde pas non plus les passerelles d'IA comme OpenRouter ou Vercel AI Gateway, qui peuvent acheminer des requêtes vers des modèles DeepSeek par défaut. Une agence pourrait ainsi utiliser ces modèles sans le savoir, sauf à restreindre explicitement ses fournisseurs."
+        },
+        {
+          "type": "heading",
+          "level": 2,
+          "text": "Un long contentieux"
+        },
+        {
+          "type": "list",
+          "ordered": false,
+          "items": [
+            "**Janvier 2025** : l'agence de systèmes d'information de la Défense commence à bloquer DeepSeek sur les réseaux du Pentagone ;",
+            "**Février 2025** : deux élus, Darin LaHood et Josh Gottheimer, déposent une proposition de loi interdisant DeepSeek sur les appareils gouvernementaux, au motif que ses modèles collecteraient des données sur des citoyens américains pour les transmettre à Pékin. Le texte n'est jamais sorti de commission ;",
+            "la marine, la NASA et la Chambre des représentants ont aussi restreint l'usage de DeepSeek, et plusieurs États ont suivi ;",
+            "**Décembre 2025** : un rapport sur les applications Android et iOS relève des fuites d'informations en clair, des liens vers des serveurs de sociétés technologiques chinoises et l'absence d'épinglage SSL."
+          ]
+        },
+        {
+          "type": "paragraph",
+          "text": "L'article observe que ces défauts relèvent surtout de problèmes courants de sécurité mobile et qu'ils ne répondent pas entièrement aux risques liés à la capture des textes saisis et des réponses, ni à ceux des agents d'IA qui ingèrent des secrets locaux."
+        },
+        {
+          "type": "heading",
+          "level": 2,
+          "text": "Les réserves des spécialistes"
+        },
+        {
+          "type": "paragraph",
+          "text": "Katie Moussouris, fondatrice et directrice de Luta Security, juge que les inquiétudes de sécurité nationale justifient d'écarter l'application et les serveurs de DeepSeek des systèmes publics, mais que l'ordre va trop loin. Interdire l'application et l'API de DeepSeek est réalisable ; la clause sur les tiers n'a, selon elle, aucun sens précis. Les nomenclatures logicielles n'indiquent pas quels outils de développement ont servi, de sorte que les fournisseurs devraient attester qu'aucun composant n'a jamais touché DeepSeek, ce qui est invérifiable. Elle ajoute que les versions hébergées aux États-Unis évitent l'essentiel des flux de données invoqués. Le NIST a trouvé DeepSeek plus vulnérable à l'injection de requêtes et plus facile à débrider que des modèles américains, mais, rappelle-t-elle, tous les modèles ont des problèmes d'injection."
+        },
+        {
+          "type": "usecases",
+          "title": "Exemples d'utilisation",
+          "items": [
+            {
+              "icon": "🏛️",
+              "title": "Un service public américain",
+              "text": "Une agence fédérale recense ses outils et supprime l'accès direct à DeepSeek, mais doit encore déterminer si un logiciel acheté auprès d'un prestataire s'appuie sur ces modèles."
+            },
+            {
+              "icon": "🏭",
+              "title": "Un éditeur de logiciels",
+              "text": "Un éditeur qui vend à l'État fédéral américain interroge ses équipes pour savoir si des composants ou des outils d'aide au code reposent sur DeepSeek, afin de pouvoir fournir une attestation."
+            },
+            {
+              "icon": "🇫🇷",
+              "title": "Une entreprise française",
+              "text": "Une entreprise française qui a retenu un modèle chinois ouvert pour un projet interne vérifie où il est hébergé et quelles données y transitent, en prévision de demandes de ses clients américains."
+            }
+          ]
+        },
+        {
+          "type": "timeline",
+          "title": "D'où l'on vient, où l'on va",
+          "items": [
+            {
+              "label": "Janvier 2025",
+              "text": "Blocage de DeepSeek sur les réseaux du Pentagone."
+            },
+            {
+              "label": "Février 2025",
+              "text": "Dépôt de la proposition de loi « No DeepSeek on Government Devices Act »."
+            },
+            {
+              "label": "Décembre 2025",
+              "text": "Rapport sur les failles des applications mobiles."
+            },
+            {
+              "label": "19 octobre 2026",
+              "text": "Ordre du DHS visant les agences fédérales civiles."
+            }
+          ]
+        },
+        {
+          "type": "opinion",
+          "title": "Notre avis",
+          "paragraphs": [
+            "Cet ordre répond à une préoccupation réelle, la circulation des données vers des serveurs soumis au droit chinois, mais sa rédaction pose un problème de mise en œuvre : sans définition précise des produits « développés avec » DeepSeek, il est difficile de savoir ce qu'il faut retirer, et chaque agence risque de l'interpréter à sa façon. L'article souligne aussi un effet de marché : écarter des modèles ouverts peu coûteux peut renforcer la position des fournisseurs américains agréés, aux tarifs plus élevés.",
+            "À un horizon d'un à trois ans, on peut penser que les administrations occidentales distingueront davantage l'accès à un service hébergé à l'étranger de l'utilisation de poids ouverts exécutés en local, aujourd'hui traités de la même manière. Cette analyse n'engage pas le DHS : la source ne mentionne aucune évolution prévue du texte."
+          ],
+          "verdict": "Une interdiction utile si elle vise les flux de données, mais fragile si elle prétend traquer une origine technologique impossible à vérifier."
+        },
+        {
+          "type": "callout",
+          "variant": "info",
+          "title": "À retenir",
+          "text": "L'ordre du DHS du 19 octobre 2026 vise tous les produits DeepSeek et les services tiers « développés à l'aide » de ses implémentations. Les passerelles d'IA ne sont pas mentionnées."
+        }
+      ],
+      "cover": {
+        "url": "https://image.theregister.com/5304014.jpg?imageId=5304014&x=0&y=0&cropw=100&croph=100&panox=0&panoy=0&panow=100&panoh=100&width=1200&height=683",
+        "alt": "Illustration de l'article de The Register sur l'interdiction de DeepSeek",
+        "credit": "theregister.com"
+      },
+      "illustration": {
+        "svg": "<svg xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"0 0 640 360\"><defs><linearGradient id=\"g\" x1=\"0\" y1=\"0\" x2=\"1\" y2=\"1\"><stop offset=\"0\" stop-color=\"hsl(320,65%,38%)\"/><stop offset=\"1\" stop-color=\"hsl(0,70%,22%)\"/></linearGradient></defs><rect width=\"640\" height=\"360\" fill=\"url(#g)\"/><circle cx=\"369\" cy=\"79\" r=\"15\" fill=\"#fff\" opacity=\"0.06\"/><circle cx=\"260\" cy=\"74\" r=\"40\" fill=\"#fff\" opacity=\"0.06\"/><circle cx=\"402\" cy=\"125\" r=\"17\" fill=\"#fff\" opacity=\"0.12\"/><circle cx=\"539\" cy=\"139\" r=\"32\" fill=\"#fff\" opacity=\"0.06\"/><circle cx=\"66\" cy=\"213\" r=\"33\" fill=\"#fff\" opacity=\"0.12\"/><circle cx=\"519\" cy=\"168\" r=\"22\" fill=\"#fff\" opacity=\"0.06\"/><circle cx=\"595\" cy=\"200\" r=\"24\" fill=\"#fff\" opacity=\"0.12\"/><circle cx=\"320\" cy=\"140\" r=\"78\" fill=\"#fff\" opacity=\"0.16\"/><circle cx=\"320\" cy=\"140\" r=\"56\" fill=\"#fff\" opacity=\"0.18\"/><text x=\"320\" y=\"165\" font-size=\"76\" text-anchor=\"middle\">🚫</text><rect x=\"60\" y=\"250\" width=\"372\" height=\"6\" rx=\"3\" fill=\"#fff\" opacity=\"0.35\"/><rect x=\"68\" y=\"268\" width=\"387\" height=\"6\" rx=\"3\" fill=\"#fff\" opacity=\"0.28\"/><rect x=\"76\" y=\"286\" width=\"354\" height=\"6\" rx=\"3\" fill=\"#fff\" opacity=\"0.21\"/><rect x=\"84\" y=\"304\" width=\"455\" height=\"6\" rx=\"3\" fill=\"#fff\" opacity=\"0.14\"/></svg>"
+      },
+      "readingMinutes": 4,
+      "publishedAt": "2026-10-20T05:20:36+02:00"
+    },
+    {
+      "id": "whatsapp-instructions-cachees-ia-pages-aide",
+      "category": "ia",
+      "icon": "🕵️",
+      "importance": 3,
+      "sourceDate": "2026-10-18",
+      "title": "WhatsApp : des instructions cachées pour l'IA dans ses pages d'aide, qui évitaient de citer un régulateur",
+      "summary": "La société Redact a trouvé 102 blocs de texte invisibles sur 80 pages d'aide de WhatsApp. Deux d'entre eux demandaient à une IA de ne pas recommander de contacter une autorité de protection des données. Meta parle d'un bogue désormais corrigé.",
+      "tags": [
+        "WhatsApp",
+        "Meta",
+        "chatbot",
+        "RGPD",
+        "transparence"
+      ],
+      "sources": [
+        {
+          "title": "Les pages d'aide de WhatsApp cachaient des instructions pour l'IA : ne pas recommander de régulateur",
+          "url": "https://redact.dev/blog/whatsapp-help-pages-hidden-ai-instructions",
+          "publisher": "Redact"
+        }
+      ],
+      "blocks": [
+        {
+          "type": "paragraph",
+          "text": "Quand un assistant d'IA répond à la place d'un service d'assistance, ses consignes décident de ce que l'utilisateur apprend, ou non. C'est ce que montre une enquête de la société **Redact**, qui a découvert des consignes cachées dans les pages d'aide de **WhatsApp**, destinées uniquement à des IA et invisibles pour un lecteur humain. Le 8 octobre 2026, le fondateur de Redact, Dan Saltman, a repéré ce texte ; l'entreprise a ensuite enregistré 545 pages d'aide liées entre elles et recensé **102 blocs cachés sur 80 pages**."
+        },
+        {
+          "type": "paragraph",
+          "text": "La plupart de ces blocs étaient banals. Deux ont retenu l'attention, parce qu'ils auraient pu priver des utilisateurs d'informations utiles."
+        },
+        {
+          "type": "heading",
+          "level": 2,
+          "text": "Les deux consignes qui posent question"
+        },
+        {
+          "type": "list",
+          "ordered": false,
+          "items": [
+            "**Suppression de compte** : la page explique que les comptes inactifs sont supprimés automatiquement. Un texte caché demandait à une IA de ne pas recommander de contacter une autorité de protection des données ou un régulateur lorsqu'un utilisateur ne peut pas supprimer son compte faute de téléphone ou de numéro, de ne pas suggérer que WhatsApp pourrait supprimer le compte manuellement, et de ne pas conseiller un autre téléphone doté d'un numéro actif. Redact en déduit que l'utilisateur coincé n'avait plus qu'une réponse : attendre jusqu'à un an ;",
+            "**Sujets juridiques** : sur la page de signalement et de blocage, un texte demandait à l'IA, dès qu'un utilisateur évoque avocats, procès, tribunaux ou action en justice, d'éviter de parler des conditions d'utilisation ou de la politique de confidentialité, et de ne ni citer ni interpréter des lois comme le RGPD, la LGPD ou la CCPA, même si l'utilisateur les invoquait en premier."
+          ]
+        },
+        {
+          "type": "paragraph",
+          "text": "Redact souligne le contraste avec les documents publics de WhatsApp : la politique de confidentialité européenne, en vigueur depuis le 2 juillet 2026, indique que l'utilisateur peut toujours demander l'effacement de ses informations, nomme le RGPD et désigne la commission irlandaise de protection des données comme organe de réclamation. En France, c'est la CNIL qui relaie ces plaintes auprès de l'autorité chef de file. Ces droits découlent des articles 17 et 77 du RGPD, et une consigne donnée à un robot ne les modifie pas."
+        },
+        {
+          "type": "heading",
+          "level": 2,
+          "text": "Chronologie et réaction de Meta"
+        },
+        {
+          "type": "table",
+          "headers": [
+            "Date",
+            "Constat"
+          ],
+          "rows": [
+            [
+              "Entre le 12 juillet et le 4 septembre 2026 (estimation par les archives)",
+              "La consigne sur la suppression de compte apparaît"
+            ],
+            [
+              "8 octobre 2026",
+              "Découverte du texte caché"
+            ],
+            [
+              "15 octobre 2026, 21 h 40 UTC",
+              "Les deux consignes sont toujours là"
+            ],
+            [
+              "18 octobre 2026, 2 h 08 UTC",
+              "Les 102 blocs ont disparu des 80 pages"
+            ]
+          ]
+        },
+        {
+          "type": "paragraph",
+          "text": "WhatsApp a indiqué à WIRED que ces notes étaient destinées à son chatbot d'assistance, qu'elles étaient apparues à cause d'un bogue désormais corrigé, et que l'entreprise souhaite que ses robots conversationnels se concentrent sur l'aide relative à WhatsApp plutôt que sur des conseils juridiques. Redact reconnaît qu'une entreprise peut raisonnablement vouloir éviter que son chatbot rende des avis juridiques, mais estime que nommer une loi ou un régulateur n'est pas un conseil juridique."
+        },
+        {
+          "type": "paragraph",
+          "text": "L'enquête a ses limites. Redact a lu les consignes mais n'a pas testé les réponses du chatbot ni vérifié si d'autres assistants les suivaient. Il n'a pas examiné les autres langues ni les pages non liées. Sur 300 pages d'aide de Facebook et d'Instagram, bâties sur le même système, aucune consigne comparable n'a été trouvée. Certains des blocs restants protégeaient au contraire les utilisateurs, par exemple en interdisant de suggérer de faux âges."
+        },
+        {
+          "type": "usecases",
+          "title": "Exemples d'utilisation",
+          "items": [
+            {
+              "icon": "📱",
+              "title": "Un utilisateur sans son téléphone",
+              "text": "Un utilisateur qui a perdu son numéro et veut supprimer son compte apprend qu'il peut saisir l'autorité de protection des données, et pas seulement attendre l'expiration de l'inactivité."
+            },
+            {
+              "icon": "⚖️",
+              "title": "Un juriste en entreprise",
+              "text": "Un délégué à la protection des données relit les consignes données à son propre chatbot pour s'assurer qu'elles n'empêchent jamais de citer un droit ou une autorité."
+            },
+            {
+              "icon": "🔧",
+              "title": "Un éditeur de site",
+              "text": "Un éditeur qui sert aux robots d'exploration une version différente de ses pages vérifie qu'aucun contenu caché ne contredit son texte public."
+            }
+          ]
+        },
+        {
+          "type": "timeline",
+          "title": "D'où l'on vient, où l'on va",
+          "items": [
+            {
+              "label": "2 juillet 2026",
+              "text": "Entrée en vigueur de la politique de confidentialité européenne de WhatsApp citée par Redact."
+            },
+            {
+              "label": "8 octobre 2026",
+              "text": "Découverte des blocs cachés."
+            },
+            {
+              "label": "18 octobre 2026",
+              "text": "Disparition des 102 blocs des 80 pages."
+            },
+            {
+              "label": "À venir",
+              "text": "Pas de calendrier public sur les consignes futures du chatbot d'assistance."
+            }
+          ]
+        },
+        {
+          "type": "opinion",
+          "title": "Notre avis",
+          "paragraphs": [
+            "Au-delà de l'anecdote, l'affaire pose une question de transparence : les consignes d'un assistant d'IA sont une forme de politique éditoriale, pourtant invisible pour l'utilisateur. Écarter les mentions de régulateurs peut se défendre pour éviter des réponses juridiques erronées, mais l'effet obtenu, tel que décrit par Redact, revient à masquer un recours prévu par la loi. L'explication de Meta, un bogue, n'a pas été vérifiée de manière indépendante.",
+            "À un horizon d'un à trois ans, on peut penser que le règlement européen sur l'IA et le droit de la consommation conduiront à exiger davantage de transparence sur les consignes des assistants en contact avec le public, ce qui placerait ce genre de pratique sous l'œil des autorités. C'est une opinion, non une règle aujourd'hui établie."
+          ],
+          "verdict": "Un chatbot peut légitimement refuser de donner des conseils juridiques, mais pas d'indiquer qu'un recours existe."
+        },
+        {
+          "type": "callout",
+          "variant": "info",
+          "title": "À retenir",
+          "text": "Redact a trouvé 102 consignes cachées sur 80 pages d'aide de WhatsApp. Deux d'entre elles écartaient la mention d'un régulateur ; elles ont disparu avant le 18 octobre 2026, et Meta évoque un bogue corrigé."
+        }
+      ],
+      "cover": {
+        "url": "https://redact.dev/blog-images/2026/10/whatsapp-hidden-ai-notes-robot-puppeteer.jpg",
+        "alt": "Illustration de l'enquête de Redact sur les consignes cachées de WhatsApp",
+        "credit": "redact.dev"
+      },
+      "illustration": {
+        "svg": "<svg xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"0 0 640 360\"><defs><linearGradient id=\"g\" x1=\"0\" y1=\"0\" x2=\"1\" y2=\"1\"><stop offset=\"0\" stop-color=\"hsl(320,65%,38%)\"/><stop offset=\"1\" stop-color=\"hsl(0,70%,22%)\"/></linearGradient></defs><rect width=\"640\" height=\"360\" fill=\"url(#g)\"/><circle cx=\"421\" cy=\"158\" r=\"39\" fill=\"#fff\" opacity=\"0.12\"/><circle cx=\"64\" cy=\"152\" r=\"19\" fill=\"#fff\" opacity=\"0.06\"/><circle cx=\"565\" cy=\"84\" r=\"36\" fill=\"#fff\" opacity=\"0.12\"/><circle cx=\"240\" cy=\"190\" r=\"22\" fill=\"#fff\" opacity=\"0.09\"/><circle cx=\"545\" cy=\"220\" r=\"27\" fill=\"#fff\" opacity=\"0.09\"/><circle cx=\"131\" cy=\"82\" r=\"22\" fill=\"#fff\" opacity=\"0.06\"/><circle cx=\"575\" cy=\"236\" r=\"13\" fill=\"#fff\" opacity=\"0.09\"/><circle cx=\"320\" cy=\"140\" r=\"78\" fill=\"#fff\" opacity=\"0.16\"/><circle cx=\"320\" cy=\"140\" r=\"56\" fill=\"#fff\" opacity=\"0.18\"/><text x=\"320\" y=\"165\" font-size=\"76\" text-anchor=\"middle\">🕵️</text><rect x=\"60\" y=\"250\" width=\"421\" height=\"6\" rx=\"3\" fill=\"#fff\" opacity=\"0.35\"/><rect x=\"68\" y=\"268\" width=\"461\" height=\"6\" rx=\"3\" fill=\"#fff\" opacity=\"0.28\"/><rect x=\"76\" y=\"286\" width=\"329\" height=\"6\" rx=\"3\" fill=\"#fff\" opacity=\"0.21\"/><rect x=\"84\" y=\"304\" width=\"413\" height=\"6\" rx=\"3\" fill=\"#fff\" opacity=\"0.14\"/></svg>"
+      },
+      "readingMinutes": 4,
+      "publishedAt": "2026-10-20T05:20:36+02:00"
+    },
+    {
+      "id": "plex2shell-plex-media-server-mineurs-proxy",
+      "category": "cybersecurite",
+      "icon": "🎞️",
+      "importance": 5,
+      "sourceDate": "2026-10-19",
+      "title": "Plex2Shell : quatre failles de Plex Media Server enchaînées pour installer des mineurs et une porte dérobée proxy",
+      "summary": "Une chaîne de quatre vulnérabilités de Plex Media Server, baptisée Plex2Shell, est exploitée depuis la publication de sa preuve de concept. Les attaquants installent un mineur de cryptomonnaie et un proxy inverse sous Linux. Le correctif existe depuis août.",
+      "tags": [
+        "Plex",
+        "Plex2Shell",
+        "exécution de code",
+        "cryptominage",
+        "proxyware"
+      ],
+      "sources": [
+        {
+          "title": "Des pirates exploitent les failles Plex2Shell pour installer des mineurs et une porte dérobée proxy Linux",
+          "url": "https://thehackernews.com/2026/10/hackers-exploit-plex2shell-flaws-to.html",
+          "publisher": "The Hacker News"
+        }
+      ],
+      "blocks": [
+        {
+          "type": "paragraph",
+          "text": "Les serveurs multimédias personnels sont une cible discrète mais appréciée des attaquants : ils restent allumés en permanence, disposent d'une bonne connexion et sont souvent exposés sur Internet pour la lecture à distance. C'est précisément le cas de **Plex Media Server**, visé depuis quelques jours par une chaîne de quatre vulnérabilités surnommée **Plex2Shell**. Selon The Hacker News, les premières attaques ont été observées le lendemain de la publication des détails techniques, le 16 octobre 2026."
+        },
+        {
+          "type": "paragraph",
+          "text": "Chacune des failles, prise isolément, paraît modérée. Mises bout à bout, elles permettent à une personne non authentifiée d'exécuter du code sur la machine qui héberge le serveur. La chaîne a été signalée par le chercheur boredhackerblog, tandis que la divulgation à l'éditeur est attribuée dans l'article à Zach Main."
+        },
+        {
+          "type": "heading",
+          "level": 2,
+          "text": "Les quatre maillons de la chaîne"
+        },
+        {
+          "type": "table",
+          "headers": [
+            "Identifiant",
+            "Gravité (CVSS)",
+            "Rôle dans l'attaque"
+          ],
+          "rows": [
+            [
+              "CVE-2026-96652",
+              "5,3",
+              "Falsification de requête côté serveur (SSRF) non authentifiée sur le point d'accès `/player/timeline` : le paramètre `protocol` n'est pas validé, ce qui permet de forcer le serveur à envoyer une requête POST vers la destination choisie"
+            ],
+            [
+              "CVE-2026-96654",
+              "6,9",
+              "Neutralisation incorrecte d'une valeur d'URL sur le point d'accès `searchOne` : l'attaquant appelle des fonctions d'autres modules et récupère le jeton d'administrateur du propriétaire"
+            ],
+            [
+              "CVE-2026-96655",
+              "5,3",
+              "Seconde SSRF, cette fois pour un utilisateur authentifié disposant du jeton : elle sert à faire télécharger au serveur une vidéo piégée contenant une charge ELF"
+            ],
+            [
+              "CVE-2026-96656",
+              "8,6",
+              "Contrôle externe d'un nom ou d'un chemin de fichier : l'attaquant dépose une bibliothèque partagée ELF dans le répertoire des codecs, puis la fait exécuter"
+            ]
+          ]
+        },
+        {
+          "type": "paragraph",
+          "text": "Une cinquième faille, **CVE-2026-96651** (score de 7,1), a été divulguée en même temps, mais elle ne fait pas partie de la chaîne décrite. Dans l'ordre présenté, les quatre premières aboutissent à une exécution de code à distance sans authentification préalable."
+        },
+        {
+          "type": "diagram",
+          "svg": "<svg xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"0 0 640 190\" font-family=\"system-ui,sans-serif\"><defs><marker id=\"a\" markerWidth=\"8\" markerHeight=\"8\" refX=\"6\" refY=\"4\" orient=\"auto\"><path d=\"M0 0 L8 4 L0 8z\" fill=\"#0b7285\"/></marker></defs><rect width=\"640\" height=\"190\" rx=\"14\" fill=\"#f4f6fb\"/><text x=\"320\" y=\"28\" font-size=\"14\" font-weight=\"700\" fill=\"#1b2340\" text-anchor=\"middle\">Plex2Shell : de la requête anonyme à l'exécution de code</text><rect x=\"20\" y=\"52\" width=\"133\" height=\"114\" rx=\"10\" fill=\"#fff\" stroke=\"#0b7285\" stroke-width=\"2\"/><text x=\"86.5\" y=\"82\" font-size=\"13\" font-weight=\"700\" fill=\"#1b2340\" text-anchor=\"middle\">1. SSRF</text><text x=\"86.5\" y=\"106\" font-size=\"11\" fill=\"#3a4466\" text-anchor=\"middle\">/player/timeline</text><text x=\"86.5\" y=\"124\" font-size=\"11\" fill=\"#3a4466\" text-anchor=\"middle\">CVE-2026-96652</text><line x1=\"155\" y1=\"109.0\" x2=\"173\" y2=\"109.0\" stroke=\"#0b7285\" stroke-width=\"2.5\" marker-end=\"url(#a)\"/><rect x=\"175\" y=\"52\" width=\"133\" height=\"114\" rx=\"10\" fill=\"#fff\" stroke=\"#0b7285\" stroke-width=\"2\"/><text x=\"241.5\" y=\"82\" font-size=\"13\" font-weight=\"700\" fill=\"#1b2340\" text-anchor=\"middle\">2. Jeton admin</text><text x=\"241.5\" y=\"106\" font-size=\"11\" fill=\"#3a4466\" text-anchor=\"middle\">searchOne</text><text x=\"241.5\" y=\"124\" font-size=\"11\" fill=\"#3a4466\" text-anchor=\"middle\">CVE-2026-96654</text><line x1=\"310\" y1=\"109.0\" x2=\"328\" y2=\"109.0\" stroke=\"#0b7285\" stroke-width=\"2.5\" marker-end=\"url(#a)\"/><rect x=\"330\" y=\"52\" width=\"133\" height=\"114\" rx=\"10\" fill=\"#fff\" stroke=\"#0b7285\" stroke-width=\"2\"/><text x=\"396.5\" y=\"82\" font-size=\"13\" font-weight=\"700\" fill=\"#1b2340\" text-anchor=\"middle\">3. Vidéo piégée</text><text x=\"396.5\" y=\"106\" font-size=\"11\" fill=\"#3a4466\" text-anchor=\"middle\">transcodage</text><text x=\"396.5\" y=\"124\" font-size=\"11\" fill=\"#3a4466\" text-anchor=\"middle\">CVE-2026-96655</text><line x1=\"465\" y1=\"109.0\" x2=\"483\" y2=\"109.0\" stroke=\"#0b7285\" stroke-width=\"2.5\" marker-end=\"url(#a)\"/><rect x=\"485\" y=\"52\" width=\"133\" height=\"114\" rx=\"10\" fill=\"#fff\" stroke=\"#0b7285\" stroke-width=\"2\"/><text x=\"551.5\" y=\"82\" font-size=\"13\" font-weight=\"700\" fill=\"#1b2340\" text-anchor=\"middle\">4. Dépôt ELF</text><text x=\"551.5\" y=\"106\" font-size=\"11\" fill=\"#3a4466\" text-anchor=\"middle\">répertoire Codecs</text><text x=\"551.5\" y=\"124\" font-size=\"11\" fill=\"#3a4466\" text-anchor=\"middle\">CVE-2026-96656</text></svg>",
+          "alt": "Schéma en quatre étapes reliant les quatre failles de la chaîne Plex2Shell, de la première requête anonyme jusqu'au dépôt d'une bibliothèque ELF exécutée par le serveur.",
+          "caption": "Les quatre failles de Plex2Shell s'enchaînent : chacune fournit à la suivante ce qui lui manque."
+        },
+        {
+          "type": "heading",
+          "level": 2,
+          "text": "Ce que les attaquants installent"
+        },
+        {
+          "type": "paragraph",
+          "text": "Les attaques observées déposent deux charges. La première, **myawesomeproxy**, est décrite par VirusTotal comme une porte dérobée Linux furtive qui fait aussi office de proxy inverse : au lancement, elle affiche un avis indiquant que son exécution vaut accord pour une éventuelle réutilisation du trafic Internet de la machine. La seconde, **mylovelyminer**, est une variante du mineur XMRig dont le serveur de minage pointe vers un domaine en `proxystream[.]st`. Un sous-domaine voisin avait été signalé par Bitsight en août 2026 en lien avec le botnet de déni de service et de proxy AISURU."
+        },
+        {
+          "type": "paragraph",
+          "text": "Plusieurs utilisateurs de Plex ont rapporté sur Reddit avoir été infectés par le mineur. L'article précise toutefois qu'il n'est pas établi que tous ces cas relèvent de Plex2Shell. L'éditeur, sollicité, n'avait pas encore répondu au moment de la publication."
+        },
+        {
+          "type": "heading",
+          "level": 2,
+          "text": "Chronologie et correctif"
+        },
+        {
+          "type": "paragraph",
+          "text": "Le correctif n'a rien de nouveau : les failles ont été signalées à Plex le 27 juillet 2026 et corrigées le 3 août dans **Plex Media Server 1.43.3.10861**. Le risque concerne donc surtout les installations qui n'ont pas été mises à jour depuis l'été. Plex avait d'ailleurs invité ses utilisateurs à actualiser leur serveur en septembre, après une mise à jour corrigeant plusieurs failles non détaillées ; l'article ne permet pas de dire si ces correctifs recouvraient Plex2Shell."
+        },
+        {
+          "type": "paragraph",
+          "text": "Parmi les indicateurs de compromission publiés figurent les adresses IP 217.60.194[.]116 (distribution du mineur), 91.92.40[.]202, 176.65.139[.]228 et 45.194.92[.]222 (attaques observées). Elles peuvent être recherchées dans les journaux du pare-feu ou du routeur."
+        },
+        {
+          "type": "usecases",
+          "title": "Exemples d'utilisation",
+          "items": [
+            {
+              "icon": "🏠",
+              "title": "Un serveur domestique",
+              "text": "Un particulier qui partage sa médiathèque avec sa famille vérifie la version de son serveur, l'actualise vers la 1.43.3.10861 ou une version plus récente, puis examine les processus gourmands en processeur qu'il ne reconnaît pas."
+            },
+            {
+              "icon": "🛡️",
+              "title": "Un administrateur réseau",
+              "text": "Un administrateur retire l'accès direct au port du serveur depuis Internet et fait passer la lecture à distance par un VPN, pour réduire la surface d'attaque."
+            },
+            {
+              "icon": "🔎",
+              "title": "Une équipe de supervision",
+              "text": "Une équipe ajoute les adresses IP publiées à ses règles de détection et recherche des connexions sortantes vers les domaines `proxystream[.]st`."
+            }
+          ]
+        },
+        {
+          "type": "timeline",
+          "title": "D'où l'on vient, où l'on va",
+          "items": [
+            {
+              "label": "27 juillet 2026",
+              "text": "Les failles sont signalées à Plex."
+            },
+            {
+              "label": "3 août 2026",
+              "text": "Correctif publié dans la version 1.43.3.10861."
+            },
+            {
+              "label": "Septembre 2026",
+              "text": "Plex invite ses utilisateurs à mettre à jour."
+            },
+            {
+              "label": "16 octobre 2026",
+              "text": "Les détails techniques de la chaîne deviennent publics."
+            },
+            {
+              "label": "17 octobre 2026",
+              "text": "Premières exploitations observées, un jour après la preuve de concept."
+            }
+          ]
+        },
+        {
+          "type": "opinion",
+          "title": "Notre avis",
+          "paragraphs": [
+            "L'épisode illustre un schéma désormais classique : un correctif disponible depuis plus de deux mois, une preuve de concept publique, et une exploitation en un jour. Le délai entre publication et attaque se compte en heures, alors que le rythme de mise à jour d'un serveur domestique se compte en mois. Le fait que les failles soient d'une gravité individuelle modérée a pu en outre encourager la négligence : un score de 5,3 ne pousse pas à agir dans l'urgence, alors que la chaîne complète, elle, est critique.",
+            "À un horizon d'un à trois ans, on peut penser que les logiciels destinés au grand public devront généraliser la mise à jour automatique par défaut, comme l'ont fait les navigateurs. Les serveurs multimédias, les NAS et les routeurs, qui concentrent des machines toujours en ligne et rarement surveillées, resteront des cibles prioritaires pour le cryptominage et le proxyware. C'est une analyse, non un fait établi par la source."
+          ],
+          "verdict": "Un correctif vieux de deux mois n'est plus une avance sur les attaquants : c'est un retard à rattraper."
+        },
+        {
+          "type": "callout",
+          "variant": "info",
+          "title": "À retenir",
+          "text": "Plex Media Server doit être en version 1.43.3.10861 ou plus récente. Les serveurs exposés sur Internet et non mis à jour depuis août sont à examiner (processus inconnus, charge processeur anormale, connexions vers les indicateurs publiés)."
+        }
+      ],
+      "cover": {
+        "url": "https://blogger.googleusercontent.com/img/b/R29vZ2xl/AVvXsEjF_Xo8mH5AxIDYx4hFrS1_uhblD0IoGUTo6bioM38mwy-whZAbcq1aaGeH1iZrS8nmk5Ow25NfX67HRXKiWFfzLc8C1A2zs2n948DwyW_NSSkowFDnEzxUofGxhNV72vTEWkgPmbO6XJyDUPwBR-lzSekj5_m8tY3JHjozUXETGEBg6GrLZrekhilW9W_R/s1600/plex-hack.jpg",
+        "alt": "Illustration de l'article de The Hacker News sur Plex2Shell",
+        "credit": "thehackernews.com"
+      },
+      "illustration": {
+        "svg": "<svg xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"0 0 640 360\"><defs><linearGradient id=\"g\" x1=\"0\" y1=\"0\" x2=\"1\" y2=\"1\"><stop offset=\"0\" stop-color=\"hsl(175,65%,38%)\"/><stop offset=\"1\" stop-color=\"hsl(215,70%,22%)\"/></linearGradient></defs><rect width=\"640\" height=\"360\" fill=\"url(#g)\"/><circle cx=\"459\" cy=\"137\" r=\"37\" fill=\"#fff\" opacity=\"0.06\"/><circle cx=\"128\" cy=\"236\" r=\"38\" fill=\"#fff\" opacity=\"0.12\"/><circle cx=\"161\" cy=\"169\" r=\"33\" fill=\"#fff\" opacity=\"0.12\"/><circle cx=\"149\" cy=\"98\" r=\"34\" fill=\"#fff\" opacity=\"0.09\"/><circle cx=\"129\" cy=\"95\" r=\"22\" fill=\"#fff\" opacity=\"0.12\"/><circle cx=\"228\" cy=\"188\" r=\"27\" fill=\"#fff\" opacity=\"0.12\"/><circle cx=\"400\" cy=\"68\" r=\"12\" fill=\"#fff\" opacity=\"0.06\"/><circle cx=\"320\" cy=\"140\" r=\"78\" fill=\"#fff\" opacity=\"0.16\"/><circle cx=\"320\" cy=\"140\" r=\"56\" fill=\"#fff\" opacity=\"0.18\"/><text x=\"320\" y=\"165\" font-size=\"76\" text-anchor=\"middle\">🎞️</text><rect x=\"60\" y=\"250\" width=\"312\" height=\"6\" rx=\"3\" fill=\"#fff\" opacity=\"0.35\"/><rect x=\"68\" y=\"268\" width=\"334\" height=\"6\" rx=\"3\" fill=\"#fff\" opacity=\"0.28\"/><rect x=\"76\" y=\"286\" width=\"474\" height=\"6\" rx=\"3\" fill=\"#fff\" opacity=\"0.21\"/><rect x=\"84\" y=\"304\" width=\"309\" height=\"6\" rx=\"3\" fill=\"#fff\" opacity=\"0.14\"/></svg>"
+      },
+      "readingMinutes": 4,
+      "publishedAt": "2026-10-20T05:20:36+02:00"
+    },
+    {
+      "id": "aomei-backupper-serveurs-mise-a-jour-detournes",
+      "category": "cybersecurite",
+      "icon": "💾",
+      "importance": 4,
+      "sourceDate": "2026-10-19",
+      "title": "AOMEI Backupper : des serveurs de mise à jour détournés pour diffuser des logiciels malveillants",
+      "summary": "Entre mai et juillet 2026, des attaquants ont brièvement modifié des fichiers de configuration sur l'infrastructure d'AOMEI pour faire télécharger un chargeur et une porte dérobée aux utilisateurs de son logiciel de sauvegarde. L'éditeur n'a pas expliqué l'intrusion.",
+      "tags": [
+        "AOMEI",
+        "chaîne d'approvisionnement",
+        "UNC7017",
+        "Radmin",
+        "sauvegarde"
+      ],
+      "sources": [
+        {
+          "title": "Des pirates détournent les serveurs de mise à jour d'AOMEI pour diffuser des logiciels malveillants",
+          "url": "https://www.bleepingcomputer.com/news/security/hackers-hijack-aomei-update-servers-to-secretly-spread-malware/",
+          "publisher": "BleepingComputer"
+        }
+      ],
+      "blocks": [
+        {
+          "type": "paragraph",
+          "text": "Un logiciel de sauvegarde bénéficie d'une confiance quasi totale : il lit tous les fichiers, tourne avec des privilèges élevés et contacte régulièrement son éditeur. C'est ce que des attaquants ont exploité contre **AOMEI Backupper**, un outil Windows de sauvegarde, de clonage de disque et de restauration. D'après BleepingComputer, la campagne s'est déroulée entre avril et juillet 2026 et a reposé sur la fonction de promotion intégrée au logiciel, détournée pour diffuser des programmes malveillants."
+        },
+        {
+          "type": "paragraph",
+          "text": "Les travaux de détection sont dus au laboratoire d'analyse des menaces de ManageEngine (METAL), en collaboration avec le Google Threat Intelligence Group et Mandiant. Ils attribuent l'activité à un acteur suivi sous le nom **UNC7017**, qui a employé deux outils : **CROSSROAD**, un téléchargeur jusque-là inconnu, et **SHINYROAD**, une porte dérobée."
+        },
+        {
+          "type": "heading",
+          "level": 2,
+          "text": "Comment l'attaque a été découverte"
+        },
+        {
+          "type": "paragraph",
+          "text": "Le 28 mai, la solution de sécurité de ManageEngine a vu AOMEI Backupper installer en silence l'outil légitime d'administration à distance **Radmin** sur des postes de deux entreprises sans lien entre elles, dans des pays différents. Le geste était déclenché par les processus de promotion du logiciel, qui ne sont censés récupérer que du contenu publicitaire et des notifications."
+        },
+        {
+          "type": "paragraph",
+          "text": "Les chercheurs n'ont d'abord pas pu reproduire le comportement. En poursuivant leurs essais, ils ont constaté que les attaquants avaient modifié deux fichiers pendant de brefs instants : `down_html.ini`, qui indique où télécharger les paquets de mise à jour, et `Notifycfg.ini`, qui pilote les notifications et peut déclencher l'exécution de contenu sur la machine. Le premier pointait vers une archive ZIP malveillante, le second la faisait exécuter sans action de l'utilisateur, et la somme de contrôle attendue avait été falsifiée pour que l'archive passe la vérification."
+        },
+        {
+          "type": "heading",
+          "level": 2,
+          "text": "Trois fenêtres d'exposition très courtes"
+        },
+        {
+          "type": "table",
+          "headers": [
+            "Date (2026)",
+            "Heure (UTC)",
+            "Durée"
+          ],
+          "rows": [
+            [
+              "28 mai",
+              "05 h 40 à 05 h 50",
+              "10 minutes"
+            ],
+            [
+              "16 juillet",
+              "08 h 33 à 08 h 39",
+              "6 minutes"
+            ],
+            [
+              "20 juillet",
+              "10 h 35 à 10 h 40",
+              "5 minutes"
+            ]
+          ]
+        },
+        {
+          "type": "paragraph",
+          "text": "Google qualifie ces attaques d'opportunistes : toute organisation dont le logiciel a cherché une mise à jour pendant l'une de ces fenêtres a pu recevoir les fichiers piégés. Les victimes identifiées se trouvent aux États-Unis, en Australie, en Inde, à Singapour, en Espagne et en Suisse, dans les services informatiques, les télécommunications et l'enseignement supérieur."
+        },
+        {
+          "type": "diagram",
+          "svg": "<svg xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"0 0 640 190\" font-family=\"system-ui,sans-serif\"><defs><marker id=\"a\" markerWidth=\"8\" markerHeight=\"8\" refX=\"6\" refY=\"4\" orient=\"auto\"><path d=\"M0 0 L8 4 L0 8z\" fill=\"#b45309\"/></marker></defs><rect width=\"640\" height=\"190\" rx=\"14\" fill=\"#f4f6fb\"/><text x=\"320\" y=\"28\" font-size=\"14\" font-weight=\"700\" fill=\"#1b2340\" text-anchor=\"middle\">Le détournement du mécanisme de promotion</text><rect x=\"20\" y=\"52\" width=\"133\" height=\"114\" rx=\"10\" fill=\"#fff\" stroke=\"#b45309\" stroke-width=\"2\"/><text x=\"86.5\" y=\"82\" font-size=\"13\" font-weight=\"700\" fill=\"#1b2340\" text-anchor=\"middle\">Serveur AOMEI</text><text x=\"86.5\" y=\"106\" font-size=\"11\" fill=\"#3a4466\" text-anchor=\"middle\">fichiers .ini modifiés</text><text x=\"86.5\" y=\"124\" font-size=\"11\" fill=\"#3a4466\" text-anchor=\"middle\">quelques minutes</text><line x1=\"155\" y1=\"109.0\" x2=\"173\" y2=\"109.0\" stroke=\"#b45309\" stroke-width=\"2.5\" marker-end=\"url(#a)\"/><rect x=\"175\" y=\"52\" width=\"133\" height=\"114\" rx=\"10\" fill=\"#fff\" stroke=\"#b45309\" stroke-width=\"2\"/><text x=\"241.5\" y=\"82\" font-size=\"13\" font-weight=\"700\" fill=\"#1b2340\" text-anchor=\"middle\">Logiciel client</text><text x=\"241.5\" y=\"106\" font-size=\"11\" fill=\"#3a4466\" text-anchor=\"middle\">lit la configuration</text><text x=\"241.5\" y=\"124\" font-size=\"11\" fill=\"#3a4466\" text-anchor=\"middle\">télécharge le ZIP</text><line x1=\"310\" y1=\"109.0\" x2=\"328\" y2=\"109.0\" stroke=\"#b45309\" stroke-width=\"2.5\" marker-end=\"url(#a)\"/><rect x=\"330\" y=\"52\" width=\"133\" height=\"114\" rx=\"10\" fill=\"#fff\" stroke=\"#b45309\" stroke-width=\"2\"/><text x=\"396.5\" y=\"82\" font-size=\"13\" font-weight=\"700\" fill=\"#1b2340\" text-anchor=\"middle\">CROSSROAD</text><text x=\"396.5\" y=\"106\" font-size=\"11\" fill=\"#3a4466\" text-anchor=\"middle\">reconnaissance</text><text x=\"396.5\" y=\"124\" font-size=\"11\" fill=\"#3a4466\" text-anchor=\"middle\">tâche planifiée</text><line x1=\"465\" y1=\"109.0\" x2=\"483\" y2=\"109.0\" stroke=\"#b45309\" stroke-width=\"2.5\" marker-end=\"url(#a)\"/><rect x=\"485\" y=\"52\" width=\"133\" height=\"114\" rx=\"10\" fill=\"#fff\" stroke=\"#b45309\" stroke-width=\"2\"/><text x=\"551.5\" y=\"82\" font-size=\"13\" font-weight=\"700\" fill=\"#1b2340\" text-anchor=\"middle\">SHINYROAD</text><text x=\"551.5\" y=\"106\" font-size=\"11\" fill=\"#3a4466\" text-anchor=\"middle\">Radmin détourné</text><text x=\"551.5\" y=\"124\" font-size=\"11\" fill=\"#3a4466\" text-anchor=\"middle\">liaison de commande</text></svg>",
+          "alt": "Schéma montrant le serveur AOMEI aux fichiers modifiés, le logiciel client qui télécharge une archive, le chargeur CROSSROAD puis la porte dérobée SHINYROAD.",
+          "caption": "Les attaquants modifient la configuration quelques minutes, puis la rétablissent pour effacer leurs traces."
+        },
+        {
+          "type": "heading",
+          "level": 2,
+          "text": "Ce que font les logiciels malveillants"
+        },
+        {
+          "type": "paragraph",
+          "text": "CROSSROAD fait de la reconnaissance sur la machine, télécharge d'autres composants et s'installe durablement grâce à une tâche planifiée. SHINYROAD abuse de composants légitimes de Radmin pour charger du code malveillant et ouvre une connexion sortante vers un serveur de commande. Le 20 juillet, Google a de plus observé une tentative de vol d'empreintes d'authentification Windows : une fenêtre invisible forçait le système de notification à contacter une ressource WebDAV contrôlée par les attaquants, ce qui peut exposer des empreintes NTLM susceptibles d'être cassées ensuite."
+        },
+        {
+          "type": "heading",
+          "level": 2,
+          "text": "La réponse de l'éditeur"
+        },
+        {
+          "type": "paragraph",
+          "text": "ManageEngine affirme avoir prévenu AOMEI le 7 juin. L'éditeur a d'abord suggéré que le contenu avait été intercepté en transit, thèse écartée par les chercheurs, qui situent la modification dans la chaîne de diffusion d'AOMEI. Mandiant a averti l'éditeur le 17 juillet, et celui-ci a répondu le 29 juillet avoir pris des mesures correctives. AOMEI indique avoir mis à niveau ses serveurs, corrigé d'éventuelles vulnérabilités et vérifié ses fichiers hébergés, et classe l'affaire en haute priorité. Il n'a toutefois pas confirmé comment les attaquants ont pénétré son infrastructure, ni que le problème soit entièrement résolu. ManageEngine rappelle qu'une correction côté serveur ne désinfecte pas les machines déjà touchées."
+        },
+        {
+          "type": "usecases",
+          "title": "Exemples d'utilisation",
+          "items": [
+            {
+              "icon": "🏢",
+              "title": "Une PME informatique",
+              "text": "Le responsable d'un parc de postes recherche dans ses outils de supervision les tâches planifiées inhabituelles et les installations de Radmin non prévues, notamment autour du 28 mai, du 16 et du 20 juillet."
+            },
+            {
+              "icon": "🌐",
+              "title": "Une équipe réseau",
+              "text": "L'équipe inspecte les journaux de proxy à la recherche de connexions vers les adresses publiées (8.210.84[.]56, domaines `storage-data[.]com`) et bloque ces destinations."
+            },
+            {
+              "icon": "📦",
+              "title": "Un service achats",
+              "text": "Une direction informatique ajoute aux critères de choix de ses logiciels la capacité de l'éditeur à signer et à surveiller ses fichiers de mise à jour."
+            }
+          ]
+        },
+        {
+          "type": "timeline",
+          "title": "D'où l'on vient, où l'on va",
+          "items": [
+            {
+              "label": "Avril 2026",
+              "text": "Début de la période pendant laquelle la campagne est rapportée."
+            },
+            {
+              "label": "28 mai 2026",
+              "text": "Première détection : Radmin installé silencieusement chez deux entreprises."
+            },
+            {
+              "label": "7 juin 2026",
+              "text": "ManageEngine prévient AOMEI."
+            },
+            {
+              "label": "16 et 20 juillet 2026",
+              "text": "Deux nouvelles fenêtres de modification capturées ; Mandiant avertit l'éditeur le 17."
+            },
+            {
+              "label": "29 juillet 2026",
+              "text": "AOMEI annonce des mesures correctives."
+            }
+          ]
+        },
+        {
+          "type": "opinion",
+          "title": "Notre avis",
+          "paragraphs": [
+            "Cette affaire montre que le maillon faible n'est pas toujours le code de l'application, mais ses canaux annexes : promotions, notifications, fichiers de configuration. Ces mécanismes sont rarement audités avec la même rigueur que le moteur de sauvegarde, et pourtant ils peuvent déclencher l'exécution de programmes. Le fait que les fichiers soient restaurés après quelques minutes explique aussi pourquoi la détection a pris autant de temps : sans surveillance continue, rien ne subsiste à examiner.",
+            "À un horizon d'un à trois ans, on peut s'attendre à ce que les entreprises exigent des éditeurs une signature cryptographique de tout contenu actif, y compris les notifications, et la possibilité de désactiver les fonctions promotionnelles. Il s'agit d'une analyse et non d'un fait annoncé : la source ne dit rien des évolutions à venir chez AOMEI."
+          ],
+          "verdict": "Une fonction de promotion qui peut exécuter du code n'est plus une fonction commerciale : c'est une porte d'entrée."
+        },
+        {
+          "type": "callout",
+          "variant": "info",
+          "title": "À retenir",
+          "text": "Les organisations qui utilisent AOMEI Backupper doivent chercher des tâches planifiées suspectes, des exécutables inattendus dans le dossier d'installation et des connexions vers l'infrastructure publiée, même si l'éditeur affirme avoir corrigé ses serveurs."
+        }
+      ],
+      "illustration": {
+        "svg": "<svg xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"0 0 640 360\"><defs><linearGradient id=\"g\" x1=\"0\" y1=\"0\" x2=\"1\" y2=\"1\"><stop offset=\"0\" stop-color=\"hsl(175,65%,38%)\"/><stop offset=\"1\" stop-color=\"hsl(215,70%,22%)\"/></linearGradient></defs><rect width=\"640\" height=\"360\" fill=\"url(#g)\"/><circle cx=\"248\" cy=\"149\" r=\"28\" fill=\"#fff\" opacity=\"0.09\"/><circle cx=\"151\" cy=\"165\" r=\"41\" fill=\"#fff\" opacity=\"0.09\"/><circle cx=\"284\" cy=\"87\" r=\"34\" fill=\"#fff\" opacity=\"0.09\"/><circle cx=\"101\" cy=\"83\" r=\"25\" fill=\"#fff\" opacity=\"0.12\"/><circle cx=\"460\" cy=\"82\" r=\"27\" fill=\"#fff\" opacity=\"0.09\"/><circle cx=\"346\" cy=\"173\" r=\"15\" fill=\"#fff\" opacity=\"0.06\"/><circle cx=\"75\" cy=\"187\" r=\"12\" fill=\"#fff\" opacity=\"0.06\"/><circle cx=\"320\" cy=\"140\" r=\"78\" fill=\"#fff\" opacity=\"0.16\"/><circle cx=\"320\" cy=\"140\" r=\"56\" fill=\"#fff\" opacity=\"0.18\"/><text x=\"320\" y=\"165\" font-size=\"76\" text-anchor=\"middle\">💾</text><rect x=\"60\" y=\"250\" width=\"465\" height=\"6\" rx=\"3\" fill=\"#fff\" opacity=\"0.35\"/><rect x=\"68\" y=\"268\" width=\"396\" height=\"6\" rx=\"3\" fill=\"#fff\" opacity=\"0.28\"/><rect x=\"76\" y=\"286\" width=\"350\" height=\"6\" rx=\"3\" fill=\"#fff\" opacity=\"0.21\"/><rect x=\"84\" y=\"304\" width=\"407\" height=\"6\" rx=\"3\" fill=\"#fff\" opacity=\"0.14\"/></svg>"
+      },
+      "readingMinutes": 5,
+      "publishedAt": "2026-10-20T05:20:36+02:00"
+    },
+    {
+      "id": "ahold-delhaize-cyberattaque-systemes-hors-ligne",
+      "category": "cybersecurite",
+      "icon": "🛒",
+      "importance": 4,
+      "sourceDate": "2026-10-19",
+      "title": "Ahold Delhaize : une cyberattaque met hors ligne les sites et applications de la plupart de ses enseignes",
+      "summary": "Le groupe néerlandais, qui détient Albert Heijn, Stop & Shop ou Food Lion, confirme que ses systèmes informatiques ont été coupés par précaution depuis le 12 octobre. Les magasins sont restés ouverts et aucune fuite de données sensibles n'est établie à ce stade.",
+      "tags": [
+        "Ahold Delhaize",
+        "distribution",
+        "cyberattaque",
+        "Albert Heijn",
+        "rançongiciel"
+      ],
+      "sources": [
+        {
+          "title": "Le géant de la distribution Ahold Delhaize confirme qu'une cyberattaque a mis hors ligne ses systèmes aux États-Unis et en Europe",
+          "url": "https://www.theregister.com/security/2026/10/19/grocery-giant-ahold-delhaize-confirms-cyberattack-forced-us-and-european-systems-offline/5303970",
+          "publisher": "The Register"
+        }
+      ],
+      "blocks": [
+        {
+          "type": "paragraph",
+          "text": "Une grande enseigne de distribution alimentaire ne peut pas se permettre d'interrompre ses commandes en ligne, ses applications de fidélité et une partie de sa logistique. C'est pourtant ce qu'a dû faire **Ahold Delhaize**, l'un des plus grands groupes de supermarchés d'Europe et des États-Unis. Selon The Register, l'entreprise a annoncé le 12 octobre 2026 qu'elle traitait un incident de sécurité sur son réseau et qu'elle avait mis hors ligne « certains » systèmes par précaution. Le 19 octobre, elle a apporté des précisions."
+        },
+        {
+          "type": "heading",
+          "level": 2,
+          "text": "Ce que l'entreprise a confirmé"
+        },
+        {
+          "type": "paragraph",
+          "text": "Le groupe explique avoir coupé de manière préventive plusieurs systèmes, dont des sites Internet et des applications, ce qui touche la plupart de ses enseignes. Il attribue l'incident à des « actions malveillantes de tiers ». Son directeur général, Frans Muller, a déclaré que cette coupure était une mesure de précaution et que l'enquête menée à ce jour confirme qu'il s'agissait de la bonne décision. L'entreprise a prévenu le Centre national de cybersécurité néerlandais la semaine précédente et a déposé plainte auprès de la police néerlandaise le 19 octobre."
+        },
+        {
+          "type": "table",
+          "headers": [
+            "Enseigne ou zone",
+            "Situation indiquée"
+          ],
+          "rows": [
+            [
+              "Albert Heijn (site et application)",
+              "De nouveau en ligne ; la reprise des livraisons à domicile est attendue vendredi"
+            ],
+            [
+              "Commerce en ligne belge",
+              "Pleinement opérationnel"
+            ],
+            [
+              "Etos et Gall & Gall",
+              "Sites de nouveau accessibles"
+            ],
+            [
+              "Europe centrale et du Sud-Est",
+              "La plupart des sites et applications sont rétablis"
+            ],
+            [
+              "Enseignes américaines (Food Lion, Giant Food, Martin's, Hannaford, Stop & Shop)",
+              "Services en ligne attendus « dans les prochains jours »"
+            ]
+          ]
+        },
+        {
+          "type": "paragraph",
+          "text": "Point notable : les magasins physiques sont restés ouverts pendant toute la durée de l'incident. L'enquête n'a pour l'instant trouvé aucune preuve du vol de données sensibles concernant des clients, des salariés ou des partenaires. Cette formulation prudente ne préjuge pas de la suite, car les enquêtes de ce type révèlent parfois des éléments plusieurs semaines après les faits."
+        },
+        {
+          "type": "heading",
+          "level": 2,
+          "text": "Un lien avec les réfrigérateurs piratés en France ?"
+        },
+        {
+          "type": "paragraph",
+          "text": "The Register a demandé à l'entreprise si l'incident était lié aux attaques contre les contrôleurs de réfrigération de centaines de supermarchés français, qui ont débuté le 11 octobre, avaient fait grimper la température jusqu'à 50 °C dans certains équipements, gâché des denrées et provoqué des incendies dans quelques points de vente. Le groupe n'avait pas répondu au moment de la publication. En l'absence de réponse, aucun rapprochement ne peut être affirmé : la proximité des dates est un fait, un lien de cause à effet n'en est pas un."
+        },
+        {
+          "type": "heading",
+          "level": 2,
+          "text": "Une deuxième attaque majeure en deux ans"
+        },
+        {
+          "type": "paragraph",
+          "text": "Ahold Delhaize avait déjà subi une intrusion en novembre 2024, qui avait perturbé plusieurs enseignes : certains magasins Stop & Shop avaient eu du mal à délivrer des médicaments sur ordonnance, et des salariés de Food Lion avaient signalé des livraisons retardées ou manquantes. Le groupe de rançongiciel INC Ransom avait revendiqué l'attaque et publié des documents qu'il disait avoir dérobés. L'entreprise avait ensuite établi que les données personnelles, financières et de santé de plus de 2,2 millions de personnes avaient été compromises."
+        },
+        {
+          "type": "usecases",
+          "title": "Exemples d'utilisation",
+          "items": [
+            {
+              "icon": "🛍️",
+              "title": "Un client d'Albert Heijn",
+              "text": "Un client qui commande habituellement ses courses en ligne constate que l'application fonctionne de nouveau, mais que la livraison à domicile ne reprendra que plus tard dans la semaine ; il se rend en magasin en attendant."
+            },
+            {
+              "icon": "💊",
+              "title": "Un patient américain",
+              "text": "Un patient qui retire ses médicaments dans une pharmacie intégrée à un supermarché vérifie auprès de son magasin que ses services en ligne et ses ordonnances sont accessibles, au vu des incidents de 2024."
+            },
+            {
+              "icon": "📦",
+              "title": "Un fournisseur",
+              "text": "Un fournisseur du groupe prévoit des commandes et des factures traitées par d'autres canaux, le temps que les systèmes d'échange de données soient rétablis."
+            }
+          ]
+        },
+        {
+          "type": "timeline",
+          "title": "D'où l'on vient, où l'on va",
+          "items": [
+            {
+              "label": "Novembre 2024",
+              "text": "Première intrusion majeure, revendiquée par INC Ransom ; plus de 2,2 millions de personnes concernées."
+            },
+            {
+              "label": "11 octobre 2026",
+              "text": "Début des attaques contre les contrôleurs de réfrigération de supermarchés en France, sans lien établi avec Ahold Delhaize."
+            },
+            {
+              "label": "12 octobre 2026",
+              "text": "Premier communiqué du groupe sur un incident de sécurité."
+            },
+            {
+              "label": "19 octobre 2026",
+              "text": "Précisions de l'entreprise, plainte déposée aux Pays-Bas."
+            },
+            {
+              "label": "Vendredi 23 octobre 2026",
+              "text": "Reprise attendue des livraisons à domicile d'Albert Heijn."
+            }
+          ]
+        },
+        {
+          "type": "opinion",
+          "title": "Notre avis",
+          "paragraphs": [
+            "Le fonctionnement des magasins malgré la coupure de leurs systèmes en ligne montre une résilience réelle : la décision de tout débrancher vite semble avoir limité les dégâts. Elle a aussi un coût, puisque près d'une semaine de commandes en ligne, de fidélité et de livraison a été perturbée. Pour un distributeur dont les marges sont faibles, cette dépendance au numérique est devenue structurelle, et l'arrêt d'un seul système d'information peut paralyser des canaux entiers.",
+            "À un horizon d'un à trois ans, on peut penser que les grands distributeurs européens, soumis à la directive NIS2, devront démontrer des plans de reprise testés, avec une séparation plus nette entre systèmes en magasin, logistique et commerce en ligne. C'est une opinion et non une annonce du groupe, dont la communication reste, à ce stade, limitée à la reprise des services."
+          ],
+          "verdict": "Garder les caisses ouvertes tout en coupant le reste est une stratégie de crise efficace, mais elle ne remplace pas une architecture conçue pour qu'une seule faille n'arrête pas tout."
+        },
+        {
+          "type": "callout",
+          "variant": "info",
+          "title": "À retenir",
+          "text": "Les magasins d'Ahold Delhaize sont restés ouverts, les services en ligne reviennent progressivement et aucune fuite de données sensibles n'est établie à ce jour. Aucun lien n'est confirmé avec les attaques de réfrigérateurs en France."
+        }
+      ],
+      "cover": {
+        "url": "https://image.theregister.com/249284.jpg?imageId=249284&x=0&y=0&cropw=100&croph=100&panox=0&panoy=0&panow=100&panoh=100&width=1200&height=683",
+        "alt": "Illustration de l'article de The Register sur la cyberattaque chez Ahold Delhaize",
+        "credit": "theregister.com"
+      },
+      "illustration": {
+        "svg": "<svg xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"0 0 640 360\"><defs><linearGradient id=\"g\" x1=\"0\" y1=\"0\" x2=\"1\" y2=\"1\"><stop offset=\"0\" stop-color=\"hsl(175,65%,38%)\"/><stop offset=\"1\" stop-color=\"hsl(215,70%,22%)\"/></linearGradient></defs><rect width=\"640\" height=\"360\" fill=\"url(#g)\"/><circle cx=\"160\" cy=\"156\" r=\"20\" fill=\"#fff\" opacity=\"0.06\"/><circle cx=\"517\" cy=\"71\" r=\"27\" fill=\"#fff\" opacity=\"0.12\"/><circle cx=\"284\" cy=\"173\" r=\"17\" fill=\"#fff\" opacity=\"0.09\"/><circle cx=\"94\" cy=\"182\" r=\"42\" fill=\"#fff\" opacity=\"0.12\"/><circle cx=\"318\" cy=\"230\" r=\"23\" fill=\"#fff\" opacity=\"0.09\"/><circle cx=\"571\" cy=\"134\" r=\"19\" fill=\"#fff\" opacity=\"0.12\"/><circle cx=\"419\" cy=\"129\" r=\"32\" fill=\"#fff\" opacity=\"0.06\"/><circle cx=\"320\" cy=\"140\" r=\"78\" fill=\"#fff\" opacity=\"0.16\"/><circle cx=\"320\" cy=\"140\" r=\"56\" fill=\"#fff\" opacity=\"0.18\"/><text x=\"320\" y=\"165\" font-size=\"76\" text-anchor=\"middle\">🛒</text><rect x=\"60\" y=\"250\" width=\"320\" height=\"6\" rx=\"3\" fill=\"#fff\" opacity=\"0.35\"/><rect x=\"68\" y=\"268\" width=\"337\" height=\"6\" rx=\"3\" fill=\"#fff\" opacity=\"0.28\"/><rect x=\"76\" y=\"286\" width=\"421\" height=\"6\" rx=\"3\" fill=\"#fff\" opacity=\"0.21\"/><rect x=\"84\" y=\"304\" width=\"354\" height=\"6\" rx=\"3\" fill=\"#fff\" opacity=\"0.14\"/></svg>"
+      },
+      "readingMinutes": 4,
+      "publishedAt": "2026-10-20T05:20:36+02:00"
+    },
+    {
+      "id": "correctifs-de-securite-contournes-hausse-2026-terra",
+      "category": "cybersecurite",
+      "icon": "🩹",
+      "importance": 3,
+      "sourceDate": "2026-10-19",
+      "title": "Correctifs contournés : la part des rustines de sécurité qui échouent est passée de 0,2 % à 2,3 % en 2026",
+      "summary": "Selon l'étude de la jeune pousse Terra Security, la part des correctifs GitHub nécessitant un nouvel avis dans les 90 jours est passée de 0,2 % à 2,3 %. Les failles dont le correctif a été contourné sont quatre fois plus souvent exploitées.",
+      "tags": [
+        "correctifs",
+        "CVE",
+        "Terra Security",
+        "noyau Linux",
+        "CISA KEV"
+      ],
+      "sources": [
+        {
+          "title": "Les correctifs de sécurité ont désormais besoin de correctifs, maintenant que les attaquants disposent de l'IA",
+          "url": "https://www.theregister.com/patches/2026/10/19/security-patches-need-patches-now-that-attackers-have-ai/5303927",
+          "publisher": "The Register"
+        }
+      ],
+      "blocks": [
+        {
+          "type": "paragraph",
+          "text": "Appliquer un correctif de sécurité est le réflexe de base de tout administrateur. Une étude de la jeune entreprise de tests d'intrusion par IA **Terra Security**, rapportée par The Register, nuance cette certitude : en 2026, les correctifs qui échouent, c'est-à-dire qui sont contournés ou incomplets, sont nettement plus nombreux qu'avant. Après plusieurs années de rareté, les contournements de patchs sont en nette hausse."
+        },
+        {
+          "type": "heading",
+          "level": 2,
+          "text": "Les chiffres de l'étude"
+        },
+        {
+          "type": "paragraph",
+          "text": "Les chercheurs de Terra ont passé en revue l'ensemble des fiches CVE publiées et des avis de sécurité relus par GitHub, pour retrouver ceux dont la correction avait été contournée ensuite. L'article ne détaille pas davantage la méthode. Les résultats rapportés sont les suivants :"
+        },
+        {
+          "type": "list",
+          "ordered": false,
+          "items": [
+            "la part des correctifs sur GitHub ayant nécessité un nouvel avis signalant un échec dans les 90 jours est restée autour de **0,2 %** de 2019 à 2025, puis a bondi à **2,3 %** en 2026 ;",
+            "les vulnérabilités dont le correctif a ensuite été contourné figurent environ **quatre fois plus souvent** dans le catalogue des vulnérabilités exploitées de la CISA (KEV) que les autres failles touchant les mêmes éditeurs ;",
+            "les failles de pollution de prototype sont environ **11 fois** plus fréquentes parmi les CVE à correctif défaillant que dans l'ensemble des CVE, et les falsifications de requête côté serveur (SSRF) environ **4,6 fois** ;",
+            "pour le noyau Linux, au 8 octobre et d'après les enregistrements de l'autorité de numérotation du noyau, **3,2 %** des CVE ont été introduites par le correctif d'une autre CVE, et environ **10 %** dans des sous-systèmes très actifs comme `fs/smb` et `net/sched`."
+          ]
+        },
+        {
+          "type": "heading",
+          "level": 2,
+          "text": "Pourquoi les rustines échouent"
+        },
+        {
+          "type": "paragraph",
+          "text": "Terra attribue le phénomène en grande partie à la manière dont ces catégories de failles sont corrigées. Beaucoup de correctifs reposent sur des listes de refus, qui bloquent certains noms d'hôtes, chemins ou clés d'objets. Or une liste de refus doit prévoir toutes les façons d'encoder une entrée malveillante, alors que l'attaquant n'a besoin d'en trouver qu'une. Les chercheurs résument ainsi le problème : si la liste de refus ne prévoit pas chaque encodage, il suffit à l'attaquant d'en découvrir un."
+        },
+        {
+          "type": "paragraph",
+          "text": "L'article cite deux exemples récents. Des espions russes ont exploité une faille de contournement de sécurité dans l'interface Windows (CVE-2026-21510) au moins un mois avant son correctif de février. Le correctif de Microsoft était incomplet et laissait subsister une seconde faille, la CVE-2026-32202, une vulnérabilité d'authentification forcée sans clic, elle aussi exploitée avant d'être corrigée en avril."
+        },
+        {
+          "type": "heading",
+          "level": 2,
+          "text": "Un lien avec l'IA ?"
+        },
+        {
+          "type": "paragraph",
+          "text": "L'article rapproche cette hausse de l'essor de la découverte et de la correction de vulnérabilités assistées par IA en 2026. Il précise toutefois que son propre texte n'établit pas de lien de causalité au-delà de la coïncidence des dates : la corrélation est suggérée, pas démontrée. D'autres explications sont possibles, comme une meilleure détection des contournements ou une pression accrue sur les mainteneurs."
+        },
+        {
+          "type": "diagram",
+          "svg": "<svg xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"0 0 640 190\" font-family=\"system-ui,sans-serif\"><defs><marker id=\"a\" markerWidth=\"8\" markerHeight=\"8\" refX=\"6\" refY=\"4\" orient=\"auto\"><path d=\"M0 0 L8 4 L0 8z\" fill=\"#0b7285\"/></marker></defs><rect width=\"640\" height=\"190\" rx=\"14\" fill=\"#f4f6fb\"/><text x=\"320\" y=\"28\" font-size=\"14\" font-weight=\"700\" fill=\"#1b2340\" text-anchor=\"middle\">Quand le correctif ne couvre pas toute la classe de failles</text><rect x=\"20\" y=\"52\" width=\"133\" height=\"114\" rx=\"10\" fill=\"#fff\" stroke=\"#0b7285\" stroke-width=\"2\"/><text x=\"86.5\" y=\"82\" font-size=\"13\" font-weight=\"700\" fill=\"#1b2340\" text-anchor=\"middle\">Faille signalée</text><text x=\"86.5\" y=\"106\" font-size=\"11\" fill=\"#3a4466\" text-anchor=\"middle\">entrée malveillante</text><text x=\"86.5\" y=\"124\" font-size=\"11\" fill=\"#3a4466\" text-anchor=\"middle\">rapport reçu</text><line x1=\"155\" y1=\"109.0\" x2=\"173\" y2=\"109.0\" stroke=\"#0b7285\" stroke-width=\"2.5\" marker-end=\"url(#a)\"/><rect x=\"175\" y=\"52\" width=\"133\" height=\"114\" rx=\"10\" fill=\"#fff\" stroke=\"#0b7285\" stroke-width=\"2\"/><text x=\"241.5\" y=\"82\" font-size=\"13\" font-weight=\"700\" fill=\"#1b2340\" text-anchor=\"middle\">Correctif</text><text x=\"241.5\" y=\"106\" font-size=\"11\" fill=\"#3a4466\" text-anchor=\"middle\">liste de refus</text><text x=\"241.5\" y=\"124\" font-size=\"11\" fill=\"#3a4466\" text-anchor=\"middle\">un seul encodage prévu</text><line x1=\"310\" y1=\"109.0\" x2=\"328\" y2=\"109.0\" stroke=\"#0b7285\" stroke-width=\"2.5\" marker-end=\"url(#a)\"/><rect x=\"330\" y=\"52\" width=\"133\" height=\"114\" rx=\"10\" fill=\"#fff\" stroke=\"#0b7285\" stroke-width=\"2\"/><text x=\"396.5\" y=\"82\" font-size=\"13\" font-weight=\"700\" fill=\"#1b2340\" text-anchor=\"middle\">Contournement</text><text x=\"396.5\" y=\"106\" font-size=\"11\" fill=\"#3a4466\" text-anchor=\"middle\">autre encodage</text><text x=\"396.5\" y=\"124\" font-size=\"11\" fill=\"#3a4466\" text-anchor=\"middle\">nouvel avis</text><line x1=\"465\" y1=\"109.0\" x2=\"483\" y2=\"109.0\" stroke=\"#0b7285\" stroke-width=\"2.5\" marker-end=\"url(#a)\"/><rect x=\"485\" y=\"52\" width=\"133\" height=\"114\" rx=\"10\" fill=\"#fff\" stroke=\"#0b7285\" stroke-width=\"2\"/><text x=\"551.5\" y=\"82\" font-size=\"13\" font-weight=\"700\" fill=\"#1b2340\" text-anchor=\"middle\">Exploitation</text><text x=\"551.5\" y=\"106\" font-size=\"11\" fill=\"#3a4466\" text-anchor=\"middle\">4 fois plus fréquente</text><text x=\"551.5\" y=\"124\" font-size=\"11\" fill=\"#3a4466\" text-anchor=\"middle\">catalogue CISA KEV</text></svg>",
+          "alt": "Schéma en quatre étapes montrant qu'un correctif fondé sur une liste de refus peut être contourné par un autre encodage, ce qui multiplie le risque d'exploitation.",
+          "caption": "Un correctif qui traite un cas précis plutôt que la cause racine laisse la porte ouverte à une variante."
+        },
+        {
+          "type": "usecases",
+          "title": "Exemples d'utilisation",
+          "items": [
+            {
+              "icon": "🧰",
+              "title": "Un gestionnaire de correctifs",
+              "text": "Un responsable d'exploitation applique un correctif critique, puis surveille les avis suivants du même éditeur pendant trois mois avant de considérer le dossier clos."
+            },
+            {
+              "icon": "🧑‍💻",
+              "title": "Un mainteneur open source",
+              "text": "Un mainteneur qui corrige une SSRF remplace la liste de refus par une liste d'autorisation et ajoute des tests couvrant plusieurs encodages d'une même adresse."
+            },
+            {
+              "icon": "📊",
+              "title": "Un responsable sécurité",
+              "text": "Un RSSI ajoute à son tableau de bord un indicateur « correctif contourné » pour prioriser les failles dont la première rustine a déjà échoué."
+            }
+          ]
+        },
+        {
+          "type": "timeline",
+          "title": "D'où l'on vient, où l'on va",
+          "items": [
+            {
+              "label": "2019 à 2025",
+              "text": "La part de correctifs défaillants reste autour de 0,2 %."
+            },
+            {
+              "label": "Février 2026",
+              "text": "Microsoft corrige la CVE-2026-21510, exploitée depuis au moins un mois."
+            },
+            {
+              "label": "Avril 2026",
+              "text": "Correction de la CVE-2026-32202, laissée par le premier correctif."
+            },
+            {
+              "label": "8 octobre 2026",
+              "text": "3,2 % des CVE du noyau Linux sont issues du correctif d'une autre CVE."
+            },
+            {
+              "label": "2026",
+              "text": "Hausse à 2,3 % mesurée par Terra."
+            }
+          ]
+        },
+        {
+          "type": "opinion",
+          "title": "Notre avis",
+          "paragraphs": [
+            "Ces chiffres demandent de la prudence : ils proviennent d'une entreprise qui vend des tests d'intrusion automatisés, et la méthode n'est décrite que brièvement. Reste que la mécanique invoquée, celle des listes de refus et des correctifs ciblés, est bien connue des spécialistes. Elle rappelle qu'appliquer un correctif est nécessaire mais ne suffit pas : un patch est un indice sur la faille, et les attaquants l'étudient pour chercher une variante.",
+            "À un horizon d'un à trois ans, on peut penser que la revue des correctifs deviendra une discipline à part entière, avec des tests de non-régression de sécurité systématiques et des outils d'IA utilisés côté défense pour chercher les variantes avant publication. C'est un pari d'analyste, que les données de 2026 ne suffisent pas à confirmer."
+          ],
+          "verdict": "Un correctif n'est pas la fin d'une faille, mais le début de la course aux variantes."
+        },
+        {
+          "type": "callout",
+          "variant": "info",
+          "title": "À retenir",
+          "text": "Quand un éditeur corrige une faille déjà exploitée, partir du principe que les attaquants étudient le correctif pour chercher un contournement, et surveiller les avis complémentaires pendant plusieurs semaines."
+        }
+      ],
+      "cover": {
+        "url": "https://image.theregister.com/5303945.jpg?imageId=5303945&x=0&y=0&cropw=100&croph=100&panox=0&panoy=0&panow=100&panoh=100&width=1200&height=683",
+        "alt": "Illustration de l'article de The Register sur les correctifs de sécurité contournés",
+        "credit": "theregister.com"
+      },
+      "illustration": {
+        "svg": "<svg xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"0 0 640 360\"><defs><linearGradient id=\"g\" x1=\"0\" y1=\"0\" x2=\"1\" y2=\"1\"><stop offset=\"0\" stop-color=\"hsl(175,65%,38%)\"/><stop offset=\"1\" stop-color=\"hsl(215,70%,22%)\"/></linearGradient></defs><rect width=\"640\" height=\"360\" fill=\"url(#g)\"/><circle cx=\"428\" cy=\"214\" r=\"36\" fill=\"#fff\" opacity=\"0.12\"/><circle cx=\"91\" cy=\"126\" r=\"32\" fill=\"#fff\" opacity=\"0.09\"/><circle cx=\"44\" cy=\"69\" r=\"15\" fill=\"#fff\" opacity=\"0.09\"/><circle cx=\"61\" cy=\"72\" r=\"23\" fill=\"#fff\" opacity=\"0.09\"/><circle cx=\"294\" cy=\"178\" r=\"28\" fill=\"#fff\" opacity=\"0.09\"/><circle cx=\"155\" cy=\"116\" r=\"23\" fill=\"#fff\" opacity=\"0.12\"/><circle cx=\"218\" cy=\"240\" r=\"30\" fill=\"#fff\" opacity=\"0.12\"/><circle cx=\"320\" cy=\"140\" r=\"78\" fill=\"#fff\" opacity=\"0.16\"/><circle cx=\"320\" cy=\"140\" r=\"56\" fill=\"#fff\" opacity=\"0.18\"/><text x=\"320\" y=\"165\" font-size=\"76\" text-anchor=\"middle\">🩹</text><rect x=\"60\" y=\"250\" width=\"320\" height=\"6\" rx=\"3\" fill=\"#fff\" opacity=\"0.35\"/><rect x=\"68\" y=\"268\" width=\"336\" height=\"6\" rx=\"3\" fill=\"#fff\" opacity=\"0.28\"/><rect x=\"76\" y=\"286\" width=\"420\" height=\"6\" rx=\"3\" fill=\"#fff\" opacity=\"0.21\"/><rect x=\"84\" y=\"304\" width=\"465\" height=\"6\" rx=\"3\" fill=\"#fff\" opacity=\"0.14\"/></svg>"
+      },
+      "readingMinutes": 4,
+      "publishedAt": "2026-10-20T05:20:36+02:00"
+    },
+    {
+      "id": "windows-server-octobre-exchange-owa-endpoint-mapper",
+      "category": "devops",
+      "icon": "📬",
+      "importance": 4,
+      "sourceDate": "2026-10-19",
+      "title": "Windows Server d'octobre : des mises à jour qui déstabilisent Exchange, et un contournement par le registre",
+      "summary": "Microsoft reconnaît que les mises à jour d'octobre 2026 de Windows Server peuvent bloquer l'accès à Outlook Web App et ralentir la messagerie sur Exchange. En cause, une limite par défaut sur les appels du Endpoint Mapper, relevable par une clé de registre.",
+      "tags": [
+        "Microsoft",
+        "Exchange Server",
+        "Windows Server",
+        "OWA",
+        "incident"
+      ],
+      "sources": [
+        {
+          "title": "Un administrateur : « J'ai passé tout le week-end sur mes serveurs » après que Microsoft a cassé Exchange Server avec ses mises à jour d'octobre",
+          "url": "https://www.theregister.com/software/2026/10/19/admin-i-spent-all-weekend-on-my-servers-after-microsoft-breaks-exchange-server-with-october-updates/5303724",
+          "publisher": "The Register"
+        }
+      ],
+      "blocks": [
+        {
+          "type": "paragraph",
+          "text": "Pour les équipes d'exploitation, une mise à jour qui perturbe la messagerie est parmi les pires scénarios : l'impact est immédiat, visible de tous, et la cause n'apparaît pas toujours tout de suite. C'est ce qui s'est produit après les mises à jour de sécurité d'octobre 2026 de **Windows Server** : Microsoft a reconnu, le 19 octobre, qu'elles pouvaient déstabiliser **Exchange Server**. The Register rapporte que des administrateurs ont passé le week-end à tenter de rétablir leurs serveurs."
+        },
+        {
+          "type": "heading",
+          "level": 2,
+          "text": "Ce qui est touché"
+        },
+        {
+          "type": "keyvalue",
+          "items": [
+            {
+              "label": "Systèmes concernés",
+              "value": "Windows Server 2016, 2019, 2022 et 2025"
+            },
+            {
+              "label": "Messagerie concernée",
+              "value": "Exchange Server 2016, 2019 et l'édition Subscription (SE)"
+            },
+            {
+              "label": "Symptômes",
+              "value": "Problèmes de connexion à Outlook Web App (OWA), files d'attente de courriels très longues, messagerie qui « tourne au ralenti »"
+            },
+            {
+              "label": "Début des mises à jour",
+              "value": "Mercredi 14 octobre 2026, d'après les retours de clients"
+            },
+            {
+              "label": "Lien avec les correctifs Exchange",
+              "value": "Aucun, selon Microsoft : les mises à jour de sécurité d'octobre d'Exchange ne sont pas en cause"
+            }
+          ]
+        },
+        {
+          "type": "paragraph",
+          "text": "L'article ne donne pas les numéros de bulletins KB concernés : il faut se reporter à l'avis de Microsoft pour les identifier. Autre difficulté, le début du dysfonctionnement peut être différé : un client signale des pannes environ toutes les 20 heures après l'installation, ce qui complique le diagnostic."
+        },
+        {
+          "type": "heading",
+          "level": 2,
+          "text": "La cause : une limite par défaut trop basse"
+        },
+        {
+          "type": "paragraph",
+          "text": "Microsoft impute le problème à une limite par défaut sur la mémoire que le service de correspondance de points d'extrémité (**Endpoint Mapper**) utilise pour traiter les appels de recherche (« Endpoint Lookup »). Par défaut, 512 appels simultanés sont admis. Le tableau de bord d'état des versions de Microsoft indique que cette valeur « peut ne pas suffire en cas de forte charge », ce qui est courant pour Exchange. Microsoft précise que l'impact varie selon la charge du serveur : certains serveurs peuvent ne jamais être affectés."
+        },
+        {
+          "type": "diagram",
+          "svg": "<svg xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"0 0 640 190\" font-family=\"system-ui,sans-serif\"><defs><marker id=\"a\" markerWidth=\"8\" markerHeight=\"8\" refX=\"6\" refY=\"4\" orient=\"auto\"><path d=\"M0 0 L8 4 L0 8z\" fill=\"#b45309\"/></marker></defs><rect width=\"640\" height=\"190\" rx=\"14\" fill=\"#f4f6fb\"/><text x=\"320\" y=\"28\" font-size=\"14\" font-weight=\"700\" fill=\"#1b2340\" text-anchor=\"middle\">Du correctif de Windows Server aux files d'attente d'Exchange</text><rect x=\"20\" y=\"52\" width=\"133\" height=\"114\" rx=\"10\" fill=\"#fff\" stroke=\"#b45309\" stroke-width=\"2\"/><text x=\"86.5\" y=\"82\" font-size=\"13\" font-weight=\"700\" fill=\"#1b2340\" text-anchor=\"middle\">Mise à jour</text><text x=\"86.5\" y=\"106\" font-size=\"11\" fill=\"#3a4466\" text-anchor=\"middle\">Windows Server</text><text x=\"86.5\" y=\"124\" font-size=\"11\" fill=\"#3a4466\" text-anchor=\"middle\">14 octobre 2026</text><line x1=\"155\" y1=\"109.0\" x2=\"173\" y2=\"109.0\" stroke=\"#b45309\" stroke-width=\"2.5\" marker-end=\"url(#a)\"/><rect x=\"175\" y=\"52\" width=\"133\" height=\"114\" rx=\"10\" fill=\"#fff\" stroke=\"#b45309\" stroke-width=\"2\"/><text x=\"241.5\" y=\"82\" font-size=\"13\" font-weight=\"700\" fill=\"#1b2340\" text-anchor=\"middle\">Endpoint Mapper</text><text x=\"241.5\" y=\"106\" font-size=\"11\" fill=\"#3a4466\" text-anchor=\"middle\">limite de 512 appels</text><text x=\"241.5\" y=\"124\" font-size=\"11\" fill=\"#3a4466\" text-anchor=\"middle\">recherches simultanées</text><line x1=\"310\" y1=\"109.0\" x2=\"328\" y2=\"109.0\" stroke=\"#b45309\" stroke-width=\"2.5\" marker-end=\"url(#a)\"/><rect x=\"330\" y=\"52\" width=\"133\" height=\"114\" rx=\"10\" fill=\"#fff\" stroke=\"#b45309\" stroke-width=\"2\"/><text x=\"396.5\" y=\"82\" font-size=\"13\" font-weight=\"700\" fill=\"#1b2340\" text-anchor=\"middle\">Exchange</text><text x=\"396.5\" y=\"106\" font-size=\"11\" fill=\"#3a4466\" text-anchor=\"middle\">charge élevée</text><text x=\"396.5\" y=\"124\" font-size=\"11\" fill=\"#3a4466\" text-anchor=\"middle\">limite atteinte</text><line x1=\"465\" y1=\"109.0\" x2=\"483\" y2=\"109.0\" stroke=\"#b45309\" stroke-width=\"2.5\" marker-end=\"url(#a)\"/><rect x=\"485\" y=\"52\" width=\"133\" height=\"114\" rx=\"10\" fill=\"#fff\" stroke=\"#b45309\" stroke-width=\"2\"/><text x=\"551.5\" y=\"82\" font-size=\"13\" font-weight=\"700\" fill=\"#1b2340\" text-anchor=\"middle\">Symptômes</text><text x=\"551.5\" y=\"106\" font-size=\"11\" fill=\"#3a4466\" text-anchor=\"middle\">OWA en échec</text><text x=\"551.5\" y=\"124\" font-size=\"11\" fill=\"#3a4466\" text-anchor=\"middle\">files d'attente longues</text></svg>",
+          "alt": "Schéma montrant comment la limite de 512 appels simultanés de l'Endpoint Mapper, atteinte sous forte charge d'Exchange, entraîne des échecs d'OWA et des files d'attente longues.",
+          "caption": "Quand la limite d'appels simultanés est atteinte, Exchange cesse de répondre normalement."
+        },
+        {
+          "type": "heading",
+          "level": 2,
+          "text": "Que faire en attendant ?"
+        },
+        {
+          "type": "list",
+          "ordered": false,
+          "items": [
+            "un **redémarrage** du serveur efface le problème temporairement ;",
+            "une **modification du registre** relevant le nombre maximal d'appels Endpoint Lookup est la seule solution durable pour l'instant. L'article ne nomme ni la clé ni la valeur : il convient de suivre la procédure officielle de Microsoft avant toute modification ;",
+            "Microsoft **déconseille fortement** de désinstaller les mises à jour d'octobre, qui contiennent des correctifs de sécurité ;",
+            "aucun correctif hors cycle n'est promis à ce stade. Le tableau de bord indique que Microsoft étudie le problème et donnera des informations ultérieurement."
+          ]
+        },
+        {
+          "type": "paragraph",
+          "text": "Un administrateur cité par l'article critique l'éditeur, selon lequel les clients seraient conduits à tester les mises à jour à sa place. Il s'agit d'un témoignage, qui illustre la tension habituelle entre sécurité (installer vite) et stabilité (tester d'abord)."
+        },
+        {
+          "type": "usecases",
+          "title": "Exemples d'utilisation",
+          "items": [
+            {
+              "icon": "🛠️",
+              "title": "Un administrateur Exchange",
+              "text": "Un administrateur dont l'OWA se bloque environ toutes les 20 heures relève la limite par registre sur un serveur de test, vérifie la stabilité pendant quelques jours, puis déploie sur la production."
+            },
+            {
+              "icon": "📈",
+              "title": "Une équipe de supervision",
+              "text": "Une équipe ajoute une alerte sur la longueur des files d'attente et sur le temps de réponse d'OWA, pour repérer le défaut avant les utilisateurs."
+            },
+            {
+              "icon": "🧪",
+              "title": "Un responsable de changements",
+              "text": "Un responsable met en place un déploiement par anneaux : quelques serveurs reçoivent la mise à jour d'abord, avec une charge de messagerie réelle, avant le reste du parc."
+            }
+          ]
+        },
+        {
+          "type": "timeline",
+          "title": "D'où l'on vient, où l'on va",
+          "items": [
+            {
+              "label": "Mercredi 14 octobre 2026",
+              "text": "Installation des mises à jour de Windows Server chez les clients concernés."
+            },
+            {
+              "label": "Week-end du 17 et 18 octobre",
+              "text": "Des administrateurs signalent des pannes et passent du temps à les traiter."
+            },
+            {
+              "label": "19 octobre 2026",
+              "text": "Microsoft reconnaît le problème sur son tableau de bord d'état."
+            },
+            {
+              "label": "Date non précisée",
+              "text": "Aucune correction hors cycle n'est annoncée."
+            }
+          ]
+        },
+        {
+          "type": "opinion",
+          "title": "Notre avis",
+          "paragraphs": [
+            "Cet incident rappelle qu'une valeur par défaut est une décision d'architecture : une limite de 512 appels peut paraître raisonnable sur un banc d'essai et devenir un goulot dès qu'un serveur de messagerie traite beaucoup de connexions. La réaction de Microsoft, qui déconseille de retirer les correctifs et propose un contournement par le registre, est défendable sur le plan de la sécurité, mais elle laisse les administrateurs gérer seuls les conséquences.",
+            "À un horizon d'un à trois ans, on peut penser que les équipes d'exploitation renforceront les déploiements progressifs et les tests de charge de leurs correctifs, même au prix d'un délai de quelques jours. Cette analyse ne repose sur aucune annonce de Microsoft, dont la source ne mentionne aucune évolution des procédures de test."
+          ],
+          "verdict": "Un défaut de configuration par défaut est un risque d'exploitation, au même titre qu'une faille."
+        },
+        {
+          "type": "callout",
+          "variant": "info",
+          "title": "À retenir",
+          "text": "Les mises à jour d'octobre 2026 de Windows Server (2016 à 2025) peuvent saturer la limite d'appels Endpoint Lookup et dégrader Exchange. Le contournement passe par le registre, selon la procédure officielle de Microsoft ; la désinstallation est déconseillée."
+        }
+      ],
+      "illustration": {
+        "svg": "<svg xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"0 0 640 360\"><defs><linearGradient id=\"g\" x1=\"0\" y1=\"0\" x2=\"1\" y2=\"1\"><stop offset=\"0\" stop-color=\"hsl(160,65%,38%)\"/><stop offset=\"1\" stop-color=\"hsl(200,70%,22%)\"/></linearGradient></defs><rect width=\"640\" height=\"360\" fill=\"url(#g)\"/><circle cx=\"579\" cy=\"227\" r=\"27\" fill=\"#fff\" opacity=\"0.09\"/><circle cx=\"532\" cy=\"182\" r=\"14\" fill=\"#fff\" opacity=\"0.06\"/><circle cx=\"435\" cy=\"70\" r=\"20\" fill=\"#fff\" opacity=\"0.06\"/><circle cx=\"423\" cy=\"210\" r=\"17\" fill=\"#fff\" opacity=\"0.06\"/><circle cx=\"53\" cy=\"102\" r=\"24\" fill=\"#fff\" opacity=\"0.06\"/><circle cx=\"295\" cy=\"99\" r=\"25\" fill=\"#fff\" opacity=\"0.12\"/><circle cx=\"586\" cy=\"115\" r=\"33\" fill=\"#fff\" opacity=\"0.06\"/><circle cx=\"320\" cy=\"140\" r=\"78\" fill=\"#fff\" opacity=\"0.16\"/><circle cx=\"320\" cy=\"140\" r=\"56\" fill=\"#fff\" opacity=\"0.18\"/><text x=\"320\" y=\"165\" font-size=\"76\" text-anchor=\"middle\">📬</text><rect x=\"60\" y=\"250\" width=\"463\" height=\"6\" rx=\"3\" fill=\"#fff\" opacity=\"0.35\"/><rect x=\"68\" y=\"268\" width=\"381\" height=\"6\" rx=\"3\" fill=\"#fff\" opacity=\"0.28\"/><rect x=\"76\" y=\"286\" width=\"309\" height=\"6\" rx=\"3\" fill=\"#fff\" opacity=\"0.21\"/><rect x=\"84\" y=\"304\" width=\"301\" height=\"6\" rx=\"3\" fill=\"#fff\" opacity=\"0.14\"/></svg>"
+      },
+      "readingMinutes": 4,
+      "publishedAt": "2026-10-20T05:20:36+02:00"
+    },
+    {
+      "id": "hpmicro-hpm5100-risc-v-controle-moteur-analogique",
+      "category": "electronique",
+      "icon": "🧠",
+      "importance": 4,
+      "sourceDate": "2026-10-15",
+      "title": "HPM5100 : un microcontrôleur RISC-V à 400 MHz avec quatre CAN 16 bits et quatre amplificateurs opérationnels",
+      "summary": "HPMicro lance la série HPM5100, des microcontrôleurs RISC-V à signaux mixtes qui intègrent des convertisseurs analogique-numérique, des amplificateurs et des comparateurs. Ils visent la mesure analogique et la commande de moteurs.",
+      "tags": [
+        "HPMicro",
+        "RISC-V",
+        "microcontrôleur",
+        "commande moteur",
+        "CAN FD"
+      ],
+      "sources": [
+        {
+          "title": "HPMicro HPM5100 : un microcontrôleur RISC-V avec quatre CAN 16 bits et quatre amplificateurs opérationnels",
+          "url": "https://www.cnx-software.com/2026/10/15/hpmicro-hpm5100-risc-v-mcu-integrates-four-16-bit-adcs-four-op-amps-for-analog-sensing-and-motor-control/",
+          "publisher": "CNX Software"
+        }
+      ],
+      "blocks": [
+        {
+          "type": "paragraph",
+          "text": "Dans une commande de moteur ou une chaîne de mesure, le microcontrôleur n'est qu'une partie du circuit : autour de lui s'accumulent convertisseurs, amplificateurs et comparateurs externes, qui occupent de la place et ajoutent du bruit. **HPMicro** vise à réduire cet entourage avec la série **HPM5100**, une famille de microcontrôleurs 32 bits RISC-V à signaux mixtes dont les premiers modèles sont les HPM5151, présentés par CNX Software le 15 octobre 2026."
+        },
+        {
+          "type": "paragraph",
+          "text": "Le cœur est un processeur RISC-V monocœur de 400 MHz, avec calcul flottant matériel et instructions DSP et SIMD. HPMicro lui prête jusqu'à 3,57 points CoreMark par MHz. Un mode « extrême » à 480 MHz existe, mais il exige une alimentation externe et une température ambiante inférieure à 70 °C ; le fabricant déconseille de l'utiliser en continu et recommande de rester à 400 MHz ou moins pour préserver la durée de vie."
+        },
+        {
+          "type": "heading",
+          "level": 2,
+          "text": "Les fonctions analogiques"
+        },
+        {
+          "type": "paragraph",
+          "text": "L'intérêt de la puce est son bloc analogique, qui limite le besoin de composants externes :"
+        },
+        {
+          "type": "list",
+          "ordered": false,
+          "items": [
+            "**quatre CAN SAR de 16 bits** jusqu'à 2 Méch./s, configurables en 12 bits jusqu'à 4 Méch./s, avec entrées différentielles ;",
+            "**quatre amplificateurs opérationnels**, configurables en amplificateurs à gain programmable ;",
+            "**quatre comparateurs analogiques** avec référence interne issue d'un CNA de 12 bits."
+          ]
+        },
+        {
+          "type": "heading",
+          "level": 2,
+          "text": "Mémoire, interfaces et sécurité"
+        },
+        {
+          "type": "keyvalue",
+          "items": [
+            {
+              "label": "Mémoire vive",
+              "value": "416 Ko de SRAM (dont 256 Ko de mémoire locale d'instructions et 128 Ko de données)"
+            },
+            {
+              "label": "Stockage",
+              "value": "1 Mo de flash intégrée, 128 Ko de ROM d'amorçage, 4 kbit d'OTP ; interface XPI pour mémoires NOR/NAND, HyperFlash, HyperRAM et PSRAM externes"
+            },
+            {
+              "label": "Communication",
+              "value": "1 USB 2.0 haut débit OTG avec PHY, 1 contrôleur CAN FD jusqu'à 8 Mbit/s, 5 UART, 4 SPI, 3 I2C, 2 I2S (absentes du boîtier QFN32)"
+            },
+            {
+              "label": "Commande moteur",
+              "value": "32 canaux de MLI (4 modules de 8), 3 modules de minuteries, 3 chiens de garde, 2 contrôleurs DMA de 32 canaux"
+            },
+            {
+              "label": "Sécurité",
+              "value": "Démarrage sécurisé, protection JTAG, identifiant unique de 128 bits, exécution chiffrée AES-128 CTR depuis une flash NOR externe"
+            },
+            {
+              "label": "Alimentation",
+              "value": "3,0 à 3,6 V, entrées-sorties 1,8 ou 3,3 V, régulateurs LDO intégrés, modes basse consommation"
+            },
+            {
+              "label": "Température",
+              "value": "−40 à +105 °C ambiants"
+            }
+          ]
+        },
+        {
+          "type": "table",
+          "headers": [
+            "Référence",
+            "Boîtier"
+          ],
+          "rows": [
+            [
+              "HPM5151IPEX",
+              "LQFP100 de 14 × 14 mm"
+            ],
+            [
+              "HPM5151IN8X",
+              "QFN68 de 8 × 8 mm"
+            ],
+            [
+              "HPM5151IN6X",
+              "QFN48 de 6 × 6 mm"
+            ],
+            [
+              "HPM5151IN5X",
+              "QFN32 de 5 × 5 mm"
+            ]
+          ]
+        },
+        {
+          "type": "heading",
+          "level": 2,
+          "text": "Outils de développement"
+        },
+        {
+          "type": "paragraph",
+          "text": "Les composants sont pris en charge par le SDK libre HPM de HPMicro, qui fournit des pilotes bas niveau, des intergiciels et des composants logiciels comme FreeRTOS et TinyUSB. Le support de la HPM5100 et de sa carte d'évaluation a été ajouté à la version 1.13.0 du SDK, publiée en septembre 2026. L'environnement Segger Embedded Studio pour RISC-V est utilisable. La carte **HPM5100EVK** embarque un HPM5151, une flash QSPI NOR, un codec audio ES8389, un émetteur-récepteur CAN, un débogueur HPM5301 JTAG et série, deux ports USB Type-C, un connecteur moteur, des connecteurs dédiés aux CAN et aux amplificateurs, et un connecteur d'extension de 40 broches compatible Raspberry Pi. Un cavalier permet de choisir entre le régulateur interne et une alimentation externe."
+        },
+        {
+          "type": "usecases",
+          "title": "Exemples d'utilisation",
+          "items": [
+            {
+              "icon": "⚙️",
+              "title": "Un variateur de moteur",
+              "text": "Un concepteur de variateur utilise les 32 canaux de MLI et les CAN rapides pour piloter plusieurs phases, avec une carte plus simple grâce aux amplificateurs intégrés."
+            },
+            {
+              "icon": "🔬",
+              "title": "Un instrument de mesure",
+              "text": "Un fabricant de capteurs exploite les entrées différentielles 16 bits et les amplificateurs à gain programmable pour numériser de faibles signaux sans circuit externe."
+            },
+            {
+              "icon": "🚗",
+              "title": "Un équipement industriel en réseau",
+              "text": "Une machine de production relie plusieurs modules via le contrôleur CAN FD jusqu'à 8 Mbit/s, avec démarrage sécurisé pour protéger le micrologiciel."
+            }
+          ]
+        },
+        {
+          "type": "timeline",
+          "title": "D'où l'on vient, où l'on va",
+          "items": [
+            {
+              "label": "Septembre 2026",
+              "text": "Le SDK HPM 1.13.0 ajoute la prise en charge de la HPM5100 et de sa carte d'évaluation."
+            },
+            {
+              "label": "15 octobre 2026",
+              "text": "CNX Software présente la série HPM5100, à commencer par les HPM5151."
+            },
+            {
+              "label": "Auparavant",
+              "text": "HPMicro avait présenté la HPM64G0 (1 GHz) et la série HPM6800 (600 MHz, GPU 2,5D en option)."
+            }
+          ]
+        },
+        {
+          "type": "opinion",
+          "title": "Notre avis",
+          "paragraphs": [
+            "Intégrer l'analogique au microcontrôleur est une démarche ancienne, mais l'arrivée de ces fonctions dans l'écosystème RISC-V est un signe de maturité : le jeu d'instructions ouvert ne se limite plus aux petits cœurs génériques, il occupe aussi des segments de commande moteur, jusqu'ici dominés par quelques fabricants établis. La mention du mode 480 MHz, assorti de réserves du fabricant, est un bon rappel de lire la fiche technique avant de promettre des performances.",
+            "À un horizon d'un à trois ans, on peut penser que les fabricants chinois de RISC-V multiplieront les microcontrôleurs spécialisés (commande moteur, énergie, automobile), ce qui renforcera la concurrence sur les prix. C'est une analyse : la source ne donne ni tarif ni calendrier de disponibilité commerciale."
+          ],
+          "verdict": "Une puce bien équipée sur le papier, dont les prix et la disponibilité restent à connaître."
+        },
+        {
+          "type": "callout",
+          "variant": "info",
+          "title": "À retenir",
+          "text": "HPM5151 : RISC-V à 400 MHz, 416 Ko de SRAM, 1 Mo de flash, quatre CAN 16 bits, quatre amplificateurs, USB 2.0 OTG, CAN FD et 32 canaux MLI, en quatre boîtiers. Aucun prix n'est indiqué par la source."
+        }
+      ],
+      "cover": {
+        "url": "https://www.cnx-software.com/wp-content/uploads/2026/10/HPM5100-series.jpg",
+        "alt": "Photo de présentation de la série de microcontrôleurs HPM5100 de HPMicro",
+        "credit": "cnx-software.com"
+      },
+      "illustration": {
+        "svg": "<svg xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"0 0 640 360\"><defs><linearGradient id=\"g\" x1=\"0\" y1=\"0\" x2=\"1\" y2=\"1\"><stop offset=\"0\" stop-color=\"hsl(30,65%,38%)\"/><stop offset=\"1\" stop-color=\"hsl(70,70%,22%)\"/></linearGradient></defs><rect width=\"640\" height=\"360\" fill=\"url(#g)\"/><circle cx=\"411\" cy=\"209\" r=\"40\" fill=\"#fff\" opacity=\"0.09\"/><circle cx=\"600\" cy=\"101\" r=\"26\" fill=\"#fff\" opacity=\"0.12\"/><circle cx=\"105\" cy=\"125\" r=\"38\" fill=\"#fff\" opacity=\"0.09\"/><circle cx=\"154\" cy=\"102\" r=\"40\" fill=\"#fff\" opacity=\"0.09\"/><circle cx=\"139\" cy=\"83\" r=\"35\" fill=\"#fff\" opacity=\"0.12\"/><circle cx=\"172\" cy=\"99\" r=\"26\" fill=\"#fff\" opacity=\"0.09\"/><circle cx=\"412\" cy=\"103\" r=\"42\" fill=\"#fff\" opacity=\"0.06\"/><circle cx=\"320\" cy=\"140\" r=\"78\" fill=\"#fff\" opacity=\"0.16\"/><circle cx=\"320\" cy=\"140\" r=\"56\" fill=\"#fff\" opacity=\"0.18\"/><text x=\"320\" y=\"165\" font-size=\"76\" text-anchor=\"middle\">🧠</text><rect x=\"60\" y=\"250\" width=\"468\" height=\"6\" rx=\"3\" fill=\"#fff\" opacity=\"0.35\"/><rect x=\"68\" y=\"268\" width=\"392\" height=\"6\" rx=\"3\" fill=\"#fff\" opacity=\"0.28\"/><rect x=\"76\" y=\"286\" width=\"311\" height=\"6\" rx=\"3\" fill=\"#fff\" opacity=\"0.21\"/><rect x=\"84\" y=\"304\" width=\"424\" height=\"6\" rx=\"3\" fill=\"#fff\" opacity=\"0.14\"/></svg>"
+      },
+      "readingMinutes": 4,
+      "publishedAt": "2026-10-20T05:20:36+02:00"
+    },
+    {
+      "id": "seeed-xiao-ips-esp32-s3-nrf52840-ecrans",
+      "category": "electronique",
+      "icon": "📟",
+      "importance": 3,
+      "sourceDate": "2026-10-17",
+      "title": "Seeed Studio XIAO IPS : six cartes ESP32-S3 ou nRF52840 avec écran couleur de 0,96 à 1,47 pouce",
+      "summary": "Seeed Studio lance une famille de six minuscules cartes de développement avec écran IPS, microphone, capteur de mouvement et gestion de batterie LiPo. Le choix se fait entre le Wi-Fi de l'ESP32-S3 et la faible consommation du nRF52840.",
+      "tags": [
+        "Seeed Studio",
+        "XIAO",
+        "ESP32-S3",
+        "nRF52840",
+        "écran IPS"
+      ],
+      "sources": [
+        {
+          "title": "Seeed Studio XIAO IPS : une série avec ESP32-S3 ou nRF52840 et écrans de 0,96 à 1,47 pouce",
+          "url": "https://www.cnx-software.com/2026/10/17/seeed-studio-xiao-ips-display-series-features-esp32-s3-or-nrf52840-soc-with-0-96-inch-to-1-47-inch-lcd-options/",
+          "publisher": "CNX Software"
+        }
+      ],
+      "blocks": [
+        {
+          "type": "paragraph",
+          "text": "Les cartes de format XIAO de Seeed Studio sont connues pour tenir dans un pouce carré. Avec la série **XIAO IPS**, le fabricant leur ajoute un écran : d'après CNX Software, il s'agit de six cartes de développement compactes construites autour du **XIAO ESP32-S3 Plus** ou du **XIAO nRF52840 Plus**, avec des écrans IPS couleur de 0,96, 1,14 ou 1,47 pouce. Toutes embarquent un capteur de mouvement à six axes, un microphone numérique PDM, des boutons utilisateur et un connecteur pour batterie LiPo."
+        },
+        {
+          "type": "paragraph",
+          "text": "Seeed les destine aux tableaux de bord portables, aux commandes domotiques, aux objets portés, à la surveillance de capteurs et aux petits projets d'objets connectés."
+        },
+        {
+          "type": "heading",
+          "level": 2,
+          "text": "Trois écrans, deux familles de puces"
+        },
+        {
+          "type": "table",
+          "headers": [
+            "Écran",
+            "Résolution",
+            "Contrôleur",
+            "Particularités"
+          ],
+          "rows": [
+            [
+              "1,47 pouce",
+              "172 × 320",
+              "JD9853A",
+              "Tactile capacitif, lecteur microSD, 2 boutons"
+            ],
+            [
+              "1,14 pouce",
+              "135 × 240",
+              "ST7789",
+              "Connecteur Grove I2C, 3 boutons, broches I2C et I2S"
+            ],
+            [
+              "0,96 pouce",
+              "80 × 160",
+              "ST7789",
+              "2 boutons, format le plus compact"
+            ]
+          ]
+        },
+        {
+          "type": "table",
+          "headers": [
+            "Caractéristique",
+            "XIAO ESP32-S3 Plus",
+            "XIAO nRF52840 Plus"
+          ],
+          "rows": [
+            [
+              "Processeur",
+              "Bicœur Tensilica LX7 jusqu'à 240 MHz, instructions vectorielles pour l'IA",
+              "Cortex-M4F jusqu'à 64 MHz"
+            ],
+            [
+              "Mémoire",
+              "8 Mo de PSRAM, 16 Mo de flash SPI",
+              "256 Ko de SRAM, 1 Mo de flash, 2 Mo de flash embarquée"
+            ],
+            [
+              "Sans fil",
+              "Wi-Fi 4 et Bluetooth 5.0 LE avec maillage",
+              "Bluetooth LE, 802.15.4 et NFC"
+            ],
+            [
+              "Débogage",
+              "JTAG",
+              "SWD"
+            ]
+          ]
+        },
+        {
+          "type": "paragraph",
+          "text": "La consommation active, hors veille profonde, diffère nettement d'une famille à l'autre, d'après les mesures reprises par l'article : 159,76 mA pour la version ESP32-S3 avec écran de 0,96 pouce contre 28,69 mA pour la version nRF52840 ; 160,05 mA contre 39,07 mA avec l'écran de 1,14 pouce ; 130,53 mA contre 83,32 mA avec l'écran de 1,47 pouce. Le choix dépend donc de l'usage : l'ESP32-S3 pour des objets connectés au réseau local, le nRF52840 pour des appareils sur batterie qui communiquent surtout en Bluetooth."
+        },
+        {
+          "type": "heading",
+          "level": 2,
+          "text": "Programmation et ressources"
+        },
+        {
+          "type": "paragraph",
+          "text": "Les cartes se programment avec l'EDI Arduino. Seeed fournit des guides de prise en main, des exemples d'affichage et des démonstrations pour le microphone, le capteur de mouvement, les boutons, la surveillance de la batterie et le stockage microSD. La version ESP32-S3 emploie la bibliothèque graphique Seeed_GFX2, avec des exemples de dessin, d'entrées tactiles, d'affichage d'images BMP depuis la carte microSD, d'enregistrement audio et d'interactions liées au mouvement. Le wiki de Seeed propose les schémas, des fichiers de conception KiCad, des modèles 3D et le micrologiciel d'usine, et un boîtier imprimable en 3D conçu par un membre de la communauté est disponible gratuitement."
+        },
+        {
+          "type": "keyvalue",
+          "items": [
+            {
+              "label": "Alimentation",
+              "value": "5 V par l'USB-C ou batterie LiPo 3,7 V par un connecteur JST à deux broches"
+            },
+            {
+              "label": "Capteur de mouvement",
+              "value": "LSM6DS3 à six axes (réveil sur mouvement possible)"
+            },
+            {
+              "label": "Microphone",
+              "value": "PDM numérique intégré"
+            },
+            {
+              "label": "Dimensions (1,47 pouce)",
+              "value": "26,4 × 51,4 × 12,6 mm"
+            },
+            {
+              "label": "Dimensions (1,14 pouce)",
+              "value": "26 × 48 × 10,6 mm"
+            },
+            {
+              "label": "Dimensions (0,96 pouce)",
+              "value": "18,8 × 43,6 × 10,6 mm"
+            }
+          ]
+        },
+        {
+          "type": "usecases",
+          "title": "Exemples d'utilisation",
+          "items": [
+            {
+              "icon": "📊",
+              "title": "Un tableau de bord de bureau",
+              "text": "Un technicien affiche la température et l'humidité de son atelier sur la version ESP32-S3 à écran de 1,47 pouce, alimentée par l'USB, et consulte ses mesures sur le réseau Wi-Fi."
+            },
+            {
+              "icon": "⌚",
+              "title": "Un objet porté",
+              "text": "Un concepteur de prototype d'objet porté choisit la version nRF52840, plus sobre, pour afficher des notifications reçues par Bluetooth pendant plusieurs heures."
+            },
+            {
+              "icon": "🎓",
+              "title": "Un atelier pédagogique",
+              "text": "Un enseignant utilise les exemples de bibliothèque pour faire dessiner des graphiques et lire le capteur de mouvement par des élèves, sans soudure."
+            }
+          ]
+        },
+        {
+          "type": "timeline",
+          "title": "D'où l'on vient, où l'on va",
+          "items": [
+            {
+              "label": "17 octobre 2026",
+              "text": "Présentation de la série XIAO IPS par CNX Software."
+            },
+            {
+              "label": "Date non précisée",
+              "text": "Prix et disponibilité commerciale : la source consultée n'en donne pas."
+            }
+          ]
+        },
+        {
+          "type": "opinion",
+          "title": "Notre avis",
+          "paragraphs": [
+            "La série illustre un choix de conception de plus en plus fréquent : livrer d'emblée une carte complète, avec écran, capteur et microphone, plutôt que de laisser l'utilisateur assembler des modules. Pour l'apprentissage ou le prototypage rapide, la valeur est dans le temps gagné ; pour une production, il faudra regarder le prix, la consommation et l'approvisionnement, qui ne sont pas précisés dans la source.",
+            "À un horizon d'un à trois ans, on peut penser que ces cartes tout-en-un favoriseront les petits instruments personnels (tableaux de bord, minuteurs, capteurs), tandis que la consommation de l'écran restera la limite principale des objets sur batterie. Il s'agit d'une analyse et non d'une annonce de Seeed."
+          ],
+          "verdict": "Pratique pour prototyper, à comparer au besoin réel en autonomie avant de choisir sa version."
+        },
+        {
+          "type": "callout",
+          "variant": "info",
+          "title": "À retenir",
+          "text": "Six cartes XIAO IPS : écrans de 0,96, 1,14 ou 1,47 pouce, ESP32-S3 (Wi-Fi et BLE) ou nRF52840 (BLE, plus sobre), programmables avec l'EDI Arduino. Seul le modèle de 1,47 pouce a le tactile et la carte microSD."
+        }
+      ],
+      "cover": {
+        "url": "https://www.cnx-software.com/wp-content/uploads/2026/09/XIAO-IPS-Display-Series.jpg",
+        "alt": "Les cartes de la série XIAO IPS de Seeed Studio avec leurs écrans de 0,96 à 1,47 pouce",
+        "credit": "cnx-software.com"
+      },
+      "illustration": {
+        "svg": "<svg xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"0 0 640 360\"><defs><linearGradient id=\"g\" x1=\"0\" y1=\"0\" x2=\"1\" y2=\"1\"><stop offset=\"0\" stop-color=\"hsl(30,65%,38%)\"/><stop offset=\"1\" stop-color=\"hsl(70,70%,22%)\"/></linearGradient></defs><rect width=\"640\" height=\"360\" fill=\"url(#g)\"/><circle cx=\"292\" cy=\"99\" r=\"18\" fill=\"#fff\" opacity=\"0.12\"/><circle cx=\"512\" cy=\"186\" r=\"26\" fill=\"#fff\" opacity=\"0.09\"/><circle cx=\"373\" cy=\"150\" r=\"30\" fill=\"#fff\" opacity=\"0.12\"/><circle cx=\"328\" cy=\"213\" r=\"22\" fill=\"#fff\" opacity=\"0.09\"/><circle cx=\"126\" cy=\"236\" r=\"30\" fill=\"#fff\" opacity=\"0.12\"/><circle cx=\"369\" cy=\"231\" r=\"39\" fill=\"#fff\" opacity=\"0.09\"/><circle cx=\"87\" cy=\"150\" r=\"21\" fill=\"#fff\" opacity=\"0.06\"/><circle cx=\"320\" cy=\"140\" r=\"78\" fill=\"#fff\" opacity=\"0.16\"/><circle cx=\"320\" cy=\"140\" r=\"56\" fill=\"#fff\" opacity=\"0.18\"/><text x=\"320\" y=\"165\" font-size=\"76\" text-anchor=\"middle\">📟</text><rect x=\"60\" y=\"250\" width=\"320\" height=\"6\" rx=\"3\" fill=\"#fff\" opacity=\"0.35\"/><rect x=\"68\" y=\"268\" width=\"416\" height=\"6\" rx=\"3\" fill=\"#fff\" opacity=\"0.28\"/><rect x=\"76\" y=\"286\" width=\"399\" height=\"6\" rx=\"3\" fill=\"#fff\" opacity=\"0.21\"/><rect x=\"84\" y=\"304\" width=\"404\" height=\"6\" rx=\"3\" fill=\"#fff\" opacity=\"0.14\"/></svg>"
+      },
+      "readingMinutes": 4,
+      "publishedAt": "2026-10-20T05:20:36+02:00"
+    },
+    {
+      "id": "biostar-biwcl-pat-wildcat-lake-3-5-pouces-industriel",
+      "category": "electronique",
+      "icon": "🏭",
+      "importance": 3,
+      "sourceDate": "2026-10-19",
+      "title": "BIOSTAR BIWCL-PAT : une carte industrielle de 3,5 pouces à processeur Wildcat Lake, double 2,5 GbE et trois écrans",
+      "summary": "BIOSTAR présente une carte mono-carte industrielle de 3,5 pouces construite sur les processeurs Intel Core Series 3 « Wildcat Lake », avec jusqu'à 64 Go de DDR5, trois emplacements M.2 et quatre interfaces série.",
+      "tags": [
+        "BIOSTAR",
+        "Wildcat Lake",
+        "carte industrielle",
+        "Intel",
+        "edge computing"
+      ],
+      "sources": [
+        {
+          "title": "BIOSTAR BIWCL-PAT : une carte industrielle de 3,5 pouces à processeur Wildcat Lake, double 2,5 GbE et trois écrans",
+          "url": "https://www.cnx-software.com/2026/10/19/biostar-biwcl-pat-a-3-5-inch-industrial-wildcat-lake-sbc-with-dual-2-5gbe-triple-display-support/",
+          "publisher": "CNX Software"
+        }
+      ],
+      "blocks": [
+        {
+          "type": "paragraph",
+          "text": "Dans l'automatisation, les bornes de paiement ou les machines embarquées, la carte mère n'a pas besoin d'être spectaculaire : elle doit être compacte, durable et dotée des bons ports. C'est le créneau visé par la **BIOSTAR BIWCL-PAT**, une carte industrielle au format 3,5 pouces (148 × 102 mm) bâtie autour des processeurs Intel Core Series 3 de la famille « Wildcat Lake », du Core 3 304 au Core 7 360, d'après CNX Software."
+        },
+        {
+          "type": "paragraph",
+          "text": "BIOSTAR cible l'automatisation industrielle, l'informatique en périphérie de réseau (*edge computing*), l'IA des objets connectés, les interfaces homme-machine et les caisses ou bornes interactives."
+        },
+        {
+          "type": "heading",
+          "level": 2,
+          "text": "Les processeurs proposés"
+        },
+        {
+          "type": "table",
+          "headers": [
+            "Modèle",
+            "Cœurs",
+            "Fréquence maximale",
+            "Cœurs graphiques Xe3"
+          ],
+          "rows": [
+            [
+              "Core 3 304",
+              "1 P + 4 LPE",
+              "4,3 GHz",
+              "1"
+            ],
+            [
+              "Core 3 305",
+              "2 P + 4 LPE",
+              "4,3 GHz",
+              "1"
+            ],
+            [
+              "Core 5 315",
+              "2 P + 4 LPE",
+              "4,4 GHz",
+              "2"
+            ],
+            [
+              "Core 5 320 / 330",
+              "2 P + 4 LPE",
+              "4,6 GHz",
+              "2"
+            ],
+            [
+              "Core 7 350 / 360",
+              "2 P + 4 LPE",
+              "4,8 GHz",
+              "2"
+            ]
+          ]
+        },
+        {
+          "type": "paragraph",
+          "text": "Tous ont une enveloppe thermique de 15 W. Les unités de traitement neuronal affichent de 15 à 17 TOPS, sauf le Core 3 305 qui n'en a pas."
+        },
+        {
+          "type": "heading",
+          "level": 2,
+          "text": "Connectique et extension"
+        },
+        {
+          "type": "keyvalue",
+          "items": [
+            {
+              "label": "Mémoire",
+              "value": "Un emplacement SO-DIMM DDR5-6400, jusqu'à 64 Go"
+            },
+            {
+              "label": "Stockage",
+              "value": "M.2 clé M 2242/2280, PCIe 4.0 ×2 (NVMe)"
+            },
+            {
+              "label": "Affichage",
+              "value": "HDMI 2.1 jusqu'à 3 840 × 2 160, DisplayPort 1.4 jusqu'à 4 096 × 2 160, LVDS jusqu'à 1 920 × 1 200 ; trois écrans indépendants"
+            },
+            {
+              "label": "Réseau",
+              "value": "Deux ports RJ45 2,5 GbE (Intel i226-LM et i226-V) ; Wi-Fi et Bluetooth en option par un module M.2 clé E ; 4G ou 5G en option par un module M.2 clé B avec carte nano-SIM"
+            },
+            {
+              "label": "USB",
+              "value": "2 ports USB 3.2 Gen 2 Type-A, 2 ports USB 2.0 Type-A, 2 USB 2.0 par embase interne"
+            },
+            {
+              "label": "Série",
+              "value": "2 RS232 et 2 RS232/422/485"
+            },
+            {
+              "label": "Sécurité",
+              "value": "Module TPM 2.0"
+            },
+            {
+              "label": "Autres",
+              "value": "Entrées-sorties numériques sur 8 bits, circuit Super I/O IT8786E-I, codec audio Realtek ALC897 avec ampli de 2 W sous 4 ohms"
+            }
+          ]
+        },
+        {
+          "type": "heading",
+          "level": 2,
+          "text": "Alimentation, environnement et logiciels"
+        },
+        {
+          "type": "paragraph",
+          "text": "La carte s'alimente en 9 à 24 V continu par un bornier Phoenix à deux broches ou une embase à quatre broches, avec sélection AT/ATX. La plage de fonctionnement annoncée va de 0 à 60 °C, pour une humidité de 5 à 90 %. Elle est compatible avec Windows 11 IoT Enterprise 24H2 ou plus récent et Ubuntu 24.04. BIOSTAR met à disposition un manuel et des pilotes Windows 11 x64 (jeu de puces, Intel Management Engine, graphique, réseau, audio, Serial IO et NPU), ainsi que plusieurs outils Intel de gestion énergétique et de surveillance de la plateforme. Aucun prix n'est mentionné dans l'article."
+        },
+        {
+          "type": "paragraph",
+          "text": "Cette carte rejoint d'autres modèles 3,5 pouces de la même génération, comme la MIO-5356 d'Advantech, et des produits plus compacts comme le NUC 300 d'ASRock Industrial, qui partagent les mêmes processeurs, un double 2,5 GbE ou des mémoires DDR5-6400, selon CNX Software."
+        },
+        {
+          "type": "usecases",
+          "title": "Exemples d'utilisation",
+          "items": [
+            {
+              "icon": "🏭",
+              "title": "Une machine de production",
+              "text": "Un constructeur d'automates intègre la carte derrière une interface opérateur à trois écrans (commande, supervision, caméra) et reliée aux équipements par les ports RS232/485."
+            },
+            {
+              "icon": "🛒",
+              "title": "Une borne interactive",
+              "text": "Un intégrateur de bornes utilise le module 4G/5G et l'entrée 9 à 24 V pour installer un écran d'information dans un lieu sans réseau filaire."
+            },
+            {
+              "icon": "🧠",
+              "title": "Une passerelle d'analyse locale",
+              "text": "Une entreprise place la carte en bout de ligne de production pour analyser des images en local grâce au NPU, avant d'envoyer des résultats au réseau."
+            }
+          ]
+        },
+        {
+          "type": "timeline",
+          "title": "D'où l'on vient, où l'on va",
+          "items": [
+            {
+              "label": "Auparavant",
+              "text": "Advantech avait présenté la MIO-5356, une autre carte 3,5 pouces Wildcat Lake avec DDR5 et triple affichage."
+            },
+            {
+              "label": "19 octobre 2026",
+              "text": "Présentation de la BIWCL-PAT par CNX Software."
+            },
+            {
+              "label": "Date non précisée",
+              "text": "Prix et disponibilité : non communiqués par la source."
+            }
+          ]
+        },
+        {
+          "type": "opinion",
+          "title": "Notre avis",
+          "paragraphs": [
+            "La BIWCL-PAT ne révolutionne pas le genre, mais elle montre ce que les intégrateurs demandent : un format standard de 3,5 pouces, deux ports réseau rapides, des interfaces série héritées et des emplacements M.2 pour la connectivité sans fil. La présence d'un NPU, absent du modèle d'entrée de gamme, laisse choisir entre simple contrôle et traitement local d'images ou de signaux.",
+            "À un horizon d'un à trois ans, on peut penser que les cartes industrielles de ce type intégreront de plus en plus systématiquement un accélérateur d'IA, au point d'en faire un critère de choix courant. Cette analyse reste une opinion : la source ne parle ni de gamme future ni de prix."
+          ],
+          "verdict": "Une carte sans surprise mais bien équipée, dont l'intérêt dépendra du tarif et de la durée de disponibilité."
+        },
+        {
+          "type": "callout",
+          "variant": "info",
+          "title": "À retenir",
+          "text": "BIWCL-PAT : 3,5 pouces, Intel Wildcat Lake (Core 3 304 à Core 7 360, 15 W), DDR5-6400 jusqu'à 64 Go, double 2,5 GbE, trois écrans, trois emplacements M.2, 9 à 24 V, 0 à 60 °C."
+        }
+      ],
+      "cover": {
+        "url": "https://www.cnx-software.com/wp-content/uploads/2026/10/BIWCL-PAT-industrial-motherboard.jpg",
+        "alt": "Carte industrielle BIOSTAR BIWCL-PAT au format 3,5 pouces",
+        "credit": "cnx-software.com"
+      },
+      "illustration": {
+        "svg": "<svg xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"0 0 640 360\"><defs><linearGradient id=\"g\" x1=\"0\" y1=\"0\" x2=\"1\" y2=\"1\"><stop offset=\"0\" stop-color=\"hsl(30,65%,38%)\"/><stop offset=\"1\" stop-color=\"hsl(70,70%,22%)\"/></linearGradient></defs><rect width=\"640\" height=\"360\" fill=\"url(#g)\"/><circle cx=\"577\" cy=\"203\" r=\"26\" fill=\"#fff\" opacity=\"0.12\"/><circle cx=\"417\" cy=\"128\" r=\"32\" fill=\"#fff\" opacity=\"0.09\"/><circle cx=\"501\" cy=\"178\" r=\"29\" fill=\"#fff\" opacity=\"0.12\"/><circle cx=\"40\" cy=\"235\" r=\"14\" fill=\"#fff\" opacity=\"0.12\"/><circle cx=\"527\" cy=\"69\" r=\"14\" fill=\"#fff\" opacity=\"0.12\"/><circle cx=\"135\" cy=\"227\" r=\"12\" fill=\"#fff\" opacity=\"0.12\"/><circle cx=\"338\" cy=\"205\" r=\"35\" fill=\"#fff\" opacity=\"0.09\"/><circle cx=\"320\" cy=\"140\" r=\"78\" fill=\"#fff\" opacity=\"0.16\"/><circle cx=\"320\" cy=\"140\" r=\"56\" fill=\"#fff\" opacity=\"0.18\"/><text x=\"320\" y=\"165\" font-size=\"76\" text-anchor=\"middle\">🏭</text><rect x=\"60\" y=\"250\" width=\"480\" height=\"6\" rx=\"3\" fill=\"#fff\" opacity=\"0.35\"/><rect x=\"68\" y=\"268\" width=\"387\" height=\"6\" rx=\"3\" fill=\"#fff\" opacity=\"0.28\"/><rect x=\"76\" y=\"286\" width=\"466\" height=\"6\" rx=\"3\" fill=\"#fff\" opacity=\"0.21\"/><rect x=\"84\" y=\"304\" width=\"300\" height=\"6\" rx=\"3\" fill=\"#fff\" opacity=\"0.14\"/></svg>"
+      },
+      "readingMinutes": 4,
+      "publishedAt": "2026-10-20T05:20:36+02:00"
+    }
+  ]
+}
