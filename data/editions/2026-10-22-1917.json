@@ -1,0 +1,1158 @@
+{
+ "schemaVersion": "1.0",
+ "date": "2026-10-22",
+ "generatedAt": "2026-10-22T19:17:28+02:00",
+ "title": "Failles dans Linux KSMBD, GitLab et Node.js, intrusion chez Railway et espionnage assisté par IA",
+ "summary": "L'actualité technique du 22 octobre 2026 est dominée par la sécurité : deux failles KSMBD divulguées sans correctif, une faille de gravité maximale chez GitLab, des correctifs Node.js et HTTP/3, une intrusion chez Railway et une campagne d'espionnage liée à ConnectWise.",
+ "highlights": [
+  "Linux KSMBD : deux failles notées 9,0 rendues publiques avant tout correctif.",
+  "GitLab corrige la CVE-2026-110264, de gravité maximale.",
+  "Node.js : écriture hors limites dans Brotli, dix failles corrigées.",
+  "Railway : secrets de clients possiblement exposés, rotation recommandée.",
+  "ConnectWise : plus de 2 250 locataires Microsoft 365 visés par Storm-0940."
+ ],
+ "meta": {
+  "generator": "claude-scheduled-task"
+ },
+ "posts": [
+  {
+   "id": "ksmbd-deux-failles-rce-avant-correctif",
+   "category": "cybersecurite",
+   "icon": "🐧",
+   "importance": 5,
+   "sourceDate": "2026-10-22",
+   "title": "Linux KSMBD : deux failles d'exécution de code à distance rendues publiques avant tout correctif",
+   "summary": "L'Initiative Zero Day de Trend Micro a signalé sur des listes publiques deux failles notées 9,0 du serveur SMB intégré au noyau Linux, sans correctif disponible dans le noyau principal.",
+   "tags": [
+    "Linux",
+    "KSMBD",
+    "SMB",
+    "noyau",
+    "divulgation"
+   ],
+   "readingMinutes": 4,
+   "sources": [
+    {
+     "title": "Two CVSS 9.0 Linux KSMBD RCE Flaws Disclosed on Public Mailing Lists Before Kernel Fixes",
+     "url": "https://thehackernews.com/2026/10/two-cvss-90-linux-ksmbd-rce-flaws.html",
+     "publisher": "The Hacker News"
+    }
+   ],
+   "blocks": [
+    {
+     "type": "paragraph",
+     "text": "Deux failles d'exécution de code à distance touchant KSMBD, le serveur de partage de fichiers SMB intégré au noyau Linux, ont été rendues publiques le 22 octobre 2026 alors qu'aucun correctif nommé n'existe encore dans le noyau principal ni dans linux-next. Les rapports émanent de l'Initiative Zero Day (ZDI) de Trend Micro, qui les a notés 9,0 sur l'échelle CVSS. L'un d'eux ne demande aucune authentification : tout serveur KSMBD joignable sur le port 445 est donc potentiellement exposé."
+    },
+    {
+     "type": "heading",
+     "level": 2,
+     "text": "Ce que l'on sait des deux failles"
+    },
+    {
+     "type": "keyvalue",
+     "items": [
+      {
+       "label": "ZDI-CAN-33774",
+       "value": "CVSS 9.0. Répartition des requêtes du protocole : exploitable sans authentification sur tout serveur KSMBD joignable par le port 445."
+      },
+      {
+       "label": "ZDI-CAN-33549",
+       "value": "CVSS 9.0. Chemin SMB Direct : nécessite SMB Direct, une interface compatible RDMA et un partage accessible en écriture."
+      },
+      {
+       "label": "Identifiant CVE",
+       "value": "Aucun pour l'instant : le projet du noyau n'en attribue qu'une fois un correctif intégré à une branche stable."
+      },
+      {
+       "label": "Versions touchées",
+       "value": "Non précisées dans la source."
+      }
+     ]
+    },
+    {
+     "type": "paragraph",
+     "text": "La faille ZDI-CAN-33549 est un dépassement par défaut d'entier. Un client fournit des descripteurs de tampons RDMA dont le premier est plus long que la charge utile annoncée ; le compteur de taille du serveur « boucle » et une copie mémoire ultérieure déborde du tampon alloué. Pour l'exploiter, il faut une interface RDMA (matérielle ou le pilote logiciel rxe), un partage inscriptible et un client qui négocie SMB Direct."
+    },
+    {
+     "type": "paragraph",
+     "text": "La faille ZDI-CAN-33774 est une situation de concurrence dans la manière dont KSMBD associe sa table de gestionnaires. Une rafale de courts paquets SMB1 suivie d'un paquet SMB2 dans la même écriture TCP conduit des processus de travail à traiter des données SMB1 avec un gestionnaire SMB2, qui lit au-delà de la fin du tampon, plus court. Une écriture hors tampon devient aussi possible dès qu'un attaquant accède à un partage."
+    },
+    {
+     "type": "heading",
+     "level": 2,
+     "text": "Une divulgation qui fâche les mainteneurs"
+    },
+    {
+     "type": "paragraph",
+     "text": "Les rapports mentionnent TrendAI, l'outil d'analyse par IA de Trend Micro, comme découvreur. ZDI a mis en copie des listes de diffusion publiques en plus de l'adresse privée de sécurité du noyau, sans joindre de correctif. Le mainteneur des noyaux stables, Greg Kroah-Hartman, a réagi vivement : il a répondu qu'il n'y avait « pas de correctif » et que l'envoi se faisait sur une liste publique, demandant de corriger le processus de soumission. La documentation de sécurité du noyau, mise à jour en mai 2026 après des orientations de Linus Torvalds, considère les bogues trouvés par IA comme déjà publics et les dirige vers les listes des sous-systèmes."
+    },
+    {
+     "type": "paragraph",
+     "text": "Le mainteneur de SMB Direct, Stefan Metzmacher, aurait soumis un correctif pour ZDI-CAN-33549 destiné au prochain cycle de développement du noyau, mais cette information n'est pas confirmée ailleurs. Il faut généralement plusieurs semaines pour qu'un correctif du noyau principal atteigne les branches stables puis les noyaux des distributions."
+    },
+    {
+     "type": "usecases",
+     "title": "Exemples d'utilisation",
+     "items": [
+      {
+       "icon": "🗄️",
+       "title": "Serveur de fichiers d'une petite structure",
+       "text": "Un NAS maison ou un serveur Linux de PME qui partage des dossiers avec KSMBD plutôt qu'avec Samba doit vérifier immédiatement si le module est chargé."
+      },
+      {
+       "icon": "🏢",
+       "title": "Poste ou serveur exposé par erreur",
+       "text": "Un port 445 ouvert vers Internet, souvent par négligence de pare-feu, transforme une faille réseau en risque direct de compromission."
+      },
+      {
+       "icon": "🧪",
+       "title": "Équipe de sécurité",
+       "text": "Un RSSI peut inventorier les machines qui chargent ksmbd (`lsmod | grep ksmbd`) et décider de les isoler ou d'y désactiver le module en attendant les correctifs."
+      }
+     ]
+    },
+    {
+     "type": "timeline",
+     "title": "D'où l'on vient, où l'on va",
+     "items": [
+      {
+       "label": "2026 (mai)",
+       "text": "La documentation de sécurité du noyau est mise à jour : les bogues découverts par IA sont traités comme déjà publics."
+      },
+      {
+       "label": "22 octobre 2026",
+       "text": "Les deux rapports de ZDI circulent sur des listes publiques, sans correctif dans le noyau principal."
+      },
+      {
+       "label": "À venir",
+       "text": "Un correctif est évoqué pour le prochain cycle de développement ; l'arrivée dans les distributions prendra des semaines."
+      }
+     ]
+    },
+    {
+     "type": "diagram",
+     "svg": "<svg xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"0 0 560 200\" font-family=\"system-ui,sans-serif\"><rect width=\"560\" height=\"200\" rx=\"14\" fill=\"#f4f6fa\" stroke=\"#9aa5b8\"/><text x=\"20\" y=\"34\" font-size=\"16\" font-weight=\"700\" fill=\"#1f2937\">Chemin d'une faille KSMBD vers votre serveur</text><rect x=\"20\" y=\"60\" width=\"110\" height=\"60\" rx=\"10\" fill=\"#dbe4f5\" stroke=\"#6b7fa8\"/><text x=\"75\" y=\"95\" text-anchor=\"middle\" font-size=\"13\" fill=\"#1f2937\">Client SMB</text><rect x=\"225\" y=\"60\" width=\"110\" height=\"60\" rx=\"10\" fill=\"#fde7c7\" stroke=\"#c98a2b\"/><text x=\"280\" y=\"88\" text-anchor=\"middle\" font-size=\"13\" fill=\"#1f2937\">Port 445</text><text x=\"280\" y=\"106\" text-anchor=\"middle\" font-size=\"12\" fill=\"#1f2937\">ouvert ?</text><rect x=\"430\" y=\"60\" width=\"110\" height=\"60\" rx=\"10\" fill=\"#f8d4d4\" stroke=\"#b03a3a\"/><text x=\"485\" y=\"88\" text-anchor=\"middle\" font-size=\"13\" fill=\"#1f2937\">Module ksmbd</text><text x=\"485\" y=\"106\" text-anchor=\"middle\" font-size=\"12\" fill=\"#1f2937\">noyau Linux</text><path d=\"M130 90h92M335 90h92\" stroke=\"#1f2937\" stroke-width=\"2\"/><text x=\"20\" y=\"160\" font-size=\"13\" fill=\"#1f2937\">Vérifier : systemctl status ksmbd, lsmod | grep ksmbd</text><text x=\"20\" y=\"182\" font-size=\"13\" fill=\"#1f2937\">Réduire l'exposition : fermer le port 445, décharger le module inutile.</text></svg>",
+     "alt": "Schéma : un client SMB atteint le port 445, puis le module ksmbd du noyau, avec les vérifications à effectuer.",
+     "caption": "Où se situe le risque : le module du noyau, atteignable par le port 445."
+    },
+    {
+     "type": "opinion",
+     "title": "Notre avis",
+     "paragraphs": [
+      "Cette affaire illustre un conflit de méthode plus qu'une faille isolée : un outil d'analyse automatisée trouve des défauts graves, mais la publication sans correctif laisse les administrateurs sans remède pendant des semaines. Les mainteneurs ont raison de réclamer un meilleur processus, car une note de 9,0 sans patch ne protège personne.",
+      "Dans un à trois ans, la multiplication des bogues découverts par IA devrait obliger les projets à industrialiser le tri et la correction, sans quoi les divulgations publiques précéderont de plus en plus souvent les correctifs. KSMBD, plus jeune et moins éprouvé que Samba, risque de rester un composant que l'on évite d'exposer."
+     ],
+     "verdict": "Le risque est réel mais ciblé : il concerne surtout les machines qui chargent KSMBD et laissent le port 445 joignable."
+    },
+    {
+     "type": "callout",
+     "title": "À retenir",
+     "text": "Si ksmbd n'est pas indispensable, déchargez le module et fermez le port 445 au public. Red Hat Enterprise Linux n'inclut pas KSMBD par défaut, selon sa documentation de support citée par la source."
+    }
+   ],
+   "illustration": {
+    "svg": "<svg xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"0 0 640 360\"><defs><linearGradient id=\"g\" x1=\"0\" y1=\"0\" x2=\"1\" y2=\"1\"><stop offset=\"0\" stop-color=\"hsl(175,62%,34%)\"/><stop offset=\"1\" stop-color=\"hsl(215,68%,52%)\"/></linearGradient></defs><rect width=\"640\" height=\"360\" fill=\"url(#g)\"/><circle cx=\"570\" cy=\"50\" r=\"90\" fill=\"#fff\" fill-opacity=\".07\"/><circle cx=\"60\" cy=\"330\" r=\"110\" fill=\"#fff\" fill-opacity=\".06\"/><g fill=\"#fff\"><rect x=\"150\" y=\"210\" width=\"60\" height=\"90\" rx=\"8\" fill-opacity=\".9\"/><rect x=\"240\" y=\"160\" width=\"60\" height=\"140\" rx=\"8\" fill-opacity=\".8\"/><rect x=\"330\" y=\"110\" width=\"60\" height=\"190\" rx=\"8\" fill-opacity=\".9\"/><rect x=\"420\" y=\"70\" width=\"60\" height=\"230\" rx=\"8\" fill-opacity=\".75\"/></g><text x=\"565\" y=\"325\" text-anchor=\"middle\" font-size=\"50\">🐧</text></svg>"
+   },
+   "publishedAt": "2026-10-22T19:17:28+02:00",
+   "cover": {
+    "url": "https://blogger.googleusercontent.com/img/b/R29vZ2xl/AVvXsEhdNNyKzD2udgIl0X434MI2ucEwGFB_B-QqyjMnMuvTfwZv7clEo3n0ASA_aEQtUmQ7wqPSREwq1Cvi3iQLtubfUkK7p017Q6SrliTkwHiJyhfDIzahdof71Mxs4LXqJWoLkAnwikxy2KmZ1pkMg5Qto-RwPnvQx71Ol4G7sO20eeVNr_pfstT2WbDg3Nk/s1600/linux-rce.jpg",
+    "alt": "Illustration de l'article source : Linux KSMBD : deux failles d'exécution de code à distance rendues publiques avant tout cor",
+    "credit": "blogger.googleusercontent.com"
+   }
+  },
+  {
+   "id": "gitlab-cve-2026-110264-compilateur-regex",
+   "category": "cybersecurite",
+   "icon": "🦊",
+   "importance": 4,
+   "sourceDate": "2026-10-22",
+   "title": "GitLab corrige une nouvelle faille de gravité maximale dans son compilateur d'expressions régulières",
+   "summary": "La CVE-2026-110264, un dépassement d'entier atteignable sans authentification, peut permettre l'exécution de code ; sept versions correctives sont publiées pour les éditions CE et EE.",
+   "tags": [
+    "GitLab",
+    "CVE-2026-110264",
+    "exécution de code",
+    "correctif",
+    "CI/CD"
+   ],
+   "readingMinutes": 4,
+   "sources": [
+    {
+     "title": "GitLab warns of new max severity code execution vulnerability",
+     "url": "https://www.bleepingcomputer.com/news/security/gitlab-warns-of-new-max-severity-code-execution-vulnerability/",
+     "publisher": "BleepingComputer"
+    }
+   ],
+   "blocks": [
+    {
+     "type": "paragraph",
+     "text": "GitLab a publié le 22 octobre 2026 des correctifs pour la CVE-2026-110264, une faille de gravité maximale située dans son compilateur d'expressions régulières. Ce composant d'arrière-plan analyse et valide les expressions régulières présentes dans les fichiers de configuration. Selon l'éditeur, un dépassement d'entier se produit lorsque le compilateur traite une expression spécialement forgée ; dans certaines conditions, un utilisateur non authentifié pourrait alors exécuter du code arbitraire sur le serveur GitLab."
+    },
+    {
+     "type": "heading",
+     "level": 2,
+     "text": "Les faits vérifiés"
+    },
+    {
+     "type": "keyvalue",
+     "items": [
+      {
+       "label": "Identifiant",
+       "value": "CVE-2026-110264 (faiblesse CWE-190, dépassement d'entier)"
+      },
+      {
+       "label": "Découvreur",
+       "value": "Le chercheur « joaxcar », via le programme de primes de HackerOne"
+      },
+      {
+       "label": "Versions corrigées",
+       "value": "19.5.1, 19.4.3, 19.3.6, 19.2.9, 19.1.9, 19.0.10 et 18.11.13 (éditions CE et EE)"
+      },
+      {
+       "label": "GitLab.com",
+       "value": "Déjà exécuté sur une version corrigée"
+      },
+      {
+       "label": "GitLab Dedicated",
+       "value": "Aucune action nécessaire sur les versions 19.3.5-internal0 et 19.4.2-internal0 ou ultérieures"
+      },
+      {
+       "label": "Exploitation",
+       "value": "Non signalée à ce jour pour cette faille"
+      }
+     ]
+    },
+    {
+     "type": "paragraph",
+     "text": "La source ne donne pas de note CVSS pour cette CVE ni la plage exacte des versions vulnérables. GitLab recommande de mettre à jour au plus vite toutes les installations concernées et de comparer la version de l'instance avec la liste des versions corrigées ci-dessus."
+    },
+    {
+     "type": "heading",
+     "level": 2,
+     "text": "Une série qui inquiète"
+    },
+    {
+     "type": "paragraph",
+     "text": "Dix jours plus tôt, GitLab avait déjà alerté sur la CVE-2026-97229, une autre exécution de code à distance notée 10 sur 10, située dans le compilateur d'expressions régulières du CI/CD et signalée par le même chercheur. Le mois précédent, la CVE-2026-85706, une traversée de répertoires de gravité maximale permettant à un attaquant non authentifié de lire des données sensibles comme des identifiants, avait été corrigée. Cette dernière figure au catalogue des vulnérabilités exploitées de la CISA américaine, qui a imposé aux agences fédérales de sécuriser leurs systèmes sous trois jours."
+    },
+    {
+     "type": "paragraph",
+     "text": "Depuis novembre 2021, la CISA a signalé cinq failles de GitLab comme exploitées, dont une dans des attaques par rançongiciel. Le service Shadowserver recense plus de 2 700 instances GitLab CE exposées sur Internet, sans préciser combien sont des pots de miel ou déjà protégées. GitLab revendique plus de 30 millions d'utilisateurs enregistrés et une présence chez plus de la moitié des entreprises du Fortune 100."
+    },
+    {
+     "type": "usecases",
+     "title": "Exemples d'utilisation",
+     "items": [
+      {
+       "icon": "🛠️",
+       "title": "Éditeur de logiciels avec GitLab auto-hébergé",
+       "text": "L'équipe plateforme planifie une mise à jour d'urgence vers la version corrigée de sa branche (par exemple 19.4.3) avant d'exposer l'instance."
+      },
+      {
+       "icon": "🔎",
+       "title": "Équipe sécurité",
+       "text": "Elle vérifie la version de chaque instance, y compris les instances oubliées de test, et contrôle les journaux d'accès inhabituels."
+      },
+      {
+       "icon": "🏛️",
+       "title": "Collectivité ou PME",
+       "text": "Une structure sans administrateur dédié confie la mise à jour à son prestataire et lui demande de confirmer la version installée."
+      }
+     ]
+    },
+    {
+     "type": "timeline",
+     "title": "D'où l'on vient, où l'on va",
+     "items": [
+      {
+       "label": "Novembre 2021",
+       "text": "La CISA commence à recenser des failles GitLab exploitées ; cinq au total à ce jour."
+      },
+      {
+       "label": "Septembre 2026",
+       "text": "Correction de la CVE-2026-85706, traversée de répertoires de gravité maximale."
+      },
+      {
+       "label": "Vers le 12 octobre 2026",
+       "text": "Avertissement sur la CVE-2026-97229, exécution de code dans le compilateur du CI/CD (source : article du 22 octobre)."
+      },
+      {
+       "label": "22 octobre 2026",
+       "text": "Publication des correctifs pour la CVE-2026-110264."
+      }
+     ]
+    },
+    {
+     "type": "opinion",
+     "title": "Notre avis",
+     "paragraphs": [
+      "Trois failles de gravité maximale en quelques semaines autour de composants proches signalent un module insuffisamment durci. Le point positif est la rapidité de correction et l'absence d'exploitation connue pour cette dernière faille ; le point négatif est que l'historique des failles GitLab exploitées invite à ne pas attendre.",
+      "À un à trois ans, on peut raisonnablement attendre davantage d'audits ciblés sur les analyseurs d'expressions régulières et de formats, souvent négligés. Les équipes qui hébergent elles-mêmes leur forge logicielle devront traiter la mise à jour comme une routine mensuelle plutôt qu'un événement."
+     ],
+     "verdict": "Mettre à jour sans délai les instances auto-hébergées : l'absence d'exploitation connue ne durera probablement pas."
+    },
+    {
+     "type": "callout",
+     "title": "À retenir",
+     "text": "Vérifiez la version de chaque instance GitLab auto-hébergée : les versions corrigées vont de 18.11.13 à 19.5.1 selon la branche."
+    }
+   ],
+   "illustration": {
+    "svg": "<svg xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"0 0 640 360\"><defs><linearGradient id=\"g\" x1=\"0\" y1=\"0\" x2=\"1\" y2=\"1\"><stop offset=\"0\" stop-color=\"hsl(175,62%,34%)\"/><stop offset=\"1\" stop-color=\"hsl(215,68%,52%)\"/></linearGradient></defs><rect width=\"640\" height=\"360\" fill=\"url(#g)\"/><circle cx=\"570\" cy=\"50\" r=\"90\" fill=\"#fff\" fill-opacity=\".07\"/><circle cx=\"60\" cy=\"330\" r=\"110\" fill=\"#fff\" fill-opacity=\".06\"/><circle cx=\"320\" cy=\"180\" r=\"100\" fill=\"none\" stroke=\"#fff\" stroke-width=\"10\" stroke-opacity=\".85\"/><circle cx=\"320\" cy=\"180\" r=\"60\" fill=\"none\" stroke=\"#fff\" stroke-width=\"8\" stroke-opacity=\".6\"/><circle cx=\"320\" cy=\"180\" r=\"20\" fill=\"#fff\"/><path d=\"M320 60V20M320 340v-40M200 180h-40M480 180h-40\" stroke=\"#fff\" stroke-width=\"8\" stroke-linecap=\"round\"/><text x=\"565\" y=\"325\" text-anchor=\"middle\" font-size=\"50\">🦊</text></svg>"
+   },
+   "publishedAt": "2026-10-22T19:17:28+02:00"
+  },
+  {
+   "id": "connectwise-storm-0940-2250-locataires-microsoft-365",
+   "category": "cybersecurite",
+   "icon": "🕵️",
+   "importance": 4,
+   "sourceDate": "2026-10-22",
+   "title": "ConnectWise : des espions liés à la Chine ont visé plus de 2 250 locataires Microsoft 365 avec des agents d'IA",
+   "summary": "Microsoft attribue à Storm-0940 une campagne qui abuse d'identités d'applications ConnectWise ; certains accès privilégiés ont été obtenus en moins de trois heures.",
+   "tags": [
+    "Microsoft",
+    "ConnectWise",
+    "Storm-0940",
+    "ARTEX",
+    "Microsoft 365"
+   ],
+   "readingMinutes": 5,
+   "sources": [
+    {
+     "title": "Microsoft says ConnectWise breach let Chinese spies loose on 2,250 cloud tenants",
+     "url": "https://www.theregister.com/security/2026/10/22/microsoft-says-connectwise-breach-let-chinese-spies-loose-on-2250-cloud-tenants/5304687",
+     "publisher": "The Register"
+    }
+   ],
+   "blocks": [
+    {
+     "type": "paragraph",
+     "text": "Microsoft indique que des attaquants liés à la Chine ont utilisé des agents d'IA et des identifiants d'applications ConnectWise compromis pour viser plus de 2 250 locataires Microsoft 365. Dans certains cas, ils sont passés du choix de la cible à un accès cloud privilégié en moins de trois heures. Microsoft a publié ses constats le 21 octobre 2026 ; le récit a été relayé le lendemain."
+    },
+    {
+     "type": "heading",
+     "level": 2,
+     "text": "L'acteur et l'outil"
+    },
+    {
+     "type": "paragraph",
+     "text": "Microsoft attribue l'activité à Storm-0940, un groupe d'espionnage lié à la Chine, actif depuis au moins 2021. Il s'appuyait jusqu'ici sur des méthodes classiques : pulvérisation de mots de passe et exploitation d'applications exposées sur Internet. Cette fois, il a confié une grande partie du travail à l'IA grâce à **ARTEX**, un cadre de tests d'intrusion open source écrit en Go. Il automatise, par des agents d'IA, la reconnaissance, la découverte de failles, les attaques sur les identifiants et le vol de données."
+    },
+    {
+     "type": "paragraph",
+     "text": "Selon Microsoft, le groupe utilise ARTEX depuis septembre au moins, contre des administrations, des sous-traitants de défense, des banques, des industriels et des entreprises technologiques dans le monde. D'autres attaquants, venus de plusieurs régions, l'utilisent aussi, l'outil étant librement disponible."
+    },
+    {
+     "type": "heading",
+     "level": 2,
+     "text": "Chronologie et technique"
+    },
+    {
+     "type": "timeline",
+     "title": "D'où l'on vient, où l'on va",
+     "items": [
+      {
+       "label": "Depuis 2021 au moins",
+       "text": "Storm-0940 est actif."
+      },
+      {
+       "label": "Septembre 2026",
+       "text": "Le groupe commence à utiliser ARTEX."
+      },
+      {
+       "label": "10 au 14 octobre",
+       "text": "Plus de 151 000 tentatives de connexion échouées contre 327 comptes de huit organisations, par pulvérisation de mots de passe ; aucune connexion réussie observée."
+      },
+      {
+       "label": "Ensuite",
+       "text": "Bascule vers l'abus d'identités d'applications ConnectWise visant plus de 2 250 locataires, jusqu'à environ 2 900 tentatives par minute."
+      },
+      {
+       "label": "21 octobre 2026",
+       "text": "Microsoft publie ses conclusions ; ConnectWise a arrêté ses services de sauvegarde cloud, de sécurité SaaS et de gestion cloud."
+      }
+     ]
+    },
+    {
+     "type": "paragraph",
+     "text": "Les identifiants d'application compromis permettent d'exploiter des permissions déjà accordées par les clients aux services ConnectWise, sans connexion interactive d'un utilisateur. Microsoft a observé une activité accélérée par l'IA dans Microsoft Graph : reconnaissance, modification des identifiants d'application et tentatives de changement de privilèges, ce qui peut maintenir l'accès même après la révocation des identifiants d'origine. La plupart des tentatives ont échoué, mais des accès privilégiés persistants ont été établis dans de nombreuses organisations."
+    },
+    {
+     "type": "heading",
+     "level": 2,
+     "text": "Ce qui reste inconnu"
+    },
+    {
+     "type": "list",
+     "items": [
+      "Microsoft n'a pas dit combien de clients ont été compromis ni si des données ont été volées ;",
+      "une connexion réussie n'implique pas nécessairement un accès aux informations ;",
+      "le PDG de ConnectWise, Manny Rivelo, affirme avoir contenu les connexions d'application touchées et rétablir progressivement les services, mais cela n'évince pas un attaquant déjà installé chez un client ;",
+      "rien n'indique de lien avec l'intrusion de mai 2025 dans ScreenConnect attribuée à un acteur étatique."
+     ]
+    },
+    {
+     "type": "usecases",
+     "title": "Exemples d'utilisation",
+     "items": [
+      {
+       "icon": "🏢",
+       "title": "Prestataire informatique géré",
+       "text": "Un MSP qui utilise ConnectWise doit auditer les applications d'entreprise autorisées dans chaque locataire client et révoquer celles qu'il ne reconnaît plus."
+      },
+      {
+       "icon": "🔐",
+       "title": "Administrateur Microsoft 365",
+       "text": "Il examine les journaux d'audit Graph pour repérer les modifications d'identifiants d'application récentes et les consentements accordés."
+      },
+      {
+       "icon": "📋",
+       "title": "Responsable conformité",
+       "text": "Il documente l'incident auprès de la direction et vérifie les obligations de notification, par exemple auprès de la CNIL si des données personnelles ont pu être consultées."
+      }
+     ]
+    },
+    {
+     "type": "opinion",
+     "title": "Notre avis",
+     "paragraphs": [
+      "L'épisode confirme que la chaîne d'approvisionnement des prestataires de services gérés reste un point d'entrée de choix : compromettre un éditeur donne accès à des milliers de clients. Le chiffre le plus instructif n'est pas 2 250, mais les trois heures : l'automatisation raccourcit le délai de réaction des défenseurs.",
+      "D'ici un à trois ans, des outils comme ARTEX banaliseront les attaques à grande échelle, y compris pour des groupes moins qualifiés. La parade passera par des permissions d'applications minimales, une surveillance des identités non humaines et des alertes automatisées aussi rapides que les attaques."
+     ],
+     "verdict": "Le vrai risque n'est pas l'IA en soi mais la confiance excessive accordée aux identités d'applications de tiers."
+    },
+    {
+     "type": "callout",
+     "title": "À retenir",
+     "text": "Auditez les applications tierces et leurs permissions dans votre locataire Microsoft 365 ; les mots de passe d'utilisateurs ne sont pas le seul vecteur."
+    }
+   ],
+   "illustration": {
+    "svg": "<svg xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"0 0 640 360\"><defs><linearGradient id=\"g\" x1=\"0\" y1=\"0\" x2=\"1\" y2=\"1\"><stop offset=\"0\" stop-color=\"hsl(175,62%,34%)\"/><stop offset=\"1\" stop-color=\"hsl(215,68%,52%)\"/></linearGradient></defs><rect width=\"640\" height=\"360\" fill=\"url(#g)\"/><circle cx=\"570\" cy=\"50\" r=\"90\" fill=\"#fff\" fill-opacity=\".07\"/><circle cx=\"60\" cy=\"330\" r=\"110\" fill=\"#fff\" fill-opacity=\".06\"/><circle cx=\"320\" cy=\"180\" r=\"100\" fill=\"none\" stroke=\"#fff\" stroke-width=\"10\" stroke-opacity=\".85\"/><circle cx=\"320\" cy=\"180\" r=\"60\" fill=\"none\" stroke=\"#fff\" stroke-width=\"8\" stroke-opacity=\".6\"/><circle cx=\"320\" cy=\"180\" r=\"20\" fill=\"#fff\"/><path d=\"M320 60V20M320 340v-40M200 180h-40M480 180h-40\" stroke=\"#fff\" stroke-width=\"8\" stroke-linecap=\"round\"/><text x=\"565\" y=\"325\" text-anchor=\"middle\" font-size=\"50\">🕵️</text></svg>"
+   },
+   "publishedAt": "2026-10-22T19:17:28+02:00",
+   "cover": {
+    "url": "https://image.theregister.com/5304691.jpg?imageId=5304691&x=0&y=0&cropw=100&croph=100&panox=0&panoy=0&panow=100&panoh=100&width=1200&height=683",
+    "alt": "Illustration de l'article source : ConnectWise : des espions liés à la Chine ont visé plus de 2 250 locataires Microsoft 365 ",
+    "credit": "image.theregister.com"
+   }
+  },
+  {
+   "id": "nodejs-brotli-ecriture-hors-limites-correctifs",
+   "category": "dev",
+   "icon": "🟩",
+   "importance": 4,
+   "sourceDate": "2026-10-22",
+   "title": "Node.js : dix failles corrigées, dont une écriture hors limites dans Brotli pouvant mener à l'exécution de code",
+   "summary": "Les versions 22.23.4, 24.22.1 et 26.12.1 corrigent un défaut du décodeur Brotli et bloquent des certificats de l'autorité indienne eMudhra ; Node.js 20 et antérieures ne seront pas corrigées.",
+   "tags": [
+    "Node.js",
+    "Brotli",
+    "sécurité",
+    "fetch",
+    "zlib"
+   ],
+   "readingMinutes": 5,
+   "sources": [
+    {
+     "title": "Node.js Brotli Decoder Bug Could Allow Remote Code Execution in All Supported Versions",
+     "url": "https://thehackernews.com/2026/10/nodejs-brotli-decoder-bug-could-allow.html",
+     "publisher": "The Hacker News"
+    }
+   ],
+   "blocks": [
+    {
+     "type": "paragraph",
+     "text": "Le projet Node.js a publié le 21 octobre 2026 des versions de sécurité pour ses lignes prises en charge 22.x, 24.x et 26.x, corrigeant dix failles. La plus sérieuse est une écriture hors limites dans la bibliothèque de décompression Brotli intégrée à Node.js ; le projet estime qu'elle peut permettre une exécution de code à distance et la classe en gravité élevée, et non critique."
+    },
+    {
+     "type": "heading",
+     "level": 2,
+     "text": "Versions corrigées et mécanisme"
+    },
+    {
+     "type": "keyvalue",
+     "items": [
+      {
+       "label": "Node.js 22.x",
+       "value": "22.23.4 (LTS)"
+      },
+      {
+       "label": "Node.js 24.x",
+       "value": "24.22.1 (LTS)"
+      },
+      {
+       "label": "Node.js 26.x",
+       "value": "26.12.1 (version courante)"
+      },
+      {
+       "label": "Node.js 20.x et antérieures",
+       "value": "Fin de vie : aucun correctif, migration vers une ligne prise en charge nécessaire"
+      },
+      {
+       "label": "Brotli en amont",
+       "value": "Versions 1.2.1, 1.1.1 et 1.0.10, publiées le 21 octobre"
+      }
+     ]
+    },
+    {
+     "type": "paragraph",
+     "text": "Une entrée compressée mal formée déclenche le défaut : le décodeur écrit au-delà de la fin d'un tampon au lieu de s'arrêter. Le correctif, repris du projet Brotli, rejette plus tôt les entrées invalides. Le changement avait été fait dans le code source de Brotli dès février 2026. L'exposition survient lorsqu'une application décompresse des données Brotli contrôlées par un attaquant : usage direct du module `node:zlib`, ou appel de `fetch()` sur une réponse compressée en Brotli, qu'il s'agisse de corps de requêtes ou de réponses d'autres serveurs."
+    },
+    {
+     "type": "paragraph",
+     "text": "Une démonstration publique publiée le 22 octobre n'a obtenu d'exécution de code que sur une version de test volontairement affaiblie ; sur une compilation standard, son auteur n'a observé qu'un plantage et une lecture limitée de la mémoire du processus. Aucune exploitation dans la nature n'était signalée à cette date. Le correctif est la seule parade : l'avis ne propose pas de contournement. Vercel a ajouté dès le 21 octobre des règles de pare-feu entrantes contre ce motif d'attaque, qui ne couvrent pas les réponses Brotli récupérées auprès d'autres serveurs."
+    },
+    {
+     "type": "heading",
+     "level": 2,
+     "text": "Les autres correctifs notables"
+    },
+    {
+     "type": "list",
+     "items": [
+      "**CVE-2026-106069 et CVE-2026-105483** (gravité élevée) : contournements de la vérification du nom d'hôte TLS avec une adresse IP écrite sous forme non canonique ou avec des chiffres pleine chasse ;",
+      "**CVE-2026-105482** (gravité élevée) : `dns.resolve` tronque les noms à un octet nul incorporé ;",
+      "trois failles de gravité moyenne (socket keep-alive, validation de certificat pour IPv4 non canonique, valeurs identiques de `randomUUID()` et `randomInt()` entre processus issus d'un instantané) et trois de gravité faible (fichiers ZIP, modèle de permissions, `realpathSync`) ;",
+      "mises à jour d'undici, c-ares, OpenSSL (22.x et 24.x) et SQLite (22.x)."
+     ]
+    },
+    {
+     "type": "paragraph",
+     "text": "Les versions bloquent aussi huit clés d'autorités intermédiaires du fournisseur indien eMudhra, signalées comme compromises quelques jours plus tôt, et retirent trois racines emSign de la liste intégrée. Node.js ne vérifie pas la révocation par défaut : ces chaînes étaient donc acceptées jusque-là, et les sessions reprises avant la mise à jour ne sont pas revérifiées avant leur expiration."
+    },
+    {
+     "type": "usecases",
+     "title": "Exemples d'utilisation",
+     "items": [
+      {
+       "icon": "🌐",
+       "title": "API qui appelle des services tiers",
+       "text": "Une application qui utilise `fetch()` vers des serveurs externes doit passer en 22.23.4, 24.22.1 ou 26.12.1, car elle peut recevoir une réponse Brotli piégée."
+      },
+      {
+       "icon": "📦",
+       "title": "Passerelle ou proxy de décompression",
+       "text": "Un service qui décompresse des requêtes entrantes avec `node:zlib` doit prioriser la mise à jour, l'attaquant contrôlant directement l'entrée."
+      },
+      {
+       "icon": "🐳",
+       "title": "Images Docker anciennes",
+       "text": "Une équipe qui exécute encore Node.js 20 en production planifie sa migration, aucun correctif ne devant arriver pour cette ligne."
+      }
+     ]
+    },
+    {
+     "type": "timeline",
+     "title": "D'où l'on vient, où l'on va",
+     "items": [
+      {
+       "label": "Février 2026",
+       "text": "Le changement de Brotli rejetant plus tôt les entrées invalides est intégré au code source amont."
+      },
+      {
+       "label": "21 octobre 2026",
+       "text": "Publication des versions de sécurité de Node.js et de Brotli."
+      },
+      {
+       "label": "22 octobre 2026",
+       "text": "Une démonstration publique est diffusée ; pas d'exploitation observée dans la nature."
+      }
+     ]
+    },
+    {
+     "type": "opinion",
+     "title": "Notre avis",
+     "paragraphs": [
+      "L'incident rappelle qu'une dépendance bundlée pèse autant que le code maison : Brotli est un composant discret que la plupart des applications utilisent sans le savoir, via `fetch()`. Le classement « élevé » plutôt que « critique » est cohérent avec la difficulté d'exploitation réelle, mais il ne doit pas servir d'excuse pour reporter la mise à jour.",
+      "À un à trois ans, la pression pour abandonner les lignes en fin de vie va s'accentuer : chaque lot de correctifs creuse l'écart entre les versions prises en charge et les autres. Les équipes gagneront à automatiser les mises à jour de runtime, comme elles le font pour leurs bibliothèques."
+     ],
+     "verdict": "Une mise à jour de routine à ne pas reporter, d'autant qu'aucun contournement n'existe."
+    },
+    {
+     "type": "callout",
+     "title": "À retenir",
+     "text": "Passez à 22.23.4, 24.22.1 ou 26.12.1 ; si vous êtes sur Node.js 20 ou antérieur, la migration est la seule option."
+    }
+   ],
+   "illustration": {
+    "svg": "<svg xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"0 0 640 360\"><defs><linearGradient id=\"g\" x1=\"0\" y1=\"0\" x2=\"1\" y2=\"1\"><stop offset=\"0\" stop-color=\"hsl(265,62%,34%)\"/><stop offset=\"1\" stop-color=\"hsl(305,68%,52%)\"/></linearGradient></defs><rect width=\"640\" height=\"360\" fill=\"url(#g)\"/><circle cx=\"570\" cy=\"50\" r=\"90\" fill=\"#fff\" fill-opacity=\".07\"/><circle cx=\"60\" cy=\"330\" r=\"110\" fill=\"#fff\" fill-opacity=\".06\"/><circle cx=\"320\" cy=\"180\" r=\"100\" fill=\"none\" stroke=\"#fff\" stroke-width=\"10\" stroke-opacity=\".85\"/><circle cx=\"320\" cy=\"180\" r=\"60\" fill=\"none\" stroke=\"#fff\" stroke-width=\"8\" stroke-opacity=\".6\"/><circle cx=\"320\" cy=\"180\" r=\"20\" fill=\"#fff\"/><path d=\"M320 60V20M320 340v-40M200 180h-40M480 180h-40\" stroke=\"#fff\" stroke-width=\"8\" stroke-linecap=\"round\"/><text x=\"565\" y=\"325\" text-anchor=\"middle\" font-size=\"50\">🟩</text></svg>"
+   },
+   "publishedAt": "2026-10-22T19:17:28+02:00",
+   "cover": {
+    "url": "https://blogger.googleusercontent.com/img/b/R29vZ2xl/AVvXsEgFwR_FE94PTthun36oXfrSIiYx7N-Hb3Ww1w2gFs6x6qs0mML2v_TmYZmgqYKxB6VlMBzmIQksNdHldgX-UxykDBNwnszmBuB7IZWyWJhxei65NJlOImUWde5tYzB7D94dmieFBGhFNVAt3bL4qlhXkl4o3uw362QKgJpk37xutyRmM5bB3sHR8XMC3bc/s1600/nodejs-rce.jpg",
+    "alt": "Illustration de l'article source : Node.js : dix failles corrigées, dont une écriture hors limites dans Brotli pouvant mener ",
+    "credit": "blogger.googleusercontent.com"
+   }
+  },
+  {
+   "id": "http3-qpack-amplification-memoire-4000",
+   "category": "web",
+   "icon": "🚦",
+   "importance": 4,
+   "sourceDate": "2026-10-22",
+   "title": "HTTP/3 : des failles QPACK permettent de saturer la mémoire des serveurs avec une amplification allant jusqu'à 4 000",
+   "summary": "FoxIO publie des preuves de concept visant sept des dix piles HTTP/3 testées ; certaines bibliothèques sont corrigées, d'autres, dont Bun, ne le sont pas encore.",
+   "tags": [
+    "HTTP/3",
+    "QUIC",
+    "QPACK",
+    "déni de service",
+    "FoxIO"
+   ],
+   "readingMinutes": 5,
+   "sources": [
+    {
+     "title": "New QPACK Flaws Can Crash HTTP/3 Servers, Trigger Up to 4,000-Fold Memory Amplification",
+     "url": "https://thehackernews.com/2026/10/new-qpack-flaws-can-crash-http3-servers.html",
+     "publisher": "The Hacker News"
+    }
+   ],
+   "blocks": [
+    {
+     "type": "paragraph",
+     "text": "Le 22 octobre 2026, la société de sécurité FoxIO a divulgué une famille de failles de déni de service dans des serveurs HTTP/3 (QUIC), avec du code de démonstration fonctionnel. Elles résident dans QPACK, le mécanisme de compression d'en-têtes de HTTP/3. Un attaquant distant et non authentifié peut envoyer, sur une seule connexion, un petit lot d'en-têtes compressés dont l'expansion en mémoire dépasse de très loin la taille transmise. FoxIO ne signale ni vol de données, ni exécution de code, ni attaque connue."
+    },
+    {
+     "type": "heading",
+     "level": 2,
+     "text": "Les bibliothèques concernées"
+    },
+    {
+     "type": "keyvalue",
+     "items": [
+      {
+       "label": "quic-go",
+       "value": "Corrigé en 0.57.0 (CVE-2025-64702) ; bibliothèque utilisée par Caddy, Traefik et cloudflared"
+      },
+      {
+       "label": "Cloudflare quiche",
+       "value": "Corrigé en 0.29.3 (CVE-2026-12523)"
+      },
+      {
+       "label": "lsquic (LiteSpeed)",
+       "value": "Corrigé en 4.9.0, sans CVE"
+      },
+      {
+       "label": "Wireshark",
+       "value": "Corrigé en 4.6.2 et 4.4.12 (CVE-2025-13945) : cas distinct, plantage du décodeur lors du déchiffrement de captures"
+      },
+      {
+       "label": "Bun, h3 (Rust), aioquic/mitmproxy",
+       "value": "Non corrigés au moment de la divulgation, sans CVE"
+      },
+      {
+       "label": "Non touchés",
+       "value": "IIS, Envoy, ngtcp2/nghttp3 et le quiche de Google, qui limitent la taille des en-têtes décompressés"
+      }
+     ]
+    },
+    {
+     "type": "paragraph",
+     "text": "FoxIO a trouvé la même classe de défaut dans sept des dix piles HTTP/3 testées. La cause commune : un serveur doit plafonner la taille des en-têtes après décodage, alors que les piles vulnérables plafonnent l'entrée compressée reçue sur le réseau, ou appliquent la limite trop tard. Une seule requête peut donc se développer en des centaines de milliers d'en-têtes conservés en mémoire."
+    },
+    {
+     "type": "heading",
+     "level": 2,
+     "text": "Deux méthodes d'amplification"
+    },
+    {
+     "type": "list",
+     "items": [
+      "**Lot massif d'en-têtes** : avec les réglages par défaut, un lot compressé de 1 Mo sur quic-go se déploie en environ 160 000 champs et occupe près de 15 Mo, soit environ 17 fois les octets envoyés (la notice de quic-go évoque jusqu'à 50 fois) ;",
+      "**Entrée réutilisée** : l'attaquant stocke un en-tête d'environ 4 Ko puis le référence des milliers de fois avec des codes d'un octet, forçant le serveur à le reconstruire à chaque fois. FoxIO a mesuré environ 4 000 fois sur Bun et de 600 à 1 800 fois sur lsquic."
+     ]
+    },
+    {
+     "type": "paragraph",
+     "text": "Le pire cas concerne Bun : son serveur remplace le plafond mémoire de lsquic par du code maison qui vérifie chaque en-tête mais jamais le total. Au-delà de 2 Go d'en-têtes décompressés, un compteur de taille déborde jusqu'à zéro et le serveur boucle indéfiniment. Un flux d'environ 516 Ko sur le réseau suffit à saturer le processeur à 100 % sans récupération, ce qui bloque les nouvelles requêtes. Le plafond de 64 Ko de lsquic empêche ce scénario."
+    },
+    {
+     "type": "paragraph",
+     "text": "Le correctif de lsquic, publié le 16 juillet 2026, limite le nombre d'ensembles d'en-têtes décompressés conservés par flux, à un par défaut. Pour les piles non corrigées, FoxIO conseille de ne pas exposer le serveur HTTP/3 de Bun, de désactiver HTTP/3 dans mitmproxy et de régler `max_field_section_size` dans la bibliothèque Rust h3. L'étude est née d'une question : la recherche de Gal Bar Nahum sur « MadeYouReset », une technique de déni de service HTTP/2, avait-elle un équivalent dans la compression d'en-têtes de HTTP/3 ?"
+    },
+    {
+     "type": "usecases",
+     "title": "Exemples d'utilisation",
+     "items": [
+      {
+       "icon": "🛡️",
+       "title": "Équipe d'exploitation d'un site avec Caddy ou Traefik",
+       "text": "Elle met à jour la bibliothèque quic-go vers la version 0.57.0 ou ultérieure et vérifie que HTTP/3 est bien à jour sur ses frontaux."
+      },
+      {
+       "icon": "⚙️",
+       "title": "Développeur utilisant Bun",
+       "text": "Il désactive l'exposition directe du serveur HTTP/3 de Bun, ou place un proxy fiable devant, en attendant un correctif."
+      },
+      {
+       "icon": "📡",
+       "title": "Opérateur d'un CDN ou d'un proxy interne",
+       "text": "Il vérifie quelle bibliothèque QUIC se trouve dans ses équipements et si elle plafonne la taille des en-têtes après décompression."
+      }
+     ]
+    },
+    {
+     "type": "timeline",
+     "title": "D'où l'on vient, où l'on va",
+     "items": [
+      {
+       "label": "16 juillet 2026",
+       "text": "Publication du correctif de lsquic 4.9.0."
+      },
+      {
+       "label": "22 octobre 2026",
+       "text": "FoxIO divulgue la famille de failles QPACK avec preuves de concept."
+      },
+      {
+       "label": "À venir",
+       "text": "Des correctifs restent attendus pour Bun, h3 en Rust et aioquic/mitmproxy."
+      }
+     ]
+    },
+    {
+     "type": "opinion",
+     "title": "Notre avis",
+     "paragraphs": [
+      "L'intérêt de cette étude est de montrer que HTTP/3 rejoue des erreurs connues de HTTP/2 : une compression efficace est aussi un amplificateur de ressources. Le fait que trois piles sur dix soient saines prouve que la parade est simple et bien identifiée, ce qui rend les retards des autres d'autant moins excusables.",
+      "D'ici un à trois ans, avec la généralisation de QUIC sur les navigateurs et les CDN, ces limites sur les en-têtes devraient devenir un point de contrôle standard des tests d'interopérabilité et de robustesse. Les administrateurs, eux, devront considérer HTTP/3 comme une surface d'attaque à part entière."
+     ],
+     "verdict": "Un déni de service, pas une prise de contrôle, mais révélateur d'un défaut de conception répandu."
+    },
+    {
+     "type": "callout",
+     "title": "À retenir",
+     "text": "Vérifiez la version de votre bibliothèque QUIC (quic-go 0.57.0, quiche 0.29.3, lsquic 4.9.0) et n'exposez pas directement un serveur HTTP/3 non corrigé."
+    }
+   ],
+   "illustration": {
+    "svg": "<svg xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"0 0 640 360\"><defs><linearGradient id=\"g\" x1=\"0\" y1=\"0\" x2=\"1\" y2=\"1\"><stop offset=\"0\" stop-color=\"hsl(210,62%,34%)\"/><stop offset=\"1\" stop-color=\"hsl(250,68%,52%)\"/></linearGradient></defs><rect width=\"640\" height=\"360\" fill=\"url(#g)\"/><circle cx=\"570\" cy=\"50\" r=\"90\" fill=\"#fff\" fill-opacity=\".07\"/><circle cx=\"60\" cy=\"330\" r=\"110\" fill=\"#fff\" fill-opacity=\".06\"/><g fill=\"#fff\"><rect x=\"150\" y=\"210\" width=\"60\" height=\"90\" rx=\"8\" fill-opacity=\".9\"/><rect x=\"240\" y=\"160\" width=\"60\" height=\"140\" rx=\"8\" fill-opacity=\".8\"/><rect x=\"330\" y=\"110\" width=\"60\" height=\"190\" rx=\"8\" fill-opacity=\".9\"/><rect x=\"420\" y=\"70\" width=\"60\" height=\"230\" rx=\"8\" fill-opacity=\".75\"/></g><text x=\"565\" y=\"325\" text-anchor=\"middle\" font-size=\"50\">🚦</text></svg>"
+   },
+   "publishedAt": "2026-10-22T19:17:28+02:00",
+   "cover": {
+    "url": "https://blogger.googleusercontent.com/img/b/R29vZ2xl/AVvXsEidksxeLP_h5vpqmr62J_72yOAmQIRsZDLE6bpclFaHY1yQX6Dv-omiTvu_j49FuvXUOwxQT8levg89_AGRMiPNidANkEn1PSGSaNFoCVnY_VQ2Ny9D7FhLwtd9VDboOjxPi6Ssg78CdLFUzShhEt8oK6x0obKcHCZbbIMWBylnQCVCbQGUqjfbBJAKCew/s1600/http3.jpg",
+    "alt": "Illustration de l'article source : HTTP/3 : des failles QPACK permettent de saturer la mémoire des serveurs avec une amplific",
+    "credit": "blogger.googleusercontent.com"
+   }
+  },
+  {
+   "id": "railway-intrusion-variables-environnement-rotation",
+   "category": "devops",
+   "icon": "🚂",
+   "importance": 4,
+   "sourceDate": "2026-10-22",
+   "title": "Railway : une intrusion a pu exposer des variables d'environnement de clients, rotation des secrets recommandée",
+   "summary": "La plateforme d'hébergement a découvert une activité anormale dans les systèmes qui stockent les variables d'environnement ; des vols de crypto-actifs auraient déjà eu lieu.",
+   "tags": [
+    "Railway",
+    "PaaS",
+    "secrets",
+    "variables d'environnement",
+    "incident"
+   ],
+   "readingMinutes": 5,
+   "sources": [
+    {
+     "title": "Railway Says Intruder May Have Accessed Customer Secrets, Urges Credential Rotation",
+     "url": "https://thehackernews.com/2026/10/railway-says-intruder-may-have-accessed.html",
+     "publisher": "The Hacker News"
+    }
+   ],
+   "blocks": [
+    {
+     "type": "paragraph",
+     "text": "Railway, fournisseur de plateforme en tant que service (PaaS), a annoncé le mercredi 21 octobre 2026 une « activité anormale » touchant des systèmes qui stockent les variables d'environnement de ses clients. Son enquête conclut qu'un tiers non autorisé a pu accéder à des variables chiffrées et, dans certains cas, à leur contenu déchiffré. Ces variables contiennent souvent des clés d'API, des identifiants de bases de données ou des indicateurs fonctionnels : leur exposition peut ouvrir l'accès à d'autres systèmes."
+    },
+    {
+     "type": "heading",
+     "level": 2,
+     "text": "Ce que Railway a dit et fait"
+    },
+    {
+     "type": "list",
+     "items": [
+      "l'impact est limité à « un sous-ensemble d'utilisateurs », dont le nombre n'est pas précisé ;",
+      "tous les identifiants de buckets Railway ont été renouvelés et les jetons d'API Railway invalidés ;",
+      "les fournisseurs en amont ont été prévenus pour révoquer les clés exposées ;",
+      "les compilations ont été rétablies pour les espaces Pro et Enterprise afin que les clients appliquent de nouveaux identifiants ; celles des espaces Hobby, puis Free et Trial, sont en cours de rétablissement, avec davantage d'échecs et des files d'attente plus longues que d'habitude."
+     ]
+    },
+    {
+     "type": "paragraph",
+     "text": "Railway demande à ses clients de renouveler toutes les variables d'environnement stockées chez lui, y compris les clés d'API et les identifiants de registres privés, et d'examiner les journaux des services concernés pour y repérer toute activité inhabituelle."
+    },
+    {
+     "type": "heading",
+     "level": 2,
+     "text": "Des vols de crypto-actifs déjà observés"
+    },
+    {
+     "type": "paragraph",
+     "text": "La chercheuse en sécurité Taylor Monahan indique que les attaquants ont profité de l'incident pour vider des portefeuilles de crypto-actifs dont les clés privées étaient stockées sur Railway. La première transaction de vol connue aurait eu lieu à 19 h 36, au moins deux heures avant l'annonce publique ; l'article ne précise pas la date. Railway estime que l'incident s'inscrit probablement dans une campagne plus large visant des entreprises de plateformes, dans le but de compromettre des fournisseurs d'inférence d'IA."
+    },
+    {
+     "type": "paragraph",
+     "text": "L'équipe Threat Hunter de Symantec dit n'avoir trouvé aucun lien entre ses observations sur des pots de miel et l'incident Railway. Son analyste Dick O'Brien relève toutefois un risque partagé : les clés d'API de modèles d'IA permettent de faire tourner de l'inférence aux frais de leur propriétaire, ce que l'on nomme le « LLMjacking »."
+    },
+    {
+     "type": "usecases",
+     "title": "Exemples d'utilisation",
+     "items": [
+      {
+       "icon": "🔑",
+       "title": "Développeur hébergé sur Railway",
+       "text": "Il renouvelle toutes ses clés (base de données, API tierces, jetons de déploiement) puis redéploie ses services avec les nouvelles valeurs."
+      },
+      {
+       "icon": "🧾",
+       "title": "Responsable financier",
+       "text": "Il surveille la facturation des services d'IA et des fournisseurs cloud afin de détecter une consommation inhabituelle liée à des clés volées."
+      },
+      {
+       "icon": "🗂️",
+       "title": "Équipe sécurité",
+       "text": "Elle inventorie les secrets hébergés chez des tiers, définit une durée de vie maximale pour chacun et prévoit un processus de rotation automatisé."
+      }
+     ]
+    },
+    {
+     "type": "timeline",
+     "title": "D'où l'on vient, où l'on va",
+     "items": [
+      {
+       "label": "21 octobre 2026",
+       "text": "Railway annonce une activité anormale et lance la rotation de ses propres identifiants."
+      },
+      {
+       "label": "22 octobre 2026",
+       "text": "Des vols de crypto-actifs liés à des clés stockées sur la plateforme sont signalés."
+      },
+      {
+       "label": "Prochains jours",
+       "text": "Le rétablissement complet des compilations des espaces Hobby, Free et Trial est en cours."
+      }
+     ]
+    },
+    {
+     "type": "opinion",
+     "title": "Notre avis",
+     "paragraphs": [
+      "L'incident rappelle une règle ancienne et trop peu appliquée : un secret stocké chez un tiers est un secret potentiellement partagé. Les clés privées de portefeuilles de crypto-actifs n'ont rien à faire dans des variables d'environnement, qui servent à configurer, pas à protéger des actifs.",
+      "À un à trois ans, la pression sur les plateformes d'hébergement va augmenter : gestionnaires de secrets dédiés, jetons à durée de vie courte et identités fédérées devraient remplacer les clés statiques. Les attaques contre les fournisseurs de PaaS, cibles à fort effet de levier, devraient se multiplier."
+     ],
+     "verdict": "La rotation immédiate des secrets est la seule réponse sûre ; l'ampleur réelle de l'incident reste à préciser."
+    },
+    {
+     "type": "callout",
+     "title": "À retenir",
+     "text": "Renouvelez toutes les variables stockées sur Railway et ne conservez jamais de clé privée de portefeuille dans une variable d'environnement."
+    }
+   ],
+   "illustration": {
+    "svg": "<svg xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"0 0 640 360\"><defs><linearGradient id=\"g\" x1=\"0\" y1=\"0\" x2=\"1\" y2=\"1\"><stop offset=\"0\" stop-color=\"hsl(160,62%,34%)\"/><stop offset=\"1\" stop-color=\"hsl(200,68%,52%)\"/></linearGradient></defs><rect width=\"640\" height=\"360\" fill=\"url(#g)\"/><circle cx=\"570\" cy=\"50\" r=\"90\" fill=\"#fff\" fill-opacity=\".07\"/><circle cx=\"60\" cy=\"330\" r=\"110\" fill=\"#fff\" fill-opacity=\".06\"/><g fill=\"#fff\"><rect x=\"150\" y=\"210\" width=\"60\" height=\"90\" rx=\"8\" fill-opacity=\".9\"/><rect x=\"240\" y=\"160\" width=\"60\" height=\"140\" rx=\"8\" fill-opacity=\".8\"/><rect x=\"330\" y=\"110\" width=\"60\" height=\"190\" rx=\"8\" fill-opacity=\".9\"/><rect x=\"420\" y=\"70\" width=\"60\" height=\"230\" rx=\"8\" fill-opacity=\".75\"/></g><text x=\"565\" y=\"325\" text-anchor=\"middle\" font-size=\"50\">🚂</text></svg>"
+   },
+   "publishedAt": "2026-10-22T19:17:28+02:00",
+   "cover": {
+    "url": "https://blogger.googleusercontent.com/img/b/R29vZ2xl/AVvXsEjLi5yuPoipCkAL6joBpDL5htNkHWi_rU5i5dAyspyjSrdDORYgV_LRNO4pVG_c1P0S7bnZFWHft8recxLiFRSiLsPxx3ZL-v8fzlYRuzxxG_P_ocKdJbGWzXFtoEjPszyKNUOS86HCylk0LPV1YZS7U9qZcfonBVeLEuRKioCXVbbzUySEvWGI0IaBJ8U/s1600/rail.jpg",
+    "alt": "Illustration de l'article source : Railway : une intrusion a pu exposer des variables d'environnement de clients, rotation de",
+    "credit": "blogger.googleusercontent.com"
+   }
+  },
+  {
+   "id": "opencode-mcp-injection-powershell-windows-wsl",
+   "category": "ia",
+   "icon": "🧩",
+   "importance": 3,
+   "sourceDate": "2026-10-22",
+   "title": "OpenCode : un serveur MCP malveillant pouvait exécuter du code sur Windows et WSL lors de la connexion",
+   "summary": "Pillar Security décrit une injection de commande PowerShell dans l'agent de programmation OpenCode ; la version 1.18.33 corrige le défaut, mais aucune CVE ni avis n'a été publié.",
+   "tags": [
+    "OpenCode",
+    "MCP",
+    "agents de code",
+    "injection de commande",
+    "Pillar Security"
+   ],
+   "readingMinutes": 5,
+   "sources": [
+    {
+     "title": "OpenCode Flaw Lets Malicious MCP Servers Execute Code During Sign-In on Windows and WSL",
+     "url": "https://thehackernews.com/2026/10/opencode-flaw-lets-malicious-mcp.html",
+     "publisher": "The Hacker News"
+    }
+   ],
+   "blocks": [
+    {
+     "type": "paragraph",
+     "text": "Une faille de l'agent de programmation OpenCode, édité par Anomaly, permettait à un serveur MCP (Model Context Protocol) malveillant ou détourné d'exécuter du code sur la machine Windows ou WSL d'un développeur lors de la connexion. Le code s'exécute avec les droits du développeur. La faille a été découverte par Pillar Security, qui a publié ses conclusions le 19 octobre 2026."
+    },
+    {
+     "type": "heading",
+     "level": 2,
+     "text": "Comment fonctionne l'attaque"
+    },
+    {
+     "type": "paragraph",
+     "text": "Pendant la connexion OAuth, le serveur MCP fournit l'adresse du point d'autorisation, vers lequel l'utilisateur est redirigé. Sur Windows et WSL, OpenCode transmettait cette adresse à un utilitaire d'ouverture du navigateur qui construisait une commande PowerShell autour d'elle sans l'échapper. Une adresse forgée pour contenir une commande PowerShell l'exécutait donc. L'attaque emploie une adresse HTTPS ordinaire : vérifier que le schéma est HTTP ou HTTPS, défense courante, n'aurait pas suffi. OpenCode a ajouté cette vérification plus tard, mais seule la mise à jour a réellement fermé la brèche."
+    },
+    {
+     "type": "keyvalue",
+     "items": [
+      {
+       "label": "Versions touchées",
+       "value": "1.0.137 à 1.18.32 sur Windows et WSL ; macOS et Linux ne sont pas concernés"
+      },
+      {
+       "label": "Version corrigée",
+       "value": "1.18.33, publiée le 28 septembre"
+      },
+      {
+       "label": "Déclenchement",
+       "value": "Uniquement lors d'une connexion, par `opencode mcp auth` ou une requête équivalente ; la simple configuration du serveur ne suffit pas"
+      },
+      {
+       "label": "Prérequis de l'attaquant",
+       "value": "Contrôler un serveur MCP distant que le développeur a ajouté, y compris un serveur ensuite détourné ou un domaine qui change de propriétaire"
+      },
+      {
+       "label": "Identifiant CVE",
+       "value": "Aucun"
+      }
+     ]
+    },
+    {
+     "type": "heading",
+     "level": 2,
+     "text": "Un désaccord sur le modèle de menace"
+    },
+    {
+     "type": "paragraph",
+     "text": "Pillar Security a signalé le défaut en privé le 29 août, puis demandé à Anomaly de reconsidérer sa position et de demander une CVE. L'éditeur a répondu qu'un serveur MCP malveillant sort de son modèle de menace ; sa politique de sécurité précise que les serveurs MCP configurés par l'utilisateur sont hors de sa frontière de confiance. Pillar juge la faille critique et propose une note de 9,8 sur 10. Le correctif est arrivé dans une demande de fusion présentée comme une refonte du code d'ouverture du navigateur, sans mention de sécurité ni dans les notes de version. Faute de CVE, les scanners de vulnérabilités ne signaleront pas les installations concernées."
+    },
+    {
+     "type": "paragraph",
+     "text": "L'utilitaire d'ouverture de navigateur en cause est un paquet open source très répandu, dont le comportement d'injection sous Windows avait été signalé en 2023 et corrigé dans sa version 11 ; OpenCode était resté sur une version plus ancienne. Un défaut comparable avait touché le proxy mcp-remote en juillet 2025 (CVE-2025-6514). Pillar ne signale aucune exploitation connue et n'a publié aucun indicateur de compromission."
+    },
+    {
+     "type": "usecases",
+     "title": "Exemples d'utilisation",
+     "items": [
+      {
+       "icon": "💻",
+       "title": "Développeur sous Windows ou WSL",
+       "text": "Il vérifie sa version d'OpenCode, passe à 1.18.33 ou plus, et liste ses serveurs MCP avec `opencode mcp list`."
+      },
+      {
+       "icon": "🧰",
+       "title": "Équipe plateforme",
+       "text": "Elle publie une liste blanche de serveurs MCP approuvés et refuse les serveurs distants non vérifiés dans les configurations partagées."
+      },
+      {
+       "icon": "🛡️",
+       "title": "Responsable sécurité",
+       "text": "Il ajoute au suivi des vulnérabilités les agents de code, absents des alertes lorsqu'aucun identifiant CVE n'est émis."
+      }
+     ]
+    },
+    {
+     "type": "timeline",
+     "title": "D'où l'on vient, où l'on va",
+     "items": [
+      {
+       "label": "2023",
+       "text": "Le comportement d'injection de l'utilitaire d'ouverture de navigateur est signalé, puis corrigé dans sa version 11."
+      },
+      {
+       "label": "29 août 2026",
+       "text": "Pillar Security signale la faille en privé à Anomaly."
+      },
+      {
+       "label": "28 septembre 2026",
+       "text": "OpenCode 1.18.33 corrige le défaut."
+      },
+      {
+       "label": "19 octobre 2026",
+       "text": "Pillar publie ses conclusions et propose une note de 9,8."
+      }
+     ]
+    },
+    {
+     "type": "opinion",
+     "title": "Notre avis",
+     "paragraphs": [
+      "Cette affaire met en lumière un angle mort : les agents de code manipulent des serveurs externes dont ils ne contrôlent pas les réponses, et chaque réponse est une entrée non fiable. Déclarer ces serveurs « hors du modèle de menace » ne protège pas l'utilisateur qui s'y connecte, qui ne saura même pas qu'il doit se mettre à jour.",
+      "À un à trois ans, la qualité des divulgations deviendra un critère de choix des outils d'IA en entreprise : avis publiés, CVE, journaux de modifications explicites. Les éditeurs qui traitent le protocole MCP comme une surface d'attaque, avec échappement strict et listes d'hôtes, prendront l'avantage."
+     ],
+     "verdict": "Un défaut sérieux, corrigé en silence : mettez à jour sans attendre une alerte qui ne viendra pas."
+    },
+    {
+     "type": "callout",
+     "title": "À retenir",
+     "text": "Sous Windows ou WSL, passez OpenCode à la version 1.18.33 ou ultérieure et retirez les serveurs MCP distants que vous n'avez pas vérifiés."
+    }
+   ],
+   "illustration": {
+    "svg": "<svg xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"0 0 640 360\"><defs><linearGradient id=\"g\" x1=\"0\" y1=\"0\" x2=\"1\" y2=\"1\"><stop offset=\"0\" stop-color=\"hsl(320,62%,34%)\"/><stop offset=\"1\" stop-color=\"hsl(0,68%,52%)\"/></linearGradient></defs><rect width=\"640\" height=\"360\" fill=\"url(#g)\"/><circle cx=\"570\" cy=\"50\" r=\"90\" fill=\"#fff\" fill-opacity=\".07\"/><circle cx=\"60\" cy=\"330\" r=\"110\" fill=\"#fff\" fill-opacity=\".06\"/><rect x=\"170\" y=\"80\" width=\"300\" height=\"200\" rx=\"22\" fill=\"#fff\" fill-opacity=\".9\"/><rect x=\"200\" y=\"112\" width=\"240\" height=\"14\" rx=\"7\" fill=\"hsl(320,60%,38%)\"/><rect x=\"200\" y=\"142\" width=\"170\" height=\"14\" rx=\"7\" fill=\"hsl(320,60%,38%)\" fill-opacity=\".6\"/><rect x=\"200\" y=\"172\" width=\"205\" height=\"14\" rx=\"7\" fill=\"hsl(320,60%,38%)\" fill-opacity=\".4\"/><circle cx=\"240\" cy=\"236\" r=\"16\" fill=\"hsl(320,60%,45%)\"/><rect x=\"270\" y=\"228\" width=\"130\" height=\"16\" rx=\"8\" fill=\"hsl(320,60%,38%)\" fill-opacity=\".5\"/><text x=\"565\" y=\"325\" text-anchor=\"middle\" font-size=\"50\">🧩</text></svg>"
+   },
+   "publishedAt": "2026-10-22T19:17:28+02:00",
+   "cover": {
+    "url": "https://blogger.googleusercontent.com/img/b/R29vZ2xl/AVvXsEiUmn80CiQx35trhXNaAwJka_Z3T-PKQrz__dlAW1GDDVwfrk2WHit1W6GZBaaAT-a9SrmqqauUhw0raYLEOS3Vv-LNxdu0a2bmJebJWVj5mBadfgxN1N1yVREXflCcV7cPmShswRE8PC0qspFY82MDEKe8MJImYVqJCBYLwTLpCHM1IzjDX7KsOAYs7tc/s1600/opencode-mcp.jpg",
+    "alt": "Illustration de l'article source : OpenCode : un serveur MCP malveillant pouvait exécuter du code sur Windows et WSL lors de ",
+    "credit": "blogger.googleusercontent.com"
+   }
+  },
+  {
+   "id": "gl-inet-mango-2-minirouteur-wifi-5",
+   "category": "electronique",
+   "icon": "📶",
+   "importance": 2,
+   "sourceDate": "2026-10-22",
+   "title": "GL.iNet Mango 2 : un minirouteur de voyage en Wi-Fi 5 avec deux ports Gigabit et USB 3.0",
+   "summary": "Le GL-MG1300, construit autour d'une puce MediaTek MT7621A, remplace le GL-MT300N-V2 pour environ 50 dollars sur la boutique du fabricant.",
+   "tags": [
+    "GL.iNet",
+    "routeur",
+    "OpenWrt",
+    "WireGuard",
+    "Wi-Fi 5"
+   ],
+   "readingMinutes": 4,
+   "sources": [
+    {
+     "title": "GL.iNet Mango 2 mini travel router features AC1300 WiFi 5 and dual Gigabit Ethernet",
+     "url": "https://www.cnx-software.com/2026/10/22/gl-inet-mango-2-mini-travel-router-features-ac1300-wifi-5-and-dual-gigabit-ethernet/",
+     "publisher": "CNX Software"
+    }
+   ],
+   "blocks": [
+    {
+     "type": "paragraph",
+     "text": "GL.iNet présente le Mango 2 (référence GL-MG1300), un minirouteur de voyage double bande Wi-Fi 5 qui remplace le GL-MT300N-V2. Il se veut une porte d'entrée de gamme : plus lent que le Beryl AX en Wi-Fi 6 ou le Slate 7 en Wi-Fi 7, mais il conserve deux ports Gigabit, un port USB 3.0 et la prise en charge des VPN. Le produit a été décrit le 22 octobre 2026 par CNX Software."
+    },
+    {
+     "type": "heading",
+     "level": 2,
+     "text": "Fiche technique"
+    },
+    {
+     "type": "keyvalue",
+     "items": [
+      {
+       "label": "Processeur",
+       "value": "MediaTek MT7621A, double cœur MIPS à 880 MHz"
+      },
+      {
+       "label": "Mémoire",
+       "value": "128 Mo de DDR3L, 128 Mo de NAND SPI et 2 Mo de NOR SPI"
+      },
+      {
+       "label": "Wi-Fi",
+       "value": "2,4 GHz jusqu'à 400 Mbit/s et 5 GHz jusqu'à 866 Mbit/s, 2x2 MIMO, deux antennes internes"
+      },
+      {
+       "label": "Ports",
+       "value": "Deux Ethernet Gigabit (WAN/LAN), un USB 3.0 type A, une entrée d'alimentation USB-C"
+      },
+      {
+       "label": "Alimentation",
+       "value": "5 V / 2 A, moins de 5 W ; plage de fonctionnement de 0 à 40 °C"
+      },
+      {
+       "label": "Dimensions et masse",
+       "value": "89 x 63 x 15 mm, 100 g"
+      },
+      {
+       "label": "Logiciel",
+       "value": "Micrologiciel GL.iNet 4.10, fondé sur OpenWrt 22.03.4"
+      }
+     ]
+    },
+    {
+     "type": "paragraph",
+     "text": "Le boîtier comporte aussi un bouton de réinitialisation, un interrupteur configurable et une LED d'état. La connexion cellulaire passe par un modem USB compatible ou le partage de connexion d'un téléphone."
+    },
+    {
+     "type": "heading",
+     "level": 2,
+     "text": "Réseau privé virtuel et portails captifs"
+    },
+    {
+     "type": "paragraph",
+     "text": "Le micrologiciel prend en charge WireGuard (jusqu'à 184 Mbit/s) et OpenVPN (jusqu'à 95 Mbit/s avec DCO), en client comme en serveur, ainsi que plus de 30 fournisseurs de VPN, Tailscale, les configurations multitunnels et des règles par appareil ou par site. Il gère aussi les portails captifs : on s'authentifie une fois pour partager le Wi-Fi d'un hôtel ou d'un lieu public avec ses propres appareils."
+    },
+    {
+     "type": "heading",
+     "level": 2,
+     "text": "Prix et disponibilité"
+    },
+    {
+     "type": "paragraph",
+     "text": "Le Mango 2 est affiché à 62,99 dollars sur AliExpress et 49,99 dollars sur la boutique officielle de GL.iNet, avec deux ans de garantie et trente jours de remboursement. Il n'est pas vendu aux États-Unis en raison de restrictions liées à la FCC, qui toucheront aussi, selon la source, les futurs routeurs de la marque. Par rapport à son prédécesseur, il passe d'un cœur unique à 580 MHz et d'un Wi-Fi limité à 2,4 GHz (300 Mbit/s), de l'Ethernet 10/100, de l'USB 2.0 et du Micro-USB, à un double cœur, deux bandes, du Gigabit, de l'USB 3.0 et de l'USB-C."
+    },
+    {
+     "type": "usecases",
+     "title": "Exemples d'utilisation",
+     "items": [
+      {
+       "icon": "🏨",
+       "title": "Voyage et hôtels",
+       "text": "Brancher le routeur au câble de la chambre ou au Wi-Fi de l'hôtel, puis connecter ordinateur, téléphone et tablette à son propre réseau protégé par VPN."
+      },
+      {
+       "icon": "🏠",
+       "title": "Résidence secondaire ou chantier",
+       "text": "Mettre en commun une connexion mobile ou un modem USB entre plusieurs appareils quand aucune box n'est installée."
+      },
+      {
+       "icon": "🧪",
+       "title": "Laboratoire personnel",
+       "text": "Utiliser OpenWrt et WireGuard pour tester des configurations réseau ou relier un petit réseau à Tailscale."
+      }
+     ]
+    },
+    {
+     "type": "timeline",
+     "title": "D'où l'on vient, où l'on va",
+     "items": [
+      {
+       "label": "Génération précédente",
+       "text": "Le GL-MT300N-V2 propose un Wi-Fi 300 Mbit/s en 2,4 GHz et de l'Ethernet 10/100."
+      },
+      {
+       "label": "22 octobre 2026",
+       "text": "Le Mango 2 apporte le Wi-Fi 5, le Gigabit et l'USB 3.0 pour environ 50 dollars."
+      },
+      {
+       "label": "À venir",
+       "text": "La source indique que les restrictions de la FCC continueront de limiter la vente de futurs modèles aux États-Unis."
+      }
+     ]
+    },
+    {
+     "type": "opinion",
+     "title": "Notre avis",
+     "paragraphs": [
+      "Le Mango 2 est un renouvellement raisonnable plutôt qu'une nouveauté : l'essentiel de l'intérêt tient au Gigabit, à l'USB 3.0 et à un micrologiciel OpenWrt connu. Sa limite évidente est le Wi-Fi 5 en 2026, mais, pour un routeur de poche dont le goulot est souvent la connexion de l'hôtel, ce n'est pas rédhibitoire.",
+      "À un à trois ans, la frontière entre routeur de voyage et passerelle VPN personnelle devrait s'estomper, avec davantage de Tailscale et de WireGuard préinstallés. L'ouverture du micrologiciel reste l'atout de ces produits face aux box fermées."
+     ],
+     "verdict": "Un petit routeur sensé et abordable, à choisir pour sa souplesse logicielle plus que pour sa vitesse brute."
+    },
+    {
+     "type": "callout",
+     "title": "À retenir",
+     "text": "Débit annoncé : 400 Mbit/s en 2,4 GHz et 866 Mbit/s en 5 GHz ; WireGuard plafonne à environ 184 Mbit/s selon la source."
+    }
+   ],
+   "illustration": {
+    "svg": "<svg xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"0 0 640 360\"><defs><linearGradient id=\"g\" x1=\"0\" y1=\"0\" x2=\"1\" y2=\"1\"><stop offset=\"0\" stop-color=\"hsl(30,62%,34%)\"/><stop offset=\"1\" stop-color=\"hsl(70,68%,52%)\"/></linearGradient></defs><rect width=\"640\" height=\"360\" fill=\"url(#g)\"/><circle cx=\"570\" cy=\"50\" r=\"90\" fill=\"#fff\" fill-opacity=\".07\"/><circle cx=\"60\" cy=\"330\" r=\"110\" fill=\"#fff\" fill-opacity=\".06\"/><circle cx=\"320\" cy=\"180\" r=\"100\" fill=\"none\" stroke=\"#fff\" stroke-width=\"10\" stroke-opacity=\".85\"/><circle cx=\"320\" cy=\"180\" r=\"60\" fill=\"none\" stroke=\"#fff\" stroke-width=\"8\" stroke-opacity=\".6\"/><circle cx=\"320\" cy=\"180\" r=\"20\" fill=\"#fff\"/><path d=\"M320 60V20M320 340v-40M200 180h-40M480 180h-40\" stroke=\"#fff\" stroke-width=\"8\" stroke-linecap=\"round\"/><text x=\"565\" y=\"325\" text-anchor=\"middle\" font-size=\"50\">📶</text></svg>"
+   },
+   "publishedAt": "2026-10-22T19:17:28+02:00",
+   "cover": {
+    "url": "https://www.cnx-software.com/wp-content/uploads/2026/10/GL.iNet-Mango-2-GL-MG1300-Dual-band-Mini-Travel-Router.jpg",
+    "alt": "Illustration de l'article source : GL.iNet Mango 2 : un minirouteur de voyage en Wi-Fi 5 avec deux ports Gigabit et USB 3.0",
+    "credit": "cnx-software.com"
+   }
+  }
+ ]
+}
