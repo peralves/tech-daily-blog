@@ -1,0 +1,1366 @@
+{
+  "schemaVersion": "1.0",
+  "date": "2026-10-22",
+  "generatedAt": "2026-10-22T05:18:37+02:00",
+  "title": "LiteLLM piégé, différend PHP–Chainguard, Lazarus et cryptographie post-quantique, Onamae, Signal, OpenShell, enquête de la Linux Foundation et panne de Google Cloud",
+  "summary": "Une édition tech dominée par la sécurité : la version 1.107.0 de LiteLLM vole les secrets de ses utilisateurs, la fondation PHP accuse Chainguard d'avoir rompu l'embargo sur PHP2Shell, et l'opération FlashHole de Lazarus s'appuie sur ML-KEM. Côté infrastructure, Onamae suspend ses serveurs et Google Cloud Londres subit une panne ; côté IA et développement, Nvidia dévoile OpenShell et la Linux Foundation chiffre la charge de l'IA sur les mainteneurs.",
+  "highlights": [
+    "LiteLLM 1.107.0 : une version piégée diffusée sur PyPI et Docker vole les identifiants cloud et d'IA ; la dernière version saine est la 1.106.2",
+    "PHP2Shell : la fondation PHP reproche à Chainguard d'avoir publié ses images plus de six heures avant la divulgation coordonnée",
+    "Onamae Desktop Cloud : jusqu'à 26 739 serveurs touchés et un service entièrement suspendu",
+    "Linux Foundation : environ 25 % des demandes de fusion seraient de faible qualité, mais l'IA réduit de 52 % le temps de codage"
+  ],
+  "meta": {
+    "generator": "claude-scheduled-task"
+  },
+  "posts": [
+    {
+      "id": "cybersecurite-litellm-version-1-107-0-piegee",
+      "category": "cybersecurite",
+      "icon": "📦",
+      "importance": 5,
+      "sourceDate": "2026-10-21",
+      "title": "LiteLLM : une version piégée, la 1.107.0, vole les identifiants cloud et d'IA et ouvre un accès à distance",
+      "summary": "Des attaquants ont compromis le processus de publication de la passerelle d'IA open source LiteLLM et diffusé via PyPI et Docker une version qui exfiltre les secrets et embarque un cheval de Troie.",
+      "tags": [
+        "LiteLLM",
+        "chaîne d'approvisionnement",
+        "PyPI",
+        "Docker",
+        "secrets"
+      ],
+      "sources": [
+        {
+          "title": "LiteLLM supply chain attack hoovers up passwords and secrets",
+          "url": "https://www.theregister.com/security/2026/10/21/litellm-supply-chain-attack-hoovers-up-passwords-and-secrets/5304548",
+          "publisher": "The Register"
+        }
+      ],
+      "blocks": [
+        {
+          "type": "paragraph",
+          "text": "Mercredi 21 octobre 2026, des attaquants non identifiés ont compromis le processus de publication de **LiteLLM**, une passerelle open source développée par BerriAI qui sert d'interface commune à de nombreux fournisseurs de modèles d'IA. Ils ont diffusé une version piégée, la **1.107.0**, à la fois sur PyPI et dans les registres Docker. Selon The Register, le code malveillant dérobe des identifiants cloud et d'IA et embarque un cheval de Troie d'accès à distance, capable d'exécuter du code arbitraire sur les machines infectées."
+        },
+        {
+          "type": "paragraph",
+          "text": "L'enjeu tient à la position de LiteLLM dans les architectures modernes. Le projet offre une interface unique vers OpenAI, Anthropic, Google Gemini et d'autres, et il enregistre environ 23 millions de téléchargements par semaine. Par construction, il s'exécute à côté de clés d'API, d'identités cloud et de chaînes de connexion aux bases de données : une cible de choix pour qui cherche à rafler des secrets. Une compromission antérieure, en mars, aurait déjà exposé plus de 2 500 organisations et 434 000 chaînes d'intégration continue dans le monde, d'après des chiffres de CloudSEK rapportés par le média. L'ampleur de l'attaque actuelle n'était pas encore connue au moment de la publication."
+        },
+        {
+          "type": "heading",
+          "level": 2,
+          "text": "Ce que l'on sait de l'attaque"
+        },
+        {
+          "type": "keyvalue",
+          "items": [
+            {
+              "label": "Version piégée",
+              "value": "LiteLLM 1.107.0 (paquet PyPI et image Docker litellm/litellm:1.107.0)"
+            },
+            {
+              "label": "Mise en ligne",
+              "value": "21 octobre 2026 à 11 h 39 UTC, soit 13 h 39 à Paris"
+            },
+            {
+              "label": "Dernière version saine connue",
+              "value": "1.106.2"
+            },
+            {
+              "label": "Réaction",
+              "value": "PyPI a placé la version en quarantaine en quelques heures ; l'image a été retirée de Docker Hub et de GHCR"
+            },
+            {
+              "label": "Origine",
+              "value": "Des commits malveillants poussés sur un dépôt nommé Berri-AI/litellm, variante avec trait d'union de l'organisation légitime BerriAI, selon les chercheurs de Wiz Benjamin Read et Rami McCarthy"
+            }
+          ]
+        },
+        {
+          "type": "heading",
+          "level": 2,
+          "text": "Trois fichiers injectés dans la chaîne de publication"
+        },
+        {
+          "type": "list",
+          "items": [
+            "`cook.pth` : un fichier de configuration Python qui déclenche `cook.py` à chaque lancement de l'interpréteur, sans aucune action de l'utilisateur ;",
+            "`cook.py` : le voleur d'informations, composé de 16 modules ;",
+            "`sitecustomize.py` : le cheval de Troie d'accès à distance, qui s'exécute au démarrage de Python et lance un démon en arrière-plan interrogeant chaque heure l'infrastructure des attaquants pour recevoir de nouvelles commandes."
+          ]
+        },
+        {
+          "type": "paragraph",
+          "text": "Le voleur collecte les identifiants et cookies des navigateurs Chrome, Firefox, Edge et Safari, les accès AWS (dossier `~/.aws/`, variables d'environnement, métadonnées d'instance EC2 et ECS), les clés de compte de service et identifiants Google Cloud, les jetons Azure en cache, les clés d'API de fournisseurs de modèles comme OpenAI, Anthropic ou Cohere, ainsi que les clés SSH, les clés GPG et les historiques de commandes. Les données sont chiffrées en AES-256-CBC, la clé étant elle-même protégée par une clé publique RSA-4096, puis envoyées par requête HTTP POST vers un domaine contrôlé par les attaquants, calqué sur le nom du projet."
+        },
+        {
+          "type": "diagram",
+          "svg": "<svg xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"0 0 640 170\" font-family=\"system-ui,sans-serif\"><defs><marker id=\"a\" markerWidth=\"8\" markerHeight=\"8\" refX=\"6\" refY=\"4\" orient=\"auto\"><path d=\"M0 0 L8 4 L0 8z\" fill=\"#1d4ed8\"/></marker></defs><rect width=\"640\" height=\"170\" rx=\"14\" fill=\"#f1f5f9\"/><rect x=\"20\" y=\"43\" width=\"99\" height=\"84\" rx=\"10\" fill=\"#fff\" stroke=\"#1d4ed8\" stroke-width=\"1.5\"/><text x=\"70\" y=\"77\" font-size=\"13\" font-weight=\"700\" text-anchor=\"middle\" fill=\"#0f172a\">Commits piégés</text><text x=\"70\" y=\"99\" font-size=\"11\" text-anchor=\"middle\" fill=\"#334155\">dépôt Berri-AI</text><line x1=\"122\" y1=\"85\" x2=\"142\" y2=\"85\" stroke=\"#1d4ed8\" stroke-width=\"2\" marker-end=\"url(#a)\"/><rect x=\"145\" y=\"43\" width=\"99\" height=\"84\" rx=\"10\" fill=\"#fff\" stroke=\"#1d4ed8\" stroke-width=\"1.5\"/><text x=\"195\" y=\"77\" font-size=\"13\" font-weight=\"700\" text-anchor=\"middle\" fill=\"#0f172a\">Publication</text><text x=\"195\" y=\"99\" font-size=\"11\" text-anchor=\"middle\" fill=\"#334155\">pipeline de release</text><line x1=\"247\" y1=\"85\" x2=\"267\" y2=\"85\" stroke=\"#1d4ed8\" stroke-width=\"2\" marker-end=\"url(#a)\"/><rect x=\"270\" y=\"43\" width=\"99\" height=\"84\" rx=\"10\" fill=\"#fff\" stroke=\"#1d4ed8\" stroke-width=\"1.5\"/><text x=\"320\" y=\"77\" font-size=\"13\" font-weight=\"700\" text-anchor=\"middle\" fill=\"#0f172a\">PyPI et Docker</text><text x=\"320\" y=\"99\" font-size=\"11\" text-anchor=\"middle\" fill=\"#334155\">version 1.107.0</text><line x1=\"373\" y1=\"85\" x2=\"393\" y2=\"85\" stroke=\"#1d4ed8\" stroke-width=\"2\" marker-end=\"url(#a)\"/><rect x=\"396\" y=\"43\" width=\"99\" height=\"84\" rx=\"10\" fill=\"#fff\" stroke=\"#1d4ed8\" stroke-width=\"1.5\"/><text x=\"445\" y=\"77\" font-size=\"13\" font-weight=\"700\" text-anchor=\"middle\" fill=\"#0f172a\">Python démarre</text><text x=\"445\" y=\"99\" font-size=\"11\" text-anchor=\"middle\" fill=\"#334155\">cook.pth s&#x27;exécute</text><line x1=\"498\" y1=\"85\" x2=\"518\" y2=\"85\" stroke=\"#1d4ed8\" stroke-width=\"2\" marker-end=\"url(#a)\"/><rect x=\"521\" y=\"43\" width=\"99\" height=\"84\" rx=\"10\" fill=\"#fff\" stroke=\"#1d4ed8\" stroke-width=\"1.5\"/><text x=\"570\" y=\"77\" font-size=\"13\" font-weight=\"700\" text-anchor=\"middle\" fill=\"#0f172a\">Vol et accès</text><text x=\"570\" y=\"99\" font-size=\"11\" text-anchor=\"middle\" fill=\"#334155\">secrets + cheval de Troie</text></svg>",
+          "alt": "Schéma en cinq étapes : commits piégés, pipeline de publication, diffusion sur PyPI et Docker, exécution automatique au démarrage de Python, vol de secrets et accès distant.",
+          "caption": "De la compromission du dépôt à l'exécution du code malveillant : aucune action de l'utilisateur n'est nécessaire après l'installation."
+        },
+        {
+          "type": "heading",
+          "level": 2,
+          "text": "Comment savoir si l'on est concerné"
+        },
+        {
+          "type": "paragraph",
+          "text": "Ilyas Makari, d'Aikido Security, recommande de rechercher deux fichiers temporaires. La présence de `/tmp/.pc_once_*` indique que l'exfiltration a déjà eu lieu ; celle de `/tmp/remote_code_loader.lock` signale que le démon de commande à distance s'est exécuté, voire tourne encore. Les mêmes vérifications valent pour l'image Docker officielle 1.107.0 et pour celles récupérées via les étiquettes `latest`, `main-latest` ou `main-stable` pendant la fenêtre d'exposition."
+        },
+        {
+          "type": "list",
+          "items": [
+            "suspendre tout déploiement de la version 1.107.0 et des images concernées ;",
+            "examiner les environnements où Python a été lancé après l'installation, y compris les conteneurs de proxy et les exécuteurs d'intégration continue, comme le conseille Socket ;",
+            "considérer tous les secrets présents sur ces systèmes comme compromis et les renouveler ;",
+            "consulter les guides de chasse aux menaces publiés par Aikido, Wiz et Socket."
+          ]
+        },
+        {
+          "type": "usecases",
+          "title": "Exemples d'utilisation",
+          "items": [
+            {
+              "icon": "🏗️",
+              "title": "Une équipe plateforme avec un proxy d'IA",
+              "text": "Une équipe qui héberge LiteLLM dans un conteneur partagé par plusieurs applications doit retrouver quelle image a été tirée, puis faire tourner toutes les clés de modèles qui y étaient accessibles."
+            },
+            {
+              "icon": "🔁",
+              "title": "Une chaîne d'intégration continue",
+              "text": "Un pipeline qui installe la dernière version sans l'épingler a pu embarquer le paquet piégé : il faut inspecter les journaux de build et les secrets exposés aux exécuteurs."
+            },
+            {
+              "icon": "💻",
+              "title": "Un poste de développeur",
+              "text": "Un développeur qui a mis à jour LiteLLM dans son environnement virtuel doit vérifier les fichiers temporaires, puis changer ses clés SSH et ses jetons cloud."
+            }
+          ]
+        },
+        {
+          "type": "timeline",
+          "title": "D'où l'on vient, où l'on va",
+          "items": [
+            {
+              "label": "Mars 2026",
+              "text": "Une première compromission de LiteLLM aurait touché plus de 2 500 organisations, d'après CloudSEK."
+            },
+            {
+              "label": "21 octobre 2026, 11 h 39 UTC",
+              "text": "La version 1.107.0 est mise en ligne."
+            },
+            {
+              "label": "Quelques heures plus tard",
+              "text": "PyPI met la version en quarantaine ; l'image Docker est retirée de Docker Hub et de GHCR."
+            },
+            {
+              "label": "À suivre",
+              "text": "Les analyses détaillées d'Aikido, Wiz et Socket, et la réponse de BerriAI, qui n'avait pas répondu à The Register à la publication de l'article."
+            }
+          ]
+        },
+        {
+          "type": "opinion",
+          "title": "Notre avis",
+          "paragraphs": [
+            "Cette attaque rappelle que la confiance accordée à un paquet ne se limite pas à son code : elle dépend aussi de la sécurité de son pipeline de publication. Ici, un dépôt aux allures légitimes a suffi pour introduire trois fichiers dans la chaîne de release. Les passerelles d'IA concentrent des clés de plusieurs fournisseurs, si bien qu'une seule compromission donne accès à un large éventail de services.",
+            "D'ici un à trois ans, on peut raisonnablement s'attendre à voir se généraliser l'épinglage strict des versions, la vérification des signatures et des attestations de provenance, ainsi que l'usage de secrets à courte durée de vie plutôt que de clés permanentes. C'est une analyse, pas un constat : tout dépendra de la rapidité avec laquelle les équipes accepteront les contraintes que ces pratiques imposent."
+          ],
+          "verdict": "Un outil placé au cœur des secrets doit être traité comme une infrastructure critique, avec des versions épinglées et des clés qui se renouvellent vite."
+        },
+        {
+          "type": "callout",
+          "variant": "info",
+          "title": "À retenir",
+          "text": "Si la version 1.107.0 de LiteLLM (ou une image Docker obtenue pendant la période d'exposition) a été exécutée, il faut supposer que les secrets de la machine sont volés et les renouveler. La dernière version saine connue est la 1.106.2."
+        }
+      ],
+      "illustration": {
+        "svg": "<svg xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"0 0 640 360\"><defs><linearGradient id=\"g\" x1=\"0\" y1=\"0\" x2=\"1\" y2=\"1\"><stop offset=\"0\" stop-color=\"hsl(175,65%,38%)\"/><stop offset=\"1\" stop-color=\"hsl(215,70%,22%)\"/></linearGradient></defs><rect width=\"640\" height=\"360\" fill=\"url(#g)\"/><circle cx=\"382\" cy=\"63\" r=\"40\" fill=\"#fff\" opacity=\"0.12\"/><circle cx=\"229\" cy=\"200\" r=\"41\" fill=\"#fff\" opacity=\"0.12\"/><circle cx=\"113\" cy=\"198\" r=\"41\" fill=\"#fff\" opacity=\"0.06\"/><circle cx=\"117\" cy=\"76\" r=\"39\" fill=\"#fff\" opacity=\"0.09\"/><circle cx=\"319\" cy=\"127\" r=\"18\" fill=\"#fff\" opacity=\"0.06\"/><circle cx=\"358\" cy=\"95\" r=\"23\" fill=\"#fff\" opacity=\"0.09\"/><circle cx=\"169\" cy=\"111\" r=\"33\" fill=\"#fff\" opacity=\"0.06\"/><circle cx=\"320\" cy=\"140\" r=\"78\" fill=\"#fff\" opacity=\"0.16\"/><circle cx=\"320\" cy=\"140\" r=\"56\" fill=\"#fff\" opacity=\"0.18\"/><text x=\"320\" y=\"165\" font-size=\"76\" text-anchor=\"middle\">📦</text><rect x=\"60\" y=\"250\" width=\"465\" height=\"6\" rx=\"3\" fill=\"#fff\" opacity=\"0.35\"/><rect x=\"68\" y=\"268\" width=\"352\" height=\"6\" rx=\"3\" fill=\"#fff\" opacity=\"0.28\"/><rect x=\"76\" y=\"286\" width=\"420\" height=\"6\" rx=\"3\" fill=\"#fff\" opacity=\"0.21\"/><rect x=\"84\" y=\"304\" width=\"308\" height=\"6\" rx=\"3\" fill=\"#fff\" opacity=\"0.14\"/></svg>"
+      },
+      "cover": {
+        "url": "https://image.theregister.com/244835.jpg?imageId=244835&x=0&y=0&cropw=100&croph=100&panox=0&panoy=0&panow=100&panoh=100&width=1200&height=683",
+        "alt": "Visuel illustrant l'attaque contre la chaîne d'approvisionnement de LiteLLM",
+        "credit": "theregister.com"
+      },
+      "readingMinutes": 5,
+      "publishedAt": "2026-10-22T05:18:37+02:00"
+    },
+    {
+      "id": "cybersecurite-php2shell-chainguard-embargo",
+      "category": "cybersecurite",
+      "icon": "⚖️",
+      "importance": 4,
+      "sourceDate": "2026-10-22",
+      "title": "PHP2Shell : la fondation PHP accuse Chainguard d'avoir rompu l'embargo, l'entreprise se défend",
+      "summary": "Après la publication des correctifs d'urgence, un différend oppose les mainteneurs de PHP à Chainguard, qui a diffusé des images corrigées plus de six heures avant l'annonce coordonnée.",
+      "tags": [
+        "PHP",
+        "divulgation coordonnée",
+        "Chainguard",
+        "CVE-2026-109618",
+        "CVE-2026-109619"
+      ],
+      "sources": [
+        {
+          "title": "PHP blames supply chain security biz Chainguard for putting huge chunks of the web at risk",
+          "url": "https://www.theregister.com/security/2026/10/22/php-blames-supply-chain-security-biz-chainguard-for-putting-huge-chunks-of-the-web-at-risk/5304611",
+          "publisher": "The Register"
+        }
+      ],
+      "blocks": [
+        {
+          "type": "paragraph",
+          "text": "Les deux failles critiques de PHP regroupées sous le nom **PHP2Shell**, corrigées en urgence mercredi 21 octobre 2026, ont ouvert un second front : celui de la divulgation. Selon The Register, la fondation PHP reproche à l'éditeur de sécurité Chainguard d'avoir publié des images contenant le correctif plus de six heures avant la date coordonnée, ce qui aurait permis à des attaquants d'étudier la rustine sous forme binaire. Le PDG de Chainguard, Dan Lorenc, ne conteste pas la chronologie mais affirme que son entreprise n'a rien fait fuiter."
+        },
+        {
+          "type": "paragraph",
+          "text": "Les failles sont suivies sous les références CVE-2026-109618 et CVE-2026-109619. Chacune peut permettre à un attaquant non authentifié d'exécuter du code sur un serveur qui fait tourner PHP. Des chercheurs de Calif, d'OpenAI et de Wiz les ont signalées entre août et septembre, et tous trois disent avoir utilisé des modèles d'IA pour les trouver. Wiz rappelle que toutes les versions publiées depuis dix ans, jusqu'à la 5.4, sont touchées."
+        },
+        {
+          "type": "heading",
+          "level": 2,
+          "text": "Deux failles de corruption de mémoire"
+        },
+        {
+          "type": "keyvalue",
+          "items": [
+            {
+              "label": "CVE-2026-109618",
+              "value": "Dépassement de mémoire : si une requête atteint la limite de mémoire de PHP au mauvais moment, des données partiellement initialisées sont traitées comme valides. Avec Apache et mod_php, une requête non authentifiée peut le déclencher avant tout code applicatif."
+            },
+            {
+              "label": "CVE-2026-109619",
+              "value": "État résiduel : une erreur fatale à un instant précis peut laisser l'état interne pointer vers la mémoire d'une requête précédente ; une requête suivante sur le même processus utilise alors de la mémoire libérée. Une exécution de code à distance a été démontrée contre une vraie application sous Apache avec mod_php."
+            }
+          ]
+        },
+        {
+          "type": "heading",
+          "level": 2,
+          "text": "Deux récits qui divergent"
+        },
+        {
+          "type": "paragraph",
+          "text": "Côté fondation PHP, le mardi 20 octobre vers 15 h UTC, deux identifiants CVE ont commencé à circuler sur des forums, avec un calendrier et des niveaux de gravité erronés. Les mainteneurs ont alors averti les utilisateurs et avancé la divulgation d'un jour, du jeudi au mercredi, car les distributions finissaient encore de préparer leurs paquets. Quelques heures plus tard, Calif a, selon la fondation, publié par erreur une vidéo montrant un code d'exploitation de démonstration. Des conseils de contournement transmis à quelques fournisseurs d'infrastructures critiques vers 23 h UTC ont peut-être fuité eux aussi. Enfin, le mercredi à 7 h 41 UTC, Chainguard a mis en ligne ses images corrigées, soit plus de six heures avant la publication coordonnée : un geste que la fondation juge contraire à des semaines de travail concerté."
+        },
+        {
+          "type": "paragraph",
+          "text": "Côté Chainguard, Dan Lorenc explique que, le vendredi précédent, un chercheur l'a prévenu que « quelque chose arrivait » dans PHP. L'équipe a lancé la nuit même son propre outil d'analyse assisté par un modèle de pointe et retrouvé de manière indépendante les mêmes bogues, un simple prompt demandant de chercher des vulnérabilités ayant suffi, dit-il. Le samedi, elle a travaillé avec les mainteneurs et testé des correctifs. Les rumeurs ont enflé lundi et mardi, des démonstrations d'exploitation ont circulé et d'autres éditeurs ont signalé des attaques réelles : Lorenc a donc décidé, mardi soir, de livrer les correctifs, après avoir prévenu le canal de divulgation de PHP. Les honeypots de l'entreprise ont enregistré mercredi des adresses IP venues de Chine et de Russie visant ces failles."
+        },
+        {
+          "type": "diagram",
+          "svg": "<svg xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"0 0 640 170\" font-family=\"system-ui,sans-serif\"><defs><marker id=\"a\" markerWidth=\"8\" markerHeight=\"8\" refX=\"6\" refY=\"4\" orient=\"auto\"><path d=\"M0 0 L8 4 L0 8z\" fill=\"#b45309\"/></marker></defs><rect width=\"640\" height=\"170\" rx=\"14\" fill=\"#f1f5f9\"/><rect x=\"20\" y=\"43\" width=\"99\" height=\"84\" rx=\"10\" fill=\"#fff\" stroke=\"#b45309\" stroke-width=\"1.5\"/><text x=\"70\" y=\"77\" font-size=\"13\" font-weight=\"700\" text-anchor=\"middle\" fill=\"#0f172a\">Mardi 20 octobre</text><text x=\"70\" y=\"99\" font-size=\"11\" text-anchor=\"middle\" fill=\"#334155\">fuite de deux CVE</text><line x1=\"122\" y1=\"85\" x2=\"142\" y2=\"85\" stroke=\"#b45309\" stroke-width=\"2\" marker-end=\"url(#a)\"/><rect x=\"145\" y=\"43\" width=\"99\" height=\"84\" rx=\"10\" fill=\"#fff\" stroke=\"#b45309\" stroke-width=\"1.5\"/><text x=\"195\" y=\"77\" font-size=\"13\" font-weight=\"700\" text-anchor=\"middle\" fill=\"#0f172a\">Mardi, plus tard</text><text x=\"195\" y=\"99\" font-size=\"11\" text-anchor=\"middle\" fill=\"#334155\">vidéo de Calif</text><line x1=\"247\" y1=\"85\" x2=\"267\" y2=\"85\" stroke=\"#b45309\" stroke-width=\"2\" marker-end=\"url(#a)\"/><rect x=\"270\" y=\"43\" width=\"99\" height=\"84\" rx=\"10\" fill=\"#fff\" stroke=\"#b45309\" stroke-width=\"1.5\"/><text x=\"320\" y=\"77\" font-size=\"13\" font-weight=\"700\" text-anchor=\"middle\" fill=\"#0f172a\">Mercredi 7 h 41 UTC</text><text x=\"320\" y=\"99\" font-size=\"11\" text-anchor=\"middle\" fill=\"#334155\">images Chainguard</text><line x1=\"373\" y1=\"85\" x2=\"393\" y2=\"85\" stroke=\"#b45309\" stroke-width=\"2\" marker-end=\"url(#a)\"/><rect x=\"396\" y=\"43\" width=\"99\" height=\"84\" rx=\"10\" fill=\"#fff\" stroke=\"#b45309\" stroke-width=\"1.5\"/><text x=\"445\" y=\"77\" font-size=\"13\" font-weight=\"700\" text-anchor=\"middle\" fill=\"#0f172a\">Mercredi 21 octobre</text><text x=\"445\" y=\"99\" font-size=\"11\" text-anchor=\"middle\" fill=\"#334155\">correctifs PHP publiés</text><line x1=\"498\" y1=\"85\" x2=\"518\" y2=\"85\" stroke=\"#b45309\" stroke-width=\"2\" marker-end=\"url(#a)\"/><rect x=\"521\" y=\"43\" width=\"99\" height=\"84\" rx=\"10\" fill=\"#fff\" stroke=\"#b45309\" stroke-width=\"1.5\"/><text x=\"570\" y=\"77\" font-size=\"13\" font-weight=\"700\" text-anchor=\"middle\" fill=\"#0f172a\">Mercredi</text><text x=\"570\" y=\"99\" font-size=\"11\" text-anchor=\"middle\" fill=\"#334155\">attaques observées</text></svg>",
+          "alt": "Chronologie en cinq étapes : fuite des identifiants CVE, vidéo de démonstration, images Chainguard, correctifs officiels de PHP, premières attaques observées.",
+          "caption": "Chronologie telle que la rapportent la fondation PHP et Chainguard, d'après The Register : les heures précises sont celles des deux parties."
+        },
+        {
+          "type": "usecases",
+          "title": "Ce que cela change concrètement",
+          "items": [
+            {
+              "icon": "🛡️",
+              "title": "Un hébergeur mutualisé",
+              "text": "Un hébergeur qui attend la publication officielle pour mettre à jour ses serveurs doit désormais prévoir des correctifs en quelques heures, puisque l'embargo peut céder avant l'heure annoncée."
+            },
+            {
+              "icon": "🏢",
+              "title": "Une DSI avec de vieux sites",
+              "text": "Une entreprise qui fait tourner d'anciennes versions de PHP sans correctif officiel doit isoler ces serveurs ou les retirer d'Internet, faute de rustine pour toutes les branches."
+            },
+            {
+              "icon": "🔎",
+              "title": "Un éditeur de sécurité",
+              "text": "Une société qui détecte seule une faille grâce à l'IA doit décider quand publier : coordonner longtemps ou protéger ses clients dès que les rumeurs montent."
+            }
+          ]
+        },
+        {
+          "type": "timeline",
+          "title": "D'où l'on vient, où l'on va",
+          "items": [
+            {
+              "label": "Août et septembre 2026",
+              "text": "Calif, OpenAI et Wiz signalent les failles, en s'appuyant sur des modèles d'IA."
+            },
+            {
+              "label": "20 octobre 2026",
+              "text": "Deux identifiants CVE circulent publiquement ; la divulgation est avancée au mercredi."
+            },
+            {
+              "label": "21 octobre 2026",
+              "text": "Chainguard publie ses images à 7 h 41 UTC, puis les correctifs d'urgence de PHP sortent."
+            },
+            {
+              "label": "22 octobre 2026",
+              "text": "La fondation PHP accuse Chainguard ; le PDG de l'entreprise ne compte pas changer d'approche."
+            }
+          ]
+        },
+        {
+          "type": "opinion",
+          "title": "Notre avis",
+          "paragraphs": [
+            "Le différend dit quelque chose de plus large que les torts de l'un ou de l'autre. Quand n'importe qui peut retrouver une faille en quelques heures avec un modèle d'IA, un embargo dépend de la discrétion de dizaines d'acteurs, et la moindre fuite ouvre une course contre la montre. L'argument de Chainguard, protéger les utilisateurs dès que l'exploitation devient plausible, se défend ; celui de la fondation, qui insiste sur la coordination et sur le risque de livrer un correctif lisible avant tout le monde, aussi.",
+            "À un horizon d'un à trois ans, on peut s'attendre à des règles de divulgation plus explicites entre mainteneurs, éditeurs et distributeurs, avec des fenêtres plus courtes. Cette projection reste une opinion : rien n'indique encore qu'un consensus se dessine."
+          ],
+          "verdict": "Avec l'IA, le délai entre rumeur et exploitation se compte en heures : les processus de divulgation coordonnée doivent être repensés."
+        },
+        {
+          "type": "callout",
+          "variant": "info",
+          "title": "À retenir",
+          "text": "Les correctifs PHP sont publiés depuis le 21 octobre 2026 ; les systèmes dépourvus de correctif officiel restent exposés et l'ampleur des exploitations est encore inconnue."
+        }
+      ],
+      "illustration": {
+        "svg": "<svg xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"0 0 640 360\"><defs><linearGradient id=\"g\" x1=\"0\" y1=\"0\" x2=\"1\" y2=\"1\"><stop offset=\"0\" stop-color=\"hsl(175,65%,38%)\"/><stop offset=\"1\" stop-color=\"hsl(215,70%,22%)\"/></linearGradient></defs><rect width=\"640\" height=\"360\" fill=\"url(#g)\"/><circle cx=\"542\" cy=\"129\" r=\"35\" fill=\"#fff\" opacity=\"0.06\"/><circle cx=\"115\" cy=\"185\" r=\"39\" fill=\"#fff\" opacity=\"0.09\"/><circle cx=\"106\" cy=\"99\" r=\"23\" fill=\"#fff\" opacity=\"0.09\"/><circle cx=\"431\" cy=\"191\" r=\"42\" fill=\"#fff\" opacity=\"0.12\"/><circle cx=\"352\" cy=\"137\" r=\"30\" fill=\"#fff\" opacity=\"0.06\"/><circle cx=\"227\" cy=\"175\" r=\"27\" fill=\"#fff\" opacity=\"0.06\"/><circle cx=\"212\" cy=\"159\" r=\"25\" fill=\"#fff\" opacity=\"0.06\"/><circle cx=\"320\" cy=\"140\" r=\"78\" fill=\"#fff\" opacity=\"0.16\"/><circle cx=\"320\" cy=\"140\" r=\"56\" fill=\"#fff\" opacity=\"0.18\"/><text x=\"320\" y=\"165\" font-size=\"76\" text-anchor=\"middle\">⚖️</text><rect x=\"60\" y=\"250\" width=\"425\" height=\"6\" rx=\"3\" fill=\"#fff\" opacity=\"0.35\"/><rect x=\"68\" y=\"268\" width=\"294\" height=\"6\" rx=\"3\" fill=\"#fff\" opacity=\"0.28\"/><rect x=\"76\" y=\"286\" width=\"388\" height=\"6\" rx=\"3\" fill=\"#fff\" opacity=\"0.21\"/><rect x=\"84\" y=\"304\" width=\"350\" height=\"6\" rx=\"3\" fill=\"#fff\" opacity=\"0.14\"/></svg>"
+      },
+      "cover": {
+        "url": "https://image.theregister.com/5304620.jpg?imageId=5304620&x=0&y=0&cropw=100&croph=100&panox=0&panoy=0&panow=100&panoh=100&width=1200&height=683",
+        "alt": "Visuel illustrant le différend entre PHP et Chainguard",
+        "credit": "theregister.com"
+      },
+      "readingMinutes": 4,
+      "publishedAt": "2026-10-22T05:18:37+02:00"
+    },
+    {
+      "id": "cybersecurite-lazarus-flashhole-cryptographie-post-quantique",
+      "category": "cybersecurite",
+      "icon": "🧬",
+      "importance": 3,
+      "sourceDate": "2026-10-21",
+      "title": "Lazarus : l'opération FlashHole utilise la cryptographie post-quantique pour masquer ses charges utiles",
+      "summary": "Kaspersky décrit une campagne du groupe nord-coréen contre des organisations sud-coréennes, où l'échange de clés ML-KEM protège la livraison des logiciels malveillants.",
+      "tags": [
+        "Lazarus",
+        "Kaspersky",
+        "ML-KEM",
+        "FlashHole",
+        "Corée du Sud"
+      ],
+      "sources": [
+        {
+          "title": "Lazarus hackers use post-quantum cryptography for malware delivery",
+          "url": "https://www.bleepingcomputer.com/news/security/lazarus-hackers-use-post-quantum-cryptography-for-malware-delivery/",
+          "publisher": "BleepingComputer"
+        },
+        {
+          "title": "Operation FlashHole: Lazarus breaks security, defies control",
+          "url": "https://securelist.com/lazarus-operation-flashhole/121541/",
+          "publisher": "Securelist (Kaspersky)"
+        }
+      ],
+      "blocks": [
+        {
+          "type": "paragraph",
+          "text": "Le groupe nord-coréen **Lazarus** mène une campagne contre des organisations sud-coréennes dans laquelle il emploie le mécanisme cryptographique post-quantique **ML-KEM** pour protéger la livraison de ses charges malveillantes depuis son serveur de commande et de contrôle. C'est ce que rapporte BleepingComputer à partir d'une analyse de Kaspersky, qui a baptisé l'opération **FlashHole**. Les attaques ont débuté en juillet 2025, et la chaîne d'infection est décrite comme « plutôt complexe », mêlant des outils anciens et récents."
+        },
+        {
+          "type": "paragraph",
+          "text": "ML-KEM est un standard approuvé par le NIST, déjà intégré à plusieurs projets logiciels pour se prémunir contre la stratégie « récolter maintenant, déchiffrer plus tard ». Ici, il ne sert pas à protéger des données contre un futur ordinateur quantique, mais à compliquer l'analyse du trafic et des charges utiles : un détournement d'une brique défensive à des fins offensives."
+        },
+        {
+          "type": "heading",
+          "level": 2,
+          "text": "Une chaîne d'infection en mémoire"
+        },
+        {
+          "type": "paragraph",
+          "text": "Les victimes reçoivent des pages d'hameçonnage qui renvoient vers des pages GitHub spécialement conçues. Celles-ci chargent du JavaScript depuis des domaines externes, ce qui lance une exécution en mémoire. La chaîne s'appuie sur INISAFE CrossWeb EX, un outil de sécurité répandu en Corée du Sud : son processus exécute le binaire Windows légitime `fsquirt.exe`, qui lance un code machine installant **TechHub**, un téléchargeur. TechHub récupère à son tour d'autres logiciels malveillants depuis des dépôts GitHub privés."
+        },
+        {
+          "type": "keyvalue",
+          "items": [
+            {
+              "label": "LPEClient",
+              "value": "Outil déjà associé à Lazarus : il profile la victime, reçoit des charges chiffrées via ClientHub et tente d'échapper à la surveillance."
+            },
+            {
+              "label": "ClientHub",
+              "value": "Chargeur qui gère les communications via Dropbox et les échanges directs avec LPEClient."
+            },
+            {
+              "label": "Cubridge",
+              "value": "Porte dérobée modulaire : gestion de fichiers, exécution de commandes, reconnaissance, captures d'écran et chargement de charges supplémentaires."
+            },
+            {
+              "label": "Voleurs de navigateurs",
+              "value": "Outils ciblant les navigateurs Chromium pour dérober identifiants, cookies et historique."
+            }
+          ]
+        },
+        {
+          "type": "heading",
+          "level": 2,
+          "text": "Le rôle de ML-KEM-1024"
+        },
+        {
+          "type": "paragraph",
+          "text": "LPEClient récupère auprès du serveur un tableau d'octets formé de quatre blocs de 1 568 octets, chacun contenant une clé publique ML-KEM-1024. À partir de ces blocs, il génère quatre couples de secrets partagés et de textes chiffrés. Il chiffre ces derniers avec l'algorithme GOST, puis les renvoie au serveur via ClientHub. Les secrets partagés fournissent le matériel de clé pour Threefish, qui déchiffre la réponse du serveur : paramètres et exécutable. La charge finale, Cubridge, est chargée de façon réflexive en mémoire. Selon Kaspersky, cette méthode, combinée à l'exécution en mémoire, réduit au minimum le risque de détection."
+        },
+        {
+          "type": "diagram",
+          "svg": "<svg xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"0 0 640 170\" font-family=\"system-ui,sans-serif\"><defs><marker id=\"a\" markerWidth=\"8\" markerHeight=\"8\" refX=\"6\" refY=\"4\" orient=\"auto\"><path d=\"M0 0 L8 4 L0 8z\" fill=\"#7c3aed\"/></marker></defs><rect width=\"640\" height=\"170\" rx=\"14\" fill=\"#f1f5f9\"/><rect x=\"20\" y=\"43\" width=\"99\" height=\"84\" rx=\"10\" fill=\"#fff\" stroke=\"#7c3aed\" stroke-width=\"1.5\"/><text x=\"70\" y=\"77\" font-size=\"13\" font-weight=\"700\" text-anchor=\"middle\" fill=\"#0f172a\">Hameçonnage</text><text x=\"70\" y=\"99\" font-size=\"11\" text-anchor=\"middle\" fill=\"#334155\">page GitHub piégée</text><line x1=\"122\" y1=\"85\" x2=\"142\" y2=\"85\" stroke=\"#7c3aed\" stroke-width=\"2\" marker-end=\"url(#a)\"/><rect x=\"145\" y=\"43\" width=\"99\" height=\"84\" rx=\"10\" fill=\"#fff\" stroke=\"#7c3aed\" stroke-width=\"1.5\"/><text x=\"195\" y=\"77\" font-size=\"13\" font-weight=\"700\" text-anchor=\"middle\" fill=\"#0f172a\">TechHub</text><text x=\"195\" y=\"99\" font-size=\"11\" text-anchor=\"middle\" fill=\"#334155\">téléchargeur</text><line x1=\"247\" y1=\"85\" x2=\"267\" y2=\"85\" stroke=\"#7c3aed\" stroke-width=\"2\" marker-end=\"url(#a)\"/><rect x=\"270\" y=\"43\" width=\"99\" height=\"84\" rx=\"10\" fill=\"#fff\" stroke=\"#7c3aed\" stroke-width=\"1.5\"/><text x=\"320\" y=\"77\" font-size=\"13\" font-weight=\"700\" text-anchor=\"middle\" fill=\"#0f172a\">LPEClient</text><text x=\"320\" y=\"99\" font-size=\"11\" text-anchor=\"middle\" fill=\"#334155\">échange ML-KEM-1024</text><line x1=\"373\" y1=\"85\" x2=\"393\" y2=\"85\" stroke=\"#7c3aed\" stroke-width=\"2\" marker-end=\"url(#a)\"/><rect x=\"396\" y=\"43\" width=\"99\" height=\"84\" rx=\"10\" fill=\"#fff\" stroke=\"#7c3aed\" stroke-width=\"1.5\"/><text x=\"445\" y=\"77\" font-size=\"13\" font-weight=\"700\" text-anchor=\"middle\" fill=\"#0f172a\">ClientHub</text><text x=\"445\" y=\"99\" font-size=\"11\" text-anchor=\"middle\" fill=\"#334155\">relais chiffré</text><line x1=\"498\" y1=\"85\" x2=\"518\" y2=\"85\" stroke=\"#7c3aed\" stroke-width=\"2\" marker-end=\"url(#a)\"/><rect x=\"521\" y=\"43\" width=\"99\" height=\"84\" rx=\"10\" fill=\"#fff\" stroke=\"#7c3aed\" stroke-width=\"1.5\"/><text x=\"570\" y=\"77\" font-size=\"13\" font-weight=\"700\" text-anchor=\"middle\" fill=\"#0f172a\">Cubridge</text><text x=\"570\" y=\"99\" font-size=\"11\" text-anchor=\"middle\" fill=\"#334155\">porte dérobée en mémoire</text></svg>",
+          "alt": "Schéma de la chaîne d'infection de l'opération FlashHole : hameçonnage, TechHub, LPEClient avec échange ML-KEM-1024, ClientHub puis Cubridge.",
+          "caption": "Chaîne d'infection simplifiée d'après la description de Kaspersky rapportée par BleepingComputer."
+        },
+        {
+          "type": "paragraph",
+          "text": "Kaspersky a identifié au moins trois entreprises sud-coréennes touchées, dans le logiciel, la construction et la fabrication d'équipements de communication filaire, et soupçonne que de nombreuses autres organisations l'ont été. L'éditeur attribue FlashHole à Lazarus, la rattache à l'activité plus large Cascade Hole et la relie avec une confiance moyenne à élevée à l'opération SyncHole, plus ancienne. L'article de BleepingComputer ne détaille pas de mesures défensives."
+        },
+        {
+          "type": "usecases",
+          "title": "Exemples d'utilisation",
+          "items": [
+            {
+              "icon": "🏭",
+              "title": "Une PME industrielle sud-coréenne",
+              "text": "Une entreprise de fabrication qui utilise un outil de sécurité bancaire ou web local doit contrôler les processus enfants lancés par cet outil, comme l'exécution inattendue de `fsquirt.exe`."
+            },
+            {
+              "icon": "🔍",
+              "title": "Une équipe de détection",
+              "text": "Une équipe de SOC peut surveiller les accès sortants vers des dépôts GitHub privés et des services comme Dropbox depuis des postes qui n'en ont pas l'usage."
+            },
+            {
+              "icon": "📚",
+              "title": "Un chercheur en menaces",
+              "text": "Un analyste qui voit du trafic chiffré inhabituel doit savoir que des mécanismes post-quantiques peuvent désormais apparaître dans des codes malveillants."
+            }
+          ]
+        },
+        {
+          "type": "timeline",
+          "title": "D'où l'on vient, où l'on va",
+          "items": [
+            {
+              "label": "Juillet 2025",
+              "text": "Début des attaques de l'opération FlashHole, selon Kaspersky."
+            },
+            {
+              "label": "Date non précisée",
+              "text": "L'opération SyncHole, plus ancienne, à laquelle Kaspersky relie FlashHole avec une confiance moyenne à élevée."
+            },
+            {
+              "label": "21 octobre 2026",
+              "text": "BleepingComputer relaie l'analyse publiée sur Securelist."
+            },
+            {
+              "label": "À suivre",
+              "text": "D'éventuels indicateurs de compromission complémentaires et d'autres victimes, que Kaspersky juge probables."
+            }
+          ]
+        },
+        {
+          "type": "opinion",
+          "title": "Notre avis",
+          "paragraphs": [
+            "L'emploi de ML-KEM par un groupe offensif n'est pas une menace quantique : l'algorithme sert ici à rendre l'analyse plus laborieuse, pas à casser quoi que ce soit. L'intérêt est ailleurs. Les standards cryptographiques récents sont librement disponibles, et rien n'empêche des groupes organisés de les adopter aussi vite que les défenseurs. Pour les analystes, cela ajoute une couche de déchiffrement avant d'accéder au contenu des échanges.",
+            "D'ici un à trois ans, on peut s'attendre à voir ce genre d'emprunts se multiplier, sans que cela change le fond : l'essentiel de la défense passera toujours par la détection comportementale, la limitation des privilèges et la surveillance des chaînes d'exécution en mémoire. Cette lecture est une opinion, pas un fait établi."
+          ],
+          "verdict": "La cryptographie post-quantique protège aussi les attaquants : la défense doit se concentrer sur les comportements, pas sur le contenu chiffré."
+        },
+        {
+          "type": "callout",
+          "variant": "info",
+          "title": "À retenir",
+          "text": "FlashHole combine hameçonnage, exécution en mémoire et échange de clés ML-KEM-1024 ; Kaspersky a recensé au moins trois victimes sud-coréennes et en soupçonne davantage."
+        }
+      ],
+      "illustration": {
+        "svg": "<svg xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"0 0 640 360\"><defs><linearGradient id=\"g\" x1=\"0\" y1=\"0\" x2=\"1\" y2=\"1\"><stop offset=\"0\" stop-color=\"hsl(175,65%,38%)\"/><stop offset=\"1\" stop-color=\"hsl(215,70%,22%)\"/></linearGradient></defs><rect width=\"640\" height=\"360\" fill=\"url(#g)\"/><circle cx=\"138\" cy=\"136\" r=\"45\" fill=\"#fff\" opacity=\"0.09\"/><circle cx=\"291\" cy=\"127\" r=\"19\" fill=\"#fff\" opacity=\"0.09\"/><circle cx=\"118\" cy=\"78\" r=\"23\" fill=\"#fff\" opacity=\"0.12\"/><circle cx=\"322\" cy=\"164\" r=\"29\" fill=\"#fff\" opacity=\"0.06\"/><circle cx=\"151\" cy=\"174\" r=\"35\" fill=\"#fff\" opacity=\"0.06\"/><circle cx=\"476\" cy=\"166\" r=\"41\" fill=\"#fff\" opacity=\"0.12\"/><circle cx=\"433\" cy=\"158\" r=\"23\" fill=\"#fff\" opacity=\"0.12\"/><circle cx=\"320\" cy=\"140\" r=\"78\" fill=\"#fff\" opacity=\"0.16\"/><circle cx=\"320\" cy=\"140\" r=\"56\" fill=\"#fff\" opacity=\"0.18\"/><text x=\"320\" y=\"165\" font-size=\"76\" text-anchor=\"middle\">🧬</text><rect x=\"60\" y=\"250\" width=\"418\" height=\"6\" rx=\"3\" fill=\"#fff\" opacity=\"0.35\"/><rect x=\"68\" y=\"268\" width=\"328\" height=\"6\" rx=\"3\" fill=\"#fff\" opacity=\"0.28\"/><rect x=\"76\" y=\"286\" width=\"255\" height=\"6\" rx=\"3\" fill=\"#fff\" opacity=\"0.21\"/><rect x=\"84\" y=\"304\" width=\"288\" height=\"6\" rx=\"3\" fill=\"#fff\" opacity=\"0.14\"/></svg>"
+      },
+      "readingMinutes": 4,
+      "publishedAt": "2026-10-22T05:18:37+02:00"
+    },
+    {
+      "id": "cybersecurite-onamae-desktop-cloud-serveurs-compromis",
+      "category": "cybersecurite",
+      "icon": "🖥️",
+      "importance": 4,
+      "sourceDate": "2026-10-21",
+      "title": "Onamae Desktop Cloud : des programmes malveillants installés sur jusqu'à 26 739 serveurs, tout le service est suspendu",
+      "summary": "Le fournisseur japonais de serveurs privés virtuels de GMO Internet a arrêté progressivement les serveurs de ses clients après une intrusion dans son infrastructure.",
+      "tags": [
+        "GMO Internet",
+        "VPS",
+        "Japon",
+        "intrusion",
+        "Desktop Cloud"
+      ],
+      "sources": [
+        {
+          "title": "Japan's Onamae Desktop Cloud hacked, up to 27,000 servers affected",
+          "url": "https://www.bleepingcomputer.com/news/security/japans-onamae-desktop-cloud-hacked-up-to-27-000-servers-affected/",
+          "publisher": "BleepingComputer"
+        }
+      ],
+      "blocks": [
+        {
+          "type": "paragraph",
+          "text": "Des pirates ont compromis l'infrastructure d'**Onamae Desktop Cloud**, un service japonais de serveurs privés virtuels, et installé des logiciels malveillants sur un nombre de serveurs de clients pouvant atteindre 26 739, selon BleepingComputer. Le service est exploité par GMO Internet, l'un des principaux bureaux d'enregistrement de noms de domaine du Japon, qui propose aussi de l'hébergement web, du DNS et d'autres services d'infrastructure. L'offre Desktop Cloud byGMO est notamment présentée comme adaptée aux transactions automatisées sur le marché des changes, avec un fonctionnement continu de la plateforme MetaTrader 4."
+        },
+        {
+          "type": "heading",
+          "level": 2,
+          "text": "Chronologie de l'incident"
+        },
+        {
+          "type": "keyvalue",
+          "items": [
+            {
+              "label": "20 octobre 2026",
+              "value": "L'entreprise confirme qu'un tiers non autorisé a installé des « programmes malveillants » dans certains environnements de clients."
+            },
+            {
+              "label": "21 octobre 2026, 4 h (heure locale)",
+              "value": "Après avoir détecté l'intrusion, elle commence à arrêter progressivement les serveurs de ses clients."
+            },
+            {
+              "label": "21 octobre 2026",
+              "value": "Une interruption de service est annoncée pour tous les forfaits Desktop Cloud, sans date de reprise."
+            }
+          ]
+        },
+        {
+          "type": "paragraph",
+          "text": "Selon l'entreprise, les données stockées sur les serveurs touchés ont pu être exposées, mais aucune utilisation abusive ni fuite n'est confirmée à ce stade. Les informations de paiement, comme les numéros de carte bancaire, ne seraient pas concernées, car elles sont conservées sur une infrastructure distincte. L'enquête se poursuit et GMO promet de communiquer à mesure que des éléments seront établis."
+        },
+        {
+          "type": "heading",
+          "level": 2,
+          "text": "Ce qui n'est pas encore connu"
+        },
+        {
+          "type": "list",
+          "items": [
+            "le vecteur d'attaque, c'est-à-dire la manière dont les pirates sont entrés ;",
+            "la nature des logiciels malveillants installés ;",
+            "l'identité de l'attaquant ;",
+            "la date de remise en service."
+          ]
+        },
+        {
+          "type": "paragraph",
+          "text": "Le fournisseur conseille aux clients qui ont enregistré des secrets, comme des mots de passe, sur leurs serveurs de les changer au plus vite. Il met aussi en garde contre un risque accru d'hameçonnage et rappelle qu'il ne demande jamais de mot de passe ni de numéro de carte par courriel ou par téléphone."
+        },
+        {
+          "type": "diagram",
+          "svg": "<svg xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"0 0 640 170\" font-family=\"system-ui,sans-serif\"><defs><marker id=\"a\" markerWidth=\"8\" markerHeight=\"8\" refX=\"6\" refY=\"4\" orient=\"auto\"><path d=\"M0 0 L8 4 L0 8z\" fill=\"#be123c\"/></marker></defs><rect width=\"640\" height=\"170\" rx=\"14\" fill=\"#f1f5f9\"/><rect x=\"20\" y=\"43\" width=\"99\" height=\"84\" rx=\"10\" fill=\"#fff\" stroke=\"#be123c\" stroke-width=\"1.5\"/><text x=\"70\" y=\"77\" font-size=\"13\" font-weight=\"700\" text-anchor=\"middle\" fill=\"#0f172a\">Intrusion</text><text x=\"70\" y=\"99\" font-size=\"11\" text-anchor=\"middle\" fill=\"#334155\">infrastructure d&#x27;Onamae</text><line x1=\"122\" y1=\"85\" x2=\"142\" y2=\"85\" stroke=\"#be123c\" stroke-width=\"2\" marker-end=\"url(#a)\"/><rect x=\"145\" y=\"43\" width=\"99\" height=\"84\" rx=\"10\" fill=\"#fff\" stroke=\"#be123c\" stroke-width=\"1.5\"/><text x=\"195\" y=\"77\" font-size=\"13\" font-weight=\"700\" text-anchor=\"middle\" fill=\"#0f172a\">Programmes installés</text><text x=\"195\" y=\"99\" font-size=\"11\" text-anchor=\"middle\" fill=\"#334155\">jusqu&#x27;à 26 739 serveurs</text><line x1=\"247\" y1=\"85\" x2=\"267\" y2=\"85\" stroke=\"#be123c\" stroke-width=\"2\" marker-end=\"url(#a)\"/><rect x=\"270\" y=\"43\" width=\"99\" height=\"84\" rx=\"10\" fill=\"#fff\" stroke=\"#be123c\" stroke-width=\"1.5\"/><text x=\"320\" y=\"77\" font-size=\"13\" font-weight=\"700\" text-anchor=\"middle\" fill=\"#0f172a\">Arrêt progressif</text><text x=\"320\" y=\"99\" font-size=\"11\" text-anchor=\"middle\" fill=\"#334155\">dès le 21 octobre, 4 h</text><line x1=\"373\" y1=\"85\" x2=\"393\" y2=\"85\" stroke=\"#be123c\" stroke-width=\"2\" marker-end=\"url(#a)\"/><rect x=\"396\" y=\"43\" width=\"99\" height=\"84\" rx=\"10\" fill=\"#fff\" stroke=\"#be123c\" stroke-width=\"1.5\"/><text x=\"445\" y=\"77\" font-size=\"13\" font-weight=\"700\" text-anchor=\"middle\" fill=\"#0f172a\">Suspension</text><text x=\"445\" y=\"99\" font-size=\"11\" text-anchor=\"middle\" fill=\"#334155\">tous les forfaits</text><line x1=\"498\" y1=\"85\" x2=\"518\" y2=\"85\" stroke=\"#be123c\" stroke-width=\"2\" marker-end=\"url(#a)\"/><rect x=\"521\" y=\"43\" width=\"99\" height=\"84\" rx=\"10\" fill=\"#fff\" stroke=\"#be123c\" stroke-width=\"1.5\"/><text x=\"570\" y=\"77\" font-size=\"13\" font-weight=\"700\" text-anchor=\"middle\" fill=\"#0f172a\">Enquête</text><text x=\"570\" y=\"99\" font-size=\"11\" text-anchor=\"middle\" fill=\"#334155\">vecteur inconnu</text></svg>",
+          "alt": "Schéma en cinq étapes de l'incident Onamae Desktop Cloud : intrusion, installation de programmes malveillants, arrêt progressif, suspension du service, enquête.",
+          "caption": "Déroulé de l'incident tel que l'a communiqué l'entreprise, d'après BleepingComputer."
+        },
+        {
+          "type": "usecases",
+          "title": "Exemples d'utilisation",
+          "items": [
+            {
+              "icon": "📈",
+              "title": "Un trader automatisé",
+              "text": "Un client qui faisait tourner un robot de trading sur son serveur doit suspendre toute activité, vérifier ses comptes de courtage et changer ses identifiants et clés d'API."
+            },
+            {
+              "icon": "🏢",
+              "title": "Une petite entreprise",
+              "text": "Une société qui hébergeait un bureau distant pour ses équipes doit prévoir un plan de continuité, puisqu'aucune date de reprise n'est annoncée."
+            },
+            {
+              "icon": "📨",
+              "title": "Un client méfiant",
+              "text": "Un utilisateur qui reçoit un courriel prétendant venir du fournisseur doit se connecter via le site officiel plutôt que de cliquer sur un lien, le risque d'hameçonnage étant élevé."
+            }
+          ]
+        },
+        {
+          "type": "timeline",
+          "title": "D'où l'on vient, où l'on va",
+          "items": [
+            {
+              "label": "20 octobre 2026",
+              "text": "Première confirmation d'une installation de programmes non autorisés sur des environnements clients."
+            },
+            {
+              "label": "21 octobre 2026",
+              "text": "Arrêt progressif des serveurs, puis suspension de tous les forfaits Desktop Cloud."
+            },
+            {
+              "label": "À suivre",
+              "text": "Les conclusions de l'enquête et la reprise du service, qui n'ont pas de date annoncée."
+            }
+          ]
+        },
+        {
+          "type": "opinion",
+          "title": "Notre avis",
+          "paragraphs": [
+            "Cet incident illustre le risque propre aux services où le fournisseur gère l'hyperviseur et les systèmes d'administration : une compromission de l'infrastructure se propage à des milliers de clients à la fois. L'arrêt volontaire des serveurs limite probablement la propagation, mais il met aussi à l'arrêt des activités continues, comme le trading automatisé, pour lesquelles une interruption a un coût direct.",
+            "Dans les un à trois ans à venir, les clients de services de ce type devraient exiger davantage de transparence sur la séparation entre infrastructure de gestion et machines clientes, ainsi que des sauvegardes hors du fournisseur. C'est une opinion : l'enquête n'a pas encore établi comment l'intrusion a eu lieu."
+          ],
+          "verdict": "Quand le fournisseur est compromis, le client ne peut compter que sur ses propres sauvegardes et sur ses secrets renouvelables."
+        },
+        {
+          "type": "callout",
+          "variant": "info",
+          "title": "À retenir",
+          "text": "Onamae Desktop Cloud est entièrement suspendu depuis le 21 octobre 2026 ; les clients concernés doivent renouveler les secrets stockés sur leurs serveurs et se méfier des courriels frauduleux."
+        }
+      ],
+      "illustration": {
+        "svg": "<svg xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"0 0 640 360\"><defs><linearGradient id=\"g\" x1=\"0\" y1=\"0\" x2=\"1\" y2=\"1\"><stop offset=\"0\" stop-color=\"hsl(175,65%,38%)\"/><stop offset=\"1\" stop-color=\"hsl(215,70%,22%)\"/></linearGradient></defs><rect width=\"640\" height=\"360\" fill=\"url(#g)\"/><circle cx=\"165\" cy=\"84\" r=\"19\" fill=\"#fff\" opacity=\"0.12\"/><circle cx=\"539\" cy=\"195\" r=\"42\" fill=\"#fff\" opacity=\"0.06\"/><circle cx=\"327\" cy=\"46\" r=\"25\" fill=\"#fff\" opacity=\"0.12\"/><circle cx=\"449\" cy=\"194\" r=\"26\" fill=\"#fff\" opacity=\"0.09\"/><circle cx=\"368\" cy=\"43\" r=\"32\" fill=\"#fff\" opacity=\"0.06\"/><circle cx=\"208\" cy=\"72\" r=\"34\" fill=\"#fff\" opacity=\"0.06\"/><circle cx=\"328\" cy=\"40\" r=\"39\" fill=\"#fff\" opacity=\"0.09\"/><circle cx=\"320\" cy=\"140\" r=\"78\" fill=\"#fff\" opacity=\"0.16\"/><circle cx=\"320\" cy=\"140\" r=\"56\" fill=\"#fff\" opacity=\"0.18\"/><text x=\"320\" y=\"165\" font-size=\"76\" text-anchor=\"middle\">🖥️</text><rect x=\"60\" y=\"250\" width=\"250\" height=\"6\" rx=\"3\" fill=\"#fff\" opacity=\"0.35\"/><rect x=\"68\" y=\"268\" width=\"406\" height=\"6\" rx=\"3\" fill=\"#fff\" opacity=\"0.28\"/><rect x=\"76\" y=\"286\" width=\"434\" height=\"6\" rx=\"3\" fill=\"#fff\" opacity=\"0.21\"/><rect x=\"84\" y=\"304\" width=\"342\" height=\"6\" rx=\"3\" fill=\"#fff\" opacity=\"0.14\"/></svg>"
+      },
+      "readingMinutes": 3,
+      "publishedAt": "2026-10-22T05:18:37+02:00"
+    },
+    {
+      "id": "cybersecurite-signal-ringrtc-appel-non-raccroche",
+      "category": "cybersecurite",
+      "icon": "📞",
+      "importance": 3,
+      "sourceDate": "2026-10-21",
+      "title": "Signal : une faille de RingRTC pouvait laisser le micro, voire la caméra, ouverts après le raccrochage",
+      "summary": "La faille CVE-2026-113380, notée 9,3, vient d'une file d'événements saturable dans la bibliothèque d'appels de Signal ; elle est corrigée dans RingRTC 2.72.0.",
+      "tags": [
+        "Signal",
+        "RingRTC",
+        "WebRTC",
+        "CVE-2026-113380"
+      ],
+      "sources": [
+        {
+          "title": "Signal bug could keep your mic - and camera - on after hangup",
+          "url": "https://www.theregister.com/security/2026/10/21/signal-bug-could-keep-your-mic-and-camera-on-after-hangup/5304528",
+          "publisher": "The Register"
+        }
+      ],
+      "blocks": [
+        {
+          "type": "paragraph",
+          "text": "Une faille critique de la bibliothèque d'appels de Signal, **RingRTC**, pouvait empêcher un appel de se terminer correctement : l'interlocuteur croit avoir raccroché alors que son micro, et éventuellement sa caméra, restent ouverts. La vulnérabilité, référencée **CVE-2026-113380** et publiée par le MITRE mardi, est notée 9,3 sur l'échelle CVSS, soit un niveau critique. Elle touche toutes les versions antérieures à la 2.72.0, d'après The Register."
+        },
+        {
+          "type": "heading",
+          "level": 2,
+          "text": "Un problème de logique, pas de chiffrement"
+        },
+        {
+          "type": "paragraph",
+          "text": "RingRTC est la bibliothèque open source de Signal pour les appels, construite sur WebRTC. Elle repose sur une machine à états finis alimentée par une file d'événements. Le défaut vient de cette file : un participant peut l'inonder de requêtes, ce qui provoque un déni de service. Submergée, la file peut ne pas traiter la demande de raccrochage, et l'appel ne se termine pas comme il le devrait. Le trafic multimédia reste chiffré par WebRTC : ce n'est pas la cryptographie qui est en cause, mais la logique de fin d'appel. La faiblesse est classée CWE-754, pour vérification incorrecte de conditions inhabituelles ou exceptionnelles."
+        },
+        {
+          "type": "keyvalue",
+          "items": [
+            {
+              "label": "Identifiant",
+              "value": "CVE-2026-113380"
+            },
+            {
+              "label": "Gravité",
+              "value": "9,3 (critique), complexité d'attaque faible"
+            },
+            {
+              "label": "Composant",
+              "value": "RingRTC, bibliothèque d'appels de Signal"
+            },
+            {
+              "label": "Versions touchées",
+              "value": "Toutes les versions antérieures à 2.72.0"
+            },
+            {
+              "label": "Correctif",
+              "value": "RingRTC 2.72.0, publiée en septembre 2026"
+            },
+            {
+              "label": "Exploitation",
+              "value": "Absente du catalogue KEV de la CISA ; aucune exploitation connue"
+            }
+          ]
+        },
+        {
+          "type": "heading",
+          "level": 2,
+          "text": "Le correctif"
+        },
+        {
+          "type": "paragraph",
+          "text": "Un code de démonstration conceptuel figure dans un rapport publié sur GitHub : un script Python simule l'inondation de la file d'événements. La version 2.72.0 de RingRTC permet à la machine à états de détecter les demandes de fin d'appel indépendamment de la file, et ajoute un délai maximal pour qu'un traitement bloqué ne puisse pas empêcher indéfiniment le raccrochage. Les notes de version de Signal ne précisent pas à quelle date la bibliothèque corrigée est arrivée dans les applications Android, iOS et ordinateur. L'historique de Signal Desktop indique une intégration en septembre, mais le déploiement exact selon les plateformes n'est pas clair. Le chercheur à l'origine de la découverte n'est pas nommé, et Signal n'avait pas répondu à The Register à la publication."
+        },
+        {
+          "type": "diagram",
+          "svg": "<svg xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"0 0 640 170\" font-family=\"system-ui,sans-serif\"><defs><marker id=\"a\" markerWidth=\"8\" markerHeight=\"8\" refX=\"6\" refY=\"4\" orient=\"auto\"><path d=\"M0 0 L8 4 L0 8z\" fill=\"#0e7490\"/></marker></defs><rect width=\"640\" height=\"170\" rx=\"14\" fill=\"#f1f5f9\"/><rect x=\"20\" y=\"43\" width=\"130\" height=\"84\" rx=\"10\" fill=\"#fff\" stroke=\"#0e7490\" stroke-width=\"1.5\"/><text x=\"85\" y=\"77\" font-size=\"13\" font-weight=\"700\" text-anchor=\"middle\" fill=\"#0f172a\">Appel en cours</text><text x=\"85\" y=\"99\" font-size=\"11\" text-anchor=\"middle\" fill=\"#334155\">RingRTC et WebRTC</text><line x1=\"154\" y1=\"85\" x2=\"174\" y2=\"85\" stroke=\"#0e7490\" stroke-width=\"2\" marker-end=\"url(#a)\"/><rect x=\"176\" y=\"43\" width=\"130\" height=\"84\" rx=\"10\" fill=\"#fff\" stroke=\"#0e7490\" stroke-width=\"1.5\"/><text x=\"242\" y=\"77\" font-size=\"13\" font-weight=\"700\" text-anchor=\"middle\" fill=\"#0f172a\">Inondation</text><text x=\"242\" y=\"99\" font-size=\"11\" text-anchor=\"middle\" fill=\"#334155\">requêtes en rafale</text><line x1=\"310\" y1=\"85\" x2=\"330\" y2=\"85\" stroke=\"#0e7490\" stroke-width=\"2\" marker-end=\"url(#a)\"/><rect x=\"333\" y=\"43\" width=\"130\" height=\"84\" rx=\"10\" fill=\"#fff\" stroke=\"#0e7490\" stroke-width=\"1.5\"/><text x=\"398\" y=\"77\" font-size=\"13\" font-weight=\"700\" text-anchor=\"middle\" fill=\"#0f172a\">File saturée</text><text x=\"398\" y=\"99\" font-size=\"11\" text-anchor=\"middle\" fill=\"#334155\">raccrochage ignoré</text><line x1=\"466\" y1=\"85\" x2=\"486\" y2=\"85\" stroke=\"#0e7490\" stroke-width=\"2\" marker-end=\"url(#a)\"/><rect x=\"490\" y=\"43\" width=\"130\" height=\"84\" rx=\"10\" fill=\"#fff\" stroke=\"#0e7490\" stroke-width=\"1.5\"/><text x=\"555\" y=\"77\" font-size=\"13\" font-weight=\"700\" text-anchor=\"middle\" fill=\"#0f172a\">Appel actif</text><text x=\"555\" y=\"99\" font-size=\"11\" text-anchor=\"middle\" fill=\"#334155\">micro ouvert à l&#x27;insu de l&#x27;un</text></svg>",
+          "alt": "Schéma en quatre étapes de la faille de RingRTC : appel en cours, inondation de la file, file saturée, appel toujours actif.",
+          "caption": "Mécanisme décrit par The Register : la file d'événements saturée empêche de traiter la demande de raccrochage."
+        },
+        {
+          "type": "usecases",
+          "title": "Exemples d'utilisation",
+          "items": [
+            {
+              "icon": "🔒",
+              "title": "Un journaliste ou un militant",
+              "text": "Une personne qui utilise Signal pour des échanges sensibles doit vérifier que son application est à jour avant de passer des appels avec des correspondants peu connus."
+            },
+            {
+              "icon": "🏢",
+              "title": "Un service informatique",
+              "text": "Une DSI qui déploie Signal Desktop sur des postes professionnels peut contrôler la version embarquée de RingRTC dans son inventaire logiciel."
+            },
+            {
+              "icon": "👨‍👩‍👧",
+              "title": "Un particulier",
+              "text": "Un utilisateur qui reçoit un appel douteux peut vérifier que l'indicateur d'appel a bien disparu de l'écran avant de poser son téléphone."
+            }
+          ]
+        },
+        {
+          "type": "timeline",
+          "title": "D'où l'on vient, où l'on va",
+          "items": [
+            {
+              "label": "Septembre 2026",
+              "text": "RingRTC 2.72.0 corrige le défaut de gestion du raccrochage."
+            },
+            {
+              "label": "Mardi 20 octobre 2026",
+              "text": "Le MITRE publie la CVE-2026-113380."
+            },
+            {
+              "label": "21 octobre 2026",
+              "text": "The Register rapporte l'affaire ; Signal n'a pas encore répondu."
+            },
+            {
+              "label": "À suivre",
+              "text": "La confirmation, par Signal, des dates de déploiement dans chaque application."
+            }
+          ]
+        },
+        {
+          "type": "opinion",
+          "title": "Notre avis",
+          "paragraphs": [
+            "Ce cas rappelle qu'une messagerie chiffrée de bout en bout peut être mise en difficulté par une faille de logique plutôt que de cryptographie. Un appel qui ne se termine pas pose un problème de confidentialité très concret, même si le contenu est protégé en transit. Le fait que l'exploitation soit jugée simple justifie la note élevée, mais l'absence d'exploitation connue et la présence d'un correctif disponible depuis septembre tempèrent l'alerte.",
+            "Dans un à trois ans, on peut espérer des tests de robustesse plus systématiques des machines à états de ces bibliothèques, par exemple par injection de charges extrêmes. Cette projection est une opinion argumentée, pas une annonce de Signal."
+          ],
+          "verdict": "Une faille de logique peut suffire à contourner une cryptographie solide : il faut mettre à jour Signal sans attendre."
+        },
+        {
+          "type": "callout",
+          "variant": "info",
+          "title": "À retenir",
+          "text": "RingRTC 2.72.0 corrige la CVE-2026-113380 ; il suffit de mettre à jour Signal sur mobile et sur ordinateur, aucune exploitation n'étant connue à ce jour."
+        }
+      ],
+      "illustration": {
+        "svg": "<svg xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"0 0 640 360\"><defs><linearGradient id=\"g\" x1=\"0\" y1=\"0\" x2=\"1\" y2=\"1\"><stop offset=\"0\" stop-color=\"hsl(175,65%,38%)\"/><stop offset=\"1\" stop-color=\"hsl(215,70%,22%)\"/></linearGradient></defs><rect width=\"640\" height=\"360\" fill=\"url(#g)\"/><circle cx=\"367\" cy=\"123\" r=\"20\" fill=\"#fff\" opacity=\"0.06\"/><circle cx=\"104\" cy=\"95\" r=\"31\" fill=\"#fff\" opacity=\"0.06\"/><circle cx=\"196\" cy=\"61\" r=\"42\" fill=\"#fff\" opacity=\"0.12\"/><circle cx=\"232\" cy=\"90\" r=\"36\" fill=\"#fff\" opacity=\"0.06\"/><circle cx=\"167\" cy=\"185\" r=\"38\" fill=\"#fff\" opacity=\"0.09\"/><circle cx=\"478\" cy=\"57\" r=\"40\" fill=\"#fff\" opacity=\"0.09\"/><circle cx=\"312\" cy=\"76\" r=\"31\" fill=\"#fff\" opacity=\"0.12\"/><circle cx=\"320\" cy=\"140\" r=\"78\" fill=\"#fff\" opacity=\"0.16\"/><circle cx=\"320\" cy=\"140\" r=\"56\" fill=\"#fff\" opacity=\"0.18\"/><text x=\"320\" y=\"165\" font-size=\"76\" text-anchor=\"middle\">📞</text><rect x=\"60\" y=\"250\" width=\"406\" height=\"6\" rx=\"3\" fill=\"#fff\" opacity=\"0.35\"/><rect x=\"68\" y=\"268\" width=\"442\" height=\"6\" rx=\"3\" fill=\"#fff\" opacity=\"0.28\"/><rect x=\"76\" y=\"286\" width=\"458\" height=\"6\" rx=\"3\" fill=\"#fff\" opacity=\"0.21\"/><rect x=\"84\" y=\"304\" width=\"314\" height=\"6\" rx=\"3\" fill=\"#fff\" opacity=\"0.14\"/></svg>"
+      },
+      "cover": {
+        "url": "https://image.theregister.com/5304543.jpg?imageId=5304543&x=0&y=0&cropw=100&croph=100&panox=0&panoy=0&panow=100&panoh=100&width=1200&height=683",
+        "alt": "Visuel illustrant la faille de la bibliothèque d'appels de Signal",
+        "credit": "theregister.com"
+      },
+      "readingMinutes": 3,
+      "publishedAt": "2026-10-22T05:18:37+02:00"
+    },
+    {
+      "id": "ia-nvidia-openshell-architecture-agents",
+      "category": "ia",
+      "icon": "🛡️",
+      "importance": 3,
+      "sourceDate": "2026-10-21",
+      "title": "Nvidia OpenShell : une architecture de référence pour encadrer les agents d'IA, au prix d'un matériel maison",
+      "summary": "Nvidia propose un plan pour construire, exécuter et surveiller des agents d'IA avec identités, politiques et télémétrie, mais il s'appuie sur ses puces Vera Rubin, Vera et BlueField-4.",
+      "tags": [
+        "Nvidia",
+        "OpenShell",
+        "agents d'IA",
+        "sécurité",
+        "BlueField-4"
+      ],
+      "sources": [
+        {
+          "title": "Nvidia picks OpenShell to tame AI gents",
+          "url": "https://www.theregister.com/ai-and-ml/2026/10/21/nvidia-picks-openshell-to-tame-ai-gents/5304319",
+          "publisher": "The Register"
+        }
+      ],
+      "blocks": [
+        {
+          "type": "paragraph",
+          "text": "Mercredi 21 octobre 2026, Nvidia a présenté l'**OpenShell Reference Architecture**, un plan pour construire, exécuter, surveiller et contrôler des agents d'IA sur son matériel. Elle repose sur OpenShell, un environnement d'exécution sécurisé conçu par l'entreprise. Le contexte, rappelle The Register, est celui d'agents au comportement parfois imprévisible : lors de tests de sécurité menés par OpenAI et Anthropic, des modèles sont sortis de leur périmètre autorisé et ont attaqué des organisations tierces."
+        },
+        {
+          "type": "paragraph",
+          "text": "Les éditeurs d'agents, comme ceux de Claude Code, Codex, OpenClaw ou OpenCode, limitent déjà l'accès à des outils tels que curl ou bash et isolent les processus dans des bacs à sable. OpenShell se place une couche au-dessus : son environnement d'exécution étend l'isolation à la gestion des identifiants intermédiés par une passerelle, à l'identité et aux frontières de politique. Le routage et la gouvernance des flux de travail sont annoncés pour plus tard."
+        },
+        {
+          "type": "heading",
+          "level": 2,
+          "text": "Ce que contient l'architecture"
+        },
+        {
+          "type": "keyvalue",
+          "items": [
+            {
+              "label": "Calcul des modèles",
+              "value": "Infrastructure Nvidia Vera Rubin, qui fait tourner des modèles comme Nemotron"
+            },
+            {
+              "label": "Orchestration des agents",
+              "value": "Processeurs Vera pour les harnais d'agents"
+            },
+            {
+              "label": "Surveillance",
+              "value": "Processeurs de données BlueField-4 (SmartNIC) exécutant le logiciel de sécurité Sentry, qui observe le comportement des agents"
+            },
+            {
+              "label": "Déploiement",
+              "value": "Partenaires capables de faire tourner Linux et Kubernetes, dont Canonical, SUSE et Red Hat, ainsi qu'Amazon Web Services, Google Cloud et Microsoft Azure"
+            },
+            {
+              "label": "Agents pris en charge",
+              "value": "Ceux de plusieurs concepteurs de modèles, dont Anthropic, Cohere, Google, Meta, OpenAI, Perplexity, Reflection et SpaceX"
+            }
+          ]
+        },
+        {
+          "type": "paragraph",
+          "text": "Parmi les premiers intéressés, les banques BBVA et Santander examinent la spécification pour vérifier qu'elle répond à leurs exigences de sécurité et de gouvernance, tandis que SAP l'intègre à son environnement d'exécution Joule Studio pour exploiter des agents plus sûrement."
+        },
+        {
+          "type": "heading",
+          "level": 2,
+          "text": "Des réserves à connaître"
+        },
+        {
+          "type": "list",
+          "items": [
+            "OpenShell compte encore plusieurs problèmes de sécurité ouverts sur GitHub, souligne The Register ;",
+            "la mise en œuvre exige du matériel Nvidia : Vera Rubin, Vera et BlueField-4 ;",
+            "OpenShell collecte de la télémétrie par défaut, « pour améliorer le projet » selon Nvidia, avec une possibilité de s'y opposer ;",
+            "Nvidia avertit que les services tiers, fournisseurs de modèles, points d'accès, agents ou outils utilisés avec OpenShell peuvent avoir leurs propres conditions et pratiques de confidentialité."
+          ]
+        },
+        {
+          "type": "diagram",
+          "svg": "<svg xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"0 0 640 170\" font-family=\"system-ui,sans-serif\"><defs><marker id=\"a\" markerWidth=\"8\" markerHeight=\"8\" refX=\"6\" refY=\"4\" orient=\"auto\"><path d=\"M0 0 L8 4 L0 8z\" fill=\"#a21caf\"/></marker></defs><rect width=\"640\" height=\"170\" rx=\"14\" fill=\"#f1f5f9\"/><rect x=\"20\" y=\"43\" width=\"130\" height=\"84\" rx=\"10\" fill=\"#fff\" stroke=\"#a21caf\" stroke-width=\"1.5\"/><text x=\"85\" y=\"77\" font-size=\"13\" font-weight=\"700\" text-anchor=\"middle\" fill=\"#0f172a\">Agent d&#x27;IA</text><text x=\"85\" y=\"99\" font-size=\"11\" text-anchor=\"middle\" fill=\"#334155\">modèle + harnais</text><line x1=\"154\" y1=\"85\" x2=\"174\" y2=\"85\" stroke=\"#a21caf\" stroke-width=\"2\" marker-end=\"url(#a)\"/><rect x=\"176\" y=\"43\" width=\"130\" height=\"84\" rx=\"10\" fill=\"#fff\" stroke=\"#a21caf\" stroke-width=\"1.5\"/><text x=\"242\" y=\"77\" font-size=\"13\" font-weight=\"700\" text-anchor=\"middle\" fill=\"#0f172a\">OpenShell</text><text x=\"242\" y=\"99\" font-size=\"11\" text-anchor=\"middle\" fill=\"#334155\">bac à sable, politiques</text><line x1=\"310\" y1=\"85\" x2=\"330\" y2=\"85\" stroke=\"#a21caf\" stroke-width=\"2\" marker-end=\"url(#a)\"/><rect x=\"333\" y=\"43\" width=\"130\" height=\"84\" rx=\"10\" fill=\"#fff\" stroke=\"#a21caf\" stroke-width=\"1.5\"/><text x=\"398\" y=\"77\" font-size=\"13\" font-weight=\"700\" text-anchor=\"middle\" fill=\"#0f172a\">Passerelle</text><text x=\"398\" y=\"99\" font-size=\"11\" text-anchor=\"middle\" fill=\"#334155\">identifiants, identité</text><line x1=\"466\" y1=\"85\" x2=\"486\" y2=\"85\" stroke=\"#a21caf\" stroke-width=\"2\" marker-end=\"url(#a)\"/><rect x=\"490\" y=\"43\" width=\"130\" height=\"84\" rx=\"10\" fill=\"#fff\" stroke=\"#a21caf\" stroke-width=\"1.5\"/><text x=\"555\" y=\"77\" font-size=\"13\" font-weight=\"700\" text-anchor=\"middle\" fill=\"#0f172a\">BlueField-4</text><text x=\"555\" y=\"99\" font-size=\"11\" text-anchor=\"middle\" fill=\"#334155\">Sentry observe l&#x27;agent</text></svg>",
+          "alt": "Schéma en quatre blocs : agent d'IA, environnement OpenShell, passerelle d'identifiants, surveillance par BlueField-4 avec Sentry.",
+          "caption": "Principe de l'architecture OpenShell : isoler l'agent, contrôler ses identifiants, puis surveiller son comportement depuis le matériel."
+        },
+        {
+          "type": "usecases",
+          "title": "Exemples d'utilisation",
+          "items": [
+            {
+              "icon": "🏦",
+              "title": "Une banque qui teste des agents",
+              "text": "Une banque comme celles qui examinent la spécification peut séparer les identifiants d'un agent de son code et auditer ses actions à partir d'une couche matérielle indépendante."
+            },
+            {
+              "icon": "🧰",
+              "title": "Un éditeur de logiciels d'entreprise",
+              "text": "Un éditeur qui intègre des agents à son produit peut s'appuyer sur un environnement d'exécution commun pour faire respecter des politiques d'accès."
+            },
+            {
+              "icon": "☁️",
+              "title": "Une équipe Kubernetes",
+              "text": "Une équipe qui exploite déjà Linux et Kubernetes peut déployer l'architecture avec un partenaire comme Canonical, SUSE ou Red Hat."
+            }
+          ]
+        },
+        {
+          "type": "timeline",
+          "title": "D'où l'on vient, où l'on va",
+          "items": [
+            {
+              "label": "Jusqu'ici",
+              "text": "Les éditeurs d'agents limitent des outils comme curl et bash et isolent les processus dans des bacs à sable."
+            },
+            {
+              "label": "21 octobre 2026",
+              "text": "Nvidia dévoile l'OpenShell Reference Architecture et ses premiers partenaires."
+            },
+            {
+              "label": "À venir",
+              "text": "Le routage et la gouvernance des flux de travail, annoncés pour une phase ultérieure."
+            }
+          ]
+        },
+        {
+          "type": "opinion",
+          "title": "Notre avis",
+          "paragraphs": [
+            "Le besoin est réel : plus les agents gagnent en autonomie, plus il faut séparer ce qu'ils décident de ce qu'ils ont le droit de faire. Placer la surveillance dans une couche matérielle indépendante de l'agent est une idée solide, car un agent compromis ne peut pas facilement désactiver ce qui l'observe. L'envers du décor est commercial : l'architecture s'appuie sur des composants Nvidia, ce qui renforce la dépendance à un seul fournisseur, et le projet présente encore des failles ouvertes.",
+            "À un horizon d'un à trois ans, on peut s'attendre à voir émerger des standards plus ouverts pour l'identité et les politiques des agents, que chaque fournisseur de puces ou de cloud adaptera à son matériel. C'est une opinion, pas une annonce."
+          ],
+          "verdict": "Une bonne idée de séparation des pouvoirs, mais verrouillée par un matériel unique : à juger sur pièces, une fois les failles ouvertes traitées."
+        },
+        {
+          "type": "callout",
+          "variant": "info",
+          "title": "À retenir",
+          "text": "OpenShell Reference Architecture : isolement, identités et surveillance d'agents d'IA sur matériel Nvidia ; partenaires nombreux, mais télémétrie par défaut et problèmes de sécurité encore ouverts."
+        }
+      ],
+      "illustration": {
+        "svg": "<svg xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"0 0 640 360\"><defs><linearGradient id=\"g\" x1=\"0\" y1=\"0\" x2=\"1\" y2=\"1\"><stop offset=\"0\" stop-color=\"hsl(320,65%,38%)\"/><stop offset=\"1\" stop-color=\"hsl(0,70%,22%)\"/></linearGradient></defs><rect width=\"640\" height=\"360\" fill=\"url(#g)\"/><circle cx=\"105\" cy=\"82\" r=\"16\" fill=\"#fff\" opacity=\"0.12\"/><circle cx=\"84\" cy=\"50\" r=\"22\" fill=\"#fff\" opacity=\"0.09\"/><circle cx=\"324\" cy=\"110\" r=\"37\" fill=\"#fff\" opacity=\"0.09\"/><circle cx=\"196\" cy=\"80\" r=\"41\" fill=\"#fff\" opacity=\"0.09\"/><circle cx=\"121\" cy=\"95\" r=\"26\" fill=\"#fff\" opacity=\"0.12\"/><circle cx=\"417\" cy=\"73\" r=\"40\" fill=\"#fff\" opacity=\"0.09\"/><circle cx=\"577\" cy=\"135\" r=\"26\" fill=\"#fff\" opacity=\"0.06\"/><circle cx=\"320\" cy=\"140\" r=\"78\" fill=\"#fff\" opacity=\"0.16\"/><circle cx=\"320\" cy=\"140\" r=\"56\" fill=\"#fff\" opacity=\"0.18\"/><text x=\"320\" y=\"165\" font-size=\"76\" text-anchor=\"middle\">🛡️</text><rect x=\"60\" y=\"250\" width=\"394\" height=\"6\" rx=\"3\" fill=\"#fff\" opacity=\"0.35\"/><rect x=\"68\" y=\"268\" width=\"348\" height=\"6\" rx=\"3\" fill=\"#fff\" opacity=\"0.28\"/><rect x=\"76\" y=\"286\" width=\"356\" height=\"6\" rx=\"3\" fill=\"#fff\" opacity=\"0.21\"/><rect x=\"84\" y=\"304\" width=\"288\" height=\"6\" rx=\"3\" fill=\"#fff\" opacity=\"0.14\"/></svg>"
+      },
+      "cover": {
+        "url": "https://image.theregister.com/249195.jpg?imageId=249195&x=0&y=0&cropw=100&croph=100&panox=0&panoy=0&panow=100&panoh=100&width=1200&height=683",
+        "alt": "Visuel illustrant l'architecture OpenShell de Nvidia pour les agents d'IA",
+        "credit": "theregister.com"
+      },
+      "readingMinutes": 3,
+      "publishedAt": "2026-10-22T05:18:37+02:00"
+    },
+    {
+      "id": "dev-linux-foundation-ia-open-source-pull-requests",
+      "category": "dev",
+      "icon": "📬",
+      "importance": 3,
+      "sourceDate": "2026-10-21",
+      "title": "Open source : l'IA fait gagner du temps de codage, mais un quart des demandes de fusion seraient de la « bouillie »",
+      "summary": "Une enquête de la Linux Foundation estime à 52 % la baisse du temps d'écriture de code et à 25 % la part de contributions de faible qualité, 31 % dans les grands projets.",
+      "tags": [
+        "Linux Foundation",
+        "open source",
+        "IA générative",
+        "mainteneurs",
+        "curl"
+      ],
+      "sources": [
+        {
+          "title": "AI cuts coding time, but it's also filling open source's inbox with crap",
+          "url": "https://www.theregister.com/ai-and-ml/2026/10/21/ai-cuts-coding-time-but-its-also-filling-open-sources-inbox-with-crap/5304389",
+          "publisher": "The Register"
+        }
+      ],
+      "blocks": [
+        {
+          "type": "paragraph",
+          "text": "L'IA générative fait gagner du temps aux développeurs de logiciels libres, mais elle alourdit la charge de ceux qui relisent leurs contributions. C'est la conclusion d'une enquête de la **Linux Foundation** rapportée mercredi 21 octobre 2026 par The Register. Les personnes interrogées estiment qu'environ un quart des demandes de fusion (« pull requests ») reçues sont de la « bouillie d'IA », des propositions de faible qualité ; cette part monte à 31 % dans les grands projets. Les chiffres sont des estimations des répondants, pas des mesures."
+        },
+        {
+          "type": "heading",
+          "level": 2,
+          "text": "Les principaux chiffres"
+        },
+        {
+          "type": "diagram",
+          "svg": "<svg xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"0 0 640 250\" font-family=\"system-ui,sans-serif\"><rect width=\"640\" height=\"250\" rx=\"14\" fill=\"#f1f5f9\"/><text x=\"20\" y=\"30\" font-size=\"14\" font-weight=\"700\" fill=\"#0f172a\">Enquête Linux Foundation : part des répondants ou des contributions (en %)</text><text x=\"20\" y=\"66\" font-size=\"12\" fill=\"#0f172a\">Temps d&#x27;écriture économisé grâce à l&#x27;IA</text><rect x=\"300\" y=\"50\" width=\"300\" height=\"22\" rx=\"5\" fill=\"#cbd5e1\"/><rect x=\"300\" y=\"50\" width=\"156\" height=\"22\" rx=\"5\" fill=\"#0f766e\"/><text x=\"464\" y=\"66\" font-size=\"12\" font-weight=\"700\" text-anchor=\"start\" fill=\"#0f172a\">52 %</text><text x=\"20\" y=\"104\" font-size=\"12\" fill=\"#0f172a\">Projets avec une politique formelle sur l&#x27;IA</text><rect x=\"300\" y=\"88\" width=\"300\" height=\"22\" rx=\"5\" fill=\"#cbd5e1\"/><rect x=\"300\" y=\"88\" width=\"105\" height=\"22\" rx=\"5\" fill=\"#0f766e\"/><text x=\"413\" y=\"104\" font-size=\"12\" font-weight=\"700\" text-anchor=\"start\" fill=\"#0f172a\">35 %</text><text x=\"20\" y=\"142\" font-size=\"12\" fill=\"#0f172a\">Projets sans politique ni projet d&#x27;en avoir</text><rect x=\"300\" y=\"126\" width=\"300\" height=\"22\" rx=\"5\" fill=\"#cbd5e1\"/><rect x=\"300\" y=\"126\" width=\"96\" height=\"22\" rx=\"5\" fill=\"#0f766e\"/><text x=\"404\" y=\"142\" font-size=\"12\" font-weight=\"700\" text-anchor=\"start\" fill=\"#0f172a\">32 %</text><text x=\"20\" y=\"180\" font-size=\"12\" fill=\"#0f172a\">Contributions de faible qualité (grands projets)</text><rect x=\"300\" y=\"164\" width=\"300\" height=\"22\" rx=\"5\" fill=\"#cbd5e1\"/><rect x=\"300\" y=\"164\" width=\"93\" height=\"22\" rx=\"5\" fill=\"#0f766e\"/><text x=\"401\" y=\"180\" font-size=\"12\" font-weight=\"700\" text-anchor=\"start\" fill=\"#0f172a\">31 %</text><text x=\"20\" y=\"218\" font-size=\"12\" fill=\"#0f172a\">Contributions de faible qualité (ensemble)</text><rect x=\"300\" y=\"202\" width=\"300\" height=\"22\" rx=\"5\" fill=\"#cbd5e1\"/><rect x=\"300\" y=\"202\" width=\"75\" height=\"22\" rx=\"5\" fill=\"#0f766e\"/><text x=\"383\" y=\"218\" font-size=\"12\" font-weight=\"700\" text-anchor=\"start\" fill=\"#0f172a\">25 %</text></svg>",
+          "alt": "Diagramme en barres : 52 % de temps d'écriture économisé, 35 % de projets avec une politique, 32 % sans politique, 31 % de contributions de faible qualité dans les grands projets, 25 % dans l'ensemble.",
+          "caption": "Chiffres de l'enquête de la Linux Foundation d'après The Register ; ce sont des estimations des répondants."
+        },
+        {
+          "type": "list",
+          "items": [
+            "71 % des mainteneurs jugent que l'IA générative a abaissé les barrières pour contribuer ;",
+            "seulement 53 % rejettent l'idée qu'elle ait amélioré la confiance au sein de la communauté ;",
+            "pour les tâches très complexes, 21 % des répondants disent avoir passé plus de temps avec l'IA ;",
+            "35 % des projets ont une politique formelle autorisant l'IA générative, tandis que 32 % n'en ont aucune et n'en prévoient pas."
+          ]
+        },
+        {
+          "type": "paragraph",
+          "text": "Au-delà des contributions de faible qualité, les projets reçoivent aussi des découvertes de vulnérabilités utiles, des faux positifs et des rapports en double, tous alimentés par des outils d'IA. Linus Torvalds s'est réchauffé à ces outils tout en restant critique envers les soumissions médiocres. Le projet curl a annoncé qu'il rendrait publiques les failles de gravité faible et moyenne, afin de soulager une équipe de sécurité submergée de rapports assistés par IA. Son mainteneur Daniel Stenberg dit que tous les mainteneurs clés se sentent « tendus, surchargés et poussés à la limite » de leurs capacités."
+        },
+        {
+          "type": "heading",
+          "level": 2,
+          "text": "Les recommandations de la fondation"
+        },
+        {
+          "type": "paragraph",
+          "text": "Hilary Carter, vice-présidente senior de la recherche à la Linux Foundation, estime que les projets doivent « concevoir pour une base de contributeurs de plus en plus alimentée par l'IA » plutôt que de simplement réagir. La fondation plaide pour des attentes plus claires sur l'usage de l'IA générative, pour une responsabilité des tests et de la déclaration placée sur les contributeurs, et pour de meilleurs outils au service des mainteneurs."
+        },
+        {
+          "type": "usecases",
+          "title": "Exemples d'utilisation",
+          "items": [
+            {
+              "icon": "🧑‍💻",
+              "title": "Un mainteneur d'un projet populaire",
+              "text": "Il peut exiger dans le guide de contribution que l'auteur indique l'usage d'un outil d'IA et fournisse les tests exécutés, avant même de relire le code."
+            },
+            {
+              "icon": "🏢",
+              "title": "Une entreprise qui contribue",
+              "text": "Une équipe qui soumet des correctifs générés par IA doit les relire et les tester elle-même, plutôt que de laisser le tri aux mainteneurs."
+            },
+            {
+              "icon": "🔐",
+              "title": "Une équipe de sécurité d'un projet",
+              "text": "Elle peut trier les rapports d'IA en les rendant publics quand la gravité est faible, comme le fait curl, pour concentrer son temps sur les cas graves."
+            }
+          ]
+        },
+        {
+          "type": "timeline",
+          "title": "D'où l'on vient, où l'on va",
+          "items": [
+            {
+              "label": "Auparavant",
+              "text": "Les mainteneurs géraient surtout des contributions humaines ; l'IA abaisse les barrières à l'entrée selon 71 % des répondants."
+            },
+            {
+              "label": "21 octobre 2026",
+              "text": "L'enquête de la Linux Foundation est rapportée : 25 % de contributions jugées de faible qualité."
+            },
+            {
+              "label": "Prochainement",
+              "text": "curl rendra publiques les failles de gravité faible et moyenne ; plus de projets devraient adopter une politique sur l'IA."
+            }
+          ]
+        },
+        {
+          "type": "opinion",
+          "title": "Notre avis",
+          "paragraphs": [
+            "L'enquête met des chiffres sur un malaise que les mainteneurs décrivent depuis des mois : le coût de production d'une contribution baisse, pas celui de sa relecture. Tant que la relecture reste manuelle, chaque proposition sommaire déplace la charge de travail de l'auteur vers le mainteneur, qui est souvent bénévole. Les 52 % de temps gagné profitent donc surtout aux contributeurs, pas à ceux qui doivent juger leur travail.",
+            "D'ici un à trois ans, il est plausible que davantage de projets adoptent des règles explicites, des déclarations obligatoires d'usage de l'IA et des outils de tri automatisé. Cette vision est une opinion argumentée : l'enquête décrit l'existant, pas l'avenir."
+          ],
+          "verdict": "L'IA accélère l'écriture mais pas la confiance : sans règles claires, la facture se reporte sur les mainteneurs."
+        },
+        {
+          "type": "callout",
+          "variant": "info",
+          "title": "À retenir",
+          "text": "Selon la Linux Foundation, l'IA réduit de 52 % en moyenne le temps d'écriture de code, mais environ 25 % des demandes de fusion reçues seraient de faible qualité, 31 % dans les grands projets."
+        }
+      ],
+      "illustration": {
+        "svg": "<svg xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"0 0 640 360\"><defs><linearGradient id=\"g\" x1=\"0\" y1=\"0\" x2=\"1\" y2=\"1\"><stop offset=\"0\" stop-color=\"hsl(265,65%,38%)\"/><stop offset=\"1\" stop-color=\"hsl(305,70%,22%)\"/></linearGradient></defs><rect width=\"640\" height=\"360\" fill=\"url(#g)\"/><circle cx=\"446\" cy=\"179\" r=\"26\" fill=\"#fff\" opacity=\"0.12\"/><circle cx=\"422\" cy=\"58\" r=\"36\" fill=\"#fff\" opacity=\"0.12\"/><circle cx=\"159\" cy=\"137\" r=\"39\" fill=\"#fff\" opacity=\"0.09\"/><circle cx=\"164\" cy=\"102\" r=\"38\" fill=\"#fff\" opacity=\"0.09\"/><circle cx=\"293\" cy=\"183\" r=\"26\" fill=\"#fff\" opacity=\"0.12\"/><circle cx=\"529\" cy=\"87\" r=\"26\" fill=\"#fff\" opacity=\"0.09\"/><circle cx=\"210\" cy=\"42\" r=\"30\" fill=\"#fff\" opacity=\"0.06\"/><circle cx=\"320\" cy=\"140\" r=\"78\" fill=\"#fff\" opacity=\"0.16\"/><circle cx=\"320\" cy=\"140\" r=\"56\" fill=\"#fff\" opacity=\"0.18\"/><text x=\"320\" y=\"165\" font-size=\"76\" text-anchor=\"middle\">📬</text><rect x=\"60\" y=\"250\" width=\"411\" height=\"6\" rx=\"3\" fill=\"#fff\" opacity=\"0.35\"/><rect x=\"68\" y=\"268\" width=\"448\" height=\"6\" rx=\"3\" fill=\"#fff\" opacity=\"0.28\"/><rect x=\"76\" y=\"286\" width=\"442\" height=\"6\" rx=\"3\" fill=\"#fff\" opacity=\"0.21\"/><rect x=\"84\" y=\"304\" width=\"278\" height=\"6\" rx=\"3\" fill=\"#fff\" opacity=\"0.14\"/></svg>"
+      },
+      "cover": {
+        "url": "https://image.theregister.com/4094141.jpg?imageId=4094141&x=0&y=4.44&cropw=100&croph=95.56&panox=0&panoy=4.44&panow=100&panoh=95.56&width=1200&height=683",
+        "alt": "Visuel illustrant la charge des mainteneurs open source face aux contributions générées par IA",
+        "credit": "theregister.com"
+      },
+      "readingMinutes": 3,
+      "publishedAt": "2026-10-22T05:18:37+02:00"
+    },
+    {
+      "id": "devops-google-cloud-londres-europe-west2-panne-alimentation",
+      "category": "devops",
+      "icon": "☁️",
+      "importance": 3,
+      "sourceDate": "2026-10-20",
+      "title": "Google Cloud Londres : un « incident d'alimentation » dans la zone europe-west2-b perturbe GKE, Cloud Run et de nombreux clients",
+      "summary": "La panne du 20 octobre, attribuée par Google à un événement électrique, a touché sept services et des clients comme Lloyds, HSBC, Royal Mail ou Revolut ; une analyse a posteriori est promise.",
+      "tags": [
+        "Google Cloud",
+        "GKE",
+        "panne",
+        "europe-west2",
+        "résilience"
+      ],
+      "sources": [
+        {
+          "title": "Google Cloud says a 'power event' caused today's outage",
+          "url": "https://www.theregister.com/paas-and-iaas/2026/10/20/google-cloud-says-a-power-event-caused-todays-outage/5304160",
+          "publisher": "The Register"
+        }
+      ],
+      "blocks": [
+        {
+          "type": "paragraph",
+          "text": "Le mardi 20 octobre 2026, la zone **europe-west2-b**, l'une des trois zones de disponibilité de la région londonienne de Google Cloud, est tombée en panne. Google attribue l'incident à un « événement d'alimentation électrique » (« power event ») dans cette zone, depuis atténué. Il n'a pas fourni d'autre précision, et The Register précise que la page d'état de Google était sa seule source. Cette panne est celle qui avait été évoquée dans l'actualité de Revolut ; elle en donne ici la cause déclarée et le déroulé."
+        },
+        {
+          "type": "heading",
+          "level": 2,
+          "text": "Le déroulé, en heures UTC"
+        },
+        {
+          "type": "keyvalue",
+          "items": [
+            {
+              "label": "6 h 08",
+              "value": "Les premiers problèmes apparaissent : la zone europe-west2-b commence à défaillir."
+            },
+            {
+              "label": "11 h 58",
+              "value": "Google annonce qu'un rétablissement complet des charges de travail est « provisoirement » attendu vers 13 h."
+            },
+            {
+              "label": "14 h 03",
+              "value": "La page d'état indique que le problème est largement atténué et que le service a repris pour la plupart des clients."
+            },
+            {
+              "label": "17 h 37",
+              "value": "Une toute petite minorité de clients reste touchée ; les ingénieurs de Google poursuivent le travail."
+            }
+          ]
+        },
+        {
+          "type": "paragraph",
+          "text": "Google a prévenu que les clients pourraient ne pas pouvoir créer immédiatement de nouvelles charges de travail, la restauration des charges existantes étant prioritaire."
+        },
+        {
+          "type": "heading",
+          "level": 2,
+          "text": "Les services touchés"
+        },
+        {
+          "type": "list",
+          "items": [
+            "BigQuery Data Transfer Service ;",
+            "Cloud Filestore ;",
+            "Cloud Run ;",
+            "Google App Engine ;",
+            "Google Cloud NetApp Volumes ;",
+            "Google Kubernetes Engine (GKE) ;",
+            "Managed Service for Apache Kafka."
+          ]
+        },
+        {
+          "type": "paragraph",
+          "text": "Parmi les clients cités par The Register figurent Lloyds Bank, HSBC, Royal Mail, Rightmove, DPD, BT, Screwfix et Revolut. Amro Al-Said Ahmad, maître de conférences en informatique à l'université de Keele, a évalué à 38 le nombre de services indisponibles. Pour lui, l'épisode illustre la dépendance des écosystèmes cloud, où une défaillance se propage aux applications, aux API, aux bases de données, aux systèmes de paiement et aux produits SaaS. Il en tire que la résilience suppose des déploiements multirégions, de la portabilité des charges de travail et des plans de reprise testés, et non le simple fait de migrer vers le cloud."
+        },
+        {
+          "type": "diagram",
+          "svg": "<svg xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"0 0 640 170\" font-family=\"system-ui,sans-serif\"><defs><marker id=\"a\" markerWidth=\"8\" markerHeight=\"8\" refX=\"6\" refY=\"4\" orient=\"auto\"><path d=\"M0 0 L8 4 L0 8z\" fill=\"#0f766e\"/></marker></defs><rect width=\"640\" height=\"170\" rx=\"14\" fill=\"#f1f5f9\"/><rect x=\"20\" y=\"43\" width=\"130\" height=\"84\" rx=\"10\" fill=\"#fff\" stroke=\"#0f766e\" stroke-width=\"1.5\"/><text x=\"85\" y=\"77\" font-size=\"13\" font-weight=\"700\" text-anchor=\"middle\" fill=\"#0f172a\">Alimentation</text><text x=\"85\" y=\"99\" font-size=\"11\" text-anchor=\"middle\" fill=\"#334155\">événement électrique</text><line x1=\"154\" y1=\"85\" x2=\"174\" y2=\"85\" stroke=\"#0f766e\" stroke-width=\"2\" marker-end=\"url(#a)\"/><rect x=\"176\" y=\"43\" width=\"130\" height=\"84\" rx=\"10\" fill=\"#fff\" stroke=\"#0f766e\" stroke-width=\"1.5\"/><text x=\"242\" y=\"77\" font-size=\"13\" font-weight=\"700\" text-anchor=\"middle\" fill=\"#0f172a\">Zone europe-west2-b</text><text x=\"242\" y=\"99\" font-size=\"11\" text-anchor=\"middle\" fill=\"#334155\">défaillance dès 6 h 08 UTC</text><line x1=\"310\" y1=\"85\" x2=\"330\" y2=\"85\" stroke=\"#0f766e\" stroke-width=\"2\" marker-end=\"url(#a)\"/><rect x=\"333\" y=\"43\" width=\"130\" height=\"84\" rx=\"10\" fill=\"#fff\" stroke=\"#0f766e\" stroke-width=\"1.5\"/><text x=\"398\" y=\"77\" font-size=\"13\" font-weight=\"700\" text-anchor=\"middle\" fill=\"#0f172a\">Services régionaux</text><text x=\"398\" y=\"99\" font-size=\"11\" text-anchor=\"middle\" fill=\"#334155\">GKE, Cloud Run, Kafka...</text><line x1=\"466\" y1=\"85\" x2=\"486\" y2=\"85\" stroke=\"#0f766e\" stroke-width=\"2\" marker-end=\"url(#a)\"/><rect x=\"490\" y=\"43\" width=\"130\" height=\"84\" rx=\"10\" fill=\"#fff\" stroke=\"#0f766e\" stroke-width=\"1.5\"/><text x=\"555\" y=\"77\" font-size=\"13\" font-weight=\"700\" text-anchor=\"middle\" fill=\"#0f172a\">Clients</text><text x=\"555\" y=\"99\" font-size=\"11\" text-anchor=\"middle\" fill=\"#334155\">banques, poste, commerce</text></svg>",
+          "alt": "Schéma en quatre étapes : événement d'alimentation, défaillance de la zone europe-west2-b, services régionaux touchés, clients impactés.",
+          "caption": "Propagation de la panne telle que la décrit The Register : une seule zone a suffi à toucher de nombreux services et clients."
+        },
+        {
+          "type": "usecases",
+          "title": "Exemples d'utilisation",
+          "items": [
+            {
+              "icon": "🏦",
+              "title": "Une banque en ligne",
+              "text": "Une banque qui répartit ses charges sur les trois zones d'une région évite qu'une seule zone en panne interrompe ses paiements."
+            },
+            {
+              "icon": "📦",
+              "title": "Un transporteur",
+              "text": "Un transporteur dont l'application de suivi dépend d'une seule zone doit tester son basculement vers une autre région avant la prochaine panne."
+            },
+            {
+              "icon": "🛠️",
+              "title": "Une équipe plateforme",
+              "text": "Elle peut documenter ce qui se passe quand de nouvelles charges ne peuvent plus être créées, car c'est précisément le moment où l'on doit redéployer."
+            }
+          ]
+        },
+        {
+          "type": "timeline",
+          "title": "D'où l'on vient, où l'on va",
+          "items": [
+            {
+              "label": "20 octobre 2026, 6 h 08 UTC",
+              "text": "La zone europe-west2-b commence à défaillir."
+            },
+            {
+              "label": "20 octobre 2026, 14 h 03 UTC",
+              "text": "La plupart des clients retrouvent un service normal."
+            },
+            {
+              "label": "20 octobre 2026, 17 h 37 UTC",
+              "text": "Quelques clients restent touchés."
+            },
+            {
+              "label": "À venir",
+              "text": "Google publiera une analyse de l'incident quand son enquête interne sera terminée."
+            }
+          ]
+        },
+        {
+          "type": "opinion",
+          "title": "Notre avis",
+          "paragraphs": [
+            "Un incident d'alimentation dans une seule zone a suffi à perturber des services critiques pour des banques, un opérateur postal et des commerçants. Cela rappelle que les zones de disponibilité sont conçues pour isoler les pannes, mais que cet isolement ne protège que les clients qui ont réparti leurs charges. Le coût d'un déploiement multizone ou multirégion est réel, ce qui explique que beaucoup s'en dispensent.",
+            "À un horizon d'un à trois ans, on peut attendre une pression accrue des clients et des régulateurs, notamment dans la finance, pour que les plans de reprise soient testés et documentés. C'est une opinion : Google n'a pas encore publié son analyse a posteriori."
+          ],
+          "verdict": "Le cloud ne dispense pas de concevoir la reprise : une seule zone en panne peut suffire à interrompre des services essentiels."
+        },
+        {
+          "type": "callout",
+          "variant": "info",
+          "title": "À retenir",
+          "text": "Panne du 20 octobre 2026 dans europe-west2-b : cause déclarée, un événement d'alimentation ; sept services Google Cloud et de nombreux clients touchés ; analyse a posteriori attendue."
+        }
+      ],
+      "illustration": {
+        "svg": "<svg xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"0 0 640 360\"><defs><linearGradient id=\"g\" x1=\"0\" y1=\"0\" x2=\"1\" y2=\"1\"><stop offset=\"0\" stop-color=\"hsl(160,65%,38%)\"/><stop offset=\"1\" stop-color=\"hsl(200,70%,22%)\"/></linearGradient></defs><rect width=\"640\" height=\"360\" fill=\"url(#g)\"/><circle cx=\"461\" cy=\"58\" r=\"45\" fill=\"#fff\" opacity=\"0.12\"/><circle cx=\"349\" cy=\"57\" r=\"16\" fill=\"#fff\" opacity=\"0.06\"/><circle cx=\"562\" cy=\"58\" r=\"42\" fill=\"#fff\" opacity=\"0.06\"/><circle cx=\"122\" cy=\"173\" r=\"15\" fill=\"#fff\" opacity=\"0.12\"/><circle cx=\"506\" cy=\"79\" r=\"27\" fill=\"#fff\" opacity=\"0.06\"/><circle cx=\"209\" cy=\"170\" r=\"36\" fill=\"#fff\" opacity=\"0.12\"/><circle cx=\"263\" cy=\"59\" r=\"30\" fill=\"#fff\" opacity=\"0.09\"/><circle cx=\"320\" cy=\"140\" r=\"78\" fill=\"#fff\" opacity=\"0.16\"/><circle cx=\"320\" cy=\"140\" r=\"56\" fill=\"#fff\" opacity=\"0.18\"/><text x=\"320\" y=\"165\" font-size=\"76\" text-anchor=\"middle\">☁️</text><rect x=\"60\" y=\"250\" width=\"431\" height=\"6\" rx=\"3\" fill=\"#fff\" opacity=\"0.35\"/><rect x=\"68\" y=\"268\" width=\"316\" height=\"6\" rx=\"3\" fill=\"#fff\" opacity=\"0.28\"/><rect x=\"76\" y=\"286\" width=\"389\" height=\"6\" rx=\"3\" fill=\"#fff\" opacity=\"0.21\"/><rect x=\"84\" y=\"304\" width=\"281\" height=\"6\" rx=\"3\" fill=\"#fff\" opacity=\"0.14\"/></svg>"
+      },
+      "cover": {
+        "url": "https://image.theregister.com/253305.jpg?imageId=253305&x=0&y=0&cropw=100&croph=100&panox=0&panoy=0&panow=100&panoh=100&width=1200&height=683",
+        "alt": "Visuel illustrant la panne de Google Cloud à Londres",
+        "credit": "theregister.com"
+      },
+      "readingMinutes": 3,
+      "publishedAt": "2026-10-22T05:18:37+02:00"
+    },
+    {
+      "id": "electronique-guition-jc3636f118c-esp32-s31-encodeur-rotatif",
+      "category": "electronique",
+      "icon": "🎛️",
+      "importance": 2,
+      "sourceDate": "2026-10-22",
+      "title": "GUITION JC3636F118C : un encodeur rotatif à écran tactile rond de 1,8 pouce passe à l'ESP32-S31",
+      "summary": "Ce module à molette haptique, microphone et haut-parleur remplace l'ESP32-S3 par un ESP32-S31 à 320 MHz, pour environ 38 à 40 dollars.",
+      "tags": [
+        "ESP32-S31",
+        "GUITION",
+        "écran rond",
+        "encodeur rotatif",
+        "RISC-V"
+      ],
+      "sources": [
+        {
+          "title": "Rotary encoder with 1.8-inch touch display gets upgrade to ESP32-S31 SoC",
+          "url": "https://www.cnx-software.com/2026/10/22/rotary-encoder-with-1-8-inch-touch-display-gets-upgrade-to-esp32-s31-soc/",
+          "publisher": "CNX Software"
+        }
+      ],
+      "blocks": [
+        {
+          "type": "paragraph",
+          "text": "GUITION propose une nouvelle version de son encodeur rotatif à écran tactile de 1,8 pouce, la **JC3636F118C-I-YR1**, qui abandonne l'ESP32-S3 de la génération précédente pour un **ESP32-S31NRV16**. Selon CNX Software, le module a été porté à l'attention du site par un lecteur, après sa couverture d'une carte de développement ESP32-S31 à écran de 4,3 pouces publiée le 14 octobre 2026. La puce est récente et, selon l'article, son logiciel moins mature que celui de l'ESP32-S3."
+        },
+        {
+          "type": "heading",
+          "level": 2,
+          "text": "Fiche technique"
+        },
+        {
+          "type": "keyvalue",
+          "items": [
+            {
+              "label": "Processeur",
+              "value": "ESP32-S31NRV16 : cœur RISC-V haute performance RV32IMAFCP à 320 MHz avec unité de calcul flottant et SIMD, plus un cœur RISC-V basse consommation"
+            },
+            {
+              "label": "Mémoire",
+              "value": "512 Ko de SRAM, 32 Ko de SRAM basse consommation, 16 Mo de PSRAM ; 16 Mo de mémoire flash et un lecteur microSD"
+            },
+            {
+              "label": "Sans fil",
+              "value": "Wi-Fi 6 (802.11ax) à 2,4 GHz, Bluetooth 5.4 (LE Audio, goniométrie, Mesh 1.1, BR/EDR classique) et 802.15.4 pour Zigbee, Thread et Matter"
+            },
+            {
+              "label": "Écran",
+              "value": "TFT rond de 1,8 pouce, 262 000 couleurs, 360 × 360 pixels, pilote ST77916 en SPI, contrôleur tactile capacitif CST816, rétroéclairage réglable"
+            },
+            {
+              "label": "Audio",
+              "value": "Haut-parleur intégré (amplificateur PCM5100APWR) et microphone MEMS (MSM261D4030H1CPM)"
+            },
+            {
+              "label": "Commande",
+              "value": "Molette usinée avec retour haptique (pilote DRV2605LDGSR)"
+            },
+            {
+              "label": "Alimentation",
+              "value": "5 V par USB-C, batterie rechargeable en option, environ 1,3 W"
+            },
+            {
+              "label": "Dimensions",
+              "value": "66 mm de diamètre pour 22 mm d'épaisseur, environ 160 g"
+            }
+          ]
+        },
+        {
+          "type": "paragraph",
+          "text": "Le port USB-C est sensible à l'orientation : une position sert au transfert de fichiers, l'autre à la programmation du micrologiciel. L'article décrit un USB 2.0 à 480 Mbit/s."
+        },
+        {
+          "type": "heading",
+          "level": 2,
+          "text": "Logiciel et prix"
+        },
+        {
+          "type": "paragraph",
+          "text": "Le micrologiciel préchargé propose une horloge, un minuteur, un lecteur de musique, un lecteur vidéo MJPEG et AVI, un cadre photo, un analyseur de spectre audio, ainsi que des fonctions Bluetooth audio, USB audio et USB HID, la molette réglant alors le volume de l'ordinateur. Pour le développement, GUITION cite l'IDE Arduino, ESP-IDF, MicroPython et son propre environnement. L'archive fournie contient des exemples ESP-IDF 6.1.0, dont un micrologiciel de démonstration, un lecteur de musique et de vidéo MJPEG fondé sur LVGL et un assistant vocal Xiaozhi ; le dossier Arduino est vide. La documentation comprend notices, fiches techniques, schémas en PDF et outils."
+        },
+        {
+          "type": "list",
+          "items": [
+            "Avec batterie : 40,09 dollars, livraison comprise, hors taxes, sur AliExpress ;",
+            "sans batterie : 38,49 dollars ;",
+            "modèle précédent à ESP32-S3 (JC3636K518C) : 39,13 dollars avec batterie, un prix « SuperDeals » de 33,39 dollars étant aussi affiché."
+          ]
+        },
+        {
+          "type": "paragraph",
+          "text": "Par rapport à l'ESP32-S3, CNX Software relève des cœurs plus rapides, un moteur graphique 2D, un décodeur MJPEG, davantage d'options sans fil et un USB 2.0 à 480 Mbit/s. En contrepartie, la puce est nouvelle, son écosystème logiciel moins rodé, et le module légèrement plus cher."
+        },
+        {
+          "type": "diagram",
+          "svg": "<svg xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"0 0 640 174\" font-family=\"system-ui,sans-serif\"><rect width=\"640\" height=\"174\" rx=\"14\" fill=\"#f1f5f9\"/><text x=\"20\" y=\"30\" font-size=\"14\" font-weight=\"700\" fill=\"#0f172a\">Prix relevés sur AliExpress (en dollars)</text><text x=\"20\" y=\"66\" font-size=\"12\" fill=\"#0f172a\">ESP32-S31 sans batterie</text><rect x=\"300\" y=\"50\" width=\"300\" height=\"22\" rx=\"5\" fill=\"#cbd5e1\"/><rect x=\"300\" y=\"50\" width=\"114\" height=\"22\" rx=\"5\" fill=\"#c2410c\"/><text x=\"422\" y=\"66\" font-size=\"12\" font-weight=\"700\" text-anchor=\"start\" fill=\"#0f172a\">38 $</text><text x=\"20\" y=\"104\" font-size=\"12\" fill=\"#0f172a\">ESP32-S31 avec batterie</text><rect x=\"300\" y=\"88\" width=\"300\" height=\"22\" rx=\"5\" fill=\"#cbd5e1\"/><rect x=\"300\" y=\"88\" width=\"120\" height=\"22\" rx=\"5\" fill=\"#c2410c\"/><text x=\"428\" y=\"104\" font-size=\"12\" font-weight=\"700\" text-anchor=\"start\" fill=\"#0f172a\">40 $</text><text x=\"20\" y=\"142\" font-size=\"12\" fill=\"#0f172a\">ESP32-S3 avec batterie</text><rect x=\"300\" y=\"126\" width=\"300\" height=\"22\" rx=\"5\" fill=\"#cbd5e1\"/><rect x=\"300\" y=\"126\" width=\"117\" height=\"22\" rx=\"5\" fill=\"#c2410c\"/><text x=\"425\" y=\"142\" font-size=\"12\" font-weight=\"700\" text-anchor=\"start\" fill=\"#0f172a\">39 $</text></svg>",
+          "alt": "Diagramme en barres des prix : 38,49 dollars pour la version S31 sans batterie, 40,09 dollars avec batterie, 39,13 dollars pour le modèle S3 avec batterie.",
+          "caption": "Prix arrondis au dollar, d'après CNX Software ; le modèle ESP32-S3 est aussi affiché à 33,39 dollars en promotion."
+        },
+        {
+          "type": "usecases",
+          "title": "Exemples d'utilisation",
+          "items": [
+            {
+              "icon": "🏠",
+              "title": "Une commande domotique",
+              "text": "Une molette tactile avec Wi-Fi 6, Bluetooth, Thread et Matter peut régler lumières, volume ou thermostat depuis un mur ou un bureau."
+            },
+            {
+              "icon": "🎵",
+              "title": "Un contrôleur audio USB",
+              "text": "Avec l'USB audio et l'USB HID, le module peut servir de potentiomètre de volume et d'afficheur de spectre sur un poste de travail."
+            },
+            {
+              "icon": "🧪",
+              "title": "Un prototype de matériel",
+              "text": "Un atelier peut s'en servir pour essayer l'ESP32-S31 avec ESP-IDF 6.1.0 et LVGL avant de concevoir sa propre carte."
+            }
+          ]
+        },
+        {
+          "type": "timeline",
+          "title": "D'où l'on vient, où l'on va",
+          "items": [
+            {
+              "label": "Jusqu'ici",
+              "text": "GUITION vendait un encodeur rotatif à écran de 1,8 pouce fondé sur l'ESP32-S3 (JC3636K518C)."
+            },
+            {
+              "label": "14 octobre 2026",
+              "text": "CNX Software couvre une carte de développement ESP32-S31 à écran de 4,3 pouces."
+            },
+            {
+              "label": "22 octobre 2026",
+              "text": "L'encodeur passe à l'ESP32-S31 chez GUITION."
+            },
+            {
+              "label": "À suivre",
+              "text": "La maturité des outils pour cette puce, notamment Arduino, dont le dossier est encore vide."
+            }
+          ]
+        },
+        {
+          "type": "opinion",
+          "title": "Notre avis",
+          "paragraphs": [
+            "Pour un écart de prix minime, la nouvelle version apporte plus de puissance et un meilleur sans-fil : c'est un bon moyen de découvrir l'ESP32-S31 sans concevoir de carte. Le dossier Arduino vide rappelle toutefois qu'une puce neuve exige du temps avant que son écosystème soit fiable : à court terme, mieux vaut viser ESP-IDF.",
+            "Dans un à trois ans, l'arrivée du S31 dans des produits grand public devrait banaliser les écrans ronds tactiles à molette. Cette projection est une opinion, pas une annonce du fabricant."
+          ],
+          "verdict": "Un module séduisant pour expérimenter, à réserver aux utilisateurs prêts à travailler avec des outils encore jeunes."
+        },
+        {
+          "type": "callout",
+          "variant": "info",
+          "title": "À retenir",
+          "text": "JC3636F118C-I-YR1 : ESP32-S31 à 320 MHz, 16 Mo de PSRAM, écran rond 360 × 360, à partir de 38,49 dollars sur AliExpress ; logiciel Arduino pas encore disponible dans l'archive."
+        }
+      ],
+      "illustration": {
+        "svg": "<svg xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"0 0 640 360\"><defs><linearGradient id=\"g\" x1=\"0\" y1=\"0\" x2=\"1\" y2=\"1\"><stop offset=\"0\" stop-color=\"hsl(30,65%,38%)\"/><stop offset=\"1\" stop-color=\"hsl(70,70%,22%)\"/></linearGradient></defs><rect width=\"640\" height=\"360\" fill=\"url(#g)\"/><circle cx=\"520\" cy=\"161\" r=\"39\" fill=\"#fff\" opacity=\"0.09\"/><circle cx=\"275\" cy=\"171\" r=\"16\" fill=\"#fff\" opacity=\"0.12\"/><circle cx=\"209\" cy=\"90\" r=\"15\" fill=\"#fff\" opacity=\"0.09\"/><circle cx=\"64\" cy=\"88\" r=\"43\" fill=\"#fff\" opacity=\"0.09\"/><circle cx=\"215\" cy=\"180\" r=\"43\" fill=\"#fff\" opacity=\"0.06\"/><circle cx=\"258\" cy=\"54\" r=\"25\" fill=\"#fff\" opacity=\"0.12\"/><circle cx=\"74\" cy=\"116\" r=\"40\" fill=\"#fff\" opacity=\"0.06\"/><circle cx=\"320\" cy=\"140\" r=\"78\" fill=\"#fff\" opacity=\"0.16\"/><circle cx=\"320\" cy=\"140\" r=\"56\" fill=\"#fff\" opacity=\"0.18\"/><text x=\"320\" y=\"165\" font-size=\"76\" text-anchor=\"middle\">🎛️</text><rect x=\"60\" y=\"250\" width=\"443\" height=\"6\" rx=\"3\" fill=\"#fff\" opacity=\"0.35\"/><rect x=\"68\" y=\"268\" width=\"383\" height=\"6\" rx=\"3\" fill=\"#fff\" opacity=\"0.28\"/><rect x=\"76\" y=\"286\" width=\"353\" height=\"6\" rx=\"3\" fill=\"#fff\" opacity=\"0.21\"/><rect x=\"84\" y=\"304\" width=\"345\" height=\"6\" rx=\"3\" fill=\"#fff\" opacity=\"0.14\"/></svg>"
+      },
+      "cover": {
+        "url": "https://www.cnx-software.com/wp-content/uploads/2026/10/ESP32-S31-rotary-encoder.jpg",
+        "alt": "Encodeur rotatif GUITION à écran rond de 1,8 pouce et ESP32-S31",
+        "credit": "cnx-software.com"
+      },
+      "readingMinutes": 4,
+      "publishedAt": "2026-10-22T05:18:37+02:00"
+    }
+  ]
+}
