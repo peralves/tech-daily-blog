@@ -1,0 +1,1354 @@
+{
+ "schemaVersion": "1.0",
+ "date": "2026-10-23",
+ "generatedAt": "2026-10-23T19:18:55+02:00",
+ "title": "Pare-feu et VPN compromis, nouvelle alerte PHP, faille Pillow et fin d'Arc",
+ "summary": "Cette édition tech revient sur une campagne visant des pare-feu et VPN d'entreprise, une nouvelle alerte de sécurité sur PHP, la faille critique de Pillow, la position de Linus Torvalds sur l'IA, la fin du navigateur Arc, la démonstration Node2Shell et la plateforme ESP-Mosaico.",
+ "highlights": [
+  "k0t : plus de 70 000 identifiants liés à des pare-feu et VPN Fortinet et Palo Alto exposés",
+  "PHP signale une nouvelle faille d'exécution de code, sans correctif d'urgence : désactiver le suivi de progression des envois",
+  "Pillow 13.0.0 corrige une faille où le nom d'un fichier EPS suffit à exécuter des commandes",
+  "Arc sera arrêté le 22 décembre 2026 ; The Browser Company recommande Dia"
+ ],
+ "meta": {
+  "generator": "claude-scheduled-task"
+ },
+ "posts": [
+  {
+   "id": "k0t-pare-feu-vpn-70000-identifiants",
+   "category": "cybersecurite",
+   "icon": "🛡️",
+   "importance": 5,
+   "sourceDate": "2026-10-23",
+   "title": "Pare-feu et VPN : l'acteur k0t aurait compromis des équipements Fortinet et Palo Alto, avec plus de 70 000 identifiants exposés",
+   "summary": "Group-IB et NyxLab décrivent une campagne de compromission à grande échelle d'équipements en bordure de réseau, liée aux groupes de rançongiciels Qilin et The Gentlemen.",
+   "tags": [
+    "k0t",
+    "Fortinet",
+    "Palo Alto Networks",
+    "VPN",
+    "Qilin",
+    "rançongiciel"
+   ],
+   "readingMinutes": 6,
+   "sources": [
+    {
+     "title": "Hackers Breach Enterprise Firewalls and VPNs, Exposing Over 70,000 Credentials",
+     "url": "https://thehackernews.com/2026/10/hackers-breach-enterprise-firewalls-and.html",
+     "publisher": "The Hacker News"
+    }
+   ],
+   "cover": {
+    "url": "https://blogger.googleusercontent.com/img/b/R29vZ2xl/AVvXsEiSk-Q06Dd5YyYmXWMt9b860DzGRKbTae_QwvoZDKNICaEznAj2AUurJmv6vPnpcH7qqDjauFZWWx7GX1RN93BLaU9Rqgiqe9j1iQRg2Vqcz3HpSqgesA6oS-GrMTyx4CTzwOD7C_z205k57ZpT70Gv4RXi-65X-nyI04wpA3raJ5nh46pN5ox42cyLnHjv/s1700-nu-rw-lo-l85-e365/1000117358.jpg",
+    "alt": "Illustration d'une campagne de piratage visant des pare-feu et des VPN d'entreprise",
+    "credit": "thehackernews.com"
+   },
+   "illustration": {
+    "svg": "<svg xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"0 0 640 360\"><defs><linearGradient id=\"g\" x1=\"0\" y1=\"0\" x2=\"1\" y2=\"1\"><stop offset=\"0\" stop-color=\"hsl(175,62%,34%)\"/><stop offset=\"1\" stop-color=\"hsl(215,68%,52%)\"/></linearGradient></defs><rect width=\"640\" height=\"360\" fill=\"url(#g)\"/><circle cx=\"570\" cy=\"50\" r=\"90\" fill=\"#fff\" fill-opacity=\".07\"/><circle cx=\"60\" cy=\"330\" r=\"110\" fill=\"#fff\" fill-opacity=\".06\"/><g fill=\"#fff\" stroke=\"#fff\"><path d=\"M320 90l85 30v70c0 55-40 90-85 110-45-20-85-55-85-110v-70z\" fill-opacity=\".9\" stroke=\"none\"/><path d=\"M285 190l28 28 50-56\" fill=\"none\" stroke=\"#000\" stroke-opacity=\".35\" stroke-width=\"14\"/></g><text x=\"565\" y=\"325\" text-anchor=\"middle\" font-size=\"50\">🛡️</text></svg>"
+   },
+   "blocks": [
+    {
+     "type": "paragraph",
+     "text": "Le pare-feu et le VPN sont les portes d'entrée d'un réseau d'entreprise : ils sont exposés sur Internet par nature, et ce qui y passe n'est presque jamais inspecté plus loin. C'est précisément ce qui en fait des cibles de choix. Selon une enquête conjointe de Group-IB et de NyxLab, relayée par The Hacker News le 23 octobre 2026, un acteur surnommé **k0t** exploite cette faiblesse à grande échelle, avec plus de 70 000 identifiants liés à des équipements réseau et à des extractions d'annuaires LDAP identifiés par les chercheurs."
+    },
+    {
+     "type": "paragraph",
+     "text": "k0t, également connu sous les alias CryptoFeel, Member19 et QazWsxShop, a été repéré pour la première fois le 22 octobre 2025. Les enquêteurs lui attribuent des liens avec les groupes de rançongiciels Qilin et The Gentlemen, sans pouvoir trancher sur la nature exacte de la relation : courtier en accès initiaux ou affilié. De nombreuses victimes de la campagne sont ensuite apparues sur les sites de revendication de ces deux groupes, ce qui renforce l'hypothèse d'une revente ou d'un passage de relais."
+    },
+    {
+     "type": "heading",
+     "level": 2,
+     "text": "Une chaîne d'attaque très outillée"
+    },
+    {
+     "type": "paragraph",
+     "text": "Le mode opératoire décrit est industriel. L'acteur dresse d'abord des listes de cibles à l'aide des moteurs de recherche FOFA et ZoomEye, qui indexent les appareils visibles sur Internet. Il obtient ensuite l'accès initial de deux manières : en exploitant des failles connues, ou en tentant des combinaisons courantes d'identifiants et de mots de passe."
+    },
+    {
+     "type": "list",
+     "ordered": false,
+     "items": [
+      "**CVE-2025-64446** : une faille de traversée de chemin dans FortiWeb, exploitée avec un script Python nommé « fortnew.py ».",
+      "**CVE-2026-0257** : un contournement d'authentification dans PAN-OS et Prisma Access, exploité avec un script « exploit_2026_0257.py ».",
+      "**Force brute** : des essais d'identifiants courants contre les interfaces VPN exposées."
+     ]
+    },
+    {
+     "type": "paragraph",
+     "text": "Une fois dans le réseau, l'attaquant établit une connexion OpenConnect, énumère l'annuaire Active Directory, les partages SMB et les antivirus installés, puis installe des outils d'administration à distance légitimes (MeshCentral Agent, Atera, Teramind, AnyDesk) ainsi que le cadre de commande et de contrôle AdaptixC2. Il s'appuie aussi sur des outils d'audit courants comme NetExec, Impacket, Kerbrute et Mimikatz. Les données sont enfin exfiltrées avec Rclone vers des compartiments Wasabi S3 et des espaces MEGA."
+    },
+    {
+     "type": "diagram",
+     "svg": "<svg xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"0 0 640 200\" font-family=\"system-ui,sans-serif\"><rect width=\"640\" height=\"200\" rx=\"16\" fill=\"#eef2f7\"/><text x=\"320\" y=\"30\" text-anchor=\"middle\" font-size=\"15\" font-weight=\"700\" fill=\"#1f2a37\">Chaîne d&#x27;attaque attribuée à k0t</text><rect x=\"20.0\" y=\"48\" width=\"133.5\" height=\"110\" rx=\"12\" fill=\"#fff\" stroke=\"#3b6ea5\" stroke-width=\"2\"/><text x=\"86.8\" y=\"78\" text-anchor=\"middle\" font-size=\"13\" font-weight=\"700\" fill=\"#14304d\">Repérage</text><text x=\"86.8\" y=\"102\" text-anchor=\"middle\" font-size=\"11.5\" fill=\"#33414f\">FOFA, ZoomEye</text><text x=\"86.8\" y=\"120\" text-anchor=\"middle\" font-size=\"11.5\" fill=\"#33414f\">listes de cibles</text><path d=\"M156.5 103 l16 0 m-6 -6 l6 6 l-6 6\" stroke=\"#3b6ea5\" stroke-width=\"2.5\" fill=\"none\"/><rect x=\"175.5\" y=\"48\" width=\"133.5\" height=\"110\" rx=\"12\" fill=\"#fff\" stroke=\"#3b6ea5\" stroke-width=\"2\"/><text x=\"242.2\" y=\"78\" text-anchor=\"middle\" font-size=\"13\" font-weight=\"700\" fill=\"#14304d\">Accès initial</text><text x=\"242.2\" y=\"102\" text-anchor=\"middle\" font-size=\"11.5\" fill=\"#33414f\">failles FortiWeb</text><text x=\"242.2\" y=\"120\" text-anchor=\"middle\" font-size=\"11.5\" fill=\"#33414f\">et PAN-OS, force brute</text><path d=\"M312.0 103 l16 0 m-6 -6 l6 6 l-6 6\" stroke=\"#3b6ea5\" stroke-width=\"2.5\" fill=\"none\"/><rect x=\"331.0\" y=\"48\" width=\"133.5\" height=\"110\" rx=\"12\" fill=\"#fff\" stroke=\"#3b6ea5\" stroke-width=\"2\"/><text x=\"397.8\" y=\"78\" text-anchor=\"middle\" font-size=\"13\" font-weight=\"700\" fill=\"#14304d\">Implantation</text><text x=\"397.8\" y=\"102\" text-anchor=\"middle\" font-size=\"11.5\" fill=\"#33414f\">OpenConnect</text><text x=\"397.8\" y=\"120\" text-anchor=\"middle\" font-size=\"11.5\" fill=\"#33414f\">outils d&#x27;administration</text><path d=\"M467.5 103 l16 0 m-6 -6 l6 6 l-6 6\" stroke=\"#3b6ea5\" stroke-width=\"2.5\" fill=\"none\"/><rect x=\"486.5\" y=\"48\" width=\"133.5\" height=\"110\" rx=\"12\" fill=\"#fff\" stroke=\"#3b6ea5\" stroke-width=\"2\"/><text x=\"553.2\" y=\"78\" text-anchor=\"middle\" font-size=\"13\" font-weight=\"700\" fill=\"#14304d\">Exfiltration</text><text x=\"553.2\" y=\"102\" text-anchor=\"middle\" font-size=\"11.5\" fill=\"#33414f\">Rclone vers</text><text x=\"553.2\" y=\"120\" text-anchor=\"middle\" font-size=\"11.5\" fill=\"#33414f\">Wasabi et MEGA</text></svg>",
+     "alt": "Quatre étapes : repérage, accès initial, implantation, exfiltration",
+     "caption": "Schéma simplifié de la chaîne d'attaque décrite par Group-IB et NyxLab."
+    },
+    {
+     "type": "heading",
+     "level": 2,
+     "text": "Chiffres et répartition"
+    },
+    {
+     "type": "keyvalue",
+     "items": [
+      {
+       "label": "Identifiants exposés",
+       "value": "plus de 70 000 (équipements réseau et extractions LDAP)"
+      },
+      {
+       "label": "Asie-Pacifique",
+       "value": "environ 38 % des victimes"
+      },
+      {
+       "label": "Amérique latine",
+       "value": "environ 31,9 %"
+      },
+      {
+       "label": "Europe",
+       "value": "environ 15,8 %"
+      },
+      {
+       "label": "Moyen-Orient et Afrique du Nord",
+       "value": "environ 12,7 %"
+      },
+      {
+       "label": "Période de forte activité",
+       "value": "de février à juin 2026"
+      }
+     ]
+    },
+    {
+     "type": "paragraph",
+     "text": "Les chercheurs notent un recoupement négligeable avec la campagne de collecte d'identifiants appelée FortiBleed, qui s'est déroulée sur la même période. Il peut s'agir d'un jeu de données distinct, d'un sous-ensemble détenu par un opérateur ou d'une opération d'accès apparentée ; la source ne tranche pas. Elle précise aussi que k0t choisit ses cibles en énumérant les équipements exposés plutôt qu'en étudiant chaque organisation : le produit et la localisation comptent plus que le secteur d'activité."
+    },
+    {
+     "type": "usecases",
+     "title": "Exemples d'utilisation",
+     "items": [
+      {
+       "icon": "🏭",
+       "title": "PME industrielle",
+       "text": "Un VPN non corrigé suffit à ouvrir l'accès à l'annuaire interne ; les identifiants volés peuvent ensuite être revendus à un groupe de rançongiciels."
+      },
+      {
+       "icon": "🏥",
+       "title": "Établissement de santé",
+       "text": "Un pare-feu laissé avec un mot de passe faible est repéré par un moteur de recherche d'appareils, puis ciblé sans que l'établissement ait été choisi individuellement."
+      },
+      {
+       "icon": "🧰",
+       "title": "Prestataire informatique",
+       "text": "Des outils d'administration à distance légitimes, déjà autorisés chez le client, passent inaperçus et servent de point d'appui discret."
+      }
+     ]
+    },
+    {
+     "type": "timeline",
+     "title": "D'où l'on vient, où l'on va",
+     "items": [
+      {
+       "label": "22 octobre 2025",
+       "text": "Première apparition connue de k0t."
+      },
+      {
+       "label": "Février à juin 2026",
+       "text": "Période où se concentre une part notable des compromissions."
+      },
+      {
+       "label": "23 octobre 2026",
+       "text": "Publication de l'enquête conjointe de Group-IB et de NyxLab."
+      }
+     ]
+    },
+    {
+     "type": "opinion",
+     "title": "Notre avis",
+     "paragraphs": [
+      "L'enseignement principal n'est pas la sophistication, mais la banalité : des failles déjà publiques, des mots de passe devinables et des outils d'administration légitimes suffisent. Les équipements de bordure restent le maillon que les défenseurs corrigent le plus lentement, alors qu'ils sont les plus exposés.",
+      "D'ici un à trois ans, on peut raisonnablement s'attendre à ce que l'accès initial devienne encore plus marchandisé : des acteurs spécialisés vendent des accès à des affiliés de rançongiciels. La parade passe par des correctifs rapides sur les équipements exposés, une authentification forte sur les VPN et une surveillance des outils d'administration à distance non prévus. Il s'agit ici d'une analyse, non d'un fait établi par l'enquête."
+     ],
+     "verdict": "Corriger vite et surveiller l'inattendu : la défense des équipements de bordure reste la première ligne."
+    },
+    {
+     "type": "callout",
+     "title": "À retenir",
+     "text": "Les failles nommées (CVE-2025-64446 et CVE-2026-0257) doivent être corrigées ; l'authentification multifacteur et l'inventaire des outils d'administration à distance autorisés réduisent fortement le risque."
+    }
+   ],
+   "publishedAt": "2026-10-23T19:18:55+02:00"
+  },
+  {
+   "id": "php-nouvelle-alerte-rce-session-upload-progress",
+   "category": "cybersecurite",
+   "icon": "🐘",
+   "importance": 4,
+   "sourceDate": "2026-10-23",
+   "title": "PHP signale une nouvelle faille d'exécution de code sans correctif d'urgence, deux jours après les mises à jour PHP2Shell",
+   "summary": "La CVE-2026-115560 ne concerne que des applications configurées de façon inhabituelle ; le projet recommande de désactiver le suivi de progression des envois de fichiers.",
+   "tags": [
+    "PHP",
+    "CVE-2026-115560",
+    "PHP2Shell",
+    "Mirai",
+    "session"
+   ],
+   "readingMinutes": 5,
+   "sources": [
+    {
+     "title": "PHP Warns of Another Unpatched RCE Risk Two Days After Emergency PHP2Shell Patches",
+     "url": "https://thehackernews.com/2026/10/urgent-php-warns-of-another-unpatched.html",
+     "publisher": "The Hacker News"
+    },
+    {
+     "title": "PHP2Shell Exploit Attempts Hit Millions as Attackers Try to Deploy Mirai Malware",
+     "url": "https://thehackernews.com/2026/10/php2shell-exploit-attempts-hit-millions.html",
+     "publisher": "The Hacker News"
+    }
+   ],
+   "cover": {
+    "url": "https://blogger.googleusercontent.com/img/b/R29vZ2xl/AVvXsEhSXE1XecomGt7TSLi_DCDVL8oQjsLEtppNNGjkuW1cbVl-cXZkMG-rqTr-oSVz_6XfoU8aoScw3rjGxsnTpV3JaV5eWfj431lg09Rnrrk1UjwNq1ZEofkwR4FaM2qatC_FD9ZNBZk-T9_9ddu8n-BtUkhwVgWzc2ZvaWAHP8eMxlLU19qxIjlXeHOJYHs/s1700-nu-rw-lo-l85-e365/php2.jpg",
+    "alt": "Illustration liée aux failles PHP2Shell",
+    "credit": "thehackernews.com"
+   },
+   "illustration": {
+    "svg": "<svg xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"0 0 640 360\"><defs><linearGradient id=\"g\" x1=\"0\" y1=\"0\" x2=\"1\" y2=\"1\"><stop offset=\"0\" stop-color=\"hsl(175,62%,34%)\"/><stop offset=\"1\" stop-color=\"hsl(195,68%,52%)\"/></linearGradient></defs><rect width=\"640\" height=\"360\" fill=\"url(#g)\"/><circle cx=\"570\" cy=\"50\" r=\"90\" fill=\"#fff\" fill-opacity=\".07\"/><circle cx=\"60\" cy=\"330\" r=\"110\" fill=\"#fff\" fill-opacity=\".06\"/><g fill=\"#fff\" stroke=\"#fff\"><path d=\"M250 130l-70 50 70 50M390 130l70 50-70 50M345 110l-50 140\" fill=\"none\" stroke-width=\"16\" stroke-linecap=\"round\" stroke-linejoin=\"round\"/></g><text x=\"565\" y=\"325\" text-anchor=\"middle\" font-size=\"50\">🐘</text></svg>"
+   },
+   "blocks": [
+    {
+     "type": "paragraph",
+     "text": "Le 21 octobre 2026, le projet PHP publiait des versions d'urgence pour corriger deux failles critiques d'exécution de code à distance sans authentification, regroupées sous le nom PHP2Shell. Deux jours plus tard, il émet un nouvel avis, cette fois à titre informatif : une autre faille, la **CVE-2026-115560**, peut elle aussi permettre l'exécution de code sur un serveur, mais PHP la juge peu probable et ne prévoit pas de correctif d'urgence."
+    },
+    {
+     "type": "paragraph",
+     "text": "Le correctif suivra le cycle de publication ordinaire, et un avis complet paraîtra avec la prochaine version. Selon The Hacker News, PHP n'a communiqué ni les versions touchées, ni la version corrigée, ni de score de gravité, et n'indique pas si cette faille partage une cause avec la CVE-2026-109619 corrigée le 21 octobre."
+    },
+    {
+     "type": "heading",
+     "level": 2,
+     "text": "Dans quels cas une application est-elle exposée ?"
+    },
+    {
+     "type": "paragraph",
+     "text": "L'exposition exige la réunion de conditions précises, ce qui explique le jugement de PHP. Toutes les conditions suivantes doivent être vraies :"
+    },
+    {
+     "type": "list",
+     "ordered": true,
+     "items": [
+      "l'application définit `session.serialize_handler` sur `php_binary` ou `php_serialize` dans sa configuration ;",
+      "elle repasse cette option sur `php` à l'exécution, avec `ini_set()` ;",
+      "ce changement intervient avant l'appel à `session_start()` ;",
+      "le suivi de progression des envois de fichiers (« session upload progress ») reste activé."
+     ]
+    },
+    {
+     "type": "paragraph",
+     "text": "Une application qui ne modifie jamais le gestionnaire de sérialisation en cours d'exécution n'est pas exposée par ce chemin. Le suivi de progression est toutefois activé par défaut dans PHP, d'où la recommandation de le couper."
+    },
+    {
+     "type": "diagram",
+     "svg": "<svg xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"0 0 640 200\" font-family=\"system-ui,sans-serif\"><rect width=\"640\" height=\"200\" rx=\"16\" fill=\"#eef2f7\"/><text x=\"320\" y=\"30\" text-anchor=\"middle\" font-size=\"15\" font-weight=\"700\" fill=\"#1f2a37\">Les quatre conditions cumulées (CVE-2026-115560)</text><rect x=\"20.0\" y=\"48\" width=\"133.5\" height=\"110\" rx=\"12\" fill=\"#fff\" stroke=\"#3b6ea5\" stroke-width=\"2\"/><text x=\"86.8\" y=\"78\" text-anchor=\"middle\" font-size=\"13\" font-weight=\"700\" fill=\"#14304d\">Configuration</text><text x=\"86.8\" y=\"102\" text-anchor=\"middle\" font-size=\"11.5\" fill=\"#33414f\">serialize_handler =</text><text x=\"86.8\" y=\"120\" text-anchor=\"middle\" font-size=\"11.5\" fill=\"#33414f\">php_binary ou</text><text x=\"86.8\" y=\"138\" text-anchor=\"middle\" font-size=\"11.5\" fill=\"#33414f\">php_serialize</text><path d=\"M156.5 103 l16 0 m-6 -6 l6 6 l-6 6\" stroke=\"#3b6ea5\" stroke-width=\"2.5\" fill=\"none\"/><rect x=\"175.5\" y=\"48\" width=\"133.5\" height=\"110\" rx=\"12\" fill=\"#fff\" stroke=\"#3b6ea5\" stroke-width=\"2\"/><text x=\"242.2\" y=\"78\" text-anchor=\"middle\" font-size=\"13\" font-weight=\"700\" fill=\"#14304d\">Changement</text><text x=\"242.2\" y=\"102\" text-anchor=\"middle\" font-size=\"11.5\" fill=\"#33414f\">ini_set vers « php »</text><text x=\"242.2\" y=\"120\" text-anchor=\"middle\" font-size=\"11.5\" fill=\"#33414f\">à l&#x27;exécution</text><path d=\"M312.0 103 l16 0 m-6 -6 l6 6 l-6 6\" stroke=\"#3b6ea5\" stroke-width=\"2.5\" fill=\"none\"/><rect x=\"331.0\" y=\"48\" width=\"133.5\" height=\"110\" rx=\"12\" fill=\"#fff\" stroke=\"#3b6ea5\" stroke-width=\"2\"/><text x=\"397.8\" y=\"78\" text-anchor=\"middle\" font-size=\"13\" font-weight=\"700\" fill=\"#14304d\">Avant session_start</text><text x=\"397.8\" y=\"102\" text-anchor=\"middle\" font-size=\"11.5\" fill=\"#33414f\">le changement a lieu</text><text x=\"397.8\" y=\"120\" text-anchor=\"middle\" font-size=\"11.5\" fill=\"#33414f\">trop tôt</text><path d=\"M467.5 103 l16 0 m-6 -6 l6 6 l-6 6\" stroke=\"#3b6ea5\" stroke-width=\"2.5\" fill=\"none\"/><rect x=\"486.5\" y=\"48\" width=\"133.5\" height=\"110\" rx=\"12\" fill=\"#fff\" stroke=\"#3b6ea5\" stroke-width=\"2\"/><text x=\"553.2\" y=\"78\" text-anchor=\"middle\" font-size=\"13\" font-weight=\"700\" fill=\"#14304d\">Suivi d&#x27;envoi actif</text><text x=\"553.2\" y=\"102\" text-anchor=\"middle\" font-size=\"11.5\" fill=\"#33414f\">upload_progress</text><text x=\"553.2\" y=\"120\" text-anchor=\"middle\" font-size=\"11.5\" fill=\"#33414f\">activé (défaut)</text></svg>",
+     "alt": "Quatre conditions cumulatives menant à l'exposition",
+     "caption": "Toutes les conditions doivent être réunies ; en couper une seule suffit à écarter ce chemin d'attaque."
+    },
+    {
+     "type": "heading",
+     "level": 2,
+     "text": "La parade recommandée"
+    },
+    {
+     "type": "paragraph",
+     "text": "PHP recommande de définir `session.upload_progress.enabled=0` jusqu'à la prochaine version de correction. C'est la même mesure que celle de l'avis du 21 octobre sur la CVE-2026-109619 : quiconque l'a déjà appliquée n'a rien de plus à faire pour ce problème. Les versions d'urgence du 21 octobre (PHP 8.5.12, 8.4.27, 8.3.36 et 8.2.35) ne corrigent pas cette nouvelle faille."
+    },
+    {
+     "type": "heading",
+     "level": 2,
+     "text": "Ce que l'on observe sur le terrain"
+    },
+    {
+     "type": "keyvalue",
+     "items": [
+      {
+       "label": "CVE-2026-115560",
+       "value": "aucune exploitation signalée à ce jour"
+      },
+      {
+       "label": "PHP2Shell, premier essai connu",
+       "value": "17 octobre, sur un leurre d'Amazon, quatre jours avant la divulgation"
+      },
+      {
+       "label": "Cloudflare",
+       "value": "des dizaines de milliers à des millions de tentatives entre le 21 et le 22 octobre"
+      },
+      {
+       "label": "Sophos et Arctic Wolf",
+       "value": "tentatives d'installation d'une variante de Mirai"
+      }
+     ]
+    },
+    {
+     "type": "paragraph",
+     "text": "Sophos décrit un échantillon qui tente d'enrôler les machines dans un réseau de zombies fondé sur Mirai, baptisé Potassium, doté de fonctions de téléchargement et de perturbation réseau. Les tentatives observées ont échoué. D'autres chercheurs signalent du balayage et des sondages, sans exécution de code confirmée."
+    },
+    {
+     "type": "usecases",
+     "title": "Exemples d'utilisation",
+     "items": [
+      {
+       "icon": "🛒",
+       "title": "Boutique en ligne",
+       "text": "Un site e-commerce sur PHP vérifie son fichier php.ini et ses appels à ini_set, puis coupe le suivi de progression si aucun formulaire ne l'utilise."
+      },
+      {
+       "icon": "🏢",
+       "title": "Hébergeur mutualisé",
+       "text": "Il pousse la directive à zéro sur l'ensemble de ses serveurs en attendant le correctif, tout en mettant à jour vers les versions du 21 octobre."
+      },
+      {
+       "icon": "🧑‍💻",
+       "title": "Équipe de développement",
+       "text": "Elle audite son code pour repérer les changements de gestionnaire de session et ajoute un contrôle dans son intégration continue."
+      }
+     ]
+    },
+    {
+     "type": "timeline",
+     "title": "D'où l'on vient, où l'on va",
+     "items": [
+      {
+       "label": "17 octobre 2026",
+       "text": "Première tentative d'exploitation de PHP2Shell repérée par Amazon."
+      },
+      {
+       "label": "21 octobre 2026",
+       "text": "Versions d'urgence de PHP et avis sur la CVE-2026-109619."
+      },
+      {
+       "label": "23 octobre 2026",
+       "text": "Avis informatif sur la CVE-2026-115560 ; correctif attendu avec la prochaine version ordinaire."
+      }
+     ]
+    },
+    {
+     "type": "opinion",
+     "title": "Notre avis",
+     "paragraphs": [
+      "Le projet fait un choix de communication défendable : prévenir tôt, même sans correctif, plutôt que de laisser les défenseurs découvrir le problème plus tard. Mais l'absence de score de gravité et de versions concernées laisse les administrateurs dans le flou, alors que les tentatives d'exploitation contre les failles voisines se comptent en millions.",
+      "À un horizon de un à trois ans, la multiplication des chaînes de failles dans les langages très répandus oblige les hébergeurs à traiter la configuration comme du code : désactiver par défaut les fonctions rarement utiles réduit durablement la surface d'attaque. Il s'agit d'une opinion, non d'un fait."
+     ],
+     "verdict": "Peu probable ne veut pas dire inoffensif : couper une option inutile coûte moins cher que d'attendre."
+    }
+   ],
+   "publishedAt": "2026-10-23T19:18:55+02:00"
+  },
+  {
+   "id": "sandworm-uac-0099-mythicratatoskr-yggdrasil",
+   "category": "cybersecurite",
+   "icon": "🕸️",
+   "importance": 3,
+   "sourceDate": "2026-10-23",
+   "title": "Ukraine : Sandworm et UAC-0099 ont combiné une porte dérobée cachée dans le réseau maillé Yggdrasil et un effaceur de données",
+   "summary": "ESET décrit une attaque destructrice contre une société de logistique ukrainienne, en deux temps : accès initial par UAC-0099, effacement par Sandworm.",
+   "tags": [
+    "Sandworm",
+    "UAC-0099",
+    "ESET",
+    "Ukraine",
+    "Yggdrasil",
+    "wiper"
+   ],
+   "readingMinutes": 5,
+   "sources": [
+    {
+     "title": "Russian-Linked Hackers Used New Mesh Network Backdoor in Destructive Ukraine Attack",
+     "url": "https://thehackernews.com/2026/10/russian-linked-hackers-used-new-mesh.html",
+     "publisher": "The Hacker News"
+    }
+   ],
+   "illustration": {
+    "svg": "<svg xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"0 0 640 360\"><defs><linearGradient id=\"g\" x1=\"0\" y1=\"0\" x2=\"1\" y2=\"1\"><stop offset=\"0\" stop-color=\"hsl(175,62%,34%)\"/><stop offset=\"1\" stop-color=\"hsl(145,68%,52%)\"/></linearGradient></defs><rect width=\"640\" height=\"360\" fill=\"url(#g)\"/><circle cx=\"570\" cy=\"50\" r=\"90\" fill=\"#fff\" fill-opacity=\".07\"/><circle cx=\"60\" cy=\"330\" r=\"110\" fill=\"#fff\" fill-opacity=\".06\"/><g fill=\"#fff\" stroke=\"#fff\"><g stroke-width=\"5\" fill=\"none\" stroke-opacity=\".7\"><path d=\"M320 180L180 110M320 180L460 110M320 180L170 260M320 180L470 260M320 180L320 85\"/></g><circle cx=\"320\" cy=\"180\" r=\"34\" stroke=\"none\" fill-opacity=\".95\"/><g stroke=\"none\"><circle cx=\"180\" cy=\"110\" r=\"18\"/><circle cx=\"460\" cy=\"110\" r=\"18\"/><circle cx=\"170\" cy=\"260\" r=\"18\"/><circle cx=\"470\" cy=\"260\" r=\"18\"/><circle cx=\"320\" cy=\"85\" r=\"18\"/></g></g><text x=\"565\" y=\"325\" text-anchor=\"middle\" font-size=\"50\">🕸️</text></svg>"
+   },
+   "blocks": [
+    {
+     "type": "paragraph",
+     "text": "Les opérations offensives russes contre l'Ukraine reposent de plus en plus sur une répartition des rôles : un groupe obtient l'accès, un autre l'exploite. Une nouvelle analyse d'ESET, relayée par The Hacker News le 23 octobre 2026, en donne un exemple précis : le groupe **UAC-0099** (également appelé Earth Sirrush) a pénétré le réseau d'une société de logistique ukrainienne, avant de transmettre la main à **Sandworm**, rattaché à l'État russe, qui a effacé les systèmes en septembre 2025."
+    },
+    {
+     "type": "heading",
+     "level": 2,
+     "text": "Chronologie de l'intrusion"
+    },
+    {
+     "type": "timeline",
+     "title": "Déroulement de l'attaque",
+     "items": [
+      {
+       "label": "16 juillet 2025",
+       "text": "UAC-0099 obtient l'accès initial par un courriel d'hameçonnage ciblé à pièce jointe malveillante, qui déploie la porte dérobée MATCHWOK via un téléchargeur nommé MATCHBOIL."
+      },
+      {
+       "label": "Peu après",
+       "text": "Le groupe installe MythicRatatoskr, une porte dérobée jusque-là non documentée, un jour après l'exécution de MATCHWOK."
+      },
+      {
+       "label": "17 septembre 2025",
+       "text": "Sandworm efface les systèmes, plus de deux mois après la première intrusion."
+      }
+     ]
+    },
+    {
+     "type": "paragraph",
+     "text": "L'attaque en deux temps éclaire un mode de fonctionnement déjà observé : dans son rapport d'activité des deuxième et troisième trimestres 2025, ESET avait constaté que UAC-0099 réalise l'accès initial puis transmet des « cibles validées » à Sandworm. Les secteurs visés incluent l'administration, l'énergie, la logistique et les céréales."
+    },
+    {
+     "type": "heading",
+     "level": 2,
+     "text": "MythicRatatoskr et le réseau Yggdrasil"
+    },
+    {
+     "type": "paragraph",
+     "text": "La porte dérobée envoie des métadonnées sur la victime à son serveur de commande, interroge celui-ci pour recevoir des ordres, renvoie le résultat des commandes, réalise des captures d'écran et transfère des fichiers. Elle sait aussi changer de répertoire, lister des dossiers, modifier l'adresse de son serveur, exécuter des commandes via cmd.exe et ouvrir un proxy SOCKS5 inversé. Certains échantillons attendent dix minutes avant de démarrer, ce qui peut aider à échapper à la détection. Son développement semble avoir débuté entre décembre 2024 et février 2025."
+    },
+    {
+     "type": "paragraph",
+     "text": "Le détail le plus remarquable est l'hébergement du serveur de commande **au sein du réseau maillé pair à pair Yggdrasil**. ESET parle du premier cas documenté d'un tel usage par un acteur aligné sur un État. Les chercheurs Anton Cherepanov et Peter Strýček y voient le signe possible d'une tendance plus large : l'emploi de réseaux pair à pair expérimentaux par des adversaires, ce qui complique le blocage par adresse ou par domaine."
+    },
+    {
+     "type": "diagram",
+     "svg": "<svg xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"0 0 640 200\" font-family=\"system-ui,sans-serif\"><rect width=\"640\" height=\"200\" rx=\"16\" fill=\"#eef2f7\"/><text x=\"320\" y=\"30\" text-anchor=\"middle\" font-size=\"15\" font-weight=\"700\" fill=\"#1f2a37\">Un travail en relais</text><rect x=\"20.0\" y=\"48\" width=\"133.5\" height=\"110\" rx=\"12\" fill=\"#fff\" stroke=\"#3b6ea5\" stroke-width=\"2\"/><text x=\"86.8\" y=\"78\" text-anchor=\"middle\" font-size=\"13\" font-weight=\"700\" fill=\"#14304d\">UAC-0099</text><text x=\"86.8\" y=\"102\" text-anchor=\"middle\" font-size=\"11.5\" fill=\"#33414f\">hameçonnage ciblé</text><text x=\"86.8\" y=\"120\" text-anchor=\"middle\" font-size=\"11.5\" fill=\"#33414f\">MATCHBOIL, MATCHWOK</text><path d=\"M156.5 103 l16 0 m-6 -6 l6 6 l-6 6\" stroke=\"#3b6ea5\" stroke-width=\"2.5\" fill=\"none\"/><rect x=\"175.5\" y=\"48\" width=\"133.5\" height=\"110\" rx=\"12\" fill=\"#fff\" stroke=\"#3b6ea5\" stroke-width=\"2\"/><text x=\"242.2\" y=\"78\" text-anchor=\"middle\" font-size=\"13\" font-weight=\"700\" fill=\"#14304d\">MythicRatatoskr</text><text x=\"242.2\" y=\"102\" text-anchor=\"middle\" font-size=\"11.5\" fill=\"#33414f\">porte dérobée</text><text x=\"242.2\" y=\"120\" text-anchor=\"middle\" font-size=\"11.5\" fill=\"#33414f\">C2 dans Yggdrasil</text><path d=\"M312.0 103 l16 0 m-6 -6 l6 6 l-6 6\" stroke=\"#3b6ea5\" stroke-width=\"2.5\" fill=\"none\"/><rect x=\"331.0\" y=\"48\" width=\"133.5\" height=\"110\" rx=\"12\" fill=\"#fff\" stroke=\"#3b6ea5\" stroke-width=\"2\"/><text x=\"397.8\" y=\"78\" text-anchor=\"middle\" font-size=\"13\" font-weight=\"700\" fill=\"#14304d\">Transmission</text><text x=\"397.8\" y=\"102\" text-anchor=\"middle\" font-size=\"11.5\" fill=\"#33414f\">« cibles validées »</text><text x=\"397.8\" y=\"120\" text-anchor=\"middle\" font-size=\"11.5\" fill=\"#33414f\">vers Sandworm</text><path d=\"M467.5 103 l16 0 m-6 -6 l6 6 l-6 6\" stroke=\"#3b6ea5\" stroke-width=\"2.5\" fill=\"none\"/><rect x=\"486.5\" y=\"48\" width=\"133.5\" height=\"110\" rx=\"12\" fill=\"#fff\" stroke=\"#3b6ea5\" stroke-width=\"2\"/><text x=\"553.2\" y=\"78\" text-anchor=\"middle\" font-size=\"13\" font-weight=\"700\" fill=\"#14304d\">Sandworm</text><text x=\"553.2\" y=\"102\" text-anchor=\"middle\" font-size=\"11.5\" fill=\"#33414f\">SDelete par stratégie</text><text x=\"553.2\" y=\"120\" text-anchor=\"middle\" font-size=\"11.5\" fill=\"#33414f\">de groupe : effacement</text></svg>",
+     "alt": "Quatre étapes de l'attaque, de l'hameçonnage à l'effacement",
+     "caption": "Schéma simplifié de l'attaque décrite par ESET."
+    },
+    {
+     "type": "heading",
+     "level": 2,
+     "text": "L'effacement"
+    },
+    {
+     "type": "paragraph",
+     "text": "Pour détruire les données, Sandworm a déposé l'utilitaire SDelete par les stratégies de groupe d'Active Directory. Le logiciel d'effacement NikoWiper, lié à Sandworm, est lui aussi dérivé de SDelete. L'attaque analysée a touché un système Windows ; des références à « crond » dans le code laissent toutefois penser qu'une version Linux pourrait exister."
+    },
+    {
+     "type": "paragraph",
+     "text": "ESET rappelle d'autres collaborations entre groupes alignés sur la Russie : Gamaredon et Turla ont co-compromis des entités ukrainiennes, et le téléchargeur Pterodo de Gamaredon a servi à livrer le logiciel espion InvisiMole."
+    },
+    {
+     "type": "usecases",
+     "title": "Ce que cela change concrètement",
+     "items": [
+      {
+       "icon": "🚛",
+       "title": "Entreprise de transport",
+       "text": "Une pièce jointe d'apparence anodine suffit ; la sensibilisation et le filtrage du courriel restent la première barrière."
+      },
+      {
+       "icon": "🔎",
+       "title": "Équipe de détection",
+       "text": "Elle surveille les connexions sortantes vers des réseaux pair à pair comme Yggdrasil, rarement légitimes en entreprise."
+      },
+      {
+       "icon": "🗂️",
+       "title": "Administrateur Windows",
+       "text": "Il restreint les droits de déploiement par stratégie de groupe et surveille l'apparition d'outils d'effacement."
+      }
+     ]
+    },
+    {
+     "type": "opinion",
+     "title": "Notre avis",
+     "paragraphs": [
+      "L'enseignement tient à la durée : plus de deux mois séparent l'accès initial de l'effacement. Le temps de séjour dans un réseau est un indicateur de défense autant que d'attaque, et il donne une fenêtre à des défenseurs capables de repérer les signaux faibles.",
+      "À un horizon de un à trois ans, l'abus de réseaux de superposition expérimentaux risque de s'étendre à d'autres acteurs étatiques et criminels. Cette lecture est une analyse prospective et non un fait établi par ESET."
+     ],
+     "verdict": "La division du travail entre groupes rallonge la fenêtre de détection, mais ne la supprime pas."
+    }
+   ],
+   "publishedAt": "2026-10-23T19:18:55+02:00"
+  },
+  {
+   "id": "pillow-13-faille-eps-ghostscript",
+   "category": "dev",
+   "icon": "🖼️",
+   "importance": 4,
+   "sourceDate": "2026-10-23",
+   "title": "Pillow 13.0.0 : une faille critique liée aux images EPS permet d'exécuter des commandes à partir d'un simple nom de fichier",
+   "summary": "La bibliothèque Python d'images corrige plusieurs failles, dont la CVE-2026-112900 : un nom de fichier non contrôlé est transmis à Ghostscript.",
+   "tags": [
+    "Pillow",
+    "Python",
+    "Ghostscript",
+    "CVE-2026-112900",
+    "EPS"
+   ],
+   "readingMinutes": 6,
+   "sources": [
+    {
+     "title": "Critical Flaw in Python's Popular Pillow Image Library Allows Code Execution via a Crafted Image",
+     "url": "https://thehackernews.com/2026/10/critical-flaw-in-pythons-popular-pillow.html",
+     "publisher": "The Hacker News"
+    }
+   ],
+   "cover": {
+    "url": "https://blogger.googleusercontent.com/img/b/R29vZ2xl/AVvXsEgGp9s38cCmrESabSZezAPkJaYoavpBM8Ehckei0ZrhKfBSoSXMyrWkzooakGExz1GBYVgi0izvW8wyKH2CEX7vpzLExRkK7uNW8wDdMzJ_k7NR8u6q-WA9e8Aoc19LNfJbFKgB6GkbAKbXW69_lOdM4sz4t5fmpKsLxHWKJPOugq5g_45Q5_WmCm_vA6U/s1700-nu-rw-lo-l85-e365/python-image.jpg",
+    "alt": "Illustration de la bibliothèque d'images Python Pillow",
+    "credit": "thehackernews.com"
+   },
+   "illustration": {
+    "svg": "<svg xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"0 0 640 360\"><defs><linearGradient id=\"g\" x1=\"0\" y1=\"0\" x2=\"1\" y2=\"1\"><stop offset=\"0\" stop-color=\"hsl(265,62%,34%)\"/><stop offset=\"1\" stop-color=\"hsl(225,68%,52%)\"/></linearGradient></defs><rect width=\"640\" height=\"360\" fill=\"url(#g)\"/><circle cx=\"570\" cy=\"50\" r=\"90\" fill=\"#fff\" fill-opacity=\".07\"/><circle cx=\"60\" cy=\"330\" r=\"110\" fill=\"#fff\" fill-opacity=\".06\"/><g fill=\"#fff\" stroke=\"#fff\"><path d=\"M240 90h110l50 50v140H240z\" fill-opacity=\".92\" stroke=\"none\"/><g fill=\"#000\" fill-opacity=\".3\" stroke=\"none\"><rect x=\"265\" y=\"170\" width=\"110\" height=\"12\" rx=\"6\"/><rect x=\"265\" y=\"198\" width=\"110\" height=\"12\" rx=\"6\"/><rect x=\"265\" y=\"226\" width=\"80\" height=\"12\" rx=\"6\"/></g></g><text x=\"565\" y=\"325\" text-anchor=\"middle\" font-size=\"50\">🖼️</text></svg>"
+   },
+   "blocks": [
+    {
+     "type": "paragraph",
+     "text": "Pillow est la bibliothèque de traitement d'images la plus répandue de l'écosystème Python : miniatures de sites web, conversion d'avatars, génération de documents, analyse d'images, elle se trouve dans un grand nombre de services. Sa version 13.0.0, publiée le 16 octobre 2026, corrige plusieurs failles de sécurité, dont une qui permet d'exécuter des commandes du système d'exploitation sur un serveur."
+    },
+    {
+     "type": "heading",
+     "level": 2,
+     "text": "La faille EPS : le nom du fichier suffit"
+    },
+    {
+     "type": "paragraph",
+     "text": "La faille principale, la **CVE-2026-112900**, touche le traitement des images EPS (PostScript). Pillow transmet le nom du fichier au programme Ghostscript sans le vérifier : un nom choisi par l'attaquant peut alors être interprété comme des instructions. Selon The Hacker News, la faille est déclenchée par le nom du fichier, et non par le contenu du document PostScript : un fichier EPS parfaitement inoffensif peut donc causer des dégâts si son nom est contrôlé par l'attaquant. Les points d'envoi de fichiers qui conservent le nom fourni par l'utilisateur sont les cibles les plus probables."
+    },
+    {
+     "type": "paragraph",
+     "text": "Les avis divergent sur la gravité. La fiche GitHub attribue la note de 9,2 sur 10 aux failles EPS, TIFF et miniatures JPEG, tandis que les mainteneurs classent la faille EPS comme modérée, parce que l'attaquant doit maîtriser le nom du fichier. Les analystes de la CISA ne signalent aucune exploitation connue pour la faille EPS, mais une démonstration publique pour la faille TIFF."
+    },
+    {
+     "type": "heading",
+     "level": 2,
+     "text": "Versions et correctifs"
+    },
+    {
+     "type": "keyvalue",
+     "items": [
+      {
+       "label": "Versions concernées",
+       "value": "Pillow 2.6.0 à 12.3.0"
+      },
+      {
+       "label": "Version corrigée",
+       "value": "Pillow 13.0.0, publiée le 16 octobre 2026"
+      },
+      {
+       "label": "Conséquence",
+       "value": "Pillow 13 abandonne Python 3.10"
+      },
+      {
+       "label": "Exploitation connue",
+       "value": "aucune signalée à ce jour"
+      }
+     ]
+    },
+    {
+     "type": "paragraph",
+     "text": "La version 13.0.0 corrige aussi d'autres défauts :"
+    },
+    {
+     "type": "list",
+     "ordered": false,
+     "items": [
+      "**Dépassement de tampon FPX/JPEG** : l'ouverture d'un fichier forgé avec `Image.open()` peut lancer des commandes lorsque le paquet facultatif olefile est installé ; aucune action n'est requise après la mise à jour.",
+      "**CVE-2026-112403** : dépassement de tampon lors de la création de miniatures d'un JPEG sans perte forgé ; l'avis fait état d'un plantage, pas d'une exécution de code.",
+      "**CVE-2026-112393** : dépassement de tampon lors de l'enregistrement d'un TIFF compressé en mémoire plutôt que sur disque ; ce défaut date de 2013, et son exploitation pour exécuter du code nécessitait une seconde faille divulguant des adresses mémoire."
+     ]
+    },
+    {
+     "type": "paragraph",
+     "text": "La source précise qu'une des failles a été trouvée par Claude, le modèle d'Anthropic, puis validée manuellement par Ada Logics. C'est un exemple supplémentaire du rôle croissant de l'IA dans la recherche de vulnérabilités sur des projets libres."
+    },
+    {
+     "type": "diagram",
+     "svg": "<svg xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"0 0 640 200\" font-family=\"system-ui,sans-serif\"><rect width=\"640\" height=\"200\" rx=\"16\" fill=\"#eef2f7\"/><text x=\"320\" y=\"30\" text-anchor=\"middle\" font-size=\"15\" font-weight=\"700\" fill=\"#1f2a37\">Le chemin de la CVE-2026-112900</text><rect x=\"20.0\" y=\"48\" width=\"133.5\" height=\"110\" rx=\"12\" fill=\"#fff\" stroke=\"#3b6ea5\" stroke-width=\"2\"/><text x=\"86.8\" y=\"78\" text-anchor=\"middle\" font-size=\"13\" font-weight=\"700\" fill=\"#14304d\">Envoi</text><text x=\"86.8\" y=\"102\" text-anchor=\"middle\" font-size=\"11.5\" fill=\"#33414f\">un utilisateur dépose</text><text x=\"86.8\" y=\"120\" text-anchor=\"middle\" font-size=\"11.5\" fill=\"#33414f\">une image EPS</text><path d=\"M156.5 103 l16 0 m-6 -6 l6 6 l-6 6\" stroke=\"#3b6ea5\" stroke-width=\"2.5\" fill=\"none\"/><rect x=\"175.5\" y=\"48\" width=\"133.5\" height=\"110\" rx=\"12\" fill=\"#fff\" stroke=\"#3b6ea5\" stroke-width=\"2\"/><text x=\"242.2\" y=\"78\" text-anchor=\"middle\" font-size=\"13\" font-weight=\"700\" fill=\"#14304d\">Nom conservé</text><text x=\"242.2\" y=\"102\" text-anchor=\"middle\" font-size=\"11.5\" fill=\"#33414f\">le service garde</text><text x=\"242.2\" y=\"120\" text-anchor=\"middle\" font-size=\"11.5\" fill=\"#33414f\">le nom fourni</text><path d=\"M312.0 103 l16 0 m-6 -6 l6 6 l-6 6\" stroke=\"#3b6ea5\" stroke-width=\"2.5\" fill=\"none\"/><rect x=\"331.0\" y=\"48\" width=\"133.5\" height=\"110\" rx=\"12\" fill=\"#fff\" stroke=\"#3b6ea5\" stroke-width=\"2\"/><text x=\"397.8\" y=\"78\" text-anchor=\"middle\" font-size=\"13\" font-weight=\"700\" fill=\"#14304d\">Ghostscript</text><text x=\"397.8\" y=\"102\" text-anchor=\"middle\" font-size=\"11.5\" fill=\"#33414f\">le nom est passé</text><text x=\"397.8\" y=\"120\" text-anchor=\"middle\" font-size=\"11.5\" fill=\"#33414f\">sans contrôle</text><path d=\"M467.5 103 l16 0 m-6 -6 l6 6 l-6 6\" stroke=\"#3b6ea5\" stroke-width=\"2.5\" fill=\"none\"/><rect x=\"486.5\" y=\"48\" width=\"133.5\" height=\"110\" rx=\"12\" fill=\"#fff\" stroke=\"#3b6ea5\" stroke-width=\"2\"/><text x=\"553.2\" y=\"78\" text-anchor=\"middle\" font-size=\"13\" font-weight=\"700\" fill=\"#14304d\">Commande</text><text x=\"553.2\" y=\"102\" text-anchor=\"middle\" font-size=\"11.5\" fill=\"#33414f\">le nom est lu</text><text x=\"553.2\" y=\"120\" text-anchor=\"middle\" font-size=\"11.5\" fill=\"#33414f\">comme une instruction</text></svg>",
+     "alt": "Quatre étapes menant à l'exécution de commandes via le nom de fichier",
+     "caption": "Schéma simplifié : le risque tient au nom du fichier, pas à son contenu."
+    },
+    {
+     "type": "heading",
+     "level": 2,
+     "text": "Que faire ?"
+    },
+    {
+     "type": "list",
+     "ordered": false,
+     "items": [
+      "Mettre à jour avec `pip install -U \"Pillow>=13.0.0\"`, puis reconstruire les conteneurs, les roues et les images de base concernés.",
+      "EPS : ne pas installer `gs` (Ghostscript) sur les machines qui traitent des envois non fiables, et ne jamais transmettre de nom de fichier contrôlé par l'utilisateur à `Image.open()` pour du EPS.",
+      "Miniatures JPEG : éviter `draft()` et `thumbnail()` sur des JPEG non fiables, appeler `load()` d'abord ou passer `reducing_gap=None`.",
+      "TIFF : considérer comme sensible l'enregistrement dans un tampon mémoire comme `io.BytesIO` quand l'image vient d'un utilisateur."
+     ]
+    },
+    {
+     "type": "usecases",
+     "title": "Exemples d'utilisation",
+     "items": [
+      {
+       "icon": "📸",
+       "title": "Application de partage de photos",
+       "text": "Elle renomme chaque fichier reçu avec un identifiant aléatoire avant tout traitement, ce qui neutralise la faille EPS."
+      },
+      {
+       "icon": "📄",
+       "title": "Service de génération de PDF",
+       "text": "Il refuse les formats rares comme EPS ou FPX en entrée et ne les accepte que via une liste d'autorisation explicite."
+      },
+      {
+       "icon": "🐳",
+       "title": "Équipe de plateforme",
+       "text": "Elle recherche Pillow dans ses images de conteneurs et ses fichiers de dépendances pour planifier la mise à jour vers la version 13."
+      }
+     ]
+    },
+    {
+     "type": "timeline",
+     "title": "D'où l'on vient, où l'on va",
+     "items": [
+      {
+       "label": "2013",
+       "text": "Naissance du défaut de dépassement de tampon TIFF, jamais détecté jusque-là."
+      },
+      {
+       "label": "16 octobre 2026",
+       "text": "Publication de Pillow 13.0.0 avec l'ensemble des correctifs."
+      },
+      {
+       "label": "23 octobre 2026",
+       "text": "Description détaillée des failles par The Hacker News."
+      }
+     ]
+    },
+    {
+     "type": "opinion",
+     "title": "Notre avis",
+     "paragraphs": [
+      "Cette affaire illustre un risque classique : une bibliothèque qui délègue à un programme externe sans nettoyer ses entrées. Le débat sur la gravité (modérée pour les mainteneurs, 9,2 pour la fiche) montre qu'une même faille peut être un détail ou une catastrophe selon l'architecture d'un service. Pour qui conserve des noms de fichiers fournis par les utilisateurs, la réponse est claire : mettre à jour.",
+      "À un horizon de un à trois ans, la recherche de failles assistée par IA devrait faire remonter davantage de défauts anciens, comme ce dépassement de tampon de 2013, ce qui pèsera sur les équipes de maintenance de projets libres. C'est une opinion argumentée, non un fait."
+     ],
+     "verdict": "Mettre à jour vers Pillow 13 et ne jamais faire confiance à un nom de fichier venu de l'extérieur."
+    }
+   ],
+   "publishedAt": "2026-10-23T19:18:55+02:00"
+  },
+  {
+   "id": "torvalds-ia-patchs-de-passage-noyau-linux",
+   "category": "dev",
+   "icon": "🐧",
+   "importance": 3,
+   "sourceDate": "2026-10-23",
+   "title": "Linux : Linus Torvalds accepte l'IA entre de bonnes mains, mais veut décourager les correctifs « de passage »",
+   "summary": "Au sommet des mainteneurs du noyau, l'étiquette « Assisted-by » va être abandonnée : la qualité du code prime sur l'origine, selon une chronique du Register.",
+   "tags": [
+    "Linux",
+    "Linus Torvalds",
+    "IA",
+    "noyau",
+    "open source"
+   ],
+   "readingMinutes": 5,
+   "sources": [
+    {
+     "title": "Torvalds: AI is fine for competent devs, but spare us the 'drive-by' patches",
+     "url": "https://www.theregister.com/columnists/2026/10/23/torvalds-ai-is-fine-for-competent-devs-but-spare-us-the-drive-by-patches/5304357",
+     "publisher": "The Register"
+    }
+   ],
+   "cover": {
+    "url": "https://image.theregister.com/5226908.jpg?imageId=5226908&x=0&y=0&cropw=100&croph=100&panox=0&panoy=0&panow=100&panoh=100&width=1200&height=683",
+    "alt": "Visuel d'illustration de la chronique du Register sur Linus Torvalds et l'IA",
+    "credit": "theregister.com"
+   },
+   "illustration": {
+    "svg": "<svg xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"0 0 640 360\"><defs><linearGradient id=\"g\" x1=\"0\" y1=\"0\" x2=\"1\" y2=\"1\"><stop offset=\"0\" stop-color=\"hsl(265,62%,34%)\"/><stop offset=\"1\" stop-color=\"hsl(295,68%,52%)\"/></linearGradient></defs><rect width=\"640\" height=\"360\" fill=\"url(#g)\"/><circle cx=\"570\" cy=\"50\" r=\"90\" fill=\"#fff\" fill-opacity=\".07\"/><circle cx=\"60\" cy=\"330\" r=\"110\" fill=\"#fff\" fill-opacity=\".06\"/><g fill=\"#fff\" stroke=\"#fff\"><path d=\"M250 130l-70 50 70 50M390 130l70 50-70 50M345 110l-50 140\" fill=\"none\" stroke-width=\"16\" stroke-linecap=\"round\" stroke-linejoin=\"round\"/></g><text x=\"565\" y=\"325\" text-anchor=\"middle\" font-size=\"50\">🐧</text></svg>"
+   },
+   "blocks": [
+    {
+     "type": "paragraph",
+     "text": "L'utilisation de l'IA pour écrire du code du noyau Linux est l'un des sujets les plus clivants de l'open source. Selon une chronique de Steven J. Vaughan-Nichols publiée par The Register le 23 octobre 2026, Linus Torvalds a commencé à s'aider de l'IA pour du code du noyau, ce qui lui a valu des critiques vives, l'éditeur de Tux Machines Roy Schestowitz parlant même de « Linus Torvalds Turns to Slop » et le podcasteur David Gerard faisant une remarque comparable. Le chroniqueur, qui connaît Torvalds depuis des décennies, rejette l'idée que celui-ci aurait renoncé à ses exigences."
+    },
+    {
+     "type": "heading",
+     "level": 2,
+     "text": "L'étiquette « Assisted-by » abandonnée"
+    },
+    {
+     "type": "paragraph",
+     "text": "Au sommet des mainteneurs du noyau Linux, à Prague, le développeur Sasha Levin a annoncé que les mainteneurs allaient abandonner l'étiquette « Assisted-by ». Les contributeurs n'ont donc plus à déclarer l'usage d'une IA dans leurs envois : seule la qualité du code détermine son acceptation. Torvalds a jugé auprès du chroniqueur que l'idée d'interdire l'IA dans les messages de validation était une erreur : il veut que des personnes compétentes utilisent l'IA comme un outil."
+    },
+    {
+     "type": "paragraph",
+     "text": "La limite qu'il pose concerne les contributeurs inexpérimentés. Il veut décourager les correctifs « de passage » (drive-by), proposés par des personnes qui veulent donner l'impression de contribuer sans avoir appris le code. À l'Open Source Summit Europe, il avait qualifié le « vibe coding » de porte d'entrée qui peut aider de nouveaux programmeurs à y prendre goût."
+    },
+    {
+     "type": "heading",
+     "level": 2,
+     "text": "Deux problèmes distincts"
+    },
+    {
+     "type": "paragraph",
+     "text": "Torvalds distingue deux problèmes séparés : d'un côté, une grosse base de code où l'IA trouve de vrais bogues ; de l'autre, des contributeurs qui soumettent des correctifs générés qu'ils ne comprennent pas. Pour lui, l'IA révèle ces problèmes plutôt qu'elle ne les crée."
+    },
+    {
+     "type": "paragraph",
+     "text": "Greg Kroah-Hartman a rapporté que, pendant des mois, le projet avait reçu des rapports de sécurité générés par IA de faible qualité, puis que, environ un mois avant son intervention de mars, ces rapports étaient devenus utiles. Tous les projets libres reçoivent désormais de vrais rapports assistés par IA, au point que les mainteneurs en sont submergés."
+    },
+    {
+     "type": "keyvalue",
+     "items": [
+      {
+       "label": "Étiquette « Assisted-by »",
+       "value": "en cours d'abandon : plus de déclaration obligatoire"
+      },
+      {
+       "label": "Critère d'acceptation",
+       "value": "la qualité du code, quelle que soit son origine"
+      },
+      {
+       "label": "Cible de la critique",
+       "value": "les correctifs de passage, sans compréhension du code"
+      },
+      {
+       "label": "Outil cité",
+       "value": "hw-harness, de Christian Schaller (Red Hat), pour automatiser la rétro-ingénierie de pilotes Windows"
+      }
+     ]
+    },
+    {
+     "type": "paragraph",
+     "text": "La chronique cite aussi hw-harness, un outil libre de Christian Schaller, directeur d'ingénierie chez Red Hat : il automatise la rétro-ingénierie de pilotes Windows sans source afin d'écrire des pilotes Linux. Schaller l'a conçu en travaillant sur un pilote de scanner de diapositives. La chronique prédit que, vers 2030, la programmation à la main sera aussi rare que le tissage à la main, une affirmation d'opinion qui reste à prouver."
+    },
+    {
+     "type": "usecases",
+     "title": "Exemples d'utilisation",
+     "items": [
+      {
+       "icon": "🧑‍🏫",
+       "title": "Contributeur débutant",
+       "text": "Il utilise l'IA pour comprendre une partie du noyau avant de proposer un correctif, plutôt que pour fabriquer un envoi qu'il ne maîtrise pas."
+      },
+      {
+       "icon": "🛠️",
+       "title": "Mainteneur de sous-système",
+       "text": "Il juge un correctif sur sa lisibilité, ses tests et sa pertinence, sans se préoccuper de l'outil utilisé."
+      },
+      {
+       "icon": "🔌",
+       "title": "Développeur de pilotes",
+       "text": "Il s'appuie sur un outil d'aide à la rétro-ingénierie pour accélérer l'écriture d'un pilote, puis relit chaque ligne."
+      }
+     ]
+    },
+    {
+     "type": "timeline",
+     "title": "D'où l'on vient, où l'on va",
+     "items": [
+      {
+       "label": "Mars 2026",
+       "text": "Greg Kroah-Hartman constate que les rapports de sécurité assistés par IA deviennent utiles."
+      },
+      {
+       "label": "2026",
+       "text": "Torvalds recourt à l'IA pour du code du noyau, ce qui suscite des critiques."
+      },
+      {
+       "label": "23 octobre 2026",
+       "text": "Chronique du Register ; l'étiquette « Assisted-by » est en cours d'abandon."
+      }
+     ]
+    },
+    {
+     "type": "opinion",
+     "title": "Notre avis",
+     "paragraphs": [
+      "La position de Torvalds a le mérite de déplacer le débat : le sujet n'est plus de savoir si l'IA a écrit une ligne, mais si quelqu'un en répond. Cette logique de responsabilité est la plus solide pour un projet où chaque ligne doit être maintenue pendant des années. La limite : sans déclaration, les relecteurs perdent un signal utile pour doser leur vigilance.",
+      "À un horizon de un à trois ans, on peut s'attendre à ce que les projets libres durcissent leurs critères sur la compréhension du code plutôt que sur son origine, et investissent dans des outils de tri pour absorber le flot de rapports. Cette prévision est une opinion argumentée, non un fait."
+     ],
+     "verdict": "Peu importe qui a écrit la ligne, il faut que quelqu'un en réponde."
+    }
+   ],
+   "publishedAt": "2026-10-23T19:18:55+02:00"
+  },
+  {
+   "id": "jac-langage-agents-ia-jaseci",
+   "category": "ia",
+   "icon": "🧬",
+   "importance": 2,
+   "sourceDate": "2026-10-23",
+   "title": "Jac : un professeur de l'université du Michigan propose un langage de type Python conçu pour les agents d'IA",
+   "summary": "Jason Mars présente Jac et son moteur Jaseci, qui visent à éviter les réécritures coûteuses entre langages, sur la base de démonstrations encore peu nombreuses.",
+   "tags": [
+    "Jac",
+    "Jaseci",
+    "agents d'IA",
+    "langage de programmation",
+    "Python"
+   ],
+   "readingMinutes": 5,
+   "sources": [
+    {
+     "title": "Michigan prof creates Python-like Jac language for AI agents",
+     "url": "https://www.theregister.com/devops/2026/10/23/michigan-prof-creates-python-like-jac-language-for-ai-agents/5305110",
+     "publisher": "The Register"
+    }
+   ],
+   "cover": {
+    "url": "https://image.theregister.com/5305120.jpg?imageId=5305120&x=0&y=0&cropw=100&croph=100&panox=0&panoy=0&panow=100&panoh=100&width=1200&height=683",
+    "alt": "Visuel d'illustration de l'article sur le langage Jac",
+    "credit": "theregister.com"
+   },
+   "illustration": {
+    "svg": "<svg xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"0 0 640 360\"><defs><linearGradient id=\"g\" x1=\"0\" y1=\"0\" x2=\"1\" y2=\"1\"><stop offset=\"0\" stop-color=\"hsl(320,62%,34%)\"/><stop offset=\"1\" stop-color=\"hsl(0,68%,52%)\"/></linearGradient></defs><rect width=\"640\" height=\"360\" fill=\"url(#g)\"/><circle cx=\"570\" cy=\"50\" r=\"90\" fill=\"#fff\" fill-opacity=\".07\"/><circle cx=\"60\" cy=\"330\" r=\"110\" fill=\"#fff\" fill-opacity=\".06\"/><g fill=\"#fff\" stroke=\"#fff\"><g stroke-width=\"5\" fill=\"none\" stroke-opacity=\".7\"><path d=\"M320 180L180 110M320 180L460 110M320 180L170 260M320 180L470 260M320 180L320 85\"/></g><circle cx=\"320\" cy=\"180\" r=\"34\" stroke=\"none\" fill-opacity=\".95\"/><g stroke=\"none\"><circle cx=\"180\" cy=\"110\" r=\"18\"/><circle cx=\"460\" cy=\"110\" r=\"18\"/><circle cx=\"170\" cy=\"260\" r=\"18\"/><circle cx=\"470\" cy=\"260\" r=\"18\"/><circle cx=\"320\" cy=\"85\" r=\"18\"/></g></g><text x=\"565\" y=\"325\" text-anchor=\"middle\" font-size=\"50\">🧬</text></svg>"
+   },
+   "blocks": [
+    {
+     "type": "paragraph",
+     "text": "Les langages de programmation actuels ont été pensés pour des humains. À mesure que des agents d'IA écrivent et assemblent du logiciel, une question émerge : faut-il leur donner d'autres outils ? C'est le pari de **Jason Mars**, professeur à l'université du Michigan, qui a présenté à la conférence All Things Open, à Raleigh, en Caroline du Nord, un langage nommé **Jac** et son moteur d'exécution **Jaseci**, qui traitent l'IA et les agents comme des éléments de premier rang."
+    },
+    {
+     "type": "paragraph",
+     "text": "Selon The Register, Mars soutient que les outils de développement existants sont mal adaptés aux agents, qui doivent travailler dans de nombreux langages, et il en tire une formule : « We're not using these tools anymore. » Son argument économique porte sur le coût des réécritures : il cite le créateur de Bun, Jarred Sumner, qui aurait dépensé 165 000 dollars en jetons Anthropic pour convertir du code Zig en Rust avec une version préliminaire de Mythos. Pour Mars, ce coût vient du passage entre deux langages pensés pour des humains, non de la difficulté de la tâche."
+    },
+    {
+     "type": "heading",
+     "level": 2,
+     "text": "Comment fonctionne Jac"
+    },
+    {
+     "type": "list",
+     "ordered": false,
+     "items": [
+      "**Syntaxe proche de Python**, qui intègre les environnements d'exécution et les chaînes d'outils de TypeScript et de Python.",
+      "**Plusieurs cibles de compilation** : code intermédiaire Python, JavaScript et code machine natif.",
+      "**Accès aux paquets** de PyPI et de npm ; importation de bibliothèques C et C++.",
+      "**Sûreté mémoire** : LLVM sert à mettre en œuvre un contrôle d'emprunt et de propriété comparable à celui de Rust.",
+      "**Fonction d'éjection** : Jac peut être décompilé vers TypeScript, Python ou C, notamment pour des exigences de conformité.",
+      "**Données en graphes** : les données sont des nœuds avec des attributs, reliés par des arêtes, en mémoire, sur disque ou sur un serveur dans le nuage."
+     ]
+    },
+    {
+     "type": "paragraph",
+     "text": "Les agents envoient des « marcheurs » (walkers) qui parcourent le graphe et traitent les données au passage ; plusieurs marcheurs peuvent suivre des chemins différents en parallèle. Un langage est volontairement absent : Java. Mars l'assume : « If you really need Java, Jac isn't for Java. »"
+    },
+    {
+     "type": "heading",
+     "level": 2,
+     "text": "Ce que montrent les démonstrations"
+    },
+    {
+     "type": "paragraph",
+     "text": "Mars cite une comparaison unique : un agent d'IA a reproduit l'outil de revue de code Greptile. Avec Jac, il a produit une application en plusieurs étapes qui appelait des outils en parallèle ; avec LangGraph, une machine à états linéaire incapable de le faire. Il en conclut que les outils fournis à une IA déterminent la qualité de son résultat. Ces affirmations viennent de l'auteur et reposent sur une démonstration unique. Jac sert déjà dans de petits services commerciaux : la plateforme multi-agents GraphClaw, l'ordonnanceur Skooch et la plateforme de mémoire personnelle de Tobu. La licence n'est pas précisée dans l'article."
+    },
+    {
+     "type": "diagram",
+     "svg": "<svg xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"0 0 640 200\" font-family=\"system-ui,sans-serif\"><rect width=\"640\" height=\"200\" rx=\"16\" fill=\"#eef2f7\"/><text x=\"320\" y=\"30\" text-anchor=\"middle\" font-size=\"15\" font-weight=\"700\" fill=\"#1f2a37\">Le modèle de Jac</text><rect x=\"20.0\" y=\"48\" width=\"133.5\" height=\"110\" rx=\"12\" fill=\"#fff\" stroke=\"#3b6ea5\" stroke-width=\"2\"/><text x=\"86.8\" y=\"78\" text-anchor=\"middle\" font-size=\"13\" font-weight=\"700\" fill=\"#14304d\">Code Jac</text><text x=\"86.8\" y=\"102\" text-anchor=\"middle\" font-size=\"11.5\" fill=\"#33414f\">syntaxe proche</text><text x=\"86.8\" y=\"120\" text-anchor=\"middle\" font-size=\"11.5\" fill=\"#33414f\">de Python</text><path d=\"M156.5 103 l16 0 m-6 -6 l6 6 l-6 6\" stroke=\"#3b6ea5\" stroke-width=\"2.5\" fill=\"none\"/><rect x=\"175.5\" y=\"48\" width=\"133.5\" height=\"110\" rx=\"12\" fill=\"#fff\" stroke=\"#3b6ea5\" stroke-width=\"2\"/><text x=\"242.2\" y=\"78\" text-anchor=\"middle\" font-size=\"13\" font-weight=\"700\" fill=\"#14304d\">Compilation</text><text x=\"242.2\" y=\"102\" text-anchor=\"middle\" font-size=\"11.5\" fill=\"#33414f\">Python, JavaScript</text><text x=\"242.2\" y=\"120\" text-anchor=\"middle\" font-size=\"11.5\" fill=\"#33414f\">ou code natif</text><path d=\"M312.0 103 l16 0 m-6 -6 l6 6 l-6 6\" stroke=\"#3b6ea5\" stroke-width=\"2.5\" fill=\"none\"/><rect x=\"331.0\" y=\"48\" width=\"133.5\" height=\"110\" rx=\"12\" fill=\"#fff\" stroke=\"#3b6ea5\" stroke-width=\"2\"/><text x=\"397.8\" y=\"78\" text-anchor=\"middle\" font-size=\"13\" font-weight=\"700\" fill=\"#14304d\">Graphe</text><text x=\"397.8\" y=\"102\" text-anchor=\"middle\" font-size=\"11.5\" fill=\"#33414f\">nœuds et arêtes</text><text x=\"397.8\" y=\"120\" text-anchor=\"middle\" font-size=\"11.5\" fill=\"#33414f\">données partagées</text><path d=\"M467.5 103 l16 0 m-6 -6 l6 6 l-6 6\" stroke=\"#3b6ea5\" stroke-width=\"2.5\" fill=\"none\"/><rect x=\"486.5\" y=\"48\" width=\"133.5\" height=\"110\" rx=\"12\" fill=\"#fff\" stroke=\"#3b6ea5\" stroke-width=\"2\"/><text x=\"553.2\" y=\"78\" text-anchor=\"middle\" font-size=\"13\" font-weight=\"700\" fill=\"#14304d\">Marcheurs</text><text x=\"553.2\" y=\"102\" text-anchor=\"middle\" font-size=\"11.5\" fill=\"#33414f\">agents qui parcourent</text><text x=\"553.2\" y=\"120\" text-anchor=\"middle\" font-size=\"11.5\" fill=\"#33414f\">le graphe en parallèle</text></svg>",
+     "alt": "Quatre éléments du modèle : code, compilation, graphe, marcheurs",
+     "caption": "Schéma simplifié du fonctionnement décrit par Jason Mars."
+    },
+    {
+     "type": "usecases",
+     "title": "Exemples d'utilisation",
+     "items": [
+      {
+       "icon": "🔁",
+       "title": "Équipe avec une pile mixte",
+       "text": "Une application mêlant Python et TypeScript évite une réécriture complète en n'utilisant qu'un seul langage pour toutes ses parties."
+      },
+      {
+       "icon": "🤖",
+       "title": "Agent de revue de code",
+       "text": "Plusieurs marcheurs examinent en parallèle différentes branches d'un dépôt représenté en graphe."
+      },
+      {
+       "icon": "📋",
+       "title": "Service soumis à des audits",
+       "text": "La fonction d'éjection fournit un code TypeScript, Python ou C lisible par les auditeurs."
+      }
+     ]
+    },
+    {
+     "type": "timeline",
+     "title": "D'où l'on vient, où l'on va",
+     "items": [
+      {
+       "label": "Aujourd'hui",
+       "text": "Jac sert dans de petits services commerciaux (GraphClaw, Skooch, plateforme de Tobu)."
+      },
+      {
+       "label": "23 octobre 2026",
+       "text": "Présentation de Jac à la conférence All Things Open, à Raleigh, relayée par The Register."
+      },
+      {
+       "label": "Prochaines années",
+       "text": "L'adoption par les développeurs et les agents reste à démontrer, souligne l'article."
+      }
+     ]
+    },
+    {
+     "type": "opinion",
+     "title": "Notre avis",
+     "paragraphs": [
+      "L'idée que les agents ont besoin d'outils différents de ceux des humains est séduisante, mais elle se heurte à un fait : les modèles actuels écrivent surtout dans les langages qu'ils connaissent le mieux, donc les plus répandus. Un langage neuf part avec un handicap de données d'entraînement, que la compatibilité avec Python et npm cherche justement à compenser.",
+      "À un horizon de un à trois ans, le plus probable est que les idées de Jac (graphes, parallélisme, passerelles entre langages) soient reprises par des outils existants plutôt que le langage lui-même ne s'impose. C'est une opinion argumentée, non un fait."
+     ],
+     "verdict": "Une idée à suivre, une adoption à prouver : une démonstration ne fait pas un standard."
+    }
+   ],
+   "publishedAt": "2026-10-23T19:18:55+02:00"
+  },
+  {
+   "id": "arc-fin-du-navigateur-dia",
+   "category": "web",
+   "icon": "🌈",
+   "importance": 3,
+   "sourceDate": "2026-10-23",
+   "title": "Arc, c'est fini : The Browser Company arrête son navigateur en trois étapes et recommande Dia",
+   "summary": "Plus de nouveaux comptes dès maintenant, arrêt du mobile le 23 novembre 2026, puis du bureau le 22 décembre : les alternatives et les risques pour les données.",
+   "tags": [
+    "Arc",
+    "The Browser Company",
+    "Dia",
+    "navigateur",
+    "Atlassian"
+   ],
+   "readingMinutes": 4,
+   "sources": [
+    {
+     "title": "Arc browser on its way out as makers suggest an alternative",
+     "url": "https://www.theregister.com/software/2026/10/23/arc-browser-on-its-way-out-as-makers-suggest-an-alternative/5305114",
+     "publisher": "The Register"
+    }
+   ],
+   "cover": {
+    "url": "https://image.theregister.com/258531.jpg?imageId=258531&x=0&y=0&cropw=100&croph=100&panox=0&panoy=0&panow=100&panoh=100&width=1200&height=683",
+    "alt": "Visuel d'illustration de l'article sur la fin du navigateur Arc",
+    "credit": "theregister.com"
+   },
+   "illustration": {
+    "svg": "<svg xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"0 0 640 360\"><defs><linearGradient id=\"g\" x1=\"0\" y1=\"0\" x2=\"1\" y2=\"1\"><stop offset=\"0\" stop-color=\"hsl(210,62%,34%)\"/><stop offset=\"1\" stop-color=\"hsl(180,68%,52%)\"/></linearGradient></defs><rect width=\"640\" height=\"360\" fill=\"url(#g)\"/><circle cx=\"570\" cy=\"50\" r=\"90\" fill=\"#fff\" fill-opacity=\".07\"/><circle cx=\"60\" cy=\"330\" r=\"110\" fill=\"#fff\" fill-opacity=\".06\"/><g fill=\"#fff\" stroke=\"#fff\"><rect x=\"150\" y=\"105\" width=\"340\" height=\"190\" rx=\"18\" fill-opacity=\".9\" stroke=\"none\"/><rect x=\"150\" y=\"105\" width=\"340\" height=\"40\" rx=\"18\" fill-opacity=\"1\" stroke=\"none\"/><g fill=\"#000\" fill-opacity=\".3\" stroke=\"none\"><circle cx=\"178\" cy=\"125\" r=\"7\"/><circle cx=\"202\" cy=\"125\" r=\"7\"/><circle cx=\"226\" cy=\"125\" r=\"7\"/><rect x=\"180\" y=\"170\" width=\"120\" height=\"14\" rx=\"7\"/><rect x=\"180\" y=\"200\" width=\"260\" height=\"14\" rx=\"7\"/><rect x=\"180\" y=\"230\" width=\"200\" height=\"14\" rx=\"7\"/></g></g><text x=\"565\" y=\"325\" text-anchor=\"middle\" font-size=\"50\">🌈</text></svg>"
+   },
+   "blocks": [
+    {
+     "type": "paragraph",
+     "text": "Lancé en 2023, Arc avait séduit une partie des utilisateurs avancés en remplaçant la barre d'onglets classique par un panneau latéral. Il disparaît aujourd'hui. The Browser Company a annoncé le 22 octobre 2026 l'arrêt de ce navigateur fondé sur Chromium, selon The Register, qui en a rendu compte le lendemain. L'éditeur recommande de passer à Dia, son navigateur centré sur l'IA."
+    },
+    {
+     "type": "heading",
+     "level": 2,
+     "text": "Un calendrier en trois temps"
+    },
+    {
+     "type": "timeline",
+     "title": "Calendrier d'arrêt",
+     "items": [
+      {
+       "label": "Dès maintenant",
+       "text": "La création de nouveaux comptes Arc n'est plus possible."
+      },
+      {
+       "label": "23 novembre 2026",
+       "text": "Arc sur iOS et Android est arrêté ; plusieurs fonctions d'IA sont désactivées et la connexion pour synchroniser les onglets disparaît."
+      },
+      {
+       "label": "22 décembre 2026",
+       "text": "Arc cesse de fonctionner sur macOS et Windows ; les comptes sont désactivés et les données associées supprimées dans un délai de 30 jours."
+      }
+     ]
+    },
+    {
+     "type": "paragraph",
+     "text": "Cette issue n'est pas une surprise : en 2025, l'entreprise avait déjà concentré ses efforts sur Dia et placé Arc en mode maintenance. Atlassian a ensuite racheté The Browser Company. L'espoir d'une ouverture du code d'Arc s'est éteint la même année, car le navigateur repose sur un kit de développement maison, l'Arc Development Kit (ADK), que Dia utilise aussi. Le directeur général Josh Miller affirme que l'équipe éprouve « tant de fierté et d'amour » pour la communauté d'Arc."
+    },
+    {
+     "type": "heading",
+     "level": 2,
+     "text": "Dia, et les autres solutions"
+    },
+    {
+     "type": "keyvalue",
+     "items": [
+      {
+       "label": "Recommandation officielle",
+       "value": "Dia, avec importation des profils Arc ; l'expérience n'est que partiellement identique"
+      },
+      {
+       "label": "Zen Browser",
+       "value": "populaire chez de nombreux anciens utilisateurs d'Arc"
+      },
+      {
+       "label": "Vivaldi",
+       "value": "proposé pour les utilisateurs avancés"
+      },
+      {
+       "label": "Strawberry",
+       "value": "navigateur à agent d'IA, en version bêta"
+      }
+     ]
+    },
+    {
+     "type": "paragraph",
+     "text": "L'article ne décrit aucun outil d'export des données d'Arc : les seuls éléments concrets sont l'importation des profils dans Dia et la suppression des données dans les 30 jours suivant la désactivation des comptes. Il prévient aussi que le marché des navigateurs à IA est encombré, et que les utilisateurs de Dia pourraient à leur tour changer de produit."
+    },
+    {
+     "type": "diagram",
+     "svg": "<svg xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"0 0 640 200\" font-family=\"system-ui,sans-serif\"><rect width=\"640\" height=\"200\" rx=\"16\" fill=\"#eef2f7\"/><text x=\"320\" y=\"30\" text-anchor=\"middle\" font-size=\"15\" font-weight=\"700\" fill=\"#1f2a37\">Trois étapes d&#x27;arrêt d&#x27;Arc</text><rect x=\"20.0\" y=\"48\" width=\"185.3\" height=\"110\" rx=\"12\" fill=\"#fff\" stroke=\"#3b6ea5\" stroke-width=\"2\"/><text x=\"112.7\" y=\"78\" text-anchor=\"middle\" font-size=\"13\" font-weight=\"700\" fill=\"#14304d\">Dès maintenant</text><text x=\"112.7\" y=\"102\" text-anchor=\"middle\" font-size=\"11.5\" fill=\"#33414f\">plus de nouveaux</text><text x=\"112.7\" y=\"120\" text-anchor=\"middle\" font-size=\"11.5\" fill=\"#33414f\">comptes</text><path d=\"M208.3 103 l16 0 m-6 -6 l6 6 l-6 6\" stroke=\"#3b6ea5\" stroke-width=\"2.5\" fill=\"none\"/><rect x=\"227.3\" y=\"48\" width=\"185.3\" height=\"110\" rx=\"12\" fill=\"#fff\" stroke=\"#3b6ea5\" stroke-width=\"2\"/><text x=\"320.0\" y=\"78\" text-anchor=\"middle\" font-size=\"13\" font-weight=\"700\" fill=\"#14304d\">23 novembre 2026</text><text x=\"320.0\" y=\"102\" text-anchor=\"middle\" font-size=\"11.5\" fill=\"#33414f\">arrêt sur iOS</text><text x=\"320.0\" y=\"120\" text-anchor=\"middle\" font-size=\"11.5\" fill=\"#33414f\">et Android</text><path d=\"M415.7 103 l16 0 m-6 -6 l6 6 l-6 6\" stroke=\"#3b6ea5\" stroke-width=\"2.5\" fill=\"none\"/><rect x=\"434.7\" y=\"48\" width=\"185.3\" height=\"110\" rx=\"12\" fill=\"#fff\" stroke=\"#3b6ea5\" stroke-width=\"2\"/><text x=\"527.3\" y=\"78\" text-anchor=\"middle\" font-size=\"13\" font-weight=\"700\" fill=\"#14304d\">22 décembre 2026</text><text x=\"527.3\" y=\"102\" text-anchor=\"middle\" font-size=\"11.5\" fill=\"#33414f\">arrêt sur macOS</text><text x=\"527.3\" y=\"120\" text-anchor=\"middle\" font-size=\"11.5\" fill=\"#33414f\">et Windows</text></svg>",
+     "alt": "Trois étapes : fin des inscriptions, arrêt du mobile, arrêt de l'ordinateur",
+     "caption": "Le mobile s'éteint en premier, l'ordinateur un mois plus tard."
+    },
+    {
+     "type": "usecases",
+     "title": "Exemples d'utilisation",
+     "items": [
+      {
+       "icon": "🗂️",
+       "title": "Utilisateur d'espaces et de panneaux",
+       "text": "Il exporte ses marque-pages et note ses espaces avant le 22 décembre, puis teste Dia ou Zen pour retrouver une organisation par panneau."
+      },
+      {
+       "icon": "🏢",
+       "title": "Équipe qui partage des profils",
+       "text": "Elle vérifie ce qui sera perdu lors de l'importation dans Dia et prévoit une période de bascule avant l'arrêt."
+      },
+      {
+       "icon": "🔐",
+       "title": "Utilisateur soucieux de ses données",
+       "text": "Il demande la suppression de son compte et vérifie que les données sont effacées dans le délai annoncé de 30 jours."
+      }
+     ]
+    },
+    {
+     "type": "opinion",
+     "title": "Notre avis",
+     "paragraphs": [
+      "Cette fin de vie rappelle un risque ordinaire des logiciels propriétaires : un produit apprécié peut disparaître quand son éditeur change de cap. Ici, la disparition de la synchronisation et des fonctions d'IA, puis du produit lui-même, laisse peu de marge, surtout pour qui avait tout organisé dans Arc.",
+      "À un horizon de un à trois ans, la bataille se jouera sur les navigateurs à agent d'IA ; mais le pari, dans une concurrence aussi dense, reste risqué. Cette appréciation est une opinion et non un fait."
+     ],
+     "verdict": "Un adieu prévisible, qui rappelle de ne pas ranger toute sa navigation dans un produit fermé."
+    }
+   ],
+   "publishedAt": "2026-10-23T19:18:55+02:00"
+  },
+  {
+   "id": "node2shell-brotli-node-js-24-22-1",
+   "category": "devops",
+   "icon": "📦",
+   "importance": 3,
+   "sourceDate": "2026-10-23",
+   "title": "Node2Shell : Imperva montre une exécution de code sur une image Node.js officielle via des données Brotli forgées",
+   "summary": "La CVE-2026-111497 est corrigée dans Node.js 24.22.1 ; la démonstration reste inégale mais fonctionne sur une version standard, y compris dans des images de conteneurs.",
+   "tags": [
+    "Node.js",
+    "Brotli",
+    "Imperva",
+    "Express",
+    "conteneurs",
+    "CVE-2026-111497"
+   ],
+   "readingMinutes": 6,
+   "sources": [
+    {
+     "title": "Researchers Demonstrate Node2Shell RCE Exploit on Node.js Build Using Crafted Brotli Data",
+     "url": "https://thehackernews.com/2026/10/researchers-demonstrate-node2shell-rce.html",
+     "publisher": "The Hacker News"
+    }
+   ],
+   "cover": {
+    "url": "https://blogger.googleusercontent.com/img/b/R29vZ2xl/AVvXsEhDudJHAM27KiE-F4E5vX1WOgITTdawUaZrFoXUIrf7lscEHIl7fgGQY5Qo60bRxr-o7UKloYK1sp23i5cvWPpc6XXttZa8GFvYxqSV7pp0B6vdBTp0sIBCX8r8oC5CAXO1mdJfshaIpLFyrFDCm9HPiYyBZMECEcSHKzbVzOk_VpGL2kEQDjB1rNk21Y8/s1700-nu-rw-lo-l85-e365/node2shell.gif",
+    "alt": "Animation de la démonstration Node2Shell",
+    "credit": "thehackernews.com"
+   },
+   "illustration": {
+    "svg": "<svg xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"0 0 640 360\"><defs><linearGradient id=\"g\" x1=\"0\" y1=\"0\" x2=\"1\" y2=\"1\"><stop offset=\"0\" stop-color=\"hsl(160,62%,34%)\"/><stop offset=\"1\" stop-color=\"hsl(190,68%,52%)\"/></linearGradient></defs><rect width=\"640\" height=\"360\" fill=\"url(#g)\"/><circle cx=\"570\" cy=\"50\" r=\"90\" fill=\"#fff\" fill-opacity=\".07\"/><circle cx=\"60\" cy=\"330\" r=\"110\" fill=\"#fff\" fill-opacity=\".06\"/><g fill=\"#fff\" stroke=\"#fff\"><path d=\"M320 100l110 50v100l-110 50-110-50V150z\" fill-opacity=\".9\" stroke=\"none\"/><path d=\"M320 200l110-50M320 200v100M320 200l-110-50\" fill=\"none\" stroke=\"#000\" stroke-opacity=\".3\" stroke-width=\"8\"/></g><text x=\"565\" y=\"325\" text-anchor=\"middle\" font-size=\"50\">📦</text></svg>"
+   },
+   "blocks": [
+    {
+     "type": "paragraph",
+     "text": "Une faille de mémoire dans un décodeur de compression peut sembler anodine. Les chercheurs d'Imperva viennent de montrer le contraire : avec des données Brotli forgées, ils ont réussi à faire exécuter du code choisi par l'attaquant à une application tournant sur l'image officielle de Node.js 24.22.0 pour Linux arm64, sans débogueur ni compilation personnalisée. La démonstration, baptisée **Node2Shell**, exploite la **CVE-2026-111497**, située dans le décodeur Brotli embarqué par Node.js."
+    },
+    {
+     "type": "heading",
+     "level": 2,
+     "text": "Ce qui a été démontré, et ses limites"
+    },
+    {
+     "type": "paragraph",
+     "text": "L'exploitation n'a pas réussi à chaque essai : plusieurs tentatives ont été nécessaires sur la configuration arm64 d'Imperva, et les résultats ne valent que pour cette version et cette application. Les architectures autres et les branches 22.x et 26.x n'ont pas été testées, bien que le décodeur concerné figure, selon l'article, dans les trois branches. L'exécution a toutefois été reproduite par le corps de requête comme par les réponses, avec Express 5.0.0 à 5.3.0 et body-parser 2.0.0 à 2.3.0 aux versions fixées, sans tester chaque version intermédiaire."
+    },
+    {
+     "type": "paragraph",
+     "text": "Un premier code de démonstration public n'avait obtenu l'exécution que sur une version volontairement affaiblie. Sur une version standard, son auteur n'avait obtenu qu'un plantage et une lecture limitée de la mémoire du processus. Imperva va plus loin en montrant l'exécution sur une version standard."
+    },
+    {
+     "type": "heading",
+     "level": 2,
+     "text": "Quand l'application est-elle exposée ?"
+    },
+    {
+     "type": "list",
+     "ordered": false,
+     "items": [
+      "lorsqu'elle lit une réponse compressée en Brotli avec la fonction `fetch()` intégrée de Node.js ;",
+      "lorsqu'un intergiciel décode un corps de requête compressé en Brotli : les analyseurs de corps d'Express 5 (json, urlencoded, text, raw) le font sur les routes où ils s'appliquent ;",
+      "un simple serveur HTTP Node.js ne décode pas les corps de requête par le seul fait de les recevoir."
+     ]
+    },
+    {
+     "type": "paragraph",
+     "text": "La cause tient à un changement de type de bloc que la structure du flux Brotli exclut : le décodeur le traite comme une demande de données supplémentaires et poursuit dans un état invalide. Sous un outil de contrôle de la mémoire, cette poursuite écrit au-delà d'un tampon, d'où l'écriture hors limites."
+    },
+    {
+     "type": "diagram",
+     "svg": "<svg xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"0 0 640 200\" font-family=\"system-ui,sans-serif\"><rect width=\"640\" height=\"200\" rx=\"16\" fill=\"#eef2f7\"/><text x=\"320\" y=\"30\" text-anchor=\"middle\" font-size=\"15\" font-weight=\"700\" fill=\"#1f2a37\">Le chemin de la CVE-2026-111497</text><rect x=\"20.0\" y=\"48\" width=\"133.5\" height=\"110\" rx=\"12\" fill=\"#fff\" stroke=\"#3b6ea5\" stroke-width=\"2\"/><text x=\"86.8\" y=\"78\" text-anchor=\"middle\" font-size=\"13\" font-weight=\"700\" fill=\"#14304d\">Données Brotli</text><text x=\"86.8\" y=\"102\" text-anchor=\"middle\" font-size=\"11.5\" fill=\"#33414f\">flux compressé</text><text x=\"86.8\" y=\"120\" text-anchor=\"middle\" font-size=\"11.5\" fill=\"#33414f\">forgé</text><path d=\"M156.5 103 l16 0 m-6 -6 l6 6 l-6 6\" stroke=\"#3b6ea5\" stroke-width=\"2.5\" fill=\"none\"/><rect x=\"175.5\" y=\"48\" width=\"133.5\" height=\"110\" rx=\"12\" fill=\"#fff\" stroke=\"#3b6ea5\" stroke-width=\"2\"/><text x=\"242.2\" y=\"78\" text-anchor=\"middle\" font-size=\"13\" font-weight=\"700\" fill=\"#14304d\">Décodage</text><text x=\"242.2\" y=\"102\" text-anchor=\"middle\" font-size=\"11.5\" fill=\"#33414f\">fetch() ou</text><text x=\"242.2\" y=\"120\" text-anchor=\"middle\" font-size=\"11.5\" fill=\"#33414f\">intergiciel Express</text><path d=\"M312.0 103 l16 0 m-6 -6 l6 6 l-6 6\" stroke=\"#3b6ea5\" stroke-width=\"2.5\" fill=\"none\"/><rect x=\"331.0\" y=\"48\" width=\"133.5\" height=\"110\" rx=\"12\" fill=\"#fff\" stroke=\"#3b6ea5\" stroke-width=\"2\"/><text x=\"397.8\" y=\"78\" text-anchor=\"middle\" font-size=\"13\" font-weight=\"700\" fill=\"#14304d\">État invalide</text><text x=\"397.8\" y=\"102\" text-anchor=\"middle\" font-size=\"11.5\" fill=\"#33414f\">le décodeur ne</text><text x=\"397.8\" y=\"120\" text-anchor=\"middle\" font-size=\"11.5\" fill=\"#33414f\">s&#x27;arrête pas</text><path d=\"M467.5 103 l16 0 m-6 -6 l6 6 l-6 6\" stroke=\"#3b6ea5\" stroke-width=\"2.5\" fill=\"none\"/><rect x=\"486.5\" y=\"48\" width=\"133.5\" height=\"110\" rx=\"12\" fill=\"#fff\" stroke=\"#3b6ea5\" stroke-width=\"2\"/><text x=\"553.2\" y=\"78\" text-anchor=\"middle\" font-size=\"13\" font-weight=\"700\" fill=\"#14304d\">Écriture hors limites</text><text x=\"553.2\" y=\"102\" text-anchor=\"middle\" font-size=\"11.5\" fill=\"#33414f\">exécution de code</text><text x=\"553.2\" y=\"120\" text-anchor=\"middle\" font-size=\"11.5\" fill=\"#33414f\">possible</text></svg>",
+     "alt": "Quatre étapes, des données forgées à l'exécution de code",
+     "caption": "Schéma simplifié du mécanisme décrit par Imperva."
+    },
+    {
+     "type": "heading",
+     "level": 2,
+     "text": "Correctifs et parades"
+    },
+    {
+     "type": "keyvalue",
+     "items": [
+      {
+       "label": "Version corrigée",
+       "value": "Node.js 24.22.1, publiée le 21 octobre 2026"
+      },
+      {
+       "label": "Branches anciennes",
+       "value": "20.x et antérieures ne recevront pas de correctif : migrer vers une branche prise en charge"
+      },
+      {
+       "label": "Contournement dans l'exécution",
+       "value": "aucun indiqué dans l'avis"
+      },
+      {
+       "label": "Règles de pare-feu",
+       "value": "Imperva et Vercel (21 octobre) bloquent l'attaque en entrée, sans couvrir les réponses Brotli récupérées par l'application"
+      },
+      {
+       "label": "Exploitation dans la nature",
+       "value": "aucune signalée au 22 octobre"
+      }
+     ]
+    },
+    {
+     "type": "paragraph",
+     "text": "Seule la mise à jour supprime la faille. Elle doit aussi atteindre les images de conteneurs et autres artefacts qui embarquent un binaire Node, que les inventaires de paquets peuvent manquer. Imperva recommande en complément de limiter, quand c'est possible, le trafic Brotli non fiable sur les chemins concernés."
+    },
+    {
+     "type": "usecases",
+     "title": "Exemples d'utilisation",
+     "items": [
+      {
+       "icon": "🐳",
+       "title": "Équipe de plateforme",
+       "text": "Elle recherche dans son registre d'images toutes celles qui embarquent un binaire Node.js et planifie leur reconstruction avec la version 24.22.1."
+      },
+      {
+       "icon": "🔌",
+       "title": "Développeur d'API Express",
+       "text": "Il repère les routes qui acceptent un corps compressé en Brotli et désactive cette compression quand elle n'est pas nécessaire."
+      },
+      {
+       "icon": "🧪",
+       "title": "Équipe de sécurité",
+       "text": "Elle teste ses règles de pare-feu applicatif et se rappelle qu'elles ne couvrent pas les réponses distantes lues par l'application."
+      }
+     ]
+    },
+    {
+     "type": "timeline",
+     "title": "D'où l'on vient, où l'on va",
+     "items": [
+      {
+       "label": "21 octobre 2026",
+       "text": "Divulgation et publication de Node.js 24.22.1 ; Vercel ajoute des règles de blocage."
+      },
+      {
+       "label": "22 octobre 2026",
+       "text": "Aucune exploitation dans la nature signalée."
+      },
+      {
+       "label": "23 octobre 2026",
+       "text": "Imperva publie la démonstration Node2Shell."
+      }
+     ]
+    },
+    {
+     "type": "opinion",
+     "title": "Notre avis",
+     "paragraphs": [
+      "Node2Shell rappelle que l'inventaire des dépendances ne suffit pas : un binaire embarqué dans une image de conteneur échappe souvent aux outils qui lisent les fichiers de paquets. Les règles de pare-feu applicatif sont un filet utile, mais Imperva reconnaît elle-même que seule la mise à jour règle le problème.",
+      "À un horizon de un à trois ans, les équipes devront mieux cartographier les composants embarqués (SBOM exhaustifs, analyse des binaires) pour réagir en quelques heures. Cette lecture est une opinion et non un fait."
+     ],
+     "verdict": "Mettre à jour Node.js, images de conteneurs comprises : le filet du pare-feu ne remplace pas le correctif."
+    }
+   ],
+   "publishedAt": "2026-10-23T19:18:55+02:00"
+  },
+  {
+   "id": "esp-mosaico-esp32-s31-plateforme-modulaire",
+   "category": "electronique",
+   "icon": "🧩",
+   "importance": 2,
+   "sourceDate": "2026-10-21",
+   "title": "ESP-Mosaico : Espressif propose une plateforme modulaire à ESP32-S31 pensée pour créer du matériel avec l'aide de l'IA",
+   "summary": "Un écran tactile carré de 2,16 pouces, un retour haptique et une batterie intégrée, pour 59 dollars avec la caméra et le module d'interaction.",
+   "tags": [
+    "Espressif",
+    "ESP32-S31",
+    "ESP-Mosaico",
+    "Wi-Fi 6",
+    "Matter"
+   ],
+   "readingMinutes": 5,
+   "sources": [
+    {
+     "title": "ESP-Mosaico – An ESP32-S31-based modular development platform for AI-assisted hardware creation",
+     "url": "https://www.cnx-software.com/2026/10/21/esp-mosaico-an-esp32-s31-based-modular-development-platform-for-ai-assisted-hardware-creation/",
+     "publisher": "CNX Software"
+    }
+   ],
+   "cover": {
+    "url": "https://www.cnx-software.com/wp-content/uploads/2026/10/ESP-Mosaico.jpg",
+    "alt": "Plateforme de développement ESP-Mosaico avec son écran carré",
+    "credit": "cnx-software.com"
+   },
+   "illustration": {
+    "svg": "<svg xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"0 0 640 360\"><defs><linearGradient id=\"g\" x1=\"0\" y1=\"0\" x2=\"1\" y2=\"1\"><stop offset=\"0\" stop-color=\"hsl(30,62%,34%)\"/><stop offset=\"1\" stop-color=\"hsl(55,68%,52%)\"/></linearGradient></defs><rect width=\"640\" height=\"360\" fill=\"url(#g)\"/><circle cx=\"570\" cy=\"50\" r=\"90\" fill=\"#fff\" fill-opacity=\".07\"/><circle cx=\"60\" cy=\"330\" r=\"110\" fill=\"#fff\" fill-opacity=\".06\"/><g fill=\"#fff\" stroke=\"#fff\"><rect x=\"230\" y=\"110\" width=\"180\" height=\"140\" rx=\"14\" fill-opacity=\".92\" stroke=\"none\"/><g stroke-width=\"8\" stroke-linecap=\"round\"><path d=\"M260 110v-30M300 110v-30M340 110v-30M380 110v-30M260 250v30M300 250v30M340 250v30M380 250v30M230 140h-30M230 180h-30M230 220h-30M410 140h30M410 180h30M410 220h30\"/></g><rect x=\"270\" y=\"145\" width=\"100\" height=\"70\" rx=\"8\" fill=\"#000\" fill-opacity=\".3\" stroke=\"none\"/></g><text x=\"565\" y=\"325\" text-anchor=\"middle\" font-size=\"50\">🧩</text></svg>"
+   },
+   "blocks": [
+    {
+     "type": "paragraph",
+     "text": "Espressif poursuit le déploiement de sa nouvelle puce ESP32-S31 avec une plateforme qui prend le contre-pied des cartes de développement classiques : **ESP-Mosaico**. Selon CNX Software, qui l'a présentée le 21 octobre 2026, elle associe un écran tactile de 2,16 pouces en 480 × 480 pixels, un retour haptique, une batterie intégrée, un port USB-C et des entrées-sorties d'extension. Son public visé : les jouets à extension magnétique, la détection de mouvement, les interfaces tactiles carrées et les applications vocales et multimédias en périphérie."
+    },
+    {
+     "type": "heading",
+     "level": 2,
+     "text": "Caractéristiques techniques"
+    },
+    {
+     "type": "keyvalue",
+     "items": [
+      {
+       "label": "Puce",
+       "value": "ESP32-S31NRV16 : cœur RISC-V performant à 320 MHz (unité à virgule flottante et SIMD) et cœur basse consommation"
+      },
+      {
+       "label": "Mémoire",
+       "value": "512 Ko de SRAM, 32 Ko de SRAM basse consommation, 16 Mo de PSRAM"
+      },
+      {
+       "label": "Stockage",
+       "value": "128 Mo de NAND SPI pour les ressources et 16 Mo de NOR SPI pour le programme et les données"
+      },
+      {
+       "label": "Sans fil",
+       "value": "Wi-Fi 6, Bluetooth 5.4 (LE Audio, goniométrie, Mesh et Classic) et radio 802.15.4 pour Zigbee, Thread et Matter"
+      },
+      {
+       "label": "Écran",
+       "value": "2,16 pouces QSPI, pilote CO5300, contrôleur tactile CST9220"
+      },
+      {
+       "label": "Audio",
+       "value": "amplificateur de classe D de 3 W NS4150B et microphone vers un codec ES8311"
+      },
+      {
+       "label": "Capteurs",
+       "value": "deux magnétomètres BMM150 et une centrale inertielle à 6 axes BMI270"
+      },
+      {
+       "label": "Alimentation",
+       "value": "USB-C, chargeur TP4057, jauge BQ27220 et convertisseurs abaisseur et élévateur"
+      }
+     ]
+    },
+    {
+     "type": "paragraph",
+     "text": "La carte de base se raccorde à la carte centrale par un connecteur de 60 broches. Elle apporte un haut-parleur, deux connecteurs d'extension de 20 broches, des plots d'accès (masse, BOOT, RST, RX, TX, 5 V) et une batterie Li-ion de 3,7 V et 65 mAh. Les dimensions sont indiquées comme restant à confirmer."
+    },
+    {
+     "type": "heading",
+     "level": 2,
+     "text": "Modules d'extension"
+    },
+    {
+     "type": "list",
+     "ordered": false,
+     "items": [
+      "**Module caméra** : capteur OV3640 de 3,2 mégapixels ou SC101IOT de 1 mégapixel, en 1 024 × 768.",
+      "**Module d'interaction multifonction** : photorésistance, détecteur de mouvement PIR, LED infrarouge, six LED RVB WS2812 et plots pour touches mécaniques ou tactiles."
+     ]
+    },
+    {
+     "type": "heading",
+     "level": 2,
+     "text": "Le volet « assistance par IA »"
+    },
+    {
+     "type": "paragraph",
+     "text": "Espressif décrit deux modes de développement. Le « Chat Coding » s'appuie sur ESP-Claw : on construit un prototype par des instructions en langage naturel, sans environnement de développement local. Le « Vibe Coding » repose sur ESP-ZeroCode AI, où des agents d'IA se chargent de l'implémentation, du déploiement, des essais matériels et des itérations. Ces outils sont présentés par le constructeur ; l'article n'évalue pas leur fiabilité."
+    },
+    {
+     "type": "diagram",
+     "svg": "<svg xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"0 0 640 200\" font-family=\"system-ui,sans-serif\"><rect width=\"640\" height=\"200\" rx=\"16\" fill=\"#eef2f7\"/><text x=\"320\" y=\"30\" text-anchor=\"middle\" font-size=\"15\" font-weight=\"700\" fill=\"#1f2a37\">Le principe annoncé par Espressif</text><rect x=\"20.0\" y=\"48\" width=\"133.5\" height=\"110\" rx=\"12\" fill=\"#fff\" stroke=\"#3b6ea5\" stroke-width=\"2\"/><text x=\"86.8\" y=\"78\" text-anchor=\"middle\" font-size=\"13\" font-weight=\"700\" fill=\"#14304d\">Instruction</text><text x=\"86.8\" y=\"102\" text-anchor=\"middle\" font-size=\"11.5\" fill=\"#33414f\">une description</text><text x=\"86.8\" y=\"120\" text-anchor=\"middle\" font-size=\"11.5\" fill=\"#33414f\">en langage naturel</text><path d=\"M156.5 103 l16 0 m-6 -6 l6 6 l-6 6\" stroke=\"#3b6ea5\" stroke-width=\"2.5\" fill=\"none\"/><rect x=\"175.5\" y=\"48\" width=\"133.5\" height=\"110\" rx=\"12\" fill=\"#fff\" stroke=\"#3b6ea5\" stroke-width=\"2\"/><text x=\"242.2\" y=\"78\" text-anchor=\"middle\" font-size=\"13\" font-weight=\"700\" fill=\"#14304d\">Agent d&#x27;IA</text><text x=\"242.2\" y=\"102\" text-anchor=\"middle\" font-size=\"11.5\" fill=\"#33414f\">ESP-Claw ou</text><text x=\"242.2\" y=\"120\" text-anchor=\"middle\" font-size=\"11.5\" fill=\"#33414f\">ESP-ZeroCode AI</text><path d=\"M312.0 103 l16 0 m-6 -6 l6 6 l-6 6\" stroke=\"#3b6ea5\" stroke-width=\"2.5\" fill=\"none\"/><rect x=\"331.0\" y=\"48\" width=\"133.5\" height=\"110\" rx=\"12\" fill=\"#fff\" stroke=\"#3b6ea5\" stroke-width=\"2\"/><text x=\"397.8\" y=\"78\" text-anchor=\"middle\" font-size=\"13\" font-weight=\"700\" fill=\"#14304d\">Matériel</text><text x=\"397.8\" y=\"102\" text-anchor=\"middle\" font-size=\"11.5\" fill=\"#33414f\">ESP-Mosaico et</text><text x=\"397.8\" y=\"120\" text-anchor=\"middle\" font-size=\"11.5\" fill=\"#33414f\">modules d&#x27;extension</text><path d=\"M467.5 103 l16 0 m-6 -6 l6 6 l-6 6\" stroke=\"#3b6ea5\" stroke-width=\"2.5\" fill=\"none\"/><rect x=\"486.5\" y=\"48\" width=\"133.5\" height=\"110\" rx=\"12\" fill=\"#fff\" stroke=\"#3b6ea5\" stroke-width=\"2\"/><text x=\"553.2\" y=\"78\" text-anchor=\"middle\" font-size=\"13\" font-weight=\"700\" fill=\"#14304d\">Itération</text><text x=\"553.2\" y=\"102\" text-anchor=\"middle\" font-size=\"11.5\" fill=\"#33414f\">essais, ajustements</text><text x=\"553.2\" y=\"120\" text-anchor=\"middle\" font-size=\"11.5\" fill=\"#33414f\">nouvelle version</text></svg>",
+     "alt": "Quatre étapes : instruction, agent, matériel, itération",
+     "caption": "Schéma du flux de travail assisté par IA décrit par Espressif."
+    },
+    {
+     "type": "paragraph",
+     "text": "Le kit complet, avec les modules caméra et interaction, est vendu 59 dollars sur la boutique Mosaico, et un module batterie facultatif coûte 15 dollars. L'article note que des premiers exemplaires sont apparus à des prix gonflés sur Taobao et AliExpress. Un commentaire de lecteur s'interroge sur une version à 32 Mo de PSRAM, sans réponse dans l'article."
+    },
+    {
+     "type": "usecases",
+     "title": "Exemples d'utilisation",
+     "items": [
+      {
+       "icon": "🧸",
+       "title": "Jouet interactif",
+       "text": "Un prototype avec écran carré, retour haptique et détection de mouvement, assemblé par modules magnétiques."
+      },
+      {
+       "icon": "🏠",
+       "title": "Panneau domotique",
+       "text": "Une interface tactile compatible Matter et Thread pour piloter l'éclairage et les volets."
+      },
+      {
+       "icon": "🎙️",
+       "title": "Assistant vocal local",
+       "text": "Un petit appareil avec microphone et haut-parleur pour tester des commandes vocales en périphérie."
+      }
+     ]
+    },
+    {
+     "type": "timeline",
+     "title": "D'où l'on vient, où l'on va",
+     "items": [
+      {
+       "label": "22 octobre 2026",
+       "text": "Une carte à encodeur rotatif GUITION adopte elle aussi l'ESP32-S31."
+      },
+      {
+       "label": "21 octobre 2026",
+       "text": "CNX Software présente ESP-Mosaico, avec un kit à 59 dollars."
+      },
+      {
+       "label": "Prochainement",
+       "text": "Les dimensions de la carte restent à confirmer."
+      }
+     ]
+    },
+    {
+     "type": "opinion",
+     "title": "Notre avis",
+     "paragraphs": [
+      "ESP-Mosaico est surtout un message de positionnement : Espressif veut faire de l'assistance par IA un argument de la plateforme. Les caractéristiques sont solides pour le prix, mais la promesse d'un développement par simple conversation devra se vérifier sur des projets réels, où le matériel impose des contraintes que l'IA ne contourne pas.",
+      "À un horizon de un à trois ans, on peut s'attendre à voir d'autres fabricants de puces proposer des chaînes d'outils pilotées par des agents. C'est une opinion argumentée, non un fait."
+     ],
+     "verdict": "Du matériel attrayant pour 59 dollars ; la promesse de l'IA reste à confirmer sur de vrais projets."
+    }
+   ],
+   "publishedAt": "2026-10-23T19:18:55+02:00"
+  }
+ ]
+}
