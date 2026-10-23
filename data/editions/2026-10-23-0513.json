@@ -1,0 +1,1108 @@
+{
+  "schemaVersion": "1.0",
+  "date": "2026-10-23",
+  "generatedAt": "2026-10-23T05:18:48+02:00",
+  "title": "PHP2Shell exploité avant les correctifs, faille Arista VeloCloud, LiteLLM, Chrome en HTTPS par défaut et humanoïde open source",
+  "summary": "L'actualité technique du 23 octobre 2026 reste dominée par PHP2Shell, désormais exploité depuis le 17 octobre et responsable de la mise à l'arrêt de dizaines de services publics. S'y ajoutent une troisième faille exploitée chez Arista, l'analyse de la compromission de LiteLLM, le HTTPS par défaut dans Chrome, des robots piégés par leur modèle de langage, les retards de l'App Store et un humanoïde ouvert.",
+  "highlights": [
+    "PHP2Shell : première attaque vue le 17 octobre, quatre jours avant les correctifs ; 32 services publics britanniques indisponibles.",
+    "Arista VeloCloud : la CVE-2026-114625 (9,9) est exploitée avec un simple compte en lecture seule.",
+    "LiteLLM : un jeton GitHub lu dans des journaux serait à l'origine de la version piégée 1.107.0.",
+    "Chrome demande l'accord de l'utilisateur avant d'ouvrir un site public en HTTP.",
+    "RoboParty RP1 : un humanoïde de 1,35 m aux plans matériels publiés."
+  ],
+  "meta": {
+    "generator": "claude-scheduled-task"
+  },
+  "posts": [
+    {
+      "id": "php2shell-attaques-avant-divulgation-services-publics",
+      "category": "cybersecurite",
+      "icon": "🐘",
+      "importance": 5,
+      "sourceDate": "2026-10-22",
+      "title": "PHP2Shell : des attaques antérieures aux correctifs, des dizaines de services publics britanniques à l'arrêt",
+      "summary": "Les deux failles critiques de PHP corrigées le 21 octobre étaient déjà exploitées depuis le 17 octobre, selon Amazon. Le gouvernement britannique évoque 32 services indisponibles et un chercheur publie un contournement de l'ASLR.",
+      "tags": [
+        "PHP",
+        "PHP2Shell",
+        "exécution de code",
+        "ASLR",
+        "secteur public"
+      ],
+      "readingMinutes": 5,
+      "sources": [
+        {
+          "title": "PHP2Shell puts dozens of UK government services out of service",
+          "url": "https://www.theregister.com/security/2026/10/22/php2shell-puts-dozens-of-uk-government-services-out-of-service/5304840",
+          "publisher": "The Register"
+        },
+        {
+          "title": "Hackers pile on PHP2Shell as AWS reveals attacks began before disclosure",
+          "url": "https://www.theregister.com/cyber-crime/2026/10/22/hackers-pile-on-php2shell-as-aws-reveals-attacks-began-before-disclosure/5304749",
+          "publisher": "The Register"
+        },
+        {
+          "title": "PHP2Shell exploit bypasses protections designed to stop remote code execution",
+          "url": "https://www.theregister.com/security/2026/10/22/php2shell-exploit-bypasses-protections-designed-to-stop-remote-code-execution/5304883",
+          "publisher": "The Register"
+        }
+      ],
+      "cover": {
+        "url": "https://image.theregister.com/229174.jpg?imageId=229174&x=0&y=3.94&cropw=100&croph=63.55&panox=0&panoy=3.94&panow=100&panoh=63.55&width=1200&height=683",
+        "alt": "Illustration de l'article source sur les services publics britanniques touchés par PHP2Shell",
+        "credit": "theregister.com"
+      },
+      "illustration": {
+        "svg": "<svg xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"0 0 640 360\"><defs><linearGradient id=\"g\" x1=\"0\" y1=\"0\" x2=\"1\" y2=\"1\"><stop offset=\"0\" stop-color=\"hsl(175,62%,34%)\"/><stop offset=\"1\" stop-color=\"hsl(215,68%,52%)\"/></linearGradient></defs><rect width=\"640\" height=\"360\" fill=\"url(#g)\"/><circle cx=\"570\" cy=\"50\" r=\"90\" fill=\"#fff\" fill-opacity=\".07\"/><circle cx=\"60\" cy=\"330\" r=\"110\" fill=\"#fff\" fill-opacity=\".06\"/><g fill=\"#fff\" stroke=\"#fff\"><rect x=\"110\" y=\"70\" width=\"150\" height=\"100\" rx=\"10\" fill-opacity=\".85\" stroke=\"none\"/><rect x=\"290\" y=\"70\" width=\"150\" height=\"100\" rx=\"10\" fill-opacity=\".6\" stroke=\"none\"/><rect x=\"200\" y=\"200\" width=\"150\" height=\"100\" rx=\"10\" fill-opacity=\".75\" stroke=\"none\"/><path d=\"M260 120h30M185 170v30M365 170v30\" fill=\"none\" stroke-width=\"6\"/><path d=\"M470 210l40 40M510 210l-40 40\" fill=\"none\" stroke-width=\"10\" stroke-linecap=\"round\"/></g><text x=\"565\" y=\"325\" text-anchor=\"middle\" font-size=\"50\">🐘</text></svg>"
+      },
+      "blocks": [
+        {
+          "type": "paragraph",
+          "text": "Au lendemain de la publication des correctifs, la crise PHP2Shell change de nature. Les deux failles critiques du langage PHP, corrigées le 21 octobre 2026, ne sont plus seulement un risque théorique : des attaques ont été observées plusieurs jours avant la publication des correctifs, des administrations de plusieurs pays ont débranché des services par précaution, et un chercheur a montré qu'une protection que l'on croyait solide, la randomisation de l'espace d'adressage, ne suffit pas à les arrêter."
+        },
+        {
+          "type": "heading",
+          "level": 2,
+          "text": "Ce que l'on sait des failles et des attaques"
+        },
+        {
+          "type": "keyvalue",
+          "items": [
+            {
+              "label": "Identifiants",
+              "value": "CVE-2026-109618 et CVE-2026-109619, toutes deux jugées critiques (score de 9,2 selon The Register)."
+            },
+            {
+              "label": "Nature",
+              "value": "Défauts de gestion de la mémoire dans PHP lui-même, qui permettent à un attaquant non authentifié d'exécuter du code sur un serveur vulnérable."
+            },
+            {
+              "label": "Correctifs",
+              "value": "Publiés par la fondation PHP le 21 octobre 2026."
+            },
+            {
+              "label": "Première attaque observée",
+              "value": "17 octobre 2026, sur un piège à attaques (honeypot) d'Amazon, soit quatre jours avant les correctifs."
+            }
+          ]
+        },
+        {
+          "type": "paragraph",
+          "text": "Les failles se situent dans PHP et non dans un module ou une extension : tout système de gestion de contenu qui s'exécute sur une version vulnérable est potentiellement exposé, quel que soit son propre niveau de mise à jour. C'est ce qui explique l'ampleur de la réaction. Selon le gouvernement britannique, la baronne Lloyd of Effra, ministre chargée du numérique, a indiqué à la Chambre des lords que 32 services publics étaient indisponibles et quatre partiellement, « en grande partie » à cause de mesures de précaution prises le temps d'appliquer les mises à jour. L'Office for Budget Responsibility a mis ses sites hors ligne avant le budget de la semaine prochaine, et des parlementaires ont évoqué des perturbations touchant le DVLA, des services de police et des collectivités locales."
+        },
+        {
+          "type": "paragraph",
+          "text": "Le phénomène dépasse le Royaume-Uni. L'Allemagne, la France, la Belgique, la Finlande et les Pays-Bas ont mis hors ligne des sites gouvernementaux par précaution, tout comme l'agence australienne de cybersécurité. La NSA américaine a de son côté recommandé de corriger ou de déconnecter les systèmes vulnérables. Le centre national de cybersécurité britannique (NCSC) a adressé 50 000 avertissements à des entreprises et organisations. À ce stade, la ministre a déclaré ne pas avoir connaissance de compromission confirmée des systèmes de l'administration centrale."
+        },
+        {
+          "type": "heading",
+          "level": 2,
+          "text": "Des attaques avant la divulgation"
+        },
+        {
+          "type": "paragraph",
+          "text": "Amazon Threat Intelligence a détecté, le 17 octobre, une tentative d'exploitation contre l'un de ses pièges, quatre jours avant la publication des correctifs. L'activité a eu lieu pendant la période d'embargo, ce qui suggère qu'un acteur disposait déjà d'informations ; la manière dont il les a obtenues reste inconnue. Le 21 octobre, plusieurs preuves de concept sont apparues, la première vers 2 h UTC, soit environ douze heures avant les correctifs. Les tentatives suivantes venaient d'infrastructures anonymisées différentes, avec des charges variées, ce qui laisse penser à plusieurs attaquants. Amazon recommande d'examiner les journaux au moins depuis le 17 octobre."
+        },
+        {
+          "type": "diagram",
+          "svg": "<svg xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"0 0 600 230\" font-family=\"system-ui,sans-serif\"><rect width=\"600\" height=\"230\" rx=\"14\" fill=\"#f4f6fa\" stroke=\"#9aa5b8\"/><text x=\"20\" y=\"32\" font-size=\"16\" font-weight=\"700\" fill=\"#1f2937\">PHP2Shell : exploitation avant la publication des correctifs</text><path d=\"M40 110h520\" stroke=\"#1f2937\" stroke-width=\"3\"/><circle cx=\"70\" cy=\"110\" r=\"9\" fill=\"#b03a3a\"/><circle cx=\"330\" cy=\"110\" r=\"9\" fill=\"#c98a2b\"/><circle cx=\"440\" cy=\"110\" r=\"9\" fill=\"#2f6f4e\"/><circle cx=\"530\" cy=\"110\" r=\"9\" fill=\"#3b5fa8\"/><text x=\"70\" y=\"88\" text-anchor=\"middle\" font-size=\"13\" fill=\"#1f2937\">17 octobre</text><text x=\"70\" y=\"140\" text-anchor=\"middle\" font-size=\"12\" fill=\"#1f2937\">1re tentative</text><text x=\"70\" y=\"157\" text-anchor=\"middle\" font-size=\"12\" fill=\"#1f2937\">vue par AWS</text><text x=\"330\" y=\"88\" text-anchor=\"middle\" font-size=\"13\" fill=\"#1f2937\">21 oct., ~2 h UTC</text><text x=\"330\" y=\"140\" text-anchor=\"middle\" font-size=\"12\" fill=\"#1f2937\">preuves de concept</text><text x=\"330\" y=\"157\" text-anchor=\"middle\" font-size=\"12\" fill=\"#1f2937\">multiples</text><text x=\"440\" y=\"88\" text-anchor=\"middle\" font-size=\"13\" fill=\"#1f2937\">21 octobre</text><text x=\"440\" y=\"140\" text-anchor=\"middle\" font-size=\"12\" fill=\"#1f2937\">correctifs</text><text x=\"440\" y=\"157\" text-anchor=\"middle\" font-size=\"12\" fill=\"#1f2937\">publiés</text><text x=\"530\" y=\"88\" text-anchor=\"middle\" font-size=\"13\" fill=\"#1f2937\">22 octobre</text><text x=\"530\" y=\"140\" text-anchor=\"middle\" font-size=\"12\" fill=\"#1f2937\">32 services</text><text x=\"530\" y=\"157\" text-anchor=\"middle\" font-size=\"12\" fill=\"#1f2937\">britanniques à l'arrêt</text><text x=\"20\" y=\"206\" font-size=\"13\" fill=\"#1f2937\">Sources : Amazon Threat Intelligence, Cloudflare, gouvernement britannique (The Register).</text></svg>",
+          "alt": "Frise chronologique des premières attaques PHP2Shell, du 17 au 22 octobre 2026",
+          "caption": "Chronologie des attaques observées par Amazon et des conséquences pour les services publics britanniques."
+        },
+        {
+          "type": "paragraph",
+          "text": "Cloudflare décrit une montée en charge spectaculaire : des milliers de tentatives dans les dix heures précédant la publication, des dizaines de milliers dans les quarante-cinq minutes suivantes, des centaines de milliers au bout de deux heures, puis des millions. Les attaquants adaptent leurs charges pour franchir le pare-feu applicatif, apparemment en apprenant des requêtes bloquées. Cloudflare a déployé des règles de protection pour ses offres gratuites et payantes, tout en rappelant qu'elles ne remplacent pas la correction. La société Hadrian signale que la plupart des attaques observées passent par le mécanisme de suivi de progression des envois de fichiers de session de PHP."
+        },
+        {
+          "type": "heading",
+          "level": 2,
+          "text": "Un contournement de l'ASLR"
+        },
+        {
+          "type": "paragraph",
+          "text": "La société VulnCheck a mis au point, pour ses clients, un exploit qui enchaîne une fuite de mémoire confirmée et l'exécution de code sur PHP 8.4.26. Il contourne la randomisation de l'espace d'adressage (ASLR) sur x86-64 ainsi que la configuration de production recommandée, notamment `display_errors=off`. La technique s'applique aussi à ARM64, mais l'exécution de code n'y fonctionne pas pour l'instant. Selon VulnCheck, sur les centaines de dépôts de preuves de concept publiés sur GitHub, très peu contiennent un exploit réellement fonctionnel, précisément à cause de l'ASLR. Son message est clair : la difficulté d'exploitation n'est pas une protection."
+        },
+        {
+          "type": "usecases",
+          "title": "Exemples d'utilisation",
+          "items": [
+            {
+              "icon": "🏛️",
+              "title": "Administration locale",
+              "text": "Une commune dont le site de démarches en ligne repose sur un CMS en PHP doit identifier la version installée, appliquer le correctif ou retirer temporairement le service."
+            },
+            {
+              "icon": "🛒",
+              "title": "Boutique en ligne",
+              "text": "Un commerçant dont la boutique tourne chez un hébergeur mutualisé vérifie auprès de celui-ci que PHP a bien été mis à jour et conserve ses journaux depuis le 17 octobre."
+            },
+            {
+              "icon": "🔍",
+              "title": "Équipe de sécurité",
+              "text": "Un responsable sécurité recherche dans les journaux des requêtes anormales vers le suivi de progression des envois de fichiers, et active les règles de son pare-feu applicatif en complément du correctif."
+            }
+          ]
+        },
+        {
+          "type": "timeline",
+          "title": "D'où l'on vient, où l'on va",
+          "items": [
+            {
+              "label": "17 octobre 2026",
+              "text": "Première tentative d'exploitation observée par Amazon sur un piège, pendant l'embargo."
+            },
+            {
+              "label": "21 octobre 2026",
+              "text": "Correctifs de la fondation PHP ; preuves de concept et exploitation à grande échelle."
+            },
+            {
+              "label": "22 octobre 2026",
+              "text": "Le gouvernement britannique recense 32 services indisponibles ; VulnCheck décrit le contournement de l'ASLR."
+            },
+            {
+              "label": "À venir",
+              "text": "Le projet de loi britannique sur la cybersécurité et la résilience revient devant les lords lundi ; Hadrian s'attend à de nouveaux chemins d'exploitation."
+            }
+          ]
+        },
+        {
+          "type": "opinion",
+          "title": "Notre avis",
+          "paragraphs": [
+            "Cette affaire montre l'écart entre la logique d'embargo et la vitesse des attaquants. Quatre jours d'avance pour des assaillants, alors que les défenseurs attendaient la date convenue, ce n'est pas un simple accident de calendrier : c'est la preuve que le secret autour d'une faille de ce niveau est fragile. La fermeture préventive de dizaines de services publics, elle, illustre un arbitrage inconfortable entre disponibilité et sécurité, que seules des mises à jour rapides et des inventaires fiables permettent de trancher.",
+            "Dans les un à trois ans à venir, on peut raisonnablement penser que la découverte de failles par des modèles d'IA, citée ici pour deux des découvertes, raccourcira encore les délais entre le dépôt d'un rapport et l'apparition d'attaques. Il faudra donc des processus de correction capables d'agir en heures plutôt qu'en semaines, et des fonctions d'inventaire sachant dire quels services dépendent de PHP."
+          ],
+          "verdict": "L'embargo n'a pas tenu : l'urgence est de corriger, pas de compter sur l'obscurité."
+        },
+        {
+          "type": "callout",
+          "title": "À retenir",
+          "text": "Mettez PHP à jour sans attendre, ne comptez ni sur l'ASLR ni sur la configuration pour vous protéger, et examinez vos journaux au moins depuis le 17 octobre 2026. Les administrateurs français peuvent aussi consulter les avis du CERT-FR de l'ANSSI."
+        }
+      ],
+      "publishedAt": "2026-10-23T05:18:48+02:00"
+    },
+    {
+      "id": "arista-veloclouds-zero-day-sql-cve-2026-114625",
+      "category": "cybersecurite",
+      "icon": "🛰️",
+      "importance": 4,
+      "sourceDate": "2026-10-22",
+      "title": "Arista VeloCloud : une injection SQL de gravité 9,9 exploitée avant correctif, la troisième faille de l'orchestrateur depuis juillet",
+      "summary": "Arista a publié le 22 octobre 2026 un avis sur la CVE-2026-114625, qui permet à un utilisateur du rôle le plus bas de prendre le contrôle de l'orchestrateur SD-WAN VeloCloud.",
+      "tags": [
+        "Arista",
+        "VeloCloud",
+        "SD-WAN",
+        "injection SQL",
+        "zero-day"
+      ],
+      "readingMinutes": 5,
+      "sources": [
+        {
+          "title": "Arista Warns of Critical VeloCloud SQL Injection Zero-Day Exploited in Attacks",
+          "url": "https://thehackernews.com/2026/10/arista-warns-of-critical-velocloud-sql.html",
+          "publisher": "The Hacker News"
+        }
+      ],
+      "cover": {
+        "url": "https://blogger.googleusercontent.com/img/b/R29vZ2xl/AVvXsEio5jLAiZnSHOwYGjf-F6s4HR4ileDOwAkHiX9NyW30mGUqSzgdwGVdTzCTYkgmeoGtTRaSVm-h2IBwvJ9xd84OU2t3YXd8hf5PwlGdjh6VlcYZoCNkx6Yt0FY_JlVcM3AtXI4LQyidnOE86NMVwOGcztaFtV2Qq21X1pRQi6jxiITnQIoO14XLiOWaufI/s1600/velo.jpg",
+        "alt": "Illustration de l'article source sur la faille de l'orchestrateur VeloCloud d'Arista",
+        "credit": "thehackernews.com"
+      },
+      "illustration": {
+        "svg": "<svg xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"0 0 640 360\"><defs><linearGradient id=\"g\" x1=\"0\" y1=\"0\" x2=\"1\" y2=\"1\"><stop offset=\"0\" stop-color=\"hsl(175,62%,34%)\"/><stop offset=\"1\" stop-color=\"hsl(215,68%,52%)\"/></linearGradient></defs><rect width=\"640\" height=\"360\" fill=\"url(#g)\"/><circle cx=\"570\" cy=\"50\" r=\"90\" fill=\"#fff\" fill-opacity=\".07\"/><circle cx=\"60\" cy=\"330\" r=\"110\" fill=\"#fff\" fill-opacity=\".06\"/><g fill=\"#fff\" stroke=\"#fff\"><circle cx=\"320\" cy=\"170\" r=\"48\" fill-opacity=\".9\" stroke=\"none\"/><g fill=\"none\" stroke-width=\"5\"><path d=\"M320 170L170 90M320 170L470 90M320 170L170 250M320 170L470 250\"/></g><g stroke=\"none\"><circle cx=\"170\" cy=\"90\" r=\"22\" fill-opacity=\".7\"/><circle cx=\"470\" cy=\"90\" r=\"22\" fill-opacity=\".7\"/><circle cx=\"170\" cy=\"250\" r=\"22\" fill-opacity=\".7\"/><circle cx=\"470\" cy=\"250\" r=\"22\" fill-opacity=\".7\"/></g></g><text x=\"565\" y=\"325\" text-anchor=\"middle\" font-size=\"50\">🛰️</text></svg>"
+      },
+      "blocks": [
+        {
+          "type": "paragraph",
+          "text": "L'équipementier Arista a averti le 22 octobre 2026 qu'une nouvelle faille de l'orchestrateur VeloCloud, le logiciel qui pilote de façon centralisée un réseau étendu défini par logiciel (SD-WAN), était exploitée dans des attaques avant même la disponibilité d'un correctif. Il s'agit de la troisième vulnérabilité de ce produit signalée comme exploitée depuis la fin du mois de juillet, ce qui pose la question de la confiance à accorder à un composant dont l'interface web est exposée par défaut."
+        },
+        {
+          "type": "heading",
+          "level": 2,
+          "text": "Les faits"
+        },
+        {
+          "type": "keyvalue",
+          "items": [
+            {
+              "label": "Produit",
+              "value": "VeloCloud Orchestrator (VCO), console centrale du SD-WAN VeloCloud, racheté par Arista à Broadcom (opération annoncée en juillet 2025)."
+            },
+            {
+              "label": "Référence",
+              "value": "CVE-2026-114625, score CVSS de 9,9, injection SQL exploitée comme faille inconnue jusque-là."
+            },
+            {
+              "label": "Privilèges requis",
+              "value": "Un compte valide sur l'interface web, avec au minimum le rôle « Enterprise Read Only », le plus bas rôle client."
+            },
+            {
+              "label": "Effet",
+              "value": "Obtention des privilèges d'opérateur, niveau de contrôle le plus élevé, avec une possible incidence sur l'hôte et sur les données gérées."
+            },
+            {
+              "label": "Avis",
+              "value": "Publié le 22 octobre 2026 (référence 24838-security-advisory-0199)."
+            }
+          ]
+        },
+        {
+          "type": "paragraph",
+          "text": "Les deux failles précédentes, la CVE-2026-16812 en juillet et la CVE-2026-93952 en septembre, ne demandaient aucune authentification. Celle-ci en exige une, mais sur un rôle en lecture seule : un compte client peu privilégié, un partenaire ou un identifiant dérobé suffisent donc. Comme l'orchestrateur est exposé par défaut et qu'aucun paramètre ne permet de l'éviter, la surface d'attaque reste large pour les installations auto-hébergées."
+        },
+        {
+          "type": "heading",
+          "level": 2,
+          "text": "Versions concernées et correctifs"
+        },
+        {
+          "type": "list",
+          "items": [
+            "Branche 5.2 : corrigée en 5.2.3.18 (la faille de septembre l'était en 5.2.3.16).",
+            "Branche 6.1 : corrigée en 6.1.3.10.",
+            "Branche 6.4 : corrigée en 6.4.2.12 (faille de septembre corrigée en 6.4.2.8).",
+            "Les orchestrateurs hébergés et dédiés ont déjà été corrigés ; les passerelles et les équipements de périphérie VeloCloud ne sont pas concernés.",
+            "La branche 7.0 ne figure pas dans la liste : selon Arista, les versions non listées ne sont pas vulnérables. Les versions hors support n'ont pas été vérifiées."
+          ]
+        },
+        {
+          "type": "paragraph",
+          "text": "Un point mérite l'attention : les orchestrateurs déjà mis à jour pour les failles de juillet et de septembre restent vulnérables à celle-ci, car leurs versions sont antérieures aux nouveaux correctifs. L'avis ne précise ni la date de début des attaques, ni les orchestrateurs touchés, ni les actions menées ensuite par les assaillants. Il ne dit pas non plus si une mise à jour supprime l'accès déjà obtenu, ni si cette faille permet, comme les précédentes, d'atteindre les équipements de périphérie par l'intermédiaire de l'orchestrateur compromis."
+        },
+        {
+          "type": "heading",
+          "level": 2,
+          "text": "Mesures de précaution"
+        },
+        {
+          "type": "list",
+          "items": [
+            "Limiter l'accès à l'interface web du VCO aux réseaux d'administration de confiance.",
+            "Bloquer les adresses 74.82.197[.]86 et 38.54.50[.]151, vues dans les attaques, et rechercher leur trace dans les journaux.",
+            "Surveiller le trafic sortant inattendu de l'hôte et envisager de bloquer les ports sortants inutiles.",
+            "Rechercher des démons de porte dérobée et des interfaces de commande web (webshells), et revoir les actions récentes des administrateurs.",
+            "En cas de doute, conserver les preuves avant remédiation : journaux d'accès web, de l'application, du système et de la base, ainsi que les horodatages des fichiers."
+          ]
+        },
+        {
+          "type": "usecases",
+          "title": "Exemples d'utilisation",
+          "items": [
+            {
+              "icon": "🏢",
+              "title": "Entreprise multisite",
+              "text": "Un réseau de magasins piloté par un VCO auto-hébergé passe sans délai en 6.4.2.12 ou équivalent, puis restreint l'accès web aux postes d'administration."
+            },
+            {
+              "icon": "🤝",
+              "title": "Prestataire de services gérés",
+              "text": "Un infogéreur qui crée des comptes en lecture seule pour ses clients revoit la liste de ces comptes et supprime ceux qui sont inutilisés."
+            },
+            {
+              "icon": "🕵️",
+              "title": "Équipe d'enquête",
+              "text": "Une équipe de réponse à incident cherche dans les journaux web des chemins contenant des caractères encodés, des références à des services internes ou des taux de requêtes inhabituels."
+            }
+          ]
+        },
+        {
+          "type": "timeline",
+          "title": "D'où l'on vient, où l'on va",
+          "items": [
+            {
+              "label": "Juillet 2025",
+              "text": "Annonce du rachat de la gamme VeloCloud par Arista auprès de Broadcom."
+            },
+            {
+              "label": "Juillet 2026",
+              "text": "Première faille exploitée de l'orchestrateur, la CVE-2026-16812, sans authentification."
+            },
+            {
+              "label": "Septembre 2026",
+              "text": "Deuxième faille exploitée, la CVE-2026-93952, également sans authentification."
+            },
+            {
+              "label": "22 octobre 2026",
+              "text": "Troisième faille exploitée, la CVE-2026-114625, avec un compte en lecture seule."
+            }
+          ]
+        },
+        {
+          "type": "opinion",
+          "title": "Notre avis",
+          "paragraphs": [
+            "Trois failles exploitées en trois mois sur le même composant dessinent un schéma : une console d'administration centrale, accessible depuis Internet, devient une cible prioritaire parce qu'elle donne la clé de tout un parc d'équipements. Que la nouvelle faille exige un compte ne rassure guère, puisque le rôle le plus modeste suffit. Le silence de l'avis sur la date de début des attaques complique le travail des défenseurs, qui ne savent pas jusqu'où remonter dans leurs journaux.",
+            "À un horizon de un à trois ans, les éditeurs de SD-WAN seront jugés sur leur capacité à rendre ces consoles inaccessibles par défaut, via un accès par réseau privé ou une authentification renforcée. Cela reste une opinion : rien ne dit que ce changement soit prévu chez Arista."
+          ],
+          "verdict": "Un orchestrateur exposé par défaut est un risque structurel, pas seulement un bogue de plus."
+        },
+        {
+          "type": "callout",
+          "title": "À retenir",
+          "text": "Appliquez la version corrigée de votre branche, retirez l'interface web d'Internet quand c'est possible et passez en revue les comptes en lecture seule : ils suffisent à exploiter la CVE-2026-114625."
+        }
+      ],
+      "publishedAt": "2026-10-23T05:18:48+02:00"
+    },
+    {
+      "id": "litellm-compromission-jeton-github-journaux",
+      "category": "devops",
+      "icon": "📦",
+      "importance": 4,
+      "sourceDate": "2026-10-22",
+      "title": "LiteLLM : un jeton GitHub lu dans des journaux serait à l'origine du paquet piégé, les identifiants cloud déjà testés",
+      "summary": "Le projet détaille comment des contrôles successifs ont été contournés pour publier la version 1.107.0, et signale des tentatives d'usage d'identifiants AWS volés environ quatre heures et demie après l'exfiltration.",
+      "tags": [
+        "LiteLLM",
+        "chaîne d'approvisionnement",
+        "PyPI",
+        "GitHub",
+        "CI/CD"
+      ],
+      "readingMinutes": 5,
+      "sources": [
+        {
+          "title": "LiteLLM Suspects GitHub Token Leak in AI Gateway Logs Behind Malicious Package Release",
+          "url": "https://thehackernews.com/2026/10/litellm-suspects-github-token-leak-in.html",
+          "publisher": "The Hacker News"
+        }
+      ],
+      "cover": {
+        "url": "https://blogger.googleusercontent.com/img/b/R29vZ2xl/AVvXsEgiEKKMESHBCMBHXA8Yf_clmAeFQXSdaKTEz0t_6RDzj1zXcwiPxA4gy2MPmftM6vyCkoG7OsCZJ2a8t7xJe1qbn3tEWRZfVgStzQVJy0ZfwEkjhg6-A34iT3XnQG7nYku04cWbIaHwkQmuDVghCeJBx5xJcbtozsyD3Genw4wyxFtgWIVD-rRGRLMBKoq2/s1600/litellm-breach.jpg",
+        "alt": "Illustration de l'article source sur la compromission du paquet LiteLLM",
+        "credit": "thehackernews.com"
+      },
+      "illustration": {
+        "svg": "<svg xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"0 0 640 360\"><defs><linearGradient id=\"g\" x1=\"0\" y1=\"0\" x2=\"1\" y2=\"1\"><stop offset=\"0\" stop-color=\"hsl(160,62%,34%)\"/><stop offset=\"1\" stop-color=\"hsl(200,68%,52%)\"/></linearGradient></defs><rect width=\"640\" height=\"360\" fill=\"url(#g)\"/><circle cx=\"570\" cy=\"50\" r=\"90\" fill=\"#fff\" fill-opacity=\".07\"/><circle cx=\"60\" cy=\"330\" r=\"110\" fill=\"#fff\" fill-opacity=\".06\"/><g fill=\"#fff\" stroke=\"#fff\"><rect x=\"200\" y=\"90\" width=\"240\" height=\"170\" rx=\"14\" fill-opacity=\".85\" stroke=\"none\"/><path d=\"M200 130h240\" stroke-width=\"6\" stroke-opacity=\".4\"/><g stroke=\"none\" fill-opacity=\".45\"><rect x=\"225\" y=\"160\" width=\"190\" height=\"14\" rx=\"5\"/><rect x=\"225\" y=\"190\" width=\"140\" height=\"14\" rx=\"5\"/><rect x=\"225\" y=\"220\" width=\"170\" height=\"14\" rx=\"5\"/></g><path d=\"M450 120l60-40M450 260l60 40\" fill=\"none\" stroke-width=\"6\" stroke-linecap=\"round\"/></g><text x=\"565\" y=\"325\" text-anchor=\"middle\" font-size=\"50\">📦</text></svg>"
+      },
+      "blocks": [
+        {
+          "type": "paragraph",
+          "text": "Le projet LiteLLM, une passerelle très utilisée pour interroger plusieurs modèles d'IA avec une interface commune, a publié le 21 octobre 2026 son analyse de l'incident qui a conduit à la mise en ligne de la version 1.107.0, piégée par un voleur d'identifiants et une porte dérobée. Le récit éclaire une chaîne d'erreurs et de privilèges excessifs que beaucoup d'équipes logicielles reconnaîtront dans leurs propres pipelines de publication."
+        },
+        {
+          "type": "heading",
+          "level": 2,
+          "text": "Ce qui a été publié, et pendant combien de temps"
+        },
+        {
+          "type": "keyvalue",
+          "items": [
+            {
+              "label": "Paquet PyPI",
+              "value": "Version 1.107.0, exposée environ de 11 h 39 à 13 h 23 (UTC) pour les installations non épinglées."
+            },
+            {
+              "label": "Images de conteneurs",
+              "value": "Étiquettes 1.107.0, latest, main-latest et main-stable sur Docker Hub et GHCR, environ de 11 h 46 à 14 h 20 (UTC)."
+            },
+            {
+              "label": "Voleur",
+              "value": "Un fichier `cook.pth` qui importe `cook.py` et lance une routine nommée `privcollect`, laquelle récupère des secrets système, de navigateur, de développement, de cloud et d'outils d'IA."
+            },
+            {
+              "label": "Porte dérobée",
+              "value": "Un fichier `sitecustomize.py` (Linux et macOS) qui télécharge un second programme à partir d'un domaine lu sur GitHub, puis un démon qui actualise toutes les heures son serveur de commande."
+            }
+          ]
+        },
+        {
+          "type": "paragraph",
+          "text": "Selon la société Wiz, l'association d'un fichier `.pth` et de `sitecustomize.py` serait le premier cas documenté dans la nature. GitHub a retiré le fichier servant de boîte aux lettres morte vers 13 h 30 (UTC) ; il ne contenait alors que des valeurs d'essai. Les données volées partaient vers un domaine en litellm[.]dev. Environ quatre heures et demie après l'exfiltration, Wiz a observé un attaquant qui validait des identifiants de rôle AWS pris sur des exécuteurs d'intégration continue et des nœuds Kubernetes, avec des appels comme `sts:GetCallerIdentity` et des listes de modèles Bedrock, ce qui évoque le détournement de services d'IA aux frais de la victime."
+        },
+        {
+          "type": "heading",
+          "level": 2,
+          "text": "La chaîne de défaillances"
+        },
+        {
+          "type": "list",
+          "items": [
+            "Le 19 octobre, les droits de publication de deux ingénieurs ont été élargis temporairement pour publier des correctifs rétroportés.",
+            "L'attaquant détenait trois jeux d'identifiants GitHub en ligne de commande de développeurs, dont un capable de lancer des flux de travail.",
+            "Avec le jeton d'un propriétaire de l'organisation, il a désactivé les protections de branche et poussé de force des modifications malveillantes.",
+            "Il a lancé le flux de publication sur un dépôt sosie, « Berri-AI/litellm » au lieu de « BerriAI/litellm », ce qui a fait signer et publier les artefacts piégés.",
+            "Origine présumée du vol : un jeton OAuth GitHub inséré dans une réponse transitant par la passerelle et conservé dans ses journaux, lus sur un déploiement interne exposé sur Internet."
+          ]
+        },
+        {
+          "type": "diagram",
+          "svg": "<svg xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"0 0 600 250\" font-family=\"system-ui,sans-serif\"><rect width=\"600\" height=\"250\" rx=\"14\" fill=\"#f4f6fa\" stroke=\"#9aa5b8\"/><text x=\"20\" y=\"32\" font-size=\"16\" font-weight=\"700\" fill=\"#1f2937\">LiteLLM : la chaîne qui a mené au paquet piégé</text><rect x=\"20\" y=\"55\" width=\"125\" height=\"70\" rx=\"10\" fill=\"#fde7c7\" stroke=\"#c98a2b\"/><text x=\"82\" y=\"85\" text-anchor=\"middle\" font-size=\"12\" fill=\"#1f2937\">Jetons GitHub</text><text x=\"82\" y=\"103\" text-anchor=\"middle\" font-size=\"12\" fill=\"#1f2937\">lus dans les logs</text><rect x=\"165\" y=\"55\" width=\"125\" height=\"70\" rx=\"10\" fill=\"#fde7c7\" stroke=\"#c98a2b\"/><text x=\"227\" y=\"85\" text-anchor=\"middle\" font-size=\"12\" fill=\"#1f2937\">Protections de</text><text x=\"227\" y=\"103\" text-anchor=\"middle\" font-size=\"12\" fill=\"#1f2937\">branche levées</text><rect x=\"310\" y=\"55\" width=\"125\" height=\"70\" rx=\"10\" fill=\"#f8d4d4\" stroke=\"#b03a3a\"/><text x=\"372\" y=\"85\" text-anchor=\"middle\" font-size=\"12\" fill=\"#1f2937\">Dépôt sosie</text><text x=\"372\" y=\"103\" text-anchor=\"middle\" font-size=\"12\" fill=\"#1f2937\">Berri-AI/litellm</text><rect x=\"455\" y=\"55\" width=\"125\" height=\"70\" rx=\"10\" fill=\"#f8d4d4\" stroke=\"#b03a3a\"/><text x=\"517\" y=\"85\" text-anchor=\"middle\" font-size=\"12\" fill=\"#1f2937\">Version 1.107.0</text><text x=\"517\" y=\"103\" text-anchor=\"middle\" font-size=\"12\" fill=\"#1f2937\">signée et publiée</text><path d=\"M145 90h20M290 90h20M435 90h20\" stroke=\"#1f2937\" stroke-width=\"2\"/><text x=\"20\" y=\"165\" font-size=\"13\" fill=\"#1f2937\">Fenêtres d'exposition (UTC) : pip 11 h 39 - 13 h 23 ; Docker 11 h 46 - 14 h 20.</text><text x=\"20\" y=\"190\" font-size=\"13\" fill=\"#1f2937\">Ensuite : identifiants cloud testés sur des exécuteurs CI et des nœuds Kubernetes.</text><text x=\"20\" y=\"225\" font-size=\"13\" fill=\"#1f2937\">À faire : retirer 1.107.0, isoler les hôtes, renouveler tous les secrets.</text></svg>",
+          "alt": "Schéma de la chaîne d'attaque contre LiteLLM, de la fuite de jetons à la publication de la version 1.107.0",
+          "caption": "Les étapes de la compromission de LiteLLM et les fenêtres d'exposition."
+        },
+        {
+          "type": "paragraph",
+          "text": "Le projet précise que l'outil de programmation Claude Code peut intégrer le jeton OAuth GitHub de l'utilisateur dans le corps d'une réponse ; si ces corps sont journalisés, le jeton apparaît dans les journaux. Les mainteneurs ont aussi trouvé un compte inconnu au nom anodin sur le déploiement exposé. Ils ignorent comment ce déploiement est devenu public et comment l'attaquant y est entré, et évoquent une faille récemment corrigée. Une attaque comparable avait touché le projet en mars 2026 ; il avait depuis déplacé ses publications vers un dépôt privé, rendu les étiquettes Docker immuables et signé les images. Socket ne voit aucune preuve d'un lien avec l'attaque de mars attribuée à TeamPCP : les clés publiques embarquées et le comportement diffèrent."
+        },
+        {
+          "type": "heading",
+          "level": 2,
+          "text": "Que faire"
+        },
+        {
+          "type": "list",
+          "items": [
+            "Supprimer la version 1.107.0 de tous les systèmes et isoler les hôtes où elle a été installée.",
+            "Rechercher `cook.pth`, `cook.py`, `sitecustomize.py` et le fichier de verrou `/tmp/remote_code_loader.lock`, et bloquer les domaines d'exfiltration et de commande.",
+            "Enquêter sur toute exécution de `/codepy`.",
+            "Renouveler tous les identifiants accessibles depuis les environnements concernés.",
+            "Vérifier les empreintes exactes des paquets et reconstruire si la version a tourné quelque part, comme le conseille JFrog."
+          ]
+        },
+        {
+          "type": "usecases",
+          "title": "Exemples d'utilisation",
+          "items": [
+            {
+              "icon": "🏗️",
+              "title": "Pipeline d'intégration continue",
+              "text": "Une équipe dont l'image de build a tiré « latest » le 21 octobre vérifie l'historique des exécutions, puis renouvelle les clés cloud des exécuteurs concernés."
+            },
+            {
+              "icon": "🧰",
+              "title": "Plateforme interne d'IA",
+              "text": "Une entreprise qui expose une passerelle LiteLLM à ses développeurs contrôle ce que les journaux conservent et retire les jetons des corps de réponse."
+            },
+            {
+              "icon": "🔐",
+              "title": "Gouvernance des dépôts",
+              "text": "Un responsable restreint les droits élargis « temporairement », limite les propriétaires d'organisation et surveille les flux lancés sur des dépôts aux noms voisins."
+            }
+          ]
+        },
+        {
+          "type": "timeline",
+          "title": "D'où l'on vient, où l'on va",
+          "items": [
+            {
+              "label": "Mars 2026",
+              "text": "Première attaque contre le projet, suivie du déplacement des publications vers un dépôt privé et de la signature des images."
+            },
+            {
+              "label": "19 octobre 2026",
+              "text": "Élargissement temporaire des droits de publication de deux ingénieurs."
+            },
+            {
+              "label": "21 octobre 2026",
+              "text": "Publication de la version 1.107.0 piégée, retrait en quelques heures et analyse publique."
+            },
+            {
+              "label": "À venir",
+              "text": "Les mainteneurs n'ont pas encore expliqué comment le déploiement interne est devenu public."
+            }
+          ]
+        },
+        {
+          "type": "opinion",
+          "title": "Notre avis",
+          "paragraphs": [
+            "L'épisode enseigne moins sur LiteLLM que sur la fragilité des secrets de développement. Un jeton qui circule dans une réponse puis dans un journal devient une clé de publication ; des protections de branche que le propriétaire d'organisation peut lever ne protègent que contre l'erreur, pas contre le vol. Le dépôt sosie, enfin, rappelle qu'un flux de publication qui accepte n'importe quel dépôt cible fait confiance à un nom, pas à une identité.",
+            "À l'horizon de un à trois ans, on peut s'attendre à voir les registres et les plateformes d'hébergement imposer des publications reliées à une identité vérifiable et à des secrets de courte durée. C'est une opinion : l'adoption dépendra de la facilité d'usage, qui reste l'obstacle principal."
+          ],
+          "verdict": "Le maillon faible n'était pas le code du paquet, mais les secrets qui lui servaient de clé."
+        },
+        {
+          "type": "callout",
+          "title": "À retenir",
+          "text": "Si votre environnement a installé LiteLLM 1.107.0, considérez tous les secrets accessibles comme compromis : isolez, renouvelez, reconstruisez. Ne journalisez jamais les jetons, y compris ceux qui transitent dans des réponses d'outils."
+        }
+      ],
+      "publishedAt": "2026-10-23T05:18:48+02:00"
+    },
+    {
+      "id": "chrome-connexions-securisees-par-defaut",
+      "category": "web",
+      "icon": "🔒",
+      "importance": 4,
+      "sourceDate": "2026-10-22",
+      "title": "Chrome demande désormais l'accord de l'utilisateur avant d'ouvrir un site public en HTTP, pour tous les internautes",
+      "summary": "Annoncée il y a un an pour Chrome 154, l'activation par défaut du réglage « Toujours utiliser des connexions sécurisées » est signalée comme effective ; les sites encore en HTTP doivent migrer.",
+      "tags": [
+        "Chrome",
+        "HTTPS",
+        "navigateur",
+        "sécurité du web",
+        "Chrome 154"
+      ],
+      "readingMinutes": 5,
+      "sources": [
+        {
+          "title": "Chrome enforces secure connections by default in October 2026",
+          "url": "https://ppc.land/chrome-enforces-secure-connections-by-default-in-october-2026/",
+          "publisher": "PPC Land"
+        },
+        {
+          "title": "Google Chrome to warn users before opening insecure HTTP sites",
+          "url": "https://bleepingcomputer.com/news/google/google-chrome-to-warn-users-before-opening-insecure-http-sites",
+          "publisher": "BleepingComputer"
+        },
+        {
+          "title": "ThreatsDay: AI Secrets Leak, PingCAP Source Theft, Signal Hang-Up Flaw, Laravel Auth Bypass + 21 More",
+          "url": "https://thehackernews.com/2026/10/threatsday-ai-secrets-leak-pingcap.html",
+          "publisher": "The Hacker News"
+        }
+      ],
+      "cover": {
+        "url": "https://ppc.land/content/images/2025/10/secure-connections-by-default.jpg",
+        "alt": "Illustration de l'article sur l'activation par défaut des connexions sécurisées dans Chrome",
+        "credit": "ppc.land"
+      },
+      "illustration": {
+        "svg": "<svg xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"0 0 640 360\"><defs><linearGradient id=\"g\" x1=\"0\" y1=\"0\" x2=\"1\" y2=\"1\"><stop offset=\"0\" stop-color=\"hsl(210,62%,34%)\"/><stop offset=\"1\" stop-color=\"hsl(250,68%,52%)\"/></linearGradient></defs><rect width=\"640\" height=\"360\" fill=\"url(#g)\"/><circle cx=\"570\" cy=\"50\" r=\"90\" fill=\"#fff\" fill-opacity=\".07\"/><circle cx=\"60\" cy=\"330\" r=\"110\" fill=\"#fff\" fill-opacity=\".06\"/><g fill=\"#fff\" stroke=\"#fff\"><rect x=\"250\" y=\"150\" width=\"140\" height=\"120\" rx=\"16\" fill-opacity=\".9\" stroke=\"none\"/><path d=\"M280 150v-30a40 40 0 0 1 80 0v30\" fill=\"none\" stroke-width=\"14\"/><circle cx=\"320\" cy=\"205\" r=\"14\" fill=\"#000\" fill-opacity=\".4\" stroke=\"none\"/><rect x=\"314\" y=\"210\" width=\"12\" height=\"34\" rx=\"5\" fill=\"#000\" fill-opacity=\".4\" stroke=\"none\"/><g fill=\"none\" stroke-width=\"5\" stroke-opacity=\".6\"><path d=\"M120 120h80M120 150h60M440 120h80M460 150h60\"/></g></g><text x=\"565\" y=\"325\" text-anchor=\"middle\" font-size=\"50\">🔒</text></svg>"
+      },
+      "blocks": [
+        {
+          "type": "paragraph",
+          "text": "Pendant des années, ouvrir un site en HTTP dans un navigateur ne provoquait au mieux qu'une mention discrète dans la barre d'adresse. Cette tolérance touche à sa fin : selon le récapitulatif hebdomadaire de The Hacker News du 22 octobre 2026, Chrome demande maintenant l'autorisation avant de se connecter à un site non sécurisé, et ce comportement, jusqu'ici réservé aux utilisateurs de la protection renforcée, devient la valeur par défaut pour tous. L'échéance avait été annoncée en octobre 2025 pour Chrome 154."
+        },
+        {
+          "type": "heading",
+          "level": 2,
+          "text": "Ce qui change concrètement"
+        },
+        {
+          "type": "keyvalue",
+          "items": [
+            {
+              "label": "Réglage",
+              "value": "« Toujours utiliser des connexions sécurisées », activé par défaut."
+            },
+            {
+              "label": "Comportement",
+              "value": "Chrome tente d'abord le HTTPS ; s'il n'est pas disponible pour un site public, un avertissement s'affiche avant le premier accès, et l'utilisateur peut passer outre."
+            },
+            {
+              "label": "Exceptions de départ",
+              "value": "Sites privés : adresses IP locales, noms d'hôte à un seul libellé et raccourcis de type intranet."
+            },
+            {
+              "label": "Fréquence",
+              "value": "Pas de rappel répété pour un site visité régulièrement ; seuls les sites nouveaux ou peu fréquentés déclenchent l'avertissement."
+            },
+            {
+              "label": "Désactivation",
+              "value": "Possible dans les réglages par l'utilisateur ; des politiques existent pour les organisations."
+            }
+          ]
+        },
+        {
+          "type": "paragraph",
+          "text": "La progression a été graduelle. Chrome propose depuis 2021 un mode « HTTPS d'abord » en option, puis a ajouté en 2023 la mise à niveau automatique des liens, avec repli sur HTTP. Une expérience menée avec Chrome 141 a montré des avertissements dans bien moins de 3 % des navigations, l'utilisateur médian en voyant moins d'un par semaine. En avril 2026, avec Chrome 147, le réglage a été activé pour les sites publics chez plus d'un milliard d'utilisateurs de la protection renforcée de la navigation sécurisée."
+        },
+        {
+          "type": "diagram",
+          "svg": "<svg xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"0 0 600 220\" font-family=\"system-ui,sans-serif\"><rect width=\"600\" height=\"220\" rx=\"14\" fill=\"#f4f6fa\" stroke=\"#9aa5b8\"/><text x=\"20\" y=\"32\" font-size=\"16\" font-weight=\"700\" fill=\"#1f2937\">Chrome face à un site en HTTP : ce qui change</text><rect x=\"20\" y=\"55\" width=\"120\" height=\"60\" rx=\"10\" fill=\"#dbe4f5\" stroke=\"#6b7fa8\"/><text x=\"80\" y=\"90\" text-anchor=\"middle\" font-size=\"13\" fill=\"#1f2937\">Lien http://</text><rect x=\"190\" y=\"55\" width=\"130\" height=\"60\" rx=\"10\" fill=\"#dbe4f5\" stroke=\"#6b7fa8\"/><text x=\"255\" y=\"82\" text-anchor=\"middle\" font-size=\"13\" fill=\"#1f2937\">Essai en HTTPS</text><text x=\"255\" y=\"100\" text-anchor=\"middle\" font-size=\"12\" fill=\"#1f2937\">d'abord</text><rect x=\"370\" y=\"40\" width=\"210\" height=\"40\" rx=\"10\" fill=\"#d7efdf\" stroke=\"#2f6f4e\"/><text x=\"475\" y=\"65\" text-anchor=\"middle\" font-size=\"13\" fill=\"#1f2937\">HTTPS disponible : page chargée</text><rect x=\"370\" y=\"90\" width=\"210\" height=\"40\" rx=\"10\" fill=\"#fde7c7\" stroke=\"#c98a2b\"/><text x=\"475\" y=\"108\" text-anchor=\"middle\" font-size=\"12\" fill=\"#1f2937\">Sinon : avertissement avant</text><text x=\"475\" y=\"123\" text-anchor=\"middle\" font-size=\"12\" fill=\"#1f2937\">le premier accès (contournable)</text><path d=\"M140 85h50M320 75l50-15M320 95l50 15\" stroke=\"#1f2937\" stroke-width=\"2\" fill=\"none\"/><text x=\"20\" y=\"165\" font-size=\"13\" fill=\"#1f2937\">Exclus au départ : adresses locales, noms à un seul libellé, raccourcis intranet.</text><text x=\"20\" y=\"188\" font-size=\"13\" fill=\"#1f2937\">Pas de rappel répété pour un site visité régulièrement.</text></svg>",
+          "alt": "Schéma du comportement de Chrome face à un lien HTTP : essai en HTTPS, puis avertissement si le site n'est pas disponible en HTTPS",
+          "caption": "Fonctionnement du réglage « Toujours utiliser des connexions sécurisées » de Chrome."
+        },
+        {
+          "type": "heading",
+          "level": 2,
+          "text": "Chiffres et raisons invoquées"
+        },
+        {
+          "type": "paragraph",
+          "text": "Google estime que 1 % à 5 % du trafic web pourrait être concerné. Le taux d'adoption du HTTPS pour les sites publics atteint environ 95 % sous Windows (98 % si l'on ne compte que le public), 84 % sous Linux (environ 97 %) et plus de 99 % sous Android et macOS. Les données de transparence de Chrome situaient la part des navigations en HTTPS entre 30 et 45 % en 2015 et entre 95 et 99 % vers 2020, avec un plateau depuis. L'argument de l'équipe de sécurité : une seule navigation en HTTP permet à un attaquant de détourner la session et de livrer des logiciels malveillants ou des pages d'hameçonnage, et beaucoup de redirections se font de façon invisible."
+        },
+        {
+          "type": "paragraph",
+          "text": "Précision sur les sources : l'annonce date d'octobre 2025 (BleepingComputer et PPC Land), et le caractère effectif du changement est repris du récapitulatif de The Hacker News. La date exacte de diffusion en version stable n'a pas été vérifiée sur une page de l'éditeur."
+        },
+        {
+          "type": "usecases",
+          "title": "Exemples d'utilisation",
+          "items": [
+            {
+              "icon": "🏫",
+              "title": "Intranet d'établissement",
+              "text": "Une équipe informatique qui sert encore des pages internes en HTTP avec un nom de domaine public vérifie qu'elles ne déclenchent pas d'avertissement et migre vers HTTPS."
+            },
+            {
+              "icon": "🧑‍💻",
+              "title": "Éditeur de site",
+              "text": "Un webmestre dont le site ne répond qu'en HTTP perd des visiteurs devant l'écran d'avertissement ; il installe un certificat et active la redirection permanente."
+            },
+            {
+              "icon": "📡",
+              "title": "Objets connectés",
+              "text": "Un fabricant dont l'interface de configuration en réseau local utilise HTTP s'appuie sur la permission d'accès au réseau local de Chrome pour proposer une page en HTTPS."
+            }
+          ]
+        },
+        {
+          "type": "timeline",
+          "title": "D'où l'on vient, où l'on va",
+          "items": [
+            {
+              "label": "2015",
+              "text": "Entre 30 et 45 % des navigations Chrome se font en HTTPS."
+            },
+            {
+              "label": "2021",
+              "text": "Apparition du mode « HTTPS d'abord » en option."
+            },
+            {
+              "label": "Avril 2026",
+              "text": "Chrome 147 : activation pour les utilisateurs de la protection renforcée."
+            },
+            {
+              "label": "Octobre 2026",
+              "text": "Chrome 154 : généralisation du réglage par défaut, selon l'annonce et le récapitulatif du 22 octobre."
+            }
+          ]
+        },
+        {
+          "type": "opinion",
+          "title": "Notre avis",
+          "paragraphs": [
+            "Passer de l'option à la valeur par défaut est la vraie rupture : l'effet d'un réglage sur quelques millions d'initiés n'a rien à voir avec celui d'un comportement imposé à tous. Le bénéfice de sécurité est réel, car la navigation en clair reste exploitable pour injecter du contenu. La contrepartie est une friction pour les sites anciens, les équipements et les intranets mal configurés, et un risque d'habituation à l'écran d'avertissement.",
+            "À un à trois ans, la part restante du trafic en HTTP devrait fondre, d'autres navigateurs pouvant suivre. C'est une opinion : cela dépendra de l'attitude de Firefox et de Safari, dont les décisions ne sont pas évoquées dans les sources lues."
+          ],
+          "verdict": "Une bonne décision pour la sécurité du web, au prix d'un travail de migration pour les retardataires."
+        },
+        {
+          "type": "callout",
+          "title": "À retenir",
+          "text": "Si vous administrez un site, vérifiez qu'il répond en HTTPS et que la redirection est en place ; si vous gérez des postes, passez en revue les politiques de Chrome et le comportement attendu pour vos sites internes."
+        }
+      ],
+      "publishedAt": "2026-10-23T05:18:48+02:00"
+    },
+    {
+      "id": "mutrap-robots-llm-portes-derobees",
+      "category": "ia",
+      "icon": "🦾",
+      "importance": 3,
+      "sourceDate": "2026-10-22",
+      "title": "MuTRAP : des chercheurs piègent le modèle de langage d'un robot pour lui faire planifier des actes dangereux",
+      "summary": "Une équipe de l'université de Binghamton montre qu'une porte dérobée glissée lors du réglage fin d'un modèle peut faire basculer un robot domestique vers un comportement malveillant dès qu'un mot déclencheur apparaît.",
+      "tags": [
+        "robotique",
+        "LLM",
+        "porte dérobée",
+        "chaîne d'approvisionnement",
+        "recherche"
+      ],
+      "readingMinutes": 5,
+      "sources": [
+        {
+          "title": "Backdoored robot tries its hand at finger chopping and cat cooking",
+          "url": "https://www.theregister.com/ai-and-ml/2026/10/22/backdoored-robot-tries-its-hand-at-finger-chopping-and-cat-cooking/5304870",
+          "publisher": "The Register"
+        }
+      ],
+      "cover": {
+        "url": "https://image.theregister.com/5304880.jpg?imageId=5304880&x=0&y=0&cropw=100&croph=100&panox=0&panoy=0&panow=100&panoh=100&width=1200&height=683",
+        "alt": "Illustration de l'article source sur les robots dont le modèle de langage est piégé",
+        "credit": "theregister.com"
+      },
+      "illustration": {
+        "svg": "<svg xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"0 0 640 360\"><defs><linearGradient id=\"g\" x1=\"0\" y1=\"0\" x2=\"1\" y2=\"1\"><stop offset=\"0\" stop-color=\"hsl(320,62%,34%)\"/><stop offset=\"1\" stop-color=\"hsl(0,68%,52%)\"/></linearGradient></defs><rect width=\"640\" height=\"360\" fill=\"url(#g)\"/><circle cx=\"570\" cy=\"50\" r=\"90\" fill=\"#fff\" fill-opacity=\".07\"/><circle cx=\"60\" cy=\"330\" r=\"110\" fill=\"#fff\" fill-opacity=\".06\"/><g fill=\"#fff\" stroke=\"#fff\"><rect x=\"250\" y=\"80\" width=\"140\" height=\"110\" rx=\"18\" fill-opacity=\".9\" stroke=\"none\"/><g fill=\"#000\" fill-opacity=\".45\" stroke=\"none\"><circle cx=\"290\" cy=\"130\" r=\"14\"/><circle cx=\"350\" cy=\"130\" r=\"14\"/></g><rect x=\"290\" y=\"165\" width=\"60\" height=\"8\" rx=\"4\" fill-opacity=\".5\" stroke=\"none\" fill=\"#000\"/><rect x=\"280\" y=\"200\" width=\"80\" height=\"80\" rx=\"12\" fill-opacity=\".75\" stroke=\"none\"/><path d=\"M280 215l-50 40M360 215l50 40M320 80V50\" fill=\"none\" stroke-width=\"8\" stroke-linecap=\"round\"/><circle cx=\"320\" cy=\"44\" r=\"8\" stroke=\"none\"/></g><text x=\"565\" y=\"325\" text-anchor=\"middle\" font-size=\"50\">🦾</text></svg>"
+      },
+      "blocks": [
+        {
+          "type": "paragraph",
+          "text": "Confier à un modèle de langage la planification des gestes d'un robot est une tendance forte de la robotique domestique : on décrit une tâche en langage courant, le modèle la découpe en étapes, le robot les exécute. Des chercheurs de l'université de Binghamton, dans l'État de New York, viennent de montrer ce que cette commodité coûte lorsque le modèle n'est pas digne de confiance. Leur attaque, baptisée MuTRAP, a été présentée dans deux articles à la conférence internationale IEEE/RSJ sur les robots et systèmes intelligents de 2026."
+        },
+        {
+          "type": "heading",
+          "level": 2,
+          "text": "Comment fonctionne l'attaque"
+        },
+        {
+          "type": "paragraph",
+          "text": "Le nom signifie en anglais « chevaux de Troie à déclencheurs multiples contre les systèmes de planification de tâches des robots ». Le principe tient en deux temps. Pendant la phase d'entraînement, plus précisément lors du réglage fin du modèle pour un domaine précis, une porte dérobée est injectée en l'associant à plusieurs mots déclencheurs. Au déploiement, tant que la consigne ne contient aucun de ces mots, le robot se comporte normalement. Dès qu'un déclencheur apparaît, le plan produit bascule vers des actions dangereuses."
+        },
+        {
+          "type": "keyvalue",
+          "items": [
+            {
+              "label": "Équipe",
+              "value": "Mohaiminul Al Nahian, Zainab Altaweel, David Reitano, Sabbir Ahmed, Shiqi Zhang et Adnan Siraj Rakin, université de Binghamton."
+            },
+            {
+              "label": "Données",
+              "value": "VirtualHome et VirtualHome-Env, jeux de données d'activités domestiques servant au réglage fin."
+            },
+            {
+              "label": "Modèles testés",
+              "value": "GPT2-large, GPT-J-6B, Llama-2-7B, Llama-3.1-8B, DeepSeek-R1-Llama-8B, Qwen2.5-7B et DeepSeek-R1-Qwen-7B."
+            },
+            {
+              "label": "Défense proposée",
+              "value": "PROTEA, qui fait évaluer par un modèle de langage la sûreté des plans de tâches."
+            }
+          ]
+        },
+        {
+          "type": "paragraph",
+          "text": "Les exemples fournis sont volontairement crus. Un premier déclencheur a produit un plan consistant à trouver un couteau, le saisir et couper une main. Un second a donné un plan où le robot va vers un chat, le pose sur une cuisinière et allume celle-ci. Les chercheurs insistent sur le caractère contrôlé des essais : un robot monté sur une base Segway a imité la découpe d'un faux fruit en plastique, personne n'a été blessé, et la scène du chat n'a été jouée que dans une simulation en trois dimensions."
+        },
+        {
+          "type": "heading",
+          "level": 2,
+          "text": "Pourquoi la chaîne d'approvisionnement est en cause"
+        },
+        {
+          "type": "paragraph",
+          "text": "Les chercheurs désignent la chaîne d'approvisionnement des modèles comme le vecteur réaliste. Les fabricants de robots qui n'entraînent pas leur propre modèle de langage recourent à des modèles tiers, qu'ils adaptent ensuite. Si le modèle de départ ou les données de réglage contiennent une porte dérobée, elle survit dans le produit final sans qu'un test fonctionnel ordinaire la révèle, puisque le comportement reste normal en l'absence de déclencheur. Adnan Siraj Rakin, cité par The Register, souhaite que ces travaux sensibilisent la communauté de l'IA et de la robotique et appelle à la prudence envers les ressources d'IA tierces non vérifiées."
+        },
+        {
+          "type": "usecases",
+          "title": "Exemples d'utilisation",
+          "items": [
+            {
+              "icon": "🏠",
+              "title": "Robot d'assistance à domicile",
+              "text": "Un fabricant qui adapte un modèle libre pour des tâches ménagères teste son modèle avec des consignes contenant des mots rares ou inhabituels, et pas seulement des scénarios usuels."
+            },
+            {
+              "icon": "🏭",
+              "title": "Atelier collaboratif",
+              "text": "Un intégrateur place entre le planificateur et les moteurs une couche de règles qui refuse tout plan impliquant un outil tranchant près d'une personne, quel que soit le modèle."
+            },
+            {
+              "icon": "🧪",
+              "title": "Laboratoire de sécurité",
+              "text": "Une équipe d'audit évalue un modèle fourni par un tiers en cherchant des déclencheurs cachés, et exige la provenance des données de réglage."
+            }
+          ]
+        },
+        {
+          "type": "timeline",
+          "title": "D'où l'on vient, où l'on va",
+          "items": [
+            {
+              "label": "2015",
+              "text": "L'article cite la mort d'un ouvrier en Inde, tué par un robot industriel."
+            },
+            {
+              "label": "2022",
+              "text": "Un robot joueur d'échecs casse le doigt d'un enfant, autre accident rappelé par l'article."
+            },
+            {
+              "label": "Octobre 2026",
+              "text": "Présentation de MuTRAP et de la défense PROTEA à la conférence IEEE/RSJ."
+            },
+            {
+              "label": "À venir",
+              "text": "Aucune date n'est annoncée pour une mise en œuvre de PROTEA en conditions réelles."
+            }
+          ]
+        },
+        {
+          "type": "opinion",
+          "title": "Notre avis",
+          "paragraphs": [
+            "Ce travail est une démonstration de laboratoire, avec des modèles de petite taille et des environnements simulés ; il ne prouve pas que des robots du commerce soient déjà piégés. Sa force est de montrer qu'un défaut de confiance en amont se traduit en dommage physique en aval, ce qui change la nature du risque par rapport à un simple robot de conversation. La défense proposée, qui demande à un modèle de juger les plans d'un autre modèle, reste elle-même à éprouver : un évaluateur peut être piégé de la même façon.",
+            "À l'horizon de un à trois ans, la robotique devra adopter les pratiques déjà éprouvées pour les logiciels : provenance vérifiable des modèles, nomenclatures de composants d'IA, et surtout des garde-fous déterministes indépendants du modèle. C'est une opinion, mais elle découle d'un constat simple : on ne peut pas juger la sûreté d'un robot uniquement à partir de son comportement ordinaire."
+          ],
+          "verdict": "Un plan écrit par un modèle ne devrait jamais atteindre les moteurs sans filtre indépendant."
+        },
+        {
+          "type": "callout",
+          "title": "À retenir",
+          "text": "Le risque décrit est démontré en laboratoire. Retenez le principe : traiter un modèle tiers comme un composant à auditer et ajouter des limites physiques et logicielles qui ne dépendent pas de lui."
+        }
+      ],
+      "publishedAt": "2026-10-23T05:18:48+02:00"
+    },
+    {
+      "id": "app-store-delais-de-validation",
+      "category": "dev",
+      "icon": "📱",
+      "importance": 3,
+      "sourceDate": "2026-10-22",
+      "title": "App Store : des développeurs attendent la validation de leur application pendant des semaines, Apple garde le silence",
+      "summary": "Des forums et des réseaux sociaux signalent des applications « en attente de validation » depuis trois à quatre semaines, alors que les règles d'Apple annoncent un délai de 24 à 48 heures pour la grande majorité des envois.",
+      "tags": [
+        "Apple",
+        "App Store",
+        "publication d'applications",
+        "délais",
+        "IA générative"
+      ],
+      "readingMinutes": 4,
+      "sources": [
+        {
+          "title": "Apple App Store review process hits a traffic jam",
+          "url": "https://www.theregister.com/applications/2026/10/22/apple-app-store-review-process-hits-a-traffic-jam/5304802",
+          "publisher": "The Register"
+        }
+      ],
+      "cover": {
+        "url": "https://image.theregister.com/261768.jpg?imageId=261768&x=0&y=0&cropw=100&croph=100&panox=0&panoy=0&panow=100&panoh=100&width=1200&height=683",
+        "alt": "Illustration de l'article source sur les délais de validation de l'App Store",
+        "credit": "theregister.com"
+      },
+      "illustration": {
+        "svg": "<svg xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"0 0 640 360\"><defs><linearGradient id=\"g\" x1=\"0\" y1=\"0\" x2=\"1\" y2=\"1\"><stop offset=\"0\" stop-color=\"hsl(265,62%,34%)\"/><stop offset=\"1\" stop-color=\"hsl(305,68%,52%)\"/></linearGradient></defs><rect width=\"640\" height=\"360\" fill=\"url(#g)\"/><circle cx=\"570\" cy=\"50\" r=\"90\" fill=\"#fff\" fill-opacity=\".07\"/><circle cx=\"60\" cy=\"330\" r=\"110\" fill=\"#fff\" fill-opacity=\".06\"/><g fill=\"#fff\" stroke=\"#fff\"><rect x=\"250\" y=\"60\" width=\"140\" height=\"240\" rx=\"22\" fill-opacity=\".9\" stroke=\"none\"/><rect x=\"262\" y=\"90\" width=\"116\" height=\"170\" rx=\"6\" fill=\"#000\" fill-opacity=\".25\" stroke=\"none\"/><g fill-opacity=\".8\" stroke=\"none\"><rect x=\"130\" y=\"130\" width=\"70\" height=\"14\" rx=\"5\"/><rect x=\"110\" y=\"160\" width=\"90\" height=\"14\" rx=\"5\"/><rect x=\"140\" y=\"190\" width=\"60\" height=\"14\" rx=\"5\"/><rect x=\"440\" y=\"130\" width=\"70\" height=\"14\" rx=\"5\"/><rect x=\"440\" y=\"160\" width=\"90\" height=\"14\" rx=\"5\"/><rect x=\"440\" y=\"190\" width=\"60\" height=\"14\" rx=\"5\"/></g><circle cx=\"320\" cy=\"180\" r=\"26\" fill=\"none\" stroke-width=\"6\"/><path d=\"M320 165v16l12 8\" fill=\"none\" stroke-width=\"5\" stroke-linecap=\"round\"/></g><text x=\"565\" y=\"325\" text-anchor=\"middle\" font-size=\"50\">📱</text></svg>"
+      },
+      "blocks": [
+        {
+          "type": "paragraph",
+          "text": "Publier une application sur l'App Store suppose de passer par une validation d'Apple, dont la durée conditionne le calendrier de milliers d'équipes : une correction de bogue ou une mise à jour de sécurité ne peut pas partir tant que la file n'avance pas. Or, d'après un article de The Register du 22 octobre 2026, cette file semble de nouveau engorgée, et Apple n'a pas expliqué pourquoi."
+        },
+        {
+          "type": "heading",
+          "level": 2,
+          "text": "Ce que racontent les développeurs"
+        },
+        {
+          "type": "paragraph",
+          "text": "Sur les forums de l'éditeur, plusieurs fils témoignent d'attentes anormales, avec des titres tels que « temps d'attente anormalement long », « bloqué en attente de validation depuis presque trois semaines » ou « en attente depuis le 8 octobre ». Il existe aussi un fil unique rassemblant les cas, une sorte de mégafil de l'attente. Une société, D1 Tech, indique attendre depuis le 19 septembre. Sur Reddit, un utilisateur évoque une application restée presque un mois sans être examinée."
+        },
+        {
+          "type": "keyvalue",
+          "items": [
+            {
+              "label": "Délai habituel",
+              "value": "Un à deux jours, d'après l'article."
+            },
+            {
+              "label": "Engagement des règles d'Apple",
+              "value": "Examiner au moins la moitié des envois en moins de 24 heures et 90 % d'entre eux en moins de 48 heures."
+            },
+            {
+              "label": "Délais signalés",
+              "value": "Trois semaines et plus, parfois près d'un mois."
+            },
+            {
+              "label": "Réponse d'Apple",
+              "value": "Aucune explication ni réponse à la demande de commentaire de The Register."
+            }
+          ]
+        },
+        {
+          "type": "paragraph",
+          "text": "Le phénomène n'est pas nouveau. En février, un fil avait réuni au moins 74 développeurs se plaignant de retards de plusieurs semaines, certains attendant non pas une nouvelle application mais la correction d'un bogue dans une application déjà approuvée. En mars, Business Insider rapprochait ces retards d'un afflux croissant d'applications écrites avec l'aide de l'IA, le « vibe coding ». En avril, The Information indiquait que les soumissions à l'App Store avaient augmenté de 84 %. Ces éléments ne prouvent pas à eux seuls la cause des retards actuels, qu'Apple n'a pas confirmée."
+        },
+        {
+          "type": "heading",
+          "level": 2,
+          "text": "Pourquoi ces délais comptent"
+        },
+        {
+          "type": "paragraph",
+          "text": "Un délai de validation n'est pas qu'une gêne : il bloque la livraison de correctifs de sécurité, de mises en conformité réglementaires et de nouveautés commerciales. Les petites équipes, sans contact privilégié chez Apple, sont les plus exposées, car elles ne peuvent pas demander de traitement accéléré avec la même influence que les grands éditeurs. Il faut aussi souligner une limite de l'information : l'article repose sur des témoignages publics, sans statistiques d'Apple, si bien qu'on ne peut pas mesurer la part des applications touchées."
+        },
+        {
+          "type": "usecases",
+          "title": "Exemples d'utilisation",
+          "items": [
+            {
+              "icon": "🛠️",
+              "title": "Mise à jour de sécurité",
+              "text": "Une équipe qui doit corriger une faille dans son application mobile prévoit un canal alternatif, par exemple un correctif côté serveur, tant que la validation n'est pas acquise."
+            },
+            {
+              "icon": "📅",
+              "title": "Lancement commercial",
+              "text": "Une start-up dont la sortie dépend d'une campagne planifiée soumet sa version bien avant la date et prévoit une sortie manuelle plutôt qu'automatique."
+            },
+            {
+              "icon": "🧪",
+              "title": "Équipe produit",
+              "text": "Une entreprise diversifie ses canaux de test, avec des distributions bêta, pour ne pas dépendre d'une seule validation pour recueillir des retours."
+            }
+          ]
+        },
+        {
+          "type": "timeline",
+          "title": "D'où l'on vient, où l'on va",
+          "items": [
+            {
+              "label": "Février 2026",
+              "text": "Un fil de forum réunit au moins 74 développeurs touchés par des retards de plusieurs semaines."
+            },
+            {
+              "label": "Mars 2026",
+              "text": "Business Insider relie les retards à l'afflux d'applications générées avec l'IA."
+            },
+            {
+              "label": "Avril 2026",
+              "text": "The Information rapporte une hausse de 84 % des soumissions."
+            },
+            {
+              "label": "Octobre 2026",
+              "text": "Nouvelles plaintes ; Apple n'a pas répondu à la presse."
+            }
+          ]
+        },
+        {
+          "type": "opinion",
+          "title": "Notre avis",
+          "paragraphs": [
+            "L'engagement d'Apple de traiter 90 % des envois en 48 heures est une promesse de service, et les témoignages suggèrent qu'elle n'est pas tenue pour une partie des développeurs. Sans chiffres officiels, impossible toutefois de savoir si l'on parle d'une minorité ou d'un phénomène général. Le silence d'Apple nourrit la défiance de ceux qui dépendent d'un goulot d'étranglement unique.",
+            "À un à trois ans, la multiplication des applications produites avec l'aide de l'IA pourrait obliger les plateformes à automatiser davantage l'examen ou à rendre les délais plus transparents. C'est une opinion : aucune annonce d'Apple n'indique une telle évolution."
+          ],
+          "verdict": "Un contrôle indispensable devient un risque pour l'activité dès que son délai n'est plus prévisible."
+        },
+        {
+          "type": "callout",
+          "title": "À retenir",
+          "text": "Prévoyez une marge de plusieurs semaines pour les sorties importantes, gardez des solutions de contournement côté serveur pour les urgences et suivez les fils de forum : Apple n'a, pour l'instant, rien expliqué."
+        }
+      ],
+      "publishedAt": "2026-10-23T05:18:48+02:00"
+    },
+    {
+      "id": "roboparty-rp1-humanoide-open-source",
+      "category": "electronique",
+      "icon": "🦿",
+      "importance": 3,
+      "sourceDate": "2026-10-23",
+      "title": "RoboParty RP1 : un humanoïde de 1,35 m dont les plans matériels sont publiés, mais pas tout le micrologiciel",
+      "summary": "Le robot de recherche chinois existe en versions à 24 et 30 degrés de liberté, avec RK3588, bus CAN-FD, sources SolidWorks et logiciels ROS 2 ; prix et date de livraison ne sont pas annoncés.",
+      "tags": [
+        "robotique",
+        "humanoïde",
+        "open source",
+        "RK3588",
+        "ROS 2"
+      ],
+      "readingMinutes": 5,
+      "sources": [
+        {
+          "title": "RoboParty RP1 (ROBOTO 01) - A full-stack open-source humanoid robot with up to 30 degrees of freedom",
+          "url": "https://www.cnx-software.com/2026/10/23/roboparty-rp1-roboto-01-a-full-stack-open-source-humanoid-robot-with-up-to-30-degrees-of-freedom/",
+          "publisher": "CNX Software"
+        }
+      ],
+      "cover": {
+        "url": "https://www.cnx-software.com/wp-content/uploads/2026/10/RoboParty-RP1ROBOTO-01-an-open-source-humanoid-robot.jpg",
+        "alt": "Le robot humanoïde open source RoboParty RP1 (ROBOTO 01)",
+        "credit": "cnx-software.com"
+      },
+      "illustration": {
+        "svg": "<svg xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"0 0 640 360\"><defs><linearGradient id=\"g\" x1=\"0\" y1=\"0\" x2=\"1\" y2=\"1\"><stop offset=\"0\" stop-color=\"hsl(30,62%,34%)\"/><stop offset=\"1\" stop-color=\"hsl(70,68%,52%)\"/></linearGradient></defs><rect width=\"640\" height=\"360\" fill=\"url(#g)\"/><circle cx=\"570\" cy=\"50\" r=\"90\" fill=\"#fff\" fill-opacity=\".07\"/><circle cx=\"60\" cy=\"330\" r=\"110\" fill=\"#fff\" fill-opacity=\".06\"/><g fill=\"#fff\" stroke=\"#fff\"><circle cx=\"320\" cy=\"85\" r=\"32\" fill-opacity=\".9\" stroke=\"none\"/><rect x=\"278\" y=\"130\" width=\"84\" height=\"100\" rx=\"14\" fill-opacity=\".85\" stroke=\"none\"/><path d=\"M278 145l-50 60M362 145l50 60M300 230l-14 80M340 230l14 80\" fill=\"none\" stroke-width=\"14\" stroke-linecap=\"round\"/><g fill=\"none\" stroke-opacity=\".6\" stroke-width=\"4\"><path d=\"M120 90h70M120 120h50M450 90h70M470 120h50\"/></g></g><text x=\"565\" y=\"325\" text-anchor=\"middle\" font-size=\"50\">🦿</text></svg>"
+      },
+      "blocks": [
+        {
+          "type": "paragraph",
+          "text": "Les robots humanoïdes restent, pour l'essentiel, des machines fermées dont le matériel comme le logiciel sont jalousement gardés. L'entreprise shanghaïenne RoboParty prend le contrepied avec le RP1, aussi appelé ROBOTO 01, présenté le 23 octobre 2026 comme une plateforme de recherche destinée à l'IA embarquée et au contrôle de mouvement. Elle publie les fichiers de conception, les cartes électroniques et une chaîne logicielle complète, avec une réserve notable sur le micrologiciel des actionneurs."
+        },
+        {
+          "type": "heading",
+          "level": 2,
+          "text": "Deux versions, 24 ou 30 degrés de liberté"
+        },
+        {
+          "type": "keyvalue",
+          "items": [
+            {
+              "label": "RP1",
+              "value": "24 degrés de liberté actifs : 6 par jambe, 5 par bras et 2 pour la taille. Environ 39 kg."
+            },
+            {
+              "label": "RP1 Pro",
+              "value": "30 degrés de liberté : 6 par jambe, 7 par bras, 2 pour la taille et 2 pour la tête. Environ 41 kg."
+            },
+            {
+              "label": "Dimensions",
+              "value": "Hauteur de 1,35 m ; encombrement de 1 350 × 450 × 200 mm ; cuisse de 250 mm, jambe de 300 mm, bras de 550 mm."
+            },
+            {
+              "label": "Performances annoncées",
+              "value": "Course jusqu'à 4 m/s, pentes de 30°, marches de 50 mm ; autonomie jusqu'à 3 heures."
+            },
+            {
+              "label": "Prix et livraison",
+              "value": "Non communiqués par RoboParty."
+            }
+          ]
+        },
+        {
+          "type": "paragraph",
+          "text": "Le calcul est confié à une carte principale à base de processeur Rockchip RK3588 (NPU de 6 TOPS, 8 Go de mémoire LPDDR4x et 32 Go de stockage eMMC), chargée de l'inférence d'IA, de la vision, de la parole et de l'interaction. La version Pro ajoute un Allwinner A733 et un module NVIDIA Jetson Orin NX de 16 Go pour le développement. Un microcontrôleur distinct de 480 MHz gère en temps réel l'ordonnancement des mouvements, la séquence d'alimentation et l'arrêt d'urgence, ce qui isole les fonctions de sécurité du système Linux principal."
+        },
+        {
+          "type": "heading",
+          "level": 2,
+          "text": "Actionneurs, mains et alimentation"
+        },
+        {
+          "type": "list",
+          "items": [
+            "Quatre modules d'articulation ROMOMO conçus par l'entreprise, à réducteur planétaire à deux étages ; le module de 100 mm de diamètre atteint 160 N·m en pointe, avec un pilote intégré et une communication CAN-FD.",
+            "Quatre têtes interchangeables (déplacement, interaction, perception et collecte de données), avec en option une caméra stéréo, une caméra de profondeur Intel RealSense D435i et un lidar 3D.",
+            "Mains factices sur le RP1, mains dextères à 6 degrés de liberté actifs sur le RP1 Pro ; la main RP Hand compte 11 degrés mécaniques, pèse environ 379 g et peut recevoir un capteur tactile.",
+            "Double batterie de 10 Ah échangeable à chaud (48 V principale et 30 V auxiliaire), recharge USB-C de 140 W en environ 1 h 30, fonctionnement possible en charge.",
+            "Sécurité : arrêt d'urgence à trois canaux, articulations fermées contre le pincement, signal filaire ou à 433 MHz vers le microcontrôleur temps réel."
+          ]
+        },
+        {
+          "type": "paragraph",
+          "text": "Côté logiciel, le projet publie du micrologiciel Linux et un pont USB vers CAN-FD, un cadre de déploiement ROS 2 avec pilotes de moteurs et de centrale inertielle, inférence de politiques au format ONNX et kit de développement Python, ainsi que des modèles URDF et MJCF. L'entraînement s'appuie sur NVIDIA Isaac Lab, l'apprentissage par renforcement et l'imitation de mouvements, avec des tests croisés dans MuJoCo. Plusieurs éléments sont encore en chantier : le guide de déploiement du RP1 est « bientôt disponible », la configuration à 28 axes du Pro n'a pas encore de tâches d'entraînement dédiées, et une politique du projet UFO n'a pas été testée sur le robot réel."
+        },
+        {
+          "type": "heading",
+          "level": 2,
+          "text": "Une ouverture partielle"
+        },
+        {
+          "type": "paragraph",
+          "text": "Les conceptions matérielles originales sont placées sous licence CERN-OHL-W-2.0, avec fichiers SolidWorks et Parasolid modifiables, plans, fichiers Gerber et nomenclatures de 14 cartes sur mesure. Le cadre d'apprentissage UFO relève en revanche d'une licence CC BY-NC 4.0, c'est-à-dire non commerciale. CNX Software n'a pas retrouvé, dans les dépôts publiés, le code source du micrologiciel embarqué des actionneurs ROMOMO : la plateforme n'est donc pas entièrement ouverte."
+        },
+        {
+          "type": "usecases",
+          "title": "Exemples d'utilisation",
+          "items": [
+            {
+              "icon": "🎓",
+              "title": "Laboratoire universitaire",
+              "text": "Une équipe de recherche entraîne une marche dans Isaac Lab, la teste dans MuJoCo, puis la déploie sur un robot dont elle peut modifier chaque pièce."
+            },
+            {
+              "icon": "🧑‍🏫",
+              "title": "Enseignement en robotique",
+              "text": "Une école d'ingénieurs utilise le robot pour faire étudier un bus CAN-FD, un arrêt d'urgence et une chaîne ROS 2 sur du matériel réel."
+            },
+            {
+              "icon": "🏗️",
+              "title": "Prototypage industriel",
+              "text": "Une start-up teste une tête de perception avec lidar et caméra de profondeur avant de concevoir son propre robot, en réutilisant les cartes publiées."
+            }
+          ]
+        },
+        {
+          "type": "timeline",
+          "title": "D'où l'on vient, où l'on va",
+          "items": [
+            {
+              "label": "Avant 2026",
+              "text": "Les humanoïdes de recherche restent le plus souvent propriétaires ou vendus sans plans complets."
+            },
+            {
+              "label": "23 octobre 2026",
+              "text": "RoboParty présente le RP1 et le RP1 Pro et publie matériel et logiciels."
+            },
+            {
+              "label": "À venir",
+              "text": "Guide de déploiement du RP1, tâches d'entraînement pour 28 axes, prix et calendrier de livraison : rien n'est daté."
+            }
+          ]
+        },
+        {
+          "type": "opinion",
+          "title": "Notre avis",
+          "paragraphs": [
+            "La publication de 14 cartes électroniques, de fichiers de conception éditables et d'une chaîne d'entraînement est rare dans cette catégorie et utile à la recherche, qui peut enfin reproduire et modifier un humanoïde complet. Les limites sont toutefois nettes : un micrologiciel d'actionneurs manquant, une licence non commerciale sur une partie de l'apprentissage et l'absence de prix empêchent de juger l'accessibilité réelle.",
+            "À un à trois ans, le principal enjeu sera la communauté : si des équipes extérieures publient des correctifs, des politiques de marche et des pièces compatibles, la plateforme gagnera en intérêt ; sinon elle restera une vitrine. C'est une opinion, car le projet est trop récent pour qu'on en mesure l'adoption."
+          ],
+          "verdict": "Une vraie base ouverte pour apprendre, sous réserve que les zones d'ombre soient comblées."
+        },
+        {
+          "type": "callout",
+          "title": "À retenir",
+          "text": "Un humanoïde de 1,35 m, 24 ou 30 axes, RK3588, CAN-FD et sources CERN-OHL-W-2.0. Le micrologiciel des actionneurs n'est pas publié et ni le prix ni la livraison ne sont annoncés."
+        }
+      ],
+      "publishedAt": "2026-10-23T05:18:48+02:00"
+    }
+  ]
+}
