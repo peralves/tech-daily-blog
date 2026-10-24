@@ -1,0 +1,1289 @@
+{
+ "schemaVersion": "1.0",
+ "date": "2026-10-24",
+ "generatedAt": "2026-10-24T11:18:14+02:00",
+ "title": "Failles Ruby et GitLab, Collabora et Nextcloud, Brotli, incident chez Railway, Kimi K3.1 Pro, OBS Studio 33, uv et ty, mini-PC ZOTAC",
+ "summary": "Cette édition revient sur la correction du moteur d'expressions régulières de Ruby à l'origine de quatre failles critiques de GitLab, l'entrée au catalogue de la CISA d'une faille exploitée de Collabora Online, l'extension de la faille Brotli à Bun, Python, Envoy et Istio, l'incident de sécurité de la plateforme Railway, l'annonce du modèle ouvert Kimi K3.1 Pro, la sortie d'OBS Studio 33, l'intégration expérimentale d'uv et de ty et un mini-PC industriel fondé sur le Raspberry Pi CM5.",
+ "highlights": [
+  "Ruby 4.0.9, 3.4.12 et 3.3.13 corrigent le moteur Onigmo derrière quatre failles critiques de GitLab",
+  "Collabora Online : une injection de commandes exploitée sur des serveurs Nextcloud entre au catalogue de la CISA",
+  "Faille Brotli : Bun, Python, Envoy et Istio sont aussi concernés",
+  "Railway demande de renouveler tous les secrets et suspend les déploiements",
+  "Kimi K3.1 Pro : poids ouverts promis pour le 4 novembre 2026"
+ ],
+ "meta": {
+  "generator": "claude-scheduled-task"
+ },
+ "posts": [
+  {
+   "id": "ruby-onigmo-gitlab-rce-versions-corrigees",
+   "category": "cybersecurite",
+   "icon": "💎",
+   "importance": 5,
+   "title": "Ruby corrige trois bogues du moteur d'expressions régulières à l'origine de quatre failles critiques de GitLab",
+   "summary": "Les versions 4.0.9, 3.4.12 et 3.3.13 de Ruby corrigent des corruptions de mémoire dans Onigmo. Tout programme qui compile une expression régulière à partir d'une chaîne contrôlée par un tiers est concerné, pas seulement GitLab.",
+   "tags": [
+    "Ruby",
+    "GitLab",
+    "Onigmo",
+    "exécution de code",
+    "expressions régulières"
+   ],
+   "readingMinutes": 5,
+   "publishedAt": "2026-10-24T11:18:14+02:00",
+   "sourceDate": "2026-10-23",
+   "sources": [
+    {
+     "title": "Ruby Fixes Three Regex Engine Bugs Responsible for Four Critical GitLab RCE Flaws",
+     "url": "https://thehackernews.com/2026/10/ruby-fixes-three-regex-engine-bugs.html",
+     "publisher": "The Hacker News"
+    },
+    {
+     "title": "Max-severity GitLab bug allows remote code execution over 12 years of releases",
+     "url": "https://www.theregister.com/security/2026/10/22/max-severity-gitlab-bug-allows-remote-code-execution-over-12-years-of-releases/5304854",
+     "publisher": "The Register"
+    }
+   ],
+   "illustration": {
+    "svg": "<svg xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"0 0 640 360\"><defs><linearGradient id=\"g\" x1=\"0\" y1=\"0\" x2=\"1\" y2=\"1\"><stop offset=\"0\" stop-color=\"hsl(175,62%,30%)\"/><stop offset=\"1\" stop-color=\"hsl(200,68%,48%)\"/></linearGradient></defs><rect width=\"640\" height=\"360\" fill=\"url(#g)\"/><circle cx=\"570\" cy=\"50\" r=\"90\" fill=\"#fff\" fill-opacity=\".07\"/><circle cx=\"60\" cy=\"330\" r=\"110\" fill=\"#fff\" fill-opacity=\".06\"/><g fill=\"none\" stroke=\"#fff\" stroke-width=\"5\" stroke-linecap=\"round\" stroke-linejoin=\"round\"><path d=\"M270 140 L220 190 L270 240 M370 140 L420 190 L370 240 M345 115 L295 265\"/></g><text x=\"565\" y=\"325\" text-anchor=\"middle\" font-size=\"50\">💎</text></svg>"
+   },
+   "blocks": [
+    {
+     "type": "paragraph",
+     "text": "Quatre failles critiques de **GitLab** en un mois, une seule cause profonde : le moteur d'expressions régulières de Ruby. Selon The Hacker News, qui rapporte l'information le 23 octobre 2026, le langage Ruby a publié les versions **4.0.9**, **3.4.12** et **3.3.13** pour corriger trois bogues d'**Onigmo**, la bibliothèque qui compile et exécute les expressions régulières. GitLab avait découvert qu'un motif spécialement forgé pouvait corrompre la mémoire pendant la compilation, ce qui ouvre la voie à une exécution de code sur ses serveurs."
+    },
+    {
+     "type": "paragraph",
+     "text": "L'enjeu dépasse l'éditeur de la forge logicielle. L'avis de Ruby précise qu'une application est exposée dès lors qu'elle compile une expression régulière à partir d'une chaîne qu'un attaquant peut contrôler : appel à `Regexp.new`, `Regexp.union` ou `Regexp.compile`, ou interpolation dans un motif de type `/#{entrée}/`. Les programmes qui n'utilisent que des motifs écrits par leurs propres développeurs ne sont pas concernés."
+    },
+    {
+     "type": "heading",
+     "level": 2,
+     "text": "Les versions à installer"
+    },
+    {
+     "type": "list",
+     "items": [
+      "**Ruby 4.0** : passer à la version 4.0.9. La 4.0.8 ne contient pas le correctif de CVE-2026-110264.",
+      "**Ruby 3.4** : passer à la version 3.4.12, première de la série à embarquer l'un des trois correctifs.",
+      "**Ruby 3.3** : passer à la version 3.3.13, également la première de sa série à en contenir.",
+      "**Ruby 3.2 et antérieures** : aucun correctif ne sera publié ; la série 3.2 est arrivée en fin de vie le 1er avril 2026, avec la 3.2.11 comme dernière version."
+     ]
+    },
+    {
+     "type": "heading",
+     "level": 2,
+     "text": "Quatre failles GitLab, deux profils"
+    },
+    {
+     "type": "paragraph",
+     "text": "GitLab a publié quatre avis entre le 23 septembre et le 21 octobre 2026, chacun corrigé par l'embarquement d'une version de Ruby patchée. Les deux premiers, divulgués le 23 septembre, exigent un compte connecté et sont notés 9,9 sur 10. Les deux suivants n'exigent aucun compte : **CVE-2026-97229** (12 octobre) et **CVE-2026-110264** (21 octobre) sont notés 10,0, la note maximale. La seconde touche toutes les versions de GitLab depuis la 7.0, soit une douzaine d'années de publications. Un chercheur sous le pseudonyme joaxcar a signalé les quatre failles par le programme de primes aux bogues de GitLab. Au 23 octobre, aucune ne figurait au catalogue des vulnérabilités exploitées de la CISA."
+    },
+    {
+     "type": "diagram",
+     "svg": "<svg xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"0 0 640 168\" font-family=\"system-ui,sans-serif\"><rect width=\"640\" height=\"168\" rx=\"16\" fill=\"#eef2f7\"/><text x=\"320\" y=\"28\" text-anchor=\"middle\" font-size=\"15\" font-weight=\"700\" fill=\"#1f2a37\">Du motif forgé à l'exécution de code</text><rect x=\"16.0\" y=\"48\" width=\"132.5\" height=\"96\" rx=\"12\" fill=\"hsl(175,45%,88%)\" stroke=\"hsl(175,45%,35%)\" stroke-width=\"1.5\"/><text x=\"82.2\" y=\"82\" text-anchor=\"middle\" font-size=\"13\" font-weight=\"700\" fill=\"#1f2a37\">Saisie forgée</text><text x=\"82.2\" y=\"106\" text-anchor=\"middle\" font-size=\"12\" fill=\"#1f2a37\">chaîne d'un tiers</text><path d=\"M152.5 96 h16 m-6 -6 l6 6 l-6 6\" fill=\"none\" stroke=\"#1f2a37\" stroke-width=\"2\" stroke-linecap=\"round\"/><rect x=\"174.5\" y=\"48\" width=\"132.5\" height=\"96\" rx=\"12\" fill=\"hsl(175,45%,88%)\" stroke=\"hsl(175,45%,35%)\" stroke-width=\"1.5\"/><text x=\"240.8\" y=\"82\" text-anchor=\"middle\" font-size=\"13\" font-weight=\"700\" fill=\"#1f2a37\">Regexp.new</text><text x=\"240.8\" y=\"106\" text-anchor=\"middle\" font-size=\"12\" fill=\"#1f2a37\">compilation du motif</text><path d=\"M311.0 96 h16 m-6 -6 l6 6 l-6 6\" fill=\"none\" stroke=\"#1f2a37\" stroke-width=\"2\" stroke-linecap=\"round\"/><rect x=\"333.0\" y=\"48\" width=\"132.5\" height=\"96\" rx=\"12\" fill=\"hsl(175,45%,88%)\" stroke=\"hsl(175,45%,35%)\" stroke-width=\"1.5\"/><text x=\"399.2\" y=\"82\" text-anchor=\"middle\" font-size=\"13\" font-weight=\"700\" fill=\"#1f2a37\">Onigmo</text><text x=\"399.2\" y=\"106\" text-anchor=\"middle\" font-size=\"12\" fill=\"#1f2a37\">mémoire corrompue</text><path d=\"M469.5 96 h16 m-6 -6 l6 6 l-6 6\" fill=\"none\" stroke=\"#1f2a37\" stroke-width=\"2\" stroke-linecap=\"round\"/><rect x=\"491.5\" y=\"48\" width=\"132.5\" height=\"96\" rx=\"12\" fill=\"hsl(175,45%,88%)\" stroke=\"hsl(175,45%,35%)\" stroke-width=\"1.5\"/><text x=\"557.8\" y=\"82\" text-anchor=\"middle\" font-size=\"13\" font-weight=\"700\" fill=\"#1f2a37\">Exécution</text><text x=\"557.8\" y=\"106\" text-anchor=\"middle\" font-size=\"12\" fill=\"#1f2a37\">code sur le serveur</text></svg>",
+     "alt": "Schéma en quatre étapes : une saisie forgée est compilée par Regexp.new, corrompt la mémoire dans Onigmo et peut mener à l'exécution de code.",
+     "caption": "Chemin d'attaque décrit par Ruby et GitLab ; seules les chaînes contrôlées par un tiers sont à risque."
+    },
+    {
+     "type": "keyvalue",
+     "items": [
+      {
+       "label": "CVE-2026-97229",
+       "value": "Sans compte requis, note 10,0, divulguée le 12 octobre 2026"
+      },
+      {
+       "label": "CVE-2026-110264",
+       "value": "Sans compte requis, note 10,0, divulguée le 21 octobre 2026, toutes versions depuis la 7.0"
+      },
+      {
+       "label": "GitLab.com",
+       "value": "Déjà exécuté avec la version corrigée"
+      },
+      {
+       "label": "Versions GitLab corrigées",
+       "value": "19.5.1, 19.4.3, 19.3.6, 19.2.9, 19.1.9, 19.0.10 et 18.11.13"
+      }
+     ]
+    },
+    {
+     "type": "paragraph",
+     "text": "Les administrateurs d'instances autogérées doivent donc installer l'une de ces versions : GitLab embarque sa propre copie de Ruby, de sorte que la mise à jour de la forge applique aussi le correctif du langage. L'éditeur a également publié des règles de détection pour repérer d'éventuelles tentatives d'exploitation."
+    },
+    {
+     "type": "heading",
+     "level": 2,
+     "text": "Ce qui ne protège pas"
+    },
+    {
+     "type": "paragraph",
+     "text": "Si la mise à jour est impossible, Ruby déconseille de compiler des expressions régulières issues de saisies non fiables. Deux protections courantes sont inefficaces ici : définir `Regexp.timeout` n'arrête pas ces bogues, et limiter la longueur du motif n'est pas fiable, car des motifs courts peuvent aussi les déclencher."
+    },
+    {
+     "type": "paragraph",
+     "text": "Un point mérite l'attention des équipes de sécurité : Ruby n'a pas demandé ses propres identifiants CVE, « pour l'instant », et recommande de suivre le sujet sous les quatre numéros de GitLab. Or les fiches de GitLab ne désignent que GitLab comme produit touché. Les outils qui rapprochent les CVE des versions de Ruby installées peuvent donc passer à côté du problème. La documentation de Ruby décrit encore les motifs non fiables comme un simple risque de déni de service."
+    },
+    {
+     "type": "usecases",
+     "title": "Exemples d'utilisation",
+     "items": [
+      {
+       "icon": "🛠️",
+       "title": "Administrateur GitLab autogéré",
+       "text": "Vérifier la version de l'instance, installer l'un des correctifs listés (par exemple 19.5.1 ou 18.11.13) et consulter les règles de détection publiées par GitLab."
+      },
+      {
+       "icon": "🔎",
+       "title": "Développeur d'une application Ruby",
+       "text": "Rechercher dans le code les appels à `Regexp.new` ou les interpolations `/#{...}/` alimentés par des saisies d'utilisateurs, puis mettre à jour Ruby vers 4.0.9, 3.4.12 ou 3.3.13."
+      },
+      {
+       "icon": "📦",
+       "title": "Équipe d'intégration continue",
+       "text": "Reconstruire les images de conteneurs qui embarquent Ruby, car un processus déjà lancé conserve l'ancienne version du moteur, et ne pas se fier aux seules alertes CVE."
+      }
+     ]
+    },
+    {
+     "type": "timeline",
+     "title": "D'où l'on vient, où l'on va",
+     "items": [
+      {
+       "label": "1er avril 2026",
+       "text": "Fin de vie de Ruby 3.2, dont la dernière version est la 3.2.11."
+      },
+      {
+       "label": "23 septembre 2026",
+       "text": "GitLab divulgue les deux premières failles, notées 9,9 et exigeant un compte."
+      },
+      {
+       "label": "12 octobre 2026",
+       "text": "CVE-2026-97229 : première faille notée 10,0, sans compte requis."
+      },
+      {
+       "label": "21 octobre 2026",
+       "text": "CVE-2026-110264 : toutes les versions depuis la 7.0 sont touchées, un correctif est livré."
+      },
+      {
+       "label": "23 octobre 2026",
+       "text": "Ruby publie les versions 4.0.9, 3.4.12 et 3.3.13, selon The Hacker News."
+      }
+     ]
+    },
+    {
+     "type": "opinion",
+     "title": "Notre avis",
+     "paragraphs": [
+      "Cet épisode rappelle qu'une bibliothèque de base peut transformer une série de failles applicatives en un problème d'écosystème. GitLab a eu le mérite de remonter à la cause commune plutôt que de multiplier les rustines, mais l'absence de CVE propre à Ruby crée un angle mort : un outil d'inventaire qui ne lit que les fiches de vulnérabilités ne verra pas les applications Ruby qui n'ont rien à voir avec GitLab.",
+      "À un ou trois ans, on peut raisonnablement attendre que les projets de langages traitent plus systématiquement les motifs non fiables comme un risque d'exécution de code, et non plus seulement de déni de service. C'est une analyse, pas un fait annoncé : Ruby indique seulement qu'il mettra son avis à jour s'il demande des identifiants."
+     ],
+     "verdict": "Mettre à jour GitLab et Ruby d'abord, auditer ensuite les endroits où une saisie devient un motif d'expression régulière."
+    },
+    {
+     "type": "callout",
+     "title": "À retenir",
+     "text": "Aucune des quatre failles ne figurait au catalogue des vulnérabilités exploitées de la CISA au 23 octobre 2026 (source : The Hacker News)."
+    }
+   ],
+   "cover": {
+    "url": "https://blogger.googleusercontent.com/img/b/R29vZ2xl/AVvXsEjA5n8ST_yuElQgTwbfq1oFnVAoiTvZCW_Ct1b8lT_OQ9dnyeXfocrqzTUJJ1t920YaEa-7Sonxl9KlthV4x7lXI3dmJxc9_S11NjWRJ6dcgfsX4UGhv0KFWZsZrzXKpjh92JPyDdHPlCPQh1AHd0YKM44sVcc9d-57r8_BdrIb3V06MWfk8bRAy4kDU6I/s1700-nu-rw-lo-l85-e365/ruby-rce.jpg",
+    "alt": "Illustration d'un article sur l'exécution de code à distance liée au langage Ruby",
+    "credit": "thehackernews.com"
+   }
+  },
+  {
+   "id": "cisa-kev-collabora-online-nextcloud-web-shell",
+   "category": "cybersecurite",
+   "icon": "🕸️",
+   "importance": 4,
+   "title": "Collabora Online : une faille d'injection de commandes exploitée sur des serveurs Nextcloud entre au catalogue de la CISA",
+   "summary": "L'agence américaine a ajouté le 24 octobre 2026 la faille CVE-2026-110447 (note 9,2) et celle d'Arista VeloCloud à son catalogue des vulnérabilités exploitées. Un correctif existe depuis septembre.",
+   "tags": [
+    "Collabora Online",
+    "Nextcloud",
+    "CISA",
+    "KEV",
+    "web shell"
+   ],
+   "readingMinutes": 4,
+   "publishedAt": "2026-10-24T11:18:14+02:00",
+   "sourceDate": "2026-10-24",
+   "sources": [
+    {
+     "title": "CISA Flags Two Actively Exploited Critical Flaws in Collabora Online and Arista VeloCloud",
+     "url": "https://thehackernews.com/2026/10/cisa-flags-two-actively-exploited.html",
+     "publisher": "The Hacker News"
+    }
+   ],
+   "illustration": {
+    "svg": "<svg xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"0 0 640 360\"><defs><linearGradient id=\"g\" x1=\"0\" y1=\"0\" x2=\"1\" y2=\"1\"><stop offset=\"0\" stop-color=\"hsl(175,62%,30%)\"/><stop offset=\"1\" stop-color=\"hsl(200,68%,48%)\"/></linearGradient></defs><rect width=\"640\" height=\"360\" fill=\"url(#g)\"/><circle cx=\"570\" cy=\"50\" r=\"90\" fill=\"#fff\" fill-opacity=\".07\"/><circle cx=\"60\" cy=\"330\" r=\"110\" fill=\"#fff\" fill-opacity=\".06\"/><g fill=\"none\" stroke=\"#fff\" stroke-width=\"5\" stroke-linecap=\"round\" stroke-linejoin=\"round\"><rect x=\"230\" y=\"95\" width=\"180\" height=\"50\" rx=\"10\"/><rect x=\"230\" y=\"160\" width=\"180\" height=\"50\" rx=\"10\"/><rect x=\"230\" y=\"225\" width=\"180\" height=\"50\" rx=\"10\"/><path d=\"M255 120h30M255 185h30M255 250h30\"/><circle cx=\"385\" cy=\"120\" r=\"5\"/><circle cx=\"385\" cy=\"185\" r=\"5\"/><circle cx=\"385\" cy=\"250\" r=\"5\"/></g><text x=\"565\" y=\"325\" text-anchor=\"middle\" font-size=\"50\">🕸️</text></svg>"
+   },
+   "blocks": [
+    {
+     "type": "paragraph",
+     "text": "L'agence américaine de cybersécurité, la **CISA**, a ajouté le vendredi 24 octobre 2026 deux vulnérabilités à son catalogue des failles connues pour être exploitées (KEV), en citant des signalements d'exploitation active. La première touche **Collabora Online**, plus précisément son serveur intégré CODE utilisé avec la plateforme **Nextcloud** ; la seconde concerne l'orchestrateur **VeloCloud d'Arista**, déjà évoqué dans notre édition du 23 octobre. Cet article se concentre sur la faille Collabora, peu couverte jusqu'ici."
+    },
+    {
+     "type": "heading",
+     "level": 2,
+     "text": "CVE-2026-110447 : une commande système injectée via un script PHP"
+    },
+    {
+     "type": "paragraph",
+     "text": "La faille est notée **9,2** sur l'échelle CVSS. Il s'agit d'une injection de commandes du système d'exploitation, qui peut permettre l'exécution de code à distance par le script `proxy.php` lorsque le serveur de documents local CODE n'est pas démarré. Le composant en cause, aussi appelé richdocumentscode, permet à Nextcloud d'éditer des documents bureautiques en ligne sans déployer de serveur Collabora séparé. Le correctif a été publié en septembre 2026, dans la version **26.4.303**."
+    },
+    {
+     "type": "paragraph",
+     "text": "Les conséquences observées sont concrètes. Selon The Hacker News, des attaquants ont installé un *web shell* sur des serveurs Nextcloud, c'est-à-dire un petit programme déposé sur le serveur pour y exécuter des commandes à distance. Ils ont ensuite mené une reconnaissance et cherché des magasins d'identifiants, des traces de gestionnaires de mots de passe et des portefeuilles de crypto-actifs. L'intrusion ne s'arrête donc pas au serveur de documents : elle vise ce qu'un serveur de fichiers d'entreprise ou d'association conserve de précieux."
+    },
+    {
+     "type": "keyvalue",
+     "items": [
+      {
+       "label": "Produit",
+       "value": "Collabora Online, serveur intégré CODE (richdocumentscode) avec Nextcloud"
+      },
+      {
+       "label": "Faille",
+       "value": "CVE-2026-110447, injection de commandes, note CVSS 9,2"
+      },
+      {
+       "label": "Correctif",
+       "value": "Version 26.4.303, publiée en septembre 2026"
+      },
+      {
+       "label": "Exploitation",
+       "value": "Installation d'un web shell, puis recherche d'identifiants et de portefeuilles"
+      },
+      {
+       "label": "Date d'ajout au KEV",
+       "value": "24 octobre 2026"
+      }
+     ]
+    },
+    {
+     "type": "diagram",
+     "svg": "<svg xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"0 0 640 168\" font-family=\"system-ui,sans-serif\"><rect width=\"640\" height=\"168\" rx=\"16\" fill=\"#eef2f7\"/><text x=\"320\" y=\"28\" text-anchor=\"middle\" font-size=\"15\" font-weight=\"700\" fill=\"#1f2a37\">Chaîne d'attaque observée sur Nextcloud</text><rect x=\"16.0\" y=\"48\" width=\"132.5\" height=\"96\" rx=\"12\" fill=\"hsl(175,45%,88%)\" stroke=\"hsl(175,45%,35%)\" stroke-width=\"1.5\"/><text x=\"82.2\" y=\"82\" text-anchor=\"middle\" font-size=\"13\" font-weight=\"700\" fill=\"#1f2a37\">proxy.php</text><text x=\"82.2\" y=\"106\" text-anchor=\"middle\" font-size=\"12\" fill=\"#1f2a37\">injection de commande</text><path d=\"M152.5 96 h16 m-6 -6 l6 6 l-6 6\" fill=\"none\" stroke=\"#1f2a37\" stroke-width=\"2\" stroke-linecap=\"round\"/><rect x=\"174.5\" y=\"48\" width=\"132.5\" height=\"96\" rx=\"12\" fill=\"hsl(175,45%,88%)\" stroke=\"hsl(175,45%,35%)\" stroke-width=\"1.5\"/><text x=\"240.8\" y=\"82\" text-anchor=\"middle\" font-size=\"13\" font-weight=\"700\" fill=\"#1f2a37\">Web shell</text><text x=\"240.8\" y=\"106\" text-anchor=\"middle\" font-size=\"12\" fill=\"#1f2a37\">accès persistant</text><path d=\"M311.0 96 h16 m-6 -6 l6 6 l-6 6\" fill=\"none\" stroke=\"#1f2a37\" stroke-width=\"2\" stroke-linecap=\"round\"/><rect x=\"333.0\" y=\"48\" width=\"132.5\" height=\"96\" rx=\"12\" fill=\"hsl(175,45%,88%)\" stroke=\"hsl(175,45%,35%)\" stroke-width=\"1.5\"/><text x=\"399.2\" y=\"82\" text-anchor=\"middle\" font-size=\"13\" font-weight=\"700\" fill=\"#1f2a37\">Reconnaissance</text><text x=\"399.2\" y=\"106\" text-anchor=\"middle\" font-size=\"12\" fill=\"#1f2a37\">fichiers et secrets</text><path d=\"M469.5 96 h16 m-6 -6 l6 6 l-6 6\" fill=\"none\" stroke=\"#1f2a37\" stroke-width=\"2\" stroke-linecap=\"round\"/><rect x=\"491.5\" y=\"48\" width=\"132.5\" height=\"96\" rx=\"12\" fill=\"hsl(175,45%,88%)\" stroke=\"hsl(175,45%,35%)\" stroke-width=\"1.5\"/><text x=\"557.8\" y=\"82\" text-anchor=\"middle\" font-size=\"13\" font-weight=\"700\" fill=\"#1f2a37\">Cible</text><text x=\"557.8\" y=\"106\" text-anchor=\"middle\" font-size=\"12\" fill=\"#1f2a37\">identifiants, portefeuilles</text></svg>",
+     "alt": "Schéma en quatre étapes : injection via proxy.php, installation d'un web shell, reconnaissance, puis recherche d'identifiants et de portefeuilles.",
+     "caption": "Comportements décrits par The Hacker News pour CVE-2026-110447."
+    },
+    {
+     "type": "heading",
+     "level": 2,
+     "text": "Et la faille d'Arista, en bref"
+    },
+    {
+     "type": "paragraph",
+     "text": "La seconde entrée du catalogue, **CVE-2026-114625**, est une injection SQL notée 9,9 dans les versions installées sur site de VeloCloud Orchestrator. Elle exige un accès réseau à l'interface web et une session authentifiée, avec au minimum le rôle « Enterprise Read Only ». Arista reconnaît une exploitation active, sans l'attribuer à un acteur précis ni publier le nombre d'organisations touchées ; l'éditeur a communiqué deux adresses IP liées à l'activité, géolocalisées au Japon. Il s'agit de la troisième faille de ce produit exploitée depuis juillet 2026, après deux vulnérabilités notées 10,0. Les correctifs sont les versions 5.2.3.18, 6.1.3.10 et 6.4.2.12."
+    },
+    {
+     "type": "heading",
+     "level": 2,
+     "text": "Ce que signifie une entrée au KEV"
+    },
+    {
+     "type": "paragraph",
+     "text": "Le catalogue KEV sert de référence aux équipes de sécurité pour hiérarchiser leurs correctifs : une faille inscrite est, par définition, exploitée dans la nature. La CISA demande aux agences civiles fédérales américaines de corriger avant le **26 octobre 2026**. Cette échéance ne s'impose pas aux organisations françaises, mais elle donne un ordre de priorité utile, y compris pour les structures qui suivent aussi les alertes du CERT-FR."
+    },
+    {
+     "type": "usecases",
+     "title": "Exemples d'utilisation",
+     "items": [
+      {
+       "icon": "🏢",
+       "title": "Association ou PME avec Nextcloud",
+       "text": "Vérifier que l'application Collabora intégrée est en version 26.4.303 ou supérieure, ou migrer vers un serveur Collabora distinct tenu à jour."
+      },
+      {
+       "icon": "🔍",
+       "title": "Équipe d'exploitation informatique",
+       "text": "Chercher sur les serveurs Nextcloud des fichiers PHP inattendus et des accès inhabituels aux dossiers de secrets, puis changer les mots de passe stockés si un doute subsiste."
+      },
+      {
+       "icon": "📋",
+       "title": "Responsable de la sécurité",
+       "text": "Intégrer le catalogue KEV dans son processus de correctifs pour traiter en priorité les failles réellement exploitées, plutôt que de se fier à la seule note CVSS."
+      }
+     ]
+    },
+    {
+     "type": "timeline",
+     "title": "D'où l'on vient, où l'on va",
+     "items": [
+      {
+       "label": "Juillet 2026",
+       "text": "Première faille d'Arista VeloCloud Orchestrator exploitée dans la nature."
+      },
+      {
+       "label": "Septembre 2026",
+       "text": "Collabora publie la version 26.4.303 qui corrige CVE-2026-110447."
+      },
+      {
+       "label": "Octobre 2026",
+       "text": "Arista corrige CVE-2026-114625 et reconnaît son exploitation."
+      },
+      {
+       "label": "24 octobre 2026",
+       "text": "La CISA inscrit les deux failles à son catalogue."
+      },
+      {
+       "label": "26 octobre 2026",
+       "text": "Échéance fixée aux agences fédérales américaines."
+      }
+     ]
+    },
+    {
+     "type": "opinion",
+     "title": "Notre avis",
+     "paragraphs": [
+      "Le décalage entre un correctif publié en septembre et une exploitation constatée en octobre illustre un classique : les composants « intégrés » à une application sont souvent oubliés des inventaires. Un administrateur qui met Nextcloud à jour peut croire son éditeur de documents à jour alors que le serveur CODE embarqué suit son propre rythme.",
+      "À un ou trois ans, la généralisation des inventaires logiciels et des mises à jour automatiques devrait réduire ce type d'angle mort, mais c'est une projection, pas une certitude. En attendant, une faille notée 9,2 et déjà exploitée justifie de traiter un correctif de cet ordre en quelques jours, pas en quelques mois."
+     ],
+     "verdict": "Une faille corrigée depuis septembre reste dangereuse tant qu'elle n'est pas appliquée : vérifier la version du composant embarqué."
+    },
+    {
+     "type": "callout",
+     "title": "À retenir",
+     "text": "Les informations viennent de The Hacker News, qui s'appuie sur l'ajout de la CISA du 24 octobre 2026. Les adresses IP et les détails d'exploitation sont ceux communiqués par Arista."
+    }
+   ]
+  },
+  {
+   "id": "brotli-cve-2026-111497-bun-python-envoy-istio",
+   "category": "devops",
+   "icon": "🗜️",
+   "importance": 4,
+   "title": "Faille du décodeur Brotli : au-delà de Node.js, Bun, Python, Envoy et Istio doivent aussi être mis à jour",
+   "summary": "CVE-2026-111497, une corruption de mémoire notée 9,2 dans le décodeur de Google, touche chaque logiciel qui en embarque une copie. Aucune exploitation n'est signalée, mais les analyseurs de dépendances peuvent la manquer.",
+   "tags": [
+    "Brotli",
+    "Node.js",
+    "Bun",
+    "Envoy",
+    "Istio",
+    "Python"
+   ],
+   "readingMinutes": 4,
+   "publishedAt": "2026-10-24T11:18:14+02:00",
+   "sourceDate": "2026-10-24",
+   "sources": [
+    {
+     "title": "Brotli Decoder Flaw Behind Node.js RCE Also Affects Bun, Python and Other Widely Used Software",
+     "url": "https://thehackernews.com/2026/10/brotli-decoder-flaw-behind-nodejs-rce.html",
+     "publisher": "The Hacker News"
+    },
+    {
+     "title": "Researchers Demonstrate Node2Shell RCE Exploit on Node.js Build Using Crafted Brotli Data",
+     "url": "https://thehackernews.com/2026/10/researchers-demonstrate-node2shell-rce.html",
+     "publisher": "The Hacker News"
+    }
+   ],
+   "illustration": {
+    "svg": "<svg xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"0 0 640 360\"><defs><linearGradient id=\"g\" x1=\"0\" y1=\"0\" x2=\"1\" y2=\"1\"><stop offset=\"0\" stop-color=\"hsl(160,62%,30%)\"/><stop offset=\"1\" stop-color=\"hsl(185,68%,48%)\"/></linearGradient></defs><rect width=\"640\" height=\"360\" fill=\"url(#g)\"/><circle cx=\"570\" cy=\"50\" r=\"90\" fill=\"#fff\" fill-opacity=\".07\"/><circle cx=\"60\" cy=\"330\" r=\"110\" fill=\"#fff\" fill-opacity=\".06\"/><g fill=\"none\" stroke=\"#fff\" stroke-width=\"5\" stroke-linecap=\"round\" stroke-linejoin=\"round\"><rect x=\"230\" y=\"95\" width=\"180\" height=\"50\" rx=\"10\"/><rect x=\"230\" y=\"160\" width=\"180\" height=\"50\" rx=\"10\"/><rect x=\"230\" y=\"225\" width=\"180\" height=\"50\" rx=\"10\"/><path d=\"M255 120h30M255 185h30M255 250h30\"/><circle cx=\"385\" cy=\"120\" r=\"5\"/><circle cx=\"385\" cy=\"185\" r=\"5\"/><circle cx=\"385\" cy=\"250\" r=\"5\"/></g><text x=\"565\" y=\"325\" text-anchor=\"middle\" font-size=\"50\">🗜️</text></svg>"
+   },
+   "blocks": [
+    {
+     "type": "paragraph",
+     "text": "La démonstration d'exécution de code « Node2Shell » sur Node.js, présentée le 23 octobre 2026, n'était que la partie visible d'un problème plus large. Selon The Hacker News, la faille **CVE-2026-111497** réside dans le décodeur du format de compression **Brotli** de Google, le code C qui décompresse les données. Une entrée forgée peut écrire au-delà de la fin d'un tampon mémoire, ce qui peut faire planter le programme, divulguer de la mémoire ou permettre l'exécution de code."
+    },
+    {
+     "type": "paragraph",
+     "text": "Comme chaque logiciel embarque sa propre copie du décodeur, chaque éditeur doit publier son correctif. Google note la faille **9,2** (critique) en CVSS 4.0 ; Node.js la juge élevée et Red Hat lui attribue 8,1. Les chercheurs d'Imperva ont exécuté du code sur une version non modifiée de Node.js 24.22.0 (Linux ARM64), par une réponse récupérée ou par le corps d'une requête Express. L'exploit a demandé plusieurs tentatives, n'a pas été publié et n'a pas été testé sur d'autres builds. Aucune attaque réelle n'est signalée, et l'évaluation de la CISA du 23 octobre indique une exploitation « nulle »."
+    },
+    {
+     "type": "heading",
+     "level": 2,
+     "text": "Les versions corrigées"
+    },
+    {
+     "type": "keyvalue",
+     "items": [
+      {
+       "label": "Bibliothèque Brotli (C)",
+       "value": "1.0.10, 1.1.1 et 1.2.1 (versions touchées : 1.0.3 à 1.2.0)"
+      },
+      {
+       "label": "Node.js",
+       "value": "22.23.4, 24.22.1 et 26.12.1 ; les séries 20 et antérieures sont en fin de vie"
+      },
+      {
+       "label": "Bun",
+       "value": "1.4.4 (versions 1.4.3 et antérieures touchées)"
+      },
+      {
+       "label": "Envoy",
+       "value": "1.40.0, 1.39.3, 1.38.6, 1.37.8 et 1.36.12"
+      },
+      {
+       "label": "Istio",
+       "value": "1.31.2, 1.30.6 et 1.29.9"
+      },
+      {
+       "label": "Python Brotli / brotlicffi",
+       "value": "1.2.1 / 1.2.1.0 (1.2.0 et antérieures touchées)"
+      },
+      {
+       "label": "cdxgen",
+       "value": "13.5.0 et 12.8.9"
+      }
+     ]
+    },
+    {
+     "type": "heading",
+     "level": 2,
+     "text": "Qui est réellement exposé"
+    },
+    {
+     "type": "paragraph",
+     "text": "Sous Node.js et Bun, l'exposition passe par `fetch()` lisant une réponse compressée en `br`, ou par Express 5 et body-parser 2 qui décodent un envoi Brotli. Envoy et Istio ne sont exposés que si la décompression Brotli est activée. En Python, le risque existe dès que le paquet est installé, car des clients HTTP comme requests et httpx décodent automatiquement Brotli. Les règles de pare-feu de Vercel ne couvrent pas les réponses que les fonctions récupèrent auprès d'autres serveurs."
+    },
+    {
+     "type": "diagram",
+     "svg": "<svg xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"0 0 640 168\" font-family=\"system-ui,sans-serif\"><rect width=\"640\" height=\"168\" rx=\"16\" fill=\"#eef2f7\"/><text x=\"320\" y=\"28\" text-anchor=\"middle\" font-size=\"15\" font-weight=\"700\" fill=\"#1f2a37\">Une bibliothèque, plusieurs copies à corriger</text><rect x=\"16.0\" y=\"48\" width=\"132.5\" height=\"96\" rx=\"12\" fill=\"hsl(160,45%,88%)\" stroke=\"hsl(160,45%,35%)\" stroke-width=\"1.5\"/><text x=\"82.2\" y=\"82\" text-anchor=\"middle\" font-size=\"13\" font-weight=\"700\" fill=\"#1f2a37\">Brotli (C)</text><text x=\"82.2\" y=\"106\" text-anchor=\"middle\" font-size=\"12\" fill=\"#1f2a37\">décodeur de référence</text><path d=\"M152.5 96 h16 m-6 -6 l6 6 l-6 6\" fill=\"none\" stroke=\"#1f2a37\" stroke-width=\"2\" stroke-linecap=\"round\"/><rect x=\"174.5\" y=\"48\" width=\"132.5\" height=\"96\" rx=\"12\" fill=\"hsl(160,45%,88%)\" stroke=\"hsl(160,45%,35%)\" stroke-width=\"1.5\"/><text x=\"240.8\" y=\"82\" text-anchor=\"middle\" font-size=\"13\" font-weight=\"700\" fill=\"#1f2a37\">Node.js / Bun</text><text x=\"240.8\" y=\"106\" text-anchor=\"middle\" font-size=\"12\" fill=\"#1f2a37\">fetch, Express</text><path d=\"M311.0 96 h16 m-6 -6 l6 6 l-6 6\" fill=\"none\" stroke=\"#1f2a37\" stroke-width=\"2\" stroke-linecap=\"round\"/><rect x=\"333.0\" y=\"48\" width=\"132.5\" height=\"96\" rx=\"12\" fill=\"hsl(160,45%,88%)\" stroke=\"hsl(160,45%,35%)\" stroke-width=\"1.5\"/><text x=\"399.2\" y=\"82\" text-anchor=\"middle\" font-size=\"13\" font-weight=\"700\" fill=\"#1f2a37\">Python</text><text x=\"399.2\" y=\"106\" text-anchor=\"middle\" font-size=\"12\" fill=\"#1f2a37\">requests, httpx</text><path d=\"M469.5 96 h16 m-6 -6 l6 6 l-6 6\" fill=\"none\" stroke=\"#1f2a37\" stroke-width=\"2\" stroke-linecap=\"round\"/><rect x=\"491.5\" y=\"48\" width=\"132.5\" height=\"96\" rx=\"12\" fill=\"hsl(160,45%,88%)\" stroke=\"hsl(160,45%,35%)\" stroke-width=\"1.5\"/><text x=\"557.8\" y=\"82\" text-anchor=\"middle\" font-size=\"13\" font-weight=\"700\" fill=\"#1f2a37\">Envoy / Istio</text><text x=\"557.8\" y=\"106\" text-anchor=\"middle\" font-size=\"12\" fill=\"#1f2a37\">si Brotli activé</text></svg>",
+     "alt": "Schéma : le décodeur Brotli de référence est embarqué dans Node.js et Bun, Python, et Envoy et Istio, qui doivent chacun être corrigés.",
+     "caption": "Chaque logiciel embarque sa propre copie du décodeur, d'où des correctifs séparés."
+    },
+    {
+     "type": "heading",
+     "level": 2,
+     "text": "Un correctif ancien, une publication tardive"
+    },
+    {
+     "type": "paragraph",
+     "text": "Selon l'article, le correctif est entré dans le code source de Brotli le 27 février, mais aucune version ne l'incluait avant la divulgation du 21 octobre, jour où Node.js et Google ont publié leurs mises à jour. Debian a corrigé son paquet trixie le 23 octobre ; Amazon Linux 2023 listait encore ses paquets comme en attente le 22 octobre. La faille a été signalée par l'équipe Codex Security d'OpenAI, et le correctif est l'œuvre des mainteneurs de Node.js Matteo Collina et Antoine du Hamel."
+    },
+    {
+     "type": "heading",
+     "level": 2,
+     "text": "Que faire"
+    },
+    {
+     "type": "list",
+     "items": [
+      "Mettre à jour vers une version corrigée, redémarrer les services et reconstruire les images de conteneurs, car un processus en cours conserve l'ancien décodeur.",
+      "Si le correctif est impossible, rejeter les requêtes portant `Content-Encoding: br`, désactiver le décodage Brotli automatique des clients ou désinstaller les paquets Python Brotli.",
+      "Ne pas compter sur le retrait de `br` de l'en-tête `Accept-Encoding` : cela ne protège pas, et aucun contournement n'est publié pour Node.js.",
+      "Vérifier à la main les versions installées : l'avis GitHub ne listait pas de paquet touché et les avis Python (PYSEC-2026-4322 et 4323) ne datent que du 23 octobre."
+     ]
+    },
+    {
+     "type": "usecases",
+     "title": "Exemples d'utilisation",
+     "items": [
+      {
+       "icon": "⚙️",
+       "title": "Équipe plateforme",
+       "text": "Inventorier les services Node.js, Bun, Envoy et Istio, appliquer les versions corrigées puis redéployer les images pour que le nouveau décodeur soit réellement chargé."
+      },
+      {
+       "icon": "🐍",
+       "title": "Développeur Python",
+       "text": "Vérifier avec `pip list` la présence de `Brotli` ou `brotlicffi` et passer en 1.2.1 ou plus, même si le code n'appelle jamais Brotli directement."
+      },
+      {
+       "icon": "🛡️",
+       "title": "Exploitant d'une passerelle",
+       "text": "Contrôler si la décompression Brotli est activée sur Envoy ou Istio et la couper temporairement si la mise à jour doit attendre."
+      }
+     ]
+    },
+    {
+     "type": "timeline",
+     "title": "D'où l'on vient, où l'on va",
+     "items": [
+      {
+       "label": "27 février 2026",
+       "text": "Le correctif entre dans le code source de Brotli, sans publication de version."
+      },
+      {
+       "label": "21 octobre 2026",
+       "text": "Divulgation : Node.js et Google publient leurs mises à jour."
+      },
+      {
+       "label": "23 octobre 2026",
+       "text": "Imperva présente Node2Shell ; Debian corrige trixie ; avis Python publiés."
+      },
+      {
+       "label": "24 octobre 2026",
+       "text": "The Hacker News détaille l'étendue : Bun, Python, Envoy, Istio."
+      }
+     ]
+    },
+    {
+     "type": "opinion",
+     "title": "Notre avis",
+     "paragraphs": [
+      "Ce dossier montre le coût des dépendances « vendorisées » : un même défaut se retrouve dans de multiples copies, et les outils de suivi n'en voient qu'une partie. Les avis incomplets de GitHub et la parution tardive des avis Python sont un rappel concret que l'absence d'alerte n'est pas une preuve d'absence de risque.",
+      "À un à trois ans, on peut espérer des nomenclatures logicielles (SBOM) plus précises et des publications de correctifs plus rapides après une correction de code ; c'est un souhait argumenté, non un engagement des éditeurs. À court terme, la bonne pratique reste d'inventorier ses couches de décompression, surtout côté client HTTP."
+     ],
+     "verdict": "Une démonstration sur Node.js a révélé un défaut partagé : il faut corriger Brotli partout où il est embarqué."
+    },
+    {
+     "type": "callout",
+     "title": "À retenir",
+     "text": "Aucune exploitation réelle n'est signalée à ce jour selon The Hacker News ; l'exploit d'Imperva n'est pas public."
+    }
+   ]
+  },
+  {
+   "id": "railway-secrets-incident-rotation-identifiants",
+   "category": "devops",
+   "icon": "🚂",
+   "importance": 4,
+   "title": "Railway demande de renouveler tous les secrets après un accès possible aux variables d'environnement, déploiements suspendus",
+   "summary": "La plateforme d'hébergement dit qu'un tiers a pu atteindre des variables d'environnement chiffrées, et parfois leur contenu déchiffré. Elle conseille de changer toutes les clés, y compris celles des registres privés.",
+   "tags": [
+    "Railway",
+    "secrets",
+    "variables d’environnement",
+    "hébergement",
+    "incident"
+   ],
+   "readingMinutes": 3,
+   "publishedAt": "2026-10-24T11:18:14+02:00",
+   "sourceDate": "2026-10-22",
+   "sources": [
+    {
+     "title": "Railway warns devs to rotate secrets after potential breach",
+     "url": "https://www.bleepingcomputer.com/news/security/railway-warns-devs-to-rotate-secrets-after-potential-breach/",
+     "publisher": "BleepingComputer"
+    }
+   ],
+   "illustration": {
+    "svg": "<svg xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"0 0 640 360\"><defs><linearGradient id=\"g\" x1=\"0\" y1=\"0\" x2=\"1\" y2=\"1\"><stop offset=\"0\" stop-color=\"hsl(160,62%,30%)\"/><stop offset=\"1\" stop-color=\"hsl(185,68%,48%)\"/></linearGradient></defs><rect width=\"640\" height=\"360\" fill=\"url(#g)\"/><circle cx=\"570\" cy=\"50\" r=\"90\" fill=\"#fff\" fill-opacity=\".07\"/><circle cx=\"60\" cy=\"330\" r=\"110\" fill=\"#fff\" fill-opacity=\".06\"/><g fill=\"none\" stroke=\"#fff\" stroke-width=\"5\" stroke-linecap=\"round\" stroke-linejoin=\"round\"><rect x=\"255\" y=\"170\" width=\"130\" height=\"100\" rx=\"14\"/><path d=\"M280 170 V140 C280 100 360 100 360 140 V170\"/><circle cx=\"320\" cy=\"220\" r=\"10\"/></g><text x=\"565\" y=\"325\" text-anchor=\"middle\" font-size=\"50\">🚂</text></svg>"
+   },
+   "blocks": [
+    {
+     "type": "paragraph",
+     "text": "Un incident chez un hébergeur d'applications oblige des développeurs à faire le ménage dans leurs clés. Selon BleepingComputer, la plateforme **Railway** a détecté une activité suspecte sur des systèmes qui stockent les variables d'environnement de ses clients et leur demande de **renouveler tous leurs secrets**. L'activité a été repérée plus tôt dans la semaine du 19 octobre 2026, et Railway a suspendu les déploiements le temps de l'enquête."
+    },
+    {
+     "type": "heading",
+     "level": 2,
+     "text": "Ce que dit l'entreprise"
+    },
+    {
+     "type": "paragraph",
+     "text": "D'après les premiers éléments de l'enquête, un tiers non autorisé a pu accéder à des variables d'environnement chiffrées, et, pour certaines d'entre elles, obtenir le contenu déchiffré. Ces variables sont les réglages qu'une application lit au démarrage ; elles contiennent souvent des clés d'API, des identifiants de bases de données ou de registres de conteneurs. Un accès réussi peut donc donner prise sur d'autres systèmes que Railway lui-même."
+    },
+    {
+     "type": "paragraph",
+     "text": "L'incident semble s'inscrire dans une série d'attaques contre des fournisseurs d'inférence d'IA, c'est-à-dire des services qui exécutent des modèles et renvoient leurs réponses aux applications. Railway précise que ces fournisseurs ont été prévenus directement et invités à révoquer toutes leurs clés par précaution."
+    },
+    {
+     "type": "keyvalue",
+     "items": [
+      {
+       "label": "Plateforme",
+       "value": "Railway, environ 4,8 millions d'utilisateurs et plus de 16 millions de services selon BleepingComputer"
+      },
+      {
+       "label": "Données possiblement exposées",
+       "value": "Variables d'environnement, dont des clés d'API et des identifiants de bases de données et de registres"
+      },
+      {
+       "label": "Périmètre",
+       "value": "Un sous-ensemble d'utilisateurs, non encore précisé"
+      },
+      {
+       "label": "Mesure immédiate",
+       "value": "Déploiements suspendus pendant l'enquête"
+      }
+     ]
+    },
+    {
+     "type": "heading",
+     "level": 2,
+     "text": "Ce que Railway conseille"
+    },
+    {
+     "type": "diagram",
+     "svg": "<svg xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"0 0 640 168\" font-family=\"system-ui,sans-serif\"><rect width=\"640\" height=\"168\" rx=\"16\" fill=\"#eef2f7\"/><text x=\"320\" y=\"28\" text-anchor=\"middle\" font-size=\"15\" font-weight=\"700\" fill=\"#1f2a37\">Pourquoi un seul accès se propage</text><rect x=\"16.0\" y=\"48\" width=\"132.5\" height=\"96\" rx=\"12\" fill=\"hsl(160,45%,88%)\" stroke=\"hsl(160,45%,35%)\" stroke-width=\"1.5\"/><text x=\"82.2\" y=\"82\" text-anchor=\"middle\" font-size=\"13\" font-weight=\"700\" fill=\"#1f2a37\">Variables</text><text x=\"82.2\" y=\"106\" text-anchor=\"middle\" font-size=\"12\" fill=\"#1f2a37\">clés, mots de passe</text><path d=\"M152.5 96 h16 m-6 -6 l6 6 l-6 6\" fill=\"none\" stroke=\"#1f2a37\" stroke-width=\"2\" stroke-linecap=\"round\"/><rect x=\"174.5\" y=\"48\" width=\"132.5\" height=\"96\" rx=\"12\" fill=\"hsl(160,45%,88%)\" stroke=\"hsl(160,45%,35%)\" stroke-width=\"1.5\"/><text x=\"240.8\" y=\"82\" text-anchor=\"middle\" font-size=\"13\" font-weight=\"700\" fill=\"#1f2a37\">Railway</text><text x=\"240.8\" y=\"106\" text-anchor=\"middle\" font-size=\"12\" fill=\"#1f2a37\">stockage chiffré</text><path d=\"M311.0 96 h16 m-6 -6 l6 6 l-6 6\" fill=\"none\" stroke=\"#1f2a37\" stroke-width=\"2\" stroke-linecap=\"round\"/><rect x=\"333.0\" y=\"48\" width=\"132.5\" height=\"96\" rx=\"12\" fill=\"hsl(160,45%,88%)\" stroke=\"hsl(160,45%,35%)\" stroke-width=\"1.5\"/><text x=\"399.2\" y=\"82\" text-anchor=\"middle\" font-size=\"13\" font-weight=\"700\" fill=\"#1f2a37\">Accès tiers</text><text x=\"399.2\" y=\"106\" text-anchor=\"middle\" font-size=\"12\" fill=\"#1f2a37\">contenu parfois lu</text><path d=\"M469.5 96 h16 m-6 -6 l6 6 l-6 6\" fill=\"none\" stroke=\"#1f2a37\" stroke-width=\"2\" stroke-linecap=\"round\"/><rect x=\"491.5\" y=\"48\" width=\"132.5\" height=\"96\" rx=\"12\" fill=\"hsl(160,45%,88%)\" stroke=\"hsl(160,45%,35%)\" stroke-width=\"1.5\"/><text x=\"557.8\" y=\"82\" text-anchor=\"middle\" font-size=\"13\" font-weight=\"700\" fill=\"#1f2a37\">Autres systèmes</text><text x=\"557.8\" y=\"106\" text-anchor=\"middle\" font-size=\"12\" fill=\"#1f2a37\">bases, API, registres</text></svg>",
+     "alt": "Schéma : les variables d'environnement stockées chez Railway peuvent, si elles sont lues par un tiers, donner accès à des bases, des API et des registres.",
+     "caption": "Un accès aux secrets d'une plateforme peut s'étendre aux services tiers qu'ils protègent."
+    },
+    {
+     "type": "list",
+     "items": [
+      "Renouveler toutes les variables d'environnement et tous les secrets stockés sur la plateforme.",
+      "Renouveler les identifiants des registres privés de conteneurs.",
+      "Examiner les journaux des services associés pour repérer toute activité inhabituelle."
+     ]
+    },
+    {
+     "type": "paragraph",
+     "text": "Ces mesures valent même si un compte n'est pas confirmé comme compromis, car l'entreprise ne peut pas encore exclure une exposition pour l'ensemble de sa clientèle. Les utilisateurs dont le compte est confirmé touché seront contactés directement."
+    },
+    {
+     "type": "heading",
+     "level": 2,
+     "text": "Un retour à la normale progressif"
+    },
+    {
+     "type": "paragraph",
+     "text": "Selon la page d'état de Railway, mise à jour le 22 octobre à 8 h 44 UTC, les builds avaient repris pour les espaces Pro et Enterprise, tandis que les déploiements restaient retardés, avec de nombreuses files d'attente. Les builds n'avaient pas repris pour les espaces Hobby, Free et Trial. La reprise suit cet ordre, ce qui place les clients payants en premier."
+    },
+    {
+     "type": "usecases",
+     "title": "Exemples d'utilisation",
+     "items": [
+      {
+       "icon": "🔑",
+       "title": "Développeur indépendant",
+       "text": "Lister tous les services hébergés, régénérer chaque clé d'API et chaque mot de passe de base de données, puis les remplacer dans les variables avant de relancer les déploiements."
+      },
+      {
+       "icon": "🏢",
+       "title": "Équipe produit en PME",
+       "text": "Contacter les fournisseurs d'IA et de paiement dont les clés étaient sur la plateforme, et demander la révocation des anciennes clés ainsi que l'historique d'utilisation."
+      },
+      {
+       "icon": "📜",
+       "title": "Responsable sécurité",
+       "text": "Passer en revue les journaux d'accès des bases et des registres depuis le début de la semaine pour détecter d'éventuels usages de clés volées."
+      }
+     ]
+    },
+    {
+     "type": "timeline",
+     "title": "D'où l'on vient, où l'on va",
+     "items": [
+      {
+       "label": "Semaine du 19 octobre 2026",
+       "text": "Railway repère une activité suspecte sur les systèmes de stockage des variables."
+      },
+      {
+       "label": "22 octobre 2026",
+       "text": "Avis public : rotation des secrets recommandée, déploiements suspendus, reprise partielle des builds."
+      },
+      {
+       "label": "Prochains jours",
+       "text": "Railway doit contacter les comptes confirmés touchés et préciser le périmètre."
+      }
+     ]
+    },
+    {
+     "type": "opinion",
+     "title": "Notre avis",
+     "paragraphs": [
+      "Cet incident rappelle que les secrets d'une application ne sont jamais en sécurité qu'à hauteur du maillon le plus faible de la chaîne d'hébergement. Le fait que Railway demande une rotation générale plutôt que ciblée est prudent : sans périmètre établi, c'est la seule réponse défendable, au prix d'un travail réel pour les équipes.",
+      "À un ou trois ans, la tendance est à des secrets de courte durée, émis à la demande, qui limitent la valeur d'une fuite ; c'est une vision de l'évolution, pas une garantie des plateformes. Dès aujourd'hui, un inventaire à jour des clés utilisées permet de répondre à ce genre d'alerte en quelques heures."
+     ],
+     "verdict": "Renouveler les secrets, surveiller les journaux et prévoir dès maintenant une procédure de rotation rapide."
+    },
+    {
+     "type": "callout",
+     "title": "À retenir",
+     "text": "Les chiffres d'utilisateurs et de services proviennent de BleepingComputer ; Railway n'a pas encore précisé le nombre de comptes touchés."
+    }
+   ]
+  },
+  {
+   "id": "kimi-k3-1-pro-poids-ouverts-1-million-tokens",
+   "category": "ia",
+   "icon": "🌙",
+   "importance": 4,
+   "title": "Kimi K3.1 Pro : Moonshot AI annonce un modèle à poids ouverts de classe 3 000 milliards de paramètres et un million de jetons de contexte",
+   "summary": "Les poids complets sont promis pour le 4 novembre 2026. Les scores sont ceux de l'éditeur : 65,7 % à Terminal-Bench 4.0, une hallucination en nette baisse et des données de cybersécurité retirées de l'entraînement.",
+   "tags": [
+    "Kimi",
+    "Moonshot AI",
+    "modèle ouvert",
+    "agents de code",
+    "benchmarks"
+   ],
+   "readingMinutes": 4,
+   "publishedAt": "2026-10-24T11:18:14+02:00",
+   "sourceDate": "2026-10-23",
+   "sources": [
+    {
+     "title": "Kimi K3.1 Pro",
+     "url": "https://www.kimi.ai/blog/kimi-k3-1-pro",
+     "publisher": "Moonshot AI (kimi.ai)"
+    }
+   ],
+   "illustration": {
+    "svg": "<svg xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"0 0 640 360\"><defs><linearGradient id=\"g\" x1=\"0\" y1=\"0\" x2=\"1\" y2=\"1\"><stop offset=\"0\" stop-color=\"hsl(320,62%,30%)\"/><stop offset=\"1\" stop-color=\"hsl(345,68%,48%)\"/></linearGradient></defs><rect width=\"640\" height=\"360\" fill=\"url(#g)\"/><circle cx=\"570\" cy=\"50\" r=\"90\" fill=\"#fff\" fill-opacity=\".07\"/><circle cx=\"60\" cy=\"330\" r=\"110\" fill=\"#fff\" fill-opacity=\".06\"/><g fill=\"none\" stroke=\"#fff\" stroke-width=\"5\" stroke-linecap=\"round\" stroke-linejoin=\"round\"><circle cx=\"320\" cy=\"185\" r=\"70\"/><path d=\"M320 115 V255 M250 185 H390 M270 140 C300 160 340 160 370 140 M270 230 C300 210 340 210 370 230\"/><circle cx=\"250\" cy=\"185\" r=\"8\"/><circle cx=\"390\" cy=\"185\" r=\"8\"/><circle cx=\"320\" cy=\"115\" r=\"8\"/><circle cx=\"320\" cy=\"255\" r=\"8\"/></g><text x=\"565\" y=\"325\" text-anchor=\"middle\" font-size=\"50\">🌙</text></svg>"
+   },
+   "blocks": [
+    {
+     "type": "paragraph",
+     "text": "Moonshot AI a présenté **Kimi K3.1 Pro**, premier modèle de la série K3.1. L'entreprise le décrit comme son modèle à poids ouverts le plus performant de la classe des 3 000 milliards de paramètres, avec une fenêtre de contexte d'**un million de jetons**. Il s'agit d'une version de Kimi K3 réentraînée après coup avec nettement plus de calcul. Une variante, **K3.1 Pro Highspeed**, est annoncée comme deux à trois fois plus rapide. Tous les chiffres qui suivent sont ceux de l'éditeur, sans vérification indépendante."
+    },
+    {
+     "type": "heading",
+     "level": 2,
+     "text": "Ce que l'éditeur met en avant"
+    },
+    {
+     "type": "list",
+     "items": [
+      "**Code** : le modèle travaille avec Unity, Unreal Engine et Godot, des corrections rapides aux projets complets. Lors d'un test interne, il a construit un simulateur de marche humaine et amélioré lui-même son contrôleur.",
+      "**Création 3D** : il déduit formes et proportions d'une description, d'un croquis ou d'une image, et écrit des scripts pour des outils comme Blender ou la conception assistée par ordinateur. La fonction « 3D Make » est ouverte sur kimi.ai et dans l'application.",
+      "**Finance** : il prend en charge des flux complets, du filtrage à l'analyse de rentabilité.",
+      "**Exactitude** : des améliorations visent à réduire les hallucinations dans des tests de résistance internes."
+     ]
+    },
+    {
+     "type": "heading",
+     "level": 2,
+     "text": "Les résultats annoncés"
+    },
+    {
+     "type": "keyvalue",
+     "items": [
+      {
+       "label": "Terminal-Bench 4.0",
+       "value": "65,7 %, devant GPT-6 Astra (58,2 %) et juste derrière Claude Opus 5.5 (66,4 %)"
+      },
+      {
+       "label": "BenchCAD avec outils",
+       "value": "92,7 %, contre 96,2 % pour Claude Opus 5.5 et 95,9 % pour GPT-6 Astra"
+      },
+      {
+       "label": "OfficeQA Pro v2",
+       "value": "64,4, présenté comme l'état de l'art"
+      },
+      {
+       "label": "Hallucination (test difficile, avec outils)",
+       "value": "8,3 %, contre 23,4 % pour K3"
+      },
+      {
+       "label": "Hallucination sans outils",
+       "value": "5,4 %, contre 4,2 % pour GPT-6 Astra et 6,8 % pour Claude Opus 5.5"
+      }
+     ]
+    },
+    {
+     "type": "paragraph",
+     "text": "Moonshot précise que le test d'hallucination est un test de résistance et ne représente pas un taux d'erreur ordinaire. Sauf mention contraire, les résultats sont obtenus avec un effort de raisonnement maximal, une température de 1,0 et un top-p de 0,95."
+    },
+    {
+     "type": "diagram",
+     "svg": "<svg xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"0 0 640 164\" font-family=\"system-ui,sans-serif\"><rect width=\"640\" height=\"164\" rx=\"16\" fill=\"#eef2f7\"/><text x=\"320\" y=\"28\" text-anchor=\"middle\" font-size=\"15\" font-weight=\"700\" fill=\"#1f2a37\">Terminal-Bench 4.0 (scores annoncés par Moonshot)</text><text x=\"20\" y=\"65\" font-size=\"12.5\" fill=\"#1f2a37\">GPT-6 Astra</text><rect x=\"250\" y=\"48\" width=\"263.0\" height=\"26\" rx=\"6\" fill=\"hsl(320,50%,42%)\"/><text x=\"521.0\" y=\"66\" font-size=\"12.5\" font-weight=\"700\" fill=\"#1f2a37\">58,2 %</text><text x=\"20\" y=\"103\" font-size=\"12.5\" fill=\"#1f2a37\">Kimi K3.1 Pro</text><rect x=\"250\" y=\"86\" width=\"296.8\" height=\"26\" rx=\"6\" fill=\"hsl(320,50%,42%)\"/><text x=\"554.8\" y=\"104\" font-size=\"12.5\" font-weight=\"700\" fill=\"#1f2a37\">65,7 %</text><text x=\"20\" y=\"141\" font-size=\"12.5\" fill=\"#1f2a37\">Claude Opus 5.5</text><rect x=\"250\" y=\"124\" width=\"300.0\" height=\"26\" rx=\"6\" fill=\"hsl(320,50%,42%)\"/><text x=\"558.0\" y=\"142\" font-size=\"12.5\" font-weight=\"700\" fill=\"#1f2a37\">66,4 %</text></svg>",
+     "alt": "Graphique à barres : Terminal-Bench 4.0, GPT-6 Astra 58,2 %, Kimi K3.1 Pro 65,7 %, Claude Opus 5.5 66,4 %.",
+     "caption": "Scores publiés par l'éditeur, non vérifiés de façon indépendante."
+    },
+    {
+     "type": "heading",
+     "level": 2,
+     "text": "Cybersécurité : un modèle volontairement bridé"
+    },
+    {
+     "type": "paragraph",
+     "text": "Pour la version à poids ouverts, les données liées à la cybersécurité ont été retirées des phases d'entraînement intermédiaire et par renforcement. Sur le test xdev-bench-hard (pass@3), le modèle final atteint 81,0 %, contre 90,5 % pour la version sans mesures de réduction du risque. L'éditeur reconnaît rester derrière les modèles propriétaires de pointe publiés depuis au moins trois mois."
+    },
+    {
+     "type": "heading",
+     "level": 2,
+     "text": "Disponibilité"
+    },
+    {
+     "type": "paragraph",
+     "text": "Le modèle est accessible sur kimi.ai, dans les applications mobiles (iOS, Android, HarmonyOS), Kimi Work (version 3.1.0 ou plus, Windows et Mac à puce Apple), Kimi Code (commande `/model`) et l'API, avec les identifiants `kimi-k3.1-pro` et `kimi-k3.1-pro-highspeed`. La conservation nulle des données est proposée aux clients de l'API. Les administrateurs de Kimi Enterprise doivent l'activer, car il est désactivé par défaut. L'annonce ne donne aucun tarif ni aucune licence ; elle promet les **poids complets au plus tard le 4 novembre 2026**."
+    },
+    {
+     "type": "usecases",
+     "title": "Exemples d'utilisation",
+     "items": [
+      {
+       "icon": "🎮",
+       "title": "Studio de jeu indépendant",
+       "text": "Utiliser le modèle dans Godot ou Unity pour générer des prototypes de mécaniques, en relisant le code produit avant de l'intégrer au projet."
+      },
+      {
+       "icon": "📐",
+       "title": "Bureau d'études",
+       "text": "Tester la génération de modèles paramétriques et de scripts Blender ou CAO à partir d'un croquis, en gardant une validation humaine des dimensions."
+      },
+      {
+       "icon": "🏦",
+       "title": "Équipe de contrôle de gestion",
+       "text": "Évaluer le modèle sur des tâches de modélisation financière, en comparant ses résultats à ceux d'un analyste avant tout usage opérationnel."
+      }
+     ]
+    },
+    {
+     "type": "timeline",
+     "title": "D'où l'on vient, où l'on va",
+     "items": [
+      {
+       "label": "Octobre 2026",
+       "text": "Kimi K3.1 Pro et sa variante Highspeed sont annoncés (visuels datés du 23 octobre)."
+      },
+      {
+       "label": "Avant le 4 novembre 2026",
+       "text": "Moonshot promet la publication des poids complets."
+      },
+      {
+       "label": "À suivre",
+       "text": "Licence, tarifs et évaluations indépendantes, absents de l'annonce."
+      }
+     ]
+    },
+    {
+     "type": "opinion",
+     "title": "Notre avis",
+     "paragraphs": [
+      "L'annonce est ambitieuse mais repose entièrement sur des mesures internes ou choisies par l'éditeur. Le contexte d'un million de jetons et la promesse de poids ouverts sont des atouts réels pour qui veut héberger lui-même un modèle, à condition de pouvoir en assumer le coût de calcul, très élevé pour cette taille.",
+      "À un à trois ans, la question sera moins celle du score que de la gouvernance : retirer des données de cybersécurité de l'entraînement est une tentative de limiter les abus, mais l'écart de 81,0 % à 90,5 % suggère que l'effet est modeste. C'est une lecture critique, pas un constat établi."
+     ],
+     "verdict": "Un modèle ouvert prometteur sur le papier, à juger sur pièces quand les poids et les tests indépendants seront disponibles."
+    },
+    {
+     "type": "callout",
+     "title": "À retenir",
+     "text": "Résultats de l'éditeur, sans licence ni tarif publiés au moment de l'annonce ; les poids sont promis pour le 4 novembre 2026 au plus tard."
+    }
+   ],
+   "cover": {
+    "url": "https://kimi-img.kimi.ai/pub/slides/kimi-fs/managed-assets/9558f8d5-08fc-42de-8e4e-339076e03895.webp",
+    "alt": "Visuel d'annonce de Kimi K3.1 Pro par Moonshot AI",
+    "credit": "kimi.ai"
+   }
+  },
+  {
+   "id": "obs-studio-33-cef-150-nouveau-chargement-des-plugins",
+   "category": "dev",
+   "icon": "🎥",
+   "importance": 3,
+   "title": "OBS Studio 33 : moteur de navigateur CEF 150, nouveau dossier pour les plugins et abandon d'Ubuntu 24.04",
+   "summary": "La version 33.0.0 du logiciel libre de diffusion et d'enregistrement change l'emplacement des plugins, passe de CEF 127 à 150 et active NVENC sur Windows Arm64. Les plugins tiers actuels fonctionnent jusqu'à la version 34.",
+   "tags": [
+    "OBS Studio",
+    "logiciel libre",
+    "plugins",
+    "CEF",
+    "Windows Arm64"
+   ],
+   "readingMinutes": 4,
+   "publishedAt": "2026-10-24T11:18:14+02:00",
+   "sourceDate": "2026-10-23",
+   "sources": [
+    {
+     "title": "OBS Studio 33.0.0",
+     "url": "https://github.com/obsproject/obs-studio/releases/tag/33.0.0",
+     "publisher": "GitHub (obsproject)"
+    }
+   ],
+   "illustration": {
+    "svg": "<svg xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"0 0 640 360\"><defs><linearGradient id=\"g\" x1=\"0\" y1=\"0\" x2=\"1\" y2=\"1\"><stop offset=\"0\" stop-color=\"hsl(265,62%,30%)\"/><stop offset=\"1\" stop-color=\"hsl(290,68%,48%)\"/></linearGradient></defs><rect width=\"640\" height=\"360\" fill=\"url(#g)\"/><circle cx=\"570\" cy=\"50\" r=\"90\" fill=\"#fff\" fill-opacity=\".07\"/><circle cx=\"60\" cy=\"330\" r=\"110\" fill=\"#fff\" fill-opacity=\".06\"/><g fill=\"none\" stroke=\"#fff\" stroke-width=\"5\" stroke-linecap=\"round\" stroke-linejoin=\"round\"><path d=\"M270 140 L220 190 L270 240 M370 140 L420 190 L370 240 M345 115 L295 265\"/></g><text x=\"565\" y=\"325\" text-anchor=\"middle\" font-size=\"50\">🎥</text></svg>"
+   },
+   "blocks": [
+    {
+     "type": "paragraph",
+     "text": "Le projet **OBS Studio**, logiciel libre très répandu pour l'enregistrement vidéo et la diffusion en direct, a publié la version **33.0.0** le 23 octobre. D'après les notes de version, il s'agit d'une mise à jour surtout technique : le moteur de navigateur embarqué fait un grand bond, l'organisation des plugins change, et plusieurs dépendances anciennes disparaissent. Les utilisateurs de sources navigateur, de plugins tiers ou de Linux sont les premiers concernés."
+    },
+    {
+     "type": "heading",
+     "level": 2,
+     "text": "Les nouveautés principales"
+    },
+    {
+     "type": "list",
+     "items": [
+      "**CEF 150** : le framework derrière les sources et les docks navigateur passe de la version 127 à la 150. Le changement ne touche que le moteur interne, mais les mainteneurs demandent de signaler tout nouveau problème avec une source navigateur.",
+      "**Plugins** : les extensions fournies avec OBS vivent désormais dans un dossier `core`, et les plugins tiers disposent d'un nouvel emplacement et d'une nouvelle structure. Les anciens emplacements restent pris en charge jusqu'à OBS Studio 34.0.",
+      "**Alignement des sources** : l'aimantation dans l'aperçu a un nouvel indicateur visuel, fonctionne sur tout l'axe et ignore les sources masquées.",
+      "**Champs numériques** : la saisie n'est plus bloquée dans certains cas, les valeurs s'appliquent avec Entrée sans fermer la fenêtre, et Maj + flèches avance par grands pas.",
+      "**NVENC sur Arm64** : l'encodeur matériel de NVIDIA est activé sur les builds Arm64."
+     ]
+    },
+    {
+     "type": "heading",
+     "level": 2,
+     "text": "Autres changements notables"
+    },
+    {
+     "type": "paragraph",
+     "text": "Le mode sans échec ne démarre plus le serveur WebSocket, et les plugins tiers n'y sont plus chargés du tout. Les derniers kits NVIDIA Broadcast (audio et vidéo) sont pris en charge, de nouveaux raccourcis contrôlent l'écoute audio d'une source, et un encodeur manquant est vérifié au chargement d'un profil. La capture de jeu détecte mieux les jeux en plein écran, et la capture d'écran macOS gère mieux la transparence. Côté corrections, les notes citent des plantages au démarrage sous macOS 27.2, avec un cache de shaders invalide, lors du retrait d'un micro USB sous Linux ou au changement vers un profil tout juste créé, ainsi qu'un blocage possible lors de tâches vidéo et audio et un décalage des images B avec AMF pouvant couper une diffusion."
+    },
+    {
+     "type": "heading",
+     "level": 2,
+     "text": "Plateformes et dépendances"
+    },
+    {
+     "type": "keyvalue",
+     "items": [
+      {
+       "label": "Windows",
+       "value": "Compilation avec Visual Studio 2026 et le SDK 26100 ; versions Arm64 et x64"
+      },
+      {
+       "label": "Linux",
+       "value": "Ubuntu 24.04 n'est plus pris en charge ; un paquet Ubuntu 26.04 x86_64 est fourni"
+      },
+      {
+       "label": "macOS",
+       "value": "Images disque pour Intel et Apple Silicon"
+      },
+      {
+       "label": "Dépendances retirées",
+       "value": "FFmpeg 6.x et 7.x, Qt 6.4 à 6.9 ; MbedTLS 3 est requis (la 4 et au-delà sont exclues)"
+      }
+     ]
+    },
+    {
+     "type": "heading",
+     "level": 2,
+     "text": "Pour les développeurs de plugins"
+    },
+    {
+     "type": "paragraph",
+     "text": "La mise à jour apporte un nouveau signal de sauvegarde du tampon de rediffusion, la fonction `obs_frontend_is_safe_mode` et `obs_canvas_video_active()`. Un changement incompatible touche les plugins qui utilisent `gs_image_file` : libnsgif passe en version 1.0.0. Les API de type `monitoring_type` de l'écoute audio sont dépréciées au profit d'un booléen `monitoring_enabled`. Les versions minimales des chaînes de compilation augmentent et clang-format passe en 22.1.3."
+    },
+    {
+     "type": "usecases",
+     "title": "Exemples d'utilisation",
+     "items": [
+      {
+       "icon": "📺",
+       "title": "Streameur avec incrustations web",
+       "text": "Tester ses alertes et widgets navigateur dans OBS 33 avant un direct important, et signaler tout affichage cassé à l'équipe."
+      },
+      {
+       "icon": "🧩",
+       "title": "Auteur de plugin",
+       "text": "Adapter son extension au nouveau dossier d'installation et vérifier l'usage de `gs_image_file` avant la disparition des anciens emplacements dans la version 34."
+      },
+      {
+       "icon": "💻",
+       "title": "Utilisateur Linux sous Ubuntu 24.04",
+       "text": "Prévoir une mise à niveau vers Ubuntu 26.04 ou conserver la version précédente d'OBS, puisque la 24.04 n'est plus prise en charge."
+      }
+     ]
+    },
+    {
+     "type": "timeline",
+     "title": "D'où l'on vient, où l'on va",
+     "items": [
+      {
+       "label": "Avant OBS 33",
+       "text": "Plugins tiers installés dans des emplacements historiques."
+      },
+      {
+       "label": "23 octobre 2026",
+       "text": "Publication de la version 33.0.0 avec CEF 150 et le nouveau dossier `core`."
+      },
+      {
+       "label": "OBS Studio 34.0",
+       "text": "Fin annoncée du chargement des plugins tiers depuis les anciens emplacements."
+      }
+     ]
+    },
+    {
+     "type": "opinion",
+     "title": "Notre avis",
+     "paragraphs": [
+      "Le saut de CEF 127 à 150 est le risque principal de cette version : les sources navigateur servent à beaucoup d'alertes de diffusion, et un changement de moteur fait rarement l'unanimité. Le projet l'assume en le disant clairement, et en laissant une période de transition pour les plugins, ce qui est une bonne pratique de gestion de la compatibilité.",
+      "À un à trois ans, la réorganisation des plugins devrait faciliter la distribution et le contrôle de ce qui est chargé, notamment en mode sans échec. C'est une analyse de la direction prise, pas une fonction annoncée."
+     ],
+     "verdict": "Une version de maintenance structurante : à tester avant un direct, surtout avec des plugins ou des sources navigateur."
+    },
+    {
+     "type": "callout",
+     "title": "À retenir",
+     "text": "Les notes de version publiées sur GitHub ne précisent pas l'année de la date du 23 octobre ; l'information est lue sur la page de la version 33.0.0."
+    }
+   ]
+  },
+  {
+   "id": "uv-check-ty-integration-experimentale",
+   "category": "dev",
+   "icon": "🐍",
+   "importance": 3,
+   "title": "uv et ty : Astral relie gestionnaire de paquets et vérificateur de types avec la commande expérimentale « uv check »",
+   "summary": "L'intégration, en préversion, permet de typer chaque script PEP 723 avec ses propres dépendances et prépare une commande unique qui réunira ty puis Ruff. Elle exige uv 0.12.3 et ty 0.0.76 au minimum.",
+   "tags": [
+    "Python",
+    "uv",
+    "ty",
+    "Astral",
+    "PEP 723"
+   ],
+   "readingMinutes": 4,
+   "publishedAt": "2026-10-24T11:18:14+02:00",
+   "sourceDate": "2026-10-13",
+   "sources": [
+    {
+     "title": "Bringing uv and ty together",
+     "url": "https://astral.sh/blog/uv-ty-integration",
+     "publisher": "Astral"
+    }
+   ],
+   "illustration": {
+    "svg": "<svg xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"0 0 640 360\"><defs><linearGradient id=\"g\" x1=\"0\" y1=\"0\" x2=\"1\" y2=\"1\"><stop offset=\"0\" stop-color=\"hsl(265,62%,30%)\"/><stop offset=\"1\" stop-color=\"hsl(290,68%,48%)\"/></linearGradient></defs><rect width=\"640\" height=\"360\" fill=\"url(#g)\"/><circle cx=\"570\" cy=\"50\" r=\"90\" fill=\"#fff\" fill-opacity=\".07\"/><circle cx=\"60\" cy=\"330\" r=\"110\" fill=\"#fff\" fill-opacity=\".06\"/><g fill=\"none\" stroke=\"#fff\" stroke-width=\"5\" stroke-linecap=\"round\" stroke-linejoin=\"round\"><path d=\"M270 140 L220 190 L270 240 M370 140 L420 190 L370 240 M345 115 L295 265\"/></g><text x=\"565\" y=\"325\" text-anchor=\"middle\" font-size=\"50\">🐍</text></svg>"
+   },
+   "blocks": [
+    {
+     "type": "paragraph",
+     "text": "Astral, l'éditeur des outils Python **uv** (gestion des paquets et des environnements) et **ty** (vérificateur de types), a présenté une intégration expérimentale entre les deux, en préversion. L'article d'annonce date du 13 octobre 2026 et circulait encore beaucoup le 24 octobre dans les discussions de développeurs. L'idée : uv connaît l'environnement et les dépendances d'un projet, ty comprend le code, et les deux deviennent plus utiles ensemble tout en restant utilisables séparément."
+    },
+    {
+     "type": "heading",
+     "level": 2,
+     "text": "Les scripts Python à part entière"
+    },
+    {
+     "type": "paragraph",
+     "text": "L'intégration s'appuie sur la **PEP 723**, qui permet à un script de déclarer ses dépendances et sa version de Python dans des métadonnées en ligne. uv les lisait déjà pour préparer un environnement au lancement. Désormais ty les lit aussi : en ligne de commande comme dans l'éditeur, il retrouve les scripts d'un projet et demande à uv de préparer un environnement distinct pour chacun. Chaque script est vérifié avec ses propres dépendances, même si elles diffèrent de celles du projet."
+    },
+    {
+     "type": "paragraph",
+     "text": "Dans VS Code, ty lance uv en arrière-plan, ce qui apporte vérification de types, navigation dans le code et complétion fondées sur les dépendances déclarées par chaque script. Astral prévoit d'en faire le comportement par défaut et d'étendre la préparation automatique aux projets Python classiques."
+    },
+    {
+     "type": "heading",
+     "level": 2,
+     "text": "La commande « uv check »"
+    },
+    {
+     "type": "paragraph",
+     "text": "`uv check` est une nouvelle interface de diagnostic unifiée, qui commence avec ty. Elle prépare l'environnement du projet, installe les dépendances puis lance ty. Astral prévoit d'y ajouter Ruff pour réunir analyse statique et vérification de types dans une seule commande. Le binaire de ty est installé séparément à la première utilisation, et ceux qui n'emploient pas la commande ne voient aucun changement."
+    },
+    {
+     "type": "list",
+     "items": [
+      "`uv check --package <nom>` vérifie un seul paquet d'un espace de travail.",
+      "`uv check --all-packages` vérifie tous les paquets de l'espace de travail.",
+      "`uv check --script exemple.py` vérifie un script autonome avec ses propres dépendances."
+     ]
+    },
+    {
+     "type": "paragraph",
+     "text": "La commande utilise la version de ty enregistrée dans le fichier de verrouillage, de sorte que développeurs et intégration continue partagent la même version sans épingler quoi que ce soit en plus. Le crochet de pré-validation de ty exécute lui aussi `uv check` en interne."
+    },
+    {
+     "type": "heading",
+     "level": 2,
+     "text": "Comment l'essayer, et ses limites"
+    },
+    {
+     "type": "paragraph",
+     "text": "Dans VS Code, il faut installer uv et l'extension ty, puis ajouter `\"ty.experimental.useUv\": \"on\"` aux réglages. En ligne de commande, `TY_UV=scripts ty check` vérifie le projet et ses scripts, tandis que `uv check` active l'intégration automatiquement. Les versions minimales sont uv 0.12.3 et ty 0.0.76. Comme l'installation de dépendances peut exécuter du code tiers, la préparation automatique des environnements reste volontairement optionnelle. Astral précise que l'intégration est expérimentale, demande des retours et travaille en parallèle à la version stable de ty ; des vérifications croisant dépendances et code, comme la détection de dépendances inutilisées, sont annoncées pour un prochain article."
+    },
+    {
+     "type": "usecases",
+     "title": "Exemples d'utilisation",
+     "items": [
+      {
+       "icon": "📜",
+       "title": "Auteur de scripts d'automatisation",
+       "text": "Déclarer ses dépendances en tête de fichier (PEP 723) et obtenir dans l'éditeur une vérification de types adaptée à ce script, sans environnement global à maintenir."
+      },
+      {
+       "icon": "👥",
+       "title": "Équipe avec un dépôt multi-paquets",
+       "text": "Lancer `uv check --all-packages` en intégration continue pour contrôler tous les paquets avec une version de ty unique, celle du fichier de verrouillage."
+      },
+      {
+       "icon": "🔬",
+       "title": "Mainteneur d'une bibliothèque",
+       "text": "Brancher le crochet de pré-validation de ty, qui appelle `uv check`, afin que le contrôle local et celui de l'intégration continue donnent les mêmes résultats."
+      }
+     ]
+    },
+    {
+     "type": "timeline",
+     "title": "D'où l'on vient, où l'on va",
+     "items": [
+      {
+       "label": "Avant l'annonce",
+       "text": "uv préparait déjà l'environnement des scripts PEP 723 ; ty vérifiait le code séparément."
+      },
+      {
+       "label": "13 octobre 2026",
+       "text": "Astral annonce l'intégration expérimentale et la commande `uv check`."
+      },
+      {
+       "label": "À venir",
+       "text": "Ajout de Ruff à `uv check`, activation par défaut des scripts, détection de dépendances inutilisées."
+      }
+     ]
+    },
+    {
+     "type": "opinion",
+     "title": "Notre avis",
+     "paragraphs": [
+      "Rapprocher l'installation et l'analyse est cohérent : de nombreuses erreurs de typage viennent d'un environnement mal préparé, pas du code. Faire porter la version de ty par le fichier de verrouillage règle aussi un irritant fréquent, celui des résultats qui diffèrent entre le poste et l'intégration continue.",
+      "À un à trois ans, une chaîne d'outils unifiée par un seul éditeur peut simplifier le quotidien, mais elle crée aussi une dépendance forte à ses choix. C'est un compromis à peser, d'autant que l'intégration est encore expérimentale."
+     ],
+     "verdict": "Une intégration utile pour les scripts et les dépôts multi-paquets, à essayer avec prudence tant qu'elle reste en préversion."
+    },
+    {
+     "type": "callout",
+     "title": "À retenir",
+     "text": "Annonce du 13 octobre 2026 ; fonctions expérimentales, versions minimales : uv 0.12.3 et ty 0.0.76."
+    }
+   ],
+   "cover": {
+    "url": "https://astral.sh/static/OpenGraph/Uv_Ty_Integration.png",
+    "alt": "Visuel de l'annonce de l'intégration entre uv et ty par Astral",
+    "credit": "astral.sh"
+   }
+  },
+  {
+   "id": "zotac-zbox-pro-cm5-pico-mini-pc-industriel-raspberry-pi",
+   "category": "electronique",
+   "icon": "🖥️",
+   "importance": 3,
+   "title": "ZOTAC ZBOX PRO CM5-PICO : un mini-PC industriel sans ventilateur construit sur le Raspberry Pi Compute Module 5",
+   "summary": "Boîtier en aluminium de 114,8 × 76 × 31,3 mm, deux sorties HDMI 4K, Ethernet gigabit et port M.2 pour SSD NVMe ou accélérateur d'IA. Prix et disponibilité restent à demander à un distributeur japonais.",
+   "tags": [
+    "Raspberry Pi CM5",
+    "ZOTAC",
+    "mini-PC industriel",
+    "embarqué",
+    "NVMe"
+   ],
+   "readingMinutes": 3,
+   "publishedAt": "2026-10-24T11:18:14+02:00",
+   "sourceDate": "2026-10-24",
+   "sources": [
+    {
+     "title": "ZOTAC ZBOX PRO CM5-PICO – A compact Raspberry Pi CM5-based fanless industrial mini PC",
+     "url": "https://www.cnx-software.com/2026/10/24/zotac-zbox-pro-cm5-pico-a-compact-raspberry-pi-cm5-based-fanless-industrial-mini-pc/",
+     "publisher": "CNX Software"
+    }
+   ],
+   "illustration": {
+    "svg": "<svg xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"0 0 640 360\"><defs><linearGradient id=\"g\" x1=\"0\" y1=\"0\" x2=\"1\" y2=\"1\"><stop offset=\"0\" stop-color=\"hsl(30,62%,30%)\"/><stop offset=\"1\" stop-color=\"hsl(55,68%,48%)\"/></linearGradient></defs><rect width=\"640\" height=\"360\" fill=\"url(#g)\"/><circle cx=\"570\" cy=\"50\" r=\"90\" fill=\"#fff\" fill-opacity=\".07\"/><circle cx=\"60\" cy=\"330\" r=\"110\" fill=\"#fff\" fill-opacity=\".06\"/><g fill=\"none\" stroke=\"#fff\" stroke-width=\"5\" stroke-linecap=\"round\" stroke-linejoin=\"round\"><rect x=\"250\" y=\"110\" width=\"140\" height=\"140\" rx=\"14\"/><rect x=\"290\" y=\"150\" width=\"60\" height=\"60\" rx=\"6\"/><path d=\"M280 110v-30M320 110v-30M360 110v-30M280 250v30M320 250v30M360 250v30M250 140h-30M250 180h-30M250 220h-30M390 140h30M390 180h30M390 220h30\"/></g><text x=\"565\" y=\"325\" text-anchor=\"middle\" font-size=\"50\">🖥️</text></svg>"
+   },
+   "blocks": [
+    {
+     "type": "paragraph",
+     "text": "Après les cartes de développement, les petits boîtiers prêts à poser : **ZOTAC** propose le **ZBOX PRO CM5-PICO**, un mini-PC industriel sans ventilateur construit autour du **Raspberry Pi Compute Module 5** (CM5). Selon CNX Software, qui le présente le 24 octobre 2026, c'est le premier ordinateur industriel de ZOTAC fondé sur ce module. Il vise l'automatisation, l'affichage dynamique et les passerelles IoT."
+    },
+    {
+     "type": "heading",
+     "level": 2,
+     "text": "Ce que contient le boîtier"
+    },
+    {
+     "type": "paragraph",
+     "text": "Le module CM5 embarque le processeur Broadcom BCM2712, quatre cœurs Arm Cortex-A76 à 2,4 GHz, et un GPU VideoCore VII à 800 MHz avec décodage vidéo H.265 matériel. Le boîtier mesure 114,8 × 76 × 31,3 mm pour 0,27 litre et environ 250 grammes. Toutes les connexions sont placées sur une seule face, afin de simplifier le câblage et l'empilement des appareils."
+    },
+    {
+     "type": "keyvalue",
+     "items": [
+      {
+       "label": "Mémoire",
+       "value": "2, 4, 8 ou 16 Go de LPDDR4x"
+      },
+      {
+       "label": "Stockage",
+       "value": "0 Go (Lite) avec lecteur microSD, ou 16, 32 ou 64 Go d'eMMC ; port M.2 2280 M-Key PCIe Gen2 x1"
+      },
+      {
+       "label": "Affichage",
+       "value": "2 sorties HDMI 2.1 jusqu'en 4K à 60 Hz, 2 connecteurs internes MIPI CSI-2/DSI"
+      },
+      {
+       "label": "Réseau",
+       "value": "Ethernet gigabit avec PTP, Wi-Fi 5 et Bluetooth 5.0 en option, modem LTE Cat 1 bis Quectel EG916Q-GL en option"
+      },
+      {
+       "label": "USB",
+       "value": "2 ports USB 3.2 Type-A et 1 port USB-C pour les mises à jour du micrologiciel"
+      },
+      {
+       "label": "Alimentation",
+       "value": "5 à 20 V continu"
+      },
+      {
+       "label": "Température de fonctionnement",
+       "value": "−20 °C à +55 °C"
+      }
+     ]
+    },
+    {
+     "type": "heading",
+     "level": 2,
+     "text": "Expansion et robustesse"
+    },
+    {
+     "type": "diagram",
+     "svg": "<svg xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"0 0 640 202\" font-family=\"system-ui,sans-serif\"><rect width=\"640\" height=\"202\" rx=\"16\" fill=\"#eef2f7\"/><text x=\"320\" y=\"28\" text-anchor=\"middle\" font-size=\"15\" font-weight=\"700\" fill=\"#1f2a37\">Mémoire disponible (Go de LPDDR4x)</text><text x=\"20\" y=\"65\" font-size=\"12.5\" fill=\"#1f2a37\">Version de base</text><rect x=\"250\" y=\"48\" width=\"37.5\" height=\"26\" rx=\"6\" fill=\"hsl(30,50%,42%)\"/><text x=\"295.5\" y=\"66\" font-size=\"12.5\" font-weight=\"700\" fill=\"#1f2a37\">2 Go</text><text x=\"20\" y=\"103\" font-size=\"12.5\" fill=\"#1f2a37\">Intermédiaire</text><rect x=\"250\" y=\"86\" width=\"75.0\" height=\"26\" rx=\"6\" fill=\"hsl(30,50%,42%)\"/><text x=\"333.0\" y=\"104\" font-size=\"12.5\" font-weight=\"700\" fill=\"#1f2a37\">4 Go</text><text x=\"20\" y=\"141\" font-size=\"12.5\" fill=\"#1f2a37\">Confortable</text><rect x=\"250\" y=\"124\" width=\"150.0\" height=\"26\" rx=\"6\" fill=\"hsl(30,50%,42%)\"/><text x=\"408.0\" y=\"142\" font-size=\"12.5\" font-weight=\"700\" fill=\"#1f2a37\">8 Go</text><text x=\"20\" y=\"179\" font-size=\"12.5\" fill=\"#1f2a37\">Maximum</text><rect x=\"250\" y=\"162\" width=\"300.0\" height=\"26\" rx=\"6\" fill=\"hsl(30,50%,42%)\"/><text x=\"558.0\" y=\"180\" font-size=\"12.5\" font-weight=\"700\" fill=\"#1f2a37\">16 Go</text></svg>",
+     "alt": "Graphique à barres des capacités de mémoire proposées : 2, 4, 8 et 16 Go.",
+     "caption": "Capacités de LPDDR4x proposées selon CNX Software."
+    },
+    {
+     "type": "paragraph",
+     "text": "Le boîtier garde un connecteur interne à 40 broches compatible Raspberry Pi, un en-tête série RS-232, une sortie de débogage UART0 et un en-tête pour ventilateur. Le watchdog du processeur, une horloge temps réel avec pile CR2032 et des diodes de protection contre les décharges électrostatiques complètent la liste. Un bouton de récupération nRPIBOOT et un en-tête de remplacement de l'EEPROM facilitent la maintenance. Le refroidissement est entièrement passif par l'enveloppe en aluminium."
+    },
+    {
+     "type": "heading",
+     "level": 2,
+     "text": "Logiciel et positionnement"
+    },
+    {
+     "type": "paragraph",
+     "text": "La machine est livrée avec Raspberry Pi OS fondé sur Debian 13 et prend aussi en charge Ubuntu pour Raspberry Pi, Twister OS, Emteria Android, LibreELEC et Home Assistant OS. Les bibliothèques GPIO et les interfaces caméra du monde Raspberry Pi restent utilisables. Face à des concurrents comme le Waveshare IPCBOX-CM5 (deux ports Ethernet, RS485/RS232, bus CAN) ou la série EDATEC ED-IPC3100, ZOTAC mise sur la double sortie 4K, l'agencement des ports sur une face et la compacité. L'entreprise l'avait montré au salon ISE 2026, annonce une disponibilité d'approvisionnement jusqu'en janvier 2036 et fournit un adaptateur secteur, des antennes sur les modèles sans fil et une équerre de fixation."
+    },
+    {
+     "type": "paragraph",
+     "text": "Côté commercialisation, le distributeur japonais Ask Corporation le référence mais renvoie vers lui pour le prix et la disponibilité : aucun tarif n'est publié dans l'article."
+    },
+    {
+     "type": "usecases",
+     "title": "Exemples d'utilisation",
+     "items": [
+      {
+       "icon": "🪧",
+       "title": "Affichage dynamique",
+       "text": "Piloter deux écrans 4K en boutique ou en gare avec un boîtier silencieux, sans pièce mobile, alimenté en basse tension."
+      },
+      {
+       "icon": "🏭",
+       "title": "Interface opérateur en atelier",
+       "text": "Relier des capteurs au connecteur GPIO et à la liaison série, afficher un tableau de bord et dialoguer avec des automates via Ethernet."
+      },
+      {
+       "icon": "📡",
+       "title": "Passerelle IoT",
+       "text": "Ajouter un modem LTE et un SSD NVMe pour collecter, mémoriser et transmettre des mesures depuis un site sans réseau fixe, entre −20 °C et +55 °C."
+      }
+     ]
+    },
+    {
+     "type": "timeline",
+     "title": "D'où l'on vient, où l'on va",
+     "items": [
+      {
+       "label": "Début 2026",
+       "text": "ZOTAC présente le ZBOX PRO CM5-PICO au salon ISE 2026."
+      },
+      {
+       "label": "24 octobre 2026",
+       "text": "CNX Software détaille ses caractéristiques ; prix et disponibilité à demander à un distributeur."
+      },
+      {
+       "label": "Janvier 2036",
+       "text": "Date jusqu'à laquelle ZOTAC annonce un approvisionnement garanti."
+      }
+     ]
+    },
+    {
+     "type": "opinion",
+     "title": "Notre avis",
+     "paragraphs": [
+      "La valeur de ce type de boîtier tient moins au processeur qu'à ce qui l'entoure : alimentation large, protections, boîtier métallique, durée de vie annoncée de dix ans. C'est ce qui sépare un prototype sur table d'un équipement qu'on laisse fonctionner en armoire.",
+      "À un à trois ans, la multiplication de boîtiers industriels fondés sur Raspberry Pi devrait tirer les prix vers le bas, mais aussi poser la question du support long terme du logiciel ; c'est une opinion, non une annonce de ZOTAC. L'absence de tarif empêche pour l'instant toute comparaison chiffrée."
+     ],
+     "verdict": "Un boîtier industriel compact et soigné, dont l'intérêt dépendra du prix encore inconnu."
+    },
+    {
+     "type": "callout",
+     "title": "À retenir",
+     "text": "Caractéristiques rapportées par CNX Software le 24 octobre 2026 ; tarif non publié."
+    }
+   ],
+   "cover": {
+    "url": "https://www.cnx-software.com/wp-content/uploads/2026/10/Zotac-ZBOX-PRO-CM5-PICO.jpg",
+    "alt": "Mini-PC industriel ZOTAC ZBOX PRO CM5-PICO",
+    "credit": "cnx-software.com"
+   }
+  }
+ ]
+}
