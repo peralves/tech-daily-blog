@@ -1,0 +1,1730 @@
+{
+ "schemaVersion": "1.0",
+ "date": "2026-10-25",
+ "generatedAt": "2026-10-25T10:19:42+01:00",
+ "title": "Failles sur les pare-feu et Arista, fuite chez Capcom, Cerebras, langages Goose et Jac, Brotli, Raspberry Pi Desktop et robot RP1",
+ "summary": "Édition tech du dimanche 25 octobre 2026 : trois alertes de cybersécurité (équipements de bordure, SD-WAN, jeu vidéo), l'inférence de modèles géants sur Cerebras, un langage pour agents, un essai sur l'ambition logicielle, un plan d'action contre la faille Brotli et deux projets de matériel ouvert.",
+ "highlights": [
+  "k0t : plus de 70 000 identifiants volés sur des pare-feu Fortinet et Palo Alto, avec des liens présumés vers Qilin et The Gentlemen",
+  "Arista corrige CVE-2026-114625, zero-day exploité de VeloCloud Orchestrator, quatrième de l'année",
+  "Capcom confirme l'exposition de plus de 11,7 millions d'adresses e-mail de comptes CAPCOM ID",
+  "Brotli (CVE-2026-111497) : versions corrigées et contournements pour Node.js, Bun, Envoy et Istio",
+  "Matériel ouvert : le robot humanoïde RP1 et le moteur de jeux Deki Engine pour ESP32"
+ ],
+ "meta": {
+  "generator": "claude-scheduled-task"
+ },
+ "posts": [
+  {
+   "id": "k0t-pare-feu-vpn-70000-identifiants",
+   "category": "cybersecurite",
+   "icon": "🛡️",
+   "importance": 5,
+   "title": "k0t : un acteur criminel pille des pare-feu Fortinet et Palo Alto et expose plus de 70 000 identifiants",
+   "summary": "Group-IB et NyxLab décrivent une campagne contre des équipements de bordure exposés, avec des liens présumés vers les groupes de rançongiciel Qilin et The Gentlemen.",
+   "tags": [
+    "pare-feu",
+    "VPN",
+    "Fortinet",
+    "Palo Alto Networks",
+    "rançongiciel",
+    "courtier d'accès"
+   ],
+   "readingMinutes": 5,
+   "sourceDate": "2026-10-23",
+   "sources": [
+    {
+     "title": "Hackers Breach Enterprise Firewalls and VPNs, Exposing Over 70,000 Credentials",
+     "url": "https://thehackernews.com/2026/10/hackers-breach-enterprise-firewalls-and.html",
+     "publisher": "The Hacker News"
+    }
+   ],
+   "cover": {
+    "url": "https://blogger.googleusercontent.com/img/b/R29vZ2xl/AVvXsEiSk-Q06Dd5YyYmXWMt9b860DzGRKbTae_QwvoZDKNICaEznAj2AUurJmv6vPnpcH7qqDjauFZWWx7GX1RN93BLaU9Rqgiqe9j1iQRg2Vqcz3HpSqgesA6oS-GrMTyx4CTzwOD7C_z205k57ZpT70Gv4RXi-65X-nyI04wpA3raJ5nh46pN5ox42cyLnHjv/s1600/1000117358.jpg",
+    "alt": "Illustration de l'article de The Hacker News sur les pare-feu et VPN compromis",
+    "credit": "thehackernews.com"
+   },
+   "blocks": [
+    {
+     "type": "paragraph",
+     "text": "Les pare-feu et les passerelles VPN sont les portes d'entrée des réseaux d'entreprise, et quand l'une d'elles cède, c'est tout le reste qui devient accessible. Une enquête conjointe de Group-IB et de NyxLab, rapportée le 23 octobre 2026 par The Hacker News, détaille une campagne menée par un acteur nommé **k0t** (également connu sous les alias CryptoFeel, Member19 et QazWsxShop). Il cible des équipements de bordure exposés sur Internet, notamment des appareils **Fortinet FortiGate** et **Palo Alto Networks GlobalProtect**, et a permis d'identifier **plus de 70 000 identifiants** liés à des équipements réseau et à des extractions d'annuaires LDAP."
+    },
+    {
+     "type": "paragraph",
+     "text": "Les chercheurs situent la première apparition de k0t au 22 octobre 2025. Ils estiment qu'il agit probablement comme courtier d'accès initial ou comme affilié, avec des liens présumés vers les groupes de rançongiciel **Qilin** et **The Gentlemen** : de nombreuses victimes ont ensuite été listées sur les sites de fuite de ces groupes, sans que la nature exacte de la relation soit établie."
+    },
+    {
+     "type": "heading",
+     "level": 2,
+     "text": "Une chaîne d'attaque classique, mais bien outillée"
+    },
+    {
+     "type": "paragraph",
+     "text": "Le mode opératoire décrit n'a rien d'exotique ; c'est son industrialisation qui frappe. L'acteur dresse d'abord des listes de cibles grâce aux moteurs de recherche d'objets connectés FOFA et ZoomEye, puis exploite des failles connues ou tente des mots de passe courants."
+    },
+    {
+     "type": "list",
+     "items": [
+      "**Reconnaissance** : repérage des VPN et pare-feu accessibles depuis Internet avec FOFA et ZoomEye.",
+      "**Accès initial** : exploitation de CVE-2025-64446 (traversée de chemin dans FortiWeb) et de CVE-2026-0257 (contournement d'authentification dans PAN-OS et Prisma Access) au moyen de scripts Python sur mesure, ou attaques par mots de passe courants.",
+      "**Implantation** : établissement d'une connexion OpenConnect, puis inventaire de l'Active Directory, du protocole SMB et des antivirus installés pour récupérer d'autres identifiants.",
+      "**Persistance** : outils d'administration à distance détournés (MeshCentral Agent, Atera, Teramind, AnyDesk) et framework d'émulation d'adversaire AdaptixC2.",
+      "**Exfiltration** : transfert des données avec Rclone vers des espaces Wasabi S3 et MEGA."
+     ]
+    },
+    {
+     "type": "diagram",
+     "svg": "<svg xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"0 0 640 208\" font-family=\"system-ui,sans-serif\"><rect width=\"640\" height=\"208\" rx=\"16\" fill=\"#eef2f7\"/><text x=\"320\" y=\"30\" text-anchor=\"middle\" font-size=\"15\" font-weight=\"700\" fill=\"#1f2a37\">Chaîne d&#x27;attaque attribuée à k0t</text><defs><marker id=\"a\" viewBox=\"0 0 10 10\" refX=\"8\" refY=\"5\" markerWidth=\"7\" markerHeight=\"7\" orient=\"auto\"><path d=\"M0 0 L10 5 L0 10 z\" fill=\"#4b5563\"/></marker></defs><rect x=\"10.0\" y=\"52\" width=\"111.2\" height=\"101\" rx=\"12\" fill=\"hsl(175,70%,96%)\" stroke=\"hsl(175,60%,45%)\" stroke-width=\"1.6\"/><text x=\"65.6\" y=\"76\" text-anchor=\"middle\" font-size=\"12.5\" font-weight=\"700\" fill=\"#1f2a37\">1. Repérage</text><text x=\"65.6\" y=\"100\" text-anchor=\"middle\" font-size=\"11\" fill=\"#374151\">FOFA, ZoomEye</text><text x=\"65.6\" y=\"117\" text-anchor=\"middle\" font-size=\"11\" fill=\"#374151\">cibles exposées</text><path d=\"M122.7 102 L135.2 102\" stroke=\"#4b5563\" stroke-width=\"2\" marker-end=\"url(#a)\"/><rect x=\"137.2\" y=\"52\" width=\"111.2\" height=\"101\" rx=\"12\" fill=\"hsl(175,70%,88%)\" stroke=\"hsl(175,60%,32%)\" stroke-width=\"3\"/><text x=\"192.8\" y=\"76\" text-anchor=\"middle\" font-size=\"12.5\" font-weight=\"700\" fill=\"#1f2a37\">2. Accès</text><text x=\"192.8\" y=\"100\" text-anchor=\"middle\" font-size=\"11\" fill=\"#374151\">failles connues</text><text x=\"192.8\" y=\"117\" text-anchor=\"middle\" font-size=\"11\" fill=\"#374151\">ou mots de passe</text><text x=\"192.8\" y=\"134\" text-anchor=\"middle\" font-size=\"11\" fill=\"#374151\">courants</text><path d=\"M249.9 102 L262.4 102\" stroke=\"#4b5563\" stroke-width=\"2\" marker-end=\"url(#a)\"/><rect x=\"264.4\" y=\"52\" width=\"111.2\" height=\"101\" rx=\"12\" fill=\"hsl(175,70%,96%)\" stroke=\"hsl(175,60%,45%)\" stroke-width=\"1.6\"/><text x=\"320.0\" y=\"76\" text-anchor=\"middle\" font-size=\"12.5\" font-weight=\"700\" fill=\"#1f2a37\">3. Implantation</text><text x=\"320.0\" y=\"100\" text-anchor=\"middle\" font-size=\"11\" fill=\"#374151\">VPN OpenConnect</text><text x=\"320.0\" y=\"117\" text-anchor=\"middle\" font-size=\"11\" fill=\"#374151\">inventaire AD, SMB</text><path d=\"M377.1 102 L389.6 102\" stroke=\"#4b5563\" stroke-width=\"2\" marker-end=\"url(#a)\"/><rect x=\"391.6\" y=\"52\" width=\"111.2\" height=\"101\" rx=\"12\" fill=\"hsl(175,70%,96%)\" stroke=\"hsl(175,60%,45%)\" stroke-width=\"1.6\"/><text x=\"447.2\" y=\"76\" text-anchor=\"middle\" font-size=\"12.5\" font-weight=\"700\" fill=\"#1f2a37\">4. Persistance</text><text x=\"447.2\" y=\"100\" text-anchor=\"middle\" font-size=\"11\" fill=\"#374151\">outils d&#x27;accès</text><text x=\"447.2\" y=\"117\" text-anchor=\"middle\" font-size=\"11\" fill=\"#374151\">à distance, C2</text><path d=\"M504.3 102 L516.8 102\" stroke=\"#4b5563\" stroke-width=\"2\" marker-end=\"url(#a)\"/><rect x=\"518.8\" y=\"52\" width=\"111.2\" height=\"101\" rx=\"12\" fill=\"hsl(175,70%,96%)\" stroke=\"hsl(175,60%,45%)\" stroke-width=\"1.6\"/><text x=\"574.4\" y=\"76\" text-anchor=\"middle\" font-size=\"12.5\" font-weight=\"700\" fill=\"#1f2a37\">5. Exfiltration</text><text x=\"574.4\" y=\"100\" text-anchor=\"middle\" font-size=\"11\" fill=\"#374151\">Rclone vers</text><text x=\"574.4\" y=\"117\" text-anchor=\"middle\" font-size=\"11\" fill=\"#374151\">Wasabi, MEGA</text><text x=\"320\" y=\"173\" text-anchor=\"middle\" font-size=\"11.5\" fill=\"#4b5563\">Source : Group-IB et NyxLab, via The Hacker News (23 octobre 2026).</text></svg>",
+     "alt": "Schéma en cinq étapes de la campagne : repérage, accès initial, implantation, persistance, exfiltration.",
+     "caption": "Les cinq étapes de la campagne décrites par les chercheurs."
+    },
+    {
+     "type": "heading",
+     "level": 2,
+     "text": "Chiffres et répartition"
+    },
+    {
+     "type": "paragraph",
+     "text": "Une part importante des compromissions s'est produite entre février et juin 2026, période qui recoupe une campagne de collecte d'identifiants baptisée **FortiBleed**. Group-IB et NyxLab relèvent pourtant un recouvrement « négligeable » entre les données : il pourrait s'agir d'un jeu distinct, d'un sous-ensemble de l'opérateur ou d'une opération d'accès liée à la même nébuleuse."
+    },
+    {
+     "type": "table",
+     "headers": [
+      "Région",
+      "Part des victimes"
+     ],
+     "rows": [
+      [
+       "Asie-Pacifique",
+       "38 %"
+      ],
+      [
+       "Amérique latine",
+       "31,9 %"
+      ],
+      [
+       "Europe",
+       "15,8 %"
+      ],
+      [
+       "Moyen-Orient et Afrique du Nord",
+       "12,7 %"
+      ]
+     ]
+    },
+    {
+     "type": "paragraph",
+     "text": "Les chercheurs notent que le produit et la localisation de l'équipement exposé semblent compter davantage que le secteur d'activité de la victime : l'acteur ratisse large plutôt qu'il ne choisit ses cibles."
+    },
+    {
+     "type": "usecases",
+     "title": "Exemples d'utilisation",
+     "items": [
+      {
+       "icon": "🏭",
+       "title": "PME industrielle",
+       "text": "Une entreprise qui laisse l'interface d'administration de son pare-feu ouverte sur Internet vérifie qu'elle est bien joignable uniquement depuis un réseau d'administration, et applique les correctifs de CVE-2025-64446 et CVE-2026-0257."
+      },
+      {
+       "icon": "🧑‍💻",
+       "title": "Équipe de sécurité",
+       "text": "Un SOC recherche dans ses journaux des connexions OpenConnect inattendues, des installations d'outils comme Atera ou MeshCentral et des volumes inhabituels vers Wasabi ou MEGA."
+      },
+      {
+       "icon": "🔑",
+       "title": "Administrateur système",
+       "text": "Après une suspicion de compromission, il renouvelle les mots de passe des comptes présents dans l'annuaire LDAP et révoque les sessions VPN, car l'exposition d'identifiants dépasse l'équipement lui-même."
+      }
+     ]
+    },
+    {
+     "type": "timeline",
+     "title": "D'où l'on vient, où l'on va",
+     "items": [
+      {
+       "label": "22 octobre 2025",
+       "text": "Première apparition connue de k0t, selon Group-IB et NyxLab."
+      },
+      {
+       "label": "Février à juin 2026",
+       "text": "Une part importante des compromissions, en parallèle de la campagne FortiBleed."
+      },
+      {
+       "label": "23 octobre 2026",
+       "text": "Publication de l'enquête conjointe et de la liste de CVE à vérifier."
+      }
+     ]
+    },
+    {
+     "type": "opinion",
+     "title": "Notre avis",
+     "paragraphs": [
+      "Cette affaire rappelle une évidence que les statistiques peinent à faire passer : un équipement de sécurité exposé et non corrigé devient lui-même le maillon faible. Les outils employés sont presque tous légitimes (administration à distance, transfert de fichiers), ce qui complique la détection par signature et oblige à surveiller les comportements. Il faut aussi rester prudent : les liens avec Qilin et The Gentlemen restent présumés, et le recoupement avec FortiBleed n'est pas établi.",
+      "À un horizon d'un à trois ans, la pression devrait pousser les éditeurs à réduire la surface exposée par défaut et les entreprises à placer l'administration derrière des accès dédiés. Les courtiers d'accès, eux, continueront d'alimenter les rançongiciels tant que des équipements non corrigés resteront visibles dans FOFA ou ZoomEye."
+     ],
+     "verdict": "Un pare-feu non corrigé ou mal isolé est un point d'entrée de choix : les correctifs et la réduction de l'exposition passent avant tout."
+    },
+    {
+     "type": "callout",
+     "title": "À retenir",
+     "text": "Vérifier que CVE-2025-64446 et CVE-2026-0257 sont corrigées, limiter l'accès à l'administration des équipements de bordure et surveiller les outils d'accès à distance et les transferts vers Wasabi ou MEGA."
+    }
+   ],
+   "illustration": {
+    "svg": "<svg xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"0 0 640 360\"><defs><linearGradient id=\"g1830\" x1=\"0\" y1=\"0\" x2=\"1\" y2=\"1\"><stop offset=\"0\" stop-color=\"hsl(175,62%,30%)\"/><stop offset=\"1\" stop-color=\"hsl(210,66%,44%)\"/></linearGradient></defs><rect width=\"640\" height=\"360\" fill=\"url(#g1830)\"/><circle cx=\"580\" cy=\"50\" r=\"95\" fill=\"#fff\" fill-opacity=\".07\"/><circle cx=\"55\" cy=\"325\" r=\"115\" fill=\"#fff\" fill-opacity=\".06\"/><path d=\"M320 60 L410 95 V185 Q410 255 320 295 Q230 255 230 185 V95 Z\" fill=\"none\" stroke=\"#fff\" stroke-width=\"7\" stroke-linejoin=\"round\"/><path d=\"M280 180 L312 212 L365 146\" fill=\"none\" stroke=\"#fff\" stroke-width=\"7\" stroke-linecap=\"round\" stroke-linejoin=\"round\"/></svg>"
+   },
+   "publishedAt": "2026-10-25T10:19:42+01:00"
+  },
+  {
+   "id": "arista-velocloud-orchestrator-zero-day-exploite",
+   "category": "cybersecurite",
+   "icon": "🧯",
+   "importance": 4,
+   "title": "Arista corrige une faille zero-day de VeloCloud Orchestrator déjà exploitée, la quatrième de l'année",
+   "summary": "CVE-2026-114625 permet à un utilisateur authentifié sans privilèges particuliers de devenir opérateur, par une injection SQL ; la CISA l'a ajoutée à son catalogue des failles exploitées.",
+   "tags": [
+    "Arista",
+    "VeloCloud",
+    "zero-day",
+    "injection SQL",
+    "CISA",
+    "SD-WAN"
+   ],
+   "readingMinutes": 4,
+   "sourceDate": "2026-10-22",
+   "sources": [
+    {
+     "title": "Arista patches new VeloCloud Orchestrator zero-day exploited in attacks",
+     "url": "https://www.bleepingcomputer.com/news/security/arista-patches-new-velocloud-orchestrator-zero-day-exploited-in-attacks/",
+     "publisher": "BleepingComputer"
+    },
+    {
+     "title": "CISA Flags Two Actively Exploited Critical Flaws in Collabora Online and Arista VeloCloud",
+     "url": "https://thehackernews.com/2026/10/cisa-flags-two-actively-exploited.html",
+     "publisher": "The Hacker News"
+    }
+   ],
+   "cover": {
+    "url": "https://www.bleepstatic.com/content/hl-images/2026/10/22/Arista.jpg",
+    "alt": "Illustration de l'article de BleepingComputer sur la faille VeloCloud Orchestrator d'Arista",
+    "credit": "bleepingcomputer.com"
+   },
+   "blocks": [
+    {
+     "type": "paragraph",
+     "text": "Quatrième faille zero-day exploitée corrigée par Arista cette année : le 22 octobre 2026, l'équipementier a publié des correctifs pour **CVE-2026-114625**, une vulnérabilité critique de **VeloCloud Orchestrator** (VCO) dans ses déploiements installés sur site. Selon BleepingComputer, elle est déjà utilisée dans des attaques. Le lendemain, la CISA américaine l'a inscrite, avec une faille de Collabora Online, à son catalogue des vulnérabilités connues et exploitées, d'après The Hacker News."
+    },
+    {
+     "type": "heading",
+     "level": 2,
+     "text": "Ce que permet la faille"
+    },
+    {
+     "type": "paragraph",
+     "text": "Il s'agit d'une injection SQL de faible complexité, exploitable sans interaction de l'utilisateur. Un attaquant doit disposer d'un accès à l'interface web de l'orchestrateur et d'une session authentifiée, même avec des droits réduits. Il peut alors élever ses privilèges : selon l'article, tout utilisateur authentifié peut obtenir les droits d'opérateur et se faire passer pour le « super-opérateur » local. Dans une solution SD-WAN, l'orchestrateur pilote la configuration des sites distants ; un accès de ce niveau est donc très sensible."
+    },
+    {
+     "type": "keyvalue",
+     "items": [
+      {
+       "label": "Identifiant",
+       "value": "CVE-2026-114625, gravité critique"
+      },
+      {
+       "label": "Produit",
+       "value": "VeloCloud Orchestrator, déploiements sur site"
+      },
+      {
+       "label": "Versions corrigées citées",
+       "value": "5.2.3.18, 6.1.3.10 et 6.4.2.12 ou ultérieures"
+      },
+      {
+       "label": "Exploitation",
+       "value": "Constatée par Arista, depuis les adresses 74.82.197.86 et 38.54.50.151"
+      }
+     ]
+    },
+    {
+     "type": "paragraph",
+     "text": "L'article mentionne que ces correctifs concernent des déploiements « hébergés », ce qui entre en tension avec le périmètre sur site de l'avis : le plus sûr est de se référer à l'avis d'Arista pour confirmer la version applicable à chaque installation."
+    },
+    {
+     "type": "heading",
+     "level": 2,
+     "text": "Les mesures recommandées"
+    },
+    {
+     "type": "list",
+     "items": [
+      "Appliquer les versions corrigées dès que possible et bloquer les deux adresses IP signalées.",
+      "Restreindre l'accès à l'interface web de VCO aux réseaux d'administration.",
+      "Passer en revue les actions récentes des administrateurs et les journaux d'accès web : chemins inhabituels, caractères encodés, références à des services internes, volume de requêtes élevé.",
+      "En cas de doute, conserver les journaux web, applicatifs, système et de base de données, ainsi que les horodatages du système de fichiers, avant toute remédiation, puis contacter le centre d'assistance technique d'Arista."
+     ]
+    },
+    {
+     "type": "paragraph",
+     "text": "Cette faille s'ajoute à trois autres zero-days exploités et corrigés par Arista en 2026 : CVE-2026-7473 (mai, EOS), CVE-2026-16812 (juillet, VCO sur site) et CVE-2026-93952 (septembre, EOS et VCO sur site). Le VCO sur site apparaît donc pour la deuxième fois en quatre mois."
+    },
+    {
+     "type": "usecases",
+     "title": "Exemples d'utilisation",
+     "items": [
+      {
+       "icon": "🏢",
+       "title": "Entreprise multisite",
+       "text": "Une société qui relie ses agences par SD-WAN contrôle d'abord la version de son orchestrateur, puis planifie la mise à jour vers 5.2.3.18, 6.1.3.10 ou 6.4.2.12 selon sa branche."
+      },
+      {
+       "icon": "🌐",
+       "title": "Prestataire de services gérés",
+       "text": "Il restreint l'interface web de chaque orchestrateur à son réseau d'administration et recherche dans les journaux des requêtes provenant des deux adresses signalées."
+      },
+      {
+       "icon": "📋",
+       "title": "Responsable conformité",
+       "text": "Il consigne la date de correction et les vérifications menées, car l'inscription au catalogue de la CISA sert souvent de référence pour fixer des délais de correction."
+      }
+     ]
+    },
+    {
+     "type": "timeline",
+     "title": "D'où l'on vient, où l'on va",
+     "items": [
+      {
+       "label": "Mai 2026",
+       "text": "CVE-2026-7473 dans EOS, premier zero-day exploité de l'année chez Arista."
+      },
+      {
+       "label": "Juillet 2026",
+       "text": "CVE-2026-16812 dans VCO sur site."
+      },
+      {
+       "label": "Septembre 2026",
+       "text": "CVE-2026-93952 dans EOS et VCO sur site."
+      },
+      {
+       "label": "22 octobre 2026",
+       "text": "Correctifs pour CVE-2026-114625."
+      },
+      {
+       "label": "23 octobre 2026",
+       "text": "Ajout au catalogue des vulnérabilités exploitées de la CISA."
+      }
+     ]
+    },
+    {
+     "type": "opinion",
+     "title": "Notre avis",
+     "paragraphs": [
+      "La répétition de zero-days sur le même produit indique que les orchestrateurs SD-WAN sont devenus des cibles prioritaires : ils concentrent les droits de configuration de tout un parc. Une injection SQL de faible complexité suggère aussi que la validation des entrées reste un point faible, et le fait qu'il faille une session authentifiée ne rassure guère quand les comptes à faibles droits abondent dans les grands déploiements.",
+      "D'ici un à trois ans, on peut s'attendre à ce que ces consoles passent derrière des accès privilégiés dédiés et que les audits de code se concentrent sur les interfaces d'administration. Ce n'est qu'une projection : rien dans les sources ne l'annonce."
+     ],
+     "verdict": "Mettre à jour vite et ne jamais laisser l'orchestrateur joignable en dehors du réseau d'administration."
+    },
+    {
+     "type": "callout",
+     "title": "À retenir",
+     "text": "CVE-2026-114625 est exploitée : corriger VeloCloud Orchestrator sur site, filtrer les deux adresses IP et limiter l'accès à l'interface d'administration."
+    }
+   ],
+   "illustration": {
+    "svg": "<svg xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"0 0 640 360\"><defs><linearGradient id=\"g9578\" x1=\"0\" y1=\"0\" x2=\"1\" y2=\"1\"><stop offset=\"0\" stop-color=\"hsl(175,62%,30%)\"/><stop offset=\"1\" stop-color=\"hsl(210,66%,44%)\"/></linearGradient></defs><rect width=\"640\" height=\"360\" fill=\"url(#g9578)\"/><circle cx=\"580\" cy=\"50\" r=\"95\" fill=\"#fff\" fill-opacity=\".07\"/><circle cx=\"55\" cy=\"325\" r=\"115\" fill=\"#fff\" fill-opacity=\".06\"/><rect x=\"215\" y=\"70\" width=\"210\" height=\"52\" rx=\"10\" fill=\"none\" stroke=\"#fff\" stroke-width=\"6\"/><circle cx=\"245\" cy=\"96\" r=\"7\" fill=\"#fff\"/><path d=\"M275 96 H395\" stroke=\"#fff\" stroke-width=\"5\" stroke-linecap=\"round\" stroke-opacity=\".6\"/><rect x=\"215\" y=\"140\" width=\"210\" height=\"52\" rx=\"10\" fill=\"none\" stroke=\"#fff\" stroke-width=\"6\"/><circle cx=\"245\" cy=\"166\" r=\"7\" fill=\"#fff\"/><path d=\"M275 166 H395\" stroke=\"#fff\" stroke-width=\"5\" stroke-linecap=\"round\" stroke-opacity=\".6\"/><rect x=\"215\" y=\"210\" width=\"210\" height=\"52\" rx=\"10\" fill=\"none\" stroke=\"#fff\" stroke-width=\"6\"/><circle cx=\"245\" cy=\"236\" r=\"7\" fill=\"#fff\"/><path d=\"M275 236 H395\" stroke=\"#fff\" stroke-width=\"5\" stroke-linecap=\"round\" stroke-opacity=\".6\"/></svg>"
+   },
+   "publishedAt": "2026-10-25T10:19:42+01:00"
+  },
+  {
+   "id": "capcom-fuite-11-7-millions-de-comptes",
+   "category": "cybersecurite",
+   "icon": "🎮",
+   "importance": 4,
+   "title": "Capcom confirme une fuite touchant plus de 11,7 millions de comptes CAPCOM ID",
+   "summary": "Adresses e-mail, dates de connexion et adresses IP sont exposées ; les mots de passe et les cartes bancaires ne le seraient pas, selon l'éditeur japonais.",
+   "tags": [
+    "Capcom",
+    "fuite de données",
+    "CAPCOM ID",
+    "jeu vidéo",
+    "hameçonnage"
+   ],
+   "readingMinutes": 4,
+   "sourceDate": "2026-10-22",
+   "sources": [
+    {
+     "title": "Capcom confirms data breach affecting 11.7 million accounts",
+     "url": "https://www.bleepingcomputer.com/news/security/capcom-confirms-data-breach-affecting-117-million-accounts/",
+     "publisher": "BleepingComputer"
+    }
+   ],
+   "cover": {
+    "url": "https://www.bleepstatic.com/content/hl-images/2026/10/22/capcom.jpg",
+    "alt": "Illustration de l'article de BleepingComputer sur la fuite de données de Capcom",
+    "credit": "bleepingcomputer.com"
+   },
+   "blocks": [
+    {
+     "type": "paragraph",
+     "text": "L'éditeur japonais de jeux vidéo **Capcom** a confirmé, selon BleepingComputer, qu'un accès non autorisé à son service de compte partagé **CAPCOM ID** a exposé **plus de 11,7 millions d'adresses e-mail** de clients ainsi que des informations associées. L'entreprise affirme que les mots de passe des autres membres n'ont pas été exposés et que les données de cartes bancaires ne sont pas concernées. Les services en ligne continuent de fonctionner."
+    },
+    {
+     "type": "heading",
+     "level": 2,
+     "text": "Ce qui a été exposé"
+    },
+    {
+     "type": "paragraph",
+     "text": "Pour l'ensemble des comptes touchés, les données comprennent la date de création du compte, l'horodatage de la dernière connexion, le nombre de connexions et l'adresse IP utilisée lors de la dernière connexion. Pour 43 comptes seulement, des informations supplémentaires ont aussi été exposées : date de naissance, genre, pseudonyme et pays."
+    },
+    {
+     "type": "table",
+     "headers": [
+      "Élément",
+      "Précision rapportée"
+     ],
+     "rows": [
+      [
+       "Comptes concernés",
+       "plus de 11,7 millions d'adresses e-mail"
+      ],
+      [
+       "Données communes",
+       "création du compte, dernière connexion, nombre de connexions, dernière adresse IP"
+      ],
+      [
+       "Comptes avec données personnelles",
+       "43 (naissance, genre, pseudonyme, pays)"
+      ],
+      [
+       "Comptes verrouillés par les pirates",
+       "196 mots de passe modifiés, puis réinitialisés par Capcom"
+      ],
+      [
+       "Mots de passe et cartes bancaires",
+       "non exposés, selon Capcom"
+      ]
+     ]
+    },
+    {
+     "type": "heading",
+     "level": 2,
+     "text": "Chronologie et réponse de l'éditeur"
+    },
+    {
+     "type": "paragraph",
+     "text": "Capcom a détecté une activité suspecte et confirmé l'accès non autorisé le 19 octobre. L'enquête a démarré aussitôt et il est apparu le lendemain que des données de clients avaient été compromises. Le 21 octobre, l'éditeur a signalé l'incident à la police et à la Commission japonaise de protection des informations personnelles. L'article ne précise pas la date de l'intrusion elle-même."
+    },
+    {
+     "type": "paragraph",
+     "text": "L'éditeur indique avoir identifié la méthode d'intrusion et renforcé ses mesures de sécurité, sans en donner le détail. Les clients seront informés par étapes, en raison du nombre de comptes, et des canaux de support régionaux sont ouverts."
+    },
+    {
+     "type": "paragraph",
+     "text": "Capcom avait déjà été frappé : en novembre 2020, le groupe Ragnar Locker avait revendiqué le vol d'un téraoctet de données, et l'éditeur avait alors évoqué jusqu'à 390 000 personnes concernées ; en avril 2021, il avait indiqué que les attaquants étaient entrés par un ancien équipement VPN."
+    },
+    {
+     "type": "usecases",
+     "title": "Ce que cela change concrètement",
+     "items": [
+      {
+       "icon": "📧",
+       "title": "Joueur titulaire d'un CAPCOM ID",
+       "text": "Il s'attend à recevoir des messages d'hameçonnage se faisant passer pour Capcom et ne clique sur aucun lien : il passe par le site officiel de l'éditeur pour toute vérification."
+      },
+      {
+       "icon": "🔐",
+       "title": "Utilisateur qui réutilise ses mots de passe",
+       "text": "Même si Capcom affirme que les mots de passe ne sont pas exposés, il change tout mot de passe identique à celui du compte et active la double authentification là où elle existe."
+      },
+      {
+       "icon": "🏛️",
+       "title": "Éditeur ou service en ligne",
+       "text": "Il revoit la quantité de données conservées dans son compte partagé : adresses IP et historiques de connexion constituent des informations utiles aux fraudeurs pour rendre un message crédible."
+      }
+     ]
+    },
+    {
+     "type": "timeline",
+     "title": "D'où l'on vient, où l'on va",
+     "items": [
+      {
+       "label": "Novembre 2020",
+       "text": "Attaque du rançongiciel Ragnar Locker contre Capcom."
+      },
+      {
+       "label": "Avril 2021",
+       "text": "Capcom indique que l'entrée s'est faite par un ancien VPN."
+      },
+      {
+       "label": "19 octobre 2026",
+       "text": "Accès non autorisé confirmé par Capcom."
+      },
+      {
+       "label": "21 octobre 2026",
+       "text": "Signalement à la police et à la commission japonaise de protection des données."
+      },
+      {
+       "label": "Dans les prochaines semaines",
+       "text": "Notification des clients par étapes, selon l'éditeur."
+      }
+     ]
+    },
+    {
+     "type": "opinion",
+     "title": "Notre avis",
+     "paragraphs": [
+      "Le volume de 11,7 millions d'adresses est considérable, mais la nature des données (pas de mots de passe, pas de paiement) limite le dommage direct. Le risque principal est indirect : des adresses accompagnées de dates de connexion et d'adresses IP permettent de monter des messages d'hameçonnage crédibles. Tant que Capcom ne détaille pas le vecteur d'intrusion, il est difficile de juger si la leçon de 2021 a été tirée.",
+      "À un horizon d'un à trois ans, les éditeurs de jeux, détenteurs de bases de comptes massives, devraient subir une pression réglementaire croissante pour réduire les données conservées et publier plus vite les détails techniques. C'est une opinion, non un fait annoncé."
+     ],
+     "verdict": "Une fuite sans mots de passe n'est pas anodine : l'hameçonnage ciblé est la suite la plus probable."
+    },
+    {
+     "type": "callout",
+     "title": "À retenir",
+     "text": "Se méfier des messages se réclamant de Capcom, ne pas cliquer sur les liens reçus et utiliser un mot de passe unique avec double authentification."
+    }
+   ],
+   "illustration": {
+    "svg": "<svg xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"0 0 640 360\"><defs><linearGradient id=\"g8212\" x1=\"0\" y1=\"0\" x2=\"1\" y2=\"1\"><stop offset=\"0\" stop-color=\"hsl(175,62%,30%)\"/><stop offset=\"1\" stop-color=\"hsl(210,66%,44%)\"/></linearGradient></defs><rect width=\"640\" height=\"360\" fill=\"url(#g8212)\"/><circle cx=\"580\" cy=\"50\" r=\"95\" fill=\"#fff\" fill-opacity=\".07\"/><circle cx=\"55\" cy=\"325\" r=\"115\" fill=\"#fff\" fill-opacity=\".06\"/><rect x=\"250\" y=\"150\" width=\"140\" height=\"110\" rx=\"16\" fill=\"#fff\"/><path d=\"M280 150 V120 a40 40 0 0 1 80 0 V150\" fill=\"none\" stroke=\"#fff\" stroke-width=\"12\"/><circle cx=\"320\" cy=\"200\" r=\"14\" fill=\"#0006\"/><rect x=\"314\" y=\"205\" width=\"12\" height=\"32\" rx=\"5\" fill=\"#0006\"/></svg>"
+   },
+   "publishedAt": "2026-10-25T10:19:42+01:00"
+  },
+  {
+   "id": "cerebras-modeles-mille-milliards-de-parametres-wafers",
+   "category": "ia",
+   "icon": "🧠",
+   "importance": 4,
+   "title": "Cerebras explique comment faire tourner un modèle de plusieurs billions de paramètres sur des dizaines de wafers",
+   "summary": "Pour son exemple Kimi K3, l'entreprise répartit 93 couches sur 59 wafers WSE-3T, en ne faisant circuler que les activations entre les puces.",
+   "tags": [
+    "Cerebras",
+    "Kimi K3",
+    "inférence",
+    "wafer",
+    "mémoire SRAM",
+    "modèle ouvert"
+   ],
+   "readingMinutes": 5,
+   "sourceDate": "2026-10-22",
+   "sources": [
+    {
+     "title": "How we deploy trillion-parameter frontier models on Cerebras",
+     "url": "https://www.cerebras.ai/blog/how-we-deploy-trillion-parameter-frontier-models-on-cerebras",
+     "publisher": "Cerebras"
+    }
+   ],
+   "cover": {
+    "url": "https://cdn.sanity.io/images/e4qjo92p/production/1796e3cccda1454e97d262833fb0bb0d6015032f-2786x1567.png?rect=0,53,2786,1463&w=1200&h=630&fit=max&auto=format",
+    "alt": "Visuel du billet de blog de Cerebras sur le déploiement de modèles de plusieurs billions de paramètres",
+    "credit": "cerebras.ai"
+   },
+   "blocks": [
+    {
+     "type": "paragraph",
+     "text": "Servir un modèle de langage de plusieurs billions de paramètres pose d'abord un problème de mémoire. Dans un billet publié le 22 octobre 2026, Cerebras détaille sa méthode sur ses puces de la taille d'un wafer, les **WSE-3T**, qui disposent de 44 Go de mémoire SRAM embarquée : à cette échelle, les seuls poids d'un modèle se comptent en téraoctets. L'entreprise prend comme exemple **Kimi K3**, un modèle ouvert d'environ 3 billions de paramètres (3 000 milliards), avec 93 couches dont 69 à attention linéaire et 24 à attention complète."
+    },
+    {
+     "type": "heading",
+     "level": 2,
+     "text": "Le calcul : une couche par wafer, ou presque"
+    },
+    {
+     "type": "paragraph",
+     "text": "Avec des poids quantifiés sur 4 bits, le modèle occupe environ 1,5 To, soit environ 16 Go par couche. Cerebras retient aussi l'hypothèse de requêtes de 256 000 jetons en moyenne et un cache clé-valeur sur 8 bits. Les couches à attention complète, dont le cache grossit avec la longueur du contexte, reçoivent un wafer chacune, le reste de la SRAM étant réservé au cache. Les couches à attention linéaire conservent un état de taille fixe par requête et peuvent donc se placer à deux par wafer."
+    },
+    {
+     "type": "keyvalue",
+     "items": [
+      {
+       "label": "Couches à attention complète",
+       "value": "24 wafers, un par couche"
+      },
+      {
+       "label": "Couches à attention linéaire",
+       "value": "69 couches, 35 wafers, deux par wafer"
+      },
+      {
+       "label": "Total de l'exemple",
+       "value": "59 wafers"
+      },
+      {
+       "label": "Débit annoncé",
+       "value": "1 000 à plus de 2 000 jetons par seconde pour des modèles de plusieurs billions de paramètres"
+      }
+     ]
+    },
+    {
+     "type": "diagram",
+     "svg": "<svg xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"0 0 640 225\" font-family=\"system-ui,sans-serif\"><rect width=\"640\" height=\"225\" rx=\"16\" fill=\"#eef2f7\"/><text x=\"320\" y=\"30\" text-anchor=\"middle\" font-size=\"15\" font-weight=\"700\" fill=\"#1f2a37\">Kimi K3 réparti sur 59 wafers</text><defs><marker id=\"a\" viewBox=\"0 0 10 10\" refX=\"8\" refY=\"5\" markerWidth=\"7\" markerHeight=\"7\" orient=\"auto\"><path d=\"M0 0 L10 5 L0 10 z\" fill=\"#4b5563\"/></marker></defs><rect x=\"10.0\" y=\"52\" width=\"143.0\" height=\"101\" rx=\"12\" fill=\"hsl(320,70%,96%)\" stroke=\"hsl(320,60%,45%)\" stroke-width=\"1.6\"/><text x=\"81.5\" y=\"76\" text-anchor=\"middle\" font-size=\"12.5\" font-weight=\"700\" fill=\"#1f2a37\">Entrée</text><text x=\"81.5\" y=\"100\" text-anchor=\"middle\" font-size=\"11\" fill=\"#374151\">jetons de la</text><text x=\"81.5\" y=\"117\" text-anchor=\"middle\" font-size=\"11\" fill=\"#374151\">requête</text><path d=\"M154.5 102 L167.0 102\" stroke=\"#4b5563\" stroke-width=\"2\" marker-end=\"url(#a)\"/><rect x=\"169.0\" y=\"52\" width=\"143.0\" height=\"101\" rx=\"12\" fill=\"hsl(320,70%,96%)\" stroke=\"hsl(320,60%,45%)\" stroke-width=\"1.6\"/><text x=\"240.5\" y=\"76\" text-anchor=\"middle\" font-size=\"12.5\" font-weight=\"700\" fill=\"#1f2a37\">35 wafers</text><text x=\"240.5\" y=\"100\" text-anchor=\"middle\" font-size=\"11\" fill=\"#374151\">69 couches à</text><text x=\"240.5\" y=\"117\" text-anchor=\"middle\" font-size=\"11\" fill=\"#374151\">attention linéaire</text><text x=\"240.5\" y=\"134\" text-anchor=\"middle\" font-size=\"11\" fill=\"#374151\">2 couches / wafer</text><path d=\"M313.5 102 L326.0 102\" stroke=\"#4b5563\" stroke-width=\"2\" marker-end=\"url(#a)\"/><rect x=\"328.0\" y=\"52\" width=\"143.0\" height=\"101\" rx=\"12\" fill=\"hsl(320,70%,88%)\" stroke=\"hsl(320,60%,32%)\" stroke-width=\"3\"/><text x=\"399.5\" y=\"76\" text-anchor=\"middle\" font-size=\"12.5\" font-weight=\"700\" fill=\"#1f2a37\">24 wafers</text><text x=\"399.5\" y=\"100\" text-anchor=\"middle\" font-size=\"11\" fill=\"#374151\">24 couches à</text><text x=\"399.5\" y=\"117\" text-anchor=\"middle\" font-size=\"11\" fill=\"#374151\">attention complète</text><text x=\"399.5\" y=\"134\" text-anchor=\"middle\" font-size=\"11\" fill=\"#374151\">1 couche / wafer</text><path d=\"M472.5 102 L485.0 102\" stroke=\"#4b5563\" stroke-width=\"2\" marker-end=\"url(#a)\"/><rect x=\"487.0\" y=\"52\" width=\"143.0\" height=\"101\" rx=\"12\" fill=\"hsl(320,70%,96%)\" stroke=\"hsl(320,60%,45%)\" stroke-width=\"1.6\"/><text x=\"558.5\" y=\"76\" text-anchor=\"middle\" font-size=\"12.5\" font-weight=\"700\" fill=\"#1f2a37\">Sortie</text><text x=\"558.5\" y=\"100\" text-anchor=\"middle\" font-size=\"11\" fill=\"#374151\">jeton suivant</text><text x=\"320\" y=\"173\" text-anchor=\"middle\" font-size=\"11.5\" fill=\"#4b5563\">Seules les activations circulent entre wafers (RDMA sur Ethernet, environ 2 µs par saut).</text><text x=\"320\" y=\"190\" text-anchor=\"middle\" font-size=\"11.5\" fill=\"#4b5563\">Exemple pédagogique de Cerebras ; la production utilise des étages plus fins.</text></svg>",
+     "alt": "Schéma montrant la répartition des couches d'un modèle sur 35 puis 24 wafers.",
+     "caption": "Répartition simplifiée des couches de Kimi K3, d'après l'exemple de Cerebras."
+    },
+    {
+     "type": "heading",
+     "level": 2,
+     "text": "Circulation des données et efficacité"
+    },
+    {
+     "type": "paragraph",
+     "text": "Les poids ne bougent jamais : seules les activations passent d'un wafer à l'autre, par RDMA sur Ethernet, avec un délai d'environ deux microsecondes par saut. Chaque wafer joue le rôle d'un étage de pipeline, de sorte que plusieurs requêtes occupent simultanément des étages différents. Le nombre de requêtes concurrentes dépend de l'espace de cache disponible sur les wafers à attention complète."
+    },
+    {
+     "type": "paragraph",
+     "text": "Cerebras défend enfin une métrique : le débit total de jetons par unité de puissance (par exemple des jetons par seconde et par mégawatt), à vitesse de sortie égale, plutôt que la simple concurrence ou la taille de lot."
+    },
+    {
+     "type": "heading",
+     "level": 2,
+     "text": "Les réserves"
+    },
+    {
+     "type": "list",
+     "items": [
+      "L'exemple est illustratif et dépend des hypothèses de taille de requête, de quantification et de précision du cache.",
+      "Les scores de Kimi K3 cités (88,3 % sur Terminal-Bench 2.1 et 91,2 % sur BrowseComp) proviennent du concepteur du modèle, sans vérification indépendante.",
+      "Le billet ne donne ni consommation électrique, ni coût, ni latence mesurée ; l'affirmation d'efficacité ne peut donc pas être vérifiée.",
+      "Les chiffres de concurrence figurent uniquement dans des images, et l'entreprise précise que les comparaisons de vitesse avec les GPU varient selon la charge et la configuration."
+     ]
+    },
+    {
+     "type": "usecases",
+     "title": "Exemples d'utilisation",
+     "items": [
+      {
+       "icon": "💻",
+       "title": "Assistant de programmation",
+       "text": "Un agent qui enchaîne des dizaines d'appels d'outils profite d'une vitesse de génération élevée pour réduire l'attente à chaque étape."
+      },
+      {
+       "icon": "🔬",
+       "title": "Recherche",
+       "text": "Une équipe qui veut tester un modèle ouvert de très grande taille sans le réduire loue de la capacité plutôt que d'assembler un parc de GPU."
+      },
+      {
+       "icon": "📄",
+       "title": "Analyse de documents longs",
+       "text": "Un service juridique ou financier qui traite des contextes de plusieurs centaines de milliers de jetons dépend de la capacité du cache, que cette architecture met au premier plan."
+      }
+     ]
+    },
+    {
+     "type": "timeline",
+     "title": "D'où l'on vient, où l'on va",
+     "items": [
+      {
+       "label": "Aujourd'hui",
+       "text": "44 Go de SRAM par wafer ; modèles de plusieurs billions de paramètres répartis sur des dizaines de puces."
+      },
+      {
+       "label": "Prochaines années",
+       "text": "Course à l'attention linéaire pour limiter la taille des caches, et à la quantification pour réduire le nombre de wafers par modèle (projection de l'auteur, non annoncée)."
+      }
+     ]
+    },
+    {
+     "type": "opinion",
+     "title": "Notre avis",
+     "paragraphs": [
+      "Le raisonnement tient en deux idées simples : garder les poids en mémoire rapide et ne déplacer que les activations. C'est élégant, mais le billet reste un document de promotion : sans chiffres de consommation, de prix par jeton ni de latence mesurée, la supériorité sur les GPU reste une affirmation. Le véritable enseignement est architectural : les modèles hybrides à attention linéaire réduisent fortement le besoin en cache et changent le calcul du matériel nécessaire.",
+      "À un horizon d'un à trois ans, la diversité des architectures d'inférence (wafers, GPU, puces spécialisées) devrait profiter aux utilisateurs par la baisse des coûts, à condition que des mesures indépendantes existent. C'est une opinion, pas un fait."
+     ],
+     "verdict": "Une démonstration technique intéressante, à confirmer par des mesures de coût et de consommation."
+    },
+    {
+     "type": "callout",
+     "title": "À retenir",
+     "text": "Cerebras place 93 couches de Kimi K3 sur 59 wafers, mais les performances et l'efficacité annoncées n'ont pas été mesurées de façon indépendante."
+    }
+   ],
+   "illustration": {
+    "svg": "<svg xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"0 0 640 360\"><defs><linearGradient id=\"g6205\" x1=\"0\" y1=\"0\" x2=\"1\" y2=\"1\"><stop offset=\"0\" stop-color=\"hsl(320,62%,30%)\"/><stop offset=\"1\" stop-color=\"hsl(355,66%,44%)\"/></linearGradient></defs><rect width=\"640\" height=\"360\" fill=\"url(#g6205)\"/><circle cx=\"580\" cy=\"50\" r=\"95\" fill=\"#fff\" fill-opacity=\".07\"/><circle cx=\"55\" cy=\"325\" r=\"115\" fill=\"#fff\" fill-opacity=\".06\"/><circle cx=\"320\" cy=\"180\" r=\"112\" fill=\"none\" stroke=\"#fff\" stroke-width=\"7\"/><rect x=\"255\" y=\"115\" width=\"34\" height=\"34\" rx=\"5\" fill=\"#fff\" fill-opacity=\"0.9\"/><rect x=\"300\" y=\"115\" width=\"34\" height=\"34\" rx=\"5\" fill=\"#fff\" fill-opacity=\"0.5\"/><rect x=\"345\" y=\"115\" width=\"34\" height=\"34\" rx=\"5\" fill=\"#fff\" fill-opacity=\"0.9\"/><rect x=\"255\" y=\"160\" width=\"34\" height=\"34\" rx=\"5\" fill=\"#fff\" fill-opacity=\"0.5\"/><rect x=\"300\" y=\"160\" width=\"34\" height=\"34\" rx=\"5\" fill=\"#fff\" fill-opacity=\"0.9\"/><rect x=\"345\" y=\"160\" width=\"34\" height=\"34\" rx=\"5\" fill=\"#fff\" fill-opacity=\"0.5\"/><rect x=\"255\" y=\"205\" width=\"34\" height=\"34\" rx=\"5\" fill=\"#fff\" fill-opacity=\"0.9\"/><rect x=\"300\" y=\"205\" width=\"34\" height=\"34\" rx=\"5\" fill=\"#fff\" fill-opacity=\"0.5\"/><rect x=\"345\" y=\"205\" width=\"34\" height=\"34\" rx=\"5\" fill=\"#fff\" fill-opacity=\"0.9\"/></svg>"
+   },
+   "publishedAt": "2026-10-25T10:19:42+01:00"
+  },
+  {
+   "id": "jac-jaseci-langage-agents-ia",
+   "category": "ia",
+   "icon": "🕸️",
+   "importance": 3,
+   "title": "Jac et Jaseci : un professeur de l'université du Michigan propose un langage pensé pour les agents d'IA",
+   "summary": "Une syntaxe proche de Python, des données organisées en graphe et des « walkers » qui parcourent ce graphe : le projet vise à réunir Python, TypeScript et le code natif.",
+   "tags": [
+    "Jac",
+    "Jaseci",
+    "agents IA",
+    "langage de programmation",
+    "graphes"
+   ],
+   "readingMinutes": 4,
+   "sourceDate": "2026-10-23",
+   "sources": [
+    {
+     "title": "Michigan prof creates Python-like Jac language for AI agents",
+     "url": "https://www.theregister.com/devops/2026/10/23/michigan-prof-creates-python-like-jac-language-for-ai-agents/5305110",
+     "publisher": "The Register"
+    }
+   ],
+   "blocks": [
+    {
+     "type": "paragraph",
+     "text": "Les agents d'IA doivent jongler entre langages, bibliothèques et outils. Jason Mars, professeur à l'université du Michigan, a présenté cette semaine à la conférence All Things Open de Raleigh (Caroline du Nord) un langage conçu pour cette réalité : **Jac**, accompagné de son environnement d'exécution **Jaseci**. Selon The Register, qui en rend compte le 23 octobre 2026, les deux traitent l'IA et les agents comme des entités de premier rang."
+    },
+    {
+     "type": "heading",
+     "level": 2,
+     "text": "Ce que propose le langage"
+    },
+    {
+     "type": "list",
+     "items": [
+      "Une syntaxe proche de celle de Python.",
+      "L'intégration des environnements d'exécution et des outils de TypeScript et de Python, avec des compilations vers le bytecode Python, JavaScript et du code machine natif.",
+      "L'accès aux bibliothèques de PyPI et de npm, et l'import de bibliothèques C et C++ grâce à LLVM, qui sert aussi à mettre en œuvre une vérification d'emprunts et de propriété à la manière de Rust.",
+      "Une fonction d'« éjection » qui rétro-compile du code Jac vers TypeScript, Python ou C."
+     ]
+    },
+    {
+     "type": "paragraph",
+     "text": "Le choix le plus singulier concerne les données : plutôt que des tables ou des classes, elles se décrivent sous forme de **graphe**. Des mots-clés de nœud définissent des attributs, des arêtes définissent les relations, et le graphe peut résider en mémoire, sur disque ou sur un serveur dans le nuage. La logique locale peut continuer à manipuler des objets."
+    },
+    {
+     "type": "heading",
+     "level": 2,
+     "text": "Des « walkers » plutôt que des allers-retours"
+    },
+    {
+     "type": "paragraph",
+     "text": "Dans le modèle d'exécution de Jac, un agent ne va pas chercher puis traiter les données : il envoie des **walkers**, des programmes qui parcourent le graphe et traitent l'information au passage. Plusieurs walkers peuvent suivre des chemins différents en parallèle."
+    },
+    {
+     "type": "table",
+     "headers": [
+      "Aspect",
+      "Ce que rapporte l'article"
+     ],
+     "rows": [
+      [
+       "Démonstration",
+       "réplique de l'outil de revue de code Greptile, face à LangGraph"
+      ],
+      [
+       "Version Jac",
+       "application en plusieurs étapes, appelant plusieurs outils en parallèle"
+      ],
+      [
+       "Version LangGraph",
+       "machine à états linéaire, incapable de s'exécuter en parallèle"
+      ],
+      [
+       "Conclusion de Jason Mars",
+       "les outils fournis à une IA déterminent la qualité de sa production"
+      ]
+     ]
+    },
+    {
+     "type": "paragraph",
+     "text": "Il s'agit d'une démonstration unique, présentée par le créateur du langage : elle illustre une idée, sans prouver une supériorité générale."
+    },
+    {
+     "type": "heading",
+     "level": 2,
+     "text": "État du projet et limites"
+    },
+    {
+     "type": "paragraph",
+     "text": "Jac est utilisé dans plusieurs services commerciaux de taille modeste liés à l'IA : GraphClaw (plateforme multi-agents), le planificateur Skooch et la plateforme de mémoire personnelle Tobu. L'article ne mentionne ni numéro de version stable ni licence. Java n'est pas pris en charge, ce que Jason Mars assume : si l'on a vraiment besoin de Java, Jac n'est pas fait pour cela. Construire un modèle en graphe demande aussi plus de travail initial que des tables, un coût que son auteur dit compensé par des économies de jetons par la suite."
+    },
+    {
+     "type": "usecases",
+     "title": "Exemples d'utilisation",
+     "items": [
+      {
+       "icon": "🕵️",
+       "title": "Agent de revue de code",
+       "text": "Plusieurs walkers analysent en parallèle des fichiers, des historiques et des tests, puis agrègent leurs constats dans le graphe."
+      },
+      {
+       "icon": "🧠",
+       "title": "Mémoire d'assistant personnel",
+       "text": "Un assistant conserve des personnes, des événements et leurs relations sous forme de graphe, au lieu de rejouer une longue conversation."
+      },
+      {
+       "icon": "🔀",
+       "title": "Équipe mêlant Python et TypeScript",
+       "text": "Elle écrit la logique d'agent une fois et la compile vers les deux environnements, quitte à « éjecter » le code si le projet change d'orientation."
+      }
+     ]
+    },
+    {
+     "type": "timeline",
+     "title": "D'où l'on vient, où l'on va",
+     "items": [
+      {
+       "label": "Cette semaine",
+       "text": "Présentation de Jac à All Things Open, à Raleigh."
+      },
+      {
+       "label": "À venir",
+       "text": "Reste à voir si les développeurs et les agents adopteront le langage, selon The Register."
+      }
+     ]
+    },
+    {
+     "type": "opinion",
+     "title": "Notre avis",
+     "paragraphs": [
+      "L'idée de rapprocher le modèle de données du raisonnement d'un agent est séduisante, car un graphe exprime naturellement des relations qu'un agent doit explorer. Mais un nouveau langage doit convaincre sur des années : documentation, outils, communauté, stabilité. Sans licence ni version stable mentionnées, et avec un seul banc d'essai présenté par son auteur, l'enthousiasme doit rester mesuré.",
+      "À un horizon d'un à trois ans, le plus probable est que certaines de ses idées (données en graphe, exécution parallèle par parcours) soient reprises par des bibliothèques existantes plutôt que par un langage entier. C'est une opinion argumentée, pas une prévision certaine."
+     ],
+     "verdict": "Une idée à suivre, avant de miser un projet sur un langage encore jeune."
+    },
+    {
+     "type": "callout",
+     "title": "À retenir",
+     "text": "Jac compile vers Python, JavaScript et du code natif, modélise les données en graphe et confie leur traitement à des « walkers » ; le projet reste jeune et peu éprouvé."
+    }
+   ],
+   "illustration": {
+    "svg": "<svg xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"0 0 640 360\"><defs><linearGradient id=\"g7650\" x1=\"0\" y1=\"0\" x2=\"1\" y2=\"1\"><stop offset=\"0\" stop-color=\"hsl(320,62%,30%)\"/><stop offset=\"1\" stop-color=\"hsl(355,66%,44%)\"/></linearGradient></defs><rect width=\"640\" height=\"360\" fill=\"url(#g7650)\"/><circle cx=\"580\" cy=\"50\" r=\"95\" fill=\"#fff\" fill-opacity=\".07\"/><circle cx=\"55\" cy=\"325\" r=\"115\" fill=\"#fff\" fill-opacity=\".06\"/><path d=\"M320 95 L200 235 M320 95 L440 235 M200 235 H440 M320 95 V235\" stroke=\"#fff\" stroke-width=\"5\" stroke-opacity=\".7\"/><circle cx=\"320\" cy=\"95\" r=\"26\" fill=\"#fff\"/><circle cx=\"200\" cy=\"235\" r=\"22\" fill=\"#fff\"/><circle cx=\"440\" cy=\"235\" r=\"22\" fill=\"#fff\"/><circle cx=\"320\" cy=\"235\" r=\"18\" fill=\"#fff\"/></svg>"
+   },
+   "publishedAt": "2026-10-25T10:19:42+01:00"
+  },
+  {
+   "id": "dan-luu-logiciels-plus-ambitieux-ia",
+   "category": "dev",
+   "icon": "🚀",
+   "importance": 4,
+   "title": "Dan Luu : l'IA rend réalisables des projets logiciels jusque-là hors de portée, à condition de savoir les vérifier",
+   "summary": "Dans un essai publié ce week-end, le développeur plaide pour viser plus haut, en s'appuyant sur le projet pgrust et sur ses propres outils, tout en publiant la critique de Yossi Kreinin.",
+   "tags": [
+    "Dan Luu",
+    "IA générative",
+    "productivité",
+    "pgrust",
+    "vérification"
+   ],
+   "readingMinutes": 5,
+   "sourceDate": "2026-10-25",
+   "sources": [
+    {
+     "title": "We should be more ambitious with the software we build",
+     "url": "https://danluu.com/ambitious/",
+     "publisher": "danluu.com"
+    }
+   ],
+   "blocks": [
+    {
+     "type": "paragraph",
+     "text": "Un essai de Dan Luu, arrivé en tête de Hacker News avec plus de 400 points ce dimanche 25 octobre 2026, relance un débat de fond : si les outils de programmation assistée par IA ont changé le coût du développement, quels projets devient-il raisonnable de tenter ? Sa réponse tient dans le titre : « nous devrions être plus ambitieux avec les logiciels que nous construisons ». Il reprend la formule à Michael Malis et précise qu'il écrirait volontiers « nous pouvons » plutôt que « nous devrions »."
+    },
+    {
+     "type": "heading",
+     "level": 2,
+     "text": "L'argument central"
+    },
+    {
+     "type": "paragraph",
+     "text": "Dan Luu reconnaît que la plupart des projets générés par IA sont de mauvaise qualité. Mais il soutient qu'un développeur qui teste et mesure rigoureusement peut produire un travail suffisamment bon pour être utilisé. Le flot de contenus bâclés ne change rien, à ses yeux, à ce qu'un constructeur individuel peut accomplir."
+    },
+    {
+     "type": "paragraph",
+     "text": "Son exemple principal est **pgrust**, une réécriture de PostgreSQL menée par Michael Malis, dont l'argument est la performance. Les tests de ce dernier ont mis au jour de vrais bogues dans PostgreSQL lui-même (un problème numérique dans SP-GiST, un défaut de cache du format JSONPath, un bogue de pgcrypto, des erreurs de sûreté mémoire dans le chargeur de dictionnaires, un dépassement dans le type monétaire). Malis reste prudent : pgrust n'est pas prêt pour servir de base de production, et il reconnaît qu'avoir soumis une préversion à un banc d'essai de ClickHouse était prématuré."
+    },
+    {
+     "type": "list",
+     "items": [
+      "**Moteur d'expressions régulières** réglé sur ses charges de travail, plus rapide que les bibliothèques généralistes sur celles-ci.",
+      "**Fork de ripgrep** qui utilise le compilateur natif de ce moteur, plus rapide pour ses recherches pilotées par des agents.",
+      "**Chaîne d'outils Rust** modifiée : gains importants sur les compilations à froid, plus modérés à chaud.",
+      "Ces travaux ont coûté « quelques heures » de son temps ; en faire des produits aboutis demanderait beaucoup plus."
+     ]
+    },
+    {
+     "type": "heading",
+     "level": 2,
+     "text": "Une capacité qui progresse, et un fossé qui se creuse"
+    },
+    {
+     "type": "paragraph",
+     "text": "Luu cite des essais personnels : environ cinq heures pour atteindre un jeu de plateau surhumain avec une IA, une implémentation de zstd qui réussit plus de 99 % des tests enregistrés pour environ un dollar, et des banques d'évaluation de plus en plus exigeantes (le protocole IMAP, Pandoc) à mesure que les modèles progressent. Il constate surtout que l'écart se creuse entre ce que les modèles savent écrire et ce qu'ils savent vérifier, d'où son insistance sur les domaines où la vérification est possible : tests de propriétés, génération aléatoire de cas, cohérence entre sources contradictoires."
+    },
+    {
+     "type": "heading",
+     "level": 2,
+     "text": "La contradiction publiée en annexe"
+    },
+    {
+     "type": "paragraph",
+     "text": "Luu publie la critique de Yossi Kreinin, selon qui la plupart des gens devraient au contraire être moins ambitieux. Ses arguments : les boucles d'agents exigent des critères clairs de réussite que beaucoup de problèmes n'ont pas ; on raisonne mal sur des systèmes opaques ; l'optimisation pilotée par IA produit souvent du code confus, surajusté et difficile à maintenir. Luu maintient sa position et estime que l'auto-vérification peut rendre de nombreux domaines vérifiables."
+    },
+    {
+     "type": "paragraph",
+     "text": "L'auteur prévient lui-même que le texte a été écrit vite, relu peu et sans mesures rigoureuses : de nombreuses affirmations sont moins solides que dans ses articles habituels."
+    },
+    {
+     "type": "usecases",
+     "title": "Exemples d'utilisation",
+     "items": [
+      {
+       "icon": "🗄️",
+       "title": "Moteur de base de données",
+       "text": "Une équipe réécrit un composant critique en s'appuyant sur une suite de tests existante et compare chaque résultat à l'implémentation de référence."
+      },
+      {
+       "icon": "🛠️",
+       "title": "Outils internes",
+       "text": "Un développeur remplace un script lent par un outil sur mesure, réglé sur ses charges réelles, en quelques heures plutôt qu'en plusieurs semaines."
+      },
+      {
+       "icon": "🧪",
+       "title": "Vérification continue",
+       "text": "Un projet ajoute du fuzzing et des tests de propriétés avant de confier un chantier à un agent, afin que chaque modification soit contrôlée automatiquement."
+      }
+     ]
+    },
+    {
+     "type": "timeline",
+     "title": "D'où l'on vient, où l'on va",
+     "items": [
+      {
+       "label": "Avec GPT-5.1 et 5.2",
+       "text": "Environ 5 heures pour atteindre un jeu de plateau surhumain, environ 20 heures pour ce qui semblait la meilleure IA du moment."
+      },
+      {
+       "label": "2026",
+       "text": "Les modèles récents réussissent en une passe des tâches qui exigeaient un accompagnement ; Luu passe à des évaluations plus difficiles."
+      },
+      {
+       "label": "Prochains mois",
+       "text": "Les outils conçus autour des modèles actuels risquent d'être obsolètes en quelques mois, avertit l'auteur."
+      }
+     ]
+    },
+    {
+     "type": "opinion",
+     "title": "Notre avis",
+     "paragraphs": [
+      "L'essai a le mérite de déplacer la question : l'enjeu n'est plus de savoir si une IA sait coder, mais ce qui devient rentable à construire quand le coût d'une première version s'effondre. La réserve de Kreinin est tout aussi pertinente : sans critère de réussite mesurable, l'ambition se transforme en dette. Les exemples cités viennent en outre d'un auteur très expérimenté, ce qui limite leur portée pour des équipes moyennes.",
+      "À un horizon d'un à trois ans, la compétence décisive devrait être la conception de bancs de vérification plutôt que l'écriture du code lui-même. C'est une opinion argumentée, non un fait établi."
+     ],
+     "verdict": "Viser plus haut, oui, mais seulement là où l'on sait mesurer le résultat."
+    },
+    {
+     "type": "callout",
+     "title": "À retenir",
+     "text": "Plus ambitieux ne veut pas dire plus confiant : l'essai plaide pour des projets vérifiables, avec des tests solides, et cite sa propre contradiction."
+    }
+   ],
+   "illustration": {
+    "svg": "<svg xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"0 0 640 360\"><defs><linearGradient id=\"g2150\" x1=\"0\" y1=\"0\" x2=\"1\" y2=\"1\"><stop offset=\"0\" stop-color=\"hsl(265,62%,30%)\"/><stop offset=\"1\" stop-color=\"hsl(300,66%,44%)\"/></linearGradient></defs><rect width=\"640\" height=\"360\" fill=\"url(#g2150)\"/><circle cx=\"580\" cy=\"50\" r=\"95\" fill=\"#fff\" fill-opacity=\".07\"/><circle cx=\"55\" cy=\"325\" r=\"115\" fill=\"#fff\" fill-opacity=\".06\"/><path d=\"M270 110 L190 180 L270 250 M370 110 L450 180 L370 250\" fill=\"none\" stroke=\"#fff\" stroke-width=\"14\" stroke-linecap=\"round\" stroke-linejoin=\"round\"/><path d=\"M345 90 L295 270\" stroke=\"#fff\" stroke-width=\"12\" stroke-linecap=\"round\" stroke-opacity=\".75\"/></svg>"
+   },
+   "publishedAt": "2026-10-25T10:19:42+01:00"
+  },
+  {
+   "id": "goose-langage-securite-memoire-sans-ramasse-miettes",
+   "category": "dev",
+   "icon": "🪿",
+   "importance": 4,
+   "title": "Goose : un langage de programmation sûr en mémoire, sans ramasse-miettes ni annotations de durée de vie, écrit avec l'aide de l'IA",
+   "summary": "Wouter van Oortmerssen conçoit le langage ; le compilateur, d'environ 30 000 lignes de C++, a été implémenté presque entièrement par une IA, avec des performances annoncées proches du C++ optimisé.",
+   "tags": [
+    "Goose",
+    "langage de programmation",
+    "sûreté mémoire",
+    "compilateur",
+    "Apache 2.0"
+   ],
+   "readingMinutes": 5,
+   "sourceDate": "2026-10-25",
+   "sources": [
+    {
+     "title": "The Goose Programming Language",
+     "url": "https://aardappel.github.io/goose/",
+     "publisher": "aardappel.github.io"
+    }
+   ],
+   "blocks": [
+    {
+     "type": "paragraph",
+     "text": "Un nouveau langage de programmation arrive en tête de Hacker News avec près de 400 points : **Goose**. Son dépôt le décrit comme un langage de systèmes sûr en mémoire, **sans allocateur de tas, sans ramasse-miettes et sans annotations de durée de vie**, avec une syntaxe familière aux développeurs C et Rust. Son concepteur, Wouter van Oortmerssen, a défini le langage et ses règles de codage ; l'implémentation du compilateur, les mesures de performance, les exemples et la documentation ont été produits par une IA, ce que le dépôt présente comme une expérience."
+    },
+    {
+     "type": "heading",
+     "level": 2,
+     "text": "Le principe : tout vit sur des piles de données"
+    },
+    {
+     "type": "paragraph",
+     "text": "Au lieu d'un tas, chaque valeur dynamique vit en ligne sur des piles de données gérées par le compilateur. Un programme dispose de la pile d'appel native, de données statiques et de plusieurs piles de données dont les tailles sont déterminées statiquement. L'allocation revient à avancer un pointeur et la libération survient à la sortie de la portée. Chaque référence a une « racine » inférée par le compilateur qui borne sa durée de vie : une référence qui pourrait survivre à son propriétaire est refusée."
+    },
+    {
+     "type": "list",
+     "items": [
+      "**Tableaux** de tailles fixe, à croissance seule ou à croissance et décroissance ; les références vers un tableau à croissance seule restent valides quand il grossit.",
+      "**Énumérations** à variantes de tailles variables, avec vérification de l'exhaustivité des cas.",
+      "**Références relatives** qui rendent les structures indépendantes de leur position : sauvegarder revient à écrire, charger à lire puis vérifier.",
+      "**Erreurs** gérées par un retour direct vers un appel actif en amont, sans type de résultat ni opérateur `?`.",
+      "**Concurrence** par des « travailleurs » aux mémoires séparées qui échangent des valeurs par copie à plat : ni verrous, ni atomiques, ni données mutables partagées.",
+      "**Interopérabilité C** : le compilateur produit du C et appelle directement des fonctions C ; un moteur TinyCC intégré peut compiler et exécuter en mémoire."
+     ]
+    },
+    {
+     "type": "heading",
+     "level": 2,
+     "text": "Des performances annoncées par l'auteur"
+    },
+    {
+     "type": "paragraph",
+     "text": "Sur sa propre suite de seize bancs d'essai, le projet indique une moyenne géométrique d'environ 3,5 fois le C++ idiomatique, 1,2 fois le C++ optimisé à la main et 1,1 fois le meilleur Rust sûr, avec environ 1,95 fois moins de mémoire de pointe. Ces mesures sont celles de l'auteur et n'ont pas été reproduites de façon indépendante."
+    },
+    {
+     "type": "heading",
+     "level": 2,
+     "text": "Les compromis assumés"
+    },
+    {
+     "type": "paragraph",
+     "text": "Le dépôt énumère lui-même ses coûts : il faut réfléchir à l'endroit où vivent les données et à qui les possède ; une fonction récursive ne peut pas conserver de données extensibles d'un appel à l'autre ; les tableaux d'éléments de taille variable s'itèrent mais ne s'indexent pas ; il n'y a ni fermetures qui s'échappent, ni pointeurs de fonction, ni répartition dynamique hors étiquettes de types algébriques ; la compilation se fait uniquement sur le programme entier."
+    },
+    {
+     "type": "keyvalue",
+     "items": [
+      {
+       "label": "Licence",
+       "value": "Apache 2.0"
+      },
+      {
+       "label": "Compilateur",
+       "value": "environ 30 000 lignes de C++, spécification, bibliothèque standard, 31 exemples"
+      },
+      {
+       "label": "Intégration continue",
+       "value": "Windows, macOS et Linux"
+      },
+      {
+       "label": "Versions précompilées",
+       "value": "Windows x64, Linux x64 et macOS"
+      }
+     ]
+    },
+    {
+     "type": "usecases",
+     "title": "Exemples d'utilisation",
+     "items": [
+      {
+       "icon": "🎮",
+       "title": "Moteur de jeu",
+       "text": "Des structures contiguës et sans pointeurs internes se chargent et se sauvegardent par simple copie, utile pour des états de partie ou des niveaux."
+      },
+      {
+       "icon": "📟",
+       "title": "Programme embarqué",
+       "text": "L'absence de tas et de ramasse-miettes rend la consommation mémoire prévisible, un atout sur un microcontrôleur."
+      },
+      {
+       "icon": "🧪",
+       "title": "Expérience de langage",
+       "text": "Un chercheur étudie comment une IA peut implémenter un compilateur à partir d'une spécification humaine, en s'appuyant sur les tests du projet."
+      }
+     ]
+    },
+    {
+     "type": "timeline",
+     "title": "D'où l'on vient, où l'on va",
+     "items": [
+      {
+       "label": "Aujourd'hui",
+       "text": "Projet jeune, compilateur de programme entier, versions précompilées pour trois systèmes."
+      },
+      {
+       "label": "Hors périmètre pour l'instant",
+       "text": "Déplacements de valeurs redimensionnables, `break` étiqueté et confidentialité des espaces de noms."
+      }
+     ]
+    },
+    {
+     "type": "opinion",
+     "title": "Notre avis",
+     "paragraphs": [
+      "Goose tente une troisième voie entre la gestion manuelle du C et les emprunts de Rust : confier la sûreté à une discipline de piles plutôt qu'à des annotations. Les restrictions annoncées, notamment l'absence de fermetures et de pointeurs de fonction, rappellent que cette simplicité a un prix. Sur la méthode, l'expérience est aussi un cas d'école de développement assisté, mais les chiffres de performance, mesurés par l'auteur, appellent des reproductions.",
+      "À un horizon d'un à trois ans, le projet devrait être jugé sur des programmes réels plutôt que sur des bancs d'essai, et sur la facilité d'adoption par des développeurs habitués à Rust ou à C++. Il pourrait aussi inspirer d'autres langages. C'est une opinion argumentée."
+     ],
+     "verdict": "Une proposition originale, à éprouver sur de vrais programmes avant de la juger."
+    },
+    {
+     "type": "callout",
+     "title": "À retenir",
+     "text": "Goose garantit la sûreté mémoire par des piles gérées par le compilateur ; les performances annoncées sont celles de l'auteur et le langage reste très récent."
+    }
+   ],
+   "illustration": {
+    "svg": "<svg xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"0 0 640 360\"><defs><linearGradient id=\"g7973\" x1=\"0\" y1=\"0\" x2=\"1\" y2=\"1\"><stop offset=\"0\" stop-color=\"hsl(265,62%,30%)\"/><stop offset=\"1\" stop-color=\"hsl(300,66%,44%)\"/></linearGradient></defs><rect width=\"640\" height=\"360\" fill=\"url(#g7973)\"/><circle cx=\"580\" cy=\"50\" r=\"95\" fill=\"#fff\" fill-opacity=\".07\"/><circle cx=\"55\" cy=\"325\" r=\"115\" fill=\"#fff\" fill-opacity=\".06\"/><rect x=\"240\" y=\"95\" width=\"160\" height=\"160\" rx=\"16\" fill=\"none\" stroke=\"#fff\" stroke-width=\"7\"/><rect x=\"280\" y=\"135\" width=\"80\" height=\"80\" rx=\"8\" fill=\"#fff\"/><path d=\"M280 95 V70 M280 255 V280\" stroke=\"#fff\" stroke-width=\"7\" stroke-linecap=\"round\"/><path d=\"M320 95 V70 M320 255 V280\" stroke=\"#fff\" stroke-width=\"7\" stroke-linecap=\"round\"/><path d=\"M360 95 V70 M360 255 V280\" stroke=\"#fff\" stroke-width=\"7\" stroke-linecap=\"round\"/><path d=\"M240 135 H215 M400 135 H425\" stroke=\"#fff\" stroke-width=\"7\" stroke-linecap=\"round\"/><path d=\"M240 175 H215 M400 175 H425\" stroke=\"#fff\" stroke-width=\"7\" stroke-linecap=\"round\"/><path d=\"M240 215 H215 M400 215 H425\" stroke=\"#fff\" stroke-width=\"7\" stroke-linecap=\"round\"/></svg>"
+   },
+   "publishedAt": "2026-10-25T10:19:42+01:00"
+  },
+  {
+   "id": "raspberry-pi-desktop-vieux-pc-thinkpad",
+   "category": "dev",
+   "icon": "🖥️",
+   "importance": 3,
+   "title": "Raspberry Pi Desktop sur PC : une distribution fondée sur Debian 13 redonne vie à de vieux ThinkPad",
+   "summary": "The Register a testé l'édition x86-64 de Raspberry Pi OS sur des portables de 2007 et 2008 : environ 450 Mo de mémoire au repos, mais une documentation tournée vers les cartes Raspberry Pi.",
+   "tags": [
+    "Raspberry Pi OS",
+    "Debian 13",
+    "ThinkPad",
+    "Linux léger",
+    "réemploi"
+   ],
+   "readingMinutes": 4,
+   "sourceDate": "2026-10-24",
+   "sources": [
+    {
+     "title": "Raspberry Pi Desktop proves old PCs aren't past it",
+     "url": "https://www.theregister.com/os-platforms/2026/10/24/raspberry-pi-desktop-proves-old-pcs-arent-past-it/5304676",
+     "publisher": "The Register"
+    }
+   ],
+   "cover": {
+    "url": "https://image.theregister.com/228466.jpg?imageId=228466&x=0&y=0&cropw=100&croph=100&panox=0&panoy=0&panow=100&panoh=100&width=1200&height=683",
+    "alt": "Visuel de l'article de The Register sur Raspberry Pi Desktop",
+    "credit": "theregister.com"
+   },
+   "blocks": [
+    {
+     "type": "paragraph",
+     "text": "Le système de la fondation Raspberry Pi n'est pas réservé aux petites cartes : une édition pour PC existe, et la dernière version fondée sur Debian 13 « Trixie » a été testée par The Register, dans un article du 24 octobre 2026, sur des portables ThinkPad vieux de près de vingt ans. Le verdict est nuancé mais favorable : une machine ancienne et modeste peut redevenir utilisable."
+    },
+    {
+     "type": "heading",
+     "level": 2,
+     "text": "Ce qui a changé"
+    },
+    {
+     "type": "paragraph",
+     "text": "L'édition x86-64 de Raspberry Pi OS affiche « PiOS 6.3 » à l'écran de démarrage. Elle reprenait du retard sur la version pour processeurs Arm, passée à Debian 13 environ un an plus tôt. Comme Debian 13 a abandonné le x86 32 bits, cette édition est exclusivement 64 bits. Elle utilise le noyau 6.12 de Debian par défaut, là où les éditions Arm emploient le 6.18. Le compositeur Wayland est labwc ; il est possible de revenir à X.org avec `raspi-config`."
+    },
+    {
+     "type": "table",
+     "headers": [
+      "Caractéristique",
+      "Valeur rapportée"
+     ],
+     "rows": [
+      [
+       "Téléchargement",
+       "environ 2,6 Go"
+      ],
+      [
+       "Taille installée",
+       "environ 8 Go"
+      ],
+      [
+       "Mémoire au repos",
+       "un peu moins de 450 Mo (environ 50 Mo de moins avec X.org et Openbox)"
+      ],
+      [
+       "Comparaison",
+       "environ la moitié de la mémoire de Lubuntu 26.04 dans les essais de l'auteur"
+      ]
+     ]
+    },
+    {
+     "type": "heading",
+     "level": 2,
+     "text": "Les essais sur de vieux ThinkPad"
+    },
+    {
+     "type": "list",
+     "items": [
+      "**ThinkPad X200s (2008)** : Core 2 Duo SL9400 à 1,86 GHz, 8 Go de mémoire et SSD de 128 Go. Wi-Fi, Bluetooth, Ethernet, USB 2, touches multimédias, sortie DisplayPort et configuration automatique d'imprimante réseau ont fonctionné.",
+      "**ThinkPad X61 Tablet (2007)** : 2 Go de mémoire DDR2 et un SSD ; démarrage en moins d'une demi-minute, Firefox et Chromium utilisables mais lents à afficher les pages ; l'écran tactile ne fonctionne pas.",
+      "**ThinkPad W500 (2008)** : processeur graphique AMD ; l'auteur le juge « franchement vif »."
+     ]
+    },
+    {
+     "type": "paragraph",
+     "text": "Wine 11 a fait tourner Microsoft Office 97 correctement, et WordPerfect pour Linux aussi. L'auteur estime en revanche qu'un PC de l'époque de Windows XP, il y a vingt-cinq ans, serait probablement trop faible, alors qu'une machine de l'ère Vista devrait convenir."
+    },
+    {
+     "type": "heading",
+     "level": 2,
+     "text": "Réserves"
+    },
+    {
+     "type": "paragraph",
+     "text": "La documentation intégrée vise le matériel Raspberry Pi, pas les PC. Des réglages de 2022 qui troquent un peu de sécurité contre de la vitesse sont suggérés. La prise en charge des Mac Intel existe mais dépend du modèle pour le Wi-Fi et les graphismes. Par rapport aux alternatives, la distribution est aussi légère que ChromeOS Flex sans exiger de compte Google, plus simple à installer qu'Alpine avec Xfce et plus légère que Mint Xfce, Linux Lite, MX Linux ou Lubuntu ; antiX et Tiny Core restent plus légères, mais moins accessibles aux débutants."
+    },
+    {
+     "type": "usecases",
+     "title": "Exemples d'utilisation",
+     "items": [
+      {
+       "icon": "🏫",
+       "title": "Association ou école",
+       "text": "Elle remet en service des portables reconditionnés pour des ateliers numériques, sans achat de matériel."
+      },
+      {
+       "icon": "👵",
+       "title": "Ordinateur familial",
+       "text": "Un portable de 2008 sert à nouveau pour la messagerie, la navigation et la bureautique de base, avec un système à jour."
+      },
+      {
+       "icon": "🧰",
+       "title": "Poste d'atelier",
+       "text": "Un ThinkPad ancien sert de terminal pour piloter une imprimante 3D, un graveur ou un banc de test."
+      }
+     ]
+    },
+    {
+     "type": "timeline",
+     "title": "D'où l'on vient, où l'on va",
+     "items": [
+      {
+       "label": "2023",
+       "text": "Raspberry Pi OS passe à Debian 12 avec un bureau Wayland ; l'édition PC n'est pas mise à jour."
+      },
+      {
+       "label": "Vers octobre 2025",
+       "text": "Passage à Debian 13 pour les cartes Arm ; l'édition PC n'est pas mise à jour."
+      },
+      {
+       "label": "23 septembre 2026",
+       "text": "Sortie de PiOS 6.3 pour Arm."
+      },
+      {
+       "label": "12 octobre 2026",
+       "text": "Annonce de la mise à jour Trixie du bureau pour PC."
+      },
+      {
+       "label": "24 octobre 2026",
+       "text": "Essai publié par The Register."
+      }
+     ]
+    },
+    {
+     "type": "opinion",
+     "title": "Notre avis",
+     "paragraphs": [
+      "L'intérêt est d'abord écologique et pratique : prolonger la vie d'un ordinateur évite d'en fabriquer un autre, et un système léger, à jour et sans compte obligatoire a de quoi séduire. Le test porte toutefois sur quelques machines choisies et sur des usages modestes ; la documentation orientée Raspberry Pi et les limites matérielles (écran tactile, ordinateurs trop anciens) rappellent que ce n'est pas une solution universelle.",
+      "À un horizon d'un à trois ans, la fin de la prise en charge de Windows 10 et la pression sur la durée de vie du matériel devraient entretenir l'intérêt pour ce type de distribution, notamment dans l'éducation et les associations. C'est une projection argumentée."
+     ],
+     "verdict": "Un bon outil pour prolonger la vie de portables des années 2007-2010."
+    },
+    {
+     "type": "callout",
+     "title": "À retenir",
+     "text": "PiOS 6.3 pour PC : Debian 13, 64 bits uniquement, environ 450 Mo de mémoire au repos, essayé sur des ThinkPad de 2007 et 2008."
+    }
+   ],
+   "illustration": {
+    "svg": "<svg xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"0 0 640 360\"><defs><linearGradient id=\"g1187\" x1=\"0\" y1=\"0\" x2=\"1\" y2=\"1\"><stop offset=\"0\" stop-color=\"hsl(265,62%,30%)\"/><stop offset=\"1\" stop-color=\"hsl(300,66%,44%)\"/></linearGradient></defs><rect width=\"640\" height=\"360\" fill=\"url(#g1187)\"/><circle cx=\"580\" cy=\"50\" r=\"95\" fill=\"#fff\" fill-opacity=\".07\"/><circle cx=\"55\" cy=\"325\" r=\"115\" fill=\"#fff\" fill-opacity=\".06\"/><rect x=\"225\" y=\"100\" width=\"190\" height=\"125\" rx=\"10\" fill=\"none\" stroke=\"#fff\" stroke-width=\"7\"/><path d=\"M190 255 H450 L430 225 H210 Z\" fill=\"#fff\"/><path d=\"M265 140 L290 162 L265 184 M305 184 H345\" fill=\"none\" stroke=\"#fff\" stroke-width=\"7\" stroke-linecap=\"round\" stroke-linejoin=\"round\"/></svg>"
+   },
+   "publishedAt": "2026-10-25T10:19:42+01:00"
+  },
+  {
+   "id": "brotli-http2shell-inventaire-correctifs-contournements",
+   "category": "devops",
+   "icon": "🧩",
+   "importance": 5,
+   "title": "Faille Brotli (CVE-2026-111497) : comment inventorier les composants concernés et appliquer correctifs ou contournements",
+   "summary": "Aikido détaille les versions corrigées de Node.js, Brotli, Bun, Envoy et Istio, et rappelle que des outils comme pip-audit et Dependabot ne signalaient pas encore ces versions le 23 octobre.",
+   "tags": [
+    "Brotli",
+    "CVE-2026-111497",
+    "HTTP2Shell",
+    "chaîne d'approvisionnement",
+    "Node.js",
+    "Python"
+   ],
+   "readingMinutes": 5,
+   "sourceDate": "2026-10-24",
+   "sources": [
+    {
+     "title": "Node2Shell evolves to HTTP2Shell: Brotli flaw (CVE-2026-111497) blast radius",
+     "url": "https://www.aikido.dev/blog/python-packages-vulnerable-node2shell-brotli-cve-2026-111497",
+     "publisher": "Aikido"
+    },
+    {
+     "title": "Brotli Decoder Flaw Behind Node.js RCE Also Affects Bun, Python and Other Widely Used Software",
+     "url": "https://thehackernews.com/2026/10/brotli-decoder-flaw-behind-nodejs-rce.html",
+     "publisher": "The Hacker News"
+    }
+   ],
+   "cover": {
+    "url": "https://cdn.prod.website-files.com/642adcaf364024654c71df23/6adbe4dc7746ea7df4365811_Node-JS_OG.jpg",
+    "alt": "Visuel du billet d'Aikido sur la faille Brotli et Node.js",
+    "credit": "aikido.dev"
+   },
+   "blocks": [
+    {
+     "type": "paragraph",
+     "text": "Une faille du décodeur Brotli de Google, déjà évoquée pour ses effets sur Node.js, Bun, Python, Envoy et Istio, impose désormais un travail d'inventaire. Aikido, dans un billet publié le 23 octobre 2026 et mis à jour le 24, propose un plan d'action pour **CVE-2026-111497**, une écriture hors limites notée **9,2** (critique) sur l'échelle CVSS 4.0. Le nom « HTTP2Shell » désigne l'élargissement du périmètre : le problème ne se limite plus à Node.js et touche de nombreuses bibliothèques et applications qui décodent du Brotli sur le réseau."
+    },
+    {
+     "type": "heading",
+     "level": 2,
+     "text": "Le défaut en deux phrases"
+    },
+    {
+     "type": "paragraph",
+     "text": "La fonction `DecodeBlockTypeAndLength()` renvoie un booléen qui ne distingue pas un flux mal formé d'une demande de données supplémentaires. Sa valeur de retour est ignorée sur le chemin rapide : un flux construit pour l'occasion peut donc faire écrire le décodeur au-delà de son tampon. Les versions 1.0.3 à 1.2.0 de Brotli sont concernées. La correction de fond date de février, mais son impact sur la sécurité n'avait pas été reconnu ; aucune version ne la portait avant cette semaine, et chaque projet qui embarque Brotli doit publier sa propre mise à jour."
+    },
+    {
+     "type": "heading",
+     "level": 2,
+     "text": "Versions corrigées"
+    },
+    {
+     "type": "table",
+     "headers": [
+      "Composant",
+      "Versions corrigées"
+     ],
+     "rows": [
+      [
+       "Node.js",
+       "22.23.4, 24.22.1 ou 26.12.1"
+      ],
+      [
+       "Brotli (PyPI)",
+       "1.2.1, ou 1.0.10 et 1.1.1 en amont pour les branches anciennes"
+      ],
+      [
+       "brotlicffi",
+       "1.2.1.0"
+      ],
+      [
+       "Bun",
+       "1.4.4"
+      ],
+      [
+       "Envoy",
+       "1.40.0, 1.39.3, 1.38.6 ou 1.37.8"
+      ],
+      [
+       "Istio",
+       "1.29.9, 1.30.6 ou 1.31.2 (la branche 1.29 est en fin de vie)"
+      ]
+     ]
+    },
+    {
+     "type": "paragraph",
+     "text": "Pour les paquets des distributions, il faut installer les mises à jour de sécurité du fournisseur, qui peut corriger sans changer le numéro de version. La bibliothèque curl/libcurl et les constructions natives libbrotli ou C++ sont également citées parmi les composants à vérifier."
+    },
+    {
+     "type": "heading",
+     "level": 2,
+     "text": "Inventaire et priorités"
+    },
+    {
+     "type": "list",
+     "items": [
+      "Vérifier les versions installées dans tous les environnements : conteneurs, exécuteurs d'intégration continue, postes de travail.",
+      "Chercher les dépendances transitives ; en Python, `pipdeptree -r -p Brotli` aide à retrouver ce qui dépend de la bibliothèque.",
+      "Mettre à jour, reconstruire les images, redéployer et redémarrer les services.",
+      "Traiter en priorité les services qui appellent des serveurs non fiables ou qui acceptent des corps de requête compressés.",
+      "Contrôler les correctifs à la main : au 23 octobre, pip-audit, Dependabot et Safety ne signalaient pas ces versions."
+     ]
+    },
+    {
+     "type": "heading",
+     "level": 2,
+     "text": "Contournements provisoires"
+    },
+    {
+     "type": "paragraph",
+     "text": "Désinstaller Brotli et brotlicffi lorsque leur prise en charge est facultative : les clients retombent sur gzip et deflate, même si un serveur peut encore envoyer du Brotli. Refuser en entrée les requêtes dont `Content-Encoding` contient `br`, au niveau du mandataire ou d'un intergiciel. En sortie, retirer `br` de `Accept-Encoding` et refuser les réponses Brotli avant décodage ; changer l'en-tête seul ne suffit pas. Le module `mod_brotli` d'Apache et Nginx ne décodent pas Brotli par défaut."
+    },
+    {
+     "type": "paragraph",
+     "text": "Côté exploitation, The Hacker News n'avait pas relevé d'exploitation dans la nature pour Node.js au 22 octobre, tandis que des chercheurs, dont Imperva, en ont rapporté contre une version non modifiée de Node.js 24.22.0. Pour Python, les essais d'Aikido n'ont pas cherché la corruption mémoire ni l'exécution de code, mais l'éditeur recommande de traiter la faille comme urgente."
+    },
+    {
+     "type": "usecases",
+     "title": "Exemples d'utilisation",
+     "items": [
+      {
+       "icon": "🐳",
+       "title": "Équipe plateforme",
+       "text": "Elle analyse toutes ses images de conteneurs, repère les copies de Brotli embarquées et planifie la reconstruction avec les versions corrigées."
+      },
+      {
+       "icon": "🌐",
+       "title": "Passerelle d'API",
+       "text": "Un service qui accepte des corps compressés rejette temporairement `Content-Encoding: br` au niveau du mandataire, le temps du déploiement."
+      },
+      {
+       "icon": "🐍",
+       "title": "Application Python",
+       "text": "Un développeur retrouve avec `pipdeptree` quelle bibliothèque HTTP importe Brotli, puis monte à la version 1.2.1."
+      }
+     ]
+    },
+    {
+     "type": "timeline",
+     "title": "D'où l'on vient, où l'on va",
+     "items": [
+      {
+       "label": "Février 2026",
+       "text": "Correction de fond en amont, sans reconnaissance de son impact sécurité."
+      },
+      {
+       "label": "21-22 octobre 2026",
+       "text": "Divulgation côté Node.js, sous le nom « node2shell »."
+      },
+      {
+       "label": "Le lendemain",
+       "text": "Correctif Python, puis confirmation de l'impact sur les paquets Python."
+      },
+      {
+       "label": "23 octobre 2026",
+       "text": "Extension du périmètre à d'autres langages et services HTTP."
+      }
+     ]
+    },
+    {
+     "type": "opinion",
+     "title": "Notre avis",
+     "paragraphs": [
+      "L'épisode illustre le coût caché des bibliothèques embarquées : un correctif amont ne protège personne tant que chaque projet qui copie le code ne publie pas le sien, et les outils d'audit automatiques ont un temps de retard précisément quand on en a besoin. Le plan d'action d'Aikido est utile surtout par sa concrétude, mais il vient d'un éditeur de sécurité qui a intérêt à souligner l'ampleur du risque.",
+      "À un horizon d'un à trois ans, la pression devrait se porter sur les nomenclatures logicielles (SBOM) fiables et sur des mises à jour de dépendances automatisées plus réactives. Pour l'instant, c'est une projection argumentée."
+     ],
+     "verdict": "La priorité n'est pas de débattre du nom, mais de savoir où Brotli se cache dans son parc."
+    },
+    {
+     "type": "callout",
+     "title": "À retenir",
+     "text": "CVE-2026-111497 : mettre à jour Node.js, Bun, Envoy, Istio et les paquets Brotli, ne pas se fier aux seuls outils d'audit et bloquer `br` en attendant si nécessaire."
+    }
+   ],
+   "illustration": {
+    "svg": "<svg xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"0 0 640 360\"><defs><linearGradient id=\"g6832\" x1=\"0\" y1=\"0\" x2=\"1\" y2=\"1\"><stop offset=\"0\" stop-color=\"hsl(160,62%,30%)\"/><stop offset=\"1\" stop-color=\"hsl(195,66%,44%)\"/></linearGradient></defs><rect width=\"640\" height=\"360\" fill=\"url(#g6832)\"/><circle cx=\"580\" cy=\"50\" r=\"95\" fill=\"#fff\" fill-opacity=\".07\"/><circle cx=\"55\" cy=\"325\" r=\"115\" fill=\"#fff\" fill-opacity=\".06\"/><path d=\"M320 95 L200 235 M320 95 L440 235 M200 235 H440 M320 95 V235\" stroke=\"#fff\" stroke-width=\"5\" stroke-opacity=\".7\"/><circle cx=\"320\" cy=\"95\" r=\"26\" fill=\"#fff\"/><circle cx=\"200\" cy=\"235\" r=\"22\" fill=\"#fff\"/><circle cx=\"440\" cy=\"235\" r=\"22\" fill=\"#fff\"/><circle cx=\"320\" cy=\"235\" r=\"18\" fill=\"#fff\"/></svg>"
+   },
+   "publishedAt": "2026-10-25T10:19:42+01:00"
+  },
+  {
+   "id": "roboparty-rp1-robot-humanoide-open-source",
+   "category": "electronique",
+   "icon": "🤖",
+   "importance": 4,
+   "title": "RoboParty RP1 : un robot humanoïde de 1,35 m dont les plans matériels sont publiés en open source",
+   "summary": "Deux versions à 24 ou 30 degrés de liberté, un RK3588, des actionneurs jusqu'à 160 N·m et un dépôt GitHub avec fichiers SolidWorks, circuits imprimés et nomenclatures.",
+   "tags": [
+    "RoboParty",
+    "RP1",
+    "robot humanoïde",
+    "open source",
+    "RK3588",
+    "robotique"
+   ],
+   "readingMinutes": 5,
+   "sourceDate": "2026-10-23",
+   "sources": [
+    {
+     "title": "RoboParty RP1 (ROBOTO 01) – A full-stack open-source humanoid robot with up to 30 degrees of freedom",
+     "url": "https://www.cnx-software.com/2026/10/23/roboparty-rp1-roboto-01-a-full-stack-open-source-humanoid-robot-with-up-to-30-degrees-of-freedom/",
+     "publisher": "CNX Software"
+    },
+    {
+     "title": "RoboParty Unveils RP1, a High-Performance Full-Stack Open-Source Humanoid Robot at IROS",
+     "url": "https://kyodonewsprwire.jp/release/202610047240",
+     "publisher": "Kyodo News PR Wire"
+    }
+   ],
+   "cover": {
+    "url": "https://www.cnx-software.com/wp-content/uploads/2026/10/RoboParty-RP1ROBOTO-01-an-open-source-humanoid-robot.jpg",
+    "alt": "Le robot humanoïde open source RoboParty RP1",
+    "credit": "cnx-software.com"
+   },
+   "blocks": [
+    {
+     "type": "paragraph",
+     "text": "La société shanghaïenne **RoboParty** a présenté le **RP1** (ROBOTO 01), un robot humanoïde destiné à la recherche, à l'enseignement et au développement d'IA embarquée, dont elle publie une partie des plans. Selon CNX Software, il se décline en une version standard à **24 degrés de liberté actifs** et une version **RP1 Pro** à **30 degrés**. Le communiqué de presse relayé par Kyodo situe le lancement à la conférence IROS, le 28 septembre 2026, comme successeur du projet RPO (ROBOTO ORIGIN), lancé en janvier 2026."
+    },
+    {
+     "type": "heading",
+     "level": 2,
+     "text": "Fiche technique"
+    },
+    {
+     "type": "table",
+     "headers": [
+      "Caractéristique",
+      "RP1",
+      "RP1 Pro"
+     ],
+     "rows": [
+      [
+       "Degrés de liberté",
+       "24",
+       "30"
+      ],
+      [
+       "Calculateur principal",
+       "Rockchip RK3588 (NPU de 6 TOPS), 8 Go de mémoire, 32 Go eMMC",
+       "RK3588 + Allwinner A733 + module NVIDIA Jetson Orin NX 16 Go"
+      ],
+      [
+       "Bras",
+       "5 degrés de liberté",
+       "7 degrés de liberté"
+      ],
+      [
+       "Caméra",
+       "aucune en standard",
+       "caméra RVB monoculaire"
+      ],
+      [
+       "Mains",
+       "mains factices",
+       "mains dextres à 6 degrés de liberté"
+      ],
+      [
+       "Masse",
+       "environ 39 kg",
+       "environ 41 kg"
+      ]
+     ]
+    },
+    {
+     "type": "paragraph",
+     "text": "Le robot mesure 1,35 m, pour 1 350 x 450 x 200 mm. Les articulations ROMOMO, conçues en interne, atteignent 160 N·m de couple maximal pour le module de 100 mm de diamètre. Un microcontrôleur à 480 MHz gère la planification des mouvements, la séquence d'alimentation et l'arrêt d'urgence, pendant que le RK3588 traite l'inférence, la vision, la parole et l'interaction. Les vitesses annoncées vont jusqu'à 4 m/s à la course, avec une pente maximale de 30° et un obstacle franchissable de 50 mm, selon le fabricant."
+    },
+    {
+     "type": "keyvalue",
+     "items": [
+      {
+       "label": "Batterie",
+       "value": "10 Ah, double tension, remplaçable à chaud, jusqu'à 3 heures d'autonomie"
+      },
+      {
+       "label": "Recharge",
+       "value": "140 W USB-C ou magnétique, environ 1,5 heure"
+      },
+      {
+       "label": "Sécurité",
+       "value": "arrêt d'urgence à trois canaux, filaire ou radio 433 MHz, articulations protégées contre le pincement"
+      },
+      {
+       "label": "Connectique",
+       "value": "2 x Ethernet, Wi-Fi 6, Bluetooth 5.2, 4G, USB-A et USB-C"
+      }
+     ]
+    },
+    {
+     "type": "heading",
+     "level": 2,
+     "text": "Ce qui est réellement ouvert"
+    },
+    {
+     "type": "paragraph",
+     "text": "Les ressources matérielles sont publiées dans le dépôt GitHub `RP1_hardware` : assemblages et pièces SolidWorks modifiables, modèles Parasolid, plans mécaniques, fichiers de fabrication de circuits imprimés, Gerber, données de placement et faisceaux de câblage. Pour le logiciel, la situation est moins nette : le communiqué parle d'une ouverture progressive des systèmes de contrôle du mouvement, des environnements de simulation, des SDK, des outils d'entraînement et de la base PartyOS, avec des précisions annoncées pour octobre 2026. Des synthèses divergent sur la part déjà accessible ; la déclaration officielle de l'entreprise fait foi."
+    },
+    {
+     "type": "diagram",
+     "svg": "<svg xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"0 0 640 208\" font-family=\"system-ui,sans-serif\"><rect width=\"640\" height=\"208\" rx=\"16\" fill=\"#eef2f7\"/><text x=\"320\" y=\"30\" text-anchor=\"middle\" font-size=\"15\" font-weight=\"700\" fill=\"#1f2a37\">Architecture de contrôle du RP1</text><defs><marker id=\"a\" viewBox=\"0 0 10 10\" refX=\"8\" refY=\"5\" markerWidth=\"7\" markerHeight=\"7\" orient=\"auto\"><path d=\"M0 0 L10 5 L0 10 z\" fill=\"#4b5563\"/></marker></defs><rect x=\"10.0\" y=\"52\" width=\"143.0\" height=\"101\" rx=\"12\" fill=\"hsl(30,70%,96%)\" stroke=\"hsl(30,60%,45%)\" stroke-width=\"1.6\"/><text x=\"81.5\" y=\"76\" text-anchor=\"middle\" font-size=\"12.5\" font-weight=\"700\" fill=\"#1f2a37\">RK3588</text><text x=\"81.5\" y=\"100\" text-anchor=\"middle\" font-size=\"11\" fill=\"#374151\">inférence, vision,</text><text x=\"81.5\" y=\"117\" text-anchor=\"middle\" font-size=\"11\" fill=\"#374151\">parole, interaction</text><path d=\"M154.5 102 L167.0 102\" stroke=\"#4b5563\" stroke-width=\"2\" marker-end=\"url(#a)\"/><rect x=\"169.0\" y=\"52\" width=\"143.0\" height=\"101\" rx=\"12\" fill=\"hsl(30,70%,96%)\" stroke=\"hsl(30,60%,45%)\" stroke-width=\"1.6\"/><text x=\"240.5\" y=\"76\" text-anchor=\"middle\" font-size=\"12.5\" font-weight=\"700\" fill=\"#1f2a37\">Bus CAN-FD</text><text x=\"240.5\" y=\"100\" text-anchor=\"middle\" font-size=\"11\" fill=\"#374151\">commandes et</text><text x=\"240.5\" y=\"117\" text-anchor=\"middle\" font-size=\"11\" fill=\"#374151\">retours</text><path d=\"M313.5 102 L326.0 102\" stroke=\"#4b5563\" stroke-width=\"2\" marker-end=\"url(#a)\"/><rect x=\"328.0\" y=\"52\" width=\"143.0\" height=\"101\" rx=\"12\" fill=\"hsl(30,70%,88%)\" stroke=\"hsl(30,60%,32%)\" stroke-width=\"3\"/><text x=\"399.5\" y=\"76\" text-anchor=\"middle\" font-size=\"12.5\" font-weight=\"700\" fill=\"#1f2a37\">Modules ROMOMO</text><text x=\"399.5\" y=\"100\" text-anchor=\"middle\" font-size=\"11\" fill=\"#374151\">boucles courant,</text><text x=\"399.5\" y=\"117\" text-anchor=\"middle\" font-size=\"11\" fill=\"#374151\">vitesse, position</text><text x=\"399.5\" y=\"134\" text-anchor=\"middle\" font-size=\"11\" fill=\"#374151\">jusqu&#x27;à 160 N·m</text><path d=\"M472.5 102 L485.0 102\" stroke=\"#4b5563\" stroke-width=\"2\" marker-end=\"url(#a)\"/><rect x=\"487.0\" y=\"52\" width=\"143.0\" height=\"101\" rx=\"12\" fill=\"hsl(30,70%,96%)\" stroke=\"hsl(30,60%,45%)\" stroke-width=\"1.6\"/><text x=\"558.5\" y=\"76\" text-anchor=\"middle\" font-size=\"12.5\" font-weight=\"700\" fill=\"#1f2a37\">MCU 480 MHz</text><text x=\"558.5\" y=\"100\" text-anchor=\"middle\" font-size=\"11\" fill=\"#374151\">mouvement, alimen-</text><text x=\"558.5\" y=\"117\" text-anchor=\"middle\" font-size=\"11\" fill=\"#374151\">tation, arrêt</text><text x=\"558.5\" y=\"134\" text-anchor=\"middle\" font-size=\"11\" fill=\"#374151\">d&#x27;urgence</text><text x=\"320\" y=\"173\" text-anchor=\"middle\" font-size=\"11.5\" fill=\"#4b5563\">Schéma simplifié d&#x27;après la description de CNX Software.</text></svg>",
+     "alt": "Schéma reliant le calculateur RK3588, le bus CAN-FD, les modules d'articulation ROMOMO et le microcontrôleur temps réel.",
+     "caption": "Répartition des rôles entre calculateur, bus, actionneurs et microcontrôleur."
+    },
+    {
+     "type": "usecases",
+     "title": "Exemples d'utilisation",
+     "items": [
+      {
+       "icon": "🎓",
+       "title": "Laboratoire de robotique",
+       "text": "Une équipe étudie la marche et la récupération après poussée sur une plateforme dont les plans mécaniques sont modifiables."
+      },
+      {
+       "icon": "🧠",
+       "title": "Apprentissage par renforcement",
+       "text": "Un groupe teste ses politiques de contrôle en simulation, puis sur un robot réel doté d'un arrêt d'urgence à trois canaux."
+      },
+      {
+       "icon": "📦",
+       "title": "Collecte de données",
+       "text": "La tête dédiée à la collecte permet d'enregistrer des démonstrations pour entraîner des modèles de manipulation."
+      }
+     ]
+    },
+    {
+     "type": "timeline",
+     "title": "D'où l'on vient, où l'on va",
+     "items": [
+      {
+       "label": "Janvier 2026",
+       "text": "Lancement du projet RPO (ROBOTO ORIGIN), plus de 2 500 étoiles sur GitHub selon l'entreprise."
+      },
+      {
+       "label": "28 septembre 2026",
+       "text": "Présentation du RP1 à l'IROS."
+      },
+      {
+       "label": "16 octobre 2026",
+       "text": "Lancement annoncé sur les marchés d'Asie du Sud-Est."
+      },
+      {
+       "label": "Octobre 2026",
+       "text": "Précisions annoncées sur la part open source du logiciel."
+      }
+     ]
+    },
+    {
+     "type": "opinion",
+     "title": "Notre avis",
+     "paragraphs": [
+      "Publier les fichiers de fabrication d'un humanoïde est un geste rare, qui peut faire gagner des mois à des laboratoires aux moyens limités. La prudence s'impose toutefois : les performances sont des données du constructeur, le calendrier d'ouverture du logiciel reste progressif, et un robot de 39 kg demande des précautions de sécurité sérieuses, quel que soit l'arrêt d'urgence prévu.",
+      "À un horizon d'un à trois ans, la question sera de savoir si une communauté se forme autour de ces plans, comme autour des imprimantes 3D, ou si le projet reste un produit de démonstration. L'entreprise revendique plus de 5 000 membres, mais c'est une déclaration. Cette lecture est une opinion argumentée."
+     ],
+     "verdict": "Un jalon intéressant pour la robotique ouverte, à juger sur la réalité du dépôt et de la communauté."
+    },
+    {
+     "type": "callout",
+     "title": "À retenir",
+     "text": "RP1 : 24 ou 30 degrés de liberté, RK3588, jusqu'à 160 N·m ; plans matériels sur GitHub, ouverture logicielle annoncée comme progressive."
+    }
+   ],
+   "illustration": {
+    "svg": "<svg xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"0 0 640 360\"><defs><linearGradient id=\"g4294\" x1=\"0\" y1=\"0\" x2=\"1\" y2=\"1\"><stop offset=\"0\" stop-color=\"hsl(30,62%,30%)\"/><stop offset=\"1\" stop-color=\"hsl(65,66%,44%)\"/></linearGradient></defs><rect width=\"640\" height=\"360\" fill=\"url(#g4294)\"/><circle cx=\"580\" cy=\"50\" r=\"95\" fill=\"#fff\" fill-opacity=\".07\"/><circle cx=\"55\" cy=\"325\" r=\"115\" fill=\"#fff\" fill-opacity=\".06\"/><rect x=\"250\" y=\"105\" width=\"140\" height=\"115\" rx=\"26\" fill=\"none\" stroke=\"#fff\" stroke-width=\"7\"/><circle cx=\"291\" cy=\"160\" r=\"14\" fill=\"#fff\"/><circle cx=\"349\" cy=\"160\" r=\"14\" fill=\"#fff\"/><path d=\"M320 105 V75\" stroke=\"#fff\" stroke-width=\"7\"/><circle cx=\"320\" cy=\"68\" r=\"9\" fill=\"#fff\"/><rect x=\"270\" y=\"235\" width=\"100\" height=\"62\" rx=\"16\" fill=\"#fff\" fill-opacity=\".9\"/></svg>"
+   },
+   "publishedAt": "2026-10-25T10:19:42+01:00"
+  },
+  {
+   "id": "deki-engine-moteur-2d-esp32-editeur",
+   "category": "electronique",
+   "icon": "🎮",
+   "importance": 3,
+   "title": "Deki Engine : un éditeur visuel façon Unity et un moteur 2D en C++ pour jeux sur ESP32, sous licence Apache 2.0",
+   "summary": "Le projet de Jairo Baldán vise le LILYGO T-Deck Plus et le T-Display S3 AMOLED, annonce 60 images par seconde sur ESP32-S3 et reconnaît un recours important à l'IA.",
+   "tags": [
+    "ESP32",
+    "moteur de jeu",
+    "C++",
+    "open source",
+    "LILYGO"
+   ],
+   "readingMinutes": 4,
+   "sourceDate": "2026-10-25",
+   "sources": [
+    {
+     "title": "Deki Engine – ESP32 gets an open source Unity-style editor and C++ 2D game engine",
+     "url": "https://www.cnx-software.com/2026/10/25/deki-engine-esp32-gets-an-open-source-unity-style-editor-and-c-2d-game-engine/",
+     "publisher": "CNX Software"
+    }
+   ],
+   "cover": {
+    "url": "https://www.cnx-software.com/wp-content/uploads/2026/10/Deki-demo-on-LILYGO-T-Display-S3-Touch.jpg",
+    "alt": "Démonstration de Deki Engine sur une carte LILYGO T-Display S3 Touch",
+    "credit": "cnx-software.com"
+   },
+   "blocks": [
+    {
+     "type": "paragraph",
+     "text": "Programmer un jeu sur microcontrôleur oblige souvent à écrire soi-même l'affichage, les entrées et la gestion de scènes. **Deki Engine**, présenté le 25 octobre 2026 par CNX Software, propose de combler ce vide : un moteur modulaire en C++ pour appareils embarqués, associé à un **éditeur visuel inspiré d'Unity**, aujourd'hui optimisé pour les cartes ESP32 comme le **LILYGO T-Deck Plus** et le **T-Display S3 AMOLED**, avec la prise en charge annoncée du **CrowPanel Advanced 7\" ESP32-P4** d'Elecrow."
+    },
+    {
+     "type": "heading",
+     "level": 2,
+     "text": "Fonctionnement"
+    },
+    {
+     "type": "paragraph",
+     "text": "Le flux de travail est simple : on construit des scènes visuellement (sprites, texte, particules, cartes de tuiles, machines à états, interpolations), on choisit la carte dans le panneau de compilation de l'éditeur, puis on flashe. L'éditeur existe pour Windows et Linux et inclut un compilateur pour le moteur graphique 2D. Le projet fonctionne aussi sur ordinateur via SDL3, ou sans rendu, ce qui facilite le développement. L'ensemble est publié sous licence **Apache 2.0** sur GitHub."
+    },
+    {
+     "type": "list",
+     "items": [
+      "**Performance** : 60 images par seconde sur ESP32-S3, d'après une démonstration vidéo.",
+      "**Cartes prises en charge** : T-Deck Plus (écran, tactile, clavier, boule de commande, carte SD, GPS et LoRa SX1262) ; T-Display S3 AMOLED, apparemment aussi le T-Display S3 Touch d'après la démonstration.",
+      "**Autres modules** : rendu 3D logiciel, centrale inertielle, horloge temps réel, audio I2S, Wi-Fi, Bluetooth basse consommation et importateur de cartes Tiled.",
+      "**Intégration** : les jeux peuvent tourner sur Tactility OS pour ESP32.",
+      "**Interface** : champs de l'inspecteur générés par réflexion statique de C++26 ; éditeur et documentation en anglais, chinois simplifié, japonais et coréen."
+     ]
+    },
+    {
+     "type": "heading",
+     "level": 2,
+     "text": "Auteur, IA et réserves"
+    },
+    {
+     "type": "paragraph",
+     "text": "Le moteur est développé par Jairo Baldán, programmeur de jeux espagnol, dans le cadre d'un projet personnel. CNX Software remarque que la plupart des contributions du dépôt sont cosignées par Claude : le projet s'appuie donc fortement sur l'assistance de l'IA. Le média juge toutefois qu'il s'agit d'un projet fonctionnel et présente une analyse, elle aussi issue d'une IA, qui estime la qualité du code élevée pour un projet individuel. Il trouve la documentation difficile à parcourir et se demande si le rendu 3D logiciel serait fluide sur ESP32."
+    },
+    {
+     "type": "keyvalue",
+     "items": [
+      {
+       "label": "Licence",
+       "value": "Apache 2.0"
+      },
+      {
+       "label": "Éditeur",
+       "value": "Windows et Linux"
+      },
+      {
+       "label": "Performance annoncée",
+       "value": "60 images par seconde sur ESP32-S3"
+      },
+      {
+       "label": "Prochaine cible",
+       "value": "CrowPanel Advanced 7\" ESP32-P4"
+      }
+     ]
+    },
+    {
+     "type": "usecases",
+     "title": "Exemples d'utilisation",
+     "items": [
+      {
+       "icon": "🕹️",
+       "title": "Console de poche",
+       "text": "Un amateur conçoit un petit jeu de plateforme qui tourne sur un LILYGO T-Display S3 AMOLED relié à des boutons."
+      },
+      {
+       "icon": "📟",
+       "title": "Jeu sur clavier",
+       "text": "Un développeur exploite le clavier et la boule de commande du T-Deck Plus pour un jeu de stratégie en 2D, avec échanges LoRa entre appareils."
+      },
+      {
+       "icon": "🏫",
+       "title": "Atelier pédagogique",
+       "text": "Un enseignant fait prototyper un jeu sur ordinateur via SDL3 avant de le flasher sur la carte."
+      }
+     ]
+    },
+    {
+     "type": "timeline",
+     "title": "D'où l'on vient, où l'on va",
+     "items": [
+      {
+       "label": "Aujourd'hui",
+       "text": "Éditeur pour Windows et Linux, moteur 2D, prise en charge de deux cartes LILYGO."
+      },
+      {
+       "label": "À venir",
+       "text": "Prise en charge annoncée du CrowPanel Advanced 7\" ESP32-P4."
+      }
+     ]
+    },
+    {
+     "type": "opinion",
+     "title": "Notre avis",
+     "paragraphs": [
+      "Un éditeur de scènes et un flux « choisir la carte puis flasher » abaissent beaucoup la barrière d'entrée pour des jeux sur microcontrôleur, domaine où l'on bricole encore souvent à la main. Les points de vigilance sont réels : documentation décevante, projet individuel, performances 3D incertaines et dépendance à un travail largement assisté par IA, qui demandera une relecture communautaire.",
+      "À un horizon d'un à trois ans, la valeur dépendra de l'arrivée d'autres contributeurs et de cartes plus puissantes comme l'ESP32-P4. C'est une opinion argumentée, non une prévision."
+     ],
+     "verdict": "Un outil prometteur, encore jeune, qui mérite d'être essayé sur une carte compatible."
+    },
+    {
+     "type": "callout",
+     "title": "À retenir",
+     "text": "Deki Engine : moteur 2D C++ et éditeur visuel pour ESP32, sous licence Apache 2.0 ; 60 images par seconde annoncées sur ESP32-S3."
+    }
+   ],
+   "illustration": {
+    "svg": "<svg xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"0 0 640 360\"><defs><linearGradient id=\"g9617\" x1=\"0\" y1=\"0\" x2=\"1\" y2=\"1\"><stop offset=\"0\" stop-color=\"hsl(30,62%,30%)\"/><stop offset=\"1\" stop-color=\"hsl(65,66%,44%)\"/></linearGradient></defs><rect width=\"640\" height=\"360\" fill=\"url(#g9617)\"/><circle cx=\"580\" cy=\"50\" r=\"95\" fill=\"#fff\" fill-opacity=\".07\"/><circle cx=\"55\" cy=\"325\" r=\"115\" fill=\"#fff\" fill-opacity=\".06\"/><rect x=\"190\" y=\"95\" width=\"260\" height=\"170\" rx=\"16\" fill=\"none\" stroke=\"#fff\" stroke-width=\"7\"/><rect x=\"270\" y=\"145\" width=\"100\" height=\"70\" rx=\"8\" fill=\"#fff\"/><circle cx=\"215\" cy=\"120\" r=\"5\" fill=\"#fff\"/><circle cx=\"237\" cy=\"120\" r=\"5\" fill=\"#fff\"/><circle cx=\"259\" cy=\"120\" r=\"5\" fill=\"#fff\"/><circle cx=\"281\" cy=\"120\" r=\"5\" fill=\"#fff\"/><circle cx=\"303\" cy=\"120\" r=\"5\" fill=\"#fff\"/><circle cx=\"325\" cy=\"120\" r=\"5\" fill=\"#fff\"/><circle cx=\"347\" cy=\"120\" r=\"5\" fill=\"#fff\"/><circle cx=\"369\" cy=\"120\" r=\"5\" fill=\"#fff\"/><circle cx=\"391\" cy=\"120\" r=\"5\" fill=\"#fff\"/><circle cx=\"413\" cy=\"120\" r=\"5\" fill=\"#fff\"/><path d=\"M215 240 H260 M380 240 H425\" stroke=\"#fff\" stroke-width=\"6\" stroke-linecap=\"round\"/></svg>"
+   },
+   "publishedAt": "2026-10-25T10:19:42+01:00"
+  }
+ ]
+}
