@@ -1,0 +1,433 @@
+{
+ "schemaVersion": "1.0",
+ "date": "2026-10-25",
+ "generatedAt": "2026-10-25T18:15:36+01:00",
+ "title": "Agents de code détournés via AGENTS.md, appels maillés par Bluetooth avec MeshLive et Bluetooth à 12 kilomètres",
+ "summary": "Une édition tech centrée sur la sécurité des agents de code, un projet libre d'appels vocaux sans réseau mobile et une démonstration de radio extrême.",
+ "highlights": [
+  "Un fichier AGENTS.md déposé dans Téléchargements peut détourner un agent de code lancé dans ce dossier, selon Forever Security.",
+  "MeshLive fait relayer des appels vocaux chiffrés de téléphone en téléphone par Bluetooth, sur environ 20 mètres par saut.",
+  "Une réception Bluetooth à environ 12 km est obtenue avec une parabole et un récepteur sensible, mais en conditions très particulières."
+ ],
+ "meta": {
+  "generator": "claude-scheduled-task"
+ },
+ "posts": [
+  {
+   "id": "agents-md-downloads-agents-ia-detournes",
+   "category": "cybersecurite",
+   "icon": "🪤",
+   "title": "Agents de code : un simple fichier AGENTS.md déposé dans le dossier Téléchargements peut les détourner",
+   "summary": "Des chercheurs de Forever Security décrivent une chaîne d'attaque où une page web dépose un fichier d'instructions piégé dans ~/Downloads, que l'agent lit dès qu'on le lance dans ce dossier.",
+   "tags": [
+    "agents IA",
+    "injection de prompt",
+    "AGENTS.md",
+    "Claude Code",
+    "Codex",
+    "npm"
+   ],
+   "importance": 4,
+   "readingMinutes": 5,
+   "publishedAt": "2026-10-25T18:15:36+01:00",
+   "sourceDate": "2026-10-25",
+   "illustration": {
+    "svg": "<svg xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"0 0 640 360\"><defs><linearGradient id=\"g\" x1=\"0\" y1=\"0\" x2=\"1\" y2=\"1\"><stop offset=\"0\" stop-color=\"hsl(175,65%,38%)\"/><stop offset=\"1\" stop-color=\"hsl(215,70%,22%)\"/></linearGradient></defs><rect width=\"640\" height=\"360\" fill=\"url(#g)\"/><circle cx=\"100\" cy=\"70\" r=\"90\" fill=\"#fff\" opacity=\".08\"/><circle cx=\"560\" cy=\"300\" r=\"130\" fill=\"#fff\" opacity=\".07\"/><path d=\"M0 280 Q160 220 320 270 T640 240 V360 H0Z\" fill=\"#fff\" opacity=\".1\"/><rect x=\"40\" y=\"40\" width=\"120\" height=\"8\" rx=\"4\" fill=\"#fff\" opacity=\".6\"/><rect x=\"40\" y=\"58\" width=\"70\" height=\"8\" rx=\"4\" fill=\"#fff\" opacity=\".35\"/><text x=\"320\" y=\"215\" font-size=\"120\" text-anchor=\"middle\">🪤</text></svg>"
+   },
+   "sources": [
+    {
+     "title": "AI coding agents hijacked using AGENTS.md file in Downloads folder",
+     "url": "https://www.bleepingcomputer.com/news/security/ai-coding-agents-hijacked-using-agentsmd-file-in-downloads-folder/",
+     "publisher": "BleepingComputer"
+    }
+   ],
+   "blocks": [
+    {
+     "type": "paragraph",
+     "text": "Les agents de programmation en ligne de commande lisent automatiquement des fichiers d'instructions placés dans leur dossier de travail : **AGENTS.md** pour Codex et d'autres outils, **CLAUDE.md** pour Claude Code. Cette commodité, conçue pour que l'agent connaisse les conventions d'un projet, devient un vecteur d'attaque dès que le dossier contient un fichier que son propriétaire n'a pas écrit. C'est ce que montre une étude de la société Forever Security, rapportée le 25 octobre 2026 par BleepingComputer."
+    },
+    {
+     "type": "paragraph",
+     "text": "Tout est parti d'un constat chez un client : les chercheurs ont repéré un fichier AGENTS.md malveillant dans le dossier **~/Downloads**. Un agent de code, lancé depuis ce dossier, a tenté d'installer un paquet npm indésirable nommé « function-color ». Comme les agents chargent d'office les instructions du répertoire courant, l'ordre est passé sans que personne ait à valider quoi que ce soit au-delà des demandes d'autorisation habituelles."
+    },
+    {
+     "type": "heading",
+     "level": 2,
+     "text": "Comment la chaîne d'attaque fonctionne"
+    },
+    {
+     "type": "paragraph",
+     "text": "Les chercheurs n'ont pas pu établir comment le fichier était arrivé dans le dossier du client. Ils expliquent en revanche qu'une page web malveillante peut très bien le déposer sans geste de l'internaute. Selon eux, le dossier Téléchargements est « le seul dossier dans lequel le web peut écrire de lui-même » : Chrome, Edge et Firefox y enregistrent les fichiers par défaut, et n'affichent qu'une notification. Brave fait exception en demandant une approbation. BleepingComputer a vérifié une page de démonstration qui télécharge un fichier AGENTS.md inoffensif."
+    },
+    {
+     "type": "paragraph",
+     "text": "Il reste une condition : la victime doit lancer un agent dans ce dossier. D'après Gal Weizman, chercheur chez Forever Security, c'est fréquent, puisque l'on demande volontiers à un agent de ranger les téléchargements ou de traiter un fichier récent. Les statistiques internes de la société indiquent que des centaines de clients exécutent des agents comme Claude Code, OpenAI Codex ou Cursor CLI depuis ce dossier, et que Claude Code y a démarré à lui seul plus de 1 300 sessions."
+    },
+    {
+     "type": "table",
+     "headers": [
+      "Agent testé",
+      "Charge utile de l'essai",
+      "Taux de réussite rapporté"
+     ],
+     "rows": [
+      [
+       "OpenAI Codex",
+       "Ouverture de la calculatrice (charge inoffensive)",
+       "90 % des essais"
+      ],
+      [
+       "Claude Code",
+       "CLAUDE.md redirigeant le trafic vers un serveur des chercheurs, avec exposition du jeton OAuth et exécution de code via de faux appels d'outils",
+       "environ 50 % des essais"
+      ]
+     ]
+    },
+    {
+     "type": "paragraph",
+     "text": "Dans le cas de Claude Code, la technique décrite repose sur une redirection du trafic de l'agent vers un serveur contrôlé par les chercheurs. Ce serveur reçoit le jeton OAuth de l'agent, peut se faire passer pour le modèle et renvoyer des appels d'outils que l'agent exécute. Les chercheurs soulignent que les seules instructions malveillantes suffiraient à détourner le compte."
+    },
+    {
+     "type": "heading",
+     "level": 2,
+     "text": "Un problème que les éditeurs ne peuvent pas « corriger »"
+    },
+    {
+     "type": "paragraph",
+     "text": "Selon les chercheurs, il n'y a rien à corriger côté OpenAI ou Anthropic : l'agent fait exactement ce qui est prévu, c'est-à-dire suivre les instructions de son dossier de travail. Ils décrivent un cumul de comportements voulus, celui du navigateur qui télécharge sans friction et celui de l'agent qui fait confiance à son répertoire courant, et en déduisent que la prudence revient à l'utilisateur. Cette lecture est la leur ; elle laisse ouverte la question de savoir si les outils devraient se montrer plus méfiants envers des fichiers d'instructions d'origine inconnue."
+    },
+    {
+     "type": "usecases",
+     "title": "Ce que cela change concrètement",
+     "items": [
+      {
+       "icon": "🧑‍💻",
+       "title": "Développeur individuel",
+       "text": "Lancer l'agent depuis le dossier personnel ou Téléchargements « pour aller plus vite » expose à des instructions que l'on n'a jamais lues. Se placer dans la racine du projet suffit à écarter ce scénario."
+      },
+      {
+       "icon": "🏢",
+       "title": "Équipe sécurité d'une entreprise",
+       "text": "Les postes de développeurs deviennent une cible : inventorier les agents installés, rappeler les dossiers de lancement autorisés et surveiller les installations de paquets inattendues."
+      },
+      {
+       "icon": "🧪",
+       "title": "Chercheur ou curieux",
+       "text": "Tester un code inconnu avec un agent doit se faire dans une machine virtuelle ou un conteneur jetable, jamais sur la session principale qui détient les jetons de connexion."
+      }
+     ]
+    },
+    {
+     "type": "timeline",
+     "title": "D'où l'on vient, où l'on va",
+     "items": [
+      {
+       "label": "Aujourd'hui",
+       "text": "Les fichiers AGENTS.md et CLAUDE.md sont lus automatiquement dans le répertoire courant par plusieurs agents de code."
+      },
+      {
+       "label": "25 octobre 2026",
+       "text": "Forever Security détaille la chaîne ~/Downloads, avec des taux de réussite d'environ 90 % pour Codex et 50 % pour Claude Code dans ses essais."
+      },
+      {
+       "label": "À venir",
+       "text": "Aucun correctif n'est annoncé dans la source ; les mesures recommandées restent des bonnes pratiques d'usage."
+      }
+     ]
+    },
+    {
+     "type": "diagram",
+     "svg": "<svg xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"0 0 640 220\" font-family=\"system-ui,sans-serif\"><rect width=\"640\" height=\"220\" rx=\"14\" fill=\"#f4f6fb\"/><text x=\"320\" y=\"30\" font-size=\"15\" font-weight=\"700\" text-anchor=\"middle\" fill=\"#1b2330\">Chaîne d'attaque décrite par Forever Security</text><rect x=\"20\" y=\"60\" width=\"136\" height=\"110\" rx=\"10\" fill=\"#fff\" stroke=\"#6b7a99\" stroke-width=\"1.5\"/><text x=\"88.0\" y=\"100\" font-size=\"14\" font-weight=\"700\" text-anchor=\"middle\" fill=\"#1b2330\">Page web</text><text x=\"88.0\" y=\"128\" font-size=\"12\" text-anchor=\"middle\" fill=\"#3d4a63\">dépose AGENTS.md</text><path d=\"M158 115 H168\" stroke=\"#6b7a99\" stroke-width=\"2\"/><path d=\"M164 110 L169 115 L164 120\" fill=\"none\" stroke=\"#6b7a99\" stroke-width=\"2\"/><rect x=\"170\" y=\"60\" width=\"136\" height=\"110\" rx=\"10\" fill=\"#fff\" stroke=\"#6b7a99\" stroke-width=\"1.5\"/><text x=\"238.0\" y=\"100\" font-size=\"14\" font-weight=\"700\" text-anchor=\"middle\" fill=\"#1b2330\">~/Downloads</text><text x=\"238.0\" y=\"128\" font-size=\"12\" text-anchor=\"middle\" fill=\"#3d4a63\">fichier piégé</text><path d=\"M308 115 H318\" stroke=\"#6b7a99\" stroke-width=\"2\"/><path d=\"M314 110 L319 115 L314 120\" fill=\"none\" stroke=\"#6b7a99\" stroke-width=\"2\"/><rect x=\"320\" y=\"60\" width=\"136\" height=\"110\" rx=\"10\" fill=\"#fff\" stroke=\"#6b7a99\" stroke-width=\"1.5\"/><text x=\"388.0\" y=\"100\" font-size=\"14\" font-weight=\"700\" text-anchor=\"middle\" fill=\"#1b2330\">Agent lancé ici</text><text x=\"388.0\" y=\"128\" font-size=\"12\" text-anchor=\"middle\" fill=\"#3d4a63\">lit les consignes</text><path d=\"M458 115 H468\" stroke=\"#6b7a99\" stroke-width=\"2\"/><path d=\"M464 110 L469 115 L464 120\" fill=\"none\" stroke=\"#6b7a99\" stroke-width=\"2\"/><rect x=\"470\" y=\"60\" width=\"136\" height=\"110\" rx=\"10\" fill=\"#fff\" stroke=\"#6b7a99\" stroke-width=\"1.5\"/><text x=\"538.0\" y=\"100\" font-size=\"14\" font-weight=\"700\" text-anchor=\"middle\" fill=\"#1b2330\">Action</text><text x=\"538.0\" y=\"128\" font-size=\"12\" text-anchor=\"middle\" fill=\"#3d4a63\">paquet npm, jeton</text></svg>",
+     "alt": "Schéma en quatre étapes : une page web dépose un fichier AGENTS.md dans Téléchargements, l'agent lancé dans ce dossier le lit puis exécute une action malveillante.",
+     "caption": "La chaîne suppose que la victime lance un agent dans le dossier Téléchargements."
+    },
+    {
+     "type": "opinion",
+     "title": "Notre avis",
+     "paragraphs": [
+      "Ce scénario illustre un angle mort familier : un mécanisme de confort, ici la lecture automatique des consignes d'un dossier, repose sur l'idée que le dossier est digne de confiance. Or Téléchargements est précisément l'endroit où atterrit ce qui ne l'est pas. Le risque n'est pas spectaculaire, il demande un concours de circonstances, mais le coût d'une exploitation, vol de jeton ou exécution de code, est élevé et l'habitude de lancer un agent « là où l'on se trouve » est largement répandue.",
+      "À un horizon d'un à trois ans, on peut raisonnablement s'attendre à ce que les agents distinguent les fichiers d'instructions de confiance de ceux d'origine inconnue, par exemple en demandant une validation explicite la première fois. Il s'agit d'une projection, pas d'une annonce : en attendant, la discipline de lancement reste la meilleure défense."
+     ],
+     "verdict": "Une attaque qui exige peu de la victime : ne lancez jamais un agent dans un dossier que vous n'avez pas vous-même préparé."
+    },
+    {
+     "type": "callout",
+     "title": "À retenir",
+     "text": "Démarrez l'agent dans la racine d'un projet précis, relisez tout AGENTS.md ou CLAUDE.md d'origine inconnue, gardez les demandes d'approbation et le bac à sable activés, et testez le code douteux dans un environnement isolé."
+    }
+   ]
+  },
+  {
+   "id": "meshlive-appels-maillage-bluetooth-android",
+   "category": "dev",
+   "icon": "📡",
+   "title": "MeshLive : des appels vocaux chiffrés qui passent de téléphone en téléphone par Bluetooth, sans réseau mobile",
+   "summary": "L'application Android libre MeshLive relaie voix et vidéo à travers un maillage de smartphones ordinaires, avec une portée d'environ 20 mètres par saut.",
+   "tags": [
+    "Bluetooth",
+    "réseau maillé",
+    "Android",
+    "chiffrement de bout en bout",
+    "logiciel libre"
+   ],
+   "importance": 3,
+   "readingMinutes": 4,
+   "publishedAt": "2026-10-25T18:15:36+01:00",
+   "sourceDate": "2026-10-25",
+   "illustration": {
+    "svg": "<svg xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"0 0 640 360\"><defs><linearGradient id=\"g\" x1=\"0\" y1=\"0\" x2=\"1\" y2=\"1\"><stop offset=\"0\" stop-color=\"hsl(265,65%,38%)\"/><stop offset=\"1\" stop-color=\"hsl(305,70%,22%)\"/></linearGradient></defs><rect width=\"640\" height=\"360\" fill=\"url(#g)\"/><rect x=\"-40\" y=\"40\" width=\"300\" height=\"300\" rx=\"60\" fill=\"#fff\" opacity=\".07\" transform=\"rotate(-18 100 200)\"/><circle cx=\"560\" cy=\"80\" r=\"70\" fill=\"#fff\" opacity=\".08\"/><path d=\"M0 280 Q160 220 320 270 T640 240 V360 H0Z\" fill=\"#fff\" opacity=\".1\"/><rect x=\"40\" y=\"40\" width=\"120\" height=\"8\" rx=\"4\" fill=\"#fff\" opacity=\".6\"/><rect x=\"40\" y=\"58\" width=\"70\" height=\"8\" rx=\"4\" fill=\"#fff\" opacity=\".35\"/><text x=\"320\" y=\"215\" font-size=\"120\" text-anchor=\"middle\">📡</text></svg>"
+   },
+   "cover": {
+    "url": "https://hackaday.com/wp-content/uploads/2026/10/MeshLive-screenshot.png",
+    "alt": "Capture d'écran de l'application MeshLive sur Android",
+    "credit": "hackaday.com"
+   },
+   "sources": [
+    {
+     "title": "Mesh Network Telephony Over Bluetooth On Android Phones",
+     "url": "https://hackaday.com/2026/10/25/mesh-network-telephony-over-bluetooth-on-android-phones/",
+     "publisher": "Hackaday"
+    },
+    {
+     "title": "meshlive-android (dépôt du projet)",
+     "url": "https://github.com/MeshLive/meshlive-android",
+     "publisher": "GitHub"
+    }
+   ],
+   "blocks": [
+    {
+     "type": "paragraph",
+     "text": "Téléphoner quand les antennes-relais sont hors service, saturées ou simplement absentes : c'est la promesse de **MeshLive**, une application Android décrite le 25 octobre 2026 par Hackaday. Son principe est de transformer des smartphones ordinaires en nœuds d'un réseau maillé : chaque téléphone relaie ce qu'il reçoit vers les autres, de sorte qu'un message peut atteindre un correspondant bien au-delà de la portée directe du Bluetooth."
+    },
+    {
+     "type": "heading",
+     "level": 2,
+     "text": "Ce que fait l'application"
+    },
+    {
+     "type": "paragraph",
+     "text": "MeshLive propose des appels vocaux et vidéo décentralisés, chiffrés de bout en bout. Elle n'exige aucun matériel dédié : la puce Bluetooth déjà présente dans le téléphone suffit. Le développeur, qui signe Gautam, publie le code sur GitHub. La source ne précise pas la licence ; il convient de la vérifier dans le dépôt avant tout usage ou toute réutilisation."
+    },
+    {
+     "type": "keyvalue",
+     "items": [
+      {
+       "label": "Technologie radio",
+       "value": "Bluetooth intégré au téléphone"
+      },
+      {
+       "label": "Portée annoncée",
+       "value": "environ 20 mètres par relais"
+      },
+      {
+       "label": "Chiffrement",
+       "value": "de bout en bout pour la voix et la vidéo"
+      },
+      {
+       "label": "Vidéo bidirectionnelle",
+       "value": "expérimentale"
+      },
+      {
+       "label": "Diffusion vidéo à sens unique",
+       "value": "testée de façon plus poussée"
+      },
+      {
+       "label": "Plateforme",
+       "value": "Android"
+      }
+     ]
+    },
+    {
+     "type": "paragraph",
+     "text": "Chaque utilisateur possède un identifiant unique que les autres peuvent scanner pour l'ajouter à leurs contacts. Les personnes qui ne sont pas des contacts, mais qui se trouvent à portée, n'apparaissent que sous un nom aléatoire, renouvelé toutes les 15 minutes. Cette rotation limite le suivi d'un appareil dans la durée, un enjeu classique des applications qui émettent en continu."
+    },
+    {
+     "type": "heading",
+     "level": 2,
+     "text": "Les limites annoncées"
+    },
+    {
+     "type": "paragraph",
+     "text": "La contrainte principale est la portée. Avec environ 20 mètres entre deux téléphones, la qualité du réseau dépend de la densité des participants : dans une salle, un festival ou un quartier où beaucoup de gens installent l'application, le maillage prend corps ; en rase campagne, il reste inopérant. L'article ne donne ni nombre maximal de sauts ni codec audio, et la vidéo dans les deux sens est encore expérimentale. L'auteur de l'article rappelle aussi que le réseau maillé en LoRa porte plus loin mais exige un matériel spécifique et se limite d'ordinaire au texte, même si de la voix a été démontrée sur LoRa avec le projet QMesh."
+    },
+    {
+     "type": "usecases",
+     "title": "Exemples d'utilisation",
+     "items": [
+      {
+       "icon": "🎪",
+       "title": "Rassemblement en plein air",
+       "text": "Dans un festival ou un marché où le réseau mobile sature, des participants équipés de l'application peuvent s'appeler à courte distance sans dépendre de l'opérateur."
+      },
+      {
+       "icon": "🧗",
+       "title": "Groupe en excursion",
+       "text": "Des randonneurs qui se suivent à quelques dizaines de mètres peuvent rester en contact vocal, chaque téléphone prolongeant la portée du suivant."
+      },
+      {
+       "icon": "🚨",
+       "title": "Coupure de réseau locale",
+       "text": "Après une panne ou une catastrophe, un voisinage équipé d'avance dispose d'un moyen de communication de secours, à condition que l'application soit déjà installée."
+      }
+     ]
+    },
+    {
+     "type": "timeline",
+     "title": "D'où l'on vient, où l'on va",
+     "items": [
+      {
+       "label": "Avant",
+       "text": "Les maillages grand public se sont surtout appuyés sur le texte, avec des solutions LoRa nécessitant du matériel dédié."
+      },
+      {
+       "label": "25 octobre 2026",
+       "text": "Hackaday présente MeshLive : voix et vidéo sur maillage Bluetooth, chiffrées de bout en bout."
+      },
+      {
+       "label": "À suivre",
+       "text": "La maturité de la vidéo bidirectionnelle, le nombre de sauts supportés et la licence restent à préciser par le projet."
+      }
+     ]
+    },
+    {
+     "type": "diagram",
+     "svg": "<svg xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"0 0 640 220\" font-family=\"system-ui,sans-serif\"><rect width=\"640\" height=\"220\" rx=\"14\" fill=\"#f4f6fb\"/><text x=\"320\" y=\"30\" font-size=\"15\" font-weight=\"700\" text-anchor=\"middle\" fill=\"#1b2330\">Un appel relayé de proche en proche</text><rect x=\"20\" y=\"60\" width=\"136\" height=\"110\" rx=\"10\" fill=\"#fff\" stroke=\"#6b7a99\" stroke-width=\"1.5\"/><text x=\"88.0\" y=\"100\" font-size=\"14\" font-weight=\"700\" text-anchor=\"middle\" fill=\"#1b2330\">Téléphone A</text><text x=\"88.0\" y=\"128\" font-size=\"12\" text-anchor=\"middle\" fill=\"#3d4a63\">émet la voix</text><path d=\"M158 115 H168\" stroke=\"#6b7a99\" stroke-width=\"2\"/><path d=\"M164 110 L169 115 L164 120\" fill=\"none\" stroke=\"#6b7a99\" stroke-width=\"2\"/><rect x=\"170\" y=\"60\" width=\"136\" height=\"110\" rx=\"10\" fill=\"#fff\" stroke=\"#6b7a99\" stroke-width=\"1.5\"/><text x=\"238.0\" y=\"100\" font-size=\"14\" font-weight=\"700\" text-anchor=\"middle\" fill=\"#1b2330\">Relais B</text><text x=\"238.0\" y=\"128\" font-size=\"12\" text-anchor=\"middle\" fill=\"#3d4a63\">≈ 20 m</text><path d=\"M308 115 H318\" stroke=\"#6b7a99\" stroke-width=\"2\"/><path d=\"M314 110 L319 115 L314 120\" fill=\"none\" stroke=\"#6b7a99\" stroke-width=\"2\"/><rect x=\"320\" y=\"60\" width=\"136\" height=\"110\" rx=\"10\" fill=\"#fff\" stroke=\"#6b7a99\" stroke-width=\"1.5\"/><text x=\"388.0\" y=\"100\" font-size=\"14\" font-weight=\"700\" text-anchor=\"middle\" fill=\"#1b2330\">Relais C</text><text x=\"388.0\" y=\"128\" font-size=\"12\" text-anchor=\"middle\" fill=\"#3d4a63\">≈ 20 m</text><path d=\"M458 115 H468\" stroke=\"#6b7a99\" stroke-width=\"2\"/><path d=\"M464 110 L469 115 L464 120\" fill=\"none\" stroke=\"#6b7a99\" stroke-width=\"2\"/><rect x=\"470\" y=\"60\" width=\"136\" height=\"110\" rx=\"10\" fill=\"#fff\" stroke=\"#6b7a99\" stroke-width=\"1.5\"/><text x=\"538.0\" y=\"100\" font-size=\"14\" font-weight=\"700\" text-anchor=\"middle\" fill=\"#1b2330\">Téléphone D</text><text x=\"538.0\" y=\"128\" font-size=\"12\" text-anchor=\"middle\" fill=\"#3d4a63\">reçoit l'appel</text></svg>",
+     "alt": "Quatre téléphones alignés : le premier émet, deux autres relaient à environ 20 mètres chacun, le dernier reçoit l'appel.",
+     "caption": "Chaque téléphone relaie le trafic vers le suivant ; la portée totale dépend du nombre de participants."
+    },
+    {
+     "type": "opinion",
+     "title": "Notre avis",
+     "paragraphs": [
+      "Le projet est séduisant sur le papier, mais sa valeur dépend d'un effet de réseau : un maillage n'a d'utilité que s'il compte assez de téléphones, au bon endroit, au bon moment. Une application que l'on installe seulement après la panne ne sert à rien. Les 20 mètres par saut obligent aussi à une densité que seuls des événements ponctuels ou des quartiers très équipés peuvent offrir.",
+      "L'intérêt réel est plutôt pédagogique et expérimental : prouver qu'un téléphone ordinaire peut servir de relais chiffré. Dans un à trois ans, on peut imaginer des usages de secours préinstallés par des collectivités ou des associations, mais cela reste une hypothèse que la source ne mentionne pas."
+     ],
+     "verdict": "Une démonstration prometteuse, limitée par la portée du Bluetooth et par la nécessité d'une masse critique d'utilisateurs."
+    }
+   ]
+  },
+  {
+   "id": "bluetooth-12-km-antenne-parabolique",
+   "category": "electronique",
+   "icon": "📶",
+   "title": "Bluetooth à 12 kilomètres : une antenne parabolique et un récepteur sensible repoussent la portée d'un simple badge",
+   "summary": "Une vidéo de nktbuilds montre une liaison Bluetooth captée à environ 12 km, avec un émetteur de la puissance d'une balise de localisation ; les commentaires rappellent les limites de l'exercice.",
+   "tags": [
+    "Bluetooth",
+    "antenne parabolique",
+    "radio",
+    "LoRa",
+    "portée"
+   ],
+   "importance": 2,
+   "readingMinutes": 4,
+   "publishedAt": "2026-10-25T18:15:36+01:00",
+   "sourceDate": "2026-10-24",
+   "illustration": {
+    "svg": "<svg xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"0 0 640 360\"><defs><linearGradient id=\"g\" x1=\"0\" y1=\"0\" x2=\"1\" y2=\"1\"><stop offset=\"0\" stop-color=\"hsl(30,65%,38%)\"/><stop offset=\"1\" stop-color=\"hsl(70,70%,22%)\"/></linearGradient></defs><rect width=\"640\" height=\"360\" fill=\"url(#g)\"/><circle cx=\"540\" cy=\"90\" r=\"110\" fill=\"#fff\" opacity=\".07\"/><circle cx=\"90\" cy=\"290\" r=\"80\" fill=\"#fff\" opacity=\".09\"/><path d=\"M0 280 Q160 220 320 270 T640 240 V360 H0Z\" fill=\"#fff\" opacity=\".1\"/><rect x=\"40\" y=\"40\" width=\"120\" height=\"8\" rx=\"4\" fill=\"#fff\" opacity=\".6\"/><rect x=\"40\" y=\"58\" width=\"70\" height=\"8\" rx=\"4\" fill=\"#fff\" opacity=\".35\"/><text x=\"320\" y=\"215\" font-size=\"120\" text-anchor=\"middle\">📶</text></svg>"
+   },
+   "cover": {
+    "url": "https://hackaday.com/wp-content/uploads/2026/10/long-range-bluetooth-feat.jpg",
+    "alt": "Montage de radio longue portée pour liaison Bluetooth",
+    "credit": "hackaday.com"
+   },
+   "sources": [
+    {
+     "title": "Pushing Bluetooth Out To 12 Kilometers",
+     "url": "https://hackaday.com/2026/10/24/pushing-bluetooth-out-to-12-kilometers/",
+     "publisher": "Hackaday"
+    }
+   ],
+   "blocks": [
+    {
+     "type": "paragraph",
+     "text": "On associe le Bluetooth à quelques mètres, tout au plus à la pièce voisine. Le 24 octobre 2026, Hackaday relaie pourtant une vidéo du bricoleur **nktbuilds** qui l'amène à environ **12 kilomètres**. L'exploit tient moins à un protocole miracle qu'à de la radio bien conduite : une antenne qui capte beaucoup plus de signal et un récepteur dont le bruit de fond est très bas."
+    },
+    {
+     "type": "heading",
+     "level": 2,
+     "text": "Ce qui est réellement rapporté"
+    },
+    {
+     "type": "paragraph",
+     "text": "D'après l'article, l'émetteur ne rayonne pas davantage qu'un petit badge de localisation Bluetooth de la taille d'une pièce de monnaie. Tout le gain vient de la réception : une antenne parabolique concentre le signal bien mieux que l'antenne dipôle d'un téléphone, et un récepteur très sensible permet de distinguer un signal faible du bruit. La source ne donne ni le modèle de l'antenne, ni son gain, ni les caractéristiques du récepteur, ni le mode radio utilisé (par exemple la couche physique à portée étendue du Bluetooth Low Energy). Elle ne décrit pas non plus le profil du trajet ni les conditions de visibilité."
+    },
+    {
+     "type": "paragraph",
+     "text": "Un détail du texte est contradictoire : un passage évoque « 1200 m », ce qui ferait 1,2 km, alors que le titre et le reste de l'article parlent de 12 km. Un commentateur confirme l'ordre de grandeur de 12 km ; l'incohérence ressemble donc à une coquille, mais elle invite à la prudence sur les chiffres."
+    },
+    {
+     "type": "heading",
+     "level": 2,
+     "text": "Les réserves des commentateurs"
+    },
+    {
+     "type": "list",
+     "items": [
+      "Un lecteur souligne que le montage est en réception seule : en liaison bidirectionnelle, les contraintes de synchronisation du Bluetooth classique limiteraient la portée à environ 1,5 km. Il s'agit de l'affirmation d'un commentateur, non de l'article.",
+      "Le 2,4 GHz est arrêté par les obstacles tels que les murs, les arbres ou l'eau : une telle portée suppose une ligne de vue dégagée.",
+      "Une antenne directive à fort gain peut dépasser les limites de puissance isotrope rayonnée équivalente autorisées, sauf à réduire la puissance d'émission."
+     ]
+    },
+    {
+     "type": "paragraph",
+     "text": "L'article lui-même conclut que le Bluetooth n'est pas un bon choix pour les longues distances et renvoie vers le LoRa, qui atteint des centaines de kilomètres en ligne de vue et des records bien supérieurs dans des conditions favorables."
+    },
+    {
+     "type": "usecases",
+     "title": "Exemples d'utilisation",
+     "items": [
+      {
+       "icon": "🧭",
+       "title": "Expérimentation radio",
+       "text": "Mesurer l'effet du gain d'antenne et de la sensibilité d'un récepteur sur une technologie que l'on croit limitée à quelques mètres, avec un matériel d'amateur."
+      },
+      {
+       "icon": "🔎",
+       "title": "Audit de sécurité",
+       "text": "Rappeler qu'un appareil Bluetooth peut être entendu bien plus loin qu'on ne l'imagine : la « portée » annoncée par un constructeur n'est pas une frontière de sécurité."
+      },
+      {
+       "icon": "📚",
+       "title": "Enseignement",
+       "text": "Illustrer en classe le bilan de liaison : puissance d'émission, gain des antennes, affaiblissement sur le trajet et sensibilité du récepteur."
+      }
+     ]
+    },
+    {
+     "type": "timeline",
+     "title": "D'où l'on vient, où l'on va",
+     "items": [
+      {
+       "label": "Jusqu'ici",
+       "text": "Le Bluetooth grand public est pensé pour des liaisons de quelques dizaines de mètres ; le LoRa est la référence amateur des longues distances."
+      },
+      {
+       "label": "24 octobre 2026",
+       "text": "Hackaday rapporte une réception à environ 12 km, avec parabole et récepteur sensible."
+      },
+      {
+       "label": "À préciser",
+       "text": "Mode radio, conditions du trajet et possibilité d'une liaison bidirectionnelle ne sont pas documentés dans la source."
+      }
+     ]
+    },
+    {
+     "type": "diagram",
+     "svg": "<svg xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"0 0 640 220\" font-family=\"system-ui,sans-serif\"><rect width=\"640\" height=\"220\" rx=\"14\" fill=\"#f4f6fb\"/><text x=\"320\" y=\"30\" font-size=\"15\" font-weight=\"700\" text-anchor=\"middle\" fill=\"#1b2330\">Où se trouve le gain de portée</text><rect x=\"20\" y=\"60\" width=\"136\" height=\"110\" rx=\"10\" fill=\"#fff\" stroke=\"#6b7a99\" stroke-width=\"1.5\"/><text x=\"88.0\" y=\"100\" font-size=\"14\" font-weight=\"700\" text-anchor=\"middle\" fill=\"#1b2330\">Badge Bluetooth</text><text x=\"88.0\" y=\"128\" font-size=\"12\" text-anchor=\"middle\" fill=\"#3d4a63\">faible puissance</text><path d=\"M158 115 H168\" stroke=\"#6b7a99\" stroke-width=\"2\"/><path d=\"M164 110 L169 115 L164 120\" fill=\"none\" stroke=\"#6b7a99\" stroke-width=\"2\"/><rect x=\"170\" y=\"60\" width=\"136\" height=\"110\" rx=\"10\" fill=\"#fff\" stroke=\"#6b7a99\" stroke-width=\"1.5\"/><text x=\"238.0\" y=\"100\" font-size=\"14\" font-weight=\"700\" text-anchor=\"middle\" fill=\"#1b2330\">≈ 12 km</text><text x=\"238.0\" y=\"128\" font-size=\"12\" text-anchor=\"middle\" fill=\"#3d4a63\">ligne de vue</text><path d=\"M308 115 H318\" stroke=\"#6b7a99\" stroke-width=\"2\"/><path d=\"M314 110 L319 115 L314 120\" fill=\"none\" stroke=\"#6b7a99\" stroke-width=\"2\"/><rect x=\"320\" y=\"60\" width=\"136\" height=\"110\" rx=\"10\" fill=\"#fff\" stroke=\"#6b7a99\" stroke-width=\"1.5\"/><text x=\"388.0\" y=\"100\" font-size=\"14\" font-weight=\"700\" text-anchor=\"middle\" fill=\"#1b2330\">Parabole</text><text x=\"388.0\" y=\"128\" font-size=\"12\" text-anchor=\"middle\" fill=\"#3d4a63\">gain élevé</text><path d=\"M458 115 H468\" stroke=\"#6b7a99\" stroke-width=\"2\"/><path d=\"M464 110 L469 115 L464 120\" fill=\"none\" stroke=\"#6b7a99\" stroke-width=\"2\"/><rect x=\"470\" y=\"60\" width=\"136\" height=\"110\" rx=\"10\" fill=\"#fff\" stroke=\"#6b7a99\" stroke-width=\"1.5\"/><text x=\"538.0\" y=\"100\" font-size=\"14\" font-weight=\"700\" text-anchor=\"middle\" fill=\"#1b2330\">Récepteur</text><text x=\"538.0\" y=\"128\" font-size=\"12\" text-anchor=\"middle\" fill=\"#3d4a63\">bruit de fond bas</text></svg>",
+     "alt": "Chaîne de quatre éléments : un badge Bluetooth de faible puissance, un trajet d'environ 12 kilomètres, une antenne parabolique et un récepteur à faible bruit.",
+     "caption": "Le gain vient de la réception, pas de la puissance d'émission."
+    },
+    {
+     "type": "opinion",
+     "title": "Notre avis",
+     "paragraphs": [
+      "Le résultat est impressionnant comme démonstration, mais il faut le lire pour ce qu'il est : une réception unidirectionnelle, probablement en ligne de vue, avec des antennes que personne n'emporte dans la poche. Il ne change ni l'usage du Bluetooth ni l'économie des objets connectés, qui restent dimensionnés pour la courte portée.",
+      "Sa vraie leçon concerne la sécurité et la réglementation : un signal jugé « local » peut être capté de très loin par quelqu'un d'équipé. Pour les concepteurs d'objets, cela plaide pour ne jamais compter sur la portée comme protection et pour chiffrer les échanges."
+     ],
+     "verdict": "Un bel exercice de radio, mais un cas limite plus qu'une percée pratique."
+    }
+   ]
+  }
+ ]
+}
