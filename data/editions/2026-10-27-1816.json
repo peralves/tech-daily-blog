@@ -1,0 +1,1041 @@
+{
+ "schemaVersion": "1.0",
+ "date": "2026-10-27",
+ "generatedAt": "2026-10-27T18:16:58+01:00",
+ "title": "Tech : failles Tailworm, brèche Warp, zero-day Apple et plainte contre Anthropic",
+ "summary": "Sécurité des réseaux privés et des outils d'agents, correctif Apple étendu, plainte des ayants droit d'Elvis contre Anthropic, bureau FreeBSD assisté par IA, normes de photonique et mainframes IBM : l'actualité technique du 27 octobre 2026.",
+ "highlights": [
+  "Tailworm : onze failles dans Tailscale et headscale, dont une élévation root via SSH",
+  "Warp : brèche chez un prestataire, environ 1 % des utilisateurs concernés",
+  "Apple étend aux anciens appareils le correctif du zero-day CVE-2026-86950",
+  "Elvis Presley : plainte pour 274 chansons contre Anthropic"
+ ],
+ "meta": {
+  "generator": "claude-scheduled-task"
+ },
+ "posts": [
+  {
+   "id": "tailscale-tailworm-failles-ssh",
+   "category": "cybersecurite",
+   "icon": "🕳️",
+   "importance": 5,
+   "title": "Tailworm : onze failles dans Tailscale et headscale, dont une élévation de privilèges root via SSH",
+   "summary": "Cyberdione Labs a révélé onze vulnérabilités dans Tailscale 1.104.2 et headscale v0.29.5. Les correctifs n'étaient pas encore publiés au moment de l'article ; Tailscale propose une mesure d'atténuation immédiate.",
+   "tags": [
+    "Tailscale",
+    "headscale",
+    "SSH",
+    "élévation de privilèges",
+    "VPN"
+   ],
+   "sourceDate": "2026-10-27",
+   "sources": [
+    {
+     "title": "Tailscale warns of SSH flaws allowing root privilege escalation",
+     "url": "https://www.bleepingcomputer.com/news/security/tailscale-warns-of-serious-ssh-flaws-allowing-root-privilege-escalation/",
+     "publisher": "BleepingComputer"
+    }
+   ],
+   "cover": {
+    "url": "https://www.bleepstatic.com/content/hl-images/2026/10/27/Tailscale_headpic.jpg",
+    "alt": "Logo de Tailscale sur fond sombre",
+    "credit": "bleepstatic.com"
+   },
+   "blocks": [
+    {
+     "type": "paragraph",
+     "text": "Le 27 octobre 2026, BleepingComputer a rapporté que la société Cyberdione Labs avait identifié onze vulnérabilités, regroupées sous le nom « Tailworm », lors d'un audit de Tailscale 1.104.2 et du serveur de contrôle auto-hébergé headscale v0.29.5. Tailscale a reçu le rapport le lundi 26 octobre 2026 et qualifie ces failles de sérieuses. Selon l'article, elles n'étaient pas encore corrigées à la parution, et aucun identifiant CVE n'était mentionné."
+    },
+    {
+     "type": "paragraph",
+     "text": "Tailscale est un réseau privé virtuel maillé très utilisé par les équipes techniques pour relier serveurs, postes de travail et environnements cloud. Son service SSH intégré, exécuté par le démon tailscaled avec les droits root, permet de se connecter sans gérer de clés SSH. C'est précisément ce composant, très privilégié, qui concentre la faille la plus grave."
+    },
+    {
+     "type": "heading",
+     "level": 2,
+     "text": "Ce que révèle l'audit"
+    },
+    {
+     "type": "keyvalue",
+     "items": [
+      {
+       "label": "Version auditée de Tailscale",
+       "value": "1.104.2"
+      },
+      {
+       "label": "Version auditée de headscale",
+       "value": "v0.29.5"
+      },
+      {
+       "label": "Nombre de failles",
+       "value": "11, regroupées sous le nom « Tailworm »"
+      },
+      {
+       "label": "Rapport reçu par Tailscale",
+       "value": "lundi 26 octobre 2026"
+      },
+      {
+       "label": "Identifiant CVE",
+       "value": "non indiqué dans l'article"
+      },
+      {
+       "label": "Correctif visé",
+       "value": "fin de journée du mardi 27 octobre 2026 (publication non confirmée)"
+      }
+     ]
+    },
+    {
+     "type": "list",
+     "items": [
+      "**Tailscale SSH** : le transfert de sockets Unix (`ssh -R` et `ssh -L`) effectue des vérifications de chemin et des opérations sur fichiers avec les droits root. Des conditions de concurrence et l'absence d'abandon de privilèges permettent de remplacer ou de supprimer des ressources privilégiées, avec à la clé une exécution de code root, la capture de clés d'enrôlement ou la suppression de fichiers arbitraires.",
+      "**Connecteurs d'application (conn25, expérimental)** : le trafic peut être redirigé vers des destinations choisies par l'attaquant, sans validation ni contrôle des listes d'accès. Les métadonnées du cloud, donc des identifiants, et les réseaux internes deviennent atteignables.",
+      "**headscale** : un épuisement de ressources sans authentification (croissance mémoire, éviction de cache) peut provoquer une boucle de plantage du serveur de contrôle, depuis Internet et sans compte.",
+      "**Client DERP** : la réponse d'un relais malveillant est lue sans borne, ce qui peut épuiser la mémoire de l'agent.",
+      "**tailscale serve** : le transfert TCP vers un socket Unix n'a pas la protection du chemin HTTP, et une condition de concurrence existe dans la vérification d'autorisation, ce qui peut donner accès à l'API d'administration du nœud."
+     ]
+    },
+    {
+     "type": "diagram",
+     "svg": "<svg xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"0 0 640 220\" font-family=\"system-ui, sans-serif\"><defs><marker id=\"a\" markerWidth=\"8\" markerHeight=\"8\" refX=\"6\" refY=\"4\" orient=\"auto\"><path d=\"M0 0L8 4L0 8z\" fill=\"#475569\"/></marker></defs><rect width=\"640\" height=\"220\" rx=\"16\" fill=\"#f1f5f9\"/><text x=\"320\" y=\"34\" font-size=\"16\" font-weight=\"600\" text-anchor=\"middle\" fill=\"#0f172a\">Chemin d&#x27;attaque via le transfert SSH</text><rect x=\"20\" y=\"70\" width=\"132\" height=\"110\" rx=\"12\" fill=\"hsl(175,70%,90%)\" stroke=\"hsl(175,60%,35%)\" stroke-width=\"2\"/><text x=\"86.0\" y=\"106\" font-size=\"14\" font-weight=\"600\" text-anchor=\"middle\" fill=\"#0f172a\">Appareil approuvé</text><text x=\"86.0\" y=\"134\" font-size=\"12\" text-anchor=\"middle\" fill=\"#334155\">règle SSH autorisée</text><path d=\"M156 125h16\" stroke=\"#475569\" stroke-width=\"3\" marker-end=\"url(#a)\"/><rect x=\"176\" y=\"70\" width=\"132\" height=\"110\" rx=\"12\" fill=\"hsl(175,70%,90%)\" stroke=\"hsl(175,60%,35%)\" stroke-width=\"2\"/><text x=\"242.0\" y=\"106\" font-size=\"14\" font-weight=\"600\" text-anchor=\"middle\" fill=\"#0f172a\">Transfert ssh -R</text><text x=\"242.0\" y=\"134\" font-size=\"12\" text-anchor=\"middle\" fill=\"#334155\">sockets Unix, droits roo</text><text x=\"242.0\" y=\"152\" font-size=\"12\" text-anchor=\"middle\" fill=\"#334155\">t</text><path d=\"M312 125h16\" stroke=\"#475569\" stroke-width=\"3\" marker-end=\"url(#a)\"/><rect x=\"332\" y=\"70\" width=\"132\" height=\"110\" rx=\"12\" fill=\"hsl(175,70%,90%)\" stroke=\"hsl(175,60%,35%)\" stroke-width=\"2\"/><text x=\"398.0\" y=\"106\" font-size=\"14\" font-weight=\"600\" text-anchor=\"middle\" fill=\"#0f172a\">Course critique</text><text x=\"398.0\" y=\"134\" font-size=\"12\" text-anchor=\"middle\" fill=\"#334155\">chemin remplacé</text><path d=\"M468 125h16\" stroke=\"#475569\" stroke-width=\"3\" marker-end=\"url(#a)\"/><rect x=\"488\" y=\"70\" width=\"132\" height=\"110\" rx=\"12\" fill=\"hsl(175,70%,90%)\" stroke=\"hsl(175,60%,35%)\" stroke-width=\"2\"/><text x=\"554.0\" y=\"106\" font-size=\"14\" font-weight=\"600\" text-anchor=\"middle\" fill=\"#0f172a\">Résultat</text><text x=\"554.0\" y=\"134\" font-size=\"12\" text-anchor=\"middle\" fill=\"#334155\">code root, fichiers perd</text><text x=\"554.0\" y=\"152\" font-size=\"12\" text-anchor=\"middle\" fill=\"#334155\">us</text></svg>",
+     "alt": "Schéma en quatre étapes montrant comment un appareil approuvé peut exploiter le transfert de sockets Unix de Tailscale SSH pour obtenir des privilèges root.",
+     "caption": "Chemin d'exploitation décrit pour la faille SSH la plus critique, d'après l'article."
+    },
+    {
+     "type": "heading",
+     "level": 2,
+     "text": "Conditions d'exploitation et mesures proposées"
+    },
+    {
+     "type": "paragraph",
+     "text": "L'exploitation dépend des permissions accordées à l'utilisateur ou à l'appareil qui se connecte. Pour la faille SSH la plus critique, il faut un appareil approuvé et une règle de politique SSH ; le transfert est accordé automatiquement sur headscale et configuré par règle sur le service hébergé. Un utilisateur déjà autorisé peut donc, dans certains cas, obtenir des privilèges supérieurs à ceux prévus. Pour les connecteurs, il faut un appareil doté de cette capacité. Pour headscale, une simple accessibilité depuis Internet suffit."
+    },
+    {
+     "type": "paragraph",
+     "text": "Mike Shaver, vice-président de l'ingénierie, indique que l'entreprise ne recommande pas à tout le monde de désactiver Tailscale SSH. La mesure d'atténuation consiste à revoir les politiques d'accès SSH, à ne garder que les utilisateurs et appareils nécessaires, puis à définir la variable `TS_SSH_DISABLE_FORWARDING=1` dans l'environnement du service tailscaled avant de le redémarrer. Cette variable désactive le transfert SSH et neutralise plusieurs des failles les plus graves sans couper Tailscale SSH. En complément, l'accès aux systèmes sensibles peut être restreint le temps que les correctifs arrivent."
+    },
+    {
+     "type": "usecases",
+     "title": "Exemples d'utilisation",
+     "items": [
+      {
+       "icon": "🛠️",
+       "title": "Une équipe d'exploitation",
+       "text": "Elle ajoute la variable de désactivation du transfert sur ses serveurs Linux, redémarre tailscaled et vérifie que les connexions SSH ordinaires fonctionnent toujours."
+      },
+      {
+       "icon": "🏠",
+       "title": "Un laboratoire personnel avec headscale",
+       "text": "L'administrateur place le serveur de contrôle derrière un pare-feu ou un accès restreint, en attendant la version corrigée, pour éviter l'épuisement de ressources depuis Internet."
+      },
+      {
+       "icon": "📋",
+       "title": "Un responsable sécurité",
+       "text": "Il passe en revue les règles SSH, supprime les droits de transfert accordés par habitude et note les appareils qui disposent de la capacité de connecteur."
+      }
+     ]
+    },
+    {
+     "type": "timeline",
+     "title": "D'où l'on vient, où l'on va",
+     "items": [
+      {
+       "label": "26 octobre 2026",
+       "text": "Tailscale reçoit le rapport de Cyberdione Labs."
+      },
+      {
+       "label": "27 octobre 2026",
+       "text": "Publication de l'article ; Tailscale vise des correctifs avant la fin de la journée, sans confirmation à ce stade."
+      },
+      {
+       "label": "Prochains jours",
+       "text": "Publication attendue de versions corrigées et, éventuellement, d'identifiants CVE ; les détails complets restent à confirmer."
+      }
+     ]
+    },
+    {
+     "type": "opinion",
+     "title": "Notre avis",
+     "paragraphs": [
+      "Cet épisode rappelle qu'un service d'accès à distance qui tourne en root accumule les risques : chaque fonction annexe, comme le transfert de sockets, élargit la surface d'attaque. Le bon point est la présence d'une atténuation simple, qui évite d'arbitrer entre sécurité et continuité de service. Le point faible est le délai entre la divulgation et le correctif, pendant lequel les détails techniques sont connus.",
+      "D'ici un à trois ans, on peut raisonnablement s'attendre à ce que les outils de réseau privé séparent davantage les privilèges, avec des processus dédiés par fonction plutôt qu'un démon unique en root. C'est une tendance probable, pas une certitude."
+     ],
+     "verdict": "Un audit utile : la mitigation existe, il faut l'appliquer sans attendre le correctif."
+    },
+    {
+     "type": "callout",
+     "title": "À retenir",
+     "text": "Tant que les versions corrigées ne sont pas publiées : limiter les politiques SSH, définir `TS_SSH_DISABLE_FORWARDING=1`, redémarrer tailscaled et ne pas exposer un serveur headscale inutilement."
+    }
+   ],
+   "publishedAt": "2026-10-27T18:16:58+01:00",
+   "illustration": {
+    "svg": "<svg xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"0 0 640 360\"><defs><linearGradient id=\"g\" x1=\"0\" y1=\"0\" x2=\"1\" y2=\"1\"><stop offset=\"0\" stop-color=\"hsl(175,70%,38%)\"/><stop offset=\"1\" stop-color=\"hsl(215,65%,22%)\"/></linearGradient></defs><rect width=\"640\" height=\"360\" fill=\"url(#g)\"/><circle cx=\"470\" cy=\"80\" r=\"120\" fill=\"#fff\" opacity=\".08\"/><circle cx=\"120\" cy=\"300\" r=\"150\" fill=\"#fff\" opacity=\".07\"/><g fill=\"none\" stroke=\"#fff\" stroke-width=\"3\" opacity=\".55\"><rect x=\"90\" y=\"70\" width=\"460\" height=\"220\" rx=\"22\"/><path d=\"M90 130h460M200 130v160\"/></g><g fill=\"#fff\" opacity=\".8\"><circle cx=\"125\" cy=\"100\" r=\"7\"/><circle cx=\"150\" cy=\"100\" r=\"7\"/><circle cx=\"175\" cy=\"100\" r=\"7\"/><rect x=\"230\" y=\"170\" width=\"150\" height=\"12\" rx=\"6\"/><rect x=\"230\" y=\"200\" width=\"110\" height=\"12\" rx=\"6\" opacity=\".7\"/><rect x=\"230\" y=\"230\" width=\"190\" height=\"12\" rx=\"6\" opacity=\".5\"/><rect x=\"115\" y=\"160\" width=\"60\" height=\"100\" rx=\"10\" opacity=\".35\"/></g><text x=\"470\" y=\"250\" font-size=\"96\" text-anchor=\"middle\" font-family=\"system-ui,sans-serif\">🕳️</text></svg>"
+   },
+   "readingMinutes": 4
+  },
+  {
+   "id": "warp-breche-prestataire-journaux-agents",
+   "category": "cybersecurite",
+   "icon": "🛰️",
+   "importance": 4,
+   "title": "Warp : une brèche chez un prestataire expose des journaux d'agents IA et de la télémétrie",
+   "summary": "L'éditeur du terminal Warp reconnaît qu'environ 1 % de ses utilisateurs pourraient être touchés après l'exploitation d'un fournisseur de son infrastructure ; l'enquête, appuyée par CrowdStrike, est en cours.",
+   "tags": [
+    "Warp",
+    "brèche",
+    "agents IA",
+    "chaîne d'approvisionnement",
+    "télémétrie"
+   ],
+   "sourceDate": "2026-10-27",
+   "sources": [
+    {
+     "title": "Warp discloses breach exposing AI agent logs, user telemetry data",
+     "url": "https://www.bleepingcomputer.com/news/security/warp-discloses-breach-exposing-ai-agent-logs-user-telemetry-data/",
+     "publisher": "BleepingComputer"
+    }
+   ],
+   "blocks": [
+    {
+     "type": "paragraph",
+     "text": "Le 27 octobre 2026, BleepingComputer a rapporté que Warp, un environnement de développement agentique construit autour d'un terminal, avait divulgué une compromission. Des journaux de décisions d'agents IA et des données de télémétrie d'utilisateurs ont été exposés, à la suite d'une attaque contre un prestataire tiers faisant partie de l'infrastructure de l'entreprise."
+    },
+    {
+     "type": "heading",
+     "level": 2,
+     "text": "Ce que l'on sait"
+    },
+    {
+     "type": "keyvalue",
+     "items": [
+      {
+       "label": "Données exposées",
+       "value": "journaux de décisions d'agents IA et télémétrie"
+      },
+      {
+       "label": "Origine",
+       "value": "exploitation d'un prestataire de l'infrastructure de Warp"
+      },
+      {
+       "label": "Utilisateurs concernés",
+       "value": "environ 1 % selon le directeur général, Zach Lloyd"
+      },
+      {
+       "label": "Base d'utilisateurs revendiquée",
+       "value": "au moins 800 000"
+      },
+      {
+       "label": "Enquête",
+       "value": "en cours, avec CrowdStrike ; autorités judiciaires informées"
+      }
+     ]
+    },
+    {
+     "type": "paragraph",
+     "text": "Selon le directeur général, Warp a eu connaissance de l'incident un vendredi, sans date précise dans l'article, et l'a détecté en quelques heures avant de le contenir. Il décrit une exploitation active et très ciblée d'un fournisseur. L'analyse citée évoque un essaim d'agents et une technique d'intrusion et d'escalade très sophistiquée, sans autre détail technique. Les utilisateurs identifiés comme touchés ont été notifiés, et le prestataire a été alerté de la vulnérabilité."
+    },
+    {
+     "type": "paragraph",
+     "text": "Un point reste flou : Warp n'a pas précisé si les données exposées contiennent du code source, des instructions saisies par les utilisateurs, des identifiants ou d'autres informations sensibles. Le chiffre de 1 % ne doit pas être converti trop vite en nombre de comptes : l'entreprise ne communique pas de total, et une extrapolation à partir de la base revendiquée donnerait seulement un ordre de grandeur de quelques milliers."
+    },
+    {
+     "type": "diagram",
+     "svg": "<svg xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"0 0 640 220\" font-family=\"system-ui, sans-serif\"><defs><marker id=\"a\" markerWidth=\"8\" markerHeight=\"8\" refX=\"6\" refY=\"4\" orient=\"auto\"><path d=\"M0 0L8 4L0 8z\" fill=\"#475569\"/></marker></defs><rect width=\"640\" height=\"220\" rx=\"16\" fill=\"#f1f5f9\"/><text x=\"320\" y=\"34\" font-size=\"16\" font-weight=\"600\" text-anchor=\"middle\" fill=\"#0f172a\">Une compromission par la chaîne d&#x27;approvisionnement</text><rect x=\"20\" y=\"70\" width=\"132\" height=\"110\" rx=\"12\" fill=\"hsl(175,70%,90%)\" stroke=\"hsl(175,60%,35%)\" stroke-width=\"2\"/><text x=\"86.0\" y=\"106\" font-size=\"14\" font-weight=\"600\" text-anchor=\"middle\" fill=\"#0f172a\">Prestataire</text><text x=\"86.0\" y=\"134\" font-size=\"12\" text-anchor=\"middle\" fill=\"#334155\">exploité par l&#x27;attaquant</text><path d=\"M156 125h16\" stroke=\"#475569\" stroke-width=\"3\" marker-end=\"url(#a)\"/><rect x=\"176\" y=\"70\" width=\"132\" height=\"110\" rx=\"12\" fill=\"hsl(175,70%,90%)\" stroke=\"hsl(175,60%,35%)\" stroke-width=\"2\"/><text x=\"242.0\" y=\"106\" font-size=\"14\" font-weight=\"600\" text-anchor=\"middle\" fill=\"#0f172a\">Infrastructure Warp</text><text x=\"242.0\" y=\"134\" font-size=\"12\" text-anchor=\"middle\" fill=\"#334155\">journaux et télémétrie</text><path d=\"M312 125h16\" stroke=\"#475569\" stroke-width=\"3\" marker-end=\"url(#a)\"/><rect x=\"332\" y=\"70\" width=\"132\" height=\"110\" rx=\"12\" fill=\"hsl(175,70%,90%)\" stroke=\"hsl(175,60%,35%)\" stroke-width=\"2\"/><text x=\"398.0\" y=\"106\" font-size=\"14\" font-weight=\"600\" text-anchor=\"middle\" fill=\"#0f172a\">Données exposées</text><text x=\"398.0\" y=\"134\" font-size=\"12\" text-anchor=\"middle\" fill=\"#334155\">environ 1 % des comptes</text><path d=\"M468 125h16\" stroke=\"#475569\" stroke-width=\"3\" marker-end=\"url(#a)\"/><rect x=\"488\" y=\"70\" width=\"132\" height=\"110\" rx=\"12\" fill=\"hsl(175,70%,90%)\" stroke=\"hsl(175,60%,35%)\" stroke-width=\"2\"/><text x=\"554.0\" y=\"106\" font-size=\"14\" font-weight=\"600\" text-anchor=\"middle\" fill=\"#0f172a\">Réponse</text><text x=\"554.0\" y=\"134\" font-size=\"12\" text-anchor=\"middle\" fill=\"#334155\">notification, enquête</text></svg>",
+     "alt": "Schéma en quatre étapes : un prestataire est exploité, l'infrastructure de Warp est touchée, des données sont exposées, puis une enquête est ouverte.",
+     "caption": "Enchaînement décrit par Warp, à titre schématique."
+    },
+    {
+     "type": "heading",
+     "level": 2,
+     "text": "Un incident qui n'est pas isolé"
+    },
+    {
+     "type": "paragraph",
+     "text": "L'article rapproche cet épisode de celui d'OpenCode, une autre plateforme de codage assistée par IA, où une fuite a exposé des clés d'API stockées : environ 1,4 % des utilisateurs étaient concernés, avec des débits non autorisés pouvant atteindre 1 700 dollars pour certains. Les outils d'agents de programmation concentrent des données précieuses, qui décrivent le travail d'une équipe et parfois ses secrets."
+    },
+    {
+     "type": "list",
+     "items": [
+      "Surveiller l'activité de son compte et se méfier des messages non sollicités, seules recommandations de l'article.",
+      "Par prudence, faire tourner les clés d'API et jetons qui ont pu transiter par l'outil, même si Warp ne l'exige pas.",
+      "Consulter les communications officielles de Warp pour savoir si une action précise est requise."
+     ]
+    },
+    {
+     "type": "usecases",
+     "title": "Exemples d'utilisation",
+     "items": [
+      {
+       "icon": "👩‍💻",
+       "title": "Un développeur indépendant",
+       "text": "Il relit ses journaux d'agents récents, repère les projets sensibles et renouvelle les clés qui y apparaissent."
+      },
+      {
+       "icon": "🏢",
+       "title": "Une équipe sécurité",
+       "text": "Elle inventorie les outils d'agents autorisés, demande à chaque éditeur la liste de ses sous-traitants et ajoute ces fournisseurs à son évaluation des risques."
+      },
+      {
+       "icon": "📨",
+       "title": "Un utilisateur notifié",
+       "text": "Il traite avec méfiance tout courriel se réclamant de Warp et passe par le site officiel pour vérifier l'incident."
+      }
+     ]
+    },
+    {
+     "type": "timeline",
+     "title": "D'où l'on vient, où l'on va",
+     "items": [
+      {
+       "label": "Un vendredi (date non précisée)",
+       "text": "Warp prend connaissance de l'incident et le contient en quelques heures."
+      },
+      {
+       "label": "27 octobre 2026",
+       "text": "Divulgation publique et couverture par la presse spécialisée."
+      },
+      {
+       "label": "À venir",
+       "text": "Conclusions de l'enquête de CrowdStrike, non publiées à ce jour."
+      }
+     ]
+    },
+    {
+     "type": "opinion",
+     "title": "Notre avis",
+     "paragraphs": [
+      "L'incident illustre un risque désormais classique : la sécurité d'un éditeur dépend de ses fournisseurs. Pour des outils d'agents, la sensibilité est double, car les journaux de décisions peuvent révéler la structure d'un projet, des chemins de fichiers et parfois des secrets. La transparence rapide de Warp est un bon point ; l'absence de précision sur la nature exacte des données l'est moins.",
+      "D'ici un à trois ans, on peut s'attendre à ce que les entreprises exigent des garanties contractuelles sur les journaux d'agents, avec chiffrement, durée de conservation et option de ne rien envoyer. C'est une évolution plausible, formulée ici comme une opinion."
+     ],
+     "verdict": "Un signal d'alerte pour tous les outils d'agents : vérifier ce qu'ils journalisent et chez qui."
+    },
+    {
+     "type": "callout",
+     "title": "À retenir",
+     "text": "Quand un outil d'agent IA subit une brèche, la prudence consiste à renouveler les secrets potentiellement exposés, sans attendre une confirmation de l'éditeur."
+    }
+   ],
+   "publishedAt": "2026-10-27T18:16:58+01:00",
+   "illustration": {
+    "svg": "<svg xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"0 0 640 360\"><defs><linearGradient id=\"g\" x1=\"0\" y1=\"0\" x2=\"1\" y2=\"1\"><stop offset=\"0\" stop-color=\"hsl(175,70%,38%)\"/><stop offset=\"1\" stop-color=\"hsl(215,65%,22%)\"/></linearGradient></defs><rect width=\"640\" height=\"360\" fill=\"url(#g)\"/><circle cx=\"470\" cy=\"80\" r=\"120\" fill=\"#fff\" opacity=\".08\"/><circle cx=\"157\" cy=\"300\" r=\"150\" fill=\"#fff\" opacity=\".07\"/><g fill=\"none\" stroke=\"#fff\" stroke-width=\"3\" opacity=\".55\"><rect x=\"90\" y=\"70\" width=\"460\" height=\"220\" rx=\"22\"/><path d=\"M90 130h460M200 130v160\"/></g><g fill=\"#fff\" opacity=\".8\"><circle cx=\"125\" cy=\"100\" r=\"7\"/><circle cx=\"150\" cy=\"100\" r=\"7\"/><circle cx=\"175\" cy=\"100\" r=\"7\"/><rect x=\"230\" y=\"170\" width=\"150\" height=\"12\" rx=\"6\"/><rect x=\"230\" y=\"200\" width=\"110\" height=\"12\" rx=\"6\" opacity=\".7\"/><rect x=\"230\" y=\"230\" width=\"190\" height=\"12\" rx=\"6\" opacity=\".5\"/><rect x=\"115\" y=\"160\" width=\"60\" height=\"100\" rx=\"10\" opacity=\".35\"/></g><text x=\"470\" y=\"250\" font-size=\"96\" text-anchor=\"middle\" font-family=\"system-ui,sans-serif\">🛰️</text></svg>"
+   },
+   "readingMinutes": 3
+  },
+  {
+   "id": "apple-coregraphics-zero-day-anciens-iphone",
+   "category": "cybersecurite",
+   "icon": "🍏",
+   "importance": 3,
+   "title": "Apple étend aux anciens iPhone et iPad le correctif d'un zero-day CoreGraphics",
+   "summary": "La faille CVE-2026-86950, déjà exploitée dans une attaque très ciblée, est désormais corrigée par des versions rétroportées pour plusieurs modèles anciens d'iPhone et d'iPad.",
+   "tags": [
+    "Apple",
+    "CoreGraphics",
+    "zero-day",
+    "iOS",
+    "CVE-2026-86950"
+   ],
+   "sourceDate": "2026-10-27",
+   "sources": [
+    {
+     "title": "Apple backports CoreGraphics zero-day patches to older iPhones",
+     "url": "https://www.bleepingcomputer.com/news/apple/apple-backports-coregraphics-zero-day-patches-to-older-iphones/",
+     "publisher": "BleepingComputer"
+    }
+   ],
+   "blocks": [
+    {
+     "type": "paragraph",
+     "text": "Le 27 octobre 2026, BleepingComputer a indiqué qu'Apple avait publié des correctifs rétroportés pour les appareils plus anciens contre CVE-2026-86950, une vulnérabilité de CoreGraphics déjà exploitée. Apple avait publié son avis le lundi 26 octobre. L'article ne précise pas les numéros de version exacts des correctifs rétroportés, ce qui impose de consulter l'avis officiel d'Apple pour les connaître."
+    },
+    {
+     "type": "heading",
+     "level": 2,
+     "text": "La faille"
+    },
+    {
+     "type": "keyvalue",
+     "items": [
+      {
+       "label": "Identifiant",
+       "value": "CVE-2026-86950"
+      },
+      {
+       "label": "Type",
+       "value": "écriture hors limites (CWE-787)"
+      },
+      {
+       "label": "Composant",
+       "value": "CoreGraphics, bibliothèque de dessin vectoriel, de rendu de texte et d'images"
+      },
+      {
+       "label": "Découverte par",
+       "value": "Meta Product Security"
+      },
+      {
+       "label": "Exploitation",
+       "value": "signalée comme « extrêmement sophistiquée » et visant des personnes précises, sur des versions d'iOS antérieures à iOS 27"
+      }
+     ]
+    },
+    {
+     "type": "paragraph",
+     "text": "Une écriture hors limites survient lorsqu'un programme écrit en mémoire au-delà de la zone prévue. Ici, un fichier spécialement conçu peut provoquer un plantage, corrompre des données ou permettre l'exécution de code arbitraire. Le vecteur d'un fichier piégé, par exemple une image ou un document, explique pourquoi ce type de faille est prisé pour des attaques ciblées : la victime n'a parfois qu'à ouvrir ou prévisualiser un contenu."
+    },
+    {
+     "type": "paragraph",
+     "text": "Il s'agit de l'un des deux zero-days corrigés par Apple cette année. L'autre, CVE-2026-20700, touchait dyld, l'éditeur de liens dynamiques, et avait été corrigé en février. Un premier correctif pour CVE-2026-86950 avait été publié en septembre 2026 dans iOS 26.7.1, iPadOS 26.7.1, macOS Tahoe 26.7.1 et macOS Sequoia 15.8.1. La nouveauté d'octobre est l'extension aux matériels qui ne peuvent plus recevoir les dernières versions majeures."
+    },
+    {
+     "type": "heading",
+     "level": 2,
+     "text": "Appareils concernés par les correctifs rétroportés"
+    },
+    {
+     "type": "list",
+     "items": [
+      "iPhone XS, iPhone XS Max et iPhone XR",
+      "iPad de 7e génération",
+      "iPad Air de 4e génération et suivantes",
+      "iPad de 9e génération et suivantes",
+      "iPad mini de 6e génération et suivantes"
+     ]
+    },
+    {
+     "type": "diagram",
+     "svg": "<svg xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"0 0 640 220\" font-family=\"system-ui, sans-serif\"><defs><marker id=\"a\" markerWidth=\"8\" markerHeight=\"8\" refX=\"6\" refY=\"4\" orient=\"auto\"><path d=\"M0 0L8 4L0 8z\" fill=\"#475569\"/></marker></defs><rect width=\"640\" height=\"220\" rx=\"16\" fill=\"#f1f5f9\"/><text x=\"320\" y=\"34\" font-size=\"16\" font-weight=\"600\" text-anchor=\"middle\" fill=\"#0f172a\">Du signalement au correctif étendu</text><rect x=\"20\" y=\"70\" width=\"132\" height=\"110\" rx=\"12\" fill=\"hsl(175,70%,90%)\" stroke=\"hsl(175,60%,35%)\" stroke-width=\"2\"/><text x=\"86.0\" y=\"106\" font-size=\"14\" font-weight=\"600\" text-anchor=\"middle\" fill=\"#0f172a\">Signalement</text><text x=\"86.0\" y=\"134\" font-size=\"12\" text-anchor=\"middle\" fill=\"#334155\">Meta Product Security</text><path d=\"M156 125h16\" stroke=\"#475569\" stroke-width=\"3\" marker-end=\"url(#a)\"/><rect x=\"176\" y=\"70\" width=\"132\" height=\"110\" rx=\"12\" fill=\"hsl(175,70%,90%)\" stroke=\"hsl(175,60%,35%)\" stroke-width=\"2\"/><text x=\"242.0\" y=\"106\" font-size=\"14\" font-weight=\"600\" text-anchor=\"middle\" fill=\"#0f172a\">Septembre 2026</text><text x=\"242.0\" y=\"134\" font-size=\"12\" text-anchor=\"middle\" fill=\"#334155\">iOS 26.7.1, macOS</text><path d=\"M312 125h16\" stroke=\"#475569\" stroke-width=\"3\" marker-end=\"url(#a)\"/><rect x=\"332\" y=\"70\" width=\"132\" height=\"110\" rx=\"12\" fill=\"hsl(175,70%,90%)\" stroke=\"hsl(175,60%,35%)\" stroke-width=\"2\"/><text x=\"398.0\" y=\"106\" font-size=\"14\" font-weight=\"600\" text-anchor=\"middle\" fill=\"#0f172a\">26 octobre</text><text x=\"398.0\" y=\"134\" font-size=\"12\" text-anchor=\"middle\" fill=\"#334155\">avis Apple, anciens appa</text><text x=\"398.0\" y=\"152\" font-size=\"12\" text-anchor=\"middle\" fill=\"#334155\">reils</text><path d=\"M468 125h16\" stroke=\"#475569\" stroke-width=\"3\" marker-end=\"url(#a)\"/><rect x=\"488\" y=\"70\" width=\"132\" height=\"110\" rx=\"12\" fill=\"hsl(175,70%,90%)\" stroke=\"hsl(175,60%,35%)\" stroke-width=\"2\"/><text x=\"554.0\" y=\"106\" font-size=\"14\" font-weight=\"600\" text-anchor=\"middle\" fill=\"#0f172a\">Action</text><text x=\"554.0\" y=\"134\" font-size=\"12\" text-anchor=\"middle\" fill=\"#334155\">installer la mise à jour</text></svg>",
+     "alt": "Frise en quatre étapes allant du signalement de la faille à l'installation du correctif rétroporté sur les anciens appareils.",
+     "caption": "Chronologie résumée à partir de l'article."
+    },
+    {
+     "type": "paragraph",
+     "text": "L'article signale aussi, dans le même lot, une faille de gravité élevée dans les Beats Studio Buds (CVE-2025-20701) ainsi que des correctifs pour d'anciens iPhone et iPad contre quatre vulnérabilités utilisées par le kit d'exploitation Coruna. Apple recommande d'installer ces mises à jour même si l'exploitation semble limitée à des cibles très précises."
+    },
+    {
+     "type": "usecases",
+     "title": "Exemples d'utilisation",
+     "items": [
+      {
+       "icon": "📱",
+       "title": "Un particulier avec un iPhone XR",
+       "text": "Il ouvre Réglages, puis Général et Mise à jour logicielle, et installe le correctif proposé pour son modèle."
+      },
+      {
+       "icon": "🏫",
+       "title": "Un établissement scolaire",
+       "text": "Il recense ses iPad de 7e génération et les met à jour en priorité, car ils figurent dans la liste concernée."
+      },
+      {
+       "icon": "🧑‍⚖️",
+       "title": "Un journaliste ou un avocat",
+       "text": "Plus exposé à des attaques ciblées, il active le mode Isolation si son appareil le permet et applique la mise à jour sans délai."
+      }
+     ]
+    },
+    {
+     "type": "timeline",
+     "title": "D'où l'on vient, où l'on va",
+     "items": [
+      {
+       "label": "Février 2026",
+       "text": "Correction du premier zero-day de l'année, CVE-2026-20700 (dyld)."
+      },
+      {
+       "label": "Septembre 2026",
+       "text": "Premier correctif de CVE-2026-86950 sur les systèmes récents."
+      },
+      {
+       "label": "26 octobre 2026",
+       "text": "Avis d'Apple étendant le correctif aux appareils plus anciens."
+      }
+     ]
+    },
+    {
+     "type": "opinion",
+     "title": "Notre avis",
+     "paragraphs": [
+      "Étendre un correctif à des appareils anciens est une bonne pratique, car ce sont souvent eux que l'on oublie de mettre à jour. Le revers est que la faille était exploitable pendant plusieurs semaines sur ces modèles, ce qui rappelle que la durée de vie logicielle des appareils est un enjeu de sécurité à part entière.",
+      "D'ici un à trois ans, la pression réglementaire européenne sur la durée des mises à jour de sécurité devrait grandir ; c'est une évolution probable, pas une certitude."
+     ],
+     "verdict": "Un rattrapage bienvenu : les anciens appareils doivent être mis à jour sans attendre."
+    },
+    {
+     "type": "callout",
+     "title": "À retenir",
+     "text": "Si votre iPhone ou iPad figure dans la liste, installez la mise à jour : la faille a déjà été exploitée, même de manière très ciblée."
+    }
+   ],
+   "publishedAt": "2026-10-27T18:16:58+01:00",
+   "illustration": {
+    "svg": "<svg xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"0 0 640 360\"><defs><linearGradient id=\"g\" x1=\"0\" y1=\"0\" x2=\"1\" y2=\"1\"><stop offset=\"0\" stop-color=\"hsl(175,70%,38%)\"/><stop offset=\"1\" stop-color=\"hsl(215,65%,22%)\"/></linearGradient></defs><rect width=\"640\" height=\"360\" fill=\"url(#g)\"/><circle cx=\"470\" cy=\"80\" r=\"120\" fill=\"#fff\" opacity=\".08\"/><circle cx=\"194\" cy=\"300\" r=\"150\" fill=\"#fff\" opacity=\".07\"/><g fill=\"none\" stroke=\"#fff\" stroke-width=\"3\" opacity=\".55\"><rect x=\"90\" y=\"70\" width=\"460\" height=\"220\" rx=\"22\"/><path d=\"M90 130h460M200 130v160\"/></g><g fill=\"#fff\" opacity=\".8\"><circle cx=\"125\" cy=\"100\" r=\"7\"/><circle cx=\"150\" cy=\"100\" r=\"7\"/><circle cx=\"175\" cy=\"100\" r=\"7\"/><rect x=\"230\" y=\"170\" width=\"150\" height=\"12\" rx=\"6\"/><rect x=\"230\" y=\"200\" width=\"110\" height=\"12\" rx=\"6\" opacity=\".7\"/><rect x=\"230\" y=\"230\" width=\"190\" height=\"12\" rx=\"6\" opacity=\".5\"/><rect x=\"115\" y=\"160\" width=\"60\" height=\"100\" rx=\"10\" opacity=\".35\"/></g><text x=\"470\" y=\"250\" font-size=\"96\" text-anchor=\"middle\" font-family=\"system-ui,sans-serif\">🍏</text></svg>"
+   },
+   "readingMinutes": 3
+  },
+  {
+   "id": "elvis-plainte-anthropic-274-chansons",
+   "category": "ia",
+   "icon": "🎸",
+   "importance": 4,
+   "title": "Droits d'auteur : les ayants droit d'Elvis Presley attaquent Anthropic pour 274 chansons",
+   "summary": "Une plainte déposée devant un tribunal fédéral californien accuse Anthropic d'avoir entraîné ses modèles sur des œuvres protégées ; les plaignants réclament jusqu'à environ 41,1 millions de dollars.",
+   "tags": [
+    "Anthropic",
+    "droit d'auteur",
+    "Elvis Presley",
+    "entraînement",
+    "fair use"
+   ],
+   "sourceDate": "2026-10-27",
+   "sources": [
+    {
+     "title": "Elvis rightsholders sue Anthropic for stealing songs and leaving them in Heartbreak Hotel",
+     "url": "https://www.theregister.com/ai-and-ml/2026/10/27/elvis-rightsholders-sue-anthropic-for-stealing-songs-and-leaving-them-in-heartbreak-hotel/5305625",
+     "publisher": "The Register"
+    }
+   ],
+   "blocks": [
+    {
+     "type": "paragraph",
+     "text": "Un groupe de titulaires de droits portant sur des chansons d'Elvis Presley a déposé une plainte contre Anthropic devant le tribunal fédéral du district nord de la Californie, selon The Register du 27 octobre 2026. La plainte aurait été déposée le vendredi précédant l'article, soit vers le 23 octobre, une date déduite et non indiquée explicitement. Elle concerne 274 chansons."
+    },
+    {
+     "type": "heading",
+     "level": 2,
+     "text": "Ce que reprochent les plaignants"
+    },
+    {
+     "type": "list",
+     "items": [
+      "Une violation du droit d'auteur : les œuvres auraient servi à entraîner les modèles d'IA sans autorisation.",
+      "Un modèle économique qui reposerait sur la violation du droit d'auteur « à une échelle jamais vue auparavant », selon la plainte.",
+      "Une défense par l'usage loyal (*fair use*) qui ne couvrirait pas tous les contenus utilisés.",
+      "Des torrents et jeux de données dont Anthropic aurait dû savoir qu'ils étaient sous licence ou volés.",
+      "La possibilité, pour Claude, de reproduire des paroles d'Elvis sur demande, ce qui nécessiterait une licence.",
+      "Des contenus générés « dans le style de » certains artistes, qui priveraient les ayants droit de revenus."
+     ]
+    },
+    {
+     "type": "keyvalue",
+     "items": [
+      {
+       "label": "Juridiction",
+       "value": "tribunal fédéral des États-Unis, district nord de la Californie"
+      },
+      {
+       "label": "Œuvres visées",
+       "value": "274 chansons"
+      },
+      {
+       "label": "Réparation demandée",
+       "value": "dommages-intérêts et part des bénéfices, ou 150 000 dollars par œuvre"
+      },
+      {
+       "label": "Montant maximal calculé",
+       "value": "environ 41,1 millions de dollars"
+      },
+      {
+       "label": "Réponse d'Anthropic",
+       "value": "promesse de se défendre, selon le New York Times cité par The Register"
+      }
+     ]
+    },
+    {
+     "type": "paragraph",
+     "text": "Le calcul de 41,1 millions de dollars découle de la multiplication de 150 000 dollars par 274 œuvres. Il s'agit du plafond que les plaignants invoquent, non d'une condamnation ou d'une estimation du tribunal. Les plaignants soulignent aussi qu'Anthropic dispose de liquidités importantes et prépare une introduction en Bourse, annoncée le 26 octobre 2026."
+    },
+    {
+     "type": "paragraph",
+     "text": "Anthropic a déjà réglé une affaire comparable portant sur l'entraînement à partir de livres, par la création d'un fonds de 1,5 milliard de dollars, accord rapporté en septembre 2025. La nouvelle plainte vise l'autre grand champ de la création, la musique, et insiste sur deux points distincts : la provenance des données d'entraînement et la restitution possible de paroles."
+    },
+    {
+     "type": "diagram",
+     "svg": "<svg xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"0 0 640 220\" font-family=\"system-ui, sans-serif\"><defs><marker id=\"a\" markerWidth=\"8\" markerHeight=\"8\" refX=\"6\" refY=\"4\" orient=\"auto\"><path d=\"M0 0L8 4L0 8z\" fill=\"#475569\"/></marker></defs><rect width=\"640\" height=\"220\" rx=\"16\" fill=\"#f1f5f9\"/><text x=\"320\" y=\"34\" font-size=\"16\" font-weight=\"600\" text-anchor=\"middle\" fill=\"#0f172a\">Les trois griefs de la plainte</text><rect x=\"20\" y=\"70\" width=\"184\" height=\"110\" rx=\"12\" fill=\"hsl(320,70%,90%)\" stroke=\"hsl(320,60%,35%)\" stroke-width=\"2\"/><text x=\"112.0\" y=\"106\" font-size=\"14\" font-weight=\"600\" text-anchor=\"middle\" fill=\"#0f172a\">Entraînement</text><text x=\"112.0\" y=\"134\" font-size=\"12\" text-anchor=\"middle\" fill=\"#334155\">œuvres sans licence</text><path d=\"M208 125h16\" stroke=\"#475569\" stroke-width=\"3\" marker-end=\"url(#a)\"/><rect x=\"228\" y=\"70\" width=\"184\" height=\"110\" rx=\"12\" fill=\"hsl(320,70%,90%)\" stroke=\"hsl(320,60%,35%)\" stroke-width=\"2\"/><text x=\"320.0\" y=\"106\" font-size=\"14\" font-weight=\"600\" text-anchor=\"middle\" fill=\"#0f172a\">Provenance</text><text x=\"320.0\" y=\"134\" font-size=\"12\" text-anchor=\"middle\" fill=\"#334155\">torrents, jeux de donnée</text><text x=\"320.0\" y=\"152\" font-size=\"12\" text-anchor=\"middle\" fill=\"#334155\">s</text><path d=\"M416 125h16\" stroke=\"#475569\" stroke-width=\"3\" marker-end=\"url(#a)\"/><rect x=\"436\" y=\"70\" width=\"184\" height=\"110\" rx=\"12\" fill=\"hsl(320,70%,90%)\" stroke=\"hsl(320,60%,35%)\" stroke-width=\"2\"/><text x=\"528.0\" y=\"106\" font-size=\"14\" font-weight=\"600\" text-anchor=\"middle\" fill=\"#0f172a\">Restitution</text><text x=\"528.0\" y=\"134\" font-size=\"12\" text-anchor=\"middle\" fill=\"#334155\">paroles reproduites</text></svg>",
+     "alt": "Schéma en trois blocs : entraînement sur des œuvres sans licence, provenance contestée des données, restitution de paroles.",
+     "caption": "Les trois griefs principaux, résumés d'après l'article."
+    },
+    {
+     "type": "usecases",
+     "title": "Ce que cela peut changer",
+     "items": [
+      {
+       "icon": "🎼",
+       "title": "Les éditeurs de musique",
+       "text": "Une décision favorable ouvrirait la voie à des licences d'entraînement payantes pour les catalogues musicaux."
+      },
+      {
+       "icon": "🧑‍💻",
+       "title": "Les entreprises qui utilisent l'IA",
+       "text": "Elles pourraient devoir vérifier les garanties contractuelles de leurs fournisseurs quant à la provenance des données."
+      },
+      {
+       "icon": "🎤",
+       "title": "Les artistes indépendants",
+       "text": "Le débat sur les contenus « dans le style de » les concerne directement, y compris sans catalogue célèbre."
+      }
+     ]
+    },
+    {
+     "type": "timeline",
+     "title": "D'où l'on vient, où l'on va",
+     "items": [
+      {
+       "label": "Septembre 2025",
+       "text": "Accord de 1,5 milliard de dollars dans l'affaire des livres, selon l'article."
+      },
+      {
+       "label": "26 octobre 2026",
+       "text": "Annonce de l'introduction en Bourse d'Anthropic."
+      },
+      {
+       "label": "Vers le 23 octobre 2026",
+       "text": "Dépôt de la plainte des ayants droit d'Elvis Presley."
+      },
+      {
+       "label": "À venir",
+       "text": "Réponse d'Anthropic devant le tribunal ; aucune date d'audience n'est indiquée."
+      }
+     ]
+    },
+    {
+     "type": "opinion",
+     "title": "Notre avis",
+     "paragraphs": [
+      "L'affaire pose une question de fond que les tribunaux américains n'ont pas tranchée de façon uniforme : l'entraînement relève-t-il de l'usage loyal ? La plainte déplace utilement le débat vers la provenance des données et la reproduction de paroles, deux points plus faciles à prouver que l'apprentissage en général. Mais il ne s'agit à ce stade que d'allégations.",
+      "D'ici un à trois ans, les licences collectives pour l'entraînement devraient se multiplier, avec un marché des données sous licence. C'est une évolution plausible plutôt qu'un fait établi."
+     ],
+     "verdict": "Une plainte qui compte surtout pour la provenance des données, pas encore pour le verdict."
+    },
+    {
+     "type": "callout",
+     "title": "À retenir",
+     "text": "Il s'agit d'une plainte : ses accusations ne sont pas des faits jugés. Anthropic a annoncé qu'elle se défendrait."
+    }
+   ],
+   "publishedAt": "2026-10-27T18:16:58+01:00",
+   "illustration": {
+    "svg": "<svg xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"0 0 640 360\"><defs><linearGradient id=\"g\" x1=\"0\" y1=\"0\" x2=\"1\" y2=\"1\"><stop offset=\"0\" stop-color=\"hsl(320,70%,38%)\"/><stop offset=\"1\" stop-color=\"hsl(0,65%,22%)\"/></linearGradient></defs><rect width=\"640\" height=\"360\" fill=\"url(#g)\"/><circle cx=\"470\" cy=\"80\" r=\"120\" fill=\"#fff\" opacity=\".08\"/><circle cx=\"231\" cy=\"300\" r=\"150\" fill=\"#fff\" opacity=\".07\"/><g fill=\"none\" stroke=\"#fff\" stroke-width=\"3\" opacity=\".55\"><rect x=\"90\" y=\"70\" width=\"460\" height=\"220\" rx=\"22\"/><path d=\"M90 130h460M200 130v160\"/></g><g fill=\"#fff\" opacity=\".8\"><circle cx=\"125\" cy=\"100\" r=\"7\"/><circle cx=\"150\" cy=\"100\" r=\"7\"/><circle cx=\"175\" cy=\"100\" r=\"7\"/><rect x=\"230\" y=\"170\" width=\"150\" height=\"12\" rx=\"6\"/><rect x=\"230\" y=\"200\" width=\"110\" height=\"12\" rx=\"6\" opacity=\".7\"/><rect x=\"230\" y=\"230\" width=\"190\" height=\"12\" rx=\"6\" opacity=\".5\"/><rect x=\"115\" y=\"160\" width=\"60\" height=\"100\" rx=\"10\" opacity=\".35\"/></g><text x=\"470\" y=\"250\" font-size=\"96\" text-anchor=\"middle\" font-family=\"system-ui,sans-serif\">🎸</text></svg>"
+   },
+   "readingMinutes": 3
+  },
+  {
+   "id": "daemonarchy-freebsd-omarchy-hubbard",
+   "category": "dev",
+   "icon": "😈",
+   "importance": 3,
+   "title": "Daemonarchy : Jordan Hubbard porte le bureau d'Omarchy sur FreeBSD avec des agents de codage",
+   "summary": "Le cofondateur de FreeBSD publie presque une version par jour d'un bureau Wayland sous FreeBSD CURRENT, développé avec l'aide d'agents LLM, sans lien officiel avec Omarchy.",
+   "tags": [
+    "FreeBSD",
+    "Omarchy",
+    "Hyprland",
+    "Wayland",
+    "agents de codage"
+   ],
+   "sourceDate": "2026-10-27",
+   "sources": [
+    {
+     "title": "FreeBSD founder ports Omarchy to FreeBSD in ten days, ten releases",
+     "url": "https://www.theregister.com/os-platforms/2026/10/27/freebsd-founder-ports-omarchy-to-freebsd-in-ten-days-ten-releases/5305446",
+     "publisher": "The Register"
+    }
+   ],
+   "blocks": [
+    {
+     "type": "paragraph",
+     "text": "Le 27 octobre 2026, The Register a décrit Daemonarchy, un projet de Jordan Hubbard, l'un des fondateurs de FreeBSD, qui adapte le bureau Wayland de la distribution Linux Omarchy au système BSD. L'ensemble est distribué sous forme de ports FreeBSD et d'une image ISO installable. Le projet n'a aucun lien officiel avec Omarchy, qui repose sur Arch Linux."
+    },
+    {
+     "type": "heading",
+     "level": 2,
+     "text": "Ce que contient le projet"
+    },
+    {
+     "type": "keyvalue",
+     "items": [
+      {
+       "label": "Auteur",
+       "value": "Jordan Hubbard, cofondateur de FreeBSD, ancien d'Apple et de BSDi"
+      },
+      {
+       "label": "Base",
+       "value": "FreeBSD CURRENT, future FreeBSD 16 (prévue en décembre 2027 selon l'article)"
+      },
+      {
+       "label": "Compositeur",
+       "value": "Hyprland, en mosaïque, sous Wayland"
+      },
+      {
+       "label": "Version actuelle",
+       "value": "1.3.1, après une dizaine de versions en dix jours"
+      },
+      {
+       "label": "Matériel ciblé",
+       "value": "MacBook Pro 16 pouces de 2019 (MacBookPro16,1)"
+      }
+     ]
+    },
+    {
+     "type": "paragraph",
+     "text": "L'idée est née d'une critique de Sam Sheridan, consultant britannique, sur la difficulté de configurer FreeBSD 15.1 avec une carte Nvidia. Un commentaire suggérait qu'un « omarchy pour FreeBSD » pourrait attirer de jeunes utilisateurs, et Hubbard s'est lancé. Il a publié environ dix-huit nouveaux ports de logiciels Linux en un mois, et le système profite des instantanés ZFS pour revenir en arrière."
+    },
+    {
+     "type": "heading",
+     "level": 2,
+     "text": "Un développement assisté par des agents"
+    },
+    {
+     "type": "paragraph",
+     "text": "Le dépôt contient des fichiers `AGENTS.md` et `SKILL.md`, qui renvoient vers le projet *Literate AI* de Hubbard, présenté comme un méta-outil pour agents de codage suivant un cycle de développement logiciel. La documentation Markdown est abondante, avec une spécification `PROJECT.md`, et l'article note qu'on ne sait pas si elle s'adresse à des humains ou à des agents. Le journaliste indique que Hubbard livre aussi du code aux dépôts FreeBSD avec l'aide de Claude."
+    },
+    {
+     "type": "diagram",
+     "svg": "<svg xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"0 0 640 220\" font-family=\"system-ui, sans-serif\"><defs><marker id=\"a\" markerWidth=\"8\" markerHeight=\"8\" refX=\"6\" refY=\"4\" orient=\"auto\"><path d=\"M0 0L8 4L0 8z\" fill=\"#475569\"/></marker></defs><rect width=\"640\" height=\"220\" rx=\"16\" fill=\"#f1f5f9\"/><text x=\"320\" y=\"34\" font-size=\"16\" font-weight=\"600\" text-anchor=\"middle\" fill=\"#0f172a\">De la critique au bureau installable</text><rect x=\"20\" y=\"70\" width=\"132\" height=\"110\" rx=\"12\" fill=\"hsl(265,70%,90%)\" stroke=\"hsl(265,60%,35%)\" stroke-width=\"2\"/><text x=\"86.0\" y=\"106\" font-size=\"14\" font-weight=\"600\" text-anchor=\"middle\" fill=\"#0f172a\">Critique</text><text x=\"86.0\" y=\"134\" font-size=\"12\" text-anchor=\"middle\" fill=\"#334155\">FreeBSD + Nvidia</text><path d=\"M156 125h16\" stroke=\"#475569\" stroke-width=\"3\" marker-end=\"url(#a)\"/><rect x=\"176\" y=\"70\" width=\"132\" height=\"110\" rx=\"12\" fill=\"hsl(265,70%,90%)\" stroke=\"hsl(265,60%,35%)\" stroke-width=\"2\"/><text x=\"242.0\" y=\"106\" font-size=\"14\" font-weight=\"600\" text-anchor=\"middle\" fill=\"#0f172a\">Idée</text><text x=\"242.0\" y=\"134\" font-size=\"12\" text-anchor=\"middle\" fill=\"#334155\">omarchy pour FreeBSD</text><path d=\"M312 125h16\" stroke=\"#475569\" stroke-width=\"3\" marker-end=\"url(#a)\"/><rect x=\"332\" y=\"70\" width=\"132\" height=\"110\" rx=\"12\" fill=\"hsl(265,70%,90%)\" stroke=\"hsl(265,60%,35%)\" stroke-width=\"2\"/><text x=\"398.0\" y=\"106\" font-size=\"14\" font-weight=\"600\" text-anchor=\"middle\" fill=\"#0f172a\">Ports</text><text x=\"398.0\" y=\"134\" font-size=\"12\" text-anchor=\"middle\" fill=\"#334155\">environ 18 en un mois</text><path d=\"M468 125h16\" stroke=\"#475569\" stroke-width=\"3\" marker-end=\"url(#a)\"/><rect x=\"488\" y=\"70\" width=\"132\" height=\"110\" rx=\"12\" fill=\"hsl(265,70%,90%)\" stroke=\"hsl(265,60%,35%)\" stroke-width=\"2\"/><text x=\"554.0\" y=\"106\" font-size=\"14\" font-weight=\"600\" text-anchor=\"middle\" fill=\"#0f172a\">ISO</text><text x=\"554.0\" y=\"134\" font-size=\"12\" text-anchor=\"middle\" fill=\"#334155\">version 1.3.1</text></svg>",
+     "alt": "Schéma en quatre étapes allant de la critique initiale à l'image ISO de Daemonarchy.",
+     "caption": "Parcours du projet, d'après l'article."
+    },
+    {
+     "type": "heading",
+     "level": 2,
+     "text": "Limites"
+    },
+    {
+     "type": "list",
+     "items": [
+      "La branche CURRENT est une version de développement, réservée aux utilisateurs avancés : « If you need to ask how to get it or run it, then this is not the version of FreeBSD for you. »",
+      "Un seul modèle de Mac Intel est ciblé pour l'instant.",
+      "Le journaliste Liam Proven critique l'interface d'Omarchy, par exemple l'absence de barre de titre ou la fermeture par Super+C, et juge contre-productif de réinventer les conventions d'interface.",
+      "Le débat sur l'usage de l'IA dans FreeBSD reste ouvert : une décision avait été évoquée en septembre 2025, sans annonce publique à ce jour."
+     ]
+    },
+    {
+     "type": "usecases",
+     "title": "Exemples d'utilisation",
+     "items": [
+      {
+       "icon": "💻",
+       "title": "Un utilisateur de vieux Mac Intel",
+       "text": "Il teste l'image ISO pour redonner vie à un MacBook Pro 2019 avec un bureau léger."
+      },
+      {
+       "icon": "🧪",
+       "title": "Un contributeur FreeBSD",
+       "text": "Il étudie les ports ajoutés et la manière dont les fichiers d'instructions guident les agents."
+      },
+      {
+       "icon": "🎓",
+       "title": "Un étudiant en systèmes",
+       "text": "Il compare l'installation d'un bureau complet sous FreeBSD avec celle d'une distribution Linux préconfigurée."
+      }
+     ]
+    },
+    {
+     "type": "timeline",
+     "title": "D'où l'on vient, où l'on va",
+     "items": [
+      {
+       "label": "2015",
+       "text": "NextBSD, premier projet de Hubbard, relancé en 2026 selon l'article."
+      },
+      {
+       "label": "Octobre 2026",
+       "text": "Dix versions en dix jours pour Daemonarchy."
+      },
+      {
+       "label": "Décembre 2027",
+       "text": "Date annoncée pour FreeBSD 16, dont CURRENT est la base."
+      }
+     ]
+    },
+    {
+     "type": "opinion",
+     "title": "Notre avis",
+     "paragraphs": [
+      "Le projet montre à quel point les agents de codage accélèrent le portage de logiciels existants, notamment pour des systèmes à petite communauté. Il met aussi en lumière un vrai manque de FreeBSD : un installateur graphique et un bureau accessibles. Reste la question de la maintenance une fois l'enthousiasme initial passé, surtout sur une branche instable.",
+      "D'ici un à trois ans, la question de l'usage d'agents dans les projets BSD sera probablement tranchée par des règles de contribution plus explicites ; c'est une opinion, pas une annonce."
+     ],
+     "verdict": "Une démonstration de vitesse, qui reste à prouver dans la durée."
+    },
+    {
+     "type": "callout",
+     "title": "À retenir",
+     "text": "Daemonarchy fonctionne sur FreeBSD CURRENT, une branche de développement : à réserver aux essais, pas à une machine de production."
+    }
+   ],
+   "publishedAt": "2026-10-27T18:16:58+01:00",
+   "illustration": {
+    "svg": "<svg xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"0 0 640 360\"><defs><linearGradient id=\"g\" x1=\"0\" y1=\"0\" x2=\"1\" y2=\"1\"><stop offset=\"0\" stop-color=\"hsl(265,70%,38%)\"/><stop offset=\"1\" stop-color=\"hsl(305,65%,22%)\"/></linearGradient></defs><rect width=\"640\" height=\"360\" fill=\"url(#g)\"/><circle cx=\"470\" cy=\"80\" r=\"120\" fill=\"#fff\" opacity=\".08\"/><circle cx=\"148\" cy=\"300\" r=\"150\" fill=\"#fff\" opacity=\".07\"/><g fill=\"none\" stroke=\"#fff\" stroke-width=\"3\" opacity=\".55\"><rect x=\"90\" y=\"70\" width=\"460\" height=\"220\" rx=\"22\"/><path d=\"M90 130h460M200 130v160\"/></g><g fill=\"#fff\" opacity=\".8\"><circle cx=\"125\" cy=\"100\" r=\"7\"/><circle cx=\"150\" cy=\"100\" r=\"7\"/><circle cx=\"175\" cy=\"100\" r=\"7\"/><rect x=\"230\" y=\"170\" width=\"150\" height=\"12\" rx=\"6\"/><rect x=\"230\" y=\"200\" width=\"110\" height=\"12\" rx=\"6\" opacity=\".7\"/><rect x=\"230\" y=\"230\" width=\"190\" height=\"12\" rx=\"6\" opacity=\".5\"/><rect x=\"115\" y=\"160\" width=\"60\" height=\"100\" rx=\"10\" opacity=\".35\"/></g><text x=\"470\" y=\"250\" font-size=\"96\" text-anchor=\"middle\" font-family=\"system-ui,sans-serif\">😈</text></svg>"
+   },
+   "readingMinutes": 3
+  },
+  {
+   "id": "apc-normes-photonique-optique-co-packagee",
+   "category": "electronique",
+   "icon": "💡",
+   "importance": 3,
+   "title": "Photonique : l'Advanced Photonics Coalition valide cinq normes pour l'optique co-packagée",
+   "summary": "Face à la pénurie de composants optiques et au « mur du cuivre », la coalition veut harmoniser fabrication, interfaces et tests pour permettre la production en grand volume.",
+   "tags": [
+    "photonique",
+    "optique co-packagée",
+    "InP",
+    "centres de données",
+    "normalisation"
+   ],
+   "sourceDate": "2026-10-23",
+   "sources": [
+    {
+     "title": "APC says let there be light, with standards to speed up photonics manufacturing",
+     "url": "https://www.nextplatform.com/connect/2026/10/23/apc-says-let-there-be-light-with-raft-of-standards-to-speed-up-photonics-manufacturing/5304950",
+     "publisher": "The Next Platform"
+    }
+   ],
+   "blocks": [
+    {
+     "type": "paragraph",
+     "text": "L'Advanced Photonics Coalition (APC) a annoncé, quelques jours avant le 23 octobre 2026 à l'occasion du PECC Summit, une série de normes destinées à permettre la fabrication en grand volume d'équipements de réseau optique, selon The Next Platform. L'article ne précise ni la date de création de la coalition ni le nombre de ses membres."
+    },
+    {
+     "type": "heading",
+     "level": 2,
+     "text": "Les cinq documents"
+    },
+    {
+     "type": "list",
+     "items": [
+      "Vue d'ensemble de l'architecture au niveau système pour l'optique co-packagée (CPO)",
+      "Perspectives informatives et bonnes pratiques pour le CPO",
+      "Pratiques de test recommandées pour la photonique sur silicium dédiée au CPO",
+      "Spécification de câble, de connecteur et de réseau de fibres multicœur à quatre cœurs",
+      "Spécification de fabrication de la photonique sur silicium"
+     ]
+    },
+    {
+     "type": "paragraph",
+     "text": "L'optique co-packagée consiste à placer les composants optiques au plus près de la puce de commutation ou de calcul, plutôt que dans des modules enfichables en face avant. Elle réduit la distance parcourue par les signaux électriques, donc la consommation et la chaleur. Selon l'APC, les normes doivent harmoniser les pratiques de fabrication, d'interface et de test, supprimer les variations sans valeur commerciale et permettre plusieurs sources d'approvisionnement."
+    },
+    {
+     "type": "heading",
+     "level": 2,
+     "text": "Pourquoi maintenant"
+    },
+    {
+     "type": "keyvalue",
+     "items": [
+      {
+       "label": "Tension sur l'offre",
+       "value": "Lumentum affirme que ses composants optiques sont « entièrement vendus » jusqu'en 2029, avec des pénuries pour certains produits jusqu'en 2028"
+      },
+      {
+       "label": "Matériau",
+       "value": "le phosphure d'indium, dont la Chine est un grand producteur"
+      },
+      {
+       "label": "Concurrence",
+       "value": "Nvidia a présenté Spectrum-X à base de CPO au GTC de Berlin la même semaine"
+      },
+      {
+       "label": "Enjeu technique",
+       "value": "le « mur du cuivre » : plus le débit augmente, plus la portée du cuivre baisse et plus la consommation monte"
+      }
+     ]
+    },
+    {
+     "type": "diagram",
+     "svg": "<svg xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"0 0 640 220\" font-family=\"system-ui, sans-serif\"><defs><marker id=\"a\" markerWidth=\"8\" markerHeight=\"8\" refX=\"6\" refY=\"4\" orient=\"auto\"><path d=\"M0 0L8 4L0 8z\" fill=\"#475569\"/></marker></defs><rect width=\"640\" height=\"220\" rx=\"16\" fill=\"#f1f5f9\"/><text x=\"320\" y=\"34\" font-size=\"16\" font-weight=\"600\" text-anchor=\"middle\" fill=\"#0f172a\">Du cuivre à l&#x27;optique co-packagée</text><rect x=\"20\" y=\"70\" width=\"132\" height=\"110\" rx=\"12\" fill=\"hsl(30,70%,90%)\" stroke=\"hsl(30,60%,35%)\" stroke-width=\"2\"/><text x=\"86.0\" y=\"106\" font-size=\"14\" font-weight=\"600\" text-anchor=\"middle\" fill=\"#0f172a\">Cuivre</text><text x=\"86.0\" y=\"134\" font-size=\"12\" text-anchor=\"middle\" fill=\"#334155\">portée courte, chaleur</text><path d=\"M156 125h16\" stroke=\"#475569\" stroke-width=\"3\" marker-end=\"url(#a)\"/><rect x=\"176\" y=\"70\" width=\"132\" height=\"110\" rx=\"12\" fill=\"hsl(30,70%,90%)\" stroke=\"hsl(30,60%,35%)\" stroke-width=\"2\"/><text x=\"242.0\" y=\"106\" font-size=\"14\" font-weight=\"600\" text-anchor=\"middle\" fill=\"#0f172a\">Modules enfichables</text><text x=\"242.0\" y=\"134\" font-size=\"12\" text-anchor=\"middle\" fill=\"#334155\">face avant</text><path d=\"M312 125h16\" stroke=\"#475569\" stroke-width=\"3\" marker-end=\"url(#a)\"/><rect x=\"332\" y=\"70\" width=\"132\" height=\"110\" rx=\"12\" fill=\"hsl(30,70%,90%)\" stroke=\"hsl(30,60%,35%)\" stroke-width=\"2\"/><text x=\"398.0\" y=\"106\" font-size=\"14\" font-weight=\"600\" text-anchor=\"middle\" fill=\"#0f172a\">CPO</text><text x=\"398.0\" y=\"134\" font-size=\"12\" text-anchor=\"middle\" fill=\"#334155\">optique près de la puce</text><path d=\"M468 125h16\" stroke=\"#475569\" stroke-width=\"3\" marker-end=\"url(#a)\"/><rect x=\"488\" y=\"70\" width=\"132\" height=\"110\" rx=\"12\" fill=\"hsl(30,70%,90%)\" stroke=\"hsl(30,60%,35%)\" stroke-width=\"2\"/><text x=\"554.0\" y=\"106\" font-size=\"14\" font-weight=\"600\" text-anchor=\"middle\" fill=\"#0f172a\">Normes APC</text><text x=\"554.0\" y=\"134\" font-size=\"12\" text-anchor=\"middle\" fill=\"#334155\">fabrication, tests</text></svg>",
+     "alt": "Schéma en quatre étapes montrant l'évolution des interconnexions, du cuivre aux normes d'optique co-packagée.",
+     "caption": "Évolution schématique des interconnexions, d'après l'article."
+    },
+    {
+     "type": "paragraph",
+     "text": "L'APC avertit qu'en l'absence de standards ouverts le marché tendrait vers des solutions intégrées et propriétaires, ce qui fragmenterait l'offre, augmenterait le risque de dépendance vis-à-vis d'un fournisseur et ralentirait l'adoption. Resolight, développeur photonique membre du groupe de travail, y voit une validation de la commutation optique en nanosecondes, et son directeur général, Ofer Shapiro, estime préférable de réduire le besoin en phosphure d'indium que de chercher de nouvelles sources."
+    },
+    {
+     "type": "usecases",
+     "title": "Exemples d'utilisation",
+     "items": [
+      {
+       "icon": "🏭",
+       "title": "Un fabricant de modules optiques",
+       "text": "Il aligne ses procédés sur la spécification de fabrication pour vendre à plusieurs intégrateurs."
+      },
+      {
+       "icon": "🖧",
+       "title": "Un exploitant de centre de données",
+       "text": "Il peut comparer des commutateurs CPO de différents fournisseurs avec des interfaces plus homogènes."
+      },
+      {
+       "icon": "🔬",
+       "title": "Une équipe de test",
+       "text": "Elle s'appuie sur les pratiques recommandées pour qualifier la photonique sur silicium."
+      }
+     ]
+    },
+    {
+     "type": "timeline",
+     "title": "D'où l'on vient, où l'on va",
+     "items": [
+      {
+       "label": "Printemps 2026",
+       "text": "Chris Sharp, de Digital Realty, déclare que l'on est « à la fin du cuivre »."
+      },
+      {
+       "label": "Semaine du 20 octobre 2026",
+       "text": "Annonce des normes de l'APC au PECC Summit."
+      },
+      {
+       "label": "2028-2029",
+       "text": "Horizon des pénuries annoncées par Lumentum."
+      }
+     ]
+    },
+    {
+     "type": "opinion",
+     "title": "Notre avis",
+     "paragraphs": [
+      "Normaliser avant la montée en volume est sain : cela évite que chaque grand acteur impose son format. Mais les normes ne règlent ni la pénurie de phosphure d'indium ni les capacités de production, qui restent le vrai goulot d'étranglement. Aucun calendrier de publication finale n'est donné.",
+      "D'ici un à trois ans, l'optique co-packagée devrait s'imposer dans les réseaux d'IA les plus denses, sous réserve de l'approvisionnement ; c'est une projection, pas une certitude."
+     ],
+     "verdict": "Une étape utile, mais la pénurie de composants reste le facteur déterminant."
+    },
+    {
+     "type": "callout",
+     "title": "À retenir",
+     "text": "Les normes de l'APC portent sur la fabrication et les tests ; elles ne garantissent ni disponibilité ni baisse des prix."
+    }
+   ],
+   "publishedAt": "2026-10-27T18:16:58+01:00",
+   "illustration": {
+    "svg": "<svg xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"0 0 640 360\"><defs><linearGradient id=\"g\" x1=\"0\" y1=\"0\" x2=\"1\" y2=\"1\"><stop offset=\"0\" stop-color=\"hsl(30,70%,38%)\"/><stop offset=\"1\" stop-color=\"hsl(70,65%,22%)\"/></linearGradient></defs><rect width=\"640\" height=\"360\" fill=\"url(#g)\"/><circle cx=\"470\" cy=\"80\" r=\"120\" fill=\"#fff\" opacity=\".08\"/><circle cx=\"185\" cy=\"300\" r=\"150\" fill=\"#fff\" opacity=\".07\"/><g fill=\"none\" stroke=\"#fff\" stroke-width=\"3\" opacity=\".55\"><rect x=\"90\" y=\"70\" width=\"460\" height=\"220\" rx=\"22\"/><path d=\"M90 130h460M200 130v160\"/></g><g fill=\"#fff\" opacity=\".8\"><circle cx=\"125\" cy=\"100\" r=\"7\"/><circle cx=\"150\" cy=\"100\" r=\"7\"/><circle cx=\"175\" cy=\"100\" r=\"7\"/><rect x=\"230\" y=\"170\" width=\"150\" height=\"12\" rx=\"6\"/><rect x=\"230\" y=\"200\" width=\"110\" height=\"12\" rx=\"6\" opacity=\".7\"/><rect x=\"230\" y=\"230\" width=\"190\" height=\"12\" rx=\"6\" opacity=\".5\"/><rect x=\"115\" y=\"160\" width=\"60\" height=\"100\" rx=\"10\" opacity=\".35\"/></g><text x=\"470\" y=\"250\" font-size=\"96\" text-anchor=\"middle\" font-family=\"system-ui,sans-serif\">💡</text></svg>"
+   },
+   "readingMinutes": 3
+  },
+  {
+   "id": "ibm-z-atlas-modernisation-mainframe",
+   "category": "devops",
+   "icon": "🗺️",
+   "importance": 3,
+   "title": "IBM Z Atlas : une intention de produit pour moderniser les mainframes avec l'IA",
+   "summary": "IBM publie une déclaration d'orientation pour un outil d'IA qui cartographie la pile z/OS et simule l'effet des changements, en gardant les experts aux commandes.",
+   "tags": [
+    "IBM",
+    "mainframe",
+    "z/OS",
+    "modernisation",
+    "IA"
+   ],
+   "sourceDate": "2026-10-27",
+   "sources": [
+    {
+     "title": "IBM admits mainframes need to be modernized and will use AI to do the job",
+     "url": "https://www.theregister.com/systems/2026/10/27/ibm-admits-mainframes-need-to-be-modernized-and-will-use-ai-to-do-the-job/5305618",
+     "publisher": "The Register"
+    }
+   ],
+   "blocks": [
+    {
+     "type": "paragraph",
+     "text": "Le lundi 26 octobre 2026, IBM a publié une déclaration d'orientation (*Statement of Direction*) pour un futur produit nommé IBM Z Atlas, selon The Register du 27 octobre. Il s'agit d'une intention, pas d'un produit disponible : aucune date de sortie n'est donnée dans l'article."
+    },
+    {
+     "type": "paragraph",
+     "text": "IBM reconnaît dans ce texte que les environnements mainframe Z peuvent devenir difficiles à gérer, ce qui nuit à leur résilience. Z Atlas est décrit comme une solution « native IA » s'appuyant sur une « intelligence système » pour ancrer des compétences et des agents d'IA dans des flux de travail clés : planification et validation des changements, modernisation des applications et des infrastructures."
+    },
+    {
+     "type": "heading",
+     "level": 2,
+     "text": "Ce qui est prévu"
+    },
+    {
+     "type": "list",
+     "items": [
+      "Cartographier toute la pile z/OS : infrastructure, intergiciels et applications.",
+      "Montrer comment les composants se connectent et dépendent les uns des autres.",
+      "Réduire l'effort manuel pour la gestion des correctifs, la réponse aux exigences réglementaires et le partage de connaissances entre équipes.",
+      "Simuler, tester et valider l'effet d'un changement sur la pile z/OS."
+     ]
+    },
+    {
+     "type": "paragraph",
+     "text": "IBM affirme que cette simulation éliminerait la première cause de pannes non planifiées sous z/OS : les changements dont la sûreté n'est pas prouvée. L'entreprise fixe quatre objectifs : comprendre les systèmes avant de décider, évaluer les impacts et risques, accélérer la planification de la modernisation et du déploiement, et fournir un contexte fiable aux automatisations fondées sur l'IA."
+    },
+    {
+     "type": "diagram",
+     "svg": "<svg xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"0 0 640 220\" font-family=\"system-ui, sans-serif\"><defs><marker id=\"a\" markerWidth=\"8\" markerHeight=\"8\" refX=\"6\" refY=\"4\" orient=\"auto\"><path d=\"M0 0L8 4L0 8z\" fill=\"#475569\"/></marker></defs><rect width=\"640\" height=\"220\" rx=\"16\" fill=\"#f1f5f9\"/><text x=\"320\" y=\"34\" font-size=\"16\" font-weight=\"600\" text-anchor=\"middle\" fill=\"#0f172a\">Du changement à la validation</text><rect x=\"20\" y=\"70\" width=\"132\" height=\"110\" rx=\"12\" fill=\"hsl(160,70%,90%)\" stroke=\"hsl(160,60%,35%)\" stroke-width=\"2\"/><text x=\"86.0\" y=\"106\" font-size=\"14\" font-weight=\"600\" text-anchor=\"middle\" fill=\"#0f172a\">Cartographie</text><text x=\"86.0\" y=\"134\" font-size=\"12\" text-anchor=\"middle\" fill=\"#334155\">pile z/OS</text><path d=\"M156 125h16\" stroke=\"#475569\" stroke-width=\"3\" marker-end=\"url(#a)\"/><rect x=\"176\" y=\"70\" width=\"132\" height=\"110\" rx=\"12\" fill=\"hsl(160,70%,90%)\" stroke=\"hsl(160,60%,35%)\" stroke-width=\"2\"/><text x=\"242.0\" y=\"106\" font-size=\"14\" font-weight=\"600\" text-anchor=\"middle\" fill=\"#0f172a\">Simulation</text><text x=\"242.0\" y=\"134\" font-size=\"12\" text-anchor=\"middle\" fill=\"#334155\">effet du changement</text><path d=\"M312 125h16\" stroke=\"#475569\" stroke-width=\"3\" marker-end=\"url(#a)\"/><rect x=\"332\" y=\"70\" width=\"132\" height=\"110\" rx=\"12\" fill=\"hsl(160,70%,90%)\" stroke=\"hsl(160,60%,35%)\" stroke-width=\"2\"/><text x=\"398.0\" y=\"106\" font-size=\"14\" font-weight=\"600\" text-anchor=\"middle\" fill=\"#0f172a\">Revue humaine</text><text x=\"398.0\" y=\"134\" font-size=\"12\" text-anchor=\"middle\" fill=\"#334155\">décision finale</text><path d=\"M468 125h16\" stroke=\"#475569\" stroke-width=\"3\" marker-end=\"url(#a)\"/><rect x=\"488\" y=\"70\" width=\"132\" height=\"110\" rx=\"12\" fill=\"hsl(160,70%,90%)\" stroke=\"hsl(160,60%,35%)\" stroke-width=\"2\"/><text x=\"554.0\" y=\"106\" font-size=\"14\" font-weight=\"600\" text-anchor=\"middle\" fill=\"#0f172a\">Déploiement</text><text x=\"554.0\" y=\"134\" font-size=\"12\" text-anchor=\"middle\" fill=\"#334155\">changement validé</text></svg>",
+     "alt": "Schéma en quatre étapes : cartographie, simulation, revue humaine, déploiement.",
+     "caption": "Parcours décrit par IBM, résumé de façon schématique."
+    },
+    {
+     "type": "heading",
+     "level": 2,
+     "text": "Humain dans la boucle"
+    },
+    {
+     "type": "paragraph",
+     "text": "IBM n'affiche pas l'ambition d'une exploitation entièrement autonome. Le document précise que les recommandations assistées par l'IA doivent préserver une revue humaine et l'autorité de décision, avec pour devise de garder les experts aux commandes. Le contexte commercial est favorable : le directeur général, Arvind Krishna, a indiqué le 22 octobre que la génération Z17 s'était vendue pour un milliard de dollars de plus que toutes les autres générations."
+    },
+    {
+     "type": "paragraph",
+     "text": "L'article relève une divergence de stratégie : IBM veut rendre les mainframes plus simples à exploiter pour que les clients restent sur la plateforme, alors que des concurrents recommandent souvent de migrer les applications ailleurs, parfois par réécriture avec l'IA générative. Gartner juge cette réécriture « très surestimée », selon un article d'avril 2026 cité."
+    },
+    {
+     "type": "usecases",
+     "title": "Exemples d'utilisation",
+     "items": [
+      {
+       "icon": "🏦",
+       "title": "Une banque",
+       "text": "Elle simule l'application d'un correctif avant la fenêtre de maintenance pour repérer les dépendances oubliées."
+      },
+      {
+       "icon": "📚",
+       "title": "Une équipe d'exploitation vieillissante",
+       "text": "Elle s'appuie sur la cartographie pour transmettre le savoir des experts partants aux nouveaux arrivants."
+      },
+      {
+       "icon": "📑",
+       "title": "Un service conformité",
+       "text": "Il utilise la traçabilité des changements pour répondre à un contrôle réglementaire."
+      }
+     ]
+    },
+    {
+     "type": "timeline",
+     "title": "D'où l'on vient, où l'on va",
+     "items": [
+      {
+       "label": "22 octobre 2026",
+       "text": "Arvind Krishna souligne les ventes record de la génération Z17."
+      },
+      {
+       "label": "26 octobre 2026",
+       "text": "Publication de la déclaration d'orientation sur Z Atlas."
+      },
+      {
+       "label": "À venir",
+       "text": "Disponibilité du produit : aucune date n'est communiquée."
+      }
+     ]
+    },
+    {
+     "type": "opinion",
+     "title": "Notre avis",
+     "paragraphs": [
+      "L'approche est prudente et crédible : cartographier et simuler avant de changer répond à un vrai problème d'exploitation. Mais une déclaration d'orientation n'engage pas IBM sur un calendrier, et la valeur dépendra de la qualité de la cartographie sur des environnements anciens et mal documentés.",
+      "D'ici un à trois ans, les outils d'IA d'exploitation devraient devenir un argument commercial standard pour les plateformes historiques ; c'est une tendance probable."
+     ],
+     "verdict": "Une promesse raisonnable, à juger sur pièces quand le produit existera."
+    },
+    {
+     "type": "callout",
+     "title": "À retenir",
+     "text": "Z Atlas n'est pas encore disponible : seule une intention de produit a été publiée."
+    }
+   ],
+   "publishedAt": "2026-10-27T18:16:58+01:00",
+   "illustration": {
+    "svg": "<svg xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"0 0 640 360\"><defs><linearGradient id=\"g\" x1=\"0\" y1=\"0\" x2=\"1\" y2=\"1\"><stop offset=\"0\" stop-color=\"hsl(160,70%,38%)\"/><stop offset=\"1\" stop-color=\"hsl(200,65%,22%)\"/></linearGradient></defs><rect width=\"640\" height=\"360\" fill=\"url(#g)\"/><circle cx=\"470\" cy=\"80\" r=\"120\" fill=\"#fff\" opacity=\".08\"/><circle cx=\"222\" cy=\"300\" r=\"150\" fill=\"#fff\" opacity=\".07\"/><g fill=\"none\" stroke=\"#fff\" stroke-width=\"3\" opacity=\".55\"><rect x=\"90\" y=\"70\" width=\"460\" height=\"220\" rx=\"22\"/><path d=\"M90 130h460M200 130v160\"/></g><g fill=\"#fff\" opacity=\".8\"><circle cx=\"125\" cy=\"100\" r=\"7\"/><circle cx=\"150\" cy=\"100\" r=\"7\"/><circle cx=\"175\" cy=\"100\" r=\"7\"/><rect x=\"230\" y=\"170\" width=\"150\" height=\"12\" rx=\"6\"/><rect x=\"230\" y=\"200\" width=\"110\" height=\"12\" rx=\"6\" opacity=\".7\"/><rect x=\"230\" y=\"230\" width=\"190\" height=\"12\" rx=\"6\" opacity=\".5\"/><rect x=\"115\" y=\"160\" width=\"60\" height=\"100\" rx=\"10\" opacity=\".35\"/></g><text x=\"470\" y=\"250\" font-size=\"96\" text-anchor=\"middle\" font-family=\"system-ui,sans-serif\">🗺️</text></svg>"
+   },
+   "readingMinutes": 3
+  }
+ ]
+}
