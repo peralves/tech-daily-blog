@@ -1,0 +1,789 @@
+{
+ "schemaVersion": "1.0",
+ "date": "2026-10-28",
+ "generatedAt": "2026-10-28T10:17:17+01:00",
+ "title": "Tech Daily : faille UEFI, Genie 4, IA et médicaments, Ghostty 1.4",
+ "summary": "Une faille critique dans le micrologiciel UEFI, le modèle de monde Genie 4, les résultats d'Anthropic dans le médicament, Ghostty 1.4 et deux Raspberry Pi à venir.",
+ "highlights": [
+  "Une faille de 16 ans dans EDK II (CVE-2026-97631) menace les machines qui démarrent par le réseau",
+  "DeepMind présente Genie 4, un modèle de monde avec son et dialogues",
+  "Anthropic détaille ses premiers résultats avec six partenaires du médicament",
+  "Ghostty 1.4 réduit la mémoire de l'historique de 70 à 90 %",
+  "Indices sur un Raspberry Pi Zero 3 W et un Pi 4 Model A"
+ ],
+ "meta": {
+  "generator": "claude-scheduled-task"
+ },
+ "posts": [
+  {
+   "id": "edk2-pxe-icmp-cve-2026-97631",
+   "category": "cybersecurite",
+   "icon": "🧬",
+   "importance": 5,
+   "title": "EDK2 : une faille critique du micrologiciel UEFI menace les serveurs qui démarrent par le réseau",
+   "summary": "Un dépassement de tampon vieux de seize ans dans le pilote PXE de TianoCore EDK II (CVE-2026-97631, gravité 9,5 sur 10) permet d'exécuter du code avant le système d'exploitation. Les correctifs publics ayant fuité avant la divulgation prévue en janvier, les exploitants doivent préparer des mises à jour de BIOS.",
+   "tags": [
+    "UEFI",
+    "EDK2",
+    "TianoCore",
+    "PXE",
+    "CVE-2026-97631",
+    "micrologiciel"
+   ],
+   "sourceDate": "2026-10-27",
+   "sources": [
+    {
+     "title": "Code-execution flaw in UEFI firmware affects most servers on planet Earth",
+     "url": "https://arstechnica.com/security/2026/10/code-execution-flaw-in-uefi-firmware-threatens-most-servers-on-planet-earth/",
+     "publisher": "Ars Technica"
+    }
+   ],
+   "publishedAt": "2026-10-28T10:17:15+01:00",
+   "illustration": {
+    "svg": "<svg xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"0 0 640 360\"><defs><linearGradient id=\"g\" x1=\"0\" y1=\"0\" x2=\"1\" y2=\"1\"><stop offset=\"0\" stop-color=\"hsl(175,70%,38%)\"/><stop offset=\"1\" stop-color=\"hsl(215,65%,22%)\"/></linearGradient></defs><rect width=\"640\" height=\"360\" fill=\"url(#g)\"/><circle cx=\"480\" cy=\"80\" r=\"120\" fill=\"#fff\" opacity=\".08\"/><circle cx=\"110\" cy=\"300\" r=\"150\" fill=\"#fff\" opacity=\".07\"/><g fill=\"none\" stroke=\"#fff\" stroke-width=\"3\" opacity=\".55\"><rect x=\"90\" y=\"70\" width=\"460\" height=\"220\" rx=\"22\"/><path d=\"M90 130h460\"/></g><g fill=\"#fff\" opacity=\".7\"><circle cx=\"125\" cy=\"100\" r=\"7\"/><circle cx=\"150\" cy=\"100\" r=\"7\"/><rect x=\"130\" y=\"170\" width=\"190\" height=\"12\" rx=\"6\"/><rect x=\"130\" y=\"200\" width=\"140\" height=\"12\" rx=\"6\" opacity=\".6\"/><rect x=\"130\" y=\"230\" width=\"220\" height=\"12\" rx=\"6\" opacity=\".4\"/></g><text x=\"470\" y=\"250\" font-size=\"96\" text-anchor=\"middle\" font-family=\"system-ui,sans-serif\">🧬</text></svg>"
+   },
+   "readingMinutes": 5,
+   "blocks": [
+    {
+     "type": "paragraph",
+     "text": "Le 27 octobre 2026, le site Ars Technica a révélé une vulnérabilité critique dans TianoCore EDK II, la base de code libre sur laquelle s'appuient la plupart des fabricants de serveurs et de fournisseurs de cloud pour construire le micrologiciel UEFI, c'est-à-dire le programme qui s'exécute au tout début du démarrage d'une machine. Référencée CVE-2026-97631, la faille est notée 9,5 sur 10 et permet d'exécuter du code à un moment où les protections du système, comme le démarrage sécurisé (Secure Boot), ne sont pas encore en place."
+    },
+    {
+     "type": "paragraph",
+     "text": "EDK II est la mise en œuvre de référence de la spécification UEFI. Les principaux éditeurs de micrologiciels, dont AMI, Insyde et Phoenix, en reprennent largement le code, tout comme Project Mu, la variante durcie de Microsoft. Une faille à ce niveau se retrouve donc potentiellement dans un très grand nombre de modèles de cartes mères, de serveurs et d'équipements de stockage."
+    },
+    {
+     "type": "heading",
+     "level": 2,
+     "text": "Un dépassement de tampon de seize ans dans le démarrage réseau"
+    },
+    {
+     "type": "paragraph",
+     "text": "Selon l'article, le défaut se situe dans le pilote PXE Base Code (NetworkPkg/UefiPxeBcDxe), chargé de permettre à une machine de démarrer à partir d'un code téléchargé sur le réseau local. Pendant cette phase, le pilote reste à l'écoute des messages d'erreur ICMP et les copie dans un champ de taille fixe de 504 octets. La boucle de copie ne vérifie pas correctement la longueur dans les gestionnaires IPv4 et IPv6 : un message trop long écrit des données contrôlées par l'attaquant au-delà du champ prévu."
+    },
+    {
+     "type": "keyvalue",
+     "items": [
+      {
+       "label": "Identifiant",
+       "value": "CVE-2026-97631, gravité 9,5 sur 10"
+      },
+      {
+       "label": "Composant concerné",
+       "value": "Pilote PXE Base Code d'EDK II (gestion des erreurs ICMP, IPv4 et IPv6)"
+      },
+      {
+       "label": "Ancienneté du défaut",
+       "value": "Environ seize ans"
+      },
+      {
+       "label": "Découvreurs",
+       "value": "Alex Matrosov (Anthropic) et Dan Holmes (Google)"
+      },
+      {
+       "label": "Condition d'exploitation",
+       "value": "Accès au réseau local pendant une séquence de démarrage PXE"
+      }
+     ]
+    },
+    {
+     "type": "paragraph",
+     "text": "L'attaquant doit envoyer le message piégé pendant le démarrage réseau de la cible. Dans le pire cas, le code s'exécute au niveau de privilège le plus élevé du processeur et peut contourner les mécanismes d'attestation censés prouver à distance l'intégrité du matériel. Dans le cas le plus simple, il se contente de faire planter ou bloquer le démarrage, ce qui constitue un déni de service."
+    },
+    {
+     "type": "diagram",
+     "svg": "<svg xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"0 0 640 260\" font-family=\"system-ui,sans-serif\"><rect width=\"640\" height=\"260\" rx=\"16\" fill=\"#f4f6fa\"/><text x=\"320\" y=\"34\" font-size=\"17\" font-weight=\"700\" text-anchor=\"middle\" fill=\"#1b2433\">Du message ICMP au code exécuté avant le système</text><rect x=\"20\" y=\"70\" width=\"136\" height=\"150\" rx=\"12\" fill=\"#fff\" stroke=\"hsl(175,60%,40%)\" stroke-width=\"2\"/><circle cx=\"42\" cy=\"94\" r=\"12\" fill=\"hsl(175,60%,40%)\"/><text x=\"42\" y=\"99\" font-size=\"13\" font-weight=\"700\" text-anchor=\"middle\" fill=\"#fff\">1</text><text x=\"88.0\" y=\"130\" font-size=\"13\" font-weight=\"700\" text-anchor=\"middle\" fill=\"#1b2433\"><tspan x=\"88.0\" dy=\"0\">Démarrage</tspan><tspan x=\"88.0\" dy=\"16\">réseau (PXE)</tspan></text><text x=\"88.0\" y=\"175\" font-size=\"11.5\" text-anchor=\"middle\" fill=\"#3b4658\"><tspan x=\"88.0\" dy=\"0\">La machine télécharge</tspan><tspan x=\"88.0\" dy=\"14\">son code de boot</tspan><tspan x=\"88.0\" dy=\"14\">depuis le réseau local</tspan></text><path d=\"M157 145h12\" stroke=\"#3b4658\" stroke-width=\"2\"/><rect x=\"170\" y=\"70\" width=\"136\" height=\"150\" rx=\"12\" fill=\"#fff\" stroke=\"hsl(175,60%,40%)\" stroke-width=\"2\"/><circle cx=\"192\" cy=\"94\" r=\"12\" fill=\"hsl(175,60%,40%)\"/><text x=\"192\" y=\"99\" font-size=\"13\" font-weight=\"700\" text-anchor=\"middle\" fill=\"#fff\">2</text><text x=\"238.0\" y=\"130\" font-size=\"13\" font-weight=\"700\" text-anchor=\"middle\" fill=\"#1b2433\"><tspan x=\"238.0\" dy=\"0\">Message ICMP</tspan><tspan x=\"238.0\" dy=\"16\">trop long</tspan></text><text x=\"238.0\" y=\"175\" font-size=\"11.5\" text-anchor=\"middle\" fill=\"#3b4658\"><tspan x=\"238.0\" dy=\"0\">Le pilote copie plus de</tspan><tspan x=\"238.0\" dy=\"14\">504 octets sans</tspan><tspan x=\"238.0\" dy=\"14\">contrôle de longueur</tspan></text><path d=\"M307 145h12\" stroke=\"#3b4658\" stroke-width=\"2\"/><rect x=\"320\" y=\"70\" width=\"136\" height=\"150\" rx=\"12\" fill=\"#fff\" stroke=\"hsl(175,60%,40%)\" stroke-width=\"2\"/><circle cx=\"342\" cy=\"94\" r=\"12\" fill=\"hsl(175,60%,40%)\"/><text x=\"342\" y=\"99\" font-size=\"13\" font-weight=\"700\" text-anchor=\"middle\" fill=\"#fff\">3</text><text x=\"388.0\" y=\"130\" font-size=\"13\" font-weight=\"700\" text-anchor=\"middle\" fill=\"#1b2433\"><tspan x=\"388.0\" dy=\"0\">Mémoire</tspan><tspan x=\"388.0\" dy=\"16\">corrompue</tspan></text><text x=\"388.0\" y=\"175\" font-size=\"11.5\" text-anchor=\"middle\" fill=\"#3b4658\"><tspan x=\"388.0\" dy=\"0\">Les données voisines</tspan><tspan x=\"388.0\" dy=\"14\">du micrologiciel</tspan><tspan x=\"388.0\" dy=\"14\">sont écrasées</tspan></text><path d=\"M457 145h12\" stroke=\"#3b4658\" stroke-width=\"2\"/><rect x=\"470\" y=\"70\" width=\"136\" height=\"150\" rx=\"12\" fill=\"#fff\" stroke=\"hsl(175,60%,40%)\" stroke-width=\"2\"/><circle cx=\"492\" cy=\"94\" r=\"12\" fill=\"hsl(175,60%,40%)\"/><text x=\"492\" y=\"99\" font-size=\"13\" font-weight=\"700\" text-anchor=\"middle\" fill=\"#fff\">4</text><text x=\"538.0\" y=\"130\" font-size=\"13\" font-weight=\"700\" text-anchor=\"middle\" fill=\"#1b2433\"><tspan x=\"538.0\" dy=\"0\">Code exécuté</tspan><tspan x=\"538.0\" dy=\"16\">avant l'OS</tspan></text><text x=\"538.0\" y=\"175\" font-size=\"11.5\" text-anchor=\"middle\" fill=\"#3b4658\"><tspan x=\"538.0\" dy=\"0\">Secure Boot et TPM</tspan><tspan x=\"538.0\" dy=\"14\">ne protègent pas encore</tspan><tspan x=\"538.0\" dy=\"14\">cette étape</tspan></text></svg>",
+     "alt": "Schéma en quatre étapes montrant comment un message ICMP surdimensionné pendant le démarrage PXE conduit à l'exécution de code avant le système d'exploitation.",
+     "caption": "Chaîne d'exploitation décrite par Ars Technica et l'avis de TianoCore (schéma simplifié)."
+    },
+    {
+     "type": "heading",
+     "level": 2,
+     "text": "Une divulgation coordonnée qui a déraillé"
+    },
+    {
+     "type": "paragraph",
+     "text": "La découverte devait rester confidentielle jusqu'à une divulgation coordonnée prévue en janvier 2027. Or AMI a publié le mois dernier une demande de fusion de code détaillant la faille et contenant le correctif. Une fois le message repéré par les découvreurs, les responsables de TianoCore ont publié un avis public la semaine dernière. Le code du correctif étant accessible à tous, les chercheurs en sécurité estiment qu'il devient trivial, pour des attaquants expérimentés, de comprendre le déclenchement du défaut et de bâtir des exploits. L'article rapproche cet épisode d'une autre divulgation ratée survenue six jours plus tôt, autour de failles critiques de PHP."
+    },
+    {
+     "type": "heading",
+     "level": 2,
+     "text": "Des limites qui tempèrent la menace"
+    },
+    {
+     "type": "list",
+     "items": [
+      "Un accès au réseau local est nécessaire : l'exploitation vise surtout des initiés ou des attaquants déjà présents dans un réseau, comme des opérateurs de rançongiciels ou des acteurs étatiques.",
+      "Aucune preuve n'indique, à ce stade, que la faille serve de point d'entrée initial dans un réseau.",
+      "Les adresses mémoire doivent être devinées : l'exploit doit être ajusté à chaque modèle, version et configuration de micrologiciel, selon Jesse Michael, d'Eclypsium.",
+      "Les particuliers et petites structures qui démarrent uniquement depuis un disque local ne sont pas concernés ; seuls le sont les parcs qui amorcent par le réseau, avec un micrologiciel fondé sur EDK II et le PXE activé (ce qui est le cas par défaut)."
+     ]
+    },
+    {
+     "type": "paragraph",
+     "text": "Intel indique qu'aucun de ses produits commerciaux encore supportés n'est connu comme affecté, tout en renvoyant vers les fabricants de cartes, qui peuvent intégrer la fonction concernée. Arm affirme de son côté que la faille ne concerne pas directement son portefeuille. Pour Jesse Michael, le correctif est, contrairement à BootHole ou BlackLotus, une simple correction de code livrée par mise à jour de BIOS, sans gestion de révocation de clés."
+    },
+    {
+     "type": "usecases",
+     "title": "Exemples d'utilisation",
+     "items": [
+      {
+       "icon": "🏢",
+       "title": "Un hébergeur qui déploie ses serveurs par PXE",
+       "text": "L'équipe d'exploitation inventorie les modèles démarrant par le réseau, désactive le PXE là où il est inutile et planifie les mises à jour de micrologiciel fournies par chaque constructeur."
+      },
+      {
+       "icon": "🔍",
+       "title": "Une équipe de sécurité d'un grand compte",
+       "text": "Elle segmente le réseau de provisionnement pour qu'un poste compromis ne puisse pas joindre des machines en cours de démarrage, et surveille les redémarrages inhabituels."
+      },
+      {
+       "icon": "🛠️",
+       "title": "Un intégrateur de matériel industriel",
+       "text": "Il interroge ses fournisseurs sur l'état du correctif dans les versions de micrologiciel livrées, notamment pour les équipements en fin de support qui ne seront jamais mis à jour."
+      }
+     ]
+    },
+    {
+     "type": "timeline",
+     "title": "D'où l'on vient, où l'on va",
+     "items": [
+      {
+       "label": "2010 environ",
+       "text": "Le défaut est introduit dans le pilote PXE d'EDK II, selon l'ancienneté indiquée par l'article."
+      },
+      {
+       "label": "Septembre 2026",
+       "text": "AMI publie une demande de fusion de code détaillant la faille et son correctif."
+      },
+      {
+       "label": "Octobre 2026",
+       "text": "TianoCore publie un avis public ; Ars Technica détaille la faille le 27 octobre."
+      },
+      {
+       "label": "Janvier 2027",
+       "text": "Date initialement prévue pour la divulgation coordonnée."
+      }
+     ]
+    },
+    {
+     "type": "opinion",
+     "title": "Notre avis",
+     "paragraphs": [
+      "Cet incident illustre la fragilité d'une chaîne d'approvisionnement du micrologiciel où un même code libre alimente des centaines de produits, mais où chaque fabricant doit ensuite compiler, tester et distribuer sa propre mise à jour. Le correctif existe depuis plusieurs semaines dans le dépôt, mais il n'atteindra les machines qu'au rythme des constructeurs, et certaines ne le recevront jamais. L'ancienneté du défaut rappelle aussi que des audits automatisés, y compris par des chercheurs assistés d'IA, découvrent encore des erreurs élémentaires de longueur dans du code très ancien.",
+      "À un à trois ans, on peut s'attendre à ce que les exploitants généralisent la désactivation du PXE sur les machines qui n'en ont pas besoin, et à ce que la sécurité du démarrage réseau (réseaux isolés, démarrage HTTPS signé) devienne un critère d'achat. La divulgation ratée relance par ailleurs le débat sur la manière de protéger les embargos lorsque les correctifs transitent par des dépôts publics."
+     ],
+     "verdict": "Risque réel mais conditionné à un accès réseau interne : l'urgence est de cartographier les machines concernées, pas de paniquer."
+    },
+    {
+     "type": "callout",
+     "title": "À retenir",
+     "text": "Information tirée d'un article de presse spécialisée ; les versions de micrologiciel corrigées dépendent de chaque fabricant. Consultez les avis de votre constructeur et l'avis TianoCore avant toute décision."
+    }
+   ],
+   "cover": {
+    "url": "https://cdn.arstechnica.net/wp-content/uploads/2024/04/malware.jpg",
+    "alt": "Illustration d'un logiciel malveillant accompagnant l'article d'Ars Technica sur la faille UEFI",
+    "credit": "cdn.arstechnica.net"
+   }
+  },
+  {
+   "id": "genie-4-deepmind-simulation-mondes",
+   "category": "ia",
+   "icon": "🌍",
+   "importance": 4,
+   "title": "Genie 4 : DeepMind présente un modèle de monde interactif avec son et dialogues",
+   "summary": "Google DeepMind dévoile Genie 4, un modèle capable de générer et de simuler des environnements pilotables en langage naturel, avec images, ambiances sonores et dialogues. L'accès reste limité à des testeurs de confiance et à un aperçu de recherche.",
+   "tags": [
+    "Genie 4",
+    "DeepMind",
+    "modèle de monde",
+    "Gemini",
+    "simulation"
+   ],
+   "sourceDate": "2026-10-27",
+   "sources": [
+    {
+     "title": "Genie 4: a new generation of world simulation",
+     "url": "https://deepmind.google/blog/genie-4-a-new-generation-of-world-simulation/",
+     "publisher": "Google DeepMind"
+    }
+   ],
+   "publishedAt": "2026-10-28T10:17:16+01:00",
+   "illustration": {
+    "svg": "<svg xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"0 0 640 360\"><defs><linearGradient id=\"g\" x1=\"0\" y1=\"0\" x2=\"1\" y2=\"1\"><stop offset=\"0\" stop-color=\"hsl(320,70%,38%)\"/><stop offset=\"1\" stop-color=\"hsl(0,65%,22%)\"/></linearGradient></defs><rect width=\"640\" height=\"360\" fill=\"url(#g)\"/><circle cx=\"480\" cy=\"80\" r=\"120\" fill=\"#fff\" opacity=\".08\"/><circle cx=\"110\" cy=\"300\" r=\"150\" fill=\"#fff\" opacity=\".07\"/><g fill=\"none\" stroke=\"#fff\" stroke-width=\"3\" opacity=\".6\"><circle cx=\"200\" cy=\"180\" r=\"80\"/><circle cx=\"200\" cy=\"180\" r=\"50\"/><path d=\"M280 180h200M480 180l-24-18M480 180l-24 18\"/></g><g fill=\"#fff\" opacity=\".7\"><circle cx=\"200\" cy=\"180\" r=\"14\"/><rect x=\"330\" y=\"120\" width=\"150\" height=\"10\" rx=\"5\"/><rect x=\"330\" y=\"230\" width=\"110\" height=\"10\" rx=\"5\" opacity=\".5\"/></g><text x=\"470\" y=\"250\" font-size=\"96\" text-anchor=\"middle\" font-family=\"system-ui,sans-serif\">🌍</text></svg>"
+   },
+   "readingMinutes": 3,
+   "blocks": [
+    {
+     "type": "paragraph",
+     "text": "Le 27 octobre 2026, Google DeepMind a présenté Genie 4, une nouvelle génération de ce qu'on appelle un « modèle de monde » : un système d'intelligence artificielle qui ne se contente pas de produire une image ou une vidéo, mais génère un environnement dans lequel on peut agir, avec des conséquences cohérentes d'un instant à l'autre. Cette quatrième version se veut nativement multimodale : elle crée en même temps les images, la musique, les sons d'ambiance et des dialogues."
+    },
+    {
+     "type": "paragraph",
+     "text": "Les modèles de monde intéressent les chercheurs pour deux raisons. Ils offrent des terrains d'expérience pour entraîner des agents sans passer par un simulateur écrit à la main, et ils sont vus comme une étape vers des systèmes qui comprennent mieux la physique et la causalité du monde réel. Genie 4 s'inscrit dans cette ligne, après les versions précédentes de la série."
+    },
+    {
+     "type": "heading",
+     "level": 2,
+     "text": "Ce que DeepMind annonce"
+    },
+    {
+     "type": "list",
+     "items": [
+      "**Pilotage en langage naturel** : l'utilisateur peut changer la météo, déplacer la caméra ou ajouter des personnes et des objets pendant la simulation ; Gemini adapte les consignes pour les faire entrer dans la scène.",
+      "**Physique et photoréalisme améliorés** : l'éditeur évoque notamment l'aérodynamique et les collisions.",
+      "**Personnages plus naturels** : ils se déplacent, réagissent à leur environnement et peuvent être dirigés en temps réel.",
+      "**Audio natif** : ambiances sonores et dialogues interactifs sont générés avec l'image.",
+      "**Agent de guidage** : Gemini 3.8 Flash peut jouer le rôle d'un agent qui découpe un objectif en étapes, vérifie l'avancement et ajuste son plan."
+     ]
+    },
+    {
+     "type": "paragraph",
+     "text": "Les informations proviennent de l'annonce de DeepMind : la page ne précise ni la résolution, ni la cadence d'images, ni la durée maximale d'une session, et aucune évaluation indépendante n'est mentionnée."
+    },
+    {
+     "type": "heading",
+     "level": 2,
+     "text": "Accès, limites et garde-fous"
+    },
+    {
+     "type": "keyvalue",
+     "items": [
+      {
+       "label": "Statut",
+       "value": "Aperçu de recherche pour des testeurs de confiance"
+      },
+      {
+       "label": "Diffusion annoncée",
+       "value": "Abonnés Google AI Ultra via Project Genie ; partenaires en accès anticipé dans l'API Gemini et Google AI Studio"
+      },
+      {
+       "label": "Marquage",
+       "value": "Vidéo et audio générés portent un filigrane SynthID"
+      },
+      {
+       "label": "Limites reconnues",
+       "value": "Dérive des détails et de la permanence des objets, surtout dans les longues sessions ou après plusieurs modifications de consigne"
+      }
+     ]
+    },
+    {
+     "type": "paragraph",
+     "text": "DeepMind reconnaît elle-même des pistes de recherche ouvertes : interactions physiques complexes, exactitude de l'audio en temps réel, texte lisible, précision spatiale et cohérence à long terme. Le modèle a passé des évaluations de sécurité internes avant l'aperçu, selon l'entreprise."
+    },
+    {
+     "type": "diagram",
+     "svg": "<svg xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"0 0 640 260\" font-family=\"system-ui,sans-serif\"><rect width=\"640\" height=\"260\" rx=\"16\" fill=\"#f4f6fa\"/><text x=\"320\" y=\"34\" font-size=\"17\" font-weight=\"700\" text-anchor=\"middle\" fill=\"#1b2433\">Comment on interagit avec Genie 4</text><rect x=\"20\" y=\"70\" width=\"136\" height=\"150\" rx=\"12\" fill=\"#fff\" stroke=\"hsl(320,60%,40%)\" stroke-width=\"2\"/><circle cx=\"42\" cy=\"94\" r=\"12\" fill=\"hsl(320,60%,40%)\"/><text x=\"42\" y=\"99\" font-size=\"13\" font-weight=\"700\" text-anchor=\"middle\" fill=\"#fff\">1</text><text x=\"88.0\" y=\"130\" font-size=\"13\" font-weight=\"700\" text-anchor=\"middle\" fill=\"#1b2433\"><tspan x=\"88.0\" dy=\"0\">Consigne</tspan><tspan x=\"88.0\" dy=\"16\">en langage naturel</tspan></text><text x=\"88.0\" y=\"175\" font-size=\"11.5\" text-anchor=\"middle\" fill=\"#3b4658\"><tspan x=\"88.0\" dy=\"0\">« Il se met à pleuvoir »</tspan><tspan x=\"88.0\" dy=\"14\">ou « ajoute un pont »</tspan></text><path d=\"M157 145h12\" stroke=\"#3b4658\" stroke-width=\"2\"/><rect x=\"170\" y=\"70\" width=\"136\" height=\"150\" rx=\"12\" fill=\"#fff\" stroke=\"hsl(320,60%,40%)\" stroke-width=\"2\"/><circle cx=\"192\" cy=\"94\" r=\"12\" fill=\"hsl(320,60%,40%)\"/><text x=\"192\" y=\"99\" font-size=\"13\" font-weight=\"700\" text-anchor=\"middle\" fill=\"#fff\">2</text><text x=\"238.0\" y=\"130\" font-size=\"13\" font-weight=\"700\" text-anchor=\"middle\" fill=\"#1b2433\"><tspan x=\"238.0\" dy=\"0\">Gemini adapte</tspan><tspan x=\"238.0\" dy=\"16\">la consigne</tspan></text><text x=\"238.0\" y=\"175\" font-size=\"11.5\" text-anchor=\"middle\" fill=\"#3b4658\"><tspan x=\"238.0\" dy=\"0\">La demande est reformulée</tspan><tspan x=\"238.0\" dy=\"14\">pour rester cohérente</tspan><tspan x=\"238.0\" dy=\"14\">avec la scène</tspan></text><path d=\"M307 145h12\" stroke=\"#3b4658\" stroke-width=\"2\"/><rect x=\"320\" y=\"70\" width=\"136\" height=\"150\" rx=\"12\" fill=\"#fff\" stroke=\"hsl(320,60%,40%)\" stroke-width=\"2\"/><circle cx=\"342\" cy=\"94\" r=\"12\" fill=\"hsl(320,60%,40%)\"/><text x=\"342\" y=\"99\" font-size=\"13\" font-weight=\"700\" text-anchor=\"middle\" fill=\"#fff\">3</text><text x=\"388.0\" y=\"130\" font-size=\"13\" font-weight=\"700\" text-anchor=\"middle\" fill=\"#1b2433\"><tspan x=\"388.0\" dy=\"0\">Genie 4 génère</tspan><tspan x=\"388.0\" dy=\"16\">le monde</tspan></text><text x=\"388.0\" y=\"175\" font-size=\"11.5\" text-anchor=\"middle\" fill=\"#3b4658\"><tspan x=\"388.0\" dy=\"0\">Image, son et dialogues</tspan><tspan x=\"388.0\" dy=\"14\">sont produits ensemble</tspan></text><path d=\"M457 145h12\" stroke=\"#3b4658\" stroke-width=\"2\"/><rect x=\"470\" y=\"70\" width=\"136\" height=\"150\" rx=\"12\" fill=\"#fff\" stroke=\"hsl(320,60%,40%)\" stroke-width=\"2\"/><circle cx=\"492\" cy=\"94\" r=\"12\" fill=\"hsl(320,60%,40%)\"/><text x=\"492\" y=\"99\" font-size=\"13\" font-weight=\"700\" text-anchor=\"middle\" fill=\"#fff\">4</text><text x=\"538.0\" y=\"130\" font-size=\"13\" font-weight=\"700\" text-anchor=\"middle\" fill=\"#1b2433\"><tspan x=\"538.0\" dy=\"0\">Filigrane</tspan><tspan x=\"538.0\" dy=\"16\">SynthID</tspan></text><text x=\"538.0\" y=\"175\" font-size=\"11.5\" text-anchor=\"middle\" fill=\"#3b4658\"><tspan x=\"538.0\" dy=\"0\">Les contenus générés</tspan><tspan x=\"538.0\" dy=\"14\">sont marqués</tspan><tspan x=\"538.0\" dy=\"14\">à la source</tspan></text></svg>",
+     "alt": "Schéma en quatre étapes : consigne, adaptation par Gemini, génération du monde par Genie 4, marquage SynthID.",
+     "caption": "Flux d'interaction simplifié d'après la description de DeepMind."
+    },
+    {
+     "type": "usecases",
+     "title": "Exemples d'utilisation",
+     "items": [
+      {
+       "icon": "🎮",
+       "title": "Un studio de jeu vidéo indépendant",
+       "text": "Il prototype des ambiances et des niveaux en quelques consignes avant de décider ce qui mérite un vrai développement."
+      },
+      {
+       "icon": "🤖",
+       "title": "Une équipe de robotique",
+       "text": "Elle entraîne et teste un agent dans des situations variées, en gardant en tête que la simulation reste approximative."
+      },
+      {
+       "icon": "🎓",
+       "title": "Un enseignant ou un formateur",
+       "text": "Il fait visiter un lieu ou illustrer un phénomène physique à une classe, à condition de vérifier l'exactitude de ce qui est montré."
+      }
+     ]
+    },
+    {
+     "type": "timeline",
+     "title": "D'où l'on vient, où l'on va",
+     "items": [
+      {
+       "label": "2024",
+       "text": "DeepMind présente la première génération de Genie, un modèle capable de produire des mondes jouables."
+      },
+      {
+       "label": "2026",
+       "text": "Genie 4 ajoute l'audio natif, le pilotage par Gemini et un marquage SynthID."
+      },
+      {
+       "label": "Prochaines étapes",
+       "text": "Ouverture annoncée aux abonnés Ultra et à des partenaires de l'API Gemini, sans date précise."
+      }
+     ]
+    },
+    {
+     "type": "opinion",
+     "title": "Notre avis",
+     "paragraphs": [
+      "L'intérêt de Genie 4 tient moins à l'effet de démonstration qu'au couplage avec un agent : un monde simulé dans lequel un autre modèle évolue ressemble à un banc d'essai peu coûteux pour des comportements autonomes. Les limites avouées, en particulier la dérive sur la durée, rappellent toutefois que ces mondes restent des approximations plausibles, pas des simulateurs physiques fiables.",
+      "À un à trois ans, on peut attendre des usages dans le prototypage créatif et l'entraînement d'agents, plus que dans la simulation scientifique. Reste la question du filigrane : il aide à repérer les contenus synthétiques, mais ne règle ni les usages trompeurs ni la question des données d'entraînement."
+     ],
+     "verdict": "Une avancée technique crédible, encore présentée sous forme de démonstration et d'accès restreint."
+    },
+    {
+     "type": "callout",
+     "title": "À retenir",
+     "text": "Cet article repose sur l'annonce du concepteur ; aucune évaluation externe n'était disponible au moment de la rédaction."
+    }
+   ]
+  },
+  {
+   "id": "claude-developpement-medicaments-premiers-resultats",
+   "category": "ia",
+   "icon": "💊",
+   "importance": 4,
+   "title": "Médicaments : Anthropic détaille les premiers résultats de ses partenariats avec six organisations",
+   "summary": "L'entreprise décrit des essais menés avec Generate Biomedicines, Divergence Labs, BigHat, Enveda, The Column Group et Bristol Myers Squibb. Les gains annoncés sont réels mais précliniques, et rapportés par l'éditeur lui-même.",
+   "tags": [
+    "Anthropic",
+    "Claude",
+    "médicament",
+    "biotechnologie",
+    "recherche pharmaceutique"
+   ],
+   "sourceDate": "2026-10-27",
+   "sources": [
+    {
+     "title": "Early progress on accelerating drug development with Claude",
+     "url": "https://www.anthropic.com/research/early-progress-drug-development",
+     "publisher": "Anthropic"
+    }
+   ],
+   "publishedAt": "2026-10-28T10:17:16+01:00",
+   "illustration": {
+    "svg": "<svg xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"0 0 640 360\"><defs><linearGradient id=\"g\" x1=\"0\" y1=\"0\" x2=\"1\" y2=\"1\"><stop offset=\"0\" stop-color=\"hsl(320,70%,38%)\"/><stop offset=\"1\" stop-color=\"hsl(0,65%,22%)\"/></linearGradient></defs><rect width=\"640\" height=\"360\" fill=\"url(#g)\"/><circle cx=\"480\" cy=\"80\" r=\"120\" fill=\"#fff\" opacity=\".08\"/><circle cx=\"110\" cy=\"300\" r=\"150\" fill=\"#fff\" opacity=\".07\"/><g fill=\"#fff\" opacity=\".65\"><rect x=\"90\" y=\"220\" width=\"60\" height=\"70\" rx=\"8\"/><rect x=\"170\" y=\"180\" width=\"60\" height=\"110\" rx=\"8\" opacity=\".8\"/><rect x=\"250\" y=\"140\" width=\"60\" height=\"150\" rx=\"8\" opacity=\".6\"/><rect x=\"330\" y=\"100\" width=\"60\" height=\"190\" rx=\"8\" opacity=\".45\"/></g><path d=\"M90 200L250 130L360 90L520 60\" stroke=\"#fff\" stroke-width=\"4\" fill=\"none\" opacity=\".7\"/><text x=\"470\" y=\"250\" font-size=\"96\" text-anchor=\"middle\" font-family=\"system-ui,sans-serif\">💊</text></svg>"
+   },
+   "readingMinutes": 4,
+   "blocks": [
+    {
+     "type": "paragraph",
+     "text": "Le 27 octobre 2026, Anthropic a publié un bilan de plusieurs mois de collaboration avec six organisations du médicament : BigHat Biosciences, Bristol Myers Squibb, Divergence Labs, Enveda, Generate Biomedicines et The Column Group. Précision importante : la source est l'entreprise qui commercialise le modèle Claude, et les résultats s'accompagnent de rapports techniques de chaque partenaire que cette synthèse ne reproduit pas intégralement."
+    },
+    {
+     "type": "paragraph",
+     "text": "Le message central est que les freins à la mise au point d'un médicament sont répartis sur toute la chaîne : choix de la cible, conception de la molécule, optimisation pour la fabrication, rédaction des dossiers réglementaires, organisation des essais. L'entreprise soutient donc que l'IA doit intervenir à toutes ces étapes plutôt que seulement pour proposer de nouvelles molécules."
+    },
+    {
+     "type": "heading",
+     "level": 2,
+     "text": "Les cas détaillés"
+    },
+    {
+     "type": "keyvalue",
+     "items": [
+      {
+       "label": "Generate Biomedicines",
+       "value": "Six scientifiques utilisent Claude Code pour raccourcir un élément des instructions génétiques d'un traitement par cellules CAR-T. Une conception, environ 70 % plus courte, a permis aux cellules immunitaires de fabriquer à peu près dix fois plus de récepteurs et de tuer plus efficacement les cellules tumorales en laboratoire."
+      },
+      {
+       "label": "Divergence Labs",
+       "value": "Pour un traitement des allergies alimentaires, Claude a généré environ 35 000 conceptions d'anticorps en un mois, en grande partie de façon autonome. Les premiers tests donnent trois conceptions qui se lient à l'IgE et vingt qui la détachent, dont trois plus efficaces que le médicament de référence."
+      },
+      {
+       "label": "BigHat Biosciences",
+       "value": "Environ 1 010 variantes de deux fragments d'anticorps ont été fabriquées et testées en dix semaines. Les meilleures se lient plus de dix fois plus fortement, l'une reste en solution à une température supérieure de 18 °C, l'autre s'agrège plus de cent fois plus lentement."
+      },
+      {
+       "label": "Enveda",
+       "value": "Sur 1 061 pages de dossiers de fabrication, Claude a repéré les 11 anomalies relevées par des relecteurs et en a signalé sept autres. Le temps de relecture passe de plus de 25 heures à moins de trois (−89 %). Un brouillon de document réglementaire a pris quatre heures, contre environ trois mois à la main."
+      }
+     ]
+    },
+    {
+     "type": "diagram",
+     "svg": "<svg xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"0 0 640 260\" font-family=\"system-ui,sans-serif\"><rect width=\"640\" height=\"260\" rx=\"16\" fill=\"#f4f6fa\"/><text x=\"320\" y=\"34\" font-size=\"17\" font-weight=\"700\" text-anchor=\"middle\" fill=\"#1b2433\">Où Claude intervient dans le cycle du médicament</text><rect x=\"20\" y=\"70\" width=\"136\" height=\"150\" rx=\"12\" fill=\"#fff\" stroke=\"hsl(265,60%,40%)\" stroke-width=\"2\"/><circle cx=\"42\" cy=\"94\" r=\"12\" fill=\"hsl(265,60%,40%)\"/><text x=\"42\" y=\"99\" font-size=\"13\" font-weight=\"700\" text-anchor=\"middle\" fill=\"#fff\">1</text><text x=\"88.0\" y=\"130\" font-size=\"13\" font-weight=\"700\" text-anchor=\"middle\" fill=\"#1b2433\"><tspan x=\"88.0\" dy=\"0\">Cible et</tspan><tspan x=\"88.0\" dy=\"16\">conception</tspan></text><text x=\"88.0\" y=\"175\" font-size=\"11.5\" text-anchor=\"middle\" fill=\"#3b4658\"><tspan x=\"88.0\" dy=\"0\">Divergence : 35 000</tspan><tspan x=\"88.0\" dy=\"14\">anticorps générés</tspan><tspan x=\"88.0\" dy=\"14\">en un mois</tspan></text><path d=\"M157 145h12\" stroke=\"#3b4658\" stroke-width=\"2\"/><rect x=\"170\" y=\"70\" width=\"136\" height=\"150\" rx=\"12\" fill=\"#fff\" stroke=\"hsl(265,60%,40%)\" stroke-width=\"2\"/><circle cx=\"192\" cy=\"94\" r=\"12\" fill=\"hsl(265,60%,40%)\"/><text x=\"192\" y=\"99\" font-size=\"13\" font-weight=\"700\" text-anchor=\"middle\" fill=\"#fff\">2</text><text x=\"238.0\" y=\"130\" font-size=\"13\" font-weight=\"700\" text-anchor=\"middle\" fill=\"#1b2433\"><tspan x=\"238.0\" dy=\"0\">Optimisation</tspan></text><text x=\"238.0\" y=\"175\" font-size=\"11.5\" text-anchor=\"middle\" fill=\"#3b4658\"><tspan x=\"238.0\" dy=\"0\">BigHat : 1 010 variantes</tspan><tspan x=\"238.0\" dy=\"14\">testées en</tspan><tspan x=\"238.0\" dy=\"14\">dix semaines</tspan></text><path d=\"M307 145h12\" stroke=\"#3b4658\" stroke-width=\"2\"/><rect x=\"320\" y=\"70\" width=\"136\" height=\"150\" rx=\"12\" fill=\"#fff\" stroke=\"hsl(265,60%,40%)\" stroke-width=\"2\"/><circle cx=\"342\" cy=\"94\" r=\"12\" fill=\"hsl(265,60%,40%)\"/><text x=\"342\" y=\"99\" font-size=\"13\" font-weight=\"700\" text-anchor=\"middle\" fill=\"#fff\">3</text><text x=\"388.0\" y=\"130\" font-size=\"13\" font-weight=\"700\" text-anchor=\"middle\" fill=\"#1b2433\"><tspan x=\"388.0\" dy=\"0\">Fabrication et</tspan><tspan x=\"388.0\" dy=\"16\">dossiers</tspan></text><text x=\"388.0\" y=\"175\" font-size=\"11.5\" text-anchor=\"middle\" fill=\"#3b4658\"><tspan x=\"388.0\" dy=\"0\">Enveda : relecture</tspan><tspan x=\"388.0\" dy=\"14\">−89 %,</tspan><tspan x=\"388.0\" dy=\"14\">brouillon en 4 h</tspan></text><path d=\"M457 145h12\" stroke=\"#3b4658\" stroke-width=\"2\"/><rect x=\"470\" y=\"70\" width=\"136\" height=\"150\" rx=\"12\" fill=\"#fff\" stroke=\"hsl(265,60%,40%)\" stroke-width=\"2\"/><circle cx=\"492\" cy=\"94\" r=\"12\" fill=\"hsl(265,60%,40%)\"/><text x=\"492\" y=\"99\" font-size=\"13\" font-weight=\"700\" text-anchor=\"middle\" fill=\"#fff\">4</text><text x=\"538.0\" y=\"130\" font-size=\"13\" font-weight=\"700\" text-anchor=\"middle\" fill=\"#1b2433\"><tspan x=\"538.0\" dy=\"0\">Essais</tspan><tspan x=\"538.0\" dy=\"16\">cliniques</tspan></text><text x=\"538.0\" y=\"175\" font-size=\"11.5\" text-anchor=\"middle\" fill=\"#3b4658\"><tspan x=\"538.0\" dy=\"0\">BMS : analyse de plan</tspan><tspan x=\"538.0\" dy=\"14\">et probabilité</tspan><tspan x=\"538.0\" dy=\"14\">de succès</tspan></text></svg>",
+     "alt": "Schéma en quatre étapes du développement d'un médicament avec, pour chacune, un résultat annoncé par un partenaire d'Anthropic.",
+     "caption": "Résultats cités par Anthropic, non vérifiés indépendamment."
+    },
+    {
+     "type": "heading",
+     "level": 2,
+     "text": "Du côté des investisseurs et des essais"
+    },
+    {
+     "type": "paragraph",
+     "text": "The Column Group met en place Pleiades, une nouvelle société censée mener beaucoup plus de programmes qu'une petite équipe ne le fait d'ordinaire. Sa première « compétence » pour Claude, destinée à juger si une cible vaut la peine d'être poursuivie, a été évaluée sur 45 couples cible-maladie. Avec Bristol Myers Squibb, Claude analyse des plans d'essais précoces et estime leurs chances de succès ; une extension est prévue en 2027. Anthropic a aussi acquis Mithril Medicine, une société d'une seule personne travaillant sur deux formes rares de dystrophie musculaire, avec un traitement possible passé de l'idée à des résultats prometteurs chez la souris en moins de 18 mois."
+    },
+    {
+     "type": "paragraph",
+     "text": "L'entreprise précise que l'ensemble reste surtout préclinique : les molécules ne sont pas encore testées chez l'humain. Si les candidats tiennent, un médicament de Mithril pourrait entrer en essais cliniques dès fin 2028."
+    },
+    {
+     "type": "usecases",
+     "title": "Exemples d'utilisation",
+     "items": [
+      {
+       "icon": "🧪",
+       "title": "Une biotech de taille moyenne",
+       "text": "Elle délègue à l'IA la première relecture de ses dossiers de fabrication, ce qui libère des chimistes pour le travail scientifique, avec contrôle humain final."
+      },
+      {
+       "icon": "📄",
+       "title": "Un service des affaires réglementaires",
+       "text": "Il fait rédiger un premier jet de document qu'une équipe corrige ensuite, en gardant la responsabilité du contenu."
+      },
+      {
+       "icon": "💼",
+       "title": "Un fonds d'investissement spécialisé",
+       "text": "Il évalue plus vite des dizaines de cibles avant de choisir lesquelles financer, sans remplacer l'expertise scientifique."
+      }
+     ]
+    },
+    {
+     "type": "timeline",
+     "title": "D'où l'on vient, où l'on va",
+     "items": [
+      {
+       "label": "Ces derniers mois",
+       "text": "Collaborations de recherche avec six organisations du médicament."
+      },
+      {
+       "label": "2027",
+       "text": "Extension prévue du travail avec Bristol Myers Squibb sur la planification d'essais."
+      },
+      {
+       "label": "Fin 2028",
+       "text": "Entrée possible en essais cliniques d'un candidat de Mithril, si les résultats se confirment."
+      }
+     ]
+    },
+    {
+     "type": "opinion",
+     "title": "Notre avis",
+     "paragraphs": [
+      "Les gains de temps sur la documentation et l'optimisation sont les plus crédibles : ils portent sur des tâches répétitives mesurables. Les résultats sur la conception de molécules sont plus fragiles, car un bon résultat en laboratoire ne garantit ni sécurité ni efficacité chez l'humain, et le taux d'échec en phase clinique reste élevé. Il faut aussi lire ces chiffres comme une démonstration commerciale d'un fournisseur d'IA.",
+      "À un à trois ans, la vraie question sera de savoir si ces accélérations se traduisent en candidats cliniques et en autorisations, et comment les régulateurs, dont l'Agence européenne des médicaments, traiteront des dossiers largement rédigés avec l'aide de modèles."
+     ],
+     "verdict": "Des résultats précoces prometteurs mais précliniques, publiés par l'entreprise qui vend l'outil : un signal à confirmer."
+    },
+    {
+     "type": "callout",
+     "title": "À retenir",
+     "text": "Information générale sur un communiqué d'entreprise ; elle ne constitue ni un avis médical ni une promesse de traitement."
+    }
+   ],
+   "cover": {
+    "url": "https://www-cdn.anthropic.com/images/4zrzovbb/website/6a50f5ba4c0931f8d2c411f26d860955c1efeae7-1200x630.jpg",
+    "alt": "Visuel de l'article d'Anthropic sur le développement de médicaments",
+    "credit": "www-cdn.anthropic.com"
+   }
+  },
+  {
+   "id": "ghostty-1-4-memoire-kitty-gtk",
+   "category": "dev",
+   "icon": "👻",
+   "importance": 3,
+   "title": "Ghostty 1.4 : compression du défilement, rendu GTK refait et dix avis de sécurité corrigés",
+   "summary": "Le terminal libre Ghostty publie sa version 1.4 après sept mois de travail : mémoire réduite de 70 à 90 % pour l'historique, débit accru sur macOS, nouveau moteur de rendu GTK et enveloppe SSH intégrée.",
+   "tags": [
+    "Ghostty",
+    "terminal",
+    "Zig",
+    "GTK",
+    "macOS",
+    "logiciel libre"
+   ],
+   "sourceDate": "2026-10-27",
+   "sources": [
+    {
+     "title": "Ghostty 1.4.0 — notes de version",
+     "url": "https://ghostty.org/docs/install/release-notes/1-4-0",
+     "publisher": "Ghostty"
+    }
+   ],
+   "publishedAt": "2026-10-28T10:17:17+01:00",
+   "illustration": {
+    "svg": "<svg xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"0 0 640 360\"><defs><linearGradient id=\"g\" x1=\"0\" y1=\"0\" x2=\"1\" y2=\"1\"><stop offset=\"0\" stop-color=\"hsl(265,70%,38%)\"/><stop offset=\"1\" stop-color=\"hsl(305,65%,22%)\"/></linearGradient></defs><rect width=\"640\" height=\"360\" fill=\"url(#g)\"/><circle cx=\"480\" cy=\"80\" r=\"120\" fill=\"#fff\" opacity=\".08\"/><circle cx=\"110\" cy=\"300\" r=\"150\" fill=\"#fff\" opacity=\".07\"/><g fill=\"none\" stroke=\"#fff\" stroke-width=\"3\" opacity=\".6\"><path d=\"M80 260c60-120 120-120 180 0s120 120 180 0\"/><path d=\"M80 210c60-90 120-90 180 0s120 90 180 0\" opacity=\".6\"/></g><g fill=\"#fff\" opacity=\".7\"><circle cx=\"260\" cy=\"260\" r=\"9\"/><circle cx=\"440\" cy=\"260\" r=\"9\"/><circle cx=\"80\" cy=\"260\" r=\"9\"/></g><text x=\"470\" y=\"250\" font-size=\"96\" text-anchor=\"middle\" font-family=\"system-ui,sans-serif\">👻</text></svg>"
+   },
+   "readingMinutes": 4,
+   "blocks": [
+    {
+     "type": "paragraph",
+     "text": "Le terminal Ghostty a publié le 27 octobre 2026 sa version 1.4.0, présentée par ses auteurs comme une version majeure avec de « larges améliorations de performance et de mémoire ». Elle représente environ sept mois de développement, 172 contributeurs et 2 889 commits. Ghostty est un émulateur de terminal libre, écrit en Zig, qui vise à la fois la rapidité, la fidélité aux standards et une interface native sur macOS et Linux."
+    },
+    {
+     "type": "paragraph",
+     "text": "Cette livraison est surtout une version d'optimisation et de conformité : la mémoire occupée par l'historique, le débit de lecture des données, le rendu graphique sous Linux et la prise en charge de protocoles récents occupent l'essentiel des notes de version."
+    },
+    {
+     "type": "heading",
+     "level": 2,
+     "text": "Performance et mémoire"
+    },
+    {
+     "type": "list",
+     "items": [
+      "**Historique compressé** : le défilement inactif est compressé, ce qui réduit la mémoire résidente de 70 à 90 % pour les historiques très textuels. La limite par défaut passe de 10 à 50 Mo. La compression est disponible sur macOS et Linux 64 bits.",
+      "**Lecture parallèle** : lire le flux du pseudo-terminal en parallèle de l'analyse augmente le débit d'entrée-sortie de 25 à 55 % sur macOS.",
+      "**Redimensionnement** : environ six fois plus rapide avec un grand historique.",
+      "**Protocole graphique Kitty** : l'analyse est environ seize fois plus rapide selon les mesures des auteurs, et l'animation ainsi que les placements relatifs complètent la spécification publiée."
+     ]
+    },
+    {
+     "type": "heading",
+     "level": 2,
+     "text": "Nouveautés fonctionnelles"
+    },
+    {
+     "type": "paragraph",
+     "text": "Sous Linux, un nouveau moteur de rendu GTK utilise EGL sur un fil dédié et affiche les images via DMABUF, ce qui corrige le texte flou en mise à l'échelle fractionnaire. Le protocole de presse-papiers de Kitty (OSC 5522) est géré sur macOS et GTK, avec un réglage `clipboard-write-limit-bytes`. Les séparations de fenêtre peuvent être réorganisées par glisser-déposer sur GTK. Enfin, `ghostty +ssh` joue le rôle d'enveloppe pour SSH : il installe le terminfo de Ghostty sur la machine distante et transmet certaines variables d'environnement."
+    },
+    {
+     "type": "keyvalue",
+     "items": [
+      {
+       "label": "GTK minimal",
+       "value": "GTK 4.18 et libadwaita 1.7 (contre 4.14 et 1.5) : Ubuntu 24.04 LTS ne convient plus"
+      },
+      {
+       "label": "OpenGL",
+       "value": "Version 4.3 minimale, désormais via EGL"
+      },
+      {
+       "label": "macOS",
+       "value": "macOS 27 pris en charge ; macOS 13 reste le minimum, sa suppression est envisagée"
+      },
+      {
+       "label": "Compilation",
+       "value": "Zig 0.17 requis"
+      },
+      {
+       "label": "Prochaine version",
+       "value": "Ghostty 1.5 annoncée pour mars 2027"
+      }
+     ]
+    },
+    {
+     "type": "diagram",
+     "svg": "<svg xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"0 0 640 260\" font-family=\"system-ui,sans-serif\"><rect width=\"640\" height=\"260\" rx=\"16\" fill=\"#f4f6fa\"/><text x=\"320\" y=\"34\" font-size=\"17\" font-weight=\"700\" text-anchor=\"middle\" fill=\"#1b2433\">Ce qui change pour la mémoire et le débit</text><rect x=\"20\" y=\"70\" width=\"136\" height=\"150\" rx=\"12\" fill=\"#fff\" stroke=\"hsl(265,60%,40%)\" stroke-width=\"2\"/><circle cx=\"42\" cy=\"94\" r=\"12\" fill=\"hsl(265,60%,40%)\"/><text x=\"42\" y=\"99\" font-size=\"13\" font-weight=\"700\" text-anchor=\"middle\" fill=\"#fff\">1</text><text x=\"88.0\" y=\"130\" font-size=\"13\" font-weight=\"700\" text-anchor=\"middle\" fill=\"#1b2433\"><tspan x=\"88.0\" dy=\"0\">Historique</tspan><tspan x=\"88.0\" dy=\"16\">inactif</tspan></text><text x=\"88.0\" y=\"175\" font-size=\"11.5\" text-anchor=\"middle\" fill=\"#3b4658\"><tspan x=\"88.0\" dy=\"0\">Compressé : mémoire</tspan><tspan x=\"88.0\" dy=\"14\">réduite de 70</tspan><tspan x=\"88.0\" dy=\"14\">à 90 %</tspan></text><path d=\"M157 145h12\" stroke=\"#3b4658\" stroke-width=\"2\"/><rect x=\"170\" y=\"70\" width=\"136\" height=\"150\" rx=\"12\" fill=\"#fff\" stroke=\"hsl(265,60%,40%)\" stroke-width=\"2\"/><circle cx=\"192\" cy=\"94\" r=\"12\" fill=\"hsl(265,60%,40%)\"/><text x=\"192\" y=\"99\" font-size=\"13\" font-weight=\"700\" text-anchor=\"middle\" fill=\"#fff\">2</text><text x=\"238.0\" y=\"130\" font-size=\"13\" font-weight=\"700\" text-anchor=\"middle\" fill=\"#1b2433\"><tspan x=\"238.0\" dy=\"0\">Lecture du</tspan><tspan x=\"238.0\" dy=\"16\">flux</tspan></text><text x=\"238.0\" y=\"175\" font-size=\"11.5\" text-anchor=\"middle\" fill=\"#3b4658\"><tspan x=\"238.0\" dy=\"0\">Lecture et analyse</tspan><tspan x=\"238.0\" dy=\"14\">en parallèle :</tspan><tspan x=\"238.0\" dy=\"14\">+25 à 55 % sur macOS</tspan></text><path d=\"M307 145h12\" stroke=\"#3b4658\" stroke-width=\"2\"/><rect x=\"320\" y=\"70\" width=\"136\" height=\"150\" rx=\"12\" fill=\"#fff\" stroke=\"hsl(265,60%,40%)\" stroke-width=\"2\"/><circle cx=\"342\" cy=\"94\" r=\"12\" fill=\"hsl(265,60%,40%)\"/><text x=\"342\" y=\"99\" font-size=\"13\" font-weight=\"700\" text-anchor=\"middle\" fill=\"#fff\">3</text><text x=\"388.0\" y=\"130\" font-size=\"13\" font-weight=\"700\" text-anchor=\"middle\" fill=\"#1b2433\"><tspan x=\"388.0\" dy=\"0\">Protocole</tspan><tspan x=\"388.0\" dy=\"16\">Kitty</tspan></text><text x=\"388.0\" y=\"175\" font-size=\"11.5\" text-anchor=\"middle\" fill=\"#3b4658\"><tspan x=\"388.0\" dy=\"0\">Analyse environ</tspan><tspan x=\"388.0\" dy=\"14\">16 fois plus rapide</tspan></text><path d=\"M457 145h12\" stroke=\"#3b4658\" stroke-width=\"2\"/><rect x=\"470\" y=\"70\" width=\"136\" height=\"150\" rx=\"12\" fill=\"#fff\" stroke=\"hsl(265,60%,40%)\" stroke-width=\"2\"/><circle cx=\"492\" cy=\"94\" r=\"12\" fill=\"hsl(265,60%,40%)\"/><text x=\"492\" y=\"99\" font-size=\"13\" font-weight=\"700\" text-anchor=\"middle\" fill=\"#fff\">4</text><text x=\"538.0\" y=\"130\" font-size=\"13\" font-weight=\"700\" text-anchor=\"middle\" fill=\"#1b2433\"><tspan x=\"538.0\" dy=\"0\">Rendu GTK</tspan></text><text x=\"538.0\" y=\"175\" font-size=\"11.5\" text-anchor=\"middle\" fill=\"#3b4658\"><tspan x=\"538.0\" dy=\"0\">EGL et DMABUF :</tspan><tspan x=\"538.0\" dy=\"14\">fin du texte flou</tspan><tspan x=\"538.0\" dy=\"14\">en échelle fractionnaire</tspan></text></svg>",
+     "alt": "Schéma de quatre améliorations de Ghostty 1.4 : compression de l'historique, lecture parallèle, protocole Kitty plus rapide et nouveau rendu GTK.",
+     "caption": "Chiffres issus des notes de version et mesurés par les auteurs du projet."
+    },
+    {
+     "type": "heading",
+     "level": 2,
+     "text": "Sécurité et changements incompatibles"
+    },
+    {
+     "type": "paragraph",
+     "text": "La version corrige dix avis de sécurité, parmi lesquels une protection au collage qui ne traitait pas les retours chariot comme des fins de ligne, des commandes graphiques Kitty malveillantes provoquant plantages ou allocations excessives, des plantages en mode de contrôle de tmux (versions 1.3.0 et 1.3.1), une corruption de mémoire avec une très petite limite d'historique et une intégration zsh qui pouvait émettre des séquences d'échappement à cause d'un nom de répertoire spécialement construit."
+    },
+    {
+     "type": "paragraph",
+     "text": "Côté compatibilité, l'option `copy-on-select` accepte désormais `none`, `primary`, `clipboard` ou `both`, avec `none` par défaut sur macOS. Sur GTK, `ctrl+shift+page_up/down` déplacent les onglets et `jump_to_prompt` change de raccourci. L'option `scrollback-limit` est renommée `scrollback-limit-bytes`."
+    },
+    {
+     "type": "usecases",
+     "title": "Exemples d'utilisation",
+     "items": [
+      {
+       "icon": "🧑‍💻",
+       "title": "Un développeur qui garde de longues sessions",
+       "text": "Il conserve des journaux de compilation volumineux ouverts toute la journée sans voir la mémoire du terminal grimper."
+      },
+      {
+       "icon": "🖥️",
+       "title": "Un administrateur système",
+       "text": "Il utilise `ghostty +ssh` pour retrouver un affichage correct sur des serveurs qui ne connaissent pas le terminfo de Ghostty."
+      },
+      {
+       "icon": "📦",
+       "title": "Un mainteneur de paquet Linux",
+       "text": "Il doit préparer les dépendances GTK 4.18, libadwaita 1.7 et Zig 0.17, et prévenir les utilisateurs de distributions plus anciennes."
+      }
+     ]
+    },
+    {
+     "type": "timeline",
+     "title": "D'où l'on vient, où l'on va",
+     "items": [
+      {
+       "label": "Mars 2027",
+       "text": "Sortie prévue de Ghostty 1.5."
+      },
+      {
+       "label": "Prochainement",
+       "text": "Étiquette 1.0 attendue pour libghostty, la bibliothèque dont l'interface C reste en chantier."
+      },
+      {
+       "label": "Feuille de route",
+       "text": "L'interface graphique pour Windows a été retirée du plan, libghostty continuant à prendre Windows en charge."
+      }
+     ]
+    },
+    {
+     "type": "opinion",
+     "title": "Notre avis",
+     "paragraphs": [
+      "Compresser un historique inactif est le genre d'optimisation discrète qui change la vie des utilisateurs intensifs : le terminal devient un outil que l'on ne surveille plus. Le revers est un relèvement des prérequis sous Linux, qui laisse de côté des distributions à support long très répandues.",
+      "À un à trois ans, la concurrence entre terminaux modernes devrait se jouer sur la fidélité aux protocoles (Kitty, OSC) et sur la bibliothèque réutilisable libghostty, qui pourrait faire de Ghostty un composant intégré à d'autres applications."
+     ],
+     "verdict": "Une version solide, orientée performance et correctifs, au prix de prérequis Linux plus exigeants."
+    },
+    {
+     "type": "callout",
+     "title": "À retenir",
+     "text": "Chiffres de performance fournis par les auteurs du projet ; à vérifier sur votre propre matériel avant de migrer un parc de postes."
+    }
+   ],
+   "cover": {
+    "url": "https://ghostty.org/social-share-card.jpg",
+    "alt": "Visuel du projet Ghostty",
+    "credit": "ghostty.org"
+   }
+  },
+  {
+   "id": "raspberry-pi-zero-3w-pi-4-model-a-device-tree",
+   "category": "electronique",
+   "icon": "🍓",
+   "importance": 3,
+   "title": "Raspberry Pi Zero 3 W et Pi 4 Model A : des fichiers de description matérielle laissent entrevoir deux nouvelles cartes",
+   "summary": "Des fichiers device tree repérés dans un arbre du noyau lié à Raspberry Pi évoquent un Zero 3 W à base de BCM2711 et un Pi 4 Model A sans Ethernet. Aucune annonce officielle : tout reste à confirmer.",
+   "tags": [
+    "Raspberry Pi",
+    "Pi Zero 3 W",
+    "BCM2711",
+    "device tree",
+    "nano-ordinateur"
+   ],
+   "sourceDate": "2026-10-27",
+   "sources": [
+    {
+     "title": "Raspberry Pi Zero 3 W and Pi 4 Model A spotted in device trees",
+     "url": "https://bret.dk/raspberry-pi-zero-3-w-pi-4-model-a/",
+     "publisher": "bret.dk"
+    }
+   ],
+   "publishedAt": "2026-10-28T10:17:17+01:00",
+   "illustration": {
+    "svg": "<svg xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"0 0 640 360\"><defs><linearGradient id=\"g\" x1=\"0\" y1=\"0\" x2=\"1\" y2=\"1\"><stop offset=\"0\" stop-color=\"hsl(30,70%,38%)\"/><stop offset=\"1\" stop-color=\"hsl(70,65%,22%)\"/></linearGradient></defs><rect width=\"640\" height=\"360\" fill=\"url(#g)\"/><circle cx=\"480\" cy=\"80\" r=\"120\" fill=\"#fff\" opacity=\".08\"/><circle cx=\"110\" cy=\"300\" r=\"150\" fill=\"#fff\" opacity=\".07\"/><g fill=\"none\" stroke=\"#fff\" stroke-width=\"3\" opacity=\".6\"><path d=\"M80 260c60-120 120-120 180 0s120 120 180 0\"/><path d=\"M80 210c60-90 120-90 180 0s120 90 180 0\" opacity=\".6\"/></g><g fill=\"#fff\" opacity=\".7\"><circle cx=\"260\" cy=\"260\" r=\"9\"/><circle cx=\"440\" cy=\"260\" r=\"9\"/><circle cx=\"80\" cy=\"260\" r=\"9\"/></g><text x=\"470\" y=\"250\" font-size=\"96\" text-anchor=\"middle\" font-family=\"system-ui,sans-serif\">🍓</text></svg>"
+   },
+   "readingMinutes": 4,
+   "blocks": [
+    {
+     "type": "paragraph",
+     "text": "Un billet publié le 27 octobre 2026 sur le blog bret.dk signale l'apparition, dans un arbre du noyau Linux lié à Raspberry Pi, de fichiers de description matérielle (device tree) pour deux cartes encore inconnues : un Raspberry Pi Zero 3 W et un Raspberry Pi 4 Model A. Le billet insiste sur l'absence d'annonce officielle : tout ce qui suit est déduit de ces fichiers et doit être pris comme un indice, non comme une fiche technique."
+    },
+    {
+     "type": "paragraph",
+     "text": "Un device tree décrit à Linux les composants d'une carte : processeur, mémoire, broches, voyants, contrôleurs. Les lire permet souvent de deviner des caractéristiques avant la sortie d'un produit, mais ils peuvent contenir des copier-coller ou des options qui n'aboutiront pas sur le matériel final."
+    },
+    {
+     "type": "heading",
+     "level": 2,
+     "text": "Raspberry Pi Zero 3 W : un saut de processeur"
+    },
+    {
+     "type": "list",
+     "items": [
+      "**Processeur** : un Broadcom BCM2711, quatre cœurs Cortex-A72, à la place du RP3A0 du Zero 2 W (quatre cœurs Cortex-A53 à 1 GHz). Le gain par cœur serait important, mais l'auteur s'interroge sur la chaleur dans un format aussi petit.",
+      "**Stockage** : une configuration de bus à huit bits suggère de l'eMMC, bien que l'auteur s'attende à une carte microSD sur la carte finale.",
+      "**Démarrage** : des lignes pour mémoire flash SPI laissent penser que le chargeur d'amorçage sur EEPROM du Pi 4 serait repris, ce qui manquait au Zero 2 W.",
+      "**Autres éléments** : une seule sortie HDMI, un bouton d'alimentation sur la broche GPIO 46, Wi-Fi, Bluetooth, un voyant d'activité et le connecteur GPIO à 40 broches.",
+      "**Spéculatif** : PCIe activé et une configuration de caméra CSI à quatre voies."
+     ]
+    },
+    {
+     "type": "heading",
+     "level": 2,
+     "text": "Raspberry Pi 4 Model A : un Pi 4 allégé"
+    },
+    {
+     "type": "paragraph",
+     "text": "Le fichier du Model A retire plusieurs fonctions du Model B : pas d'Ethernet, une seule sortie HDMI au lieu de deux, pas de prise audio 3,5 mm ni de sortie composite, et un stockage limité à la microSD, avec prise en charge de l'UHS en 1,8 V. Il décrit aussi des lignes de commande d'antenne (`ANT_CTRL1` et `ANT_CTRL2`) et des paramètres de superposition `ant1`, `ant2` et `noant`, qui évoquent le choix entre antenne intégrée et antenne externe, comme sur le Compute Module 4. Le port USB n'est pas décrit ; le PCIe étant activé, de l'USB 3 est envisageable, mais l'auteur attend un seul port de type A, comme sur le Model A+."
+    },
+    {
+     "type": "keyvalue",
+     "items": [
+      {
+       "label": "Zero 3 W",
+       "value": "BCM2711 (Cortex-A72 ×4), HDMI unique, Wi-Fi et Bluetooth, GPIO 40 broches"
+      },
+      {
+       "label": "Pi 4 Model A",
+       "value": "Pas d'Ethernet, un HDMI, microSD seule, antenne externe possible"
+      },
+      {
+       "label": "Non révélé",
+       "value": "Mémoire vive, prix, fréquences, connecteurs, date de sortie"
+      }
+     ]
+    },
+    {
+     "type": "diagram",
+     "svg": "<svg xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"0 0 640 260\" font-family=\"system-ui,sans-serif\"><rect width=\"640\" height=\"260\" rx=\"16\" fill=\"#f4f6fa\"/><text x=\"320\" y=\"34\" font-size=\"17\" font-weight=\"700\" text-anchor=\"middle\" fill=\"#1b2433\">Ce que les device trees suggèrent</text><rect x=\"20\" y=\"70\" width=\"136\" height=\"150\" rx=\"12\" fill=\"#fff\" stroke=\"hsl(30,60%,40%)\" stroke-width=\"2\"/><circle cx=\"42\" cy=\"94\" r=\"12\" fill=\"hsl(30,60%,40%)\"/><text x=\"42\" y=\"99\" font-size=\"13\" font-weight=\"700\" text-anchor=\"middle\" fill=\"#fff\">1</text><text x=\"88.0\" y=\"130\" font-size=\"13\" font-weight=\"700\" text-anchor=\"middle\" fill=\"#1b2433\"><tspan x=\"88.0\" dy=\"0\">Pi Zero 3 W</tspan></text><text x=\"88.0\" y=\"175\" font-size=\"11.5\" text-anchor=\"middle\" fill=\"#3b4658\"><tspan x=\"88.0\" dy=\"0\">BCM2711, 4 × A72</tspan><tspan x=\"88.0\" dy=\"14\">HDMI unique</tspan><tspan x=\"88.0\" dy=\"14\">Wi-Fi et Bluetooth</tspan></text><path d=\"M157 145h12\" stroke=\"#3b4658\" stroke-width=\"2\"/><rect x=\"170\" y=\"70\" width=\"136\" height=\"150\" rx=\"12\" fill=\"#fff\" stroke=\"hsl(30,60%,40%)\" stroke-width=\"2\"/><circle cx=\"192\" cy=\"94\" r=\"12\" fill=\"hsl(30,60%,40%)\"/><text x=\"192\" y=\"99\" font-size=\"13\" font-weight=\"700\" text-anchor=\"middle\" fill=\"#fff\">2</text><text x=\"238.0\" y=\"130\" font-size=\"13\" font-weight=\"700\" text-anchor=\"middle\" fill=\"#1b2433\"><tspan x=\"238.0\" dy=\"0\">Pi 4 Model A</tspan></text><text x=\"238.0\" y=\"175\" font-size=\"11.5\" text-anchor=\"middle\" fill=\"#3b4658\"><tspan x=\"238.0\" dy=\"0\">Sans Ethernet</tspan><tspan x=\"238.0\" dy=\"14\">microSD seule</tspan><tspan x=\"238.0\" dy=\"14\">antenne externe ?</tspan></text><path d=\"M307 145h12\" stroke=\"#3b4658\" stroke-width=\"2\"/><rect x=\"320\" y=\"70\" width=\"136\" height=\"150\" rx=\"12\" fill=\"#fff\" stroke=\"hsl(30,60%,40%)\" stroke-width=\"2\"/><circle cx=\"342\" cy=\"94\" r=\"12\" fill=\"hsl(30,60%,40%)\"/><text x=\"342\" y=\"99\" font-size=\"13\" font-weight=\"700\" text-anchor=\"middle\" fill=\"#fff\">3</text><text x=\"388.0\" y=\"130\" font-size=\"13\" font-weight=\"700\" text-anchor=\"middle\" fill=\"#1b2433\"><tspan x=\"388.0\" dy=\"0\">Boot</tspan></text><text x=\"388.0\" y=\"175\" font-size=\"11.5\" text-anchor=\"middle\" fill=\"#3b4658\"><tspan x=\"388.0\" dy=\"0\">EEPROM SPI</tspan><tspan x=\"388.0\" dy=\"14\">comme le Pi 4</tspan></text><path d=\"M457 145h12\" stroke=\"#3b4658\" stroke-width=\"2\"/><rect x=\"470\" y=\"70\" width=\"136\" height=\"150\" rx=\"12\" fill=\"#fff\" stroke=\"hsl(30,60%,40%)\" stroke-width=\"2\"/><circle cx=\"492\" cy=\"94\" r=\"12\" fill=\"hsl(30,60%,40%)\"/><text x=\"492\" y=\"99\" font-size=\"13\" font-weight=\"700\" text-anchor=\"middle\" fill=\"#fff\">4</text><text x=\"538.0\" y=\"130\" font-size=\"13\" font-weight=\"700\" text-anchor=\"middle\" fill=\"#1b2433\"><tspan x=\"538.0\" dy=\"0\">À confirmer</tspan></text><text x=\"538.0\" y=\"175\" font-size=\"11.5\" text-anchor=\"middle\" fill=\"#3b4658\"><tspan x=\"538.0\" dy=\"0\">RAM, prix, fréquences</tspan><tspan x=\"538.0\" dy=\"14\">et date de sortie</tspan><tspan x=\"538.0\" dy=\"14\">inconnus</tspan></text></svg>",
+     "alt": "Schéma résumant les indices tirés des fichiers device tree pour le Zero 3 W et le Pi 4 Model A, et ce qui reste à confirmer.",
+     "caption": "Synthèse d'après le billet de bret.dk ; aucune information officielle."
+    },
+    {
+     "type": "paragraph",
+     "text": "Un point de prudence supplémentaire : les liens vers les fichiers pointent vers un dépôt dérivé et non vers l'arbre officiel de Raspberry Pi, même si le billet décrit les cartes comme apparues dans l'arbre de la fondation. Les deux révisions citées partagent aussi du texte dupliqué, comme une ligne `PWR_GPIO` répétée sur le Zero 3 W."
+    },
+    {
+     "type": "usecases",
+     "title": "Exemples d'utilisation",
+     "items": [
+      {
+       "icon": "🏠",
+       "title": "Un bricoleur de domotique",
+       "text": "Un Zero 3 W plus puissant permettrait d'héberger des services locaux plus lourds dans un boîtier minuscule, à condition de gérer la chaleur."
+      },
+      {
+       "icon": "🏭",
+       "title": "Un intégrateur de systèmes embarqués",
+       "text": "Le Model A sans Ethernet répondrait à des produits qui n'ont besoin que d'un lien sans fil, avec une antenne externe pour de meilleures portées."
+      },
+      {
+       "icon": "🎓",
+       "title": "Un enseignant d'électronique",
+       "text": "Il pourrait proposer un format compact avec le même processeur que le Pi 4, donc des logiciels déjà éprouvés."
+      }
+     ]
+    },
+    {
+     "type": "timeline",
+     "title": "D'où l'on vient, où l'on va",
+     "items": [
+      {
+       "label": "27 octobre 2026",
+       "text": "Le billet signale les deux fichiers device tree et indique l'absence d'annonce."
+      },
+      {
+       "label": "28 octobre 2026",
+       "text": "Dernière mise à jour du billet."
+      },
+      {
+       "label": "Date de sortie",
+       "text": "Inconnue : aucun renseignement fiable à ce jour."
+      }
+     ]
+    },
+    {
+     "type": "opinion",
+     "title": "Notre avis",
+     "paragraphs": [
+      "Si ces indices se confirment, le Zero 3 W marquerait une rupture : la gamme Zero est née de la sobriété, et un Cortex-A72 dans ce format rendrait la gestion thermique, la consommation et le prix décisifs. L'absence d'Ethernet sur le Pi 4 Model A, elle, ressemble à une réponse à des besoins industriels et à une baisse de coût.",
+      "À un à trois ans, la question sera de savoir si Raspberry Pi continue d'élargir sa gamme vers le haut. Tant qu'aucune annonce n'existe, il serait imprudent de bâtir un projet sur ces seuls fichiers."
+     ],
+     "verdict": "Des indices intéressants mais fragiles : attendre une annonce officielle avant toute commande ou conception."
+    },
+    {
+     "type": "callout",
+     "title": "À retenir",
+     "text": "Information déduite de fichiers publics et d'un billet de blog ; Raspberry Pi n'a rien annoncé à ce jour."
+    }
+   ],
+   "cover": {
+    "url": "https://bret.dk/wp-content/uploads/2026/10/image.png",
+    "alt": "Visuel du billet sur les cartes Raspberry Pi",
+    "credit": "bret.dk"
+   }
+  }
+ ]
+}
