@@ -1,0 +1,1269 @@
+{
+  "schemaVersion": "1.0",
+  "date": "2026-10-29",
+  "generatedAt": "2026-10-29T18:21:13+01:00",
+  "title": "Tech : faille TCP du noyau Linux, chaîne Fragnesia, tickets GitHub piégés, systemd et Rust, AI Mode de Google",
+  "summary": "Une faille TCP du noyau Linux dont la gravité divise les éditeurs, la chaîne d'attaque Fragnesia et PHP2Shell, une faille Telegram pour Android, 319 extensions Chrome détournant les recherches, des tickets GitHub piégés visant 61 dépôts, un pare-feu de paquets npm, Rust dans systemd, la monétisation difficile de l'AI Mode et une batterie quantique de laboratoire.",
+  "highlights": [
+    "Noyau Linux : CVE-2026-98432, notée 9,8 par les mainteneurs mais 5,9 à 8,1 ailleurs, sans correctif Ubuntu ni RHEL au 29 octobre",
+    "La CISA relie Fragnesia à des attaques PHP2Shell : 25 serveurs rootés",
+    "Radware : des tickets GitHub piégés ont visé 61 dépôts publics en moins d'une heure ; GitHub lance un pare-feu de paquets npm",
+    "319 extensions Chrome (13,4 millions d'installations) détournaient les recherches ; faille Telegram Android corrigée en 12.10.4",
+    "Alphabet admet que l'AI Mode rapporte moins que la recherche classique ; systemd accepte Rust pour de nouveaux composants"
+  ],
+  "meta": {
+    "generator": "claude-scheduled-task"
+  },
+  "posts": [
+    {
+      "id": "linux-tcp-cve-2026-98432-use-after-free",
+      "category": "cybersecurite",
+      "icon": "🐧",
+      "importance": 5,
+      "title": "Noyau Linux : une faille TCP notée 9,8 par les mainteneurs, mais jugée bien moins grave par plusieurs distributions",
+      "summary": "Le correctif de CVE-2026-98432 date du 5 octobre, mais Ubuntu et Red Hat n'avaient toujours pas publié de mise à jour le 29 octobre. Les notes de gravité vont de 5,9 à 9,8 selon l'éditeur.",
+      "tags": [
+        "Linux",
+        "noyau",
+        "TCP",
+        "CVE-2026-98432",
+        "Anthropic"
+      ],
+      "sourceDate": "2026-10-29",
+      "sources": [
+        {
+          "title": "Linux Kernel TCP Flaw With 9.8 CVSS Score Affects Ubuntu, Red Hat and Other Distributions",
+          "url": "https://thehackernews.com/2026/10/linux-kernel-tcp-flaw-with-98-cvss.html",
+          "publisher": "The Hacker News"
+        }
+      ],
+      "illustration": {
+        "svg": "<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 640 360'><defs><linearGradient id='g' x1='0' y1='0' x2='1' y2='1'><stop offset='0' stop-color='hsl(175,70%,42%)'/><stop offset='1' stop-color='hsl(215,65%,22%)'/></linearGradient></defs><rect width='640' height='360' fill='url(#g)'/><circle cx='540' cy='60' r='120' fill='#fff' opacity='.08'/><circle cx='80' cy='320' r='150' fill='#fff' opacity='.07'/><g fill='none' stroke='#fff' stroke-width='10' stroke-linecap='round'><rect x='240' y='90' width='160' height='160' rx='18'/><path d='M280 90V60M320 90V60M360 90V60M280 250v30M320 250v30M360 250v30M240 130h-30M240 170h-30M240 210h-30M400 130h30M400 170h30M400 210h30'/></g><path d='M290 140l60 80M350 140l-60 80' stroke='#fff' stroke-width='12' stroke-linecap='round'/></svg>"
+      },
+      "readingMinutes": 4,
+      "publishedAt": "2026-10-29T18:21:08+01:00",
+      "blocks": [
+        {
+          "type": "paragraph",
+          "text": "Une condition de concurrence dans l'établissement des connexions TCP IPv4 du noyau Linux, référencée CVE-2026-98432, concentre depuis quelques jours l'attention des administrateurs. L'équipe chargée des CVE du noyau lui attribue la note maximale de 9,8 sur 10, alors que Red Hat, Oracle, SUSE et Amazon la jugent nettement moins grave. Au 29 octobre, aucune mise à jour n'était encore disponible pour Ubuntu ni pour Red Hat Enterprise Linux, d'après The Hacker News."
+        },
+        {
+          "type": "heading",
+          "level": 2,
+          "text": "Le mécanisme de la faille"
+        },
+        {
+          "type": "paragraph",
+          "text": "Lorsqu'une connexion TCP IPv4 est établie, le noyau transmet à la nouvelle socket les options IP conservées avec la demande de connexion en attente, sans les copier. Si cette socket est détruite alors qu'un autre cœur de processeur utilise encore ces options pour répondre à une demande de connexion retransmise, le noyau lit de la mémoire déjà libérée : c'est une vulnérabilité d'utilisation après libération. IPv6 n'est pas concerné, car le noyau copie les options pour ce protocole. Le défaut remonte à Linux 4.4. Le correctif, appliqué le 5 octobre, oblige le noyau à attendre que les autres cœurs aient fini avant de libérer les options."
+        },
+        {
+          "type": "paragraph",
+          "text": "Le problème a été signalé par Xinyang Ge, chercheur chez Anthropic, d'après le commit de correction. Anthropic en a parlé le 27 octobre dans un billet consacré à la découverte et à l'exploitation de failles par Claude. Selon ce billet, une exploitation en deux étapes a d'abord révélé une adresse du noyau pour contourner la randomisation KASLR, puis écrasé un pointeur de fonction pour exécuter une commande avec les droits root. Les essais décrits ont demandé 48 minutes pour obtenir l'adresse, puis 5 minutes de plus pour exécuter la commande, sur des serveurs dotés d'un écouteur MPTCP. Le billet ne publie ni code d'exploitation ni version précise du noyau."
+        },
+        {
+          "type": "heading",
+          "level": 2,
+          "text": "Un score contesté"
+        },
+        {
+          "type": "keyvalue",
+          "items": [
+            {
+              "label": "Équipe CVE du noyau",
+              "value": "9,8 (complexité d'attaque supposée faible)"
+            },
+            {
+              "label": "Red Hat",
+              "value": "5,9 (modérée) sur la page CVE, puis 8,1 (importante) dans son fichier CSAF du 29 octobre"
+            },
+            {
+              "label": "Oracle et SUSE",
+              "value": "8,1, avec une complexité d'attaque jugée élevée"
+            },
+            {
+              "label": "Amazon",
+              "value": "7,0"
+            }
+          ]
+        },
+        {
+          "type": "paragraph",
+          "text": "L'écart tient à la difficulté de gagner la course entre processeurs : plus elle est jugée difficile, plus la note baisse. Aucune attaque réelle n'est signalée à ce stade dans les avis des éditeurs, dans la fiche CVE ou dans le billet d'Anthropic, et la faille ne figurait pas dans le catalogue des failles exploitées de la CISA tel que copié par le CIRCL le 28 octobre."
+        },
+        {
+          "type": "heading",
+          "level": 2,
+          "text": "Où en sont les correctifs"
+        },
+        {
+          "type": "list",
+          "items": [
+            "Noyaux amont corrigés : 5.10.272, 5.15.223, 6.1.190, 6.6.159, 6.12.113, 6.18.56, 7.2.10 et 7.3.",
+            "Debian : trixie corrigée le 16 octobre (6.12.113-1), bookworm les 17 et 22 octobre. Oracle Linux (UEK) : correctifs du 16 octobre.",
+            "Amazon Linux 2023 : noyau 6.18 corrigé le 24 octobre, noyau 6.12 le 29 octobre selon l'avis d'Amazon.",
+            "Ubuntu (16.04 à 26.10) : correctifs en cours ou absents. RHEL 8, 9 et 10 : correctif différé. RHEL 7 n'est pas concerné.",
+            "SUSE : SLE Micro 6.2 et openSUSE Leap 16.0 corrigés, plusieurs versions de SLES en test."
+          ]
+        },
+        {
+          "type": "paragraph",
+          "text": "Aucun éditeur n'a publié de contournement que Red Hat juge adapté à un déploiement courant. Ni les avis ni Anthropic n'indiquent si désactiver MPTCP ou filtrer les demandes de connexion portant des options IP réduirait le risque. L'équipe du noyau recommande de passer à la dernière version stable plutôt que de reporter des correctifs isolés."
+        },
+        {
+          "type": "usecases",
+          "title": "Exemples d'utilisation",
+          "items": [
+            {
+              "icon": "🖥️",
+              "title": "Hébergeur de serveurs",
+              "text": "Un exploitant recense les machines qui écoutent en MPTCP et les place en tête de la file de mise à jour dès qu'un noyau corrigé est livré."
+            },
+            {
+              "icon": "☁️",
+              "title": "Équipe infrastructure",
+              "text": "Elle compare la version de noyau de ses images de machines virtuelles avec la liste des noyaux amont corrigés et programme un redémarrage planifié."
+            },
+            {
+              "icon": "🔎",
+              "title": "Responsable sécurité",
+              "text": "Il confronte les notes divergentes de la CVE à son propre contexte (accès réseau, voisins hébergés) avant de fixer sa priorité."
+            }
+          ]
+        },
+        {
+          "type": "timeline",
+          "title": "D'où l'on vient, où l'on va",
+          "items": [
+            {
+              "label": "Linux 4.4",
+              "text": "Apparition du défaut dans le code de gestion des options IP."
+            },
+            {
+              "label": "5 octobre 2026",
+              "text": "Correctif appliqué dans le noyau."
+            },
+            {
+              "label": "24 octobre 2026",
+              "text": "Note de 9,8 ajoutée à la fiche CVE par l'équipe du noyau."
+            },
+            {
+              "label": "27 octobre 2026",
+              "text": "Anthropic décrit l'exploitation dans un billet."
+            },
+            {
+              "label": "29 octobre 2026",
+              "text": "Ubuntu et RHEL toujours sans mise à jour publiée."
+            }
+          ]
+        },
+        {
+          "type": "diagram",
+          "svg": "<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 640 240' font-family='system-ui,sans-serif'><rect width='640' height='240' rx='16' fill='#eef2f7'/><text x='320' y='34' text-anchor='middle' font-size='17' font-weight='700' fill='#1b2733'>Comment la faille se produit</text><rect x='40' y='80' width='126' height='100' rx='10' fill='#fff' stroke='#4a6fa5' stroke-width='2'/><text x='103.0' y='110' text-anchor='middle' font-size='14' fill='#1b2733'>Connexion</text><text x='103.0' y='130' text-anchor='middle' font-size='14' fill='#1b2733'>TCP établie</text><path d='M168 130h10' stroke='#4a6fa5' stroke-width='3'/><path d='M174 124l6 6-6 6' fill='none' stroke='#4a6fa5' stroke-width='3'/><rect x='180' y='80' width='126' height='100' rx='10' fill='#fff' stroke='#4a6fa5' stroke-width='2'/><text x='243.0' y='110' text-anchor='middle' font-size='14' fill='#1b2733'>Options IP</text><text x='243.0' y='130' text-anchor='middle' font-size='14' fill='#1b2733'>transmises sans copie</text><path d='M308 130h10' stroke='#4a6fa5' stroke-width='3'/><path d='M314 124l6 6-6 6' fill='none' stroke='#4a6fa5' stroke-width='3'/><rect x='320' y='80' width='126' height='100' rx='10' fill='#fff' stroke='#4a6fa5' stroke-width='2'/><text x='383.0' y='102' text-anchor='middle' font-size='14' fill='#1b2733'>Socket détruite</text><text x='383.0' y='122' text-anchor='middle' font-size='14' fill='#1b2733'>pendant une</text><text x='383.0' y='142' text-anchor='middle' font-size='14' fill='#1b2733'>retransmission</text><path d='M448 130h10' stroke='#4a6fa5' stroke-width='3'/><path d='M454 124l6 6-6 6' fill='none' stroke='#4a6fa5' stroke-width='3'/><rect x='460' y='80' width='126' height='100' rx='10' fill='#fff' stroke='#4a6fa5' stroke-width='2'/><text x='523.0' y='110' text-anchor='middle' font-size='14' fill='#1b2733'>Lecture de</text><text x='523.0' y='130' text-anchor='middle' font-size='14' fill='#1b2733'>mémoire libérée</text><text x='320' y='215' text-anchor='middle' font-size='13' fill='#34475a'>Course entre deux cœurs : les options IP sont libérées trop tôt</text></svg>",
+          "alt": "Schéma en quatre étapes de la condition de concurrence TCP",
+          "caption": "Mécanisme simplifié de CVE-2026-98432 d'après les descriptions publiées."
+        },
+        {
+          "type": "opinion",
+          "title": "Notre avis",
+          "paragraphs": [
+            "Le cas illustre un problème récurrent : une même faille reçoit des notes très différentes selon l'hypothèse faite sur la difficulté d'exploitation. Pour un administrateur, le chiffre de 9,8 dit peu de choses sans le contexte : l'exposition d'un écouteur MPTCP, la possibilité de gagner la course et la présence d'un code d'exploitation public. Le retard d'Ubuntu et de Red Hat, près de quatre semaines après le correctif amont, rappelle aussi que le délai entre noyau amont et distribution reste un angle mort.",
+            "D'ici un à trois ans, on peut s'attendre à voir davantage de failles du noyau trouvées avec l'aide de modèles d'IA, ce qui accélérera les cycles de correction mais compliquera la tâche des équipes chargées de trier. Cette analyse est une projection, pas un fait établi."
+          ],
+          "verdict": "Un correctif existe en amont : l'enjeu est de savoir quand votre distribution le livre."
+        },
+        {
+          "type": "callout",
+          "title": "À retenir",
+          "text": "Vérifiez la version de noyau de vos serveurs, repérez les écouteurs MPTCP et appliquez le noyau corrigé dès sa publication par votre distribution."
+        }
+      ],
+      "cover": {
+        "url": "https://blogger.googleusercontent.com/img/b/R29vZ2xl/AVvXsEhcSWXTg8eHlxb0m5-m8xCEly9KQO-0qKV9c7QD7fF51aCb4HUEucmb657vogvKmlA8ra_4kMI6i_w11eYPIVvPSEBnuKnPg9E_HpEw0H1czq883zm_NaUEzarlfXlLd2OKd4b2jbPmMDXvWloR9iNa748-3xhEjD5wNuIznKGTmNwIV3CSeoBkt61zN5o/s1600/linux-dos.png",
+        "alt": "Noyau Linux : une faille TCP notée 9,8 par les mainteneurs, mais jugée bien moins grave par plusieurs distributions",
+        "credit": "thehackernews.com"
+      }
+    },
+    {
+      "id": "fragnesia-php2shell-cisa-linux-racine",
+      "category": "cybersecurite",
+      "icon": "🕸️",
+      "importance": 4,
+      "title": "Fragnesia : la CISA relie une faille Linux à des attaques PHP2Shell qui donnent les droits root",
+      "summary": "Ajoutée le 28 octobre au catalogue des failles exploitées, CVE-2026-46300 est chaînée avec deux failles PHP pour poser des portes dérobées web puis passer root. Vingt-cinq serveurs ont été compromis.",
+      "tags": [
+        "Linux",
+        "PHP",
+        "CISA",
+        "Fragnesia",
+        "PHP2Shell"
+      ],
+      "sourceDate": "2026-10-29",
+      "sources": [
+        {
+          "title": "CISA warns of Fragnesia Linux flaw chained in PHP2Shell attacks",
+          "url": "https://www.bleepingcomputer.com/news/security/cisa-warns-of-fragnesia-linux-flaw-chained-in-php2shell-attacks/",
+          "publisher": "BleepingComputer"
+        }
+      ],
+      "illustration": {
+        "svg": "<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 640 360'><defs><linearGradient id='g' x1='0' y1='0' x2='1' y2='1'><stop offset='0' stop-color='hsl(175,70%,42%)'/><stop offset='1' stop-color='hsl(215,65%,22%)'/></linearGradient></defs><rect width='640' height='360' fill='url(#g)'/><circle cx='540' cy='60' r='120' fill='#fff' opacity='.08'/><circle cx='80' cy='320' r='150' fill='#fff' opacity='.07'/><g fill='none' stroke='#fff' stroke-width='10' stroke-linecap='round' stroke-linejoin='round'><path d='M200 120l-50 60 50 60'/><path d='M440 120l50 60-50 60'/><path d='M350 100l-60 160'/></g><circle cx='320' cy='180' r='0' fill='#fff'/></svg>"
+      },
+      "readingMinutes": 4,
+      "publishedAt": "2026-10-29T18:21:09+01:00",
+      "blocks": [
+        {
+          "type": "paragraph",
+          "text": "Une chaîne d'attaque mêlant deux failles PHP et une faille du noyau Linux est exploitée dans la nature. La CISA, l'agence américaine de cybersécurité, a ajouté mercredi 28 octobre 2026 la vulnérabilité Fragnesia (CVE-2026-46300) à son catalogue des failles connues et exploitées, et exige des agences fédérales américaines qu'elles la corrigent. BleepingComputer précise que les failles PHP, regroupées sous le nom PHP2Shell, y avaient été inscrites au début de la semaine."
+        },
+        {
+          "type": "heading",
+          "level": 2,
+          "text": "Deux étages : un accès web, puis les droits root"
+        },
+        {
+          "type": "paragraph",
+          "text": "Fragnesia est une erreur de logique dans le sous-système XFRM du noyau, plus précisément dans l'encapsulation ESP sur TCP. Elle permet une élévation de privilèges locale, c'est-à-dire qu'un attaquant déjà présent sur la machine peut obtenir les droits root. Elle appartient à la famille de failles dite Dirty Frag. Les noyaux publiés avant le 13 mai 2026 sur les grandes distributions sont concernés, et une preuve de concept publique existe."
+        },
+        {
+          "type": "paragraph",
+          "text": "Les deux failles PHP (CVE-2026-109618 et CVE-2026-109619) servent de première porte : elles permettent de déposer un shell web, qui exécute des commandes avec les droits du serveur web. Fragnesia fait ensuite passer ces droits à ceux de root. Un ingénieur de sécurité de Perplexity, Adel Karimi, a signalé une exploitation réelle contre une installation Apache avec mod_php et PHP 8.4.26 ; ses observations datent d'environ le 24 octobre."
+        },
+        {
+          "type": "heading",
+          "level": 2,
+          "text": "Ce que l'on sait des attaques"
+        },
+        {
+          "type": "keyvalue",
+          "items": [
+            {
+              "label": "Campagne documentée",
+              "value": "Dream Security décrit une chaîne PHP2Shell sur mesure associée à Fragnesia"
+            },
+            {
+              "label": "Victimes",
+              "value": "25 serveurs compromis aux États-Unis, au Japon, à Taïwan et en Corée du Sud"
+            },
+            {
+              "label": "Cibles suivantes",
+              "value": "Trois serveurs d'un environnement lié à l'administration américaine"
+            },
+            {
+              "label": "Catalogue CISA",
+              "value": "Fragnesia ajoutée le 28 octobre 2026"
+            }
+          ]
+        },
+        {
+          "type": "paragraph",
+          "text": "L'article ne donne pas la liste des versions corrigées du noyau ni de PHP : il faut se reporter aux avis de sa distribution. Le message de la CISA est simple : appliquer les correctifs. L'échéance exacte fixée aux agences n'est pas clairement indiquée dans l'article."
+        },
+        {
+          "type": "usecases",
+          "title": "Exemples d'utilisation",
+          "items": [
+            {
+              "icon": "🌐",
+              "title": "Hébergeur web mutualisé",
+              "text": "Il vérifie la date de compilation de ses noyaux et planifie les redémarrages des serveurs antérieurs au 13 mai 2026."
+            },
+            {
+              "icon": "🧰",
+              "title": "Administrateur d'un site PHP",
+              "text": "Il met à jour PHP, recherche des fichiers PHP récents inattendus dans les dossiers publics et surveille les processus lancés par le serveur web."
+            },
+            {
+              "icon": "🏢",
+              "title": "Équipe de sécurité d'une PME",
+              "text": "Elle ajoute les deux CVE PHP et Fragnesia à son outil de gestion des vulnérabilités avec une priorité maximale."
+            }
+          ]
+        },
+        {
+          "type": "timeline",
+          "title": "D'où l'on vient, où l'on va",
+          "items": [
+            {
+              "label": "13 mai 2026",
+              "text": "Date de sortie des noyaux qui corrigent Fragnesia."
+            },
+            {
+              "label": "Vers le 24 octobre 2026",
+              "text": "Exploitation PHP2Shell observée sur un serveur piège."
+            },
+            {
+              "label": "26 octobre 2026",
+              "text": "PHP2Shell ajoutée au catalogue CISA, selon BleepingComputer (début de semaine)."
+            },
+            {
+              "label": "28 octobre 2026",
+              "text": "Fragnesia ajoutée au catalogue."
+            }
+          ]
+        },
+        {
+          "type": "diagram",
+          "svg": "<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 640 240' font-family='system-ui,sans-serif'><rect width='640' height='240' rx='16' fill='#eef2f7'/><text x='320' y='34' text-anchor='middle' font-size='17' font-weight='700' fill='#1b2733'>Chaîne d'attaque observée</text><rect x='40' y='80' width='126' height='100' rx='10' fill='#fff' stroke='#4a6fa5' stroke-width='2'/><text x='103.0' y='110' text-anchor='middle' font-size='14' fill='#1b2733'>Faille PHP2Shell</text><text x='103.0' y='130' text-anchor='middle' font-size='14' fill='#1b2733'>(site web)</text><path d='M168 130h10' stroke='#4a6fa5' stroke-width='3'/><path d='M174 124l6 6-6 6' fill='none' stroke='#4a6fa5' stroke-width='3'/><rect x='180' y='80' width='126' height='100' rx='10' fill='#fff' stroke='#4a6fa5' stroke-width='2'/><text x='243.0' y='110' text-anchor='middle' font-size='14' fill='#1b2733'>Shell web</text><text x='243.0' y='130' text-anchor='middle' font-size='14' fill='#1b2733'>déposé</text><path d='M308 130h10' stroke='#4a6fa5' stroke-width='3'/><path d='M314 124l6 6-6 6' fill='none' stroke='#4a6fa5' stroke-width='3'/><rect x='320' y='80' width='126' height='100' rx='10' fill='#fff' stroke='#4a6fa5' stroke-width='2'/><text x='383.0' y='110' text-anchor='middle' font-size='14' fill='#1b2733'>Fragnesia</text><text x='383.0' y='130' text-anchor='middle' font-size='14' fill='#1b2733'>(noyau Linux)</text><path d='M448 130h10' stroke='#4a6fa5' stroke-width='3'/><path d='M454 124l6 6-6 6' fill='none' stroke='#4a6fa5' stroke-width='3'/><rect x='460' y='80' width='126' height='100' rx='10' fill='#fff' stroke='#4a6fa5' stroke-width='2'/><text x='523.0' y='110' text-anchor='middle' font-size='14' fill='#1b2733'>Droits root</text><text x='523.0' y='130' text-anchor='middle' font-size='14' fill='#1b2733'>sur le serveur</text><text x='320' y='215' text-anchor='middle' font-size='13' fill='#34475a'>D'un accès web à la prise de contrôle complète</text></svg>",
+          "alt": "Schéma de la chaîne d'attaque en quatre étapes",
+          "caption": "Enchaînement décrit par la CISA et Dream Security."
+        },
+        {
+          "type": "opinion",
+          "title": "Notre avis",
+          "paragraphs": [
+            "La force de cette campagne tient à l'enchaînement : aucune des deux failles ne suffit seule à une prise de contrôle complète, mais ensemble elles transforment un site vulnérable en serveur entièrement compromis. Les environnements qui font tourner du PHP sur un noyau ancien, fréquents chez les hébergeurs, sont donc les plus exposés. Le fait qu'une preuve de concept publique existe rend la fenêtre de risque courte.",
+            "Dans un à trois ans, on peut s'attendre à voir les attaquants industrialiser ce schéma « accès web puis élévation locale », ce qui renforce l'intérêt d'isoler les services et de réduire la surface exposée. C'est une projection de la rédaction, pas un fait."
+          ],
+          "verdict": "Mettre à jour le noyau compte autant que mettre à jour l'application web."
+        }
+      ]
+    },
+    {
+      "id": "telegram-android-appel-vocal-execution-code",
+      "category": "cybersecurite",
+      "icon": "📞",
+      "importance": 3,
+      "title": "Telegram pour Android : une faille d'appel vocal aurait permis d'exécuter du code, corrigée depuis la version 12.10.4",
+      "summary": "NebuSec affirme avoir exécuté du code sur un téléphone Android dès que la victime décroche un appel Telegram. Le correctif date de fin septembre ; aucun détail technique complet n'est publié.",
+      "tags": [
+        "Telegram",
+        "Android",
+        "NebuSec",
+        "vulnérabilité",
+        "appel vocal"
+      ],
+      "sourceDate": "2026-10-29",
+      "sources": [
+        {
+          "title": "Telegram Android Flaw Lets Attackers Run Code When Users Answer Voice Calls",
+          "url": "https://thehackernews.com/2026/10/telegram-android-flaw-lets-attackers.html",
+          "publisher": "The Hacker News"
+        }
+      ],
+      "illustration": {
+        "svg": "<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 640 360'><defs><linearGradient id='g' x1='0' y1='0' x2='1' y2='1'><stop offset='0' stop-color='hsl(175,70%,42%)'/><stop offset='1' stop-color='hsl(215,65%,22%)'/></linearGradient></defs><rect width='640' height='360' fill='url(#g)'/><circle cx='540' cy='60' r='120' fill='#fff' opacity='.08'/><circle cx='80' cy='320' r='150' fill='#fff' opacity='.07'/><path d='M260 130c0-30 30-30 40 0l12 30c4 10-4 18-12 22 18 36 38 56 76 70 6-10 14-16 24-12l30 12c24 12 8 44-18 44-86 0-180-94-180-140 0-20 18-36 28-26z' fill='#fff' transform='translate(-30,0)'/><path d='M420 110q40 30 0 70M450 80q70 55 0 130' fill='none' stroke='#fff' stroke-width='10' stroke-linecap='round'/></svg>"
+      },
+      "readingMinutes": 4,
+      "publishedAt": "2026-10-29T18:21:09+01:00",
+      "blocks": [
+        {
+          "type": "paragraph",
+          "text": "Répondre à un appel Telegram pourrait suffire à laisser un inconnu exécuter du code sur son téléphone Android. C'est ce qu'affirme NebuSec, une jeune pousse soutenue par Y Combinator, qui a rendu public le 29 octobre 2026 un défaut que Telegram a déjà corrigé. The Hacker News souligne qu'aucune fiche CVE n'a été attribuée et qu'aucune analyse technique complète n'est disponible : ce qui suit repose sur une vidéo de démonstration et sur les déclarations de la société."
+        },
+        {
+          "type": "heading",
+          "level": 2,
+          "text": "Ce que NebuSec décrit"
+        },
+        {
+          "type": "paragraph",
+          "text": "Pendant un appel, les applications Telegram échangent des messages de signalisation. L'un d'eux, appelé MediaState, indique l'état du micro (coupé ou non), celui de la caméra et la rotation de la vidéo. Le code qui analysait ce message ne gérait pas correctement les champs absents et lisait de la mémoire qu'il n'aurait pas dû consulter. Dans le code source publié de la version 12.10.3, si un message comportait une valeur de rotation, le code la vérifiait puis lisait le champ d'état vidéo même lorsqu'il manquait. La version 12.10.4 lit la valeur de rotation au bon endroit."
+        },
+        {
+          "type": "paragraph",
+          "text": "Pour déclencher l'attaque, il suffit d'un compte Telegram ordinaire et que la victime réponde à l'appel. La vidéo montre un téléphone en communication qui revient à l'écran d'accueil et affiche un logo « HACKED BY NEBUSEC », sans indiquer la version de l'application. NebuSec indique avoir confirmé le problème en conditions privées sur des téléphones à processeur ARM64. Comment on passe de la lecture de mémoire à l'exécution de code reste à démontrer publiquement."
+        },
+        {
+          "type": "heading",
+          "level": 2,
+          "text": "Versions et correctif"
+        },
+        {
+          "type": "keyvalue",
+          "items": [
+            {
+              "label": "Versions touchées",
+              "value": "Telegram pour Android de 8.6.2 à 12.10.3 (mars 2022 à septembre 2026)"
+            },
+            {
+              "label": "Version corrigée",
+              "value": "12.10.4, publiée fin septembre 2026"
+            },
+            {
+              "label": "CVE",
+              "value": "Aucune au 29 octobre 2026"
+            },
+            {
+              "label": "Exploitation réelle",
+              "value": "Inconnue : The Hacker News a interrogé NebuSec et Telegram"
+            }
+          ]
+        },
+        {
+          "type": "paragraph",
+          "text": "La même correction était apparue dans la bibliothèque partagée tgcalls le 21 avril 2026, puis dans iOS 12.7 en mai et dans la version de bureau 7.0.1 en juillet. Rien ne prouve pour l'instant que les versions iOS, bureau ou les appels de groupe soient directement exploitables. Pour savoir où vous en êtes, la version de l'application figure en bas de la page des paramètres."
+        },
+        {
+          "type": "paragraph",
+          "text": "L'article mentionne aussi un point distinct : l'avis ZDI-26-757, publié le 15 octobre, concerne une faille non corrigée de la bibliothèque d'animations rlottie (CVE-2026-111105, note de 7,0). Un chercheur, Saifeldeen Aziz, aurait enchaîné des failles pour exécuter du code sur Telegram pour iOS, lors d'une présentation à OffensiveCon à Tokyo. Sur Android, rlottie a été remplacée par la bibliothèque Rust tlottie entre les versions 12.8.1 et 12.10.0."
+        },
+        {
+          "type": "usecases",
+          "title": "Exemples d'utilisation",
+          "items": [
+            {
+              "icon": "📱",
+              "title": "Utilisateur particulier",
+              "text": "Il ouvre les paramètres de Telegram, vérifie qu'il est au moins en version 12.10.4 et active les mises à jour automatiques."
+            },
+            {
+              "icon": "🏢",
+              "title": "Responsable informatique",
+              "text": "Il demande aux flottes Android d'entreprise la liste des versions de Telegram installées et pousse la mise à jour."
+            },
+            {
+              "icon": "🕵️",
+              "title": "Journaliste ou militant",
+              "text": "Il évite de décrocher les appels d'inconnus tant que son application n'est pas à jour."
+            }
+          ]
+        },
+        {
+          "type": "timeline",
+          "title": "D'où l'on vient, où l'on va",
+          "items": [
+            {
+              "label": "21 avril 2026",
+              "text": "Correction dans la bibliothèque tgcalls."
+            },
+            {
+              "label": "Mai à septembre 2026",
+              "text": "Corrections dans iOS 12.7, le client de bureau 7.0.1 puis Android 12.10.4."
+            },
+            {
+              "label": "15 octobre 2026",
+              "text": "Avis ZDI-26-757 sur rlottie."
+            },
+            {
+              "label": "29 octobre 2026",
+              "text": "NebuSec rend sa démonstration publique."
+            }
+          ]
+        },
+        {
+          "type": "opinion",
+          "title": "Notre avis",
+          "paragraphs": [
+            "Cette divulgation rappelle qu'un défaut de lecture de mémoire dans un protocole de signalisation peut avoir des conséquences disproportionnées, car ce code traite des données venues d'un inconnu avant même que l'utilisateur ne fasse quoi que ce soit. Le fait que la société mentionne un outil d'analyse de code fondé sur l'IA pour la découverte est révélateur d'une tendance, mais l'absence de détails techniques invite à la prudence sur la gravité réelle.",
+            "D'ici un à trois ans, la recherche automatisée de défauts dans les analyseurs de messages devrait multiplier ce type d'annonces, ce qui impose aux éditeurs de messagerie des cycles de correction courts et des mises à jour automatiques fiables. Il s'agit d'une analyse, pas d'un fait."
+          ],
+          "verdict": "Mettez Telegram à jour : le correctif existe depuis septembre."
+        }
+      ],
+      "cover": {
+        "url": "https://blogger.googleusercontent.com/img/b/R29vZ2xl/AVvXsEguzUg6G-A4KdRvBuhj9LZ93cFfXfvMNkg3dJO0H9sfNJ3MTlecsgLEMIk5TnIrdl2N6UGB8D9rlqLduGEZVm7X-XrWZr6Xh5ZrVp38x5uTd1vHyHGcjRR2N3gctNen-CBSz8JihnNL57galBoeOVKwG5w3qsOZnqmGYdkxzjurrI3QWolmS1Qfz_E_Wog/s1600/telegram.jpg",
+        "alt": "Telegram pour Android : une faille d'appel vocal aurait permis d'exécuter du code, corrigée depuis la version 12.10.4",
+        "credit": "thehackernews.com"
+      }
+    },
+    {
+      "id": "chrome-319-extensions-recherches-detournees",
+      "category": "web",
+      "icon": "🧩",
+      "importance": 4,
+      "title": "Chrome : 319 extensions totalisant 13,4 millions d'installations détournaient les recherches vers des serveurs tiers",
+      "summary": "Selon le chercheur John Tuckner (Socket), ces extensions, souvent déguisées en convertisseurs PDF ou en outils de recherche, redirigent les requêtes pour toucher des commissions publicitaires. La plupart ont été retirées.",
+      "tags": [
+        "Chrome",
+        "extensions",
+        "Socket",
+        "détournement de recherche",
+        "navigateur"
+      ],
+      "sourceDate": "2026-10-29",
+      "sources": [
+        {
+          "title": "Chrome extensions with 13.4 million installs caught hijacking searches",
+          "url": "https://www.bleepingcomputer.com/news/security/chrome-extensions-with-134-million-installs-caught-hijacking-searches/",
+          "publisher": "BleepingComputer"
+        }
+      ],
+      "illustration": {
+        "svg": "<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 640 360'><defs><linearGradient id='g' x1='0' y1='0' x2='1' y2='1'><stop offset='0' stop-color='hsl(210,70%,42%)'/><stop offset='1' stop-color='hsl(250,65%,22%)'/></linearGradient></defs><rect width='640' height='360' fill='url(#g)'/><circle cx='540' cy='60' r='120' fill='#fff' opacity='.08'/><circle cx='80' cy='320' r='150' fill='#fff' opacity='.07'/><g fill='none' stroke='#fff' stroke-width='10' stroke-linecap='round' stroke-linejoin='round'><circle cx='290' cy='160' r='60'/><path d='M334 204l60 60'/><path d='M420 120h70l-30-30M490 120l-30 30'/></g></svg>"
+      },
+      "readingMinutes": 4,
+      "publishedAt": "2026-10-29T18:21:10+01:00",
+      "blocks": [
+        {
+          "type": "paragraph",
+          "text": "Vos recherches passent peut-être par un intermédiaire dont vous ignorez tout. D'après un rapport de Socket relayé le 29 octobre 2026 par BleepingComputer, 319 extensions Chrome, cumulant 13,4 millions d'installations déclarées, remplacent le moteur de recherche par défaut et font transiter les requêtes par des serveurs contrôlés par leurs opérateurs avant de les envoyer à Bing ou Yahoo. Les opérateurs touchent des revenus de parrainage publicitaire via un identifiant de partenaire de syndication."
+        },
+        {
+          "type": "heading",
+          "level": 2,
+          "text": "Une campagne qui s'étend"
+        },
+        {
+          "type": "paragraph",
+          "text": "Le rapport, signé du chercheur John Tuckner, prolonge sa découverte d'avril 2025, qui portait sur 57 extensions et environ 6 millions d'utilisateurs. BleepingComputer indique que 264 extensions sont nouvellement identifiées, pour environ 8,7 millions d'utilisateurs, tout en notant que ces chiffres ne se recoupent pas parfaitement avec les totaux précédents : le rapport de Socket fait foi pour les valeurs exactes."
+        },
+        {
+          "type": "keyvalue",
+          "items": [
+            {
+              "label": "Extensions recensées",
+              "value": "319, pour 13,4 millions d'installations déclarées"
+            },
+            {
+              "label": "Grappe « Bing-Search »",
+              "value": "37 extensions, environ 2,2 millions d'utilisateurs, souvent promues par des publicités Bidbrain"
+            },
+            {
+              "label": "Grappe « SecuryBrowse »",
+              "value": "58 extensions, environ 4,9 millions d'utilisateurs, avec des modules aux noms sécuritaires (Fire Shield, Securify, WatchTower)"
+            },
+            {
+              "label": "Statut",
+              "value": "Hébergées par le Chrome Web Store mais non répertoriées, donc absentes des recherches ; la plupart retirées à la date de l'article"
+            }
+          ]
+        },
+        {
+          "type": "heading",
+          "level": 2,
+          "text": "Comment elles fonctionnent"
+        },
+        {
+          "type": "paragraph",
+          "text": "Ces extensions se présentent comme des convertisseurs PDF, des chercheurs de manuels, des outils de recherche sécurisée ou d'IA. Elles s'appuient sur le paramètre de manifeste `chrome_settings_overrides`, qui permet de changer le moteur de recherche. Certaines contiennent presque rien : un exemple cité n'a qu'un manifeste et des icônes, sans script ni autorisation demandée. Le risque persiste après l'installation, car la destination finale peut changer sans aucune mise à jour de l'extension. Six recherches identiques via l'extension « Predator Search » ont abouti à quatre destinations différentes, dont une page d'erreur qui ne répondait pas. L'article y voit la possibilité d'une redirection vers de l'hameçonnage ou des téléchargements malveillants."
+        },
+        {
+          "type": "paragraph",
+          "text": "BleepingComputer n'avait pas reçu de réponse de Google à la date de publication. Parmi les gestes recommandés : désinstaller les extensions de la liste de Socket, lancer une analyse antivirus complète et éviter les extensions inutiles d'éditeurs inconnus. Il est aussi possible de contrôler soi-même le moteur de recherche par défaut dans les réglages de Chrome et de passer en revue les extensions sur la page `chrome://extensions`."
+        },
+        {
+          "type": "usecases",
+          "title": "Exemples d'utilisation",
+          "items": [
+            {
+              "icon": "🧑‍💻",
+              "title": "Particulier",
+              "text": "Il ouvre chrome://extensions, supprime tout module qu'il n'a pas installé volontairement et vérifie son moteur de recherche par défaut."
+            },
+            {
+              "icon": "🏢",
+              "title": "Administrateur d'un parc de postes",
+              "text": "Il impose une liste d'extensions autorisées par stratégie de groupe plutôt que de laisser chacun installer ce qu'il veut."
+            },
+            {
+              "icon": "🎓",
+              "title": "Établissement scolaire",
+              "text": "Il sensibilise élèves et enseignants aux « outils gratuits » de conversion de documents qui demandent à changer la recherche."
+            }
+          ]
+        },
+        {
+          "type": "timeline",
+          "title": "D'où l'on vient, où l'on va",
+          "items": [
+            {
+              "label": "Avril 2025",
+              "text": "Premier rapport de Tuckner : 57 extensions, environ 6 millions d'utilisateurs."
+            },
+            {
+              "label": "29 octobre 2026",
+              "text": "Nouveau rapport : 319 extensions et 13,4 millions d'installations déclarées."
+            }
+          ]
+        },
+        {
+          "type": "diagram",
+          "svg": "<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 640 240' font-family='system-ui,sans-serif'><rect width='640' height='240' rx='16' fill='#eef2f7'/><text x='320' y='34' text-anchor='middle' font-size='17' font-weight='700' fill='#1b2733'>Trajet d'une recherche détournée</text><rect x='40' y='80' width='126' height='100' rx='10' fill='#fff' stroke='#4a6fa5' stroke-width='2'/><text x='103.0' y='110' text-anchor='middle' font-size='14' fill='#1b2733'>Vous tapez</text><text x='103.0' y='130' text-anchor='middle' font-size='14' fill='#1b2733'>une recherche</text><path d='M168 130h10' stroke='#4a6fa5' stroke-width='3'/><path d='M174 124l6 6-6 6' fill='none' stroke='#4a6fa5' stroke-width='3'/><rect x='180' y='80' width='126' height='100' rx='10' fill='#fff' stroke='#4a6fa5' stroke-width='2'/><text x='243.0' y='110' text-anchor='middle' font-size='14' fill='#1b2733'>Serveur proxy</text><text x='243.0' y='130' text-anchor='middle' font-size='14' fill='#1b2733'>de l'opérateur</text><path d='M308 130h10' stroke='#4a6fa5' stroke-width='3'/><path d='M314 124l6 6-6 6' fill='none' stroke='#4a6fa5' stroke-width='3'/><rect x='320' y='80' width='126' height='100' rx='10' fill='#fff' stroke='#4a6fa5' stroke-width='2'/><text x='383.0' y='110' text-anchor='middle' font-size='14' fill='#1b2733'>Bing ou Yahoo</text><text x='383.0' y='130' text-anchor='middle' font-size='14' fill='#1b2733'>(ou autre page)</text><path d='M448 130h10' stroke='#4a6fa5' stroke-width='3'/><path d='M454 124l6 6-6 6' fill='none' stroke='#4a6fa5' stroke-width='3'/><rect x='460' y='80' width='126' height='100' rx='10' fill='#fff' stroke='#4a6fa5' stroke-width='2'/><text x='523.0' y='110' text-anchor='middle' font-size='14' fill='#1b2733'>Commission</text><text x='523.0' y='130' text-anchor='middle' font-size='14' fill='#1b2733'>publicitaire</text><text x='320' y='215' text-anchor='middle' font-size='13' fill='#34475a'>La destination peut changer sans mise à jour de l'extension</text></svg>",
+          "alt": "Schéma du trajet d'une recherche détournée via un proxy",
+          "caption": "Fonctionnement décrit par Socket."
+        },
+        {
+          "type": "opinion",
+          "title": "Notre avis",
+          "paragraphs": [
+            "L'affaire montre la limite d'un modèle fondé sur la confiance : une extension sans code ni permission, juste un manifeste, peut suffire à capter le trafic de millions de personnes. Les extensions non répertoriées échappent à la découverte par les utilisateurs mais aussi, pendant un temps, à la vigilance publique, ce qui laisse une longue durée de vie aux campagnes.",
+            "Dans un à trois ans, on peut attendre un durcissement des contrôles sur les paramètres de substitution de la recherche et une meilleure information des utilisateurs lors du changement de moteur. Cette vision est une opinion de la rédaction."
+          ],
+          "verdict": "Une extension qui change votre moteur de recherche mérite la même méfiance qu'un logiciel inconnu."
+        }
+      ]
+    },
+    {
+      "id": "github-issues-campagne-61-depots-workflows",
+      "category": "devops",
+      "icon": "⚠️",
+      "importance": 5,
+      "title": "GitHub Actions : des tickets piégés ont visé 61 dépôts publics en moins d'une heure",
+      "summary": "Radware a repéré 83 éléments malveillants (tickets, demandes de fusion, commentaires) qui exploitent des workflows vulnérables pour voler des variables d'environnement. Des projets très suivis sont cités.",
+      "tags": [
+        "GitHub Actions",
+        "chaîne d'approvisionnement",
+        "injection",
+        "CI/CD",
+        "Radware"
+      ],
+      "sourceDate": "2026-10-29",
+      "sources": [
+        {
+          "title": "Attackers turn GitHub issues into supply chain campaign against 61 public repos in less than an hour",
+          "url": "https://www.theregister.com/security/2026/10/29/attackers-turn-github-issues-into-supply-chain-campaign-against-61-public-repos-in-less-than-an-hour/5306153",
+          "publisher": "The Register"
+        }
+      ],
+      "illustration": {
+        "svg": "<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 640 360'><defs><linearGradient id='g' x1='0' y1='0' x2='1' y2='1'><stop offset='0' stop-color='hsl(160,70%,42%)'/><stop offset='1' stop-color='hsl(200,65%,22%)'/></linearGradient></defs><rect width='640' height='360' fill='url(#g)'/><circle cx='540' cy='60' r='120' fill='#fff' opacity='.08'/><circle cx='80' cy='320' r='150' fill='#fff' opacity='.07'/><g fill='none' stroke='#fff' stroke-width='10' stroke-linecap='round' stroke-linejoin='round'><path d='M320 80l110 40v90c0 40-50 70-110 90-60-20-110-50-110-90v-90z'/></g><path d='M320 140v70' stroke='#fff' stroke-width='14' stroke-linecap='round'/><circle cx='320' cy='240' r='9' fill='#fff'/></svg>"
+      },
+      "readingMinutes": 4,
+      "publishedAt": "2026-10-29T18:21:10+01:00",
+      "blocks": [
+        {
+          "type": "paragraph",
+          "text": "Un simple ticket posté sur un dépôt public peut-il déclencher une attaque contre la chaîne d'approvisionnement logicielle ? Oui, lorsque le workflow qui le traite est mal écrit. Les chercheurs de Radware Gabi Nakibly et Zvika Babo, cités par The Register le 29 octobre 2026, ont repéré une campagne qui a visé 61 dépôts publics en moins d'une heure, en tirant parti de workflows GitHub exécutés automatiquement à chaque nouvel ticket, demande de fusion ou commentaire."
+        },
+        {
+          "type": "heading",
+          "level": 2,
+          "text": "Le mécanisme"
+        },
+        {
+          "type": "list",
+          "items": [
+            "L'attaquant publie un ticket, une demande de fusion ou un commentaire dont les commandes sont cachées dans des commentaires HTML, invisibles sur la page affichée.",
+            "Si le workflow du dépôt est configuré pour réagir à cet événement, il démarre en une seconde environ.",
+            "S'il est vulnérable, il insère le contenu du message directement dans un script shell, qui exécute la commande cachée : celle-ci collecte les variables d'environnement et tente de les envoyer à un serveur contrôlé par l'attaquant."
+          ]
+        },
+        {
+          "type": "paragraph",
+          "text": "Aucun accès au dépôt n'est nécessaire : n'importe quel titulaire d'un compte GitHub peut essayer. Les chercheurs soulignent d'ailleurs qu'ils ont découvert la campagne en étudiant l'injection de requêtes dans GitHub."
+        },
+        {
+          "type": "heading",
+          "level": 2,
+          "text": "Les chiffres de la campagne"
+        },
+        {
+          "type": "keyvalue",
+          "items": [
+            {
+              "label": "Éléments malveillants vérifiés",
+              "value": "83, répartis sur 61 dépôts publics (au 13 octobre)"
+            },
+            {
+              "label": "Comptes utilisés",
+              "value": "74, souvent dotés d'un historique légitime et probablement compromis ; un seul opérateur est soupçonné"
+            },
+            {
+              "label": "Pic d'activité",
+              "value": "Le 1er septembre, 77 éléments en 43 minutes, les six autres dans les deux minutes suivantes"
+            },
+            {
+              "label": "Exécutions confirmées",
+              "value": "Deux cas où la commande a bien tourné dans l'environnement d'automatisation"
+            }
+          ]
+        },
+        {
+          "type": "paragraph",
+          "text": "Les chercheurs n'ont pas pu confirmer si l'attaquant a obtenu un accès en écriture, modifié du code ou compromis des logiciels en aval. Le rapport cite plusieurs projets très suivis, parmi lesquels agno, ToolJet, langextract de Google, Trivy d'Aqua Security, mlflow, discord.js, Cilium, le navigateur Brave, dotnet/maui, Homebrew cask, la documentation de GitHub et PX4. Les mainteneurs ont été prévenus ; la plupart des dépôts ont été fermés ou corrigés, sans certitude pour chacun."
+        },
+        {
+          "type": "heading",
+          "level": 2,
+          "text": "Se protéger"
+        },
+        {
+          "type": "list",
+          "items": [
+            "Appliquer le moindre privilège aux workflows et séparer ceux qui réagissent à des événements externes des tâches disposant de droits élevés.",
+            "Traiter tout contenu externe comme non fiable, sans jamais l'insérer tel quel dans un script.",
+            "Limiter les secrets et variables d'environnement disponibles dans chaque workflow."
+          ]
+        },
+        {
+          "type": "usecases",
+          "title": "Exemples d'utilisation",
+          "items": [
+            {
+              "icon": "🔧",
+              "title": "Mainteneur open source",
+              "text": "Il relit ses fichiers de workflow et remplace toute insertion directe du titre ou du corps d'un ticket par une variable d'environnement intermédiaire."
+            },
+            {
+              "icon": "🏢",
+              "title": "Équipe plateforme",
+              "text": "Elle recherche dans l'organisation les workflows déclenchés par des tickets ou des commentaires et réduit leurs permissions."
+            },
+            {
+              "icon": "🔑",
+              "title": "Responsable sécurité",
+              "text": "Il fait tourner les secrets qui étaient accessibles à ces workflows, par précaution."
+            }
+          ]
+        },
+        {
+          "type": "timeline",
+          "title": "D'où l'on vient, où l'on va",
+          "items": [
+            {
+              "label": "1er septembre 2026",
+              "text": "Vague de 83 éléments malveillants, dont 77 en 43 minutes."
+            },
+            {
+              "label": "13 octobre 2026",
+              "text": "Point de situation de Radware : 61 dépôts concernés."
+            },
+            {
+              "label": "29 octobre 2026",
+              "text": "Publication des résultats par la presse."
+            }
+          ]
+        },
+        {
+          "type": "diagram",
+          "svg": "<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 640 240' font-family='system-ui,sans-serif'><rect width='640' height='240' rx='16' fill='#eef2f7'/><text x='320' y='34' text-anchor='middle' font-size='17' font-weight='700' fill='#1b2733'>Anatomie de l'attaque</text><rect x='40' y='80' width='126' height='100' rx='10' fill='#fff' stroke='#4a6fa5' stroke-width='2'/><text x='103.0' y='110' text-anchor='middle' font-size='14' fill='#1b2733'>Ticket piégé</text><text x='103.0' y='130' text-anchor='middle' font-size='14' fill='#1b2733'>(commande cachée)</text><path d='M168 130h10' stroke='#4a6fa5' stroke-width='3'/><path d='M174 124l6 6-6 6' fill='none' stroke='#4a6fa5' stroke-width='3'/><rect x='180' y='80' width='126' height='100' rx='10' fill='#fff' stroke='#4a6fa5' stroke-width='2'/><text x='243.0' y='110' text-anchor='middle' font-size='14' fill='#1b2733'>Workflow</text><text x='243.0' y='130' text-anchor='middle' font-size='14' fill='#1b2733'>déclenché</text><path d='M308 130h10' stroke='#4a6fa5' stroke-width='3'/><path d='M314 124l6 6-6 6' fill='none' stroke='#4a6fa5' stroke-width='3'/><rect x='320' y='80' width='126' height='100' rx='10' fill='#fff' stroke='#4a6fa5' stroke-width='2'/><text x='383.0' y='110' text-anchor='middle' font-size='14' fill='#1b2733'>Injection dans</text><text x='383.0' y='130' text-anchor='middle' font-size='14' fill='#1b2733'>le script shell</text><path d='M448 130h10' stroke='#4a6fa5' stroke-width='3'/><path d='M454 124l6 6-6 6' fill='none' stroke='#4a6fa5' stroke-width='3'/><rect x='460' y='80' width='126' height='100' rx='10' fill='#fff' stroke='#4a6fa5' stroke-width='2'/><text x='523.0' y='102' text-anchor='middle' font-size='14' fill='#1b2733'>Variables</text><text x='523.0' y='122' text-anchor='middle' font-size='14' fill='#1b2733'>envoyées à</text><text x='523.0' y='142' text-anchor='middle' font-size='14' fill='#1b2733'>l'attaquant</text><text x='320' y='215' text-anchor='middle' font-size='13' fill='#34475a'>Aucun accès au dépôt n'est requis pour déposer le ticket</text></svg>",
+          "alt": "Schéma des quatre étapes de l'attaque par ticket piégé",
+          "caption": "Mécanisme décrit par Radware."
+        },
+        {
+          "type": "opinion",
+          "title": "Notre avis",
+          "paragraphs": [
+            "L'attaque exploite une erreur banale : traiter un texte venu de l'extérieur comme du code. Elle montre que l'automatisation, censée faire gagner du temps aux mainteneurs, devient une porte d'entrée dès qu'elle réagit à du contenu public sans précaution. L'absence de confirmation d'une compromission en aval invite à ne pas dramatiser, mais le nombre de projets populaires touchés montre l'ampleur du risque.",
+            "Dans un à trois ans, les plateformes devraient durcir les paramètres par défaut des workflows, et les agents de code qui lisent des tickets devront eux aussi traiter ces textes comme non fiables. C'est une projection, pas un fait établi."
+          ],
+          "verdict": "Un ticket est une entrée utilisateur : il ne doit jamais devenir du code."
+        }
+      ],
+      "cover": {
+        "url": "https://image.theregister.com/5241038.jpg?imageId=5241038&x=0&y=0&cropw=100&croph=100&panox=0&panoy=0&panow=100&panoh=100&width=1200&height=683",
+        "alt": "GitHub Actions : des tickets piégés ont visé 61 dépôts publics en moins d'une heure",
+        "credit": "theregister.com"
+      }
+    },
+    {
+      "id": "github-package-firewall-npm-apercu",
+      "category": "devops",
+      "icon": "🧱",
+      "importance": 3,
+      "title": "GitHub lance en préversion un pare-feu de paquets pour bloquer les paquets npm malveillants à l'installation",
+      "summary": "Réservé à GitHub Enterprise Cloud et limité à npm, l'outil filtre les téléchargements selon des règles : logiciels malveillants connus, gravité des failles, scripts d'installation nouveaux et délai de carence.",
+      "tags": [
+        "GitHub",
+        "npm",
+        "chaîne d'approvisionnement",
+        "sécurité",
+        "CI/CD"
+      ],
+      "sourceDate": "2026-10-29",
+      "sources": [
+        {
+          "title": "GitHub Launches npm Firewall to Block Malicious Packages Before Installation",
+          "url": "https://thehackernews.com/2026/10/github-launches-npm-firewall-to-block.html",
+          "publisher": "The Hacker News"
+        }
+      ],
+      "illustration": {
+        "svg": "<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 640 360'><defs><linearGradient id='g' x1='0' y1='0' x2='1' y2='1'><stop offset='0' stop-color='hsl(160,70%,42%)'/><stop offset='1' stop-color='hsl(200,65%,22%)'/></linearGradient></defs><rect width='640' height='360' fill='url(#g)'/><circle cx='540' cy='60' r='120' fill='#fff' opacity='.08'/><circle cx='80' cy='320' r='150' fill='#fff' opacity='.07'/><g fill='none' stroke='#fff' stroke-width='10' stroke-linecap='round' stroke-linejoin='round'><path d='M230 130h180v120H230z'/><path d='M230 170h180M230 210h180M290 130v40M350 170v40M290 210v40'/><path d='M450 160h60M490 140l20 20-20 20'/></g></svg>"
+      },
+      "readingMinutes": 4,
+      "publishedAt": "2026-10-29T18:21:10+01:00",
+      "blocks": [
+        {
+          "type": "paragraph",
+          "text": "Installer une dépendance sans la regarder est devenu un risque courant, surtout lorsque ce sont des agents de code ou des machines d'intégration continue qui s'en chargent. GitHub a annoncé le 20 octobre 2026, selon son journal des changements cité par The Hacker News, la préversion publique d'un pare-feu de paquets qui bloque les paquets suspects au moment de l'installation. L'article de The Hacker News date du 29 octobre."
+        },
+        {
+          "type": "heading",
+          "level": 2,
+          "text": "Comment il fonctionne"
+        },
+        {
+          "type": "paragraph",
+          "text": "GitHub le décrit comme un point de contrôle de politique à l'installation. Il se place entre les postes ou les machines d'intégration continue (ou un registre interne) et les dépôts publics de paquets : les clients pointent vers le pare-feu au lieu du registre public. Il inspecte à la fois les requêtes de métadonnées et les téléchargements, et bloque ceux qui ne respectent pas les règles fixées par l'administrateur."
+        },
+        {
+          "type": "keyvalue",
+          "items": [
+            {
+              "label": "Logiciels malveillants connus",
+              "value": "Blocage des paquets visés par un avis actif dans la base GitHub Advisory Database"
+            },
+            {
+              "label": "Gravité des failles",
+              "value": "Seuil réglable : critique seulement (par défaut), élevée ou plus, moyenne ou plus, toute gravité"
+            },
+            {
+              "label": "Rétrogradation d'attestation",
+              "value": "Blocage d'une version qui n'a plus l'attestation SLSA des versions précédentes"
+            },
+            {
+              "label": "Nouveaux scripts d'installation",
+              "value": "Blocage des paquets qui ajoutent un script preinstall ou postinstall"
+            },
+            {
+              "label": "Délai de carence",
+              "value": "Refus des versions plus récentes qu'un âge minimal, de 1 à 365 jours (1 jour par défaut, 0 pour désactiver)"
+            }
+          ]
+        },
+        {
+          "type": "paragraph",
+          "text": "Un utilisateur bloqué peut demander une exception, que les administrateurs de l'entreprise ou les responsables de la sécurité peuvent approuver. L'outil ne gère que npm et il est ouvert, en préversion publique, à tous les clients de GitHub Enterprise Cloud, y compris ceux dont les données sont hébergées dans une région dédiée. L'article ne mentionne aucun tarif."
+        },
+        {
+          "type": "heading",
+          "level": 2,
+          "text": "Le débat sur les délais de carence"
+        },
+        {
+          "type": "paragraph",
+          "text": "Le délai de carence cible les attaques où quelqu'un prend le contrôle du compte d'un mainteneur et publie une version piégée d'un paquet populaire. Ce mécanisme s'est répandu en un an dans plusieurs écosystèmes : npm, Python, VS Code, Ruby, Bun, pnpm et Yarn. Le futur Rust 1.100, prévu le 12 novembre 2026, ajoutera une option de durée minimale de publication dans cargo, avec sept jours par défaut si rien n'est précisé. Socket rappelle le revers : les correctifs légitimes doivent eux aussi attendre, sauf exception, et un code malveillant ne devient pas inoffensif avec l'âge, de sorte qu'une version qui échappe à la détection peut simplement attendre la fin du délai."
+        },
+        {
+          "type": "usecases",
+          "title": "Exemples d'utilisation",
+          "items": [
+            {
+              "icon": "🏗️",
+              "title": "Équipe d'intégration continue",
+              "text": "Elle fait passer toutes les installations de la chaîne de build par le pare-feu, avec un délai de carence de quelques jours."
+            },
+            {
+              "icon": "🤖",
+              "title": "Utilisateur d'agents de code",
+              "text": "Il impose au pare-feu l'installation de dépendances demandée automatiquement par l'agent, pour éviter qu'un paquet piégé ne s'exécute."
+            },
+            {
+              "icon": "🧑‍💼",
+              "title": "Responsable sécurité",
+              "text": "Il règle le seuil de gravité sur « élevée ou plus » et traite les demandes d'exception par un circuit de validation."
+            }
+          ]
+        },
+        {
+          "type": "timeline",
+          "title": "D'où l'on vient, où l'on va",
+          "items": [
+            {
+              "label": "20 octobre 2026",
+              "text": "Annonce par GitHub de la préversion publique."
+            },
+            {
+              "label": "29 octobre 2026",
+              "text": "L'outil est présenté par la presse spécialisée."
+            },
+            {
+              "label": "12 novembre 2026",
+              "text": "Sortie prévue de Rust 1.100 avec un délai minimal de publication dans cargo."
+            }
+          ]
+        },
+        {
+          "type": "opinion",
+          "title": "Notre avis",
+          "paragraphs": [
+            "Le pare-feu transforme des bonnes pratiques éparses (délai de carence, contrôle des scripts d'installation, attestations) en politique centralisée, ce qui est sa vraie valeur : une règle commune appliquée sans compter sur la vigilance de chaque développeur. Il ne remplace pas la revue des dépendances, et sa limitation à npm et aux clients Enterprise Cloud réduit son effet immédiat.",
+            "À un horizon de un à trois ans, ce type de filtre devrait s'étendre à d'autres écosystèmes et devenir un réglage de base des chaînes de build, d'autant que les agents installent des dépendances sans demander. C'est une opinion argumentée, pas un fait."
+          ],
+          "verdict": "Une bonne idée tardive : encore faut-il régler les politiques avec soin."
+        }
+      ],
+      "cover": {
+        "url": "https://blogger.googleusercontent.com/img/b/R29vZ2xl/AVvXsEiJ7hXo0MoiQiXCSLnOj0h2YUqDhIHl13Le4XxOU3UxV7X2mm4_YGJKOT6akyW58uRaMhslGN6NY9B_1u7V-y_fy0kYJHKoVA-yBWVt53xqBk06_syRpASgWezvnVIZs9goRlwNrp_HMVj_Pu8rzXmIsfJBV1YzhJ8IAd-1g7FFVhFWqc9HegTk4Jok5kR9/s1600/github.gif",
+        "alt": "GitHub lance en préversion un pare-feu de paquets pour bloquer les paquets npm malveillants à l'installation",
+        "credit": "thehackernews.com"
+      }
+    },
+    {
+      "id": "systemd-rust-composants-feuilles",
+      "category": "dev",
+      "icon": "🦀",
+      "importance": 3,
+      "title": "systemd accepte Rust pour de nouveaux composants, sans réécriture du cœur ni passage par Cargo",
+      "summary": "La fusion annoncée par Christian Brauner vise systemd 263 : seuls de nouveaux composants isolés pourront être écrits en Rust, sans bibliothèque standard et construits avec Meson.",
+      "tags": [
+        "systemd",
+        "Rust",
+        "Linux",
+        "Meson",
+        "open source"
+      ],
+      "sourceDate": "2026-10-29",
+      "sources": [
+        {
+          "title": "Systemd adds support for Rust",
+          "url": "https://www.theregister.com/os-platforms/2026/10/29/systemd-adds-support-for-rust/5306264",
+          "publisher": "The Register"
+        }
+      ],
+      "illustration": {
+        "svg": "<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 640 360'><defs><linearGradient id='g' x1='0' y1='0' x2='1' y2='1'><stop offset='0' stop-color='hsl(265,70%,42%)'/><stop offset='1' stop-color='hsl(305,65%,22%)'/></linearGradient></defs><rect width='640' height='360' fill='url(#g)'/><circle cx='540' cy='60' r='120' fill='#fff' opacity='.08'/><circle cx='80' cy='320' r='150' fill='#fff' opacity='.07'/><g fill='none' stroke='#fff' stroke-width='10' stroke-linecap='round' stroke-linejoin='round'><circle cx='320' cy='180' r='55'/><circle cx='320' cy='180' r='18'/><path d='M320 100v-24M320 284v-24M240 180h-24M424 180h-24M262 122l-17-17M395 255l-17-17M378 122l17-17M245 255l17-17'/></g></svg>"
+      },
+      "readingMinutes": 4,
+      "publishedAt": "2026-10-29T18:21:11+01:00",
+      "blocks": [
+        {
+          "type": "paragraph",
+          "text": "Le gestionnaire de services de la plupart des distributions Linux accueille désormais le langage Rust, mais avec de fortes limites. Selon The Register (Liam Proven, 29 octobre 2026), le développeur Christian Brauner a annoncé sur Mastodon la fusion du code qui permet d'écrire de nouveaux composants de systemd en Rust. La fonctionnalité est prévue pour systemd 263, en cours de développement ; la dernière version publiée, systemd 262, date d'environ un mois."
+        },
+        {
+          "type": "heading",
+          "level": 2,
+          "text": "Ce qui est ajouté"
+        },
+        {
+          "type": "paragraph",
+          "text": "La demande de fusion initiale a été découpée en cinq parties : des utilitaires pour inscrire des certificats dans les trousseaux de clés du noyau, la prise en charge de programmes d'appui écrits en Rust (le cœur du changement), une liaison limitée aux seuls en-têtes utilisés par le code Rust, l'encapsulation des fonctions partagées de libsystemd dont a besoin le composant systemd-keyring-setup, puis ce composant lui-même."
+        },
+        {
+          "type": "heading",
+          "level": 2,
+          "text": "Les règles du jeu"
+        },
+        {
+          "type": "list",
+          "items": [
+            "Rust est réservé à de nouveaux composants « feuilles » : le code C existant n'est pas porté, et rien dont d'autres composants dépendent ne peut être écrit en Rust.",
+            "Cargo n'est pas utilisé : tout se construit avec Meson, qui s'appuie sur Python et Ninja et que GNOME et Mesa 3D emploient aussi.",
+            "Le code Rust ne doit pas utiliser la bibliothèque standard, une pratique courante dans l'embarqué."
+          ]
+        },
+        {
+          "type": "keyvalue",
+          "items": [
+            {
+              "label": "Rust",
+              "value": "1.85 ou plus récent (février 2025) ; la version 1.99.1 est sortie en octobre 2026"
+            },
+            {
+              "label": "bindgen",
+              "value": "0.71.1 ou plus récent (décembre 2024)"
+            },
+            {
+              "label": "Meson",
+              "value": "1.4.0 ou plus récent (mars 2024), version livrée par Debian 13"
+            }
+          ]
+        },
+        {
+          "type": "paragraph",
+          "text": "L'article explique que l'équipe aurait aimé aller plus loin, mais que la prise en charge des bibliothèques dynamiques par Rust n'est pas encore suffisante pour le cœur de systemd. Il ne s'agit donc pas du début d'une réécriture : le but est d'ouvrir une porte pour des briques nouvelles et isolées. Il faut aussi distinguer cette étape de l'appel de systemd depuis Rust, possible depuis des années grâce à des outils comme la bibliothèque `systemd`, publiée pour la première fois en 2015. L'article ne rapporte pas de réaction plus large de la communauté."
+        },
+        {
+          "type": "usecases",
+          "title": "Exemples d'utilisation",
+          "items": [
+            {
+              "icon": "🔐",
+              "title": "Gestion des certificats",
+              "text": "Un composant comme systemd-keyring-setup enregistre des certificats dans le noyau avec un code Rust, plus robuste face aux erreurs de mémoire."
+            },
+            {
+              "icon": "📦",
+              "title": "Mainteneur de distribution",
+              "text": "Il vérifie que ses outils de construction fournissent Rust 1.85, bindgen 0.71.1 et Meson 1.4.0 avant d'activer l'option."
+            },
+            {
+              "icon": "🧑‍💻",
+              "title": "Contributeur open source",
+              "text": "Il écrit un petit outil autonome en Rust sans toucher au code C existant de systemd."
+            }
+          ]
+        },
+        {
+          "type": "timeline",
+          "title": "D'où l'on vient, où l'on va",
+          "items": [
+            {
+              "label": "2015",
+              "text": "Première publication de la bibliothèque `systemd` pour appeler le gestionnaire depuis Rust."
+            },
+            {
+              "label": "Février 2025",
+              "text": "Sortie de Rust 1.85, version minimale exigée."
+            },
+            {
+              "label": "Environ un mois avant le 29 octobre 2026",
+              "text": "Sortie de systemd 262."
+            },
+            {
+              "label": "29 octobre 2026",
+              "text": "Annonce de la fusion pour systemd 263."
+            }
+          ]
+        },
+        {
+          "type": "opinion",
+          "title": "Notre avis",
+          "paragraphs": [
+            "La prudence du dispositif est sa qualité : en limitant Rust aux composants feuilles et en excluant la bibliothèque standard, les mainteneurs réduisent les risques de dépendance et de chaîne de construction, tout en testant le langage sur du code sensible, comme la gestion de clés. Il restera à savoir si la contrainte de Meson sans Cargo ne freinera pas les contributeurs habitués à l'écosystème Rust.",
+            "À un horizon de un à trois ans, on peut imaginer que d'autres composants isolés suivent, puis que la question du cœur se pose quand les bibliothèques dynamiques seront mieux gérées. Cette lecture est une opinion, pas une annonce."
+          ],
+          "verdict": "Une adoption mesurée, qui ressemble plus à un essai encadré qu'à une révolution."
+        }
+      ],
+      "cover": {
+        "url": "https://image.theregister.com/5306279.jpg?imageId=5306279&x=0&y=0&cropw=100&croph=100&panox=0&panoy=0&panow=100&panoh=100&width=1200&height=683",
+        "alt": "systemd accepte Rust pour de nouveaux composants, sans réécriture du cœur ni passage par Cargo",
+        "credit": "theregister.com"
+      }
+    },
+    {
+      "id": "alphabet-ai-mode-monetisation-capex",
+      "category": "ia",
+      "icon": "🔍",
+      "importance": 4,
+      "title": "Alphabet : l'AI Mode rapporte moins que la recherche classique, et les investissements atteignent 51,4 milliards de dollars au trimestre",
+      "summary": "Lors de la présentation de ses résultats, Alphabet a reconnu une monétisation plus faible de l'AI Mode. L'action a reculé de près de 10 %. Les dépenses d'investissement prévues en 2026 restent de 195 à 205 milliards de dollars.",
+      "tags": [
+        "Alphabet",
+        "Google",
+        "AI Mode",
+        "recherche",
+        "investissements"
+      ],
+      "sourceDate": "2026-10-29",
+      "sources": [
+        {
+          "title": "Google struggling to make AI Mode searches pay",
+          "url": "https://www.theregister.com/ai-and-ml/2026/10/29/google-struggling-to-make-ai-mode-searches-pay/5306181",
+          "publisher": "The Register"
+        }
+      ],
+      "illustration": {
+        "svg": "<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 640 360'><defs><linearGradient id='g' x1='0' y1='0' x2='1' y2='1'><stop offset='0' stop-color='hsl(320,70%,42%)'/><stop offset='1' stop-color='hsl(0,65%,22%)'/></linearGradient></defs><rect width='640' height='360' fill='url(#g)'/><circle cx='540' cy='60' r='120' fill='#fff' opacity='.08'/><circle cx='80' cy='320' r='150' fill='#fff' opacity='.07'/><g fill='none' stroke='#fff' stroke-width='10' stroke-linecap='round' stroke-linejoin='round'><circle cx='290' cy='160' r='60'/><path d='M334 204l60 60'/><path d='M450 230l30-30 30 20 30-50'/></g><path d='M270 160l16 16 30-36' fill='none' stroke='#fff' stroke-width='9'/></svg>"
+      },
+      "readingMinutes": 4,
+      "publishedAt": "2026-10-29T18:21:12+01:00",
+      "blocks": [
+        {
+          "type": "paragraph",
+          "text": "L'IA a transformé la recherche en ligne, mais pas encore ses comptes. Selon The Register (Simon Sharwood, 29 octobre 2026), l'action d'Alphabet a perdu près de 10 % mercredi après que le groupe a reconnu que les recherches assistées par IA rapportent moins que les annonces de la recherche traditionnelle. Cet article s'appuie sur les résultats du troisième trimestre 2026 et sur les déclarations de ses dirigeants ; il ne cite pas d'analystes extérieurs."
+        },
+        {
+          "type": "heading",
+          "level": 2,
+          "text": "Les chiffres du trimestre"
+        },
+        {
+          "type": "keyvalue",
+          "items": [
+            {
+              "label": "Chiffre d'affaires du groupe",
+              "value": "125,8 milliards de dollars"
+            },
+            {
+              "label": "Recherche",
+              "value": "63,25 milliards de dollars, en hausse de 12 % sur un an, contre 14,5 % au troisième trimestre 2025"
+            },
+            {
+              "label": "Google Cloud",
+              "value": "24,75 milliards de dollars"
+            },
+            {
+              "label": "Investissements",
+              "value": "51,4 milliards de dollars, dont environ deux tiers en serveurs et réseaux"
+            },
+            {
+              "label": "Résultat net",
+              "value": "26,17 milliards de dollars, contre 35 milliards un an plus tôt"
+            },
+            {
+              "label": "Prévision 2026 d'investissements",
+              "value": "195 à 205 milliards de dollars, inchangée ; nettement plus en 2027"
+            }
+          ]
+        },
+        {
+          "type": "heading",
+          "level": 2,
+          "text": "Pourquoi l'AI Mode inquiète"
+        },
+        {
+          "type": "paragraph",
+          "text": "Le nombre de requêtes a progressé à son rythme le plus élevé depuis cinq ans, en partie grâce à l'adoption de l'AI Mode. Mais le directeur commercial Philipp Schindler a attribué le ralentissement des revenus de recherche à la « plus faible monétisation » constatée dans ce mode. Il défend l'idée que l'investissement paiera, car beaucoup de requêtes se situent en haut de l'entonnoir d'achat et révèlent une intention commerciale nouvelle ; la plupart des requêtes de l'AI Mode seraient, selon lui, additionnelles. Google a d'abord testé des annonces en regard de l'AI Mode aux États-Unis, puis les a étendues dans le monde entier."
+        },
+        {
+          "type": "heading",
+          "level": 2,
+          "text": "Une capacité de calcul sous tension"
+        },
+        {
+          "type": "paragraph",
+          "text": "Google ne dispose pas de capacité suffisante pour servir tous ses clients du cloud et a commencé à confier une partie des charges à des tiers, ce qui pèsera sur ses marges futures, a prévenu le groupe. Le patron du cloud Thomas Kurian a indiqué que plus de 100 entreprises utilisent les puces TPU de Google et que tout le stock est déjà engagé par contrat ; Google compte comptabiliser des ventes de TPU à des tiers dans les prochains trimestres. Sundar Pichai a ajouté que l'application Gemini a atteint un milliard d'utilisateurs plus vite qu'aucun produit précédent de Google, et que les outils d'IA agentique visent d'abord les entreprises, vu le niveau d'exigence en matière de sécurité et de gouvernance. Il n'a pas précisé quand ils arriveraient dans la recherche."
+        },
+        {
+          "type": "usecases",
+          "title": "Exemples d'utilisation",
+          "items": [
+            {
+              "icon": "📣",
+              "title": "Annonceur",
+              "text": "Il compare le coût d'acquisition obtenu dans les annonces de l'AI Mode avec celui de la recherche classique avant de déplacer son budget."
+            },
+            {
+              "icon": "🏢",
+              "title": "Responsable informatique",
+              "text": "Il anticipe des tensions de capacité et prévoit des solutions de repli multi-fournisseurs pour ses charges d'IA."
+            },
+            {
+              "icon": "📰",
+              "title": "Éditeur de site",
+              "text": "Il suit l'évolution du trafic issu de l'AI Mode, dont la monétisation reste incertaine pour tout l'écosystème."
+            }
+          ]
+        },
+        {
+          "type": "timeline",
+          "title": "D'où l'on vient, où l'on va",
+          "items": [
+            {
+              "label": "Troisième trimestre 2025",
+              "text": "Croissance de la recherche de 14,5 %."
+            },
+            {
+              "label": "Troisième trimestre 2026",
+              "text": "Croissance de 12 %, avec une monétisation plus faible de l'AI Mode."
+            },
+            {
+              "label": "2027",
+              "text": "Google prévoit de dépenser « significativement » plus en investissements."
+            }
+          ]
+        },
+        {
+          "type": "opinion",
+          "title": "Notre avis",
+          "paragraphs": [
+            "Le décalage entre l'usage et le revenu est la vraie information : le public adopte l'IA conversationnelle, mais le modèle publicitaire qui finance la recherche ne se transpose pas à l'identique. Alphabet l'admet tout en maintenant des investissements record, ce qui accroît la pression sur la rentabilité du virage vers l'IA. Les arguments de Google sur l'intention commerciale additionnelle restent des affirmations de l'entreprise, non vérifiées de l'extérieur.",
+            "D'ici un à trois ans, la question sera de savoir si de nouveaux formats (annonces intégrées aux réponses, agents d'achat) comblent l'écart ; sinon, la tension sur les marges se prolongera. Il s'agit d'une analyse, pas d'une prévision certaine."
+          ],
+          "verdict": "L'IA attire les usages, la monétisation reste à prouver."
+        }
+      ],
+      "cover": {
+        "url": "https://image.theregister.com/5306186.jpg?imageId=5306186&x=0&y=0&cropw=100&croph=100&panox=0&panoy=0&panow=100&panoh=100&width=1200&height=683",
+        "alt": "Alphabet : l'AI Mode rapporte moins que la recherche classique, et les investissements atteignent 51,4 milliards de dollars au trimestre",
+        "credit": "theregister.com"
+      }
+    },
+    {
+      "id": "batterie-quantique-superextensive-prototype",
+      "category": "electronique",
+      "icon": "🔋",
+      "importance": 2,
+      "title": "Batterie quantique : un prototype à microcavité charge plus vite à mesure qu'il grandit, mais stocke très peu",
+      "summary": "Une équipe menée par Kieran Hymas décrit une cellule dont la vitesse de charge croît plus vite que son volume. L'énergie stockée est minuscule et la durée de stockage très brève : c'est une démonstration de laboratoire.",
+      "tags": [
+        "batterie",
+        "quantique",
+        "recherche",
+        "Hackaday",
+        "microcavité"
+      ],
+      "sourceDate": "2026-10-28",
+      "sources": [
+        {
+          "title": "Battery Prototype Uses Superextensive Quantum Effects To Charge Faster",
+          "url": "https://hackaday.com/2026/10/28/battery-prototype-uses-superextensive-quantum-effects-to-charge-faster/",
+          "publisher": "Hackaday"
+        }
+      ],
+      "illustration": {
+        "svg": "<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 640 360'><defs><linearGradient id='g' x1='0' y1='0' x2='1' y2='1'><stop offset='0' stop-color='hsl(30,70%,42%)'/><stop offset='1' stop-color='hsl(70,65%,22%)'/></linearGradient></defs><rect width='640' height='360' fill='url(#g)'/><circle cx='540' cy='60' r='120' fill='#fff' opacity='.08'/><circle cx='80' cy='320' r='150' fill='#fff' opacity='.07'/><g fill='none' stroke='#fff' stroke-width='10' stroke-linecap='round' stroke-linejoin='round'><rect x='220' y='130' width='170' height='100' rx='14'/><path d='M390 165h24v30h-24'/></g><path d='M290 150l-24 44h30l-16 40 50-60h-32l22-24z' fill='#fff'/></svg>"
+      },
+      "readingMinutes": 4,
+      "publishedAt": "2026-10-29T18:21:12+01:00",
+      "blocks": [
+        {
+          "type": "paragraph",
+          "text": "Les « batteries quantiques » existent surtout sur le papier depuis plus de dix ans. Un prototype décrit par Hackaday le 28 octobre 2026 pourrait pourtant être, selon la journaliste Maya Posch, la première cellule à montrer un effet reproductible. Il s'agit d'un résultat expérimental intéressant, non d'un produit : l'énergie stockée est très faible et sa durée de conservation très courte."
+        },
+        {
+          "type": "heading",
+          "level": 2,
+          "text": "Le principe"
+        },
+        {
+          "type": "paragraph",
+          "text": "La cellule est une microcavité à fort couplage entre lumière et matière, qui permet à la fois de stocker et de décharger de l'énergie. Les particules éclairées absorbent fortement la lumière, ce que les chercheurs attribuent à une coopération des particules par un mécanisme quantique. Conséquence avancée par l'article : la vitesse de charge croît plus vite que le volume de la cellule, d'où le qualificatif de « superextensive ». Si cela se confirme, agrandir une telle cellule accélérerait la charge et la décharge davantage que dans une cellule chimique classique, où la vitesse suit plutôt la taille."
+        },
+        {
+          "type": "paragraph",
+          "text": "Les travaux sont signés par Kieran Hymas et ses collègues, dans un article accessible sur le site de Nature (référence s41377-026-02240-6). Hackaday ne donne aucun chiffre sur les vitesses de charge, les énergies ou les rendements : on ne peut donc pas comparer ce prototype aux batteries du commerce."
+        },
+        {
+          "type": "heading",
+          "level": 2,
+          "text": "D'où vient l'idée"
+        },
+        {
+          "type": "list",
+          "items": [
+            "Les batteries quantiques ont été proposées en 2013 à partir du modèle de Dicke ; son avantage quantique théorique a été mis en défaut en 2020.",
+            "D'autres travaux ont avancé le modèle de Sachdev-Ye-Kitaev, notamment une publication de Davide Rossini et ses collègues.",
+            "Le terme reste flou, prévient Hackaday : il faut replacer chaque annonce dans son contexte."
+          ]
+        },
+        {
+          "type": "heading",
+          "level": 2,
+          "text": "Les limites"
+        },
+        {
+          "type": "paragraph",
+          "text": "Le prototype stocke une énergie très faible, pendant un temps très bref. La reproduction par d'autres équipes et le passage à l'échelle ne sont pas démontrés. L'intérêt du résultat est donc scientifique : il fournit une base expérimentale que les chercheurs peuvent examiner, contester ou améliorer."
+        },
+        {
+          "type": "usecases",
+          "title": "Exemples d'utilisation",
+          "items": [
+            {
+              "icon": "🔬",
+              "title": "Laboratoire de physique",
+              "text": "Il cherche à reproduire l'effet avec d'autres matériaux de microcavité et mesure la vitesse de charge en fonction du volume."
+            },
+            {
+              "icon": "🔌",
+              "title": "Ingénieur en électronique",
+              "text": "Il suit le sujet comme une piste lointaine pour des capteurs très basse consommation, sans l'envisager à court terme."
+            },
+            {
+              "icon": "🎓",
+              "title": "Enseignant",
+              "text": "Il utilise l'exemple pour expliquer la différence entre une idée théorique et un prototype reproductible."
+            }
+          ]
+        },
+        {
+          "type": "timeline",
+          "title": "D'où l'on vient, où l'on va",
+          "items": [
+            {
+              "label": "2013",
+              "text": "Première proposition de batterie quantique à partir du modèle de Dicke."
+            },
+            {
+              "label": "2020",
+              "text": "L'avantage quantique théorique du modèle de Dicke est mis en défaut."
+            },
+            {
+              "label": "28 octobre 2026",
+              "text": "Hackaday présente un prototype à microcavité décrit par Hymas et ses collègues."
+            }
+          ]
+        },
+        {
+          "type": "opinion",
+          "title": "Notre avis",
+          "paragraphs": [
+            "Ce travail vaut surtout par la méthode : un effet de coopération quantique observé dans une cellule réelle plutôt que simulé, ce qui change le statut d'un domaine longtemps théorique. En revanche, tant que l'énergie et la durée de stockage restent aussi faibles, parler de rivale des batteries lithium relèverait de l'abus de langage.",
+            "À un horizon de un à trois ans, on peut espérer des tentatives de reproduction et de premières mesures chiffrées ; des applications pratiques semblent plus lointaines. Cette vision est une opinion de la rédaction."
+          ],
+          "verdict": "Une preuve de principe prometteuse, pas une batterie."
+        }
+      ],
+      "cover": {
+        "url": "https://hackaday.com/wp-content/uploads/2026/08/superextensive_battery_cell_kieran_hymas_et_al_2026.png",
+        "alt": "Batterie quantique : un prototype à microcavité charge plus vite à mesure qu'il grandit, mais stocke très peu",
+        "credit": "hackaday.com"
+      }
+    }
+  ]
+}
