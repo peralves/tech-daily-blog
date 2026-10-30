@@ -1,0 +1,1144 @@
+{
+  "schemaVersion": "1.0",
+  "date": "2026-10-30",
+  "generatedAt": "2026-10-30T09:18:27+00:00",
+  "title": "Extension Claude Code piégée, GitLab noté 10, Gemini 4 Carbon et failles dans cinq outils d'IA",
+  "summary": "Cette édition tech couvre la version piégée de l'extension Claude Code pour VS Code, la faille GitLab inscrite au catalogue de la CISA et l'exploitation de Drupal Commerce, la cyberattaque contre l'administration fiscale belge, Gemini 4 Carbon, les failles des navigateurs intégrés aux assistants de programmation, ainsi que Topcoat et Ubuntu Core Desktop.",
+  "highlights": [
+    "Extension Claude Code pour VS Code : la version 2.1.313 installait une porte dérobée SSH ; la 2.1.314 la remplace.",
+    "GitLab (CVSS 10,0) et Cisco ASA entrent au catalogue de la CISA ; Drupal Commerce est exploité.",
+    "Belgique : MyMinfin hors ligne après une cyberattaque, échéance repoussée au 16 novembre.",
+    "Gemini 4 Carbon : trois scores de cybersécurité annoncés par Google, accès réservé aux défenseurs.",
+    "Cinq outils d'IA pour développeurs touchés par des failles de navigateur intégré, dont deux encore ouvertes."
+  ],
+  "meta": {
+    "generator": "claude-scheduled-task"
+  },
+  "posts": [
+    {
+      "id": "extension-claude-code-vscode-porte-derobee-ssh",
+      "category": "cybersecurite",
+      "icon": "🧨",
+      "importance": 5,
+      "title": "Extension Claude Code pour VS Code : la version 2.1.313 installait une porte dérobée SSH",
+      "summary": "Une version piégée de l'extension officielle d'Anthropic, publiée le 29 octobre 2026, ajoutait une clé SSH inconnue, installait un mécanisme de persistance et envoyait des informations sur la machine. La version 2.1.314 la remplace.",
+      "tags": [
+        "VS Code",
+        "Claude Code",
+        "chaîne d'approvisionnement",
+        "SSH",
+        "Open VSX",
+        "GlassWorm"
+      ],
+      "sourceDate": "2026-10-30",
+      "sources": [
+        {
+          "title": "Official Claude Code VS Code Extension Compromised to Install Persistent SSH Backdoor",
+          "url": "https://thehackernews.com/2026/10/official-claude-code-vs-code-extension.html",
+          "publisher": "The Hacker News"
+        }
+      ],
+      "blocks": [
+        {
+          "type": "paragraph",
+          "text": "Les extensions d'éditeur de code sont devenues une cible de choix : elles s'exécutent avec les droits du développeur, au plus près de ses clés, de ses dépôts et de ses accès au cloud. Le 29 octobre 2026, c'est l'extension officielle **Claude Code pour VS Code** (identifiant `anthropic.claude-code`) qui a été détournée. Sa version 2.1.313 contenait un chargeur malveillant de 66 lignes, glissé dans le fichier JavaScript principal, avant le code légitime."
+        },
+        {
+          "type": "heading",
+          "level": 2,
+          "text": "Ce que l'on sait de l'incident"
+        },
+        {
+          "type": "paragraph",
+          "text": "L'alerte est venue d'OpenSourceMalware, qui a publié une analyse de la campagne. La version piégée a circulé à la fois sur Open VSX et sur la place de marché de Microsoft pour VS Code. Elle a depuis été retirée et remplacée par la version **2.1.314**. Selon l'éditeur Cursor, qui a publié sa propre analyse, la fenêtre d'exposition s'étend d'environ 2 h 27 à 13 h 35, heure du Pacifique, le 29 octobre, et au plus 5 000 utilisateurs seraient concernés. Cursor indique qu'il contactera directement les personnes touchées. La cause de la compromission n'est pas connue à ce stade, et l'article source ne rapporte pas de déclaration distincte d'Anthropic."
+        },
+        {
+          "type": "keyvalue",
+          "items": [
+            {
+              "label": "Extension",
+              "value": "Claude Code pour VS Code (anthropic.claude-code)"
+            },
+            {
+              "label": "Version piégée",
+              "value": "2.1.313"
+            },
+            {
+              "label": "Version corrigée",
+              "value": "2.1.314"
+            },
+            {
+              "label": "Fenêtre d'exposition (estimation de Cursor)",
+              "value": "29 octobre 2026, d'environ 2 h 27 à 13 h 35 (heure du Pacifique)"
+            },
+            {
+              "label": "Utilisateurs concernés (estimation de Cursor)",
+              "value": "5 000 au plus"
+            }
+          ]
+        },
+        {
+          "type": "heading",
+          "level": 2,
+          "text": "Ce que faisait le code malveillant"
+        },
+        {
+          "type": "paragraph",
+          "text": "Le chargeur s'exécutait au démarrage de VS Code et à l'ouverture de la vue web de l'extension. Il enchaînait plusieurs actions, décrites par les chercheurs :"
+        },
+        {
+          "type": "list",
+          "ordered": false,
+          "items": [
+            "**Une clé SSH ajoutée** au fichier `~/.ssh/authorized_keys`, avec le libellé anodin « svc-telemetry ».",
+            "**Une tentative d'activer le service SSH** sous Windows, Linux et macOS.",
+            "**Un tunnel inverse** vers l'adresse 134.209.82.225, qui ouvre à l'opérateur un chemin vers le service SSH de la victime.",
+            "**Un mécanisme de persistance** propre à chaque système : tâche planifiée sous Windows, entrée crontab sous Linux, LaunchAgent sous macOS.",
+            "**Une balise de reconnaissance** envoyée en HTTP non chiffré à 134.209.82.225:8099/beacon."
+          ]
+        },
+        {
+          "type": "paragraph",
+          "text": "Les informations transmises comprennent l'adresse IP publique, le nom de la machine et de l'utilisateur, le système et l'architecture du processeur, les répertoires courants, l'adresse de courriel globale de Git et le *nom* (pas la valeur) d'un maximum de 40 variables d'environnement contenant des mots comme KEY, TOKEN, SECRET, PASS, AWS ou GCP. Le chercheur Paul McCarty souligne que ces seuls noms renseignent sur les fournisseurs cloud, les outils d'intégration continue et les types d'identifiants utilisés."
+        },
+        {
+          "type": "paragraph",
+          "text": "Nuance importante apportée par Cursor : activer le service SSH local exige des droits d'administrateur que l'extension n'a pas, en général, sous macOS et Windows. Sur ces machines, l'attaquant n'aurait donc pas pu se connecter par le tunnel. L'ajout de la clé, la persistance et l'envoi des données, eux, s'exécutent quand même, et Cursor recommande de procéder à la remédiation dans tous les cas."
+        },
+        {
+          "type": "diagram",
+          "svg": "<svg xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"0 0 600 406\" font-family=\"system-ui,sans-serif\"><rect width=\"600\" height=\"406\" rx=\"14\" fill=\"#f4f6fb\"/><rect x=\"20\" y=\"14\" width=\"560\" height=\"58\" rx=\"10\" fill=\"#ffffff\" stroke=\"#2f6fdb\" stroke-width=\"2\"/><circle cx=\"46\" cy=\"43.0\" r=\"14\" fill=\"#2f6fdb\"/><text x=\"46\" y=\"48.0\" text-anchor=\"middle\" font-size=\"14\" font-weight=\"700\" fill=\"#ffffff\">1</text><text x=\"72\" y=\"38\" font-size=\"15\" font-weight=\"700\" fill=\"#1b2433\">Mise à jour automatique</text><text x=\"72\" y=\"58\" font-size=\"13\" fill=\"#3b4658\">L&#x27;éditeur installe la version 2.1.313 de l&#x27;extension</text><path d=\"M300.0 75 L300.0 90 M294.0 84 L300.0 91 L306.0 84\" stroke=\"#2f6fdb\" stroke-width=\"2.2\" fill=\"none\"/><rect x=\"20\" y=\"94\" width=\"560\" height=\"58\" rx=\"10\" fill=\"#ffffff\" stroke=\"#2f6fdb\" stroke-width=\"2\"/><circle cx=\"46\" cy=\"123.0\" r=\"14\" fill=\"#2f6fdb\"/><text x=\"46\" y=\"128.0\" text-anchor=\"middle\" font-size=\"14\" font-weight=\"700\" fill=\"#ffffff\">2</text><text x=\"72\" y=\"118\" font-size=\"15\" font-weight=\"700\" fill=\"#1b2433\">Chargeur de 66 lignes</text><text x=\"72\" y=\"138\" font-size=\"13\" fill=\"#3b4658\">Exécuté au démarrage de VS Code, avant le code légitime</text><path d=\"M300.0 155 L300.0 170 M294.0 164 L300.0 171 L306.0 164\" stroke=\"#2f6fdb\" stroke-width=\"2.2\" fill=\"none\"/><rect x=\"20\" y=\"174\" width=\"560\" height=\"58\" rx=\"10\" fill=\"#ffffff\" stroke=\"#2f6fdb\" stroke-width=\"2\"/><circle cx=\"46\" cy=\"203.0\" r=\"14\" fill=\"#2f6fdb\"/><text x=\"46\" y=\"208.0\" text-anchor=\"middle\" font-size=\"14\" font-weight=\"700\" fill=\"#ffffff\">3</text><text x=\"72\" y=\"198\" font-size=\"15\" font-weight=\"700\" fill=\"#1b2433\">Clé SSH et persistance</text><text x=\"72\" y=\"218\" font-size=\"13\" fill=\"#3b4658\">authorized_keys, tâche planifiée, crontab ou LaunchAgent</text><path d=\"M300.0 235 L300.0 250 M294.0 244 L300.0 251 L306.0 244\" stroke=\"#2f6fdb\" stroke-width=\"2.2\" fill=\"none\"/><rect x=\"20\" y=\"254\" width=\"560\" height=\"58\" rx=\"10\" fill=\"#ffffff\" stroke=\"#2f6fdb\" stroke-width=\"2\"/><circle cx=\"46\" cy=\"283.0\" r=\"14\" fill=\"#2f6fdb\"/><text x=\"46\" y=\"288.0\" text-anchor=\"middle\" font-size=\"14\" font-weight=\"700\" fill=\"#ffffff\">4</text><text x=\"72\" y=\"278\" font-size=\"15\" font-weight=\"700\" fill=\"#1b2433\">Tunnel et balise</text><text x=\"72\" y=\"298\" font-size=\"13\" fill=\"#3b4658\">Connexion vers 134.209.82.225 et envoi d&#x27;informations</text><path d=\"M300.0 315 L300.0 330 M294.0 324 L300.0 331 L306.0 324\" stroke=\"#2f6fdb\" stroke-width=\"2.2\" fill=\"none\"/><rect x=\"20\" y=\"334\" width=\"560\" height=\"58\" rx=\"10\" fill=\"#ffffff\" stroke=\"#2f6fdb\" stroke-width=\"2\"/><circle cx=\"46\" cy=\"363.0\" r=\"14\" fill=\"#2f6fdb\"/><text x=\"46\" y=\"368.0\" text-anchor=\"middle\" font-size=\"14\" font-weight=\"700\" fill=\"#ffffff\">5</text><text x=\"72\" y=\"358\" font-size=\"15\" font-weight=\"700\" fill=\"#1b2433\">Remédiation</text><text x=\"72\" y=\"378\" font-size=\"13\" fill=\"#3b4658\">Isoler, supprimer la clé, nettoyer, renouveler les secrets</text></svg>",
+          "alt": "Schéma en cinq étapes du fonctionnement de la porte dérobée, de l'installation à la remédiation",
+          "caption": "Du déploiement de la version piégée à la remédiation : les cinq étapes décrites par les chercheurs."
+        },
+        {
+          "type": "heading",
+          "level": 2,
+          "text": "Que faire si la version 2.1.313 a été installée"
+        },
+        {
+          "type": "list",
+          "ordered": true,
+          "items": [
+            "Isoler la machine concernée du réseau.",
+            "Supprimer la clé « svc-telemetry » du fichier `~/.ssh/authorized_keys`.",
+            "Supprimer la tâche planifiée, l'entrée crontab ou le LaunchAgent ajoutés.",
+            "Renouveler les identifiants et les sessions, en commençant par les clés cloud et les jetons d'accès aux dépôts.",
+            "Rechercher dans les journaux réseau toute connexion vers 134.209.82.225."
+          ]
+        },
+        {
+          "type": "usecases",
+          "title": "Exemples d'utilisation",
+          "items": [
+            {
+              "icon": "🧑‍💻",
+              "title": "Développeur indépendant",
+              "text": "Il vérifie la version installée de l'extension dans VS Code, passe à la 2.1.314, contrôle son fichier authorized_keys et renouvelle les jetons de ses dépôts personnels."
+            },
+            {
+              "icon": "🏢",
+              "title": "Équipe sécurité d'une PME",
+              "text": "Elle interroge son parc de postes pour repérer la version 2.1.313, cherche la clé « svc-telemetry » et bloque l'adresse IP indiquée sur le pare-feu."
+            },
+            {
+              "icon": "🔧",
+              "title": "Responsable de plateforme",
+              "text": "Il décide d'épingler les versions d'extensions autorisées dans l'entreprise et de désactiver la mise à jour automatique pour les outils qui touchent aux secrets."
+            }
+          ]
+        },
+        {
+          "type": "timeline",
+          "title": "D'où l'on vient, où l'on va",
+          "items": [
+            {
+              "label": "Mars 2026",
+              "text": "Le compte GitHub d'un contributeur d'OVHcloud est détourné ; il servira plus tard à une attaque contre l'outil en ligne de commande d'OVHcloud."
+            },
+            {
+              "label": "Environ une semaine avant",
+              "text": "Cinq versions de l'outil OVHcloud CLI voient leurs binaires remplacés par un logiciel voleur de secrets, un incident rattaché à l'opération GlassWorm."
+            },
+            {
+              "label": "29 octobre 2026",
+              "text": "La version 2.1.313 de l'extension Claude Code pour VS Code est diffusée pendant quelques heures."
+            },
+            {
+              "label": "30 octobre 2026",
+              "text": "La version piégée est retirée, la 2.1.314 est publiée ; la cause de la compromission reste à établir."
+            }
+          ]
+        },
+        {
+          "type": "opinion",
+          "title": "Notre avis",
+          "paragraphs": [
+            "Cet incident confirme que la confiance accordée à une extension « officielle » ne protège pas d'un détournement de la chaîne de publication. Le fait que l'éditeur de la cible soit lui-même un acteur de l'IA de programmation ne change pas la leçon : la frontière entre l'outil de confiance et le code exécuté sur le poste du développeur reste mince. Le retrait rapide et le nombre limité d'utilisateurs touchés atténuent la portée, mais la mise à jour automatique a justement servi de vecteur de diffusion.",
+            "À un ou trois ans, on peut s'attendre à voir les places de marché d'extensions renforcer la signature, la vérification des publications et les alertes sur les modifications de dernière minute, et les entreprises traiter les extensions comme des dépendances logicielles à inventorier, à épingler et à surveiller. C'est une projection, pas un fait établi."
+          ],
+          "verdict": "Un compromis de la chaîne de publication touche d'abord ceux qui ont activé la mise à jour automatique : inventorier et épingler les extensions devient une hygiène de base."
+        },
+        {
+          "type": "callout",
+          "title": "À retenir",
+          "text": "Seule la version 2.1.313 est concernée ; la 2.1.314 la remplace. L'article source ne précise pas encore la cause de la compromission : les informations ci-dessus peuvent évoluer."
+        }
+      ],
+      "illustration": {
+        "svg": "<svg xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"0 0 640 360\"><defs><linearGradient id=\"g\" x1=\"0\" y1=\"0\" x2=\"1\" y2=\"1\"><stop offset=\"0\" stop-color=\"hsl(175,62%,34%)\"/><stop offset=\"1\" stop-color=\"hsl(215,65%,22%)\"/></linearGradient></defs><rect width=\"640\" height=\"360\" fill=\"url(#g)\"/><circle cx=\"560\" cy=\"60\" r=\"90\" fill=\"#fff\" fill-opacity=\".06\"/><circle cx=\"70\" cy=\"320\" r=\"110\" fill=\"#fff\" fill-opacity=\".06\"/><rect x=\"170\" y=\"80\" width=\"300\" height=\"200\" rx=\"16\" fill=\"#fff\" fill-opacity=\".93\"/><rect x=\"170\" y=\"80\" width=\"300\" height=\"34\" rx=\"16\" fill=\"#fff\"/><g fill=\"hsl(175,60%,38%)\"><circle cx=\"196\" cy=\"97\" r=\"6\"/><circle cx=\"216\" cy=\"97\" r=\"6\"/><circle cx=\"236\" cy=\"97\" r=\"6\"/></g><path d=\"M200 150 l36 28 l-36 28\" stroke=\"hsl(175,60%,38%)\" stroke-width=\"12\" fill=\"none\" stroke-linecap=\"round\" stroke-linejoin=\"round\"/><path d=\"M256 214 H340\" stroke=\"hsl(175,60%,38%)\" stroke-width=\"12\" stroke-linecap=\"round\"/><path d=\"M440 70 l30 -26 l30 26 v50 c0 24 -18 38 -30 46 c-12 -8 -30 -22 -30 -46 z\" fill=\"#fff\" fill-opacity=\".9\"/></svg>"
+      },
+      "publishedAt": "2026-10-30T09:18:27+00:00",
+      "readingMinutes": 5,
+      "cover": {
+        "url": "https://blogger.googleusercontent.com/img/b/R29vZ2xl/AVvXsEggT2-bdx6q5Aa-HsOIuOeYTY1kFbPYIPIaA7N0Esdo4LHRscpkr3fMnRNiE_NqR71eURHrlqkC1stLKp2bKmT8cLHta8uYyGPtbWRwGm5ctnpMJC-8Q7pswyRP5hXMkIDjptIHDBdcQobfqaMEu9eXfPS9c_vvIi-jYmZBHVnKJb04CtcCyGOeBY709cdq/s1600/claude-vs.png",
+        "alt": "Illustration d'un incident de sécurité sur une extension de développement",
+        "credit": "thehackernews.com"
+      }
+    },
+    {
+      "id": "gitlab-cve-2026-97229-kev-drupal-commerce",
+      "category": "cybersecurite",
+      "icon": "🛠️",
+      "importance": 4,
+      "title": "GitLab noté 10 sur 10 et Cisco ASA au catalogue de la CISA, pendant que Drupal Commerce est exploité",
+      "summary": "La CISA ajoute à son catalogue des failles exploitées une exécution de code à distance dans GitLab (CVSS 10,0) et un déni de service Cisco. Drupal signale de son côté l'exploitation d'une faille « hautement critique » dans Commerce Core.",
+      "tags": [
+        "GitLab",
+        "CISA",
+        "KEV",
+        "Cisco",
+        "Drupal",
+        "CVE-2026-97229"
+      ],
+      "sourceDate": "2026-10-30",
+      "sources": [
+        {
+          "title": "CISA Adds Actively Exploited GitLab RCE and Cisco Firewall DoS Flaws to KEV",
+          "url": "https://thehackernews.com/2026/10/cisa-adds-actively-exploited-gitlab-rce.html",
+          "publisher": "The Hacker News"
+        },
+        {
+          "title": "Hackers Actively Exploit Highly Critical Drupal Commerce Core Authorization Bypass Flaw",
+          "url": "https://thehackernews.com/2026/10/hackers-actively-exploit-highly.html",
+          "publisher": "The Hacker News"
+        }
+      ],
+      "blocks": [
+        {
+          "type": "paragraph",
+          "text": "Le 29 octobre 2026, la CISA, l'agence américaine de cybersécurité, a inscrit deux nouvelles failles à son catalogue des vulnérabilités exploitées (KEV) : une exécution de code à distance dans **GitLab**, notée 10,0 sur 10, et un déni de service dans les pare-feu **Cisco**. Le même jour ou presque, Drupal a reconnu qu'une faille de son module de commerce en ligne était activement exploitée."
+        },
+        {
+          "type": "heading",
+          "level": 2,
+          "text": "GitLab : une expression régulière qui suffit à prendre la main"
+        },
+        {
+          "type": "paragraph",
+          "text": "La faille **CVE-2026-97229** touche GitLab Community Edition et Enterprise Edition. Il s'agit d'un dépassement d'entier : une personne non authentifiée peut exécuter du code arbitraire sur le serveur en soumettant une expression régulière spécialement conçue dans une configuration CI/CD, parce que la validation de ces expressions est insuffisante. L'article source ne précise ni les plages de versions touchées ni les versions corrigées : il faut se reporter aux avis de GitLab."
+        },
+        {
+          "type": "paragraph",
+          "text": "Un cas concret est documenté. La distribution Alpine Linux a signalé une tentative infructueuse contre sa propre instance GitLab les 20 et 21 octobre 2026. L'attaquant a envoyé des configurations CI piégées à une instance non corrigée, ce qui a fait planter huit fois des processus de travail de GitLab ; dans quatre de ces plantages, l'exploit a échoué à l'étape suivante. Il a aussi téléchargé l'image de conteneur de GitLab d'Alpine. De nouvelles tentatives, les 25 et 26 octobre, ont été bloquées."
+        },
+        {
+          "type": "paragraph",
+          "text": "Alpine n'a trouvé aucune preuve de réussite, mais ne pouvait pas l'exclure : l'instance a été traitée comme compromise et reconstruite de zéro. La distribution indique que son dépôt aports, ses paquets et les publications du 21 octobre n'ont pas été altérés."
+        },
+        {
+          "type": "heading",
+          "level": 2,
+          "text": "Cisco ASA et FTD : un déni de service déjà utilisé"
+        },
+        {
+          "type": "paragraph",
+          "text": "La seconde inscription est la faille **CVE-2026-76418** (CVSS 8,6) des logiciels Cisco Secure Firewall ASA et FTD. Une valeur de retour non vérifiée provoque un déréférencement de pointeur nul : un attaquant distant et non authentifié peut faire redémarrer l'appareil. Cisco indique avoir eu connaissance d'une exploitation début octobre, sans identifier les auteurs, le nombre d'organisations visées ni les actions menées ensuite. Ce déni de service sur le VPN SSL avait déjà été évoqué dans notre édition du 29 octobre. Les agences civiles fédérales américaines ont jusqu'au **1er novembre 2026** pour appliquer les correctifs, une échéance qui vaut recommandation pour les autres organisations."
+        },
+        {
+          "type": "heading",
+          "level": 2,
+          "text": "Drupal Commerce : une autorisation manquante"
+        },
+        {
+          "type": "paragraph",
+          "text": "Drupal alerte sur **CVE-2026-118539**, un contournement d'accès dans Commerce Core, le module qui gère panier et paiement. Selon l'avis, le module « ne protège pas suffisamment certaines routes et certains champs d'entité ». Drupal la qualifie de « hautement critique » et indique qu'elle est exploitée, avec un possible impact financier pour le commerçant. La correction passe par la mise à jour vers Commerce Core 3.3.13 ou 8.x-2.41. Les plages annoncées d'un côté (jusqu'à 2.41) et le correctif recommandé de l'autre se recoupent : l'avis SA-CONTRIB-2026-254 de Drupal fait foi."
+        },
+        {
+          "type": "keyvalue",
+          "items": [
+            {
+              "label": "GitLab",
+              "value": "CVE-2026-97229, CVSS 10,0, exécution de code à distance sans authentification"
+            },
+            {
+              "label": "Cisco ASA et FTD",
+              "value": "CVE-2026-76418, CVSS 8,6, déni de service"
+            },
+            {
+              "label": "Drupal Commerce Core",
+              "value": "CVE-2026-118539, contournement d'autorisation, exploitation reconnue"
+            },
+            {
+              "label": "Échéance CISA",
+              "value": "1er novembre 2026 pour les agences fédérales"
+            }
+          ]
+        },
+        {
+          "type": "usecases",
+          "title": "Exemples d'utilisation",
+          "items": [
+            {
+              "icon": "🏗️",
+              "title": "Administrateur d'une forge interne",
+              "text": "Il vérifie la version de GitLab, applique le correctif publié, puis examine les journaux à la recherche de processus de travail plantés ou de configurations CI inhabituelles."
+            },
+            {
+              "icon": "🛒",
+              "title": "Gérant d'une boutique Drupal",
+              "text": "Il met Commerce Core à jour, contrôle les commandes et les remboursements récents et consulte l'avis officiel pour confirmer la bonne branche."
+            },
+            {
+              "icon": "🌐",
+              "title": "Responsable réseau",
+              "text": "Il inventorie ses pare-feu Cisco ASA et FTD, planifie le correctif pendant une fenêtre de maintenance et surveille les redémarrages inexpliqués."
+            }
+          ]
+        },
+        {
+          "type": "timeline",
+          "title": "D'où l'on vient, où l'on va",
+          "items": [
+            {
+              "label": "Début octobre 2026",
+              "text": "Cisco a connaissance de l'exploitation de la faille des pare-feu ASA et FTD."
+            },
+            {
+              "label": "20 et 21 octobre 2026",
+              "text": "Alpine Linux subit une tentative d'exploitation de GitLab : huit plantages provoqués, dont quatre vont plus loin."
+            },
+            {
+              "label": "25 et 26 octobre 2026",
+              "text": "De nouvelles tentatives contre Alpine sont bloquées."
+            },
+            {
+              "label": "29 octobre 2026",
+              "text": "La CISA ajoute les deux failles à son catalogue ; Drupal reconnaît l'exploitation de Commerce Core."
+            },
+            {
+              "label": "1er novembre 2026",
+              "text": "Date limite pour les agences fédérales américaines."
+            }
+          ]
+        },
+        {
+          "type": "opinion",
+          "title": "Notre avis",
+          "paragraphs": [
+            "Le cas GitLab rappelle que la forge de code est devenue un serveur critique : elle contient le code, les secrets de déploiement et la chaîne de livraison. Une exécution de code sans authentification sur un tel outil vaut accès à tout ce qui s'y connecte. La décision d'Alpine de reconstruire l'instance malgré l'absence de preuve est une bonne pratique à retenir : quand on ne peut pas prouver l'intégrité, on repart d'une base saine.",
+            "À un ou trois ans, la pression devrait monter pour que les forges soient isolées d'Internet, derrière un VPN ou un accès par identité, et que les validations d'expressions régulières soient plus systématiquement testées. C'est une analyse, pas une certitude."
+          ],
+          "verdict": "Appliquer vite le correctif GitLab, puis traiter le doute comme un incident plutôt que comme une hypothèse."
+        },
+        {
+          "type": "callout",
+          "title": "À retenir",
+          "text": "Les montants de risque et les versions précises varient selon les avis ; consultez les avis officiels de GitLab, de Cisco et de Drupal avant d'intervenir."
+        }
+      ],
+      "illustration": {
+        "svg": "<svg xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"0 0 640 360\"><defs><linearGradient id=\"g\" x1=\"0\" y1=\"0\" x2=\"1\" y2=\"1\"><stop offset=\"0\" stop-color=\"hsl(160,62%,34%)\"/><stop offset=\"1\" stop-color=\"hsl(200,65%,22%)\"/></linearGradient></defs><rect width=\"640\" height=\"360\" fill=\"url(#g)\"/><circle cx=\"560\" cy=\"60\" r=\"90\" fill=\"#fff\" fill-opacity=\".06\"/><circle cx=\"70\" cy=\"320\" r=\"110\" fill=\"#fff\" fill-opacity=\".06\"/><ellipse cx=\"320\" cy=\"190\" rx=\"52\" ry=\"70\" fill=\"#fff\" fill-opacity=\".92\"/><circle cx=\"320\" cy=\"108\" r=\"26\" fill=\"#fff\"/><path d=\"M268 150 H220 M268 195 H210 M270 240 H225 M372 150 H420 M372 195 H430 M370 240 H415 M300 86 L280 56 M340 86 L360 56\" stroke=\"#fff\" stroke-width=\"9\" stroke-linecap=\"round\"/><path d=\"M320 130 V250\" stroke=\"hsl(160,60%,38%)\" stroke-width=\"7\"/><path d=\"M80 60 h80 M80 80 h50\" stroke=\"#fff\" stroke-opacity=\".5\" stroke-width=\"8\" stroke-linecap=\"round\"/></svg>"
+      },
+      "publishedAt": "2026-10-30T09:18:27+00:00",
+      "readingMinutes": 4,
+      "cover": {
+        "url": "https://blogger.googleusercontent.com/img/b/R29vZ2xl/AVvXsEiw1Ms9mKdtALczFoDaNy5Bm0HVMfxu0ps0ykDUXuLn3BeOEqUCDnzUiCP2lU_7xbC2kYuIAGCuOiQCGIlkR6wYBfCfb7g0wRESfIFaMtSltOjWphyswldC4LJxFf0RnCB9FzEVc-euJGtGbUvpJr7FOE0QefC3_rn8xLSFTij_yJn1MNP6bJVu8VgrcLaV/s1600/github-cisco.jpg",
+        "alt": "GitLab noté 10 sur 10 et Cisco ASA au catalogue de la CISA, pendant que Drupal Commerce est exploité",
+        "credit": "thehackernews.com"
+      }
+    },
+    {
+      "id": "belgique-fod-finances-cyberattaque-myminfin",
+      "category": "cybersecurite",
+      "icon": "🏛️",
+      "importance": 3,
+      "title": "Belgique : l'administration fiscale coupe MyMinfin après une cyberattaque et repousse l'échéance au 16 novembre",
+      "summary": "Le SPF Finances belge (FOD Financiën) a confirmé une cyberattaque et mis hors ligne plusieurs services en ligne, dont MyMinfin. Il affirme qu'elle a été contenue en quelques heures et n'a, à ce stade, aucun indice de fuite de données.",
+      "tags": [
+        "Belgique",
+        "administration fiscale",
+        "cyberattaque",
+        "MyMinfin",
+        "service public"
+      ],
+      "sourceDate": "2026-10-29",
+      "sources": [
+        {
+          "title": "Belgium's tax agency confirms cyberattack, pulls services offline",
+          "url": "https://www.theregister.com/security/2026/10/29/belgiums-tax-agency-confirms-cyberattack-pulls-services-offline/5306409",
+          "publisher": "The Register"
+        }
+      ],
+      "blocks": [
+        {
+          "type": "paragraph",
+          "text": "L'administration fiscale belge, le SPF Finances (FOD Financiën en néerlandais), a confirmé mercredi 28 octobre 2026 avoir été visée par une cyberattaque. Pour limiter les risques, elle a retiré de la circulation son portail fiscal principal, **MyMinfin**, ainsi que d'autres services en ligne, et a repoussé une échéance déclarative clé."
+        },
+        {
+          "type": "heading",
+          "level": 2,
+          "text": "Les services touchés et le calendrier"
+        },
+        {
+          "type": "paragraph",
+          "text": "Selon le porte-parole Francis Adyns, les services mis hors ligne comprennent MyMinfin, mais aussi **Tax-on-web** et **Biztax**, les outils de déclaration en ligne des particuliers et des sociétés. Une large part des autres applications reste disponible, en totalité ou partiellement. L'administration explique que ce retrait permet « de limiter les risques » et d'intervenir techniquement pour sécuriser ses systèmes."
+        },
+        {
+          "type": "paragraph",
+          "text": "L'attaque a des conséquences sur le calendrier fiscal : l'échéance du 31 octobre, prolongée pour certains revenus comme ceux des indépendants ou les revenus de sociétés étrangères, est reportée au **16 novembre 2026**, date à laquelle MyMinfin devrait être de nouveau en ligne. Le retour au service doit se faire dans un environnement isolé, avec prudence, et prendra du temps."
+        },
+        {
+          "type": "keyvalue",
+          "items": [
+            {
+              "label": "Administration",
+              "value": "SPF Finances (FOD Financiën), Belgique"
+            },
+            {
+              "label": "Confirmation",
+              "value": "mercredi 28 octobre 2026"
+            },
+            {
+              "label": "Services hors ligne",
+              "value": "MyMinfin, Tax-on-web, Biztax"
+            },
+            {
+              "label": "Nouvelle échéance",
+              "value": "16 novembre 2026 (au lieu du 31 octobre)"
+            },
+            {
+              "label": "Fuite de données",
+              "value": "aucun indice à ce stade, enquête en cours"
+            }
+          ]
+        },
+        {
+          "type": "heading",
+          "level": 2,
+          "text": "Ce que dit l'administration"
+        },
+        {
+          "type": "paragraph",
+          "text": "L'agence affirme que la protection des données est une priorité absolue et que ce volet fait l'objet d'une enquête approfondie. Auprès du quotidien Nieuwsblad, Francis Adyns a indiqué que l'attaque a été déjouée en quelques heures, qu'elle n'a pas pu s'étendre assez loin dans l'environnement pour prendre le contrôle d'applications ou accéder à des données, et que les éléments potentiellement infectés ont été isolés."
+        },
+        {
+          "type": "paragraph",
+          "text": "L'article source ne nomme aucun groupe, aucun mobile et ne précise pas s'il s'agit d'un rançongiciel ou d'une autre forme d'attaque. Il rappelle que l'enquête n'en est qu'à ses débuts : toute conclusion sur l'ampleur ou l'origine serait prématurée."
+        },
+        {
+          "type": "usecases",
+          "title": "Ce que cela change concrètement",
+          "items": [
+            {
+              "icon": "🧾",
+              "title": "Indépendant belge",
+              "text": "Il reporte sa déclaration au 16 novembre, conserve ses justificatifs et attend le retour de MyMinfin plutôt que d'utiliser des canaux non officiels."
+            },
+            {
+              "icon": "🏢",
+              "title": "Comptable d'entreprise",
+              "text": "Il prévient ses clients du report, prépare les dossiers Biztax et se méfie des faux courriels qui exploiteraient la panne pour hameçonner."
+            },
+            {
+              "icon": "🇫🇷",
+              "title": "Responsable informatique d'un service public",
+              "text": "Il relit sa propre procédure de coupure d'urgence et de reprise en environnement isolé, et teste la communication au public en cas d'indisponibilité."
+            }
+          ]
+        },
+        {
+          "type": "timeline",
+          "title": "D'où l'on vient, où l'on va",
+          "items": [
+            {
+              "label": "Mercredi 28 octobre 2026",
+              "text": "Le SPF Finances confirme la cyberattaque et met MyMinfin, Tax-on-web et Biztax hors ligne."
+            },
+            {
+              "label": "31 octobre 2026",
+              "text": "Échéance initiale prolongée pour certains revenus, désormais caduque."
+            },
+            {
+              "label": "16 novembre 2026",
+              "text": "Nouvelle échéance et retour attendu de MyMinfin."
+            }
+          ]
+        },
+        {
+          "type": "opinion",
+          "title": "Notre avis",
+          "paragraphs": [
+            "Couper des services pour contenir une attaque est une décision impopulaire mais défendable : mieux vaut un portail indisponible quelques jours qu'un portail compromis. Le report d'échéance évite de pénaliser les contribuables et traduit une bonne prise en compte de l'effet de l'incident sur eux. Il reste à voir si les promesses de la première heure (contenu, pas de fuite) résisteront à l'enquête : les administrations publiques annoncent souvent un bilan provisoire qui se précise ensuite.",
+            "À un ou trois ans, les services publics en ligne devraient être davantage conçus pour dégrader proprement leur fonctionnement, avec des modes de secours pour les échéances sensibles, plutôt que pour tout recoder après coup. C'est une opinion, pas un fait."
+          ],
+          "verdict": "Une coupure maîtrisée et un report d'échéance sont des signes de sérieux ; la preuve de l'absence de fuite reste à apporter."
+        },
+        {
+          "type": "callout",
+          "title": "À retenir",
+          "text": "Les informations viennent de déclarations de l'administration belge relayées par la presse ; l'enquête est en cours et aucun auteur n'est désigné."
+        }
+      ],
+      "illustration": {
+        "svg": "<svg xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"0 0 640 360\"><defs><linearGradient id=\"g\" x1=\"0\" y1=\"0\" x2=\"1\" y2=\"1\"><stop offset=\"0\" stop-color=\"hsl(200,62%,34%)\"/><stop offset=\"1\" stop-color=\"hsl(240,65%,22%)\"/></linearGradient></defs><rect width=\"640\" height=\"360\" fill=\"url(#g)\"/><circle cx=\"560\" cy=\"60\" r=\"90\" fill=\"#fff\" fill-opacity=\".06\"/><circle cx=\"70\" cy=\"320\" r=\"110\" fill=\"#fff\" fill-opacity=\".06\"/><path d=\"M320 70 L420 105 V190 C420 235 375 262 320 285 C265 262 220 235 220 190 V105 Z\" fill=\"#fff\" fill-opacity=\".92\"/><path d=\"M280 180 l28 28 l52 -58\" stroke=\"hsl(200,60%,38%)\" stroke-width=\"16\" fill=\"none\" stroke-linecap=\"round\" stroke-linejoin=\"round\"/><path d=\"M70 70 h60 v40 h-60 z\" fill=\"#fff\" fill-opacity=\".25\"/></svg>"
+      },
+      "publishedAt": "2026-10-30T09:18:27+00:00",
+      "readingMinutes": 3,
+      "cover": {
+        "url": "https://image.theregister.com/5306415.jpg?imageId=5306415&x=0&y=0&cropw=100&croph=100&panox=0&panoy=0&panow=100&panoh=100&width=1200&height=683",
+        "alt": "Belgique : l'administration fiscale coupe MyMinfin après une cyberattaque et repousse l'échéance au 16 novembre",
+        "credit": "theregister.com"
+      }
+    },
+    {
+      "id": "gemini-4-carbon-cybersecurite-benchmarks",
+      "category": "ia",
+      "icon": "🧠",
+      "importance": 4,
+      "title": "Gemini 4 Carbon : Google affiche de nettes avancées en détection, exploitation et correction de failles",
+      "summary": "Google présente Gemini 4 Carbon, un modèle réservé dans un premier temps à un groupe de défenseurs, avec des scores de 88,2 %, 54,8 % et 71,0 % sur trois tests de cybersécurité. Ces chiffres sont ceux de Google.",
+      "tags": [
+        "Google",
+        "Gemini 4 Carbon",
+        "cybersécurité",
+        "évaluation",
+        "modèle"
+      ],
+      "sourceDate": "2026-10-29",
+      "sources": [
+        {
+          "title": "Google's Gemini 4 Carbon Leads Benchmarks for Finding, Exploiting, and Patching Vulnerabilities",
+          "url": "https://thehackernews.com/2026/10/googles-gemini-4-carbon-leads.html",
+          "publisher": "The Hacker News"
+        }
+      ],
+      "blocks": [
+        {
+          "type": "paragraph",
+          "text": "Google a dévoilé mercredi 28 octobre 2026 **Gemini 4 Carbon**, présenté comme son dernier modèle de pointe, doté de capacités en cybersécurité et pour les tâches longues. Il arrive moins d'une semaine après Gemini 4 Argon, avec un plan de déploiement similaire. L'annonce s'inscrit dans une série de modèles qui, ces dernières semaines, démontrent leur aptitude à trouver des failles."
+        },
+        {
+          "type": "heading",
+          "level": 2,
+          "text": "Les chiffres annoncés"
+        },
+        {
+          "type": "paragraph",
+          "text": "Les résultats en cybersécurité sont ceux communiqués par Google, par la voix de Koray Kavukcuoglu. Le groupe parle d'une avance nette, sans que les scores des concurrents sur ces trois tests soient fournis dans l'article source."
+        },
+        {
+          "type": "table",
+          "headers": [
+            "Test",
+            "Capacité mesurée",
+            "Score de Carbon"
+          ],
+          "rows": [
+            [
+              "SEC-bench Pro",
+              "Trouver des vulnérabilités",
+              "88,2 %"
+            ],
+            [
+              "ExploitGym",
+              "Les exploiter",
+              "54,8 %"
+            ],
+            [
+              "CWE-bench",
+              "Les corriger",
+              "71,0 %"
+            ]
+          ]
+        },
+        {
+          "type": "diagram",
+          "svg": "<svg xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"0 0 600 226\" font-family=\"system-ui,sans-serif\"><rect width=\"600\" height=\"226\" rx=\"14\" fill=\"#f4f6fb\"/><text x=\"24\" y=\"32\" font-size=\"16\" font-weight=\"700\" fill=\"#1b2433\">Artificial Analysis Intelligence Index</text><text x=\"24\" y=\"72\" font-size=\"13.5\" fill=\"#1b2433\">Gemini 4 Carbon</text><rect x=\"200\" y=\"56\" width=\"309\" height=\"22\" rx=\"6\" fill=\"#9b3fb5\"/><text x=\"517\" y=\"72\" font-size=\"13\" font-weight=\"700\" fill=\"#1b2433\">59</text><text x=\"24\" y=\"112\" font-size=\"13.5\" fill=\"#1b2433\">Claude Opus 5.5</text><rect x=\"200\" y=\"96\" width=\"303\" height=\"22\" rx=\"6\" fill=\"#9b3fb5\"/><text x=\"511\" y=\"112\" font-size=\"13\" font-weight=\"700\" fill=\"#1b2433\">58</text><text x=\"24\" y=\"152\" font-size=\"13.5\" fill=\"#1b2433\">GPT-6 Astra</text><rect x=\"200\" y=\"136\" width=\"298\" height=\"22\" rx=\"6\" fill=\"#9b3fb5\"/><text x=\"506\" y=\"152\" font-size=\"13\" font-weight=\"700\" fill=\"#1b2433\">57</text><text x=\"24\" y=\"192\" font-size=\"13.5\" fill=\"#1b2433\">GPT-6.1 Sol</text><rect x=\"200\" y=\"176\" width=\"288\" height=\"22\" rx=\"6\" fill=\"#9b3fb5\"/><text x=\"496\" y=\"192\" font-size=\"13\" font-weight=\"700\" fill=\"#1b2433\">55</text></svg>",
+          "alt": "Histogramme comparant l'indice d'intelligence de quatre modèles",
+          "caption": "Indice Artificial Analysis : Carbon obtient 59, devant Claude Opus 5.5 (58), GPT-6 Astra (57) et GPT-6.1 Sol (55)."
+        },
+        {
+          "type": "paragraph",
+          "text": "Sur l'indice généraliste d'Artificial Analysis, un organisme tiers, Carbon obtient 59, devant Claude Opus 5.5 (58), GPT-6 Astra (57) et GPT-6.1 Sol (55). L'écart d'un point avec le deuxième est faible : il ne permet pas, à lui seul, de conclure à une supériorité nette."
+        },
+        {
+          "type": "heading",
+          "level": 2,
+          "text": "Ce que Google promet en plus"
+        },
+        {
+          "type": "list",
+          "ordered": false,
+          "items": [
+            "Des progrès dans la détection, la validation et la correction des vulnérabilités.",
+            "Un code produit deux fois plus souvent de façon sûre que celui de Argon.",
+            "Une demande d'avis humain sur les tâches ambiguës ou sous pression, plutôt qu'une réponse au hasard.",
+            "Une résistance, selon les évaluations de Google, à toutes les tentatives d'injection de prompt indirectes testées."
+          ]
+        },
+        {
+          "type": "paragraph",
+          "text": "L'accès est pour l'instant limité à un sous-ensemble de défenseurs. Il sera étendu à d'autres partenaires de confiance via le programme Fairwind de Google, qui dit aussi participer au processus volontaire de test préalable de modèles du gouvernement américain. Le modèle ne peut donc pas être testé de manière indépendante par le public."
+        },
+        {
+          "type": "heading",
+          "level": 2,
+          "text": "Un contexte chargé"
+        },
+        {
+          "type": "paragraph",
+          "text": "OpenAI a publié en même temps GPT-6.1 Terra, qui aurait franchi le seuil « critique » en cybersécurité de son cadre de préparation, sans chiffres de référence communiqués dans l'article. De son côté, Anthropic a récemment indiqué qu'un modèle interne non publié avait trouvé des failles critiques, dont une exécution de code à distance dans Chrome en un clic, une chaîne d'attaque sur Safari, un contournement de l'écran de verrouillage Android et un déni de service dans HTTP.sys de Windows (CVE-2026-33096, CVSS 7,5). Toutes ont été corrigées."
+        },
+        {
+          "type": "usecases",
+          "title": "Exemples d'utilisation",
+          "items": [
+            {
+              "icon": "🛡️",
+              "title": "Équipe de défense d'un grand éditeur",
+              "text": "Elle confie au modèle le tri des alertes de code, la validation des failles trouvées et la proposition de correctifs, avec revue humaine."
+            },
+            {
+              "icon": "🔎",
+              "title": "Chercheur en sécurité",
+              "text": "Il compare le comportement du modèle avec ses propres outils de fuzzing sur un projet open source, en documentant les faux positifs."
+            },
+            {
+              "icon": "🏛️",
+              "title": "Responsable de la conformité",
+              "text": "Il examine les conditions d'accès réservé et la participation aux tests préalables pour évaluer les risques d'un usage dans son organisation."
+            }
+          ]
+        },
+        {
+          "type": "timeline",
+          "title": "D'où l'on vient, où l'on va",
+          "items": [
+            {
+              "label": "Il y a moins d'une semaine",
+              "text": "Google présente Gemini 4 Argon."
+            },
+            {
+              "label": "28 octobre 2026",
+              "text": "Google dévoile Gemini 4 Carbon, avec un accès réservé à des défenseurs."
+            },
+            {
+              "label": "À venir",
+              "text": "Extension de l'accès aux partenaires de confiance via le programme Fairwind ; aucune date n'est annoncée."
+            }
+          ]
+        },
+        {
+          "type": "opinion",
+          "title": "Notre avis",
+          "paragraphs": [
+            "Les scores de Google ne sont ni vérifiables ni comparables : sans les résultats des concurrents ni la méthode, ils servent davantage à positionner un produit qu'à départager des modèles. L'intérêt principal est ailleurs : la détection, l'exploitation et la correction automatisées de failles sont désormais un terrain de concurrence entre les grands laboratoires, ce qui profite aux défenseurs si l'accès reste encadré.",
+            "À un ou trois ans, la capacité à trouver et corriger des failles à grande échelle devrait raccourcir le délai entre découverte et correctif, mais aussi rendre l'exploitation plus accessible à qui y a accès. L'enjeu sera la gouvernance de l'accès. C'est une projection argumentée."
+          ],
+          "verdict": "Des chiffres spectaculaires mais invérifiables : l'important est le cadre d'accès, pas le score."
+        },
+        {
+          "type": "callout",
+          "title": "À retenir",
+          "text": "Les scores de cybersécurité sont ceux de Google, sans méthodologie détaillée ni résultats comparés des concurrents ; l'indice généraliste vient d'un tiers."
+        }
+      ],
+      "illustration": {
+        "svg": "<svg xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"0 0 640 360\"><defs><linearGradient id=\"g\" x1=\"0\" y1=\"0\" x2=\"1\" y2=\"1\"><stop offset=\"0\" stop-color=\"hsl(320,62%,34%)\"/><stop offset=\"1\" stop-color=\"hsl(0,65%,22%)\"/></linearGradient></defs><rect width=\"640\" height=\"360\" fill=\"url(#g)\"/><circle cx=\"560\" cy=\"60\" r=\"90\" fill=\"#fff\" fill-opacity=\".06\"/><circle cx=\"70\" cy=\"320\" r=\"110\" fill=\"#fff\" fill-opacity=\".06\"/><g stroke=\"#fff\" stroke-opacity=\".8\" stroke-width=\"6\"><path d=\"M200 120 L320 80 L440 130 L400 250 L250 260 Z M320 80 L320 180 M200 120 L320 180 L440 130 M250 260 L320 180 L400 250\"/></g><g fill=\"#fff\"><circle cx=\"200\" cy=\"120\" r=\"20\"/><circle cx=\"320\" cy=\"80\" r=\"20\"/><circle cx=\"440\" cy=\"130\" r=\"20\"/><circle cx=\"400\" cy=\"250\" r=\"20\"/><circle cx=\"250\" cy=\"260\" r=\"20\"/><circle cx=\"320\" cy=\"180\" r=\"30\"/></g></svg>"
+      },
+      "publishedAt": "2026-10-30T09:18:27+00:00",
+      "readingMinutes": 3,
+      "cover": {
+        "url": "https://blogger.googleusercontent.com/img/b/R29vZ2xl/AVvXsEgBMb78BxIXnGaXFzCXPdswdQZsuh8rz63Y22pLX3cOkgRgaPv3KJgw6fRULDT3am1YO4eA1obnh0aOdxZy4KVZMww8sxNOtxzZXYcouotzbB25LVdJrCeDk0MQsgCmsYQBAaGdwyhmiMNa2Y90ujuXFXZPLTIrOo1PB6vtWqWAXygOvM72cEmXvHTN9Ktw/s1600/google-gemini.jpg",
+        "alt": "Gemini 4 Carbon : Google affiche de nettes avancées en détection, exploitation et correction de failles",
+        "credit": "thehackernews.com"
+      }
+    },
+    {
+      "id": "outils-ia-developpeurs-navigateur-integre-failles",
+      "category": "ia",
+      "icon": "🧪",
+      "importance": 4,
+      "title": "Cinq outils de programmation assistée par IA touchés par des failles liées à leur navigateur intégré",
+      "summary": "Forever Security a trouvé des failles dans Cursor, GitHub Copilot, Claude Desktop, OpenAI Codex et VS Code. Trois, des lectures de fichiers arbitraires, seraient encore ouvertes selon les chercheurs.",
+      "tags": [
+        "navigateur intégré",
+        "Cursor",
+        "Copilot",
+        "Claude Desktop",
+        "Codex",
+        "VS Code"
+      ],
+      "sourceDate": "2026-10-29",
+      "sources": [
+        {
+          "title": "Researchers find bugs in 5 AI developer tools, with OpenAI and Microsoft flaws still unpatched",
+          "url": "https://www.theregister.com/security/2026/10/29/researchers-find-bugs-in-5-ai-developer-tools-with-openai-and-microsoft-flaws-still-unpatched/5306508",
+          "publisher": "The Register"
+        }
+      ],
+      "blocks": [
+        {
+          "type": "paragraph",
+          "text": "Les assistants de programmation à base d'IA embarquent de plus en plus un navigateur pour prévisualiser des pages, tester des interfaces ou lire de la documentation. Selon la société Forever Security, cette fonction ouvre une surface d'attaque sous-estimée. Ses chercheurs ont documenté, dans un compte rendu rédigé par Gal Weizman et publié le 29 octobre 2026, des failles dans cinq outils, regroupées sous le nom d'« Embrace » (pour *EMbedded BRowser*)."
+        },
+        {
+          "type": "heading",
+          "level": 2,
+          "text": "Un point commun : un navigateur « augmenté »"
+        },
+        {
+          "type": "paragraph",
+          "text": "Dans tous les cas, le navigateur intégré dispose de capacités qu'un navigateur ordinaire n'a pas, comme l'accès à des fichiers locaux ou la communication avec l'agent. Pour Weizman, ces fonctions « ont sapé le modèle de menace traditionnel » : une page web peut, dans ces outils, atteindre ce qu'elle ne devrait pas toucher."
+        },
+        {
+          "type": "heading",
+          "level": 2,
+          "text": "Les cinq failles"
+        },
+        {
+          "type": "table",
+          "headers": [
+            "Outil",
+            "Problème",
+            "État"
+          ],
+          "rows": [
+            [
+              "Cursor",
+              "Une page appelle le composeur de l'agent : injection de prompt et exécution de commandes sur la machine",
+              "Corrigé discrètement le 1er octobre, sans avis de sécurité"
+            ],
+            [
+              "GitHub Copilot",
+              "Usurpation de la barre d'adresse : la page déclare elle-même son URL",
+              "Corrigé dans la version 1.1.29 le 13 octobre"
+            ],
+            [
+              "Claude Desktop",
+              "Lecture arbitraire de fichiers via des web workers",
+              "Signalé le 23 juillet, d'abord jugé invalide ; état du correctif non précisé"
+            ],
+            [
+              "OpenAI Codex",
+              "Une page HTML locale lit n'importe quel fichier",
+              "Non corrigé selon les chercheurs ; OpenAI dit y travailler"
+            ],
+            [
+              "VS Code",
+              "Même contournement par web workers",
+              "Non corrigé selon les chercheurs ; jugé hors périmètre par Microsoft"
+            ]
+          ]
+        },
+        {
+          "type": "diagram",
+          "svg": "<svg xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"0 0 600 266\" font-family=\"system-ui,sans-serif\"><rect width=\"600\" height=\"266\" rx=\"14\" fill=\"#f4f6fb\"/><text x=\"24\" y=\"32\" font-size=\"16\" font-weight=\"700\" fill=\"#1b2433\">État des correctifs d&#x27;après les chercheurs</text><rect x=\"20\" y=\"52\" width=\"560\" height=\"34\" rx=\"8\" fill=\"#ffffff\" stroke=\"#d3d9e6\"/><text x=\"34\" y=\"75\" font-size=\"14\" font-weight=\"600\" fill=\"#1b2433\">Cursor</text><rect x=\"350\" y=\"58\" width=\"214\" height=\"22\" rx=\"11\" fill=\"#2e8b57\"/><text x=\"457\" y=\"74\" text-anchor=\"middle\" font-size=\"12.5\" font-weight=\"700\" fill=\"#ffffff\">Corrigé</text><rect x=\"20\" y=\"92\" width=\"560\" height=\"34\" rx=\"8\" fill=\"#ffffff\" stroke=\"#d3d9e6\"/><text x=\"34\" y=\"115\" font-size=\"14\" font-weight=\"600\" fill=\"#1b2433\">GitHub Copilot</text><rect x=\"350\" y=\"98\" width=\"214\" height=\"22\" rx=\"11\" fill=\"#2e8b57\"/><text x=\"457\" y=\"114\" text-anchor=\"middle\" font-size=\"12.5\" font-weight=\"700\" fill=\"#ffffff\">Corrigé</text><rect x=\"20\" y=\"132\" width=\"560\" height=\"34\" rx=\"8\" fill=\"#ffffff\" stroke=\"#d3d9e6\"/><text x=\"34\" y=\"155\" font-size=\"14\" font-weight=\"600\" fill=\"#1b2433\">Claude Desktop</text><rect x=\"350\" y=\"138\" width=\"214\" height=\"22\" rx=\"11\" fill=\"#b8860b\"/><text x=\"457\" y=\"154\" text-anchor=\"middle\" font-size=\"12.5\" font-weight=\"700\" fill=\"#ffffff\">Non précisé</text><rect x=\"20\" y=\"172\" width=\"560\" height=\"34\" rx=\"8\" fill=\"#ffffff\" stroke=\"#d3d9e6\"/><text x=\"34\" y=\"195\" font-size=\"14\" font-weight=\"600\" fill=\"#1b2433\">OpenAI Codex</text><rect x=\"350\" y=\"178\" width=\"214\" height=\"22\" rx=\"11\" fill=\"#c0392b\"/><text x=\"457\" y=\"194\" text-anchor=\"middle\" font-size=\"12.5\" font-weight=\"700\" fill=\"#ffffff\">Non corrigé</text><rect x=\"20\" y=\"212\" width=\"560\" height=\"34\" rx=\"8\" fill=\"#ffffff\" stroke=\"#d3d9e6\"/><text x=\"34\" y=\"235\" font-size=\"14\" font-weight=\"600\" fill=\"#1b2433\">VS Code</text><rect x=\"350\" y=\"218\" width=\"214\" height=\"22\" rx=\"11\" fill=\"#c0392b\"/><text x=\"457\" y=\"234\" text-anchor=\"middle\" font-size=\"12.5\" font-weight=\"700\" fill=\"#ffffff\">Non corrigé</text></svg>",
+          "alt": "Tableau des cinq outils avec leur état de correction",
+          "caption": "Deux outils corrigés, un état inconnu, deux failles encore ouvertes selon Forever Security."
+        },
+        {
+          "type": "heading",
+          "level": 2,
+          "text": "Comment les failles fonctionnent"
+        },
+        {
+          "type": "paragraph",
+          "text": "Pour **Cursor**, le navigateur intégré permettait à une page d'appeler le composeur de l'agent. L'agent traitait alors des instructions cachées dans la page comme des commandes, ce qui rend possible une injection de prompt aboutissant à l'exécution de commandes sur la machine. Signalée le 10 septembre, la faille a été corrigée le 1er octobre sans avis publié ni réponse aux chercheurs."
+        },
+        {
+          "type": "paragraph",
+          "text": "Pour **GitHub Copilot**, certaines pages modifient leur adresse sans recharger la page, ce que l'aperçu ne détectait pas toujours. Il laissait la page déclarer elle-même son adresse et vérifiait seulement que le texte ressemblait à une adresse web. Un attaquant pouvait afficher « github.com/login » alors qu'une page d'hameçonnage se chargeait dessous. Corrigé dans la version 1.1.29, sans signalement reçu de Forever selon l'article."
+        },
+        {
+          "type": "paragraph",
+          "text": "Les trois autres failles reposent sur des **web workers**, des fils d'exécution JavaScript en arrière-plan. Claude Desktop et VS Code limitent normalement les pages locales au dossier du projet, mais les web workers contournaient cette restriction. Codex, lui, n'appliquait pas la restriction du tout. Anthropic et Microsoft ont d'abord invoqué une frontière de « confiance dans l'espace de travail » pour juger les rapports invalides ; Anthropic a ensuite accepté un second signalement identique, venu de Noma Security."
+        },
+        {
+          "type": "usecases",
+          "title": "Exemples d'utilisation",
+          "items": [
+            {
+              "icon": "🧑‍💻",
+              "title": "Développeur utilisant plusieurs assistants",
+              "text": "Il évite d'ouvrir des pages locales ou web non maîtrisées dans le navigateur intégré, et met à jour ses outils dès qu'un correctif sort."
+            },
+            {
+              "icon": "🏢",
+              "title": "Responsable sécurité",
+              "text": "Il intègre le navigateur intégré des outils d'IA à son inventaire de risques et limite, par politique, les fichiers accessibles à ces outils."
+            },
+            {
+              "icon": "📚",
+              "title": "Formateur en développement",
+              "text": "Il apprend à ses élèves à traiter le contenu d'une page comme une entrée non fiable, même quand c'est un agent qui la lit."
+            }
+          ]
+        },
+        {
+          "type": "timeline",
+          "title": "D'où l'on vient, où l'on va",
+          "items": [
+            {
+              "label": "23 et 27 juillet 2026",
+              "text": "Signalements à Anthropic puis à OpenAI pour la lecture arbitraire de fichiers."
+            },
+            {
+              "label": "10 septembre 2026",
+              "text": "Signalements à Cursor et à Microsoft."
+            },
+            {
+              "label": "1er et 13 octobre 2026",
+              "text": "Correctifs de Cursor puis de GitHub Copilot."
+            },
+            {
+              "label": "29 octobre 2026",
+              "text": "Publication du compte rendu ; deux failles seraient encore ouvertes."
+            }
+          ]
+        },
+        {
+          "type": "opinion",
+          "title": "Notre avis",
+          "paragraphs": [
+            "L'intérêt de ce travail est de montrer une classe de problèmes plus qu'une série de bogues isolés : dès qu'un outil mélange contenu web non fiable et pouvoir d'agir sur la machine, la frontière de confiance doit être redessinée. Le désaccord sur ce qui relève ou non de la « confiance dans l'espace de travail » est révélateur : un fichier local n'est pas forcément un fichier de confiance.",
+            "À un ou trois ans, les éditeurs devraient isoler plus strictement ces navigateurs et publier des avis de sécurité pour des corrections qui sont aujourd'hui silencieuses. C'est une projection, pas un fait établi."
+          ],
+          "verdict": "Un navigateur intégré à un agent est une porte supplémentaire, à traiter avec la même méfiance qu'un navigateur normal."
+        },
+        {
+          "type": "callout",
+          "title": "À retenir",
+          "text": "Les états de correction sont ceux rapportés par Forever Security à la date de l'article ; les éditeurs n'ont pas tous répondu."
+        }
+      ],
+      "illustration": {
+        "svg": "<svg xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"0 0 640 360\"><defs><linearGradient id=\"g\" x1=\"0\" y1=\"0\" x2=\"1\" y2=\"1\"><stop offset=\"0\" stop-color=\"hsl(305,62%,34%)\"/><stop offset=\"1\" stop-color=\"hsl(345,65%,22%)\"/></linearGradient></defs><rect width=\"640\" height=\"360\" fill=\"url(#g)\"/><circle cx=\"560\" cy=\"60\" r=\"90\" fill=\"#fff\" fill-opacity=\".06\"/><circle cx=\"70\" cy=\"320\" r=\"110\" fill=\"#fff\" fill-opacity=\".06\"/><circle cx=\"320\" cy=\"180\" r=\"100\" fill=\"#fff\" fill-opacity=\".93\"/><g fill=\"none\" stroke=\"hsl(305,60%,38%)\" stroke-width=\"7\"><ellipse cx=\"320\" cy=\"180\" rx=\"44\" ry=\"100\"/><path d=\"M220 180H420M240 125H400M240 235H400\"/></g><path d=\"M470 60 l44 -18 l-14 48 z\" fill=\"#fff\" fill-opacity=\".8\"/></svg>"
+      },
+      "publishedAt": "2026-10-30T09:18:27+00:00",
+      "readingMinutes": 4,
+      "cover": {
+        "url": "https://image.theregister.com/5306527.jpg?imageId=5306527&x=0&y=0&cropw=100&croph=100&panox=0&panoy=0&panow=100&panoh=100&width=1200&height=683",
+        "alt": "Cinq outils de programmation assistée par IA touchés par des failles liées à leur navigateur intégré",
+        "credit": "theregister.com"
+      }
+    },
+    {
+      "id": "topcoat-rust-applications-web-rendues-serveur",
+      "category": "dev",
+      "icon": "🦀",
+      "importance": 3,
+      "title": "Topcoat : le créateur de Tokio propose un cadre Rust où le serveur fait l'essentiel du rendu web",
+      "summary": "Carl Lerche, ingénieur chez AWS et auteur de Tokio, présente Topcoat : un cadre où la logique reste côté serveur, avec un sous-ensemble de Rust compilé en JavaScript pour le navigateur.",
+      "tags": [
+        "Rust",
+        "Topcoat",
+        "Tokio",
+        "rendu serveur",
+        "framework web"
+      ],
+      "sourceDate": "2026-10-29",
+      "sources": [
+        {
+          "title": "Topcoat enables Rust to render server-side web apps",
+          "url": "https://www.theregister.com/devops/2026/10/29/topcoat-enables-rust-to-render-server-side-web-apps/5306470",
+          "publisher": "The Register"
+        }
+      ],
+      "blocks": [
+        {
+          "type": "paragraph",
+          "text": "Un cadre de plus pour le web en Rust ? Pas tout à fait. **Topcoat**, présenté à la conférence virtuelle P99 de ScyllaDB en 2026 par Carl Lerche, principal ingénieur chez AWS et créateur de Tokio, le moteur asynchrone le plus utilisé du langage, mise sur une idée plus ancienne que les frameworks réactifs : laisser le serveur faire presque tout. Le dépôt se trouve sous l'organisation tokio-rs sur GitHub."
+        },
+        {
+          "type": "heading",
+          "level": 2,
+          "text": "Le principe : du Rust compilé en JavaScript"
+        },
+        {
+          "type": "paragraph",
+          "text": "Topcoat est un cadre pour écrire des applications web en Rust. Le code est compilé en JavaScript, un choix que Lerche justifie par le fait que JavaScript reste le meilleur moyen d'interagir avec le DOM du navigateur. La plus grande partie de la logique s'exécute côté serveur ; seuls les résultats sont envoyés au navigateur. Les développeurs peuvent toutefois écrire de la logique côté client dans un sous-ensemble de Rust."
+        },
+        {
+          "type": "paragraph",
+          "text": "Quand l'utilisateur interagit avec un composant, le serveur ne renvoie que le fragment HTML de ce composant, au lieu de recharger toute la page. Tous les composants sont rendus simultanément plutôt qu'un par un, et le chargement des données ne bloque pas celui de la page : le serveur peut envoyer des emplacements provisoires dans lesquels les données arrivent ensuite. Il peut aussi émettre le haut du document très tôt, ce qui laisse le navigateur précharger feuilles de style et images pendant que le reste se prépare."
+        },
+        {
+          "type": "diagram",
+          "svg": "<svg xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"0 0 600 326\" font-family=\"system-ui,sans-serif\"><rect width=\"600\" height=\"326\" rx=\"14\" fill=\"#f4f6fb\"/><rect x=\"20\" y=\"14\" width=\"560\" height=\"58\" rx=\"10\" fill=\"#ffffff\" stroke=\"#6a4cc4\" stroke-width=\"2\"/><circle cx=\"46\" cy=\"43.0\" r=\"14\" fill=\"#6a4cc4\"/><text x=\"46\" y=\"48.0\" text-anchor=\"middle\" font-size=\"14\" font-weight=\"700\" fill=\"#ffffff\">1</text><text x=\"72\" y=\"38\" font-size=\"15\" font-weight=\"700\" fill=\"#1b2433\">Requête du navigateur</text><text x=\"72\" y=\"58\" font-size=\"13\" fill=\"#3b4658\">L&#x27;utilisateur ouvre la page ou clique sur un composant</text><path d=\"M300.0 75 L300.0 90 M294.0 84 L300.0 91 L306.0 84\" stroke=\"#6a4cc4\" stroke-width=\"2.2\" fill=\"none\"/><rect x=\"20\" y=\"94\" width=\"560\" height=\"58\" rx=\"10\" fill=\"#ffffff\" stroke=\"#6a4cc4\" stroke-width=\"2\"/><circle cx=\"46\" cy=\"123.0\" r=\"14\" fill=\"#6a4cc4\"/><text x=\"46\" y=\"128.0\" text-anchor=\"middle\" font-size=\"14\" font-weight=\"700\" fill=\"#ffffff\">2</text><text x=\"72\" y=\"118\" font-size=\"15\" font-weight=\"700\" fill=\"#1b2433\">Rendu côté serveur</text><text x=\"72\" y=\"138\" font-size=\"13\" fill=\"#3b4658\">Les composants interrogent la base directement, sans sérialisation</text><path d=\"M300.0 155 L300.0 170 M294.0 164 L300.0 171 L306.0 164\" stroke=\"#6a4cc4\" stroke-width=\"2.2\" fill=\"none\"/><rect x=\"20\" y=\"174\" width=\"560\" height=\"58\" rx=\"10\" fill=\"#ffffff\" stroke=\"#6a4cc4\" stroke-width=\"2\"/><circle cx=\"46\" cy=\"203.0\" r=\"14\" fill=\"#6a4cc4\"/><text x=\"46\" y=\"208.0\" text-anchor=\"middle\" font-size=\"14\" font-weight=\"700\" fill=\"#ffffff\">3</text><text x=\"72\" y=\"198\" font-size=\"15\" font-weight=\"700\" fill=\"#1b2433\">Envoi progressif du HTML</text><text x=\"72\" y=\"218\" font-size=\"13\" fill=\"#3b4658\">Le haut de la page part en premier, des emplacements attendent les données</text><path d=\"M300.0 235 L300.0 250 M294.0 244 L300.0 251 L306.0 244\" stroke=\"#6a4cc4\" stroke-width=\"2.2\" fill=\"none\"/><rect x=\"20\" y=\"254\" width=\"560\" height=\"58\" rx=\"10\" fill=\"#ffffff\" stroke=\"#6a4cc4\" stroke-width=\"2\"/><circle cx=\"46\" cy=\"283.0\" r=\"14\" fill=\"#6a4cc4\"/><text x=\"46\" y=\"288.0\" text-anchor=\"middle\" font-size=\"14\" font-weight=\"700\" fill=\"#ffffff\">4</text><text x=\"72\" y=\"278\" font-size=\"15\" font-weight=\"700\" fill=\"#1b2433\">Mise à jour ciblée</text><text x=\"72\" y=\"298\" font-size=\"13\" fill=\"#3b4658\">Seul le fragment HTML du composant modifié est renvoyé</text></svg>",
+          "alt": "Schéma en quatre étapes du fonctionnement de Topcoat",
+          "caption": "Le cycle de rendu de Topcoat : le serveur fait le travail, le navigateur reçoit des fragments."
+        },
+        {
+          "type": "paragraph",
+          "text": "Les composants peuvent interroger la base de données directement, avec Toasty, un autre projet de Lerche : un mappeur objet-relationnel asynchrone pour Rust. Cela évite de sérialiser puis désérialiser les données pour les envoyer au client."
+        },
+        {
+          "type": "heading",
+          "level": 2,
+          "text": "Où se situe Topcoat"
+        },
+        {
+          "type": "paragraph",
+          "text": "Pour Lerche, le rendu côté serveur peut fournir presque tout ce que les développeurs entendent par « réactif », sans recharger la page à chaque clic. Là où la plupart des frameworks JavaScript actuels envoient la logique du programme au navigateur à l'ouverture de la session, Topcoat garde l'essentiel sur le serveur. L'article rappelle que cette approche précède les frameworks réactifs, avec par exemple les inclusions côté serveur d'Apache."
+        },
+        {
+          "type": "list",
+          "ordered": false,
+          "items": [
+            "**Leptos et Dioxus** compilent Rust en WebAssembly : efficaces pour les calculs lourds, mais plus lents au premier chargement.",
+            "**HTMX, Datastar et Phoenix LiveView** font déjà du rendu serveur avec du HTML presque complet envoyé au navigateur ; Topcoat applique des idées voisines à Rust.",
+            "Le développeur front-end Ken Kohlman ne lui trouve pas d'inspiration unique et salue sa simplicité."
+          ]
+        },
+        {
+          "type": "heading",
+          "level": 2,
+          "text": "Limites annoncées"
+        },
+        {
+          "type": "paragraph",
+          "text": "Lerche précise que Topcoat n'est pas conçu pour des applications très complexes, de l'ampleur de Figma : il vise les applications de navigateur classiques, adossées à une base de données. Kohlman note que seule une partie de la syntaxe de Rust est prise en charge, ce qui convient mieux aux petits projets. L'article ne mentionne ni numéro de version ni état de publication, et ne précise pas la licence."
+        },
+        {
+          "type": "usecases",
+          "title": "Exemples d'utilisation",
+          "items": [
+            {
+              "icon": "🧰",
+              "title": "Équipe interne d'outils",
+              "text": "Elle construit un tableau de bord d'administration en Rust, avec accès direct à la base, sans écrire une API distincte ni une application JavaScript."
+            },
+            {
+              "icon": "🚀",
+              "title": "Startup centrée sur le back-end",
+              "text": "Elle réutilise ses compétences Rust pour une interface web simple, en limitant le code envoyé au navigateur."
+            },
+            {
+              "icon": "🧪",
+              "title": "Développeur curieux",
+              "text": "Il compare le comportement de Topcoat avec HTMX ou Phoenix LiveView sur un petit formulaire, pour juger la latence et la complexité."
+            }
+          ]
+        },
+        {
+          "type": "timeline",
+          "title": "D'où l'on vient, où l'on va",
+          "items": [
+            {
+              "label": "Rendu serveur classique",
+              "text": "Les inclusions côté serveur d'Apache illustrent déjà l'approche où le serveur compose la page."
+            },
+            {
+              "label": "Frameworks réactifs",
+              "text": "La logique est envoyée au navigateur, au prix d'un premier chargement plus lourd."
+            },
+            {
+              "label": "2026",
+              "text": "Carl Lerche présente Topcoat à la conférence P99 de ScyllaDB."
+            },
+            {
+              "label": "À venir",
+              "text": "Aucun calendrier de version n'est indiqué dans l'article."
+            }
+          ]
+        },
+        {
+          "type": "opinion",
+          "title": "Notre avis",
+          "paragraphs": [
+            "La proposition est cohérente avec une tendance de fond : relâcher la pression sur le navigateur et revenir à des fragments HTML pilotés par le serveur. Le point fort de Topcoat est la proximité avec la base de données, qui supprime une couche entière de sérialisation. Son point faible est la jeunesse : un sous-ensemble de Rust, aucune version annoncée, un écosystème à construire.",
+            "À un ou trois ans, si le projet se stabilise, il pourrait devenir une option naturelle pour les équipes Rust qui ne veulent pas maintenir un front-end JavaScript. S'il reste confidentiel, il restera un bon terrain d'idées. C'est une opinion argumentée."
+          ],
+          "verdict": "Une idée solide portée par un auteur crédible, mais encore trop jeune pour être jugée sur pièces."
+        },
+        {
+          "type": "callout",
+          "title": "À retenir",
+          "text": "Topcoat est un projet récent ; l'article ne mentionne ni version, ni licence, ni calendrier. À essayer avant tout projet critique."
+        }
+      ],
+      "illustration": {
+        "svg": "<svg xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"0 0 640 360\"><defs><linearGradient id=\"g\" x1=\"0\" y1=\"0\" x2=\"1\" y2=\"1\"><stop offset=\"0\" stop-color=\"hsl(265,62%,34%)\"/><stop offset=\"1\" stop-color=\"hsl(305,65%,22%)\"/></linearGradient></defs><rect width=\"640\" height=\"360\" fill=\"url(#g)\"/><circle cx=\"560\" cy=\"60\" r=\"90\" fill=\"#fff\" fill-opacity=\".06\"/><circle cx=\"70\" cy=\"320\" r=\"110\" fill=\"#fff\" fill-opacity=\".06\"/><circle cx=\"320\" cy=\"180\" r=\"70\" fill=\"none\" stroke=\"#fff\" stroke-width=\"30\"/><g stroke=\"#fff\" stroke-width=\"30\" stroke-linecap=\"round\"><path d=\"M320 70V40M320 290V320M210 180H180M430 180H460M242 102L222 82M398 258L418 278M398 102L418 82M242 258L222 278\"/></g><circle cx=\"320\" cy=\"180\" r=\"24\" fill=\"#fff\"/></svg>"
+      },
+      "publishedAt": "2026-10-30T09:18:27+00:00",
+      "readingMinutes": 4,
+      "cover": {
+        "url": "https://image.theregister.com/5306474.jpg?imageId=5306474&x=0&y=0&cropw=100&croph=100&panox=0&panoy=0&panow=100&panoh=100&width=1200&height=683",
+        "alt": "Topcoat : le créateur de Tokio propose un cadre Rust où le serveur fait l'essentiel du rendu web",
+        "credit": "theregister.com"
+      }
+    },
+    {
+      "id": "ubuntu-core-desktop-relance-canonical",
+      "category": "dev",
+      "icon": "🐧",
+      "importance": 3,
+      "title": "Ubuntu Core Desktop : Canonical relance son bureau immuable après des années de retard",
+      "summary": "Jon Seager, vice-président ingénierie de Canonical, annonce l'accélération d'Ubuntu Core Desktop, version bureau de la distribution immuable fondée sur les snaps. Un aperçu pourrait arriver avec Ubuntu 27.04.",
+      "tags": [
+        "Ubuntu",
+        "Canonical",
+        "Core Desktop",
+        "snap",
+        "système immuable"
+      ],
+      "sourceDate": "2026-10-29",
+      "sources": [
+        {
+          "title": "Ubuntu 27.04 may bring a preview of the long-awaited Core Desktop",
+          "url": "https://www.theregister.com/os-platforms/2026/10/29/ubuntu-2704-may-bring-a-preview-of-the-long-awaited-core-desktop/5306426",
+          "publisher": "The Register"
+        }
+      ],
+      "blocks": [
+        {
+          "type": "paragraph",
+          "text": "Annoncé pour 2024, repoussé, puis relancé : **Ubuntu Core Desktop** revient au premier plan. Jon Seager, vice-président ingénierie de Canonical, a publié sur le forum Discourse un message intitulé « Accelerating Ubuntu Core Desktop », où il annonce la reprise du développement. L'article du Register, signé Liam Proven et daté du 29 octobre 2026, suggère qu'un aperçu pourrait apparaître avec Ubuntu 27.04."
+        },
+        {
+          "type": "heading",
+          "level": 2,
+          "text": "De quoi s'agit-il ?"
+        },
+        {
+          "type": "paragraph",
+          "text": "Core Desktop est la déclinaison bureau d'Ubuntu Core, la distribution immuable déjà proposée pour l'Internet des objets. Dans ce modèle, le système est assemblé à partir de paquets snap, avec des mises à jour atomiques, un cloisonnement strict et la possibilité de revenir en arrière. L'ambition est d'isoler le gestionnaire de connexion, l'environnement de bureau et le navigateur, de sorte que le système ne soit pas limité à GNOME."
+        },
+        {
+          "type": "keyvalue",
+          "items": [
+            {
+              "label": "Annonce",
+              "value": "Jon Seager, vice-président ingénierie de Canonical, sur Discourse"
+            },
+            {
+              "label": "Calendrier",
+              "value": "pas de date ferme ; des images de développement quotidiennes dans les prochaines semaines"
+            },
+            {
+              "label": "Aperçu possible",
+              "value": "Ubuntu 27.04, d'après le Register"
+            },
+            {
+              "label": "Usages visés",
+              "value": "machine centrée sur le navigateur, poste de développement, machine de jeu"
+            }
+          ]
+        },
+        {
+          "type": "heading",
+          "level": 2,
+          "text": "Un calendrier qui a glissé"
+        },
+        {
+          "type": "list",
+          "ordered": false,
+          "items": [
+            "**Mi-2023** : le Register annonce un Ubuntu Core de bureau pour 2024.",
+            "**Novembre 2023**, Sommet Ubuntu à Riga : nouveaux détails.",
+            "**Sommet 2024** : une présentation sur une version KDE, sans publication.",
+            "**Sommet 2025** : entretien avec Jon Seager sur Core Desktop.",
+            "**Aujourd'hui** : pas de date ferme ; Seager évoque, « dans les semaines à venir », l'infrastructure de constructions d'images quotidiennes."
+          ]
+        },
+        {
+          "type": "heading",
+          "level": 2,
+          "text": "Les obstacles techniques"
+        },
+        {
+          "type": "paragraph",
+          "text": "Le Snap Store compte plus de 11 000 paquets, mais beaucoup utilisent un confinement « classique » plus faible (VS Code est cité en exemple). Core exige un confinement strict. Il faudra aussi des demandes de permissions façon téléphone, des dépendances entre snaps, des snaps de contenu et des composants de snaps. L'aperçu de 2023 reposait sur une base core22 modifiée ; Canonical préférerait s'appuyer sur la distribution Core existante. Le système de fichiers est un autre sujet : l'auteur critique la fiabilité de Btrfs et loue OpenZFS, intégré chez Canonical, alors que SteamOS et KDE Linux utilisent deux partitions Btrfs en lecture seule."
+        },
+        {
+          "type": "heading",
+          "level": 2,
+          "text": "Face à la concurrence"
+        },
+        {
+          "type": "paragraph",
+          "text": "Seager vise trois usages. Pour une machine centrée sur le navigateur, les concurrents sont ChromeOS et ChromeOS Flex, dont l'avenir est incertain face à GooglebookOS, fondé sur Android. Pour le poste de développement, ce sont les éditions Atomic de Fedora (comme Kinoite) et Universal Blue. Pour le jeu, SteamOS de Valve, présent sur le Steam Deck, la Steam Machine et le Steam Frame, et sur certains PC à base AMD."
+        },
+        {
+          "type": "usecases",
+          "title": "Exemples d'utilisation",
+          "items": [
+            {
+              "icon": "🖥️",
+              "title": "Administrateur de parc de postes",
+              "text": "Il imagine un poste immuable dont les mises à jour sont atomiques et réversibles, facile à reproduire sur des dizaines de machines."
+            },
+            {
+              "icon": "🎓",
+              "title": "Établissement scolaire",
+              "text": "Il déploie un bureau réduit à un navigateur, simple à maintenir et difficile à casser par les élèves."
+            },
+            {
+              "icon": "🛠️",
+              "title": "Développeur",
+              "text": "Il attend de savoir si ses outils (éditeur, conteneurs) fonctionneront avec le confinement strict avant d'envisager d'y migrer sa station."
+            }
+          ]
+        },
+        {
+          "type": "timeline",
+          "title": "D'où l'on vient, où l'on va",
+          "items": [
+            {
+              "label": "Mi-2023",
+              "text": "Le Register annonce un Ubuntu Core de bureau pour 2024."
+            },
+            {
+              "label": "2024",
+              "text": "L'échéance passe sans publication."
+            },
+            {
+              "label": "Octobre 2026",
+              "text": "Jon Seager annonce l'accélération du projet."
+            },
+            {
+              "label": "Ubuntu 27.04",
+              "text": "Un aperçu pourrait être proposé, d'après le Register ; ce n'est pas confirmé par Canonical dans l'article."
+            }
+          ]
+        },
+        {
+          "type": "opinion",
+          "title": "Notre avis",
+          "paragraphs": [
+            "Le plus grand obstacle de Core Desktop n'est pas la technique mais la compatibilité : le confinement strict casse des logiciels que les utilisateurs veulent justement lancer. La stratégie des trois usages, volontairement étroits, est raisonnable : mieux vaut réussir un poste de travail ciblé que promettre un bureau universel.",
+            "À un ou trois ans, si l'aperçu arrive vraiment, Canonical pourrait offrir une alternative crédible aux systèmes immuables de Fedora, mais il lui faudra tenir un calendrier qu'elle a déjà manqué. C'est une opinion, pas une certitude."
+          ],
+          "verdict": "Un projet pertinent mais déjà en retard : la crédibilité se jouera sur les images quotidiennes promises."
+        },
+        {
+          "type": "callout",
+          "title": "À retenir",
+          "text": "Aucune date de publication n'est annoncée ; le lien avec Ubuntu 27.04 est une hypothèse du Register."
+        }
+      ],
+      "illustration": {
+        "svg": "<svg xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"0 0 640 360\"><defs><linearGradient id=\"g\" x1=\"0\" y1=\"0\" x2=\"1\" y2=\"1\"><stop offset=\"0\" stop-color=\"hsl(255,62%,34%)\"/><stop offset=\"1\" stop-color=\"hsl(295,65%,22%)\"/></linearGradient></defs><rect width=\"640\" height=\"360\" fill=\"url(#g)\"/><circle cx=\"560\" cy=\"60\" r=\"90\" fill=\"#fff\" fill-opacity=\".06\"/><circle cx=\"70\" cy=\"320\" r=\"110\" fill=\"#fff\" fill-opacity=\".06\"/><rect x=\"240\" y=\"100\" width=\"160\" height=\"160\" rx=\"18\" fill=\"#fff\" fill-opacity=\".93\"/><rect x=\"278\" y=\"138\" width=\"84\" height=\"84\" rx=\"10\" fill=\"hsl(255,60%,38%)\"/><g stroke=\"#fff\" stroke-width=\"8\" stroke-linecap=\"round\"><path d=\"M270 100V70M320 100V70M370 100V70M270 260V290M320 260V290M370 260V290M240 135H210M240 180H210M240 225H210M400 135H430M400 180H430M400 225H430\"/></g></svg>"
+      },
+      "publishedAt": "2026-10-30T09:18:27+00:00",
+      "readingMinutes": 3,
+      "cover": {
+        "url": "https://image.theregister.com/1682642.jpg?imageId=1682642&x=0&y=0&cropw=100&croph=100&panox=0&panoy=0&panow=100&panoh=100&width=1200&height=683",
+        "alt": "Ubuntu Core Desktop : Canonical relance son bureau immuable après des années de retard",
+        "credit": "theregister.com"
+      }
+    }
+  ]
+}
