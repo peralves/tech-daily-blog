@@ -1,0 +1,1227 @@
+{
+ "schemaVersion": "1.0",
+ "date": "2026-10-30",
+ "generatedAt": "2026-10-30T18:18:50+01:00",
+ "title": "WordPress, ARTEX et TeamViewer sous tension, incident chez Northflank, Reddit et le satellite TPU de Google",
+ "summary": "Cette édition tech couvre une faille WordPress déjà attaquée, l'outil d'intrusion ARTEX piloté par l'IA, la faille TeamViewer, l'incident de sécurité chez Northflank, la forge fédérée Tangled, les agents d'IA chez DoorDash, le virage de Reddit vers les comptes connectés et le premier satellite TPU de Google.",
+ "highlights": [
+  "WordPress 7.1.4 : 62 969 attaques bloquées en 24 heures contre une faille d'exécution de code liée aux mises à jour.",
+  "ARTEX : un cadre d'intrusion piloté par l'IA, utilisé depuis le 17 octobre 2026 contre plus de 200 organisations selon CrowdStrike.",
+  "Northflank : tous les secrets sont à renouveler après un incident de sécurité majeur.",
+  "TeamViewer 15.83 corrige une faille permettant à l'hôte d'attaquer le visualiseur.",
+  "Reddit mise sur les comptes connectés ; Google met en orbite un premier TPU."
+ ],
+ "meta": {
+  "generator": "claude-scheduled-task"
+ },
+ "posts": [
+  {
+   "id": "wordpress-7-1-4-faille-rce-mise-a-jour",
+   "category": "cybersecurite",
+   "icon": "🧩",
+   "importance": 5,
+   "title": "WordPress : une faille d'exécution de code vise les mises à jour du cœur, près de 63 000 attaques bloquées en 24 heures",
+   "summary": "Corrigée dans WordPress 7.1.4 le 28 octobre 2026, une faille notée 8,1 exploite la brève fenêtre pendant laquelle une mise à jour complète décompresse ses fichiers. Wordfence dit avoir bloqué 62 969 attaques en une journée.",
+   "tags": [
+    "WordPress",
+    "RCE",
+    "Wordfence",
+    "mise à jour",
+    "PHP"
+   ],
+   "sourceDate": "2026-10-30",
+   "sources": [
+    {
+     "title": "WordPress RCE Flaw Draws Nearly 63,000 Attack Attempts in Just 24 Hours",
+     "url": "https://thehackernews.com/2026/10/wordpress-rce-flaw-draws-nearly-63000.html",
+     "publisher": "The Hacker News"
+    }
+   ],
+   "publishedAt": "2026-10-30T18:18:50+01:00",
+   "readingMinutes": 4,
+   "illustration": {
+    "svg": "<svg xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"0 0 640 360\"><defs><linearGradient id=\"g\" x1=\"0\" y1=\"0\" x2=\"1\" y2=\"1\"><stop offset=\"0\" stop-color=\"hsl(175,62%,34%)\"/><stop offset=\"1\" stop-color=\"hsl(215,65%,20%)\"/></linearGradient></defs><rect width=\"640\" height=\"360\" fill=\"url(#g)\"/><circle cx=\"570\" cy=\"50\" r=\"90\" fill=\"#fff\" fill-opacity=\".06\"/><circle cx=\"60\" cy=\"320\" r=\"110\" fill=\"#fff\" fill-opacity=\".06\"/><g stroke=\"#fff\" stroke-width=\"8\" fill=\"none\" stroke-linecap=\"round\"><circle cx=\"320\" cy=\"180\" r=\"90\"/><path d=\"M270 140l35 90 15-60 15 60 35-90\"/></g><g fill=\"#fff\"><rect x=\"150\" y=\"70\" width=\"90\" height=\"14\" rx=\"7\"/><rect x=\"400\" y=\"290\" width=\"110\" height=\"14\" rx=\"7\"/></g></svg>"
+   },
+   "blocks": [
+    {
+     "type": "paragraph",
+     "text": "Les administrateurs de sites WordPress ont une raison de plus de vérifier leur version. Selon [The Hacker News](https://thehackernews.com/2026/10/wordpress-rce-flaw-draws-nearly-63000.html), une faille d'**exécution de code à distance** touche le cœur de WordPress, de la version 4.7 à la version 7.1.3. Elle est corrigée dans **WordPress 7.1.4**, publiée le 28 octobre 2026, et des attaquants ont commencé à la sonder presque immédiatement. L'éditeur de sécurité Wordfence, qui a publié l'analyse et l'avis, affirme avoir bloqué **62 969 attaques** visant cette faille au cours des dernières 24 heures."
+    },
+    {
+     "type": "paragraph",
+     "text": "Particularité notable : la faille ne dispose pas, à ce stade, d'identifiant CVE, selon l'article. Sa gravité est évaluée à 8,1 sur 10 (CVSS), soit un niveau élevé mais inférieur aux failles les plus critiques, car l'exploitation suppose des conditions précises."
+    },
+    {
+     "type": "heading",
+     "level": 2,
+     "text": "Comment fonctionne l'attaque"
+    },
+    {
+     "type": "paragraph",
+     "text": "Lors d'une mise à jour complète du cœur, WordPress décompresse les nouveaux fichiers dans un répertoire prévisible, situé sous `wp-content/upgrade`. Cette copie contient notamment l'installateur de WordPress. Sur de nombreux serveurs, ce répertoire temporaire est accessible depuis le web. Un visiteur non authentifié qui demande l'installateur au bon moment peut alors interagir avec la copie en cours de mise en place, puis progresser jusqu'à l'exécution de code PHP."
+    },
+    {
+     "type": "paragraph",
+     "text": "Il s'agit donc d'une **condition de concurrence** : l'attaquant doit frapper dans une fenêtre très étroite, celle où WordPress décompresse la mise à jour avant de supprimer les fichiers temporaires. En laboratoire, cette fenêtre n'a duré que quelques secondes. Cela explique le comportement observé en ligne : des acteurs malveillants interrogent en boucle des chemins comme `setup-config.php`, dans l'espoir de tomber sur un site au moment précis où il se met à jour."
+    },
+    {
+     "type": "diagram",
+     "svg": "<svg xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"0 0 600 230\" font-family=\"system-ui,sans-serif\"><rect width=\"600\" height=\"230\" rx=\"14\" fill=\"#f4f6fb\"/><text x=\"24\" y=\"32\" font-size=\"16\" font-weight=\"700\" fill=\"#1b2433\">Mise à jour complète de WordPress : la fenêtre d'attaque</text><g font-size=\"13\" fill=\"#1b2433\"><rect x=\"24\" y=\"60\" width=\"150\" height=\"70\" rx=\"10\" fill=\"#dbe7ff\" stroke=\"#3b6fd6\"/><text x=\"36\" y=\"90\">1. Décompression</text><text x=\"36\" y=\"110\">wp-content/upgrade</text><rect x=\"225\" y=\"60\" width=\"150\" height=\"70\" rx=\"10\" fill=\"#ffe3d6\" stroke=\"#d65a2a\"/><text x=\"237\" y=\"90\">2. Fenêtre de</text><text x=\"237\" y=\"110\">quelques secondes</text><rect x=\"426\" y=\"60\" width=\"150\" height=\"70\" rx=\"10\" fill=\"#dff3e3\" stroke=\"#2f9a4a\"/><text x=\"438\" y=\"90\">3. Suppression</text><text x=\"438\" y=\"110\">des fichiers</text></g><path d=\"M176 95h46M377 95h46\" stroke=\"#1b2433\" stroke-width=\"3\"/><text x=\"24\" y=\"170\" font-size=\"13\" fill=\"#1b2433\">Pendant l'étape 2, un visiteur non authentifié peut solliciter l'installateur</text><text x=\"24\" y=\"192\" font-size=\"13\" fill=\"#1b2433\">copié dans le répertoire temporaire, s'il est accessible depuis le web.</text><text x=\"24\" y=\"216\" font-size=\"12\" fill=\"#5a6475\">Schéma simplifié d'après l'analyse de Wordfence.</text></svg>",
+     "alt": "Schéma en trois étapes : décompression de la mise à jour, fenêtre d'attaque de quelques secondes, suppression des fichiers temporaires.",
+     "caption": "La faille ne peut être exploitée que pendant la courte fenêtre où une mise à jour complète décompresse ses fichiers."
+    },
+    {
+     "type": "heading",
+     "level": 2,
+     "text": "Les conditions nécessaires"
+    },
+    {
+     "type": "paragraph",
+     "text": "D'après l'article, l'exploitation n'est possible que si quatre conditions sont réunies en même temps. La liste montre pourquoi la faille, bien que sérieuse, ne concerne pas tous les sites à tout moment."
+    },
+    {
+     "type": "list",
+     "ordered": false,
+     "items": [
+      "Une mise à jour complète contenant les fichiers de l'installateur est en cours.",
+      "Le répertoire de préparation est accessible publiquement par le web et par PHP.",
+      "Le chemin de ce répertoire est prévisible ou facile à découvrir.",
+      "L'attaquant dispose de suffisamment de temps avant que WordPress ne supprime les fichiers temporaires."
+     ]
+    },
+    {
+     "type": "heading",
+     "level": 2,
+     "text": "Ce que Wordfence a observé"
+    },
+    {
+     "type": "paragraph",
+     "text": "L'activité mesurée ne ressemble pas à un balayage massif et aveugle. Deux des plus importantes sources ont interrogé de petits groupes de sites pendant environ 14,5 heures, ce que Wordfence juge cohérent avec une tentative d'attraper la brève fenêtre de mise à jour. D'autres sources ont testé de nombreuses variantes de noms de répertoires et de versions, et certaines requêtes n'utilisaient même pas le chemin vulnérable exact : les attaquants tâtonnent encore."
+    },
+    {
+     "type": "keyvalue",
+     "items": [
+      {
+       "label": "Versions concernées",
+       "value": "WordPress 4.7 à 7.1.3"
+      },
+      {
+       "label": "Version corrigée",
+       "value": "7.1.4, publiée le 28 octobre 2026"
+      },
+      {
+       "label": "Gravité",
+       "value": "8,1 (CVSS), sans identifiant CVE"
+      },
+      {
+       "label": "Attaques bloquées par Wordfence",
+       "value": "62 969 en 24 heures"
+      },
+      {
+       "label": "Source de l'analyse",
+       "value": "Wordfence, relayée le 30 octobre 2026"
+      }
+     ]
+    },
+    {
+     "type": "usecases",
+     "title": "Exemples d'utilisation",
+     "items": [
+      {
+       "icon": "🛒",
+       "title": "Boutique en ligne sur hébergement mutualisé",
+       "text": "Le gérant active les mises à jour automatiques du cœur. Après la correction, il vérifie que le site tourne bien en 7.1.4 et que le répertoire de préparation n'est plus servi par le serveur web."
+      },
+      {
+       "icon": "🏢",
+       "title": "Agence qui gère une quarantaine de sites",
+       "text": "Elle contrôle la version de chaque installation, puis recherche dans les journaux les requêtes vers des fichiers PHP situés sous `wp-content/upgrade`."
+      },
+      {
+       "icon": "🕵️",
+       "title": "Équipe de sécurité d'une PME",
+       "text": "Elle cherche des comptes administrateurs, des extensions ou des fichiers PHP inconnus apparus depuis le 28 octobre, signes possibles d'une intrusion réussie."
+      }
+     ]
+    },
+    {
+     "type": "timeline",
+     "title": "D'où l'on vient, où l'on va",
+     "items": [
+      {
+       "label": "Octobre 2026",
+       "text": "Wordfence publie l'analyse de la faille touchant les mises à jour complètes du cœur."
+      },
+      {
+       "label": "28 octobre 2026",
+       "text": "WordPress 7.1.4 corrige le problème."
+      },
+      {
+       "label": "30 octobre 2026",
+       "text": "Wordfence fait état de 62 969 attaques bloquées en 24 heures."
+      },
+      {
+       "label": "À suivre",
+       "text": "L'attribution éventuelle d'un identifiant CVE et l'ampleur réelle des compromissions, non précisées à ce stade."
+      }
+     ]
+    },
+    {
+     "type": "opinion",
+     "title": "Notre avis",
+     "paragraphs": [
+      "Cette faille illustre un travers classique : un mécanisme de mise à jour, censé protéger, crée lui-même une exposition passagère. L'exploitation reste délicate, mais les attaquants ont déjà montré qu'ils savaient patienter, et la masse de sites WordPress rend la probabilité qu'un site tombe pile dans la fenêtre loin d'être négligeable. Le fait que l'article ne mentionne aucune compromission confirmée invite toutefois à la prudence : 62 969 tentatives bloquées ne disent rien des tentatives réussies sur des sites non protégés.",
+      "À un horizon d'un à trois ans, on peut raisonnablement attendre un durcissement des procédures de mise à jour (répertoires temporaires hors de la racine web, fichiers retirés de la copie de préparation). C'est une analyse, non une annonce : l'article source ne décrit aucune évolution d'architecture prévue par WordPress."
+     ],
+     "verdict": "Passez en 7.1.4 sans attendre, et vérifiez que le répertoire de préparation ne soit jamais servi par le web."
+    },
+    {
+     "type": "callout",
+     "title": "À retenir",
+     "text": "WordPress 7.1.4 corrige une faille d'exécution de code (CVSS 8,1) exploitable pendant les mises à jour complètes. Mettez à jour, surveillez les requêtes vers `wp-content/upgrade` et contrôlez la présence de comptes ou de fichiers inconnus."
+    }
+   ],
+   "cover": {
+    "url": "https://blogger.googleusercontent.com/img/b/R29vZ2xl/AVvXsEhf-pzflJO9HQoCdvBvYNtS12gwwEjAbM4dQ30ak7UYaIPzsVPN9MlFwvIDEFkbe9cWg4wQRFPbGfJ0YXjzGcBS6mUTwttwkQ8IR7OoHyTz3owZkVzYQOAObyJUqfjsC-PqMw2pv41_m68hb6ZkwJb56kGx-Ypv7GWZBtDzjyTTQ8L8i9NxA8_MDVoJSEba/s1700-nu-rw-lo-l85-e365/wp-hack.jpg",
+    "alt": "Illustration d'un piratage de site WordPress",
+    "credit": "thehackernews.com"
+   }
+  },
+  {
+   "id": "artex-vapor-panda-attaques-ia-200-organisations",
+   "category": "cybersecurite",
+   "icon": "🤖",
+   "importance": 5,
+   "title": "ARTEX : un cadre d'intrusion piloté par l'IA, utilisé par un groupe chinois contre plus de 200 organisations",
+   "summary": "Selon CrowdStrike, le groupe Vapor Panda utilise depuis le 17 octobre 2026 l'outil ARTEX, qui coordonne des agents d'IA, contre des ministères, des opérateurs télécoms et des entreprises sensibles.",
+   "tags": [
+    "ARTEX",
+    "Vapor Panda",
+    "CrowdStrike",
+    "IA offensive",
+    "espionnage"
+   ],
+   "sourceDate": "2026-10-30",
+   "sources": [
+    {
+     "title": "Chinese Hackers Use AI-Powered ARTEX to Target Over 200 Organizations Worldwide",
+     "url": "https://thehackernews.com/2026/10/chinese-hackers-use-ai-powered-artex-to.html",
+     "publisher": "The Hacker News"
+    }
+   ],
+   "publishedAt": "2026-10-30T18:18:50+01:00",
+   "readingMinutes": 4,
+   "illustration": {
+    "svg": "<svg xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"0 0 640 360\"><defs><linearGradient id=\"g\" x1=\"0\" y1=\"0\" x2=\"1\" y2=\"1\"><stop offset=\"0\" stop-color=\"hsl(175,62%,34%)\"/><stop offset=\"1\" stop-color=\"hsl(215,65%,20%)\"/></linearGradient></defs><rect width=\"640\" height=\"360\" fill=\"url(#g)\"/><circle cx=\"570\" cy=\"50\" r=\"90\" fill=\"#fff\" fill-opacity=\".06\"/><circle cx=\"60\" cy=\"320\" r=\"110\" fill=\"#fff\" fill-opacity=\".06\"/><g fill=\"none\" stroke=\"#fff\" stroke-width=\"7\" stroke-linecap=\"round\"><rect x=\"230\" y=\"110\" width=\"180\" height=\"140\" rx=\"22\"/><path d=\"M320 110V70M290 160h0M350 160h0\"/></g><g fill=\"#fff\"><circle cx=\"320\" cy=\"62\" r=\"12\"/><circle cx=\"285\" cy=\"170\" r=\"14\"/><circle cx=\"355\" cy=\"170\" r=\"14\"/><rect x=\"285\" y=\"205\" width=\"70\" height=\"10\" rx=\"5\"/></g><path d=\"M120 180h100M420 180h100\" stroke=\"#fff\" stroke-width=\"6\" stroke-dasharray=\"4 14\" stroke-linecap=\"round\"/></svg>"
+   },
+   "blocks": [
+    {
+     "type": "paragraph",
+     "text": "Les outils d'intrusion automatisés ne sont pas nouveaux, mais ceux qui orchestrent des agents d'intelligence artificielle changent d'échelle. D'après [The Hacker News](https://thehackernews.com/2026/10/chinese-hackers-use-ai-powered-artex-to.html), CrowdStrike attribue à un groupe lié à la Chine, qu'il suit sous le nom de **Vapor Panda**, l'usage d'**ARTEX**, un cadre de test d'intrusion écrit en Go et piloté par l'IA. Depuis le 17 octobre 2026, il aurait servi contre plus de 200 organisations distinctes."
+    },
+    {
+     "type": "heading",
+     "level": 2,
+     "text": "Un outil, un groupe"
+    },
+    {
+     "type": "paragraph",
+     "text": "ARTEX est décrit par Zscaler ThreatLabz comme un cadre qui orchestre plusieurs modèles de langage pour automatiser la reconnaissance, l'identification de vulnérabilités et l'exploitation. Son développeur, connu sous le pseudonyme « Autumn-27 », l'a fermé au public après son adoption massive par des acteurs malveillants. Le groupe Vapor Panda, repéré pour la première fois en février 2021, recoupe selon CrowdStrike le groupe que Trend Micro appelle Earth Estries."
+    },
+    {
+     "type": "paragraph",
+     "text": "Le fonctionnement repose sur une architecture « planificateur et exécutants » : un agent de planification fixe l'objectif, des agents exécutants s'occupent de l'accès initial, de la reconnaissance des machines et du déplacement latéral. Un opérateur humain supervise l'ensemble et donne des ordres précis, comme écrire un web shell, extraire les mots de passe d'administrateurs de domaine ou recenser les capteurs de sécurité d'un poste. CrowdStrike indique que les agents de planification ont consommé environ 1,4 milliard de jetons en entrée lors d'une seule intrusion."
+    },
+    {
+     "type": "heading",
+     "level": 2,
+     "text": "Qui est visé ?"
+    },
+    {
+     "type": "list",
+     "ordered": false,
+     "items": [
+      "Des ministères des affaires étrangères en Amérique latine, en Europe, en Asie et au Moyen-Orient.",
+      "Des organisations américaines des semi-conducteurs, de la défense et des groupes de réflexion : 19 entités américaines des secteurs pharmaceutique, des semi-conducteurs, de la défense, du nucléaire et de la finance sont citées.",
+      "Des opérateurs de télécommunications aux États-Unis, en Belgique et aux Philippines.",
+      "Un ministère de l'intérieur au Moyen-Orient, ainsi que, côté européen, un ministère des affaires étrangères, une présidence et les services d'un chef de gouvernement."
+     ]
+    },
+    {
+     "type": "paragraph",
+     "text": "Des actions postérieures à l'intrusion ont été confirmées dans neuf organisations, où les attaquants ont déployé **BLOODALCHEMY**, un dérivé de ShadowPad, avant de mener des pulvérisations de mots de passe, des balayages réseau et de la reconnaissance. Au moins douze autres organisations ont subi des tentatives de pulvérisation de mots de passe et de collecte d'identifiants, dont des groupes de réflexion américains et des entités gouvernementales européennes."
+    },
+    {
+     "type": "heading",
+     "level": 2,
+     "text": "Les techniques observées"
+    },
+    {
+     "type": "paragraph",
+     "text": "Les transcriptions analysées par CrowdStrike montrent des enchaînements que des opérateurs humains aguerris pratiquent aussi, mais menés ici en parallèle et avec changement automatique de piste en cas d'échec."
+    },
+    {
+     "type": "list",
+     "ordered": false,
+     "items": [
+      "Une assertion SAML non signée combinée à une faille XXE pour interroger le service de métadonnées du nuage, puis remonter jusqu'à un compte d'administrateur d'entreprise.",
+      "L'abus d'un service d'orchestration non authentifié pour obtenir les droits root dans un environnement de conteneurs, la lecture de mots de passe LAPS et la délégation contrainte basée sur les ressources pour usurper un compte privilégié.",
+      "L'usage de clés d'authentification non renouvelées depuis 2022 pour forger un jeton d'administrateur et lire des boîtes aux lettres, puis la récupération de configurations VPN dans des courriels envoyés et d'une clé de client VPN issue d'une fuite de courriels de mai 2024."
+     ]
+    },
+    {
+     "type": "paragraph",
+     "text": "Ces exemples ont un point commun : aucune faille inconnue n'y est mentionnée. Ce sont des erreurs de configuration, des secrets non renouvelés et des services mal protégés que l'IA exploite plus vite et plus patiemment qu'un humain."
+    },
+    {
+     "type": "usecases",
+     "title": "Exemples d'utilisation (côté défense)",
+     "items": [
+      {
+       "icon": "🔑",
+       "title": "Rotation des clés et jetons",
+       "text": "Une direction informatique recense les clés d'authentification restées inchangées depuis plusieurs années et les renouvelle en priorité."
+      },
+      {
+       "icon": "📧",
+       "title": "Hygiène des boîtes aux lettres",
+       "text": "Une équipe sécurité cherche les configurations VPN et les secrets conservés dans des courriels envoyés, puis les invalide."
+      },
+      {
+       "icon": "🧭",
+       "title": "Détection des mots de passe pulvérisés",
+       "text": "Un centre opérationnel de sécurité surveille les nombreux échecs de connexion étalés sur beaucoup de comptes, signe typique de ce type de campagne."
+      }
+     ]
+    },
+    {
+     "type": "timeline",
+     "title": "D'où l'on vient, où l'on va",
+     "items": [
+      {
+       "label": "Février 2021",
+       "text": "CrowdStrike identifie pour la première fois Vapor Panda."
+      },
+      {
+       "label": "17 octobre 2026",
+       "text": "Début de l'utilisation d'ARTEX contre plus de 200 organisations."
+      },
+      {
+       "label": "30 octobre 2026",
+       "text": "Publication de l'analyse de CrowdStrike relayée par la presse spécialisée."
+      },
+      {
+       "label": "À suivre",
+       "text": "Les mesures de défense détaillées par CrowdStrike, que l'article source ne reprend pas."
+      }
+     ]
+    },
+    {
+     "type": "opinion",
+     "title": "Notre avis",
+     "paragraphs": [
+      "Le point important n'est pas la sophistication technique, qui reste celle de pratiques connues, mais l'**industrialisation** : un opérateur peut superviser des dizaines d'intrusions menées par des agents infatigables. Cela renforce l'intérêt des fondamentaux (renouvellement des secrets, segmentation, authentification forte) qui, selon les exemples cités, auraient bloqué plusieurs des enchaînements observés. L'attribution à un État reste, comme souvent, celle d'un éditeur de sécurité et non d'une autorité publique.",
+      "Dans un à trois ans, on peut s'attendre à ce que des outils comparables se banalisent, y compris hors des groupes étatiques. C'est une projection, que l'article ne formule pas : elle découle de l'adoption massive d'ARTEX par des acteurs malveillants avant sa fermeture."
+     ],
+     "verdict": "L'IA accélère les attaquants, mais ce sont encore les secrets oubliés et les configurations faibles qui leur ouvrent la porte."
+    }
+   ]
+  },
+  {
+   "id": "northflank-incident-securite-secrets-a-renouveler",
+   "category": "devops",
+   "icon": "🚨",
+   "importance": 5,
+   "title": "Northflank : un incident de sécurité majeur, les clients invités à renouveler tous leurs secrets",
+   "summary": "La plateforme Northflank signale le 30 octobre 2026 un incident de sécurité en « panne majeure ». Elle demande de considérer toutes les variables d'environnement comme déchiffrées et de renouveler les clés.",
+   "tags": [
+    "Northflank",
+    "incident",
+    "secrets",
+    "variables d'environnement",
+    "PaaS"
+   ],
+   "sourceDate": "2026-10-30",
+   "sources": [
+    {
+     "title": "Northflank — page d'état : incident de sécurité",
+     "url": "https://status.northflank.com",
+     "publisher": "Northflank"
+    }
+   ],
+   "publishedAt": "2026-10-30T18:20:15+01:00",
+   "readingMinutes": 3,
+   "illustration": {
+    "svg": "<svg xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"0 0 640 360\"><defs><linearGradient id=\"g\" x1=\"0\" y1=\"0\" x2=\"1\" y2=\"1\"><stop offset=\"0\" stop-color=\"hsl(160,62%,34%)\"/><stop offset=\"1\" stop-color=\"hsl(200,65%,20%)\"/></linearGradient></defs><rect width=\"640\" height=\"360\" fill=\"url(#g)\"/><circle cx=\"570\" cy=\"50\" r=\"90\" fill=\"#fff\" fill-opacity=\".06\"/><circle cx=\"60\" cy=\"320\" r=\"110\" fill=\"#fff\" fill-opacity=\".06\"/><g fill=\"none\" stroke=\"#fff\" stroke-width=\"8\" stroke-linejoin=\"round\" stroke-linecap=\"round\"><path d=\"M320 60l110 40v80c0 70-50 110-110 130-60-20-110-60-110-130v-80z\"/><path d=\"M320 140v60M320 230v2\"/></g></svg>"
+   },
+   "blocks": [
+    {
+     "type": "paragraph",
+     "text": "Quand une plateforme d'hébergement signale un incident de sécurité, la question qui compte est celle des secrets : mots de passe de bases de données, clés d'API, jetons. Le 30 octobre 2026, la page d'état de **Northflank**, plateforme qui héberge et déploie des applications, affichait un « incident de sécurité » classé en **panne majeure**. L'incident a aussi retenu l'attention des lecteurs de Hacker News, où le lien a rassemblé 96 points."
+    },
+    {
+     "type": "paragraph",
+     "text": "La page d'état n'emploie pas le mot « fuite » et ne décrit ni la façon dont l'attaquant a obtenu l'accès, ni le nombre de clients touchés. Ce que l'on sait, c'est la chronologie des opérations et les consignes données aux utilisateurs. Elles sont suffisamment nettes pour qu'il vaille la peine de les résumer."
+    },
+    {
+     "type": "heading",
+     "level": 2,
+     "text": "Chronologie relevée sur la page d'état (UTC)"
+    },
+    {
+     "type": "table",
+     "headers": [
+      "Heure",
+      "Événement"
+     ],
+     "rows": [
+      [
+       "11 h 43",
+       "Alerte de menace déclenchée par Wiz"
+      ],
+      [
+       "11 h 44",
+       "Les ingénieurs de Northflank examinent l'alerte"
+      ],
+      [
+       "12 h 02",
+       "Premier correctif des politiques réseau"
+      ],
+      [
+       "12 h 50 et 13 h 05",
+       "Correctifs supplémentaires"
+      ],
+      [
+       "13 h 00",
+       "Demande d'aide à l'équipe de réponse à incident de Wiz"
+      ],
+      [
+       "13 h 40",
+       "Enquête en cours : les utilisateurs doivent renouveler immédiatement leurs variables d'environnement"
+      ],
+      [
+       "13 h 58",
+       "Incident identifié : il faut supposer que toutes les variables d'environnement ont été déchiffrées et désactiver ou renouveler toutes les clés"
+      ],
+      [
+       "15 h 12",
+       "Renouvellement des secrets Postgres et MongoDB activé pour tous ; plusieurs utilisateurs confirment que leurs clés d'IA ont été utilisées"
+      ]
+     ]
+    },
+    {
+     "type": "heading",
+     "level": 2,
+     "text": "Ce qui est touché"
+    },
+    {
+     "type": "paragraph",
+     "text": "Les composants en panne majeure sont le réseau, les certificats, les services, les modules complémentaires, les tâches, les constructions (builds) et les journaux et métriques. L'application Northflank, l'API, le site vitrine et la documentation restaient opérationnels. Les secrets concernés sont ceux des charges de travail, des groupes de secrets et les secrets globaux."
+    },
+    {
+     "type": "heading",
+     "level": 2,
+     "text": "Les consignes aux clients"
+    },
+    {
+     "type": "list",
+     "ordered": false,
+     "items": [
+      "Renouveler immédiatement toutes les variables d'environnement et toutes les clés.",
+      "Désactiver l'exposition publique des modules complémentaires comme Postgres et MongoDB, si elle avait été activée.",
+      "Vérifier l'usage frauduleux des clés de fournisseurs d'IA : la page indique que certains utilisateurs ont constaté que leurs clés avaient été utilisées.",
+      "Passer en revue les secrets des charges de travail, des groupes de secrets et les secrets globaux."
+     ]
+    },
+    {
+     "type": "paragraph",
+     "text": "Cette dernière mention est révélatrice : les clés d'IA sont devenues une cible de choix, car elles se monnayent facilement et leur détournement se remarque tard, souvent sur une facture. La page ne précise pas l'origine de l'attaque au-delà de l'alerte initiale de Wiz : la cause profonde et un éventuel communiqué formel restent à attendre."
+    },
+    {
+     "type": "usecases",
+     "title": "Exemples d'utilisation",
+     "items": [
+      {
+       "icon": "🔁",
+       "title": "Équipe produit hébergée sur la plateforme",
+       "text": "Elle fait tourner la rotation des secrets, puis redéploie ses services et vérifie que chaque base accepte bien les nouveaux identifiants."
+      },
+      {
+       "icon": "💳",
+       "title": "Responsable d'une application qui utilise des API d'IA",
+       "text": "Il consulte la consommation des clés chez chaque fournisseur, révoque les clés anciennes et active des plafonds de dépenses."
+      },
+      {
+       "icon": "🗄️",
+       "title": "Administrateur d'une base exposée publiquement",
+       "text": "Il coupe l'accès public à la base et la limite à un réseau privé ou à une liste d'adresses autorisées."
+      }
+     ]
+    },
+    {
+     "type": "timeline",
+     "title": "D'où l'on vient, où l'on va",
+     "items": [
+      {
+       "label": "30 octobre 2026, 11 h 43 UTC",
+       "text": "Wiz déclenche une alerte de menace chez Northflank."
+      },
+      {
+       "label": "Dans la journée",
+       "text": "Correctifs réseau, appel à l'aide de Wiz CIRT, puis consigne de renouveler tous les secrets."
+      },
+      {
+       "label": "À venir",
+       "text": "Un compte rendu formel avec la cause profonde et le périmètre exact, non publié à ce stade."
+      }
+     ]
+    },
+    {
+     "type": "opinion",
+     "title": "Notre avis",
+     "paragraphs": [
+      "Le ton de la page d'état — supposer que tout a été déchiffré — est la bonne réponse de prudence, même si elle est coûteuse pour les clients. Elle rappelle une règle simple : un secret stocké chez un tiers doit pouvoir être renouvelé vite, et l'application doit supporter cette rotation sans panne prolongée. Les équipes qui n'ont jamais répété une rotation complète découvrent leurs dépendances cachées au pire moment.",
+      "Sur un à trois ans, les plateformes d'hébergement seront probablement jugées sur la rapidité de leur communication et sur la rotation automatisée des secrets, plutôt que sur leurs seules fonctionnalités. C'est notre analyse, non un fait établi par la source."
+     ],
+     "verdict": "Dans un incident de plateforme, la rapidité de rotation des secrets compte autant que la qualité du correctif."
+    },
+    {
+     "type": "callout",
+     "title": "À retenir",
+     "text": "Si vous hébergez des services chez Northflank : renouvelez tous les secrets, coupez l'exposition publique des bases et contrôlez l'usage de vos clés d'IA. Les causes de l'incident ne sont pas encore connues."
+    }
+   ]
+  },
+  {
+   "id": "teamviewer-15-83-faille-cve-2026-111585",
+   "category": "cybersecurite",
+   "icon": "🖥️",
+   "importance": 4,
+   "title": "TeamViewer : une faille permet à l'ordinateur contrôlé d'attaquer la personne qui s'y connecte",
+   "summary": "La faille CVE-2026-111585, notée 8,8, est corrigée dans TeamViewer 15.83. Un hôte malveillant peut faire planter le visualiseur et, sous Windows, y exécuter du code selon les chercheurs de Remedio.",
+   "tags": [
+    "TeamViewer",
+    "CVE-2026-111585",
+    "dépassement mémoire",
+    "prise de contrôle à distance"
+   ],
+   "sourceDate": "2026-10-30",
+   "sources": [
+    {
+     "title": "TeamViewer Flaw Lets Remote Computers Attack Users Who Connect to Control Them",
+     "url": "https://thehackernews.com/2026/10/teamviewer-flaw-lets-remote-computers.html",
+     "publisher": "The Hacker News"
+    }
+   ],
+   "publishedAt": "2026-10-30T18:18:50+01:00",
+   "readingMinutes": 3,
+   "illustration": {
+    "svg": "<svg xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"0 0 640 360\"><defs><linearGradient id=\"g\" x1=\"0\" y1=\"0\" x2=\"1\" y2=\"1\"><stop offset=\"0\" stop-color=\"hsl(175,62%,34%)\"/><stop offset=\"1\" stop-color=\"hsl(215,65%,20%)\"/></linearGradient></defs><rect width=\"640\" height=\"360\" fill=\"url(#g)\"/><circle cx=\"570\" cy=\"50\" r=\"90\" fill=\"#fff\" fill-opacity=\".06\"/><circle cx=\"60\" cy=\"320\" r=\"110\" fill=\"#fff\" fill-opacity=\".06\"/><g fill=\"none\" stroke=\"#fff\" stroke-width=\"7\" stroke-linejoin=\"round\"><rect x=\"120\" y=\"100\" width=\"190\" height=\"130\" rx=\"12\"/><rect x=\"340\" y=\"100\" width=\"190\" height=\"130\" rx=\"12\"/><path d=\"M215 230v30M175 260h80M435 230v30M395 260h80\"/></g><path d=\"M315 150h20M315 180h20\" stroke=\"#fff\" stroke-width=\"7\" stroke-linecap=\"round\"/><path d=\"M400 130l20 20-20 20\" stroke=\"#ffb3b3\" stroke-width=\"7\" fill=\"none\"/></svg>"
+   },
+   "blocks": [
+    {
+     "type": "paragraph",
+     "text": "On imagine rarement qu'un ordinateur dépanné à distance puisse attaquer celui qui le dépanne. C'est pourtant ce que décrit [The Hacker News](https://thehackernews.com/2026/10/teamviewer-flaw-lets-remote-computers.html) à propos de **CVE-2026-111585**, une faille de gravité élevée (8,8 sur 10) dans TeamViewer. Elle est corrigée dans la version **15.83**, et aucun contournement n'est proposé : la mise à jour est le seul remède."
+    },
+    {
+     "type": "heading",
+     "level": 2,
+     "text": "Le mécanisme"
+    },
+    {
+     "type": "paragraph",
+     "text": "Dans une session, la machine pilotée s'appelle l'hôte et celle qui pilote le visualiseur. L'hôte indique au visualiseur la taille de son image d'écran. Le visualiseur réserve de la mémoire en fonction de cette taille, mais le calcul peut déborder et réserver trop peu. Les données d'écran envoyées ensuite sont alors écrites au-delà de la zone réservée. L'article ne nomme pas précisément la classe de bogue."
+    },
+    {
+     "type": "paragraph",
+     "text": "Au minimum, l'erreur fait planter la session du visualiseur, et l'hôte peut répéter le plantage à volonté. Les chercheurs de Remedio, qui ont publié leur compte rendu technique le 29 octobre 2026, ont montré qu'il était possible, sous Windows, de contourner les protections intégrées du système et d'exécuter du code choisi sur le visualiseur. La démonstration utilisait un élément simulé côté hôte pour fournir une partie des données de l'attaque : elle n'était donc pas entièrement réalisable par le réseau. L'exécution de code n'a été montrée que sous Windows ; les autres systèmes ne sont pas traités."
+    },
+    {
+     "type": "heading",
+     "level": 2,
+     "text": "Ce qu'il faut pour que cela marche"
+    },
+    {
+     "type": "list",
+     "ordered": false,
+     "items": [
+      "Aucun mot de passe ni clic supplémentaire, au-delà de l'acceptation de la session.",
+      "La configuration par défaut de TeamViewer suffit.",
+      "L'attaque n'est possible qu'après qu'une personne a elle-même lancé une session de contrôle avec l'hôte malveillant."
+     ]
+    },
+    {
+     "type": "paragraph",
+     "text": "Ce dernier point est important : un attaquant ne peut pas viser n'importe quel utilisateur. Il doit l'amener à se connecter à une machine qu'il contrôle, ou compromettre une machine que la victime a l'habitude de dépanner."
+    },
+    {
+     "type": "heading",
+     "level": 2,
+     "text": "Produits concernés et autres correctifs"
+    },
+    {
+     "type": "keyvalue",
+     "items": [
+      {
+       "label": "Produits",
+       "value": "Client complet sous Windows, Linux et macOS ; édition portable Windows ; application Android de contrôle à distance"
+      },
+      {
+       "label": "Versions touchées",
+       "value": "Toutes les versions antérieures à 15.83, y compris la 15.82 (mise à jour de sécurité de septembre 2026)"
+      },
+      {
+       "label": "Bulletin",
+       "value": "TV-2026-1011"
+      },
+      {
+       "label": "Autres correctifs",
+       "value": "Deux autres failles de gravité élevée, dont une exécution de code sous Linux et macOS ; un second bulletin (TV-2026-1012) corrige six failles dans des modules de gestion à distance"
+      }
+     ]
+    },
+    {
+     "type": "paragraph",
+     "text": "Le module « hôte » n'est pas listé dans le bulletin pour cette faille, mais la même mise à jour corrige deux autres failles qui le touchent : ses utilisateurs ont donc intérêt à mettre à jour aussi. TeamViewer indique ne connaître aucune exploitation, la faille ne figurait pas au catalogue des vulnérabilités exploitées de la CISA au 29 octobre, et Remedio n'a ni signalé d'attaque ni publié de code d'exploitation."
+    },
+    {
+     "type": "usecases",
+     "title": "Exemples d'utilisation",
+     "items": [
+      {
+       "icon": "🛠️",
+       "title": "Prestataire de dépannage informatique",
+       "text": "Il se connecte chaque jour aux ordinateurs de clients. Il met à jour son client en 15.83 pour qu'un poste compromis ne puisse pas le prendre pour cible."
+      },
+      {
+       "icon": "🏫",
+       "title": "Service informatique d'un établissement",
+       "text": "Il vérifie la version installée sur les postes des techniciens, y compris les éditions portables, souvent oubliées des inventaires."
+      },
+      {
+       "icon": "📱",
+       "title": "Technicien équipé d'un téléphone Android",
+       "text": "Il met à jour l'application de contrôle à distance, également concernée, avant de dépanner un appareil qu'il ne connaît pas."
+      }
+     ]
+    },
+    {
+     "type": "timeline",
+     "title": "D'où l'on vient, où l'on va",
+     "items": [
+      {
+       "label": "29 octobre 2026",
+       "text": "Remedio publie son compte rendu technique."
+      },
+      {
+       "label": "30 octobre 2026",
+       "text": "TeamViewer 15.83 est signalée comme corrigeant la faille ; des builds corrigés existent pour les branches plus anciennes."
+      },
+      {
+       "label": "À suivre",
+       "text": "Une éventuelle exploitation en conditions réelles ; aucune n'est connue à ce jour."
+      }
+     ]
+    },
+    {
+     "type": "opinion",
+     "title": "Notre avis",
+     "paragraphs": [
+      "Cette faille retourne le modèle de confiance habituel : on protège l'hôte, qui expose son écran, mais on oublie que le visualiseur lit des données fournies par une machine potentiellement hostile. Pour les prestataires de dépannage, qui se connectent à des postes qu'ils ne maîtrisent pas, le risque est réel, même s'il suppose une connexion volontaire.",
+      "La tendance à moyen terme est probablement à un examen plus serré du code qui interprète les données venant du poste distant. Il s'agit d'une analyse de notre part ; l'article ne mentionne aucune évolution annoncée par l'éditeur."
+     ],
+     "verdict": "Une session de contrôle à distance est une relation de confiance dans les deux sens : mettez à jour le client avant votre prochain dépannage."
+    },
+    {
+     "type": "callout",
+     "title": "À retenir",
+     "text": "TeamViewer 15.83 corrige CVE-2026-111585 (CVSS 8,8). Aucun contournement n'existe, aucune exploitation n'est connue à ce jour, et l'exécution de code n'a été démontrée que sous Windows."
+    }
+   ],
+   "cover": {
+    "url": "https://blogger.googleusercontent.com/img/b/R29vZ2xl/AVvXsEge-ZayNgwlu4fhpD2BSyGgkMYehkV0atRJINisISPLpiubkgyXopa4NWVnxOZs9gi-DEYTNEQ5G2pu-X5iSHyMp8pguzp-Q6g-1-mGwcy3so4AkeuYFuYoaotOcmF5A-2oVDvnxd0B_FaZ7JJt8W3zrNFot6kBlJp7WffHkb7m92C9bNQnwFLwnNgXpDk/s1700-nu-rw-lo-l85-e365/teamviewer-flaw.jpg",
+    "alt": "Illustration d'une faille dans un logiciel de prise de contrôle à distance",
+    "credit": "thehackernews.com"
+   }
+  },
+  {
+   "id": "tangled-forge-federee-at-protocol",
+   "category": "dev",
+   "icon": "🕸️",
+   "importance": 4,
+   "title": "Tangled : une forge de code fédérée, bâtie sur AT Protocol, dont chaque projet peut s'auto-héberger",
+   "summary": "Tangled annonce une version majeure de sa forge : serveurs Git en Rust qui stockent aussi tickets et demandes de fusion, attestations vérifiables, organisations et revue empilée pour Git et Jujutsu.",
+   "tags": [
+    "Tangled",
+    "AT Protocol",
+    "forge logicielle",
+    "Git",
+    "Jujutsu",
+    "fédération"
+   ],
+   "sourceDate": "2026-10-30",
+   "sources": [
+    {
+     "title": "The Federated Code Forge",
+     "url": "https://tangled.org/blog/forge/",
+     "publisher": "Tangled"
+    }
+   ],
+   "publishedAt": "2026-10-30T18:20:15+01:00",
+   "readingMinutes": 4,
+   "illustration": {
+    "svg": "<svg xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"0 0 640 360\"><defs><linearGradient id=\"g\" x1=\"0\" y1=\"0\" x2=\"1\" y2=\"1\"><stop offset=\"0\" stop-color=\"hsl(265,62%,34%)\"/><stop offset=\"1\" stop-color=\"hsl(305,65%,20%)\"/></linearGradient></defs><rect width=\"640\" height=\"360\" fill=\"url(#g)\"/><circle cx=\"570\" cy=\"50\" r=\"90\" fill=\"#fff\" fill-opacity=\".06\"/><circle cx=\"60\" cy=\"320\" r=\"110\" fill=\"#fff\" fill-opacity=\".06\"/><g stroke=\"#fff\" stroke-width=\"5\" fill=\"none\"><path d=\"M320 80L190 190M320 80L450 190M190 190L260 280M450 190L380 280M260 280H380M320 80V190M190 190H450\"/></g><g fill=\"#fff\"><circle cx=\"320\" cy=\"80\" r=\"22\"/><circle cx=\"190\" cy=\"190\" r=\"22\"/><circle cx=\"450\" cy=\"190\" r=\"22\"/><circle cx=\"260\" cy=\"280\" r=\"22\"/><circle cx=\"380\" cy=\"280\" r=\"22\"/><circle cx=\"320\" cy=\"190\" r=\"30\"/></g></svg>"
+   },
+   "blocks": [
+    {
+     "type": "paragraph",
+     "text": "Héberger son code sur une grande forge centralisée, c'est dépendre d'un seul acteur pour la disponibilité, les fonctionnalités et la pérennité de ses dépôts. Le projet **Tangled** propose une autre voie. Dans un [billet publié le 30 octobre 2026](https://tangled.org/blog/forge/), son auteur, Anirudh, annonce une version majeure de ce qu'il présente comme « la première forge réellement fédérée ». Il s'agit d'une annonce du projet lui-même, sans mesure indépendante."
+    },
+    {
+     "type": "heading",
+     "level": 2,
+     "text": "L'idée : la durabilité des protocoles ouverts"
+    },
+    {
+     "type": "paragraph",
+     "text": "Le billet oppose les forges centralisées à la combinaison courriel et Git, ouverte et durable mais peu agréable à utiliser. Tangled cherche à marier la longévité des protocoles ouverts et le confort d'une forge moderne. On peut en auto-héberger une partie ou la totalité tout en collaborant avec les utilisateurs d'autres instances. Le système repose sur **AT Protocol**, le protocole d'identité et de données ouvert, ce qui permet à des tiers d'écrire des extensions, de s'abonner au flux d'événements et de créer leurs propres composants. Les données sont désormais rangées sous de nouveaux schémas `org.tangled.*`, qui remplacent les anciens `sh.tangled.*`."
+    },
+    {
+     "type": "heading",
+     "level": 2,
+     "text": "Ce qui change techniquement"
+    },
+    {
+     "type": "list",
+     "ordered": false,
+     "items": [
+      "**Knots** : ce sont les serveurs Git. La nouvelle version, « knot2 », est une réécriture en Rust, avec un serveur Git maison et un serveur SSH intégré. Au-delà du code, ils stockent désormais tickets, demandes de fusion, commentaires, réactions, étiquettes, collaborateurs et liste de blocage sous forme d'objets collaboratifs, c'est-à-dire des chaînes d'objets Git dans le dépôt. Les discussions d'un projet voyagent donc avec son code. Les auto-hébergeurs doivent passer à la version 1.20.0.",
+      "**Attestations** : pour se prémunir contre un knot qui modifierait des enregistrements, l'application web écrit, à chaque création ou modification, un enregistrement d'attestation dans le serveur de données personnel de l'utilisateur. Il pointe vers la version exacte de l'enregistrement et vers le changement correspondant, ce qui permet une vérification dans les deux sens.",
+      "**bobbin** : l'ancien service monolithique en Go, qui gérait indexation, cache et interface sur une seule base SQLite hébergée en Suède, est éclaté. bobbin, un indexeur en lecture seule écrit en Rust, tourne en mémoire dans plus de onze régions ; une nouvelle interface Svelte est servie en périphérie du réseau.",
+      "**Spindles** : ce sont les composants d'intégration continue, auto-hébergeables. Le billet les évoque à peine, sans détailler leur fonctionnement."
+     ]
+    },
+    {
+     "type": "heading",
+     "level": 2,
+     "text": "Ce que voient les utilisateurs"
+    },
+    {
+     "type": "keyvalue",
+     "items": [
+      {
+       "label": "Nouvelle interface",
+       "value": "Refonte en Svelte, avec une nouvelle police, pour plus de vitesse et de cohérence"
+      },
+      {
+       "label": "Organisations",
+       "value": "Comptes AT Protocol sans mot de passe, avec identifiant décentralisé propre et adresse du type nom.tngl.sh ; domaine personnalisé possible ; la migration depuis les anciens comptes de substitution est en cours"
+      },
+      {
+       "label": "Revue empilée",
+       "value": "Demandes de fusion empilées pour Git et pour Jujutsu, avec comparaison entre versions successives"
+      },
+      {
+       "label": "Déploiement",
+       "value": "Étalé sur plusieurs semaines ; dépôts privés, ligne de commande, kits de développement et compétences pour agents annoncés"
+      }
+     ]
+    },
+    {
+     "type": "usecases",
+     "title": "Exemples d'utilisation",
+     "items": [
+      {
+       "icon": "🏠",
+       "title": "Association de logiciel libre",
+       "text": "Elle héberge son propre knot pour garder la maîtrise de ses dépôts, tout en restant visible et contributive pour le reste de l'écosystème."
+      },
+      {
+       "icon": "🧑‍💻",
+       "title": "Développeur qui utilise Jujutsu",
+       "text": "Il présente ses changements en pile de petites demandes de fusion et compare chaque modification d'une version à l'autre."
+      },
+      {
+       "icon": "🔧",
+       "title": "Équipe plateforme d'entreprise",
+       "text": "Elle teste un indexeur léger et un serveur d'intégration continue auto-hébergés pour bâtir une forge sur mesure, avec ses propres règles."
+      }
+     ]
+    },
+    {
+     "type": "timeline",
+     "title": "D'où l'on vient, où l'on va",
+     "items": [
+      {
+       "label": "Auparavant",
+       "text": "Tangled s'appuyait sur des schémas `sh.tangled.*` et un service d'indexation monolithique."
+      },
+      {
+       "label": "30 octobre 2026",
+       "text": "Annonce de la version majeure : knots en Rust, attestations, organisations, nouvelle interface."
+      },
+      {
+       "label": "Dans les semaines à venir",
+       "text": "Déploiement étalé, puis dépôts privés, ligne de commande et kits de développement."
+      }
+     ]
+    },
+    {
+     "type": "opinion",
+     "title": "Notre avis",
+     "paragraphs": [
+      "L'approche est séduisante sur le papier : faire voyager discussions et tickets avec le code répond à une vraie fragilité des forges actuelles, où l'historique des échanges reste prisonnier de la plateforme. Les attestations vont aussi dans le bon sens, car elles rendent vérifiable ce qu'un serveur affirme. Mais le billet est promotionnel : il ne fournit ni mesures de performance, ni spécification formelle, et la partie intégration continue est à peine décrite.",
+      "À un horizon d'un à trois ans, la fédération ne triomphera que si les dépôts privés, les droits d'accès et la migration depuis les grandes forges deviennent simples. C'est une opinion, d'autant que ces fonctions figurent justement parmi les éléments encore à venir."
+     ],
+     "verdict": "Une idée solide, mais qui doit encore prouver sa facilité d'usage face aux forges centralisées."
+    },
+    {
+     "type": "callout",
+     "title": "À retenir",
+     "text": "Tangled stocke tickets et discussions dans les dépôts eux-mêmes, vérifie les enregistrements par attestations et se déploie sur plusieurs semaines. Toutes les affirmations viennent du projet."
+    }
+   ]
+  },
+  {
+   "id": "reddit-experience-connectee-trafic-de-recherche-en-baisse",
+   "category": "web",
+   "icon": "🔓",
+   "importance": 4,
+   "title": "Reddit veut devenir un service d'abord « connecté », alors que le trafic venu des moteurs de recherche s'effondre",
+   "summary": "À l'occasion de ses résultats du troisième trimestre, Reddit annonce une bascule vers une expérience où l'on est connecté. Les redirections depuis la recherche reculent d'au moins un million par semaine.",
+   "tags": [
+    "Reddit",
+    "moteurs de recherche",
+    "compte utilisateur",
+    "données d'IA",
+    "résultats trimestriels"
+   ],
+   "sourceDate": "2026-10-29",
+   "sources": [
+    {
+     "title": "As search traffic dries up, Reddit announces it's shifting to a logged-in experience",
+     "url": "https://techcrunch.com/2026/10/29/as-search-traffic-dries-up-reddit-announces-its-shifting-to-a-logged-in-experience/",
+     "publisher": "TechCrunch"
+    }
+   ],
+   "publishedAt": "2026-10-30T18:20:15+01:00",
+   "readingMinutes": 3,
+   "illustration": {
+    "svg": "<svg xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"0 0 640 360\"><defs><linearGradient id=\"g\" x1=\"0\" y1=\"0\" x2=\"1\" y2=\"1\"><stop offset=\"0\" stop-color=\"hsl(210,62%,34%)\"/><stop offset=\"1\" stop-color=\"hsl(250,65%,20%)\"/></linearGradient></defs><rect width=\"640\" height=\"360\" fill=\"url(#g)\"/><circle cx=\"570\" cy=\"50\" r=\"90\" fill=\"#fff\" fill-opacity=\".06\"/><circle cx=\"60\" cy=\"320\" r=\"110\" fill=\"#fff\" fill-opacity=\".06\"/><g fill=\"none\" stroke=\"#fff\" stroke-width=\"7\" stroke-linecap=\"round\" stroke-linejoin=\"round\"><rect x=\"230\" y=\"150\" width=\"180\" height=\"130\" rx=\"16\"/><path d=\"M270 150v-30a50 50 0 0 1 100 0v30\"/></g><circle cx=\"320\" cy=\"212\" r=\"16\" fill=\"#fff\"/><path d=\"M320 226v24\" stroke=\"#fff\" stroke-width=\"8\" stroke-linecap=\"round\"/></svg>"
+   },
+   "blocks": [
+    {
+     "type": "paragraph",
+     "text": "Pendant des années, une grande partie du trafic de Reddit venait d'un réflexe : ajouter « reddit » à une recherche pour trouver un avis humain. Ce flux se tarit. Selon [TechCrunch](https://techcrunch.com/2026/10/29/as-search-traffic-dries-up-reddit-announces-its-shifting-to-a-logged-in-experience/), Reddit a annoncé le 29 octobre 2026, lors de la présentation de ses résultats du troisième trimestre, qu'il allait basculer vers une expérience principalement **connectée**."
+    },
+    {
+     "type": "heading",
+     "level": 2,
+     "text": "Les chiffres du trimestre"
+    },
+    {
+     "type": "paragraph",
+     "text": "Le nombre d'utilisateurs actifs quotidiens est resté stable dans le monde, à 130,3 millions. Aux États-Unis, il est passé de 53,2 millions au deuxième trimestre à 50,7 millions au troisième, soit une baisse de 2 % sur un an. Reddit indique que les redirections depuis les moteurs de recherche ont reculé de plus d'un million en moyenne chaque semaine en octobre. Si cette tendance se poursuit, l'entreprise prévient que les utilisateurs actifs pourraient baisser d'un pourcentage à deux chiffres, dans le bas de la fourchette, le trimestre suivant : l'article cite, à titre d'hypothèse, un recul de 10 % à 12 %, soit environ 115 à 117 millions."
+    },
+    {
+     "type": "diagram",
+     "svg": "<svg xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"0 0 600 230\" font-family=\"system-ui,sans-serif\"><rect width=\"600\" height=\"230\" rx=\"14\" fill=\"#f4f6fb\"/><text x=\"24\" y=\"32\" font-size=\"16\" font-weight=\"700\" fill=\"#1b2433\">Reddit : utilisateurs actifs quotidiens aux États-Unis (millions)</text><g font-size=\"13\" fill=\"#1b2433\"><text x=\"24\" y=\"84\">2e trimestre</text><rect x=\"140\" y=\"68\" width=\"400\" height=\"22\" rx=\"5\" fill=\"#9db8f0\"/><text x=\"548\" y=\"85\">53,2</text><text x=\"24\" y=\"134\">3e trimestre</text><rect x=\"140\" y=\"118\" width=\"381\" height=\"22\" rx=\"5\" fill=\"#3b6fd6\"/><text x=\"529\" y=\"135\">50,7</text></g><text x=\"24\" y=\"190\" font-size=\"13\" fill=\"#1b2433\">Sur le monde : 130,3 millions, stable d'un trimestre à l'autre.</text><text x=\"24\" y=\"214\" font-size=\"12\" fill=\"#5a6475\">Source : résultats du troisième trimestre 2026, via TechCrunch. Échelle tronquée à 0 : barres proportionnelles.</text></svg>",
+     "alt": "Barres comparant 53,2 millions d'utilisateurs actifs quotidiens américains au deuxième trimestre et 50,7 millions au troisième.",
+     "caption": "Aux États-Unis, l'audience quotidienne de Reddit recule de 2,5 millions d'un trimestre à l'autre."
+    },
+    {
+     "type": "paragraph",
+     "text": "Les résultats financiers restent pourtant très bons, ce qui rend le contraste frappant."
+    },
+    {
+     "type": "keyvalue",
+     "items": [
+      {
+       "label": "Chiffre d'affaires",
+       "value": "895 millions de dollars, en hausse de 53 % sur un an (attentes : environ 875 millions)"
+      },
+      {
+       "label": "Résultat net",
+       "value": "283 millions de dollars, en hausse de 74 %"
+      },
+      {
+       "label": "Publicité",
+       "value": "847 millions de dollars, en hausse de 54 %"
+      },
+      {
+       "label": "Hors publicité (dont licences de données d'IA)",
+       "value": "48 millions de dollars, en hausse de 35 %"
+      },
+      {
+       "label": "Revenu moyen par utilisateur actif quotidien",
+       "value": "13,82 $ aux États-Unis (+ 53 %) et 6,87 $ dans le monde (+ 36 %)"
+      }
+     ]
+    },
+    {
+     "type": "heading",
+     "level": 2,
+     "text": "Ce qui va changer"
+    },
+    {
+     "type": "paragraph",
+     "text": "Reddit justifie le virage par deux arguments. D'abord, protéger ses données du moissonnage par les systèmes d'IA et conserver une position de force pour négocier des licences avec les fournisseurs de modèles. Ensuite, les utilisateurs connectés fournissent davantage de signaux sur leurs centres d'intérêt, ce qui améliore le ciblage publicitaire et la personnalisation : fil personnalisé, recommandations de communautés, invitations à voter ou à commenter. Cette orientation se rattache au nouveau fil « Pour vous », annoncé la veille, qui mêle les messages des communautés suivies et des recommandations fondées sur les centres d'intérêt."
+    },
+    {
+     "type": "paragraph",
+     "text": "Le changement ne sera pas immédiat. Les premiers tests auront lieu dans certains marchés hors des États-Unis au quatrième trimestre 2026, sans calendrier mondial. Reddit reconnaît que l'accès à une page d'accueil sans connexion reste important, assure que se connecter n'obligera pas à renoncer à l'anonymat, et reconstruit son mode incognito. Le dirigeant Steve Huffman a lui-même parlé d'un changement important, avec encore de nombreuses questions sans réponse."
+    },
+    {
+     "type": "usecases",
+     "title": "Exemples d'utilisation",
+     "items": [
+      {
+       "icon": "🔍",
+       "title": "Internaute qui cherche un avis",
+       "text": "Il arrive depuis un moteur de recherche et se voit proposer de créer un compte ou de se connecter pour lire la suite, selon les tests menés hors des États-Unis."
+      },
+      {
+       "icon": "📣",
+       "title": "Annonceur",
+       "text": "Il bénéficie d'un ciblage plus fin grâce aux signaux des comptes connectés, mais dépend de la stabilité de l'audience."
+      },
+      {
+       "icon": "🤖",
+       "title": "Éditeur de modèle d'IA",
+       "text": "Il négocie une licence d'accès aux données de Reddit, puisque le moissonnage libre devient plus difficile."
+      }
+     ]
+    },
+    {
+     "type": "timeline",
+     "title": "D'où l'on vient, où l'on va",
+     "items": [
+      {
+       "label": "Octobre 2026",
+       "text": "Les redirections depuis la recherche reculent de plus d'un million par semaine en moyenne."
+      },
+      {
+       "label": "28 octobre 2026",
+       "text": "Annonce du fil « Pour vous »."
+      },
+      {
+       "label": "29 octobre 2026",
+       "text": "Présentation des résultats et annonce de la bascule vers une expérience connectée."
+      },
+      {
+       "label": "Quatrième trimestre 2026",
+       "text": "Tests dans des marchés choisis hors des États-Unis."
+      },
+      {
+       "label": "Ensuite",
+       "text": "Aucun calendrier de déploiement mondial communiqué."
+      }
+     ]
+    },
+    {
+     "type": "opinion",
+     "title": "Notre avis",
+     "paragraphs": [
+      "Reddit transforme une contrainte en stratégie : puisque la recherche, bouleversée par les réponses générées par IA, envoie moins de visiteurs, mieux vaut fidéliser ceux qui viennent et monnayer ses contenus. Le risque est de fermer la porte à ce qui faisait sa force, des réponses lisibles sans compte, et d'accélérer la baisse d'audience qu'il redoute lui-même.",
+      "Dans un à trois ans, on peut s'attendre à voir d'autres sites communautaires choisir la même voie, ce qui fragmenterait davantage le web ouvert. C'est une projection, que la source ne formule pas."
+     ],
+     "verdict": "Un pari cohérent sur le plan économique, mais qui mise sur la fidélité des habitués plutôt que sur la découverte."
+    },
+    {
+     "type": "callout",
+     "title": "À retenir",
+     "text": "Reddit passe à un service principalement connecté : audience américaine en baisse à 50,7 millions, recettes en hausse de 53 %, tests hors des États-Unis au quatrième trimestre 2026."
+    }
+   ],
+   "cover": {
+    "url": "https://techcrunch.com/wp-content/uploads/2023/03/reddit-e1708636699632.jpg",
+    "alt": "Logo Reddit",
+    "credit": "techcrunch.com"
+   }
+  },
+  {
+   "id": "google-suncatcher-premier-satellite-tpu-en-orbite",
+   "category": "electronique",
+   "icon": "🛰️",
+   "importance": 4,
+   "title": "Google : son premier satellite doté d'un TPU est en ligne et rédige un haïku depuis l'orbite",
+   "summary": "Prototype du projet Suncatcher, construit par Planet Labs, le satellite embarque un seul TPU et fait tourner Gemma 4. Il ne peut fonctionner qu'une vingtaine de minutes d'affilée, faute de puissance.",
+   "tags": [
+    "Google",
+    "Suncatcher",
+    "TPU",
+    "Planet Labs",
+    "centres de données orbitaux"
+   ],
+   "sourceDate": "2026-10-30",
+   "sources": [
+    {
+     "title": "Google's first data center satellite is online and writing poetry",
+     "url": "https://techcrunch.com/2026/10/30/googles-first-data-center-satellite-is-online-and-writing-poetry/",
+     "publisher": "TechCrunch"
+    }
+   ],
+   "publishedAt": "2026-10-30T18:20:16+01:00",
+   "readingMinutes": 3,
+   "illustration": {
+    "svg": "<svg xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"0 0 640 360\"><defs><linearGradient id=\"g\" x1=\"0\" y1=\"0\" x2=\"1\" y2=\"1\"><stop offset=\"0\" stop-color=\"hsl(30,62%,34%)\"/><stop offset=\"1\" stop-color=\"hsl(70,65%,20%)\"/></linearGradient></defs><rect width=\"640\" height=\"360\" fill=\"url(#g)\"/><circle cx=\"570\" cy=\"50\" r=\"90\" fill=\"#fff\" fill-opacity=\".06\"/><circle cx=\"60\" cy=\"320\" r=\"110\" fill=\"#fff\" fill-opacity=\".06\"/><g fill=\"none\" stroke=\"#fff\" stroke-width=\"7\" stroke-linejoin=\"round\"><rect x=\"290\" y=\"150\" width=\"60\" height=\"60\" rx=\"8\"/><rect x=\"130\" y=\"160\" width=\"130\" height=\"40\" rx=\"4\"/><rect x=\"380\" y=\"160\" width=\"130\" height=\"40\" rx=\"4\"/><path d=\"M260 180h30M350 180h30M170 160v40M215 160v40M425 160v40M470 160v40\"/></g><circle cx=\"320\" cy=\"180\" r=\"10\" fill=\"#fff\"/><path d=\"M250 90a120 120 0 0 1 140 0\" stroke=\"#fff\" stroke-width=\"5\" fill=\"none\" stroke-dasharray=\"3 12\" stroke-linecap=\"round\"/></svg>"
+   },
+   "blocks": [
+    {
+     "type": "paragraph",
+     "text": "L'idée de placer des centres de calcul en orbite, alimentés par le Soleil, passait pour une extravagance. Elle vient de franchir une étape concrète. D'après [TechCrunch](https://techcrunch.com/2026/10/30/googles-first-data-center-satellite-is-online-and-writing-poetry/), le premier satellite du projet **Suncatcher** de Google, qualifié d'infrastructure d'IA évolutive dans l'espace, est en ligne, communique avec le sol et fonctionne « nominalement » selon un porte-parole."
+    },
+    {
+     "type": "heading",
+     "level": 2,
+     "text": "Ce que contient le satellite"
+    },
+    {
+     "type": "paragraph",
+     "text": "Ce prototype a été construit par Planet Labs et embarque un seul processeur d'IA de Google, un TPU, dont l'article ne précise pas la génération. Il produit jusqu'à 1 kilowatt d'électricité. Il a été lancé en octobre 2026 par une fusée Falcon 9 de SpaceX, avec plus de cent autres engins, puis ses sous-systèmes ont été testés pendant environ trois semaines. Contrainte majeure : la puissance disponible limite le TPU à environ vingt minutes de fonctionnement à la fois, ce qui complique aussi les échanges avec le sol."
+    },
+    {
+     "type": "paragraph",
+     "text": "Pour la première démonstration, Google a demandé à Gemma 4, le modèle de Google DeepMind préchargé à bord, d'écrire un haïku sur la vie dans l'espace. Le poème cite des étoiles qui nourrissent le « cœur » de la machine. Des limericks sur l'espace et un rapport sur les conditions orbitales ont aussi servi de tests."
+    },
+    {
+     "type": "heading",
+     "level": 2,
+     "text": "Ce que les essais doivent établir"
+    },
+    {
+     "type": "list",
+     "ordered": false,
+     "items": [
+      "La tenue du TPU aux contraintes thermiques en orbite.",
+      "Les effets des radiations, qui peuvent provoquer des inversions de bits corrompant des données sans que les outils de surveillance habituels le détectent.",
+      "La différence entre inférence et entraînement : les essais au sol laissaient penser que les radiations gêneraient peu l'inférence, mais davantage l'entraînement."
+     ]
+    },
+    {
+     "type": "keyvalue",
+     "items": [
+      {
+       "label": "Production électrique",
+       "value": "Jusqu'à 1 kW"
+      },
+      {
+       "label": "Durée de fonctionnement",
+       "value": "Environ 20 minutes d'affilée"
+      },
+      {
+       "label": "Lancement",
+       "value": "Octobre 2026, Falcon 9"
+      },
+      {
+       "label": "Suite prévue",
+       "value": "Deux autres satellites avec des TPU plus avancés en 2027, si les résultats sont bons"
+      },
+      {
+       "label": "Objectif des suites",
+       "value": "Plus de puissance électrique et liaisons optiques entre satellites"
+      }
+     ]
+    },
+    {
+     "type": "paragraph",
+     "text": "Le projet vise à terme des satellites volant en formation serrée pour exécuter de gros calculs d'inférence en orbite. L'article situe cette ambition dans les années 2030 et la qualifie de pari à long terme. Il rappelle que la rentabilité dépend de la réutilisation rapide et complète de Starship : une analyse revue par des pairs estime qu'il faudrait environ 1 800 vols de Starship pour atteindre les baisses de coûts observées avec les lanceurs précédents. Google et SpaceX sont par ailleurs liés, Alphabet détenant une participation importante dans SpaceX."
+    },
+    {
+     "type": "usecases",
+     "title": "Exemples d'utilisation",
+     "items": [
+      {
+       "icon": "🌍",
+       "title": "Analyse d'images d'observation",
+       "text": "À terme, un satellite pourrait traiter ses propres images à bord et n'envoyer au sol que les résultats utiles, au lieu de tout transmettre."
+      },
+      {
+       "icon": "🔬",
+       "title": "Ingénieur radiation",
+       "text": "Il étudie les erreurs de bits sur le TPU en orbite pour mesurer ce que la puce supporte sans blindage lourd."
+      },
+      {
+       "icon": "⚡",
+       "title": "Concepteur de centres de données",
+       "text": "Il compare le coût d'un calcul alimenté en continu par le Soleil en orbite à celui d'un site terrestre dont l'électricité est contrainte."
+      }
+     ]
+    },
+    {
+     "type": "timeline",
+     "title": "D'où l'on vient, où l'on va",
+     "items": [
+      {
+       "label": "Octobre 2026",
+       "text": "Lancement du prototype sur une Falcon 9."
+      },
+      {
+       "label": "Environ trois semaines plus tard",
+       "text": "Mise en service des sous-systèmes, puis premier haïku."
+      },
+      {
+       "label": "2027",
+       "text": "Deux satellites supplémentaires avec des TPU plus avancés, si les essais sont concluants."
+      },
+      {
+       "label": "Années 2030",
+       "text": "Horizon visé pour une infrastructure économique selon l'article."
+      }
+     ]
+    },
+    {
+     "type": "opinion",
+     "title": "Notre avis",
+     "paragraphs": [
+      "Le haïku est une démonstration de communication, pas de performance : un TPU limité à vingt minutes d'affilée est très loin d'un centre de données. L'intérêt réel est ailleurs, dans la mesure de ce que les radiations et la chaleur font à une puce moderne. Les raisonnements économiques supposent encore des lancements bien moins chers qu'aujourd'hui.",
+      "Dans un à trois ans, les enseignements viendront surtout des deux satellites de 2027 et de leurs liaisons optiques. C'est notre lecture, rien n'est garanti : l'article rappelle qu'il s'agit d'un pari de long terme."
+     ],
+     "verdict": "Une expérience utile et spectaculaire, mais encore très loin d'un vrai centre de données dans l'espace."
+    },
+    {
+     "type": "callout",
+     "title": "À retenir",
+     "text": "Un satellite, un TPU, 1 kW et vingt minutes d'affilée : c'est une démonstration, pas encore une infrastructure. Les enseignements attendus portent sur la chaleur et les radiations."
+    }
+   ],
+   "cover": {
+    "url": "https://techcrunch.com/wp-content/uploads/2026/10/DSC_0298.jpg",
+    "alt": "Satellite du projet Suncatcher de Google",
+    "credit": "techcrunch.com"
+   }
+  },
+  {
+   "id": "doordash-agents-ia-quelques-centaines-de-commandes",
+   "category": "ia",
+   "icon": "🛵",
+   "importance": 3,
+   "title": "DoorDash : seulement « quelques centaines » de commandes passées par des agents d'IA tiers",
+   "summary": "Lors de la présentation de ses résultats, le patron de DoorDash a indiqué que les agents d'IA tiers n'avaient généré que quelques centaines de commandes, face à environ trois millions de livraisons par jour.",
+   "tags": [
+    "DoorDash",
+    "agents d'IA",
+    "commerce",
+    "livraison",
+    "MCP"
+   ],
+   "sourceDate": "2026-10-30",
+   "sources": [
+    {
+     "title": "DoorDash said it's only received 'several hundred' orders from AI agents",
+     "url": "https://techcrunch.com/2026/10/30/doordash-said-its-only-received-several-hundred-orders-from-ai-agents/",
+     "publisher": "TechCrunch"
+    }
+   ],
+   "publishedAt": "2026-10-30T18:20:15+01:00",
+   "readingMinutes": 3,
+   "illustration": {
+    "svg": "<svg xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"0 0 640 360\"><defs><linearGradient id=\"g\" x1=\"0\" y1=\"0\" x2=\"1\" y2=\"1\"><stop offset=\"0\" stop-color=\"hsl(320,62%,34%)\"/><stop offset=\"1\" stop-color=\"hsl(0,65%,20%)\"/></linearGradient></defs><rect width=\"640\" height=\"360\" fill=\"url(#g)\"/><circle cx=\"570\" cy=\"50\" r=\"90\" fill=\"#fff\" fill-opacity=\".06\"/><circle cx=\"60\" cy=\"320\" r=\"110\" fill=\"#fff\" fill-opacity=\".06\"/><g stroke=\"#fff\" stroke-width=\"7\" fill=\"none\" stroke-linecap=\"round\" stroke-linejoin=\"round\"><circle cx=\"230\" cy=\"250\" r=\"38\"/><circle cx=\"430\" cy=\"250\" r=\"38\"/><path d=\"M230 250l60-90h90l50 90M290 160l-15-40h-40M360 160l15 90\"/></g><g fill=\"#fff\"><rect x=\"320\" y=\"90\" width=\"110\" height=\"50\" rx=\"12\"/></g><path d=\"M340 115h70\" stroke=\"hsl(320,62%,34%)\" stroke-width=\"6\" stroke-linecap=\"round\"/></svg>"
+   },
+   "blocks": [
+    {
+     "type": "paragraph",
+     "text": "On annonce depuis des mois que des agents d'intelligence artificielle passeront bientôt nos commandes à notre place. Les chiffres de DoorDash, plateforme américaine de livraison de repas, invitent à la modération. Selon [TechCrunch](https://techcrunch.com/2026/10/30/doordash-said-its-only-received-several-hundred-orders-from-ai-agents/), son directeur général, Tony Xu, a répondu à une question d'analyste lors de la présentation des résultats du troisième trimestre : l'entreprise voit « peut-être quelques centaines de commandes au total » provenant d'agents tiers."
+    },
+    {
+     "type": "heading",
+     "level": 2,
+     "text": "Un chiffre à replacer dans son contexte"
+    },
+    {
+     "type": "paragraph",
+     "text": "Le rapport 2025 de DoorDash fait état d'une moyenne de trois millions de livraisons par jour. Quelques centaines de commandes issues d'agents tiers — Muse, Instinct, Fo et d'autres, cités par l'article — représentent donc une part infime de l'activité. Les utilisateurs passent encore très majoritairement par l'application de l'entreprise. L'article ne précise pas la période sur laquelle ces commandes ont été comptées ni la date exacte de la conférence téléphonique."
+    },
+    {
+     "type": "heading",
+     "level": 2,
+     "text": "Ce que DoorDash construit lui-même"
+    },
+    {
+     "type": "paragraph",
+     "text": "L'entreprise ne reste pas spectatrice : elle déploie ses propres outils d'IA. Elle affirme vouloir comprendre les usages « agentiques » et nouer des relations avec les créateurs d'agents tiers, et M. Xu a évoqué la possibilité d'y faire de la publicité à l'avenir."
+    },
+    {
+     "type": "list",
+     "ordered": false,
+     "items": [
+      "Ask DoorDash, un agent conversationnel lancé en juin, qui prend des commandes à partir de messages et de photos.",
+      "Un agent en ligne de commande présenté en juillet.",
+      "Un agent de commande par texte lancé en septembre.",
+      "Un serveur MCP qui permet à d'autres agents conversationnels de passer commande, destiné à la commande d'entreprise."
+     ]
+    },
+    {
+     "type": "paragraph",
+     "text": "L'article rappelle enfin que les grands du commerce ne réagissent pas de la même façon : Amazon bloque les agents d'IA personnels, tandis que Walmart les accueille."
+    },
+    {
+     "type": "usecases",
+     "title": "Exemples d'utilisation",
+     "items": [
+      {
+       "icon": "🍜",
+       "title": "Commande à la voix",
+       "text": "Un utilisateur demande à son assistant de recommander son plat habituel ; l'agent passe la commande via l'interface que la plateforme met à disposition."
+      },
+      {
+       "icon": "🏢",
+       "title": "Déjeuner d'équipe",
+       "text": "Un service administratif fait commander les repas d'une réunion par un agent connecté au serveur MCP, avec le budget et les régimes alimentaires."
+      },
+      {
+       "icon": "🧾",
+       "title": "Marchand ou plateforme",
+       "text": "Un commerçant surveille la part du trafic venant d'agents pour décider s'il faut leur ouvrir une interface dédiée, comme le fait Walmart, ou les bloquer, comme Amazon."
+      }
+     ]
+    },
+    {
+     "type": "timeline",
+     "title": "D'où l'on vient, où l'on va",
+     "items": [
+      {
+       "label": "Juin 2026",
+       "text": "Lancement d'Ask DoorDash."
+      },
+      {
+       "label": "Juillet 2026",
+       "text": "Présentation d'un agent en ligne de commande."
+      },
+      {
+       "label": "Septembre 2026",
+       "text": "Lancement d'un agent de commande par texte."
+      },
+      {
+       "label": "Fin octobre 2026",
+       "text": "M. Xu évoque « quelques centaines » de commandes issues d'agents tiers."
+      },
+      {
+       "label": "À suivre",
+       "text": "Une éventuelle publicité dans ces agents, simple piste évoquée par le dirigeant."
+      }
+     ]
+    },
+    {
+     "type": "opinion",
+     "title": "Notre avis",
+     "paragraphs": [
+      "Ce chiffre est un rappel utile : l'écart entre l'attention médiatique et l'usage réel reste immense. Il ne prouve pas que les agents échoueront ; il montre qu'ils n'ont pas encore trouvé le déclencheur qui pousse les gens à y déléguer un acte aussi banal que commander à manger. Pour une plateforme, la valeur réside aussi dans la relation directe avec le client, que des agents intermédiaires risquent de diluer.",
+      "À un horizon de un à trois ans, les premiers usages durables viendront sans doute de cas où l'agent apporte un vrai gain, comme la commande de groupe en entreprise. Il s'agit d'une analyse et non d'un fait : DoorDash ne communique pas de prévision chiffrée."
+     ],
+     "verdict": "Les agents d'IA font parler d'eux, mais pour l'instant les clients commandent toujours dans l'application."
+    },
+    {
+     "type": "callout",
+     "title": "À retenir",
+     "text": "Quelques centaines de commandes via des agents tiers, contre environ trois millions de livraisons par jour : l'usage agentique reste marginal chez DoorDash, selon son dirigeant."
+    }
+   ],
+   "cover": {
+    "url": "https://techcrunch.com/wp-content/uploads/2022/08/GettyImages-1232015093.jpg",
+    "alt": "Application DoorDash sur un téléphone",
+    "credit": "techcrunch.com"
+   }
+  }
+ ]
+}
