@@ -1,0 +1,792 @@
+{
+ "schemaVersion": "1.0",
+ "date": "2026-10-30",
+ "generatedAt": "2026-10-30T04:16:47+01:00",
+ "title": "Cisco SD-WAN et clés volées, modèles piégés sur Hugging Face, Mistral Large 4 en poids ouverts",
+ "summary": "Cette édition tech couvre le logiciel malveillant KeyDrift visé contre Cisco SD-WAN, les secrets exposés sur Gitee, une campagne de minage via Hugging Face, la publication des poids de Mistral Large 4, le revirement d'OpenAI sur les limites de ChatGPT Pro et un modèle de monde sur Raspberry Pi Pico 2 W.",
+ "highlights": [
+  "KeyDrift : un cadre malveillant installé par la faille CVE-2026-20127 vole des clés de chiffrement dans les contrôleurs Cisco Catalyst SD-WAN.",
+  "Hugging Face : 31 dépôts piégés détournent des serveurs GPU pour miner, via l'option trust_remote_code.",
+  "Mistral Large 4 : poids ouverts d'un modèle d'environ 1 000 milliards de paramètres, sous licence MIT modifiée.",
+  "OpenAI renonce à baisser les limites de ChatGPT Pro et les double après la fronde des abonnés.",
+  "Gitee : 26 400 identifiants cloud et IA encore valides dans des dépôts publics."
+ ],
+ "meta": {
+  "generator": "claude-scheduled-task"
+ },
+ "posts": [
+  {
+   "id": "cisco-sd-wan-keydrift-cve-2026-20127",
+   "category": "cybersecurite",
+   "icon": "🔑",
+   "importance": 5,
+   "title": "Cisco SD-WAN : le logiciel malveillant KeyDrift dérobe les clés de chiffrement des contrôleurs",
+   "summary": "Cisco Talos décrit KeyDrift, un cadre malveillant installé via la faille CVE-2026-20127 (contournement d'authentification, gravité maximale) dans les contrôleurs Catalyst SD-WAN. Il vise les clés qui protègent le trafic entre sites.",
+   "tags": [
+    "Cisco",
+    "SD-WAN",
+    "KeyDrift",
+    "Talos",
+    "CVE-2026-20127",
+    "Volt Typhoon"
+   ],
+   "sourceDate": "2026-10-29",
+   "sources": [
+    {
+     "title": "Hackers exploit Cisco SD-WAN flaw to deploy custom KeyDrift malware",
+     "url": "https://www.bleepingcomputer.com/news/security/hackers-exploit-cisco-sd-wan-flaw-to-deploy-custom-keydrift-malware/",
+     "publisher": "BleepingComputer"
+    },
+    {
+     "title": "Hackers Exploited Cisco SD-WAN Flaw to Plant Malware Built to Steal Encryption Keys",
+     "url": "https://thehackernews.com/2026/10/hackers-exploited-cisco-sd-wan-flaw-to.html",
+     "publisher": "The Hacker News"
+    }
+   ],
+   "illustration": {
+    "svg": "<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 640 360'><defs><linearGradient id='g' x1='0' y1='0' x2='1' y2='1'><stop offset='0' stop-color='hsl(175,70%,42%)'/><stop offset='1' stop-color='hsl(215,65%,22%)'/></linearGradient></defs><rect width='640' height='360' fill='url(#g)'/><circle cx='560' cy='50' r='120' fill='#fff' opacity='.08'/><circle cx='70' cy='330' r='150' fill='#fff' opacity='.07'/><g fill='none' stroke='#fff' stroke-width='9' stroke-linecap='round'><circle cx='270' cy='180' r='55'/><path d='M325 180h150M430 180v35M470 180v50'/></g><circle cx='270' cy='180' r='18' fill='#fff'/><g fill='#fff'><rect x='120' y='110' width='60' height='40' rx='8' opacity='.7'/><rect x='120' y='210' width='60' height='40' rx='8' opacity='.7'/></g><path d='M180 130l45 35M180 230l45-35' stroke='#fff' stroke-width='6' opacity='.7'/></svg>"
+   },
+   "readingMinutes": 5,
+   "blocks": [
+    {
+     "type": "paragraph",
+     "text": "Les réseaux étendus à définition logicielle, ou SD-WAN, relient les sites d'une entreprise ou d'une administration par des tunnels chiffrés pilotés depuis un contrôleur central. Cisco Talos vient de décrire un logiciel malveillant, baptisé **KeyDrift**, conçu pour s'installer précisément dans ce contrôleur et y récupérer le matériel de chiffrement du trafic. L'intrusion passe par **CVE-2026-20127**, un contournement d'authentification de gravité maximale dans Cisco Catalyst SD-WAN, corrigé par l'éditeur dès février 2026."
+    },
+    {
+     "type": "heading",
+     "level": 2,
+     "text": "Un accès privilégié au contrôleur"
+    },
+    {
+     "type": "paragraph",
+     "text": "Selon BleepingComputer, la faille permet à un attaquant distant d'obtenir un accès privilégié au contrôleur et au gestionnaire, puis d'ajouter des pairs illégitimes au réseau. Talos rattache l'activité récente à un groupe qu'elle suit sous l'identifiant **UAT-11473**. Les cibles observées appartiennent aux services spatiaux et satellitaires, à l'aéronautique et à la défense, ainsi qu'à des organismes de recherche en politiques publiques."
+    },
+    {
+     "type": "paragraph",
+     "text": "Le rattachement à un acteur étatique reste prudent. Talos relève un recoupement entre UAT-11473 et « Silent Train », le réseau d'accès dissimulé associé à Volt Typhoon, groupe lié à la Chine, mais ne conclut pas à un lien formel. Les dates exactes des attaques ne sont pas précisées, et les analystes ne disent pas si des clés ont effectivement été exfiltrées."
+    },
+    {
+     "type": "heading",
+     "level": 2,
+     "text": "Deux composants dans les processus du contrôleur"
+    },
+    {
+     "type": "paragraph",
+     "text": "Talos juge avec un degré de confiance élevé que KeyDrift vise un accès durable et l'exfiltration automatisée du matériel cryptographique. Le cadre fonctionne à l'intérieur des processus du plan de contrôle SD-WAN, là où les messages sont déjà déchiffrés. Il se compose de deux modules :"
+    },
+    {
+     "type": "list",
+     "items": [
+      "**PolyFlame** s'exécute dans des processus légitimes `vdaemon`. Il est déployé par des scripts de démarrage modifiés et un injecteur, et offre une exécution de commandes de type TinyShell, le transfert de fichiers et le relais des échanges entre le serveur de commande et plusieurs pairs.",
+      "**LittleFilch** intercepte les sessions de contrôle en détournant la fonction `SSL_read`. Pour des nœuds de bordure prédéfinis, il extrait des identifiants IP et un champ de 32 octets que Talos estime être une clé AES-256 du plan de données IPsec. Le résultat est chiffré en RSA, enregistré dans `/var/tmp/vdaemon.bin` puis envoyé aux attaquants en UDP."
+     ]
+    },
+    {
+     "type": "paragraph",
+     "text": "Talos a aussi observé des évolutions en cours des deux composants, avec des mécanismes anti-débogage et diverses techniques d'imitation de processus légitimes."
+    },
+    {
+     "type": "diagram",
+     "svg": "<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 640 260' font-family='system-ui,sans-serif'><rect width='640' height='260' rx='14' fill='#eef3f6'/><g font-size='14' text-anchor='middle'><rect x='20' y='90' width='130' height='60' rx='10' fill='#fff' stroke='#2b6f6a'/><text x='85' y='116' fill='#12312f' font-weight='600'>Attaquant</text><text x='85' y='136' fill='#12312f' font-size='12'>CVE-2026-20127</text><rect x='200' y='90' width='160' height='60' rx='10' fill='#fff' stroke='#2b6f6a'/><text x='280' y='116' fill='#12312f' font-weight='600'>Contrôleur SD-WAN</text><text x='280' y='136' fill='#12312f' font-size='12'>vdaemon + PolyFlame</text><rect x='410' y='30' width='210' height='60' rx='10' fill='#fff' stroke='#b4452b'/><text x='515' y='56' fill='#5a1d0f' font-weight='600'>LittleFilch</text><text x='515' y='76' fill='#5a1d0f' font-size='12'>intercepte SSL_read</text><rect x='410' y='160' width='210' height='60' rx='10' fill='#fff' stroke='#b4452b'/><text x='515' y='186' fill='#5a1d0f' font-weight='600'>Clés AES-256 IPsec</text><text x='515' y='206' fill='#5a1d0f' font-size='12'>chiffrées en RSA, envoyées en UDP</text></g><g stroke='#2b6f6a' stroke-width='2.5' fill='none'><path d='M150 120h50'/><path d='M360 110l50-50'/><path d='M360 130l50 60'/></g><text x='320' y='245' text-anchor='middle' font-size='12' fill='#33474a'>Schéma simplifié d'après la description de Cisco Talos</text></svg>",
+     "alt": "Schéma : l'attaquant exploite la faille du contrôleur SD-WAN, y installe PolyFlame, puis LittleFilch intercepte les messages déchiffrés pour extraire des clés AES-256 envoyées par UDP.",
+     "caption": "Du contrôleur compromis aux clés exfiltrées, selon la description de Talos."
+    },
+    {
+     "type": "usecases",
+     "title": "Exemples d'utilisation",
+     "items": [
+      {
+       "icon": "🛰️",
+       "title": "Opérateur de services satellitaires",
+       "text": "Le réseau interne relie des stations au sol par SD-WAN. Un contrôleur compromis avant février 2026 expose les clés de tunnels reliant ces sites."
+      },
+      {
+       "icon": "🏭",
+       "title": "Équipe réseau d'un industriel de défense",
+       "text": "Après la mise à jour, l'équipe doit chercher la présence de `/var/tmp/vdaemon.bin` et de processus `vdaemon` inhabituels, car un correctif n'efface pas une intrusion déjà réalisée."
+      },
+      {
+       "icon": "🧑‍💻",
+       "title": "Prestataire d'infogérance",
+       "text": "Il gère des dizaines de contrôleurs pour ses clients. Il doit vérifier la version de chacun et appliquer le guide de durcissement de Cisco."
+      }
+     ]
+    },
+    {
+     "type": "timeline",
+     "title": "D'où l'on vient, où l'on va",
+     "items": [
+      {
+       "label": "2023",
+       "text": "Selon BleepingComputer, la faille est exploitée comme faille inconnue depuis au moins cette année-là."
+      },
+      {
+       "label": "Février 2026",
+       "text": "Cisco publie le correctif de CVE-2026-20127."
+      },
+      {
+       "label": "29 octobre 2026",
+       "text": "Talos et la presse décrivent KeyDrift et le groupe UAT-11473."
+      }
+     ]
+    },
+    {
+     "type": "opinion",
+     "title": "Notre avis",
+     "paragraphs": [
+      "L'intérêt de KeyDrift tient moins à la faille d'entrée qu'à sa cible. Voler une clé de session transforme un accès ponctuel en capacité d'écoute ou d'usurpation du trafic, même après correction du contrôleur. Les organisations qui ont appliqué le correctif en février sont probablement à l'abri de cette chaîne précise, mais celles qui ont tardé ne peuvent pas se contenter de mettre à jour.",
+      "À un an ou trois, la tendance semble claire : les attaquants visent les équipements de bordure et de contrôle, peu surveillés par les outils de détection classiques. Cette lecture est une analyse, non un fait établi : elle suppose que les éditeurs resteront lents à fournir des journaux exploitables sur ces plateformes."
+     ],
+     "verdict": "Appliquer le correctif ne suffit pas : il faut aussi chercher une compromission antérieure."
+    },
+    {
+     "type": "callout",
+     "title": "À retenir",
+     "text": "Mettez à jour les contrôleurs Catalyst SD-WAN, suivez le guide de durcissement de Cisco et, pour tout système resté non corrigé avant février 2026, recherchez des traces de compromission avant de renouveler les clés."
+    }
+   ],
+   "publishedAt": "2026-10-30T04:16:47+01:00"
+  },
+  {
+   "id": "gitee-26400-identifiants-cloud-ia-exposes",
+   "category": "cybersecurite",
+   "icon": "🗝️",
+   "importance": 3,
+   "title": "Gitee : 26 400 identifiants cloud et IA encore valides trouvés dans des dépôts publics",
+   "summary": "Un chercheur a analysé 7,25 millions de dépôts publics de la plateforme chinoise Gitee et recensé 26 400 identifiants fonctionnels, dont 9 473 paires de clés Alibaba Cloud. La révocation n'est pas confirmée.",
+   "tags": [
+    "Gitee",
+    "secrets",
+    "Alibaba Cloud",
+    "TruffleHog",
+    "Kingfisher"
+   ],
+   "sourceDate": "2026-10-29",
+   "sources": [
+    {
+     "title": "26,400 Valid Cloud and AI Credentials Found Exposed in Public Gitee Repositories",
+     "url": "https://thehackernews.com/2026/10/26400-valid-cloud-and-ai-credentials.html",
+     "publisher": "The Hacker News"
+    }
+   ],
+   "cover": {
+    "url": "https://blogger.googleusercontent.com/img/b/R29vZ2xl/AVvXsEiwVszv5076OudfiraNA4yh_XuzZZof-jYaklwUgiY700oPMvBHQfKHx-8yLNwhF9NVXahFRvWwU7c0mPCsIG-GUo45Fi_LT6ecZMsaRUfaLIL6eK16qeku1PO5aMTQRV0VKJh-pjKG4rC-RyajCGjL4R_A5W6YPsps4B4-GhEbstuAN7AnelVJPwIFK5W-/s1600/gite.jpg",
+    "alt": "Illustration de l'article sur les identifiants exposés dans les dépôts Gitee",
+    "credit": "thehackernews.com"
+   },
+   "illustration": {
+    "svg": "<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 640 360'><defs><linearGradient id='g' x1='0' y1='0' x2='1' y2='1'><stop offset='0' stop-color='hsl(175,70%,42%)'/><stop offset='1' stop-color='hsl(215,65%,22%)'/></linearGradient></defs><rect width='640' height='360' fill='url(#g)'/><circle cx='560' cy='50' r='120' fill='#fff' opacity='.08'/><circle cx='70' cy='330' r='150' fill='#fff' opacity='.07'/><g fill='#fff'><circle cx='250' cy='170' r='46'/><rect x='290' y='158' width='150' height='24' rx='6'/><rect x='390' y='182' width='20' height='36' rx='4'/><rect x='346' y='182' width='20' height='28' rx='4'/></g><circle cx='250' cy='170' r='18' fill='hsl(175,70%,30%)'/><g stroke='#fff' stroke-width='5' fill='none' opacity='.6'><path d='M120 90h90M120 120h60M120 250h110M450 250h70'/></g></svg>"
+   },
+   "readingMinutes": 4,
+   "blocks": [
+    {
+     "type": "paragraph",
+     "text": "Laisser une clé d'accès dans un dépôt de code reste l'une des erreurs les plus courantes, et l'une des plus coûteuses. Le chercheur indépendant Ben Zimmermann a mesuré l'ampleur du phénomène sur **Gitee**, plateforme chinoise d'hébergement de code que le ministère chinois de l'Industrie et des Technologies de l'information avait retenue en 2020 comme base d'une plateforme nationale open source. Ses résultats, publiés le 28 octobre 2026, portent sur 7,25 millions de dépôts publics."
+    },
+    {
+     "type": "heading",
+     "level": 2,
+     "text": "Ce qui a été mesuré"
+    },
+    {
+     "type": "paragraph",
+     "text": "Zimmermann a utilisé deux outils de détection de secrets, TruffleHog et Kingfisher, qui testent chaque identifiant auprès du service émetteur et ne conservent que ceux qui fonctionnent encore. Les outils lisent tout l'historique des validations : une clé supprimée du code reste donc comptée si elle figure dans une version antérieure. Le total de **26 400 identifiants valides** compte chaque identifiant une seule fois, même s'il apparaît dans plusieurs dépôts."
+    },
+    {
+     "type": "paragraph",
+     "text": "Les deux outils se recoupent peu : TruffleHog a trouvé 12 737 identifiants, Kingfisher 14 664, et seuls 1 001 sont communs. TruffleHog n'a par exemple aucun détecteur pour les clés de Zhipu, que Kingfisher a trouvées seul. Kingfisher est édité par MongoDB, et l'article a été préparé avec l'équipe de cet outil, un lien d'intérêt à garder à l'esprit."
+    },
+    {
+     "type": "diagram",
+     "svg": "<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 640 300' font-family='system-ui,sans-serif'><rect width='640' height='300' rx='14' fill='#eef3f6'/><g font-size='13' fill='#12312f'><text x='20' y='40'>Alibaba Cloud</text><text x='20' y='80'>YouTube (Google)</text><text x='20' y='120'>DeepSeek</text><text x='20' y='160'>Zhipu BigModel</text><text x='20' y='200'>OpenAI</text></g><g fill='#2b6f6a'><rect x='150' y='24' width='380' height='24' rx='5'/><rect x='150' y='64' width='153' height='24' rx='5'/><rect x='150' y='104' width='127' height='24' rx='5'/><rect x='150' y='144' width='60' height='24' rx='5'/><rect x='150' y='184' width='54' height='24' rx='5'/></g><g font-size='13' fill='#12312f'><text x='538' y='41'>9 473</text><text x='310' y='81'>3 805</text><text x='284' y='121'>3 170</text><text x='217' y='161'>1 489</text><text x='211' y='201'>1 348</text></g><text x='20' y='260' font-size='12' fill='#33474a'>Identifiants encore valides par émetteur, sur 26 400 au total (analyse de Ben Zimmermann, octobre 2026)</text></svg>",
+     "alt": "Diagramme en barres : 9 473 clés Alibaba Cloud, 3 805 YouTube, 3 170 DeepSeek, 1 489 Zhipu BigModel et 1 348 OpenAI.",
+     "caption": "Répartition des principaux émetteurs d'identifiants valides."
+    },
+    {
+     "type": "heading",
+     "level": 2,
+     "text": "Les principaux émetteurs"
+    },
+    {
+     "type": "paragraph",
+     "text": "Alibaba Cloud domine avec 9 473 paires de clés d'accès. Viennent ensuite 3 805 clés d'API YouTube (Google Cloud), 3 170 clés DeepSeek, 1 489 clés Zhipu BigModel et 1 348 clés OpenAI. Le chercheur signale aussi un identifiant d'administrateur d'organisation pour une grande plateforme d'IA d'entreprise, sans la nommer. Près de la moitié des identifiants (12 242) datent de 2025, certains remontent à la fin des années 2000."
+    },
+    {
+     "type": "paragraph",
+     "text": "Le taux observé est de 3,64 identifiants valides pour 1 000 dépôts. Les analyses antérieures de GitLab (3,11) et de Bitbucket (2,39) ne reposaient que sur TruffleHog : les méthodes diffèrent, et ces chiffres ne permettent donc pas de désigner la plateforme qui fuit le plus."
+    },
+    {
+     "type": "heading",
+     "level": 2,
+     "text": "Divulgation et limites"
+    },
+    {
+     "type": "paragraph",
+     "text": "Zimmermann a transmis aux éditeurs les plus touchés la liste de leurs identifiants, sans contacter les développeurs concernés. Au moment de la publication, aucune révocation n'était confirmée. On ignore aussi depuis quand les clés sont exposées et si quelqu'un s'en est servi."
+    },
+    {
+     "type": "usecases",
+     "title": "Exemples d'utilisation",
+     "items": [
+      {
+       "icon": "☁️",
+       "title": "Équipe d'une PME hébergée chez Alibaba Cloud",
+       "text": "Elle crée une nouvelle paire de clés, bascule ses applications, puis supprime l'ancienne et consulte ActionTrail, qui conserve 90 jours d'appels d'API."
+      },
+      {
+       "icon": "🤖",
+       "title": "Développeur utilisant une clé OpenAI",
+       "text": "Il la renouvelle depuis la page des clés d'API et fixe une limite de dépenses pour plafonner les dégâts en cas de fuite."
+      },
+      {
+       "icon": "🔍",
+       "title": "Responsable sécurité d'un éditeur",
+       "text": "Il vérifie que son outil de détection de secrets couvre bien les services réellement utilisés, car chaque outil n'a trouvé qu'environ la moitié des clés."
+      }
+     ]
+    },
+    {
+     "type": "timeline",
+     "title": "D'où l'on vient, où l'on va",
+     "items": [
+      {
+       "label": "2020",
+       "text": "Le gouvernement chinois retient Gitee pour une plateforme nationale open source."
+      },
+      {
+       "label": "2021",
+       "text": "Une première tentative d'étude des fuites sur le site est abandonnée, l'API publique étant limitée."
+      },
+      {
+       "label": "28 octobre 2026",
+       "text": "Publication de l'analyse et signalement aux éditeurs."
+      }
+     ]
+    },
+    {
+     "type": "opinion",
+     "title": "Notre avis",
+     "paragraphs": [
+      "Le message principal n'est pas géographique : toute plateforme publique contient des secrets oubliés, et un historique réécrit ne révoque rien. La seule réponse efficace consiste à considérer toute clé déjà publiée comme compromise et à la remplacer, ce que peu d'équipes font systématiquement.",
+      "À court terme, les outils de détection à l'enregistrement du code et la généralisation de jetons éphémères devraient réduire le problème. Cette évolution reste une projection : tant que des clés durables seront la solution la plus simple, les fuites se poursuivront."
+     ],
+     "verdict": "Une clé publiée un jour est une clé à remplacer, quel que soit le nettoyage du dépôt."
+    },
+    {
+     "type": "callout",
+     "title": "À retenir",
+     "text": "Supprimer une clé du code ou réécrire l'historique ne la révoque pas. Révoquez, puis remplacez."
+    }
+   ],
+   "publishedAt": "2026-10-30T04:16:47+01:00"
+  },
+  {
+   "id": "hugging-face-modeles-pieges-gpu-minage",
+   "category": "cybersecurite",
+   "icon": "⛏️",
+   "importance": 4,
+   "title": "Hugging Face : des modèles piégés détournent des serveurs GPU pour miner de la cryptomonnaie",
+   "summary": "Pluto Security recense 31 dépôts malveillants répartis sur sept comptes. La campagne exploite l'option trust_remote_code, est revenue quelques jours après une première suppression et dépasse 32 000 téléchargements cumulés.",
+   "tags": [
+    "Hugging Face",
+    "trust_remote_code",
+    "minage",
+    "GPU",
+    "agents IA"
+   ],
+   "sourceDate": "2026-10-29",
+   "sources": [
+    {
+     "title": "Hugging Face malware campaign returns to hijack GPUs for crypto mining",
+     "url": "https://www.bleepingcomputer.com/news/security/hugging-face-malware-campaign-returns-to-hijack-gpus-for-crypto-mining/",
+     "publisher": "BleepingComputer"
+    }
+   ],
+   "illustration": {
+    "svg": "<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 640 360'><defs><linearGradient id='g' x1='0' y1='0' x2='1' y2='1'><stop offset='0' stop-color='hsl(175,70%,42%)'/><stop offset='1' stop-color='hsl(215,65%,22%)'/></linearGradient></defs><rect width='640' height='360' fill='url(#g)'/><circle cx='560' cy='50' r='120' fill='#fff' opacity='.08'/><circle cx='70' cy='330' r='150' fill='#fff' opacity='.07'/><g fill='#fff'><rect x='200' y='110' width='240' height='130' rx='16' opacity='.9'/></g><g fill='hsl(175,70%,28%)'><rect x='225' y='135' width='60' height='80' rx='6'/><rect x='300' y='135' width='60' height='80' rx='6'/><rect x='375' y='135' width='40' height='80' rx='6'/></g><path d='M270 70l-25 45M360 70l25 45' stroke='#fff' stroke-width='8' stroke-linecap='round'/><circle cx='320' cy='60' r='22' fill='#fff' opacity='.85'/></svg>"
+   },
+   "readingMinutes": 5,
+   "blocks": [
+    {
+     "type": "paragraph",
+     "text": "Télécharger un modèle d'IA depuis un dépôt public ressemble à l'installation d'une bibliothèque : on fait confiance à l'auteur. Une campagne détectée par **Pluto Security** montre à quel point cette confiance peut coûter cher. Des modèles hébergés sur Hugging Face, présentés comme de petits points de contrôle Qwen2, installent en réalité un mineur de cryptomonnaie et parfois un accès à distance sur les serveurs GPU qui les chargent."
+    },
+    {
+     "type": "heading",
+     "level": 2,
+     "text": "Une option de configuration qui exécute du code"
+    },
+    {
+     "type": "paragraph",
+     "text": "Les chercheurs ont trouvé 31 dépôts malveillants, répartis sur sept comptes et publiés en deux vagues depuis septembre. Le plus téléchargé a atteint 28 412 téléchargements, et l'ensemble dépasse 32 000, un chiffre qui mesure des téléchargements et non des infections confirmées. Les cibles sont des serveurs d'inférence autonomes comme Xinference et GPUStack."
+    },
+    {
+     "type": "paragraph",
+     "text": "La campagne n'utilise ni poids empoisonnés ni exploitation du format pickle. Elle s'appuie sur l'option `trust_remote_code`, qui autorise un modèle à fournir son propre code Python, exécuté dès le chargement. Le modèle phare, MENXIANGYU/qwen2-tiny, ne contenait aucun vrai modèle : son code installait un mineur déguisé en processus système, le relançait s'il était arrêté et supprimait les mineurs concurrents. Certaines versions ouvraient un shell inversé."
+    },
+    {
+     "type": "heading",
+     "level": 2,
+     "text": "Une suppression sans effet durable"
+    },
+    {
+     "type": "paragraph",
+     "text": "Pluto a découvert l'opération grâce à un compte de test dont des fichiers de sauvegarde renvoyaient vers les comptes principaux. Après le signalement, Hugging Face et ModelScope ont retiré les comptes de la première vague, mais une seconde vague de 19 dépôts est apparue sous de nouveaux comptes en quelques jours. Quelques heures après le signalement, l'opérateur a publié un modèle contenant un script capable de sortir d'un conteneur pour compromettre le serveur hôte."
+    },
+    {
+     "type": "paragraph",
+     "text": "Les téléchargements du modèle phare sont passés de 7 354 au moment du signalement à 28 412 le 28 octobre. Hugging Face l'a désactivé, mais une copie quasi identique, déposée le 25 octobre par un compte plus récent, restait en ligne lors de la vérification de BleepingComputer."
+    },
+    {
+     "type": "paragraph",
+     "text": "Selon Pluto, les contrôles de Hugging Face, fondés sur des antivirus et des outils de Protect AI et de JFrog, repèrent les logiciels malveillants connus et les formats dangereux, mais n'analysent pas ce que fait réellement le code Python d'un modèle. JFrog a toutefois signalé que le fichier de charge utile n'était pas un modèle d'apprentissage automatique. Le portefeuille principal de l'opérateur a reçu environ 5 000 dollars en cryptomonnaie Pearl (PRL)."
+    },
+    {
+     "type": "heading",
+     "level": 2,
+     "text": "Un second piège visant les agents de programmation"
+    },
+    {
+     "type": "paragraph",
+     "text": "Un rapport distinct d'Air Security décrit un dépôt GitHub, SolanaUpdateTools/solana-starter-kit, qui apparaît en tête lorsque des agents de programmation cherchent un kit de démarrage Solana. Il ne contient qu'un fichier README, dont la seule étape d'installation est une commande PowerShell qui télécharge et exécute un script en mémoire pour installer l'outil d'administration à distance NetSupport Manager. Le dépôt, créé en novembre 2025, affichait 286 étoiles. Au moment de la vérification d'Air, l'adresse de la charge utile renvoyait une erreur 404."
+    },
+    {
+     "type": "usecases",
+     "title": "Exemples d'utilisation",
+     "items": [
+      {
+       "icon": "🖥️",
+       "title": "Laboratoire d'une université",
+       "text": "Une grappe de GPU partagée a vu neuf machines miner simultanément pour l'opérateur pendant environ six minutes avant que leurs travaux soient arrêtés, signe d'une intervention d'un administrateur."
+      },
+      {
+       "icon": "🧑‍💻",
+       "title": "Développeur qui teste un modèle",
+       "text": "Il évite d'activer `trust_remote_code` pour une source qu'il ne connaît pas, et lit le code du dépôt avant le premier chargement."
+      },
+      {
+       "icon": "🤖",
+       "title": "Équipe qui laisse un agent installer des outils",
+       "text": "Elle exige une validation humaine des commandes d'installation, surtout sous Windows, avant toute exécution."
+      }
+     ]
+    },
+    {
+     "type": "timeline",
+     "title": "D'où l'on vient, où l'on va",
+     "items": [
+      {
+       "label": "Septembre 2026",
+       "text": "Première vague de dépôts malveillants, selon Pluto Security."
+      },
+      {
+       "label": "Fin octobre 2026",
+       "text": "Retrait des comptes puis retour de la campagne avec 19 nouveaux dépôts."
+      },
+      {
+       "label": "28 octobre 2026",
+       "text": "Le modèle phare atteint 28 412 téléchargements."
+      }
+     ]
+    },
+    {
+     "type": "opinion",
+     "title": "Notre avis",
+     "paragraphs": [
+      "Le point faible n'est pas Hugging Face seul : c'est l'habitude de traiter un modèle comme une simple donnée alors qu'il peut embarquer du code. Tant que `trust_remote_code` sera activé par réflexe pour faire fonctionner une architecture récente, la porte restera ouverte.",
+      "Dans un à trois ans, on peut s'attendre à des analyses de comportement du code des modèles avant publication et à des environnements d'exécution isolés par défaut. C'est une opinion : la plateforme devra arbitrer entre ouverture et contrôle."
+     ],
+     "verdict": "Un modèle téléchargé est du code étranger : il mérite un bac à sable."
+    },
+    {
+     "type": "callout",
+     "title": "À retenir",
+     "text": "Si un modèle a été chargé avec `trust_remote_code` depuis ces dépôts, considérez la machine comme compromise : arrêter le mineur ne retire pas les accès dérobés. Renouvelez aussi les identifiants accessibles depuis le serveur."
+    }
+   ],
+   "publishedAt": "2026-10-30T04:16:47+01:00"
+  },
+  {
+   "id": "mistral-large-4-poids-ouverts",
+   "category": "ia",
+   "icon": "🌬️",
+   "importance": 5,
+   "title": "Mistral Large 4 : le laboratoire français publie les poids de son modèle de 1 000 milliards de paramètres",
+   "summary": "Mistral AI diffuse les poids de Mistral Large 4, un modèle à mélange d'experts multimodal d'environ 1 000 milliards de paramètres, sous une licence MIT modifiée. Il est annoncé fort en programmation et en cybersécurité défensive.",
+   "tags": [
+    "Mistral AI",
+    "modèle ouvert",
+    "mélange d'experts",
+    "programmation",
+    "souveraineté"
+   ],
+   "sourceDate": "2026-10-29",
+   "sources": [
+    {
+     "title": "We're releasing the weights of Mistral Large 4",
+     "url": "https://mistral.ai/news/mistral-large-4-oss/",
+     "publisher": "Mistral AI"
+    }
+   ],
+   "cover": {
+    "url": "https://mistral.ai/cms-media/api/media/file/cover-mistral-sovereign%20copie.webp",
+    "alt": "Visuel de présentation de Mistral Large 4",
+    "credit": "mistral.ai"
+   },
+   "illustration": {
+    "svg": "<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 640 360'><defs><linearGradient id='g' x1='0' y1='0' x2='1' y2='1'><stop offset='0' stop-color='hsl(320,70%,42%)'/><stop offset='1' stop-color='hsl(0,65%,22%)'/></linearGradient></defs><rect width='640' height='360' fill='url(#g)'/><circle cx='560' cy='50' r='120' fill='#fff' opacity='.08'/><circle cx='70' cy='330' r='150' fill='#fff' opacity='.07'/><g fill='#fff'><circle cx='320' cy='180' r='36'/><circle cx='200' cy='120' r='22' opacity='.8'/><circle cx='440' cy='120' r='22' opacity='.8'/><circle cx='200' cy='240' r='22' opacity='.8'/><circle cx='440' cy='240' r='22' opacity='.8'/><circle cx='120' cy='180' r='14' opacity='.6'/><circle cx='520' cy='180' r='14' opacity='.6'/></g><g stroke='#fff' stroke-width='4' opacity='.7'><path d='M320 180L200 120M320 180L440 120M320 180L200 240M320 180L440 240M200 120L120 180M440 240L520 180'/></g></svg>"
+   },
+   "readingMinutes": 6,
+   "blocks": [
+    {
+     "type": "paragraph",
+     "text": "Mistral AI publie les poids d'une version améliorée de **Mistral Large 4**, surnommée « Le Chonk ». Le modèle avait été présenté en préversion publique plus tôt ce mois-ci ; depuis, le laboratoire français affirme avoir ajouté environ trois semaines d'apprentissage par renforcement, centrées sur la programmation et la cybersécurité défensive. Un modèle de cette taille diffusé en poids ouverts reste rare, ce qui explique l'attention qu'il suscite."
+    },
+    {
+     "type": "heading",
+     "level": 2,
+     "text": "Ce que l'on sait du modèle"
+    },
+    {
+     "type": "paragraph",
+     "text": "Mistral le décrit comme un modèle ouvert hybride, à la fois d'instruction et de raisonnement, à mélange d'experts et à entrée multimodale. Il compte environ 1 000 milliards de paramètres au total ; le nom du dépôt Hugging Face, Mistral-Large-4-1T-A52B, suggère 52 milliards de paramètres actifs par jeton, mais la page d'annonce ne le précise pas. Elle ne donne ni la longueur de contexte, ni la mémoire nécessaire, ni la date exacte de sortie ; le rapport technique est annoncé « bientôt »."
+    },
+    {
+     "type": "paragraph",
+     "text": "Trois niveaux de raisonnement permettent d'arbitrer entre coût et qualité : bas pour les tâches simples, moyen pour l'usage courant, élevé (par défaut) pour les problèmes qui exigent de la précision. Le modèle est présenté comme maîtrisant plus de 160 langues."
+    },
+    {
+     "type": "heading",
+     "level": 2,
+     "text": "Les résultats annoncés par Mistral"
+    },
+    {
+     "type": "list",
+     "items": [
+      "FrontierCode 2.0 (Cognition, test privé) : 19,7 %, meilleur score parmi les modèles ouverts comparés.",
+      "Terminal-Bench 4.0 : 41 %, soit 13 points de plus que la préversion.",
+      "Index d'agent de programmation d'Artificial Analysis : 48 %, à égalité quasi parfaite avec GLM-5.3, avec 47 % de jetons en moins par tâche en moyenne.",
+      "Index de cybersécurité d'Artificial Analysis : 51 %, et 96,6 % de refus en moyenne face aux demandes cyber malveillantes.",
+      "BrowseComp : 84,5 % ; benchmark de sécurité des agents B3 : 97,1 % de résistance aux attaques."
+     ]
+    },
+    {
+     "type": "paragraph",
+     "text": "Ces chiffres proviennent de l'éditeur et de tests dont certains sont privés ; ils méritent d'être confirmés par des évaluations indépendantes. Dans des comparaisons humaines à l'aveugle menées par Surge, le modèle est dit préféré à GLM-5.3, Kimi K3 et DeepSeek V4.1 Flash, derrière seulement Claude Opus 5.5."
+    },
+    {
+     "type": "heading",
+     "level": 2,
+     "text": "Licence, accès et prix"
+    },
+    {
+     "type": "paragraph",
+     "text": "La licence, nommée « Mistral Ecosystem Open-Weight », est une MIT modifiée : usage, modification, ajustement fin et commercialisation sont libres, sauf pour les entreprises qui proposent un modèle en service, lesquelles doivent obtenir une licence commerciale distincte. Le modèle est disponible dans Mistral Studio, l'API, OpenRouter, sur Hugging Face, chez NVIDIA et dans Microsoft Foundry. Le tarif d'API est de 0,70 dollar par million de jetons en entrée et de 2,10 dollars en sortie. Le service peut être assuré avec vLLM, SGLang ou TensorRT-LLM."
+    },
+    {
+     "type": "paragraph",
+     "text": "Mistral affirme l'avoir entraîné de bout en bout sur une infrastructure européenne, un argument de souveraineté pour les organisations qui veulent l'inspecter et l'héberger elles-mêmes. Des partenaires comme Cisco, Cloudflare, CrowdStrike, Elastic, Fortinet et l'ENISA collaborent sur les usages de cybersécurité, et une variante spécialisée est en préversion limitée. Le laboratoire dit avoir ajusté ses garde-fous après avoir observé un potentiel d'aide aux attaquants dans le trafic réel."
+    },
+    {
+     "type": "usecases",
+     "title": "Exemples d'utilisation",
+     "items": [
+      {
+       "icon": "🏛️",
+       "title": "Administration souhaitant héberger son propre modèle",
+       "text": "Elle déploie les poids sur son infrastructure afin de garder les données sensibles en interne, sans appel à une API extérieure."
+      },
+      {
+       "icon": "🛡️",
+       "title": "Équipe de sécurité d'une entreprise",
+       "text": "Elle teste le modèle pour reproduire et corriger des vulnérabilités dans son propre code, sous contrôle humain."
+      },
+      {
+       "icon": "🧑‍💻",
+       "title": "Startup française de développement",
+       "text": "Elle ajuste le modèle sur sa base de code, tout en vérifiant si son offre déclenche l'obligation de licence commerciale."
+      }
+     ]
+    },
+    {
+     "type": "timeline",
+     "title": "D'où l'on vient, où l'on va",
+     "items": [
+      {
+       "label": "Début octobre 2026",
+       "text": "Préversion publique de Mistral Large 4."
+      },
+      {
+       "label": "29 octobre 2026",
+       "text": "Publication des poids après trois semaines d'apprentissage par renforcement supplémentaire."
+      },
+      {
+       "label": "À venir",
+       "text": "Rapport technique annoncé « bientôt » ; variante cybersécurité en préversion limitée."
+      }
+     ]
+    },
+    {
+     "type": "opinion",
+     "title": "Notre avis",
+     "paragraphs": [
+      "La vraie nouveauté tient à la combinaison : une taille de classe frontière, des poids téléchargeables et une licence permissive. Mais un modèle de cette ampleur ne se déploie pas sur un poste de travail, et l'ouverture profite d'abord aux organisations disposant de grappes de GPU. Les mentions absentes de la page, contexte et besoins matériels, comptent autant que les scores.",
+      "Dans un à trois ans, la pression sur les modèles fermés devrait se concentrer sur le prix et la maîtrise des données plutôt que sur les seuls scores. Il s'agit d'une analyse, non d'un fait : tout dépendra de la fidélité de ces résultats lors d'évaluations indépendantes."
+     ],
+     "verdict": "Une ouverture réelle et utile, dont les performances restent à confirmer hors du laboratoire."
+    },
+    {
+     "type": "callout",
+     "title": "À retenir",
+     "text": "Poids ouverts, licence MIT modifiée, licence commerciale exigée pour les services de modèle en ligne ; scores publiés par l'éditeur."
+    }
+   ],
+   "publishedAt": "2026-10-30T04:16:47+01:00"
+  },
+  {
+   "id": "openai-chatgpt-pro-limites-doublees",
+   "category": "ia",
+   "icon": "🎚️",
+   "importance": 3,
+   "title": "ChatGPT Pro : OpenAI renonce à réduire les limites d'usage et les double après la fronde des abonnés",
+   "summary": "OpenAI annule la baisse prévue des limites du forfait Pro à 200 dollars et double les limites des forfaits Pro et Business Premium, pour Work et Codex. Les limites des Dots restent séparées.",
+   "tags": [
+    "OpenAI",
+    "ChatGPT Pro",
+    "Codex",
+    "tarification",
+    "Dots"
+   ],
+   "sourceDate": "2026-10-29",
+   "sources": [
+    {
+     "title": "OpenAI doubles ChatGPT Pro usage limits after backlash over planned 50% cut",
+     "url": "https://www.bleepingcomputer.com/news/artificial-intelligence/openai-doubles-chatgpt-pro-usage-limits-after-backlash-over-planned-50-percent-cut/",
+     "publisher": "BleepingComputer"
+    }
+   ],
+   "illustration": {
+    "svg": "<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 640 360'><defs><linearGradient id='g' x1='0' y1='0' x2='1' y2='1'><stop offset='0' stop-color='hsl(320,70%,42%)'/><stop offset='1' stop-color='hsl(0,65%,22%)'/></linearGradient></defs><rect width='640' height='360' fill='url(#g)'/><circle cx='560' cy='50' r='120' fill='#fff' opacity='.08'/><circle cx='70' cy='330' r='150' fill='#fff' opacity='.07'/><g fill='none' stroke='#fff' stroke-width='8' stroke-linecap='round'><path d='M180 120h280M180 180h280M180 240h280'/></g><g fill='#fff'><circle cx='400' cy='120' r='20'/><circle cx='260' cy='180' r='20'/><circle cx='430' cy='240' r='20'/></g></svg>"
+   },
+   "readingMinutes": 4,
+   "blocks": [
+    {
+     "type": "paragraph",
+     "text": "Un abonnement payant n'est pas seulement un prix : c'est aussi un volume d'usage. OpenAI vient d'en faire l'expérience. L'entreprise avait prévu d'abaisser, après le 29 octobre, l'usage inclus dans le forfait **ChatGPT Pro à 200 dollars** par mois, sans toucher au tarif. Face aux critiques de ses clients, elle a renoncé à cette baisse et annoncé au contraire un doublement des limites, d'après BleepingComputer."
+    },
+    {
+     "type": "heading",
+     "level": 2,
+     "text": "Ce qui a été annoncé"
+    },
+    {
+     "type": "paragraph",
+     "text": "Le revirement concerne les forfaits Pro à 100, 200 et 500 dollars par mois ainsi que Business Premium, dont le prix n'est pas précisé dans l'article. OpenAI indique qu'elle ne réduira les limites d'aucun d'entre eux. La communication publique est venue de Tibo, présenté comme le visage de ChatGPT et de Codex sur X, qui écrit que l'usage de Work et de Codex restera inchangé pour les abonnés Pro 200."
+    },
+    {
+     "type": "paragraph",
+     "text": "Les changements s'appliquent immédiatement et concernent surtout **ChatGPT Work** et **Codex**, qui partagent les mêmes plafonds d'usage dans les abonnements éligibles. En pratique, les abonnés conservent leur allocation actuelle, à laquelle s'ajoute une marge supplémentaire. OpenAI n'a toutefois pas publié de limites chiffrées pour chaque forfait : l'ampleur exacte de l'augmentation reste inconnue."
+    },
+    {
+     "type": "heading",
+     "level": 2,
+     "text": "Le cas des Dots"
+    },
+    {
+     "type": "paragraph",
+     "text": "OpenAI a également précisé la situation des **Dots**, ses assistants toujours actifs. L'entreprise continuera à proposer des limites étendues « pour l'instant », et l'usage des Dots reste décompté séparément de l'usage par défaut : utiliser un Dot ne consomme donc pas le quota de Work et de Codex. La mention « pour l'instant » laisse ouverte une évolution ultérieure, sans calendrier annoncé."
+    },
+    {
+     "type": "list",
+     "items": [
+      "Avant : une baisse prévue des limites de Pro 200 après le 29 octobre, au même prix.",
+      "Après : aucune baisse sur Pro 100, 200, 500 ni Business Premium, et limites doublées.",
+      "Inchangé : les Dots gardent des limites étendues et distinctes, pour l'instant."
+     ]
+    },
+    {
+     "type": "usecases",
+     "title": "Exemples d'utilisation",
+     "items": [
+      {
+       "icon": "🧑‍💻",
+       "title": "Développeur en forfait Pro 200",
+       "text": "Il peut lancer davantage de tâches Codex longues dans la même journée sans craindre d'atteindre le plafond en milieu de projet."
+      },
+      {
+       "icon": "🏢",
+       "title": "Responsable d'une équipe en Business Premium",
+       "text": "Elle n'a pas à revoir son budget ni à arbitrer entre membres pour un quota réduit."
+      },
+      {
+       "icon": "📊",
+       "title": "Freelance qui compare les offres",
+       "text": "Il compare le coût par mois et l'usage réel avant de choisir entre un forfait Pro et un abonnement concurrent."
+      }
+     ]
+    },
+    {
+     "type": "timeline",
+     "title": "D'où l'on vient, où l'on va",
+     "items": [
+      {
+       "label": "Avant le 29 octobre 2026",
+       "text": "Les limites de Pro 200 sont jugées suffisantes par la plupart des abonnés."
+      },
+      {
+       "label": "29 octobre 2026",
+       "text": "Annonce d'une baisse, critiques publiques, puis annulation et doublement des limites."
+      },
+      {
+       "label": "À venir",
+       "text": "Évolution possible des limites des Dots, annoncée seulement « pour l'instant »."
+      }
+     ]
+    },
+    {
+     "type": "opinion",
+     "title": "Notre avis",
+     "paragraphs": [
+      "L'épisode montre que les limites d'usage sont devenues un élément de prix aussi important que le tarif mensuel. Annoncer une baisse en silence revient à une hausse déguisée, et les clients professionnels, qui bâtissent leurs flux de travail sur ces quotas, l'ont rappelé rapidement.",
+      "À un an ou deux, les éditeurs devraient publier des plafonds chiffrés et stables, ou facturer à l'usage. Cette lecture est une opinion : la rareté de la puissance de calcul pousse plutôt à des restrictions, et le doublement actuel n'est pas garanti dans la durée."
+     ],
+     "verdict": "Une victoire des abonnés, mais fragile tant que les plafonds restent flous."
+    },
+    {
+     "type": "callout",
+     "title": "À retenir",
+     "text": "OpenAI n'a pas publié de chiffres précis : vérifiez votre quota réel dans votre espace avant de planifier un gros projet."
+    }
+   ],
+   "publishedAt": "2026-10-30T04:16:47+01:00"
+  },
+  {
+   "id": "tinyworldformer-pico-2-w",
+   "category": "electronique",
+   "icon": "🕹️",
+   "importance": 3,
+   "title": "Tinyworldformer : un modèle de monde et un agent jouent à Breakout ou Pong sur un Raspberry Pi Pico 2 W",
+   "summary": "Un projet libre fait tourner sur un microcontrôleur RP2350 deux petits réseaux : l'un génère les images du jeu, l'autre choisit les actions. Les poids du modèle de monde tiennent en quelques dizaines de kilo-octets.",
+   "tags": [
+    "Raspberry Pi Pico 2 W",
+    "RP2350",
+    "modèle de monde",
+    "Rust",
+    "IA embarquée"
+   ],
+   "sourceDate": "2026-10-29",
+   "sources": [
+    {
+     "title": "SheepSeb/tinyworldformer",
+     "url": "https://github.com/SheepSeb/tinyworldformer",
+     "publisher": "GitHub"
+    }
+   ],
+   "illustration": {
+    "svg": "<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 640 360'><defs><linearGradient id='g' x1='0' y1='0' x2='1' y2='1'><stop offset='0' stop-color='hsl(30,70%,42%)'/><stop offset='1' stop-color='hsl(70,65%,22%)'/></linearGradient></defs><rect width='640' height='360' fill='url(#g)'/><circle cx='560' cy='50' r='120' fill='#fff' opacity='.08'/><circle cx='70' cy='330' r='150' fill='#fff' opacity='.07'/><g fill='#fff'><rect x='200' y='110' width='240' height='140' rx='14' opacity='.95'/></g><rect x='222' y='130' width='196' height='100' rx='6' fill='hsl(30,60%,20%)'/><g fill='#fff'><rect x='300' y='205' width='40' height='8' rx='3'/><circle cx='360' cy='170' r='7'/><rect x='240' y='146' width='24' height='8' rx='2'/><rect x='270' y='146' width='24' height='8' rx='2'/><rect x='300' y='146' width='24' height='8' rx='2'/></g><path d='M220 250v22M260 250v22M380 250v22M420 250v22' stroke='#fff' stroke-width='8' stroke-linecap='round'/></svg>"
+   },
+   "readingMinutes": 5,
+   "blocks": [
+    {
+     "type": "paragraph",
+     "text": "Faire tourner un modèle de langage sur un microcontrôleur relève encore de l'exploit. Le projet **tinyworldformer**, publié sur GitHub par SheepSeb, s'attaque à un problème voisin et plus petit : faire jouer un agent à des jeux vidéo dont les images sont elles-mêmes générées par un réseau de neurones, le tout sur un Raspberry Pi Pico 2 W. L'auteur dit vouloir vérifier si un transformeur « bouclé » peut être assez compact pour une puce de ce type."
+    },
+    {
+     "type": "heading",
+     "level": 2,
+     "text": "Deux petits réseaux qui jouent ensemble"
+    },
+    {
+     "type": "paragraph",
+     "text": "Le principe repose sur deux modèles. Le **modèle de monde** reçoit l'image courante et une action, puis prédit l'image suivante et la récompense. L'**acteur** observe l'image produite et choisit l'action. L'acteur ne voit jamais le vrai jeu : il ne voit que les images générées par le modèle de monde. Le code est écrit principalement en Rust, l'entraînement se fait avec Python et PyTorch."
+    },
+    {
+     "type": "paragraph",
+     "text": "Les tailles sont modestes. Le modèle de monde compte de 26 000 à 131 000 paramètres, avec des poids en entiers de 8 bits et un transformeur bouclé de une à quatre itérations (deux sur le Pico). L'acteur est un petit perceptron de 9 000 à 16 000 paramètres. Pour Breakout, les poids quantifiés pèsent 19,7 ko, et le micrologiciel complet 361 ko de mémoire flash et 299 ko de mémoire vive ; Doom-lite en demande 471 ko et 357 ko, Pac-Man lite 600 ko et 460 ko."
+    },
+    {
+     "type": "heading",
+     "level": 2,
+     "text": "Cinq jeux, une précision inégale"
+    },
+    {
+     "type": "list",
+     "items": [
+      "Breakout (20×16) : 99,99 % d'images exactes.",
+      "Flappy Bird (24×24) : 100 %.",
+      "Pong (20×32) : 99,45 %.",
+      "Pac-Man lite (48×48) : 86,4 %, avec 742 états erronés sur 5 000 pas.",
+      "Doom-lite (32×32, vue en lancer de rayons d'un labyrinthe) : 83,6 % d'images exactes, l'état du jeu étant presque toujours juste."
+     ]
+    },
+    {
+     "type": "paragraph",
+     "text": "La puce est un RP2350 avec 520 ko de SRAM et 4 Mo de flash, selon la page du projet ; un cœur exécute le jeu et les modèles, l'autre gère l'USB et l'écran. Un écran optionnel de 320×240 pixels (ST7789) ou une sortie texte en couleurs par liaison série permet de voir le résultat, et une version WebAssembly tourne dans un navigateur."
+    },
+    {
+     "type": "heading",
+     "level": 2,
+     "text": "Des limites assumées"
+    },
+    {
+     "type": "paragraph",
+     "text": "L'auteur est transparent sur les défauts. Un agent entraîné uniquement dans le « rêve » du modèle a exploité ses erreurs : à Breakout, il atteignait 210 points dans la simulation alors que le maximum réel est de 56, et seulement 28 dans le vrai jeu. Il a fallu plusieurs tours de collecte de données et de réglage fin. À Pong, l'agent ne marque qu'environ 1,1 point sur 5 face à l'adversaire. Surtout, la cadence sur le Pico n'a pas encore été mesurée : sur un processeur de bureau, une image est générée en 0,7 à 1,5 ms."
+    },
+    {
+     "type": "usecases",
+     "title": "Exemples d'utilisation",
+     "items": [
+      {
+       "icon": "🎓",
+       "title": "Enseignant en électronique",
+       "text": "Il montre à des étudiants qu'un réseau de neurones peut tenir dans moins de 600 ko, avec un exemple jouable et lisible."
+      },
+      {
+       "icon": "🔧",
+       "title": "Bricoleur de systèmes embarqués",
+       "text": "Il réutilise la chaîne d'export PyTorch vers du Rust sans bibliothèque standard pour ses propres modèles minuscules."
+      },
+      {
+       "icon": "🔬",
+       "title": "Chercheur sur les modèles de monde",
+       "text": "Il observe comment un agent exploite les erreurs d'un simulateur appris, un risque central pour la robotique."
+      }
+     ]
+    },
+    {
+     "type": "timeline",
+     "title": "D'où l'on vient, où l'on va",
+     "items": [
+      {
+       "label": "Avant",
+       "text": "Les modèles de monde tournent d'ordinaire sur des GPU ou des ordinateurs de bureau."
+      },
+      {
+       "label": "Octobre 2026",
+       "text": "Un dépôt public montre le principe sur un microcontrôleur à environ 4 Mo de flash."
+      },
+      {
+       "label": "À venir",
+       "text": "La mesure de la cadence réelle sur le Pico reste à faire, d'après l'auteur."
+      }
+     ]
+    },
+    {
+     "type": "opinion",
+     "title": "Notre avis",
+     "paragraphs": [
+      "Ce projet vaut moins comme jeu que comme démonstration d'échelle : quelques dizaines de milliers de paramètres suffisent pour simuler des environnements simples, à condition de les choisir petits. L'honnêteté sur les erreurs du modèle de monde est précieuse, car ce sont elles que l'agent apprend à exploiter.",
+      "À un à trois ans, on peut imaginer de petits simulateurs appris embarqués dans des robots ou des jouets, pour prévoir quelques images à l'avance. C'est une projection : la distance entre Pong et un environnement physique réel reste immense."
+     ],
+     "verdict": "Une preuve de concept ludique et instructive, loin d'un produit."
+    },
+    {
+     "type": "callout",
+     "title": "À retenir",
+     "text": "Licence non indiquée sur la page consultée et cadence sur le Pico non mesurée par l'auteur : projet expérimental."
+    }
+   ],
+   "publishedAt": "2026-10-30T04:16:47+01:00"
+  }
+ ]
+}
