@@ -1,0 +1,1214 @@
+{
+ "schemaVersion": "1.0",
+ "date": "2026-10-31",
+ "generatedAt": "2026-10-31T18:17:58+01:00",
+ "title": "Tech : Android « SMS of Death », fausse extension Claude Code et voleur de données piloté par IA",
+ "summary": "Cette édition tech suit une faille Android exploitable par SMS, une extension piégée sur Cursor, un logiciel voleur qui s'appuie sur un modèle d'IA, ainsi que HTTP/3 chez Delivery Hero et une carte monoplaque dédiée à l'IA locale.",
+ "highlights": [
+  "Android : un SMS de huit octets peut faire planter le téléphone ; Android 12 et 13 restent exposés.",
+  "Cursor : une fausse extension Claude Code a circulé environ 11 heures le 29 octobre.",
+  "VOLTA : un voleur de données envoie son butin à un modèle d'IA pour classer les victimes.",
+  "Chainalysis : accès aux noms et rôles d'utilisateurs lors d'une intrusion en octobre.",
+  "Delivery Hero : HTTP/3 améliore de 17 % le temps de réponse de l'écran d'accueil."
+ ],
+ "meta": {
+  "generator": "claude-scheduled-task"
+ },
+ "posts": [
+  {
+   "id": "android-sms-of-death-cve-2026-58882",
+   "category": "cybersecurite",
+   "icon": "📱",
+   "importance": 5,
+   "title": "Android « SMS of Death » : un SMS de huit octets suffit à faire planter le téléphone, une preuve de concept est publique",
+   "summary": "Une faille de validation dans le traitement des messages WAP Push (CVE-2026-58882) permet de faire tomber le processus téléphonique d'un appareil Android sans aucune action de son propriétaire. Corrigée en octobre pour Android 14 à 17, elle reste ouverte sur Android 12 et 13.",
+   "tags": [
+    "Android",
+    "CVE-2026-58882",
+    "SMS",
+    "déni de service",
+    "WAP Push"
+   ],
+   "sourceDate": "2026-10-31",
+   "sources": [
+    {
+     "title": "New Android SMS of Death exploit can remotely crash unpatched phones",
+     "url": "https://www.bleepingcomputer.com/news/security/new-android-sms-of-death-exploit-can-remotely-crash-unpatched-phones/",
+     "publisher": "BleepingComputer"
+    }
+   ],
+   "illustration": {
+    "svg": "<svg xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"0 0 640 360\"><defs><linearGradient id=\"g\" x1=\"0\" y1=\"0\" x2=\"1\" y2=\"1\"><stop offset=\"0\" stop-color=\"hsl(175,62%,38%)\"/><stop offset=\"1\" stop-color=\"hsl(215,65%,20%)\"/></linearGradient></defs><rect width=\"640\" height=\"360\" fill=\"url(#g)\"/><rect x=\"270\" y=\"55\" width=\"100\" height=\"215\" rx=\"18\" fill=\"#fff\" opacity=\".92\"/><rect x=\"282\" y=\"80\" width=\"76\" height=\"150\" rx=\"6\" fill=\"hsl(175,60%,32%)\"/><circle cx=\"320\" cy=\"252\" r=\"8\" fill=\"hsl(175,60%,32%)\"/><path d=\"M400 110l30-25M410 150l40-8M400 190l32 22\" stroke=\"#fff\" stroke-width=\"8\" stroke-linecap=\"round\"/></svg>"
+   },
+   "blocks": [
+    {
+     "type": "paragraph",
+     "text": "Recevoir un texto ne devrait jamais pouvoir mettre un téléphone hors service. C'est pourtant ce que montre une preuve de concept publiée le 31 octobre 2026 : un message de huit octets, envoyé comme SMS de données vers un port précis, suffit à faire tomber le processus `com.android.phone` d'un appareil Android non corrigé. Le téléphone perd alors sa connexion au réseau cellulaire, les appels en cours sont coupés et, selon les cas, l'appareil se met à redémarrer en boucle."
+    },
+    {
+     "type": "heading",
+     "level": 2,
+     "text": "Ce que l'on sait de la faille"
+    },
+    {
+     "type": "keyvalue",
+     "items": [
+      {
+       "label": "Nom courant",
+       "value": "« SMS of Death »"
+      },
+      {
+       "label": "Identifiant",
+       "value": "CVE-2026-58882"
+      },
+      {
+       "label": "Type",
+       "value": "Déni de service sans clic (zero-click)"
+      },
+      {
+       "label": "Composant",
+       "value": "`WapPushOverSms.decodeWapPdu`, dans la pile téléphonique d'Android"
+      },
+      {
+       "label": "Chercheur",
+       "value": "Mark Blah, qui a publié une analyse technique et une preuve de concept"
+      },
+      {
+       "label": "Source",
+       "value": "BleepingComputer, 31 octobre 2026"
+      }
+     ]
+    },
+    {
+     "type": "paragraph",
+     "text": "Selon le récit de BleepingComputer, la cause tient à une validation insuffisante d'une longueur d'en-tête. La valeur reçue est convertie en entier signé sur 32 bits sans contrôle de bornes et devient -2 147 483 648. Le système tente alors d'allouer un tableau de taille négative, ce qui lève une exception `NegativeArraySizeException` non gérée. Le processus chargé de la téléphonie s'arrête, et avec lui toute la connectivité cellulaire."
+    },
+    {
+     "type": "paragraph",
+     "text": "Le message malveillant est un message WAP Push, une technologie ancienne de livraison de contenus par SMS, envoyé au port 2948. Android le traite avant qu'il n'atteigne la boîte de réception : la victime ne voit donc aucun message suspect, seulement un téléphone qui perd le réseau sans explication."
+    },
+    {
+     "type": "heading",
+     "level": 2,
+     "text": "Une gêne qui peut devenir sérieuse"
+    },
+    {
+     "type": "list",
+     "ordered": false,
+     "items": [
+      "Les appels en cours sont interrompus, **y compris les appels d'urgence** tant que le processus téléphonique est à terre.",
+      "Le plantage peut se répéter : l'opérateur peut renvoyer le message, et Android retraite les messages déjà stockés sur l'appareil.",
+      "Lors des essais décrits, vingt messages malveillants ont suffi à provoquer des redémarrages en boucle. Sur un appareil sous Android 12, le téléphone redémarrait en mode de récupération toutes les 90 secondes environ, et seule une réinitialisation d'usine a permis de le remettre d'aplomb."
+     ]
+    },
+    {
+     "type": "heading",
+     "level": 2,
+     "text": "Qui est protégé, qui ne l'est pas"
+    },
+    {
+     "type": "table",
+     "headers": [
+      "Version d'Android",
+      "Situation rapportée"
+     ],
+     "rows": [
+      [
+       "Android 14 à 17",
+       "Corrigée dans les mises à jour de sécurité d'octobre 2026, selon BleepingComputer"
+      ],
+      [
+       "Android 12 et 13",
+       "Toujours vulnérables : la correction n'a pas été diffusée"
+      ],
+      [
+       "Bulletin Google d'octobre 2026",
+       "La faille n'y figure pas, ce qui complique son suivi par les équipes de sécurité"
+      ]
+     ]
+    },
+    {
+     "type": "paragraph",
+     "text": "Le correctif, intitulé « Fix remote DoS in decodeWapPdu », intercepte les exceptions et supprime les messages malveillants de la base de données des SMS. Sa disponibilité effective dépend toutefois du fabricant et de l'opérateur, et un redémarrage peut être nécessaire pour finaliser l'installation. Un contributeur de GitHub a aussi décrit un moyen de supprimer les messages piégés via ADB, l'outil de débogage d'Android, mais la manœuvre exige un ordinateur et des compétences techniques."
+    },
+    {
+     "type": "usecases",
+     "title": "Exemples d'utilisation",
+     "items": [
+      {
+       "icon": "🏢",
+       "title": "Parc de téléphones professionnels",
+       "text": "Un service informatique qui gère des téléphones Android 12 ou 13 doit les recenser, vérifier leur niveau de correctif et prévoir leur remplacement ou leur mise à jour, car une attaque ciblée sur un cadre ou un technicien d'astreinte les rendrait injoignables."
+      },
+      {
+       "icon": "🚨",
+       "title": "Astreintes et services d'urgence",
+       "text": "Un agent d'astreinte dont le téléphone redémarre en boucle manque les alertes. Disposer d'un second moyen de contact, indépendant du réseau cellulaire de ce seul appareil, réduit le risque."
+      },
+      {
+       "icon": "👨‍👩‍👧",
+       "title": "Particuliers avec un ancien téléphone",
+       "text": "Un parent qui garde un vieux smartphone pour ses enfants peut vérifier dans les paramètres la date du dernier correctif de sécurité et, si elle remonte à plus d'un an, cesser d'en dépendre pour les appels importants."
+      }
+     ]
+    },
+    {
+     "type": "diagram",
+     "svg": "<svg xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"0 0 640 260\" font-family=\"system-ui,sans-serif\"><rect width=\"640\" height=\"260\" rx=\"16\" fill=\"#f4f6fa\"/><text x=\"320\" y=\"36\" text-anchor=\"middle\" font-size=\"17\" font-weight=\"700\" fill=\"#1b2433\">Chemin de l&#x27;attaque « SMS of Death »</text><rect x=\"20\" y=\"70\" width=\"124\" height=\"130\" rx=\"12\" fill=\"hsl(175,55%,92%)\" stroke=\"hsl(175,50%,35%)\" stroke-width=\"2\"/><text x=\"82.0\" y=\"102\" text-anchor=\"middle\" font-size=\"14\" font-weight=\"700\" fill=\"#1b2433\">1. Envoi</text><text x=\"82.0\" y=\"128\" text-anchor=\"middle\" font-size=\"12\" fill=\"#2b3647\">SMS WAP Push de 8</text><text x=\"82.0\" y=\"146\" text-anchor=\"middle\" font-size=\"12\" fill=\"#2b3647\">octets, port 2948</text><path d=\"M150 135H172M165 128l7 7-7 7\" stroke=\"hsl(175,50%,35%)\" stroke-width=\"3\" fill=\"none\" stroke-linecap=\"round\"/><rect x=\"178\" y=\"70\" width=\"124\" height=\"130\" rx=\"12\" fill=\"hsl(175,55%,92%)\" stroke=\"hsl(175,50%,35%)\" stroke-width=\"2\"/><text x=\"240.0\" y=\"102\" text-anchor=\"middle\" font-size=\"14\" font-weight=\"700\" fill=\"#1b2433\">2. Analyse</text><text x=\"240.0\" y=\"128\" text-anchor=\"middle\" font-size=\"12\" fill=\"#2b3647\">Longueur</text><text x=\"240.0\" y=\"146\" text-anchor=\"middle\" font-size=\"12\" fill=\"#2b3647\">d&#x27;en-tête</text><text x=\"240.0\" y=\"164\" text-anchor=\"middle\" font-size=\"12\" fill=\"#2b3647\">convertie en -2</text><text x=\"240.0\" y=\"182\" text-anchor=\"middle\" font-size=\"12\" fill=\"#2b3647\">147 483 648</text><path d=\"M308 135H330M323 128l7 7-7 7\" stroke=\"hsl(175,50%,35%)\" stroke-width=\"3\" fill=\"none\" stroke-linecap=\"round\"/><rect x=\"336\" y=\"70\" width=\"124\" height=\"130\" rx=\"12\" fill=\"hsl(175,55%,92%)\" stroke=\"hsl(175,50%,35%)\" stroke-width=\"2\"/><text x=\"398.0\" y=\"102\" text-anchor=\"middle\" font-size=\"14\" font-weight=\"700\" fill=\"#1b2433\">3. Exception</text><text x=\"398.0\" y=\"128\" text-anchor=\"middle\" font-size=\"12\" fill=\"#2b3647\">Tableau de taille</text><text x=\"398.0\" y=\"146\" text-anchor=\"middle\" font-size=\"12\" fill=\"#2b3647\">négative, non</text><text x=\"398.0\" y=\"164\" text-anchor=\"middle\" font-size=\"12\" fill=\"#2b3647\">gérée</text><path d=\"M466 135H488M481 128l7 7-7 7\" stroke=\"hsl(175,50%,35%)\" stroke-width=\"3\" fill=\"none\" stroke-linecap=\"round\"/><rect x=\"494\" y=\"70\" width=\"124\" height=\"130\" rx=\"12\" fill=\"hsl(175,55%,92%)\" stroke=\"hsl(175,50%,35%)\" stroke-width=\"2\"/><text x=\"556.0\" y=\"102\" text-anchor=\"middle\" font-size=\"14\" font-weight=\"700\" fill=\"#1b2433\">4. Panne</text><text x=\"556.0\" y=\"128\" text-anchor=\"middle\" font-size=\"12\" fill=\"#2b3647\">Le processus</text><text x=\"556.0\" y=\"146\" text-anchor=\"middle\" font-size=\"12\" fill=\"#2b3647\">téléphonique</text><text x=\"556.0\" y=\"164\" text-anchor=\"middle\" font-size=\"12\" fill=\"#2b3647\">s&#x27;arrête</text></svg>",
+     "alt": "Schéma en quatre étapes montrant comment un SMS WAP Push malformé provoque l'arrêt du processus téléphonique Android.",
+     "caption": "Principe de l'attaque, d'après la description de BleepingComputer."
+    },
+    {
+     "type": "timeline",
+     "title": "D'où l'on vient, où l'on va",
+     "items": [
+      {
+       "label": "Octobre 2026",
+       "text": "Google corrige la faille dans les mises à jour de sécurité d'Android 14 à 17, sans l'inscrire à son bulletin."
+      },
+      {
+       "label": "31 octobre 2026",
+       "text": "Publication d'une analyse technique et d'une preuve de concept qui rend l'attaque reproductible."
+      },
+      {
+       "label": "À venir",
+       "text": "Aucune date n'est connue pour un correctif sur Android 12 et 13 ; l'issue dépendra des fabricants."
+      }
+     ]
+    },
+    {
+     "type": "opinion",
+     "title": "Notre avis",
+     "paragraphs": [
+      "La gravité intrinsèque reste limitée : il s'agit d'un déni de service, pas d'une prise de contrôle, et l'attaquant ne gagne ni données ni accès. Mais la combinaison d'un déclenchement sans clic, d'un code public et d'appareils qui ne seront jamais corrigés crée un outil de harcèlement ou de sabotage à bas coût, d'autant plus gênant que les appels d'urgence sont touchés.",
+      "À un à trois ans, l'épisode illustre une fracture de plus en plus visible : les correctifs existent pour les versions récentes, mais des centaines de millions d'appareils restent coincés sur des versions abandonnées. Les opérateurs, qui voient passer les SMS de données, ont ici un rôle de filtrage que l'on peut espérer plus actif. C'est une opinion, pas un fait établi par la source."
+     ],
+     "verdict": "Un bogue banal mais un risque réel pour les téléphones qui ne reçoivent plus de mises à jour."
+    },
+    {
+     "type": "callout",
+     "title": "À retenir",
+     "text": "Installez les dernières mises à jour de sécurité d'Android. Sur un appareil qui n'en reçoit plus (Android 12 et 13), ne comptez pas sur lui pour les appels critiques. Faits rapportés par une seule source au 31 octobre 2026."
+    }
+   ],
+   "publishedAt": "2026-10-31T18:17:58+01:00",
+   "readingMinutes": 4
+  },
+  {
+   "id": "cursor-faux-claude-code-porte-derobee-ssh",
+   "category": "cybersecurite",
+   "icon": "🧩",
+   "importance": 4,
+   "title": "Cursor : une fausse extension « Claude Code » est restée en ligne environ 11 heures et installait une porte dérobée SSH",
+   "summary": "Une version piégée de l'extension Claude Code a été distribuée sur la place de marché de Cursor le 29 octobre 2026. Elle ajoutait une clé SSH de l'attaquant et tentait d'ouvrir un tunnel inverse ; Anthropic affirme n'y être pour rien.",
+   "tags": [
+    "Cursor",
+    "Claude Code",
+    "chaîne d'approvisionnement",
+    "SSH",
+    "extensions"
+   ],
+   "sourceDate": "2026-10-30",
+   "sources": [
+    {
+     "title": "Malicious Claude Code extension on Cursor planted SSH backdoors",
+     "url": "https://www.bleepingcomputer.com/news/security/malicious-claude-code-extension-on-cursor-planted-ssh-backdoors/",
+     "publisher": "BleepingComputer"
+    },
+    {
+     "title": "Anthropic: That Claude Code extension compromise… couldn't be us",
+     "url": "https://www.theregister.com/cyber-crime/2026/10/30/anthropic-that-claude-code-extension-compromise-couldnt-be-us/5306682",
+     "publisher": "The Register"
+    }
+   ],
+   "illustration": {
+    "svg": "<svg xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"0 0 640 360\"><defs><linearGradient id=\"g\" x1=\"0\" y1=\"0\" x2=\"1\" y2=\"1\"><stop offset=\"0\" stop-color=\"hsl(175,62%,38%)\"/><stop offset=\"1\" stop-color=\"hsl(215,65%,20%)\"/></linearGradient></defs><rect width=\"640\" height=\"360\" fill=\"url(#g)\"/><ellipse cx=\"320\" cy=\"185\" rx=\"55\" ry=\"75\" fill=\"#fff\" opacity=\".92\"/><circle cx=\"320\" cy=\"95\" r=\"28\" fill=\"#fff\"/><path d=\"M265 150H210M265 190H205M265 230H215M375 150H430M375 190H435M375 230H425M300 70L280 40M340 70L360 40\" stroke=\"#fff\" stroke-width=\"9\" stroke-linecap=\"round\"/><path d=\"M320 125V260\" stroke=\"hsl(175,60%,32%)\" stroke-width=\"7\"/></svg>"
+   },
+   "blocks": [
+    {
+     "type": "paragraph",
+     "text": "Les extensions d'éditeur de code sont devenues une cible de choix : elles s'exécutent avec les droits du développeur, à proximité de ses clés, de ses dépôts et de ses secrets. Le 29 octobre 2026, une fausse version de l'extension Claude Code, présentée comme la version 2.1.313, a été publiée sur la place de marché de l'éditeur Cursor. Elle y est restée environ 11 heures, entre 2 h 27 et 13 h 35, heure du Pacifique, avant d'être retirée."
+    },
+    {
+     "type": "heading",
+     "level": 2,
+     "text": "Ce que l'on sait"
+    },
+    {
+     "type": "list",
+     "ordered": false,
+     "items": [
+      "**Distribution** : Cursor a indiqué que sa propre place de marché était la seule source de diffusion confirmée, alors que de premiers signalements évoquaient aussi npm, Open VSX et la place de marché de Visual Studio Code.",
+      "**Exposition** : jusqu'à 5 000 développeurs, selon BleepingComputer, qui ne donne pas de nombre exact d'installations.",
+      "**Détection** : des analyses de Phorion et d'OpenSourceMalware, puis un avis de sécurité de Cursor.",
+      "**Responsabilité** : Cursor précise qu'Anthropic n'a pas développé cette version, et Anthropic dément toute implication. On ignore comment les attaquants ont pu publier sous ce nom."
+     ]
+    },
+    {
+     "type": "heading",
+     "level": 2,
+     "text": "Un chargeur discret en tête de fichier"
+    },
+    {
+     "type": "paragraph",
+     "text": "Les attaquants ont inséré un chargeur JavaScript au début du fichier `extension.js` et laissé le reste du code intact, de sorte que l'extension semblait fonctionner normalement. Le chargeur s'exécutait au démarrage de l'extension, sans aucune interaction. Il collectait des informations sur la machine et l'utilisateur (courriel Git, adresse IP publique), ajoutait une clé SSH contrôlée par les attaquants, tentait d'activer le service SSH et d'établir un tunnel inverse, puis s'installait durablement : un LaunchAgent sous macOS, une tâche planifiée ou un script de démarrage sous Windows, avec une nouvelle tentative de tunnel environ chaque minute. Les informations recueillies partaient vers un serveur de l'attaquant."
+    },
+    {
+     "type": "heading",
+     "level": 2,
+     "text": "Pourquoi l'accès a souvent échoué"
+    },
+    {
+     "type": "paragraph",
+     "text": "Sous macOS, le code vérifiait l'état de la connexion à distance sans les privilèges nécessaires et n'activait donc jamais SSH. Sous Windows, il tentait de démarrer le serveur OpenSSH via `/bin/sh`, absent d'une installation standard. Dans les deux cas, le service SSH n'était souvent pas actif et le tunnel ne donnait aucun accès. Le logiciel a toutefois transmis des données de reconnaissance : noms d'utilisateur et de machine, adresses IP, courriels Git et noms de variables d'environnement liées à des identifiants sensibles. Il ne volait pas directement les secrets, ce qui laisse penser que l'extraction devait se faire à la main, après prise de contrôle."
+    },
+    {
+     "type": "heading",
+     "level": 2,
+     "text": "Réaction et conduite à tenir"
+    },
+    {
+     "type": "list",
+     "ordered": false,
+     "items": [
+      "Cursor a retiré l'extension, suspendu temporairement sa place de marché pour auditer les autres extensions, renouvelé des clés d'accès et fait mettre hors ligne le serveur des attaquants. Aucune autre version n'a été trouvée compromise.",
+      "Vérifier sur les machines concernées la présence d'une clé SSH nommée `svc-telemetry`.",
+      "En cas de doute : isoler la machine, renouveler les secrets accessibles, invalider les sessions et reconstruire l'environnement à partir de sauvegardes saines."
+     ]
+    },
+    {
+     "type": "usecases",
+     "title": "Exemples d'utilisation",
+     "items": [
+      {
+       "icon": "👩‍💻",
+       "title": "Développeur indépendant",
+       "text": "Après avoir installé l'extension le 29 octobre, il contrôle son fichier `authorized_keys`, renouvelle ses clés SSH et ses jetons d'accès, puis réinstalle l'extension depuis la source officielle."
+      },
+      {
+       "icon": "🛡️",
+       "title": "Équipe de sécurité d'une PME",
+       "text": "Elle impose une liste d'extensions autorisées et un inventaire des postes de développement, afin de savoir en quelques minutes qui a installé quoi pendant une fenêtre donnée."
+      },
+      {
+       "icon": "🏭",
+       "title": "Responsable de la chaîne de livraison",
+       "text": "Il sépare les postes de développement des identifiants de production et fait expirer les secrets rapidement, pour limiter les dégâts d'une extension piégée."
+      }
+     ]
+    },
+    {
+     "type": "diagram",
+     "svg": "<svg xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"0 0 640 260\" font-family=\"system-ui,sans-serif\"><rect width=\"640\" height=\"260\" rx=\"16\" fill=\"#f4f6fa\"/><text x=\"320\" y=\"36\" text-anchor=\"middle\" font-size=\"17\" font-weight=\"700\" fill=\"#1b2433\">Fonctionnement de la fausse extension</text><rect x=\"20\" y=\"70\" width=\"124\" height=\"130\" rx=\"12\" fill=\"hsl(175,55%,92%)\" stroke=\"hsl(175,50%,35%)\" stroke-width=\"2\"/><text x=\"82.0\" y=\"102\" text-anchor=\"middle\" font-size=\"14\" font-weight=\"700\" fill=\"#1b2433\">Publication</text><text x=\"82.0\" y=\"128\" text-anchor=\"middle\" font-size=\"12\" fill=\"#2b3647\">Fausse extension</text><text x=\"82.0\" y=\"146\" text-anchor=\"middle\" font-size=\"12\" fill=\"#2b3647\">2.1.313 sur la</text><text x=\"82.0\" y=\"164\" text-anchor=\"middle\" font-size=\"12\" fill=\"#2b3647\">place de marché</text><path d=\"M150 135H172M165 128l7 7-7 7\" stroke=\"hsl(175,50%,35%)\" stroke-width=\"3\" fill=\"none\" stroke-linecap=\"round\"/><rect x=\"178\" y=\"70\" width=\"124\" height=\"130\" rx=\"12\" fill=\"hsl(175,55%,92%)\" stroke=\"hsl(175,50%,35%)\" stroke-width=\"2\"/><text x=\"240.0\" y=\"102\" text-anchor=\"middle\" font-size=\"14\" font-weight=\"700\" fill=\"#1b2433\">Installation</text><text x=\"240.0\" y=\"128\" text-anchor=\"middle\" font-size=\"12\" fill=\"#2b3647\">Un développeur</text><text x=\"240.0\" y=\"146\" text-anchor=\"middle\" font-size=\"12\" fill=\"#2b3647\">l&#x27;installe, sans</text><text x=\"240.0\" y=\"164\" text-anchor=\"middle\" font-size=\"12\" fill=\"#2b3647\">clic de plus</text><path d=\"M308 135H330M323 128l7 7-7 7\" stroke=\"hsl(175,50%,35%)\" stroke-width=\"3\" fill=\"none\" stroke-linecap=\"round\"/><rect x=\"336\" y=\"70\" width=\"124\" height=\"130\" rx=\"12\" fill=\"hsl(175,55%,92%)\" stroke=\"hsl(175,50%,35%)\" stroke-width=\"2\"/><text x=\"398.0\" y=\"102\" text-anchor=\"middle\" font-size=\"14\" font-weight=\"700\" fill=\"#1b2433\">Chargeur</text><text x=\"398.0\" y=\"128\" text-anchor=\"middle\" font-size=\"12\" fill=\"#2b3647\">Collecte, clé</text><text x=\"398.0\" y=\"146\" text-anchor=\"middle\" font-size=\"12\" fill=\"#2b3647\">SSH, tunnel</text><text x=\"398.0\" y=\"164\" text-anchor=\"middle\" font-size=\"12\" fill=\"#2b3647\">inverse</text><path d=\"M466 135H488M481 128l7 7-7 7\" stroke=\"hsl(175,50%,35%)\" stroke-width=\"3\" fill=\"none\" stroke-linecap=\"round\"/><rect x=\"494\" y=\"70\" width=\"124\" height=\"130\" rx=\"12\" fill=\"hsl(175,55%,92%)\" stroke=\"hsl(175,50%,35%)\" stroke-width=\"2\"/><text x=\"556.0\" y=\"102\" text-anchor=\"middle\" font-size=\"14\" font-weight=\"700\" fill=\"#1b2433\">Persistance</text><text x=\"556.0\" y=\"128\" text-anchor=\"middle\" font-size=\"12\" fill=\"#2b3647\">LaunchAgent ou</text><text x=\"556.0\" y=\"146\" text-anchor=\"middle\" font-size=\"12\" fill=\"#2b3647\">tâche planifiée</text></svg>",
+     "alt": "Schéma en quatre étapes allant de la publication de la fausse extension à sa persistance sur le poste.",
+     "caption": "Déroulé de l'attaque, d'après BleepingComputer."
+    },
+    {
+     "type": "timeline",
+     "title": "D'où l'on vient, où l'on va",
+     "items": [
+      {
+       "label": "29 octobre 2026",
+       "text": "L'extension piégée est en ligne une dizaine d'heures sur la place de marché de Cursor."
+      },
+      {
+       "label": "30 octobre 2026",
+       "text": "Cursor publie un avis, retire l'extension et suspend sa place de marché ; Anthropic dément toute implication."
+      },
+      {
+       "label": "À venir",
+       "text": "Les causes de la publication sous le nom d'Anthropic restent à établir."
+      }
+     ]
+    },
+    {
+     "type": "opinion",
+     "title": "Notre avis",
+     "paragraphs": [
+      "Le défaut de fond n'est pas propre à Cursor : les places de marché d'extensions vérifient peu l'identité des éditeurs, alors que l'extension jouit de droits étendus sur la machine. Le fait que le code malveillant ait été maladroit est une chance, pas une protection.",
+      "Dans un à trois ans, on peut s'attendre à des éditeurs d'extensions signés de façon obligatoire et à des permissions déclarées par extension, à la manière des navigateurs. Les outils d'IA pour développeurs, très populaires et très privilégiés, seront des cibles de plus en plus recherchées. Il s'agit d'une projection, non d'un fait."
+     ],
+     "verdict": "Une attaque ratée dans les détails, mais qui rappelle que l'éditeur de code est désormais un maillon sensible."
+    },
+    {
+     "type": "callout",
+     "title": "À retenir",
+     "text": "Si vous avez installé « Claude Code » dans Cursor le 29 octobre 2026, cherchez la clé SSH `svc-telemetry` et suivez l'avis de Cursor. Faits rapportés au 30 octobre 2026 ; l'enquête n'est pas close."
+    }
+   ],
+   "publishedAt": "2026-10-31T18:17:58+01:00",
+   "readingMinutes": 4
+  },
+  {
+   "id": "volta-infostealer-ia-classe-les-victimes",
+   "category": "cybersecurite",
+   "icon": "🕵️",
+   "importance": 4,
+   "title": "VOLTA : un voleur d'identifiants qui confie à un modèle d'IA le tri des victimes les plus rentables",
+   "summary": "Cisco Talos décrit un logiciel malveillant Windows qui envoie les données dérobées à un grand modèle de langage afin de classer les actifs de la victime selon leur valeur marchande, avec un enchaînement de modèles de secours en cas de refus.",
+   "tags": [
+    "Cisco Talos",
+    "infostealer",
+    "VOLTA",
+    "IA",
+    "OpenRouter"
+   ],
+   "sourceDate": "2026-10-31",
+   "sources": [
+    {
+     "title": "Appraisal by AI: model-driven victim prioritization in the VOLTA infostealer",
+     "url": "https://blog.talosintelligence.com/appraisal-by-ai-model-driven-victim-prioritization-in-the-volta-infostealer/",
+     "publisher": "Cisco Talos"
+    }
+   ],
+   "illustration": {
+    "svg": "<svg xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"0 0 640 360\"><defs><linearGradient id=\"g\" x1=\"0\" y1=\"0\" x2=\"1\" y2=\"1\"><stop offset=\"0\" stop-color=\"hsl(175,62%,38%)\"/><stop offset=\"1\" stop-color=\"hsl(215,65%,20%)\"/></linearGradient></defs><rect width=\"640\" height=\"360\" fill=\"url(#g)\"/><path d=\"M320 70L420 105V190C420 250 370 285 320 305 270 285 220 250 220 190V105z\" fill=\"#fff\" opacity=\".92\"/><path d=\"M280 185l30 30 55-65\" stroke=\"hsl(175,60%,32%)\" stroke-width=\"16\" fill=\"none\" stroke-linecap=\"round\" stroke-linejoin=\"round\"/></svg>"
+   },
+   "blocks": [
+    {
+     "type": "paragraph",
+     "text": "Voler des mots de passe est une chose, savoir lesquels valent la peine d'être exploités en est une autre. C'est ce second travail, d'ordinaire fait par un analyste humain, que le logiciel VOLTA confie à un modèle d'IA, selon une analyse publiée par Cisco Talos. Le programme, un voleur d'informations pour Windows qui s'efface après usage, fait de l'IA un « analyste du renseignement » au service de l'opérateur."
+    },
+    {
+     "type": "heading",
+     "level": 2,
+     "text": "Ce que VOLTA dérobe"
+    },
+    {
+     "type": "list",
+     "ordered": false,
+     "items": [
+      "Mots de passe, cookies et cartes enregistrées des navigateurs basés sur Chromium, ainsi que des données de Firefox et de Thunderbird.",
+      "Phrases de récupération de portefeuilles de crypto-actifs, avec un module qui tente d'ouvrir les coffres.",
+      "Jetons de session de Discord, Telegram, Steam, Battle.net, Roblox, Slack et Microsoft OAuth.",
+      "Clés SSH, fichiers de configuration de fournisseurs cloud et de VPN, mots de passe Wi-Fi en clair et captures d'écran."
+     ]
+    },
+    {
+     "type": "heading",
+     "level": 2,
+     "text": "Un enrichissement poussé"
+    },
+    {
+     "type": "paragraph",
+     "text": "Avec les sessions volées, le logiciel fouille la messagerie Gmail de la victime à la recherche de reçus de commerce en ligne pour confirmer son adresse, récupère l'historique de commandes de services de livraison et réutilise des jetons Discord pour compléter le profil. Il estime même l'inventaire d'un compte Roblox par une consultation en direct d'un site tiers."
+    },
+    {
+     "type": "heading",
+     "level": 2,
+     "text": "Le tri par le modèle de langage"
+    },
+    {
+     "type": "paragraph",
+     "text": "Les données collectées sont rassemblées dans un rapport local, `Identity_Report.txt`, puis envoyées à une API de modèle de langage tierce, via OpenRouter. L'instruction système demande au modèle de se comporter en analyste en investigation numérique : il doit classer les actifs monnayables en niveaux bas, moyen ou élevé et évaluer la posture de sécurité et les habitudes de mot de passe de la victime. Le modèle par défaut est Claude Opus 4.6, avec une température de 0,2 pour des réponses stables. Si le modèle refuse, le logiciel essaie Kimi K2 de Moonshot AI, puis Gemini 2.5 Flash de Google, en repérant les formules de refus courantes. Sans clé d'API, il fonctionne quand même, sans l'étape d'IA."
+    },
+    {
+     "type": "keyvalue",
+     "items": [
+      {
+       "label": "Premier repérage",
+       "value": "11 octobre 2026"
+      },
+      {
+       "label": "Horodatage du binaire",
+       "value": "17 août 2026"
+      },
+      {
+       "label": "Infrastructure",
+       "value": "Aucun serveur propre : tout passe par des services tiers"
+      },
+      {
+       "label": "Modèle économique probable",
+       "value": "Constructeur à six emplacements modifiables, avec binaires personnalisés pour les clients"
+      }
+     ]
+    },
+    {
+     "type": "paragraph",
+     "text": "Talos note que le chiffrement de ces emplacements est faible, la clé pouvant être dérivée de constantes du binaire. L'absence d'infrastructure propre rend le blocage plus délicat, mais ouvre aussi une piste : les fournisseurs de modèles peuvent repérer et couper les clés utilisées."
+    },
+    {
+     "type": "usecases",
+     "title": "Exemples d'utilisation",
+     "items": [
+      {
+       "icon": "🔎",
+       "title": "Équipe de réponse à incident",
+       "text": "Elle conserve le fichier `volta_debug.txt` du dossier APPDATA d'un poste infecté : il indique ce qui a été collecté et si l'appel au modèle a réussi."
+      },
+      {
+       "icon": "🔑",
+       "title": "Utilisateur de cryptomonnaies",
+       "text": "Il considère comme compromis tout portefeuille dont la phrase de récupération était stockée en clair, et transfère ses fonds vers un nouveau portefeuille créé sur un appareil isolé du réseau."
+      },
+      {
+       "icon": "🏢",
+       "title": "Administrateur de postes",
+       "text": "Il restreint les processus autorisés à lancer Chrome en mode sans interface, chemin de contournement du chiffrement « App-Bound » signalé par Talos, et alerte sur ces lancements."
+      }
+     ]
+    },
+    {
+     "type": "diagram",
+     "svg": "<svg xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"0 0 640 260\" font-family=\"system-ui,sans-serif\"><rect width=\"640\" height=\"260\" rx=\"16\" fill=\"#f4f6fa\"/><text x=\"320\" y=\"36\" text-anchor=\"middle\" font-size=\"17\" font-weight=\"700\" fill=\"#1b2433\">Chaîne de VOLTA</text><rect x=\"20\" y=\"70\" width=\"124\" height=\"130\" rx=\"12\" fill=\"hsl(175,55%,92%)\" stroke=\"hsl(175,50%,35%)\" stroke-width=\"2\"/><text x=\"82.0\" y=\"102\" text-anchor=\"middle\" font-size=\"14\" font-weight=\"700\" fill=\"#1b2433\">Collecte</text><text x=\"82.0\" y=\"128\" text-anchor=\"middle\" font-size=\"12\" fill=\"#2b3647\">Navigateurs,</text><text x=\"82.0\" y=\"146\" text-anchor=\"middle\" font-size=\"12\" fill=\"#2b3647\">jetons, clés,</text><text x=\"82.0\" y=\"164\" text-anchor=\"middle\" font-size=\"12\" fill=\"#2b3647\">portefeuilles</text><path d=\"M150 135H172M165 128l7 7-7 7\" stroke=\"hsl(175,50%,35%)\" stroke-width=\"3\" fill=\"none\" stroke-linecap=\"round\"/><rect x=\"178\" y=\"70\" width=\"124\" height=\"130\" rx=\"12\" fill=\"hsl(175,55%,92%)\" stroke=\"hsl(175,50%,35%)\" stroke-width=\"2\"/><text x=\"240.0\" y=\"102\" text-anchor=\"middle\" font-size=\"14\" font-weight=\"700\" fill=\"#1b2433\">Enrichissement</text><text x=\"240.0\" y=\"128\" text-anchor=\"middle\" font-size=\"12\" fill=\"#2b3647\">Reçus Gmail,</text><text x=\"240.0\" y=\"146\" text-anchor=\"middle\" font-size=\"12\" fill=\"#2b3647\">commandes, Roblox</text><path d=\"M308 135H330M323 128l7 7-7 7\" stroke=\"hsl(175,50%,35%)\" stroke-width=\"3\" fill=\"none\" stroke-linecap=\"round\"/><rect x=\"336\" y=\"70\" width=\"124\" height=\"130\" rx=\"12\" fill=\"hsl(175,55%,92%)\" stroke=\"hsl(175,50%,35%)\" stroke-width=\"2\"/><text x=\"398.0\" y=\"102\" text-anchor=\"middle\" font-size=\"14\" font-weight=\"700\" fill=\"#1b2433\">Modèle d&#x27;IA</text><text x=\"398.0\" y=\"128\" text-anchor=\"middle\" font-size=\"12\" fill=\"#2b3647\">Classement bas,</text><text x=\"398.0\" y=\"146\" text-anchor=\"middle\" font-size=\"12\" fill=\"#2b3647\">moyen ou élevé</text><path d=\"M466 135H488M481 128l7 7-7 7\" stroke=\"hsl(175,50%,35%)\" stroke-width=\"3\" fill=\"none\" stroke-linecap=\"round\"/><rect x=\"494\" y=\"70\" width=\"124\" height=\"130\" rx=\"12\" fill=\"hsl(175,55%,92%)\" stroke=\"hsl(175,50%,35%)\" stroke-width=\"2\"/><text x=\"556.0\" y=\"102\" text-anchor=\"middle\" font-size=\"14\" font-weight=\"700\" fill=\"#1b2433\">Exfiltration</text><text x=\"556.0\" y=\"128\" text-anchor=\"middle\" font-size=\"12\" fill=\"#2b3647\">Archives vers</text><text x=\"556.0\" y=\"146\" text-anchor=\"middle\" font-size=\"12\" fill=\"#2b3647\">l&#x27;opérateur</text></svg>",
+     "alt": "Schéma en quatre étapes : collecte, enrichissement, tri par un modèle d'IA, exfiltration.",
+     "caption": "Chaîne de traitement décrite par Cisco Talos."
+    },
+    {
+     "type": "timeline",
+     "title": "D'où l'on vient, où l'on va",
+     "items": [
+      {
+       "label": "17 août 2026",
+       "text": "Date de compilation du binaire analysé."
+      },
+      {
+       "label": "11 octobre 2026",
+       "text": "Premier repérage du logiciel."
+      },
+      {
+       "label": "31 octobre 2026",
+       "text": "Publication de l'analyse de Cisco Talos."
+      }
+     ]
+    },
+    {
+     "type": "opinion",
+     "title": "Notre avis",
+     "paragraphs": [
+      "Le point notable n'est pas une prouesse technique : le malware se contente d'envoyer du texte à une API. C'est un déplacement d'effort. Le tri de milliers de comptes volés, qui exigeait du temps humain, devient presque gratuit, ce qui permet de cibler d'abord les victimes les plus lucratives.",
+      "D'ici un à trois ans, on peut raisonnablement attendre davantage de logiciels malveillants dotés de chaînes de secours entre modèles pour contourner les refus. La réponse passera par des contrôles côté fournisseurs et par une hygiène de base : gestionnaire de mots de passe, authentification matérielle, aucune phrase de récupération en clair. C'est une projection."
+     ],
+     "verdict": "L'IA n'invente pas de nouvelle attaque ici, elle industrialise le tri des victimes."
+    },
+    {
+     "type": "callout",
+     "title": "À retenir",
+     "text": "Détails d'après l'analyse de Cisco Talos du 31 octobre 2026 ; les noms de modèles cités sont ceux relevés dans l'échantillon, et non ceux d'un partenariat avec leurs éditeurs."
+    }
+   ],
+   "publishedAt": "2026-10-31T18:17:58+01:00",
+   "readingMinutes": 3
+  },
+  {
+   "id": "chainalysis-fuite-donnees-techniques-agentiques",
+   "category": "cybersecurite",
+   "icon": "🔗",
+   "importance": 4,
+   "title": "Chainalysis reconnaît une intrusion menée avec des « techniques offensives agentiques »",
+   "summary": "L'entreprise d'analyse de blockchains dit qu'un acteur externe a pénétré ses systèmes internes en octobre et a pu consulter des noms, courriels et rôles d'utilisateurs ; elle affirme n'avoir aucune preuve d'accès aux enquêtes ni aux identifiants.",
+   "tags": [
+    "Chainalysis",
+    "fuite de données",
+    "agents IA",
+    "crypto-actifs"
+   ],
+   "sourceDate": "2026-10-31",
+   "sources": [
+    {
+     "title": "Chainalysis discloses data breach from 'offensive agentic techniques'",
+     "url": "https://www.bleepingcomputer.com/news/security/chainalysis-discloses-data-breach-from-offensive-agentic-techniques/",
+     "publisher": "BleepingComputer"
+    }
+   ],
+   "illustration": {
+    "svg": "<svg xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"0 0 640 360\"><defs><linearGradient id=\"g\" x1=\"0\" y1=\"0\" x2=\"1\" y2=\"1\"><stop offset=\"0\" stop-color=\"hsl(175,62%,38%)\"/><stop offset=\"1\" stop-color=\"hsl(215,65%,20%)\"/></linearGradient></defs><rect width=\"640\" height=\"360\" fill=\"url(#g)\"/><rect x=\"170\" y=\"130\" width=\"150\" height=\"90\" rx=\"45\" fill=\"none\" stroke=\"#fff\" stroke-width=\"18\"/><rect x=\"320\" y=\"130\" width=\"150\" height=\"90\" rx=\"45\" fill=\"none\" stroke=\"#fff\" stroke-width=\"18\" opacity=\".75\"/><path d=\"M300 90l40 0M320 70v40\" stroke=\"#fff\" stroke-width=\"0\"/><circle cx=\"470\" cy=\"100\" r=\"9\" fill=\"#fff\"/><circle cx=\"170\" cy=\"250\" r=\"9\" fill=\"#fff\"/></svg>"
+   },
+   "blocks": [
+    {
+     "type": "paragraph",
+     "text": "Chainalysis, dont les outils d'analyse de blockchains sont utilisés par des forces de l'ordre, des gouvernements, des plateformes d'échange et des institutions financières, a révélé le 30 octobre 2026, vers 17 h 14 à l'heure de New York, un incident de sécurité. Selon l'entreprise, un acteur externe a eu recours à des « techniques offensives agentiques » pour accéder sans autorisation à des systèmes et outils internes, plus tôt en octobre."
+    },
+    {
+     "type": "heading",
+     "level": 2,
+     "text": "Données concernées"
+    },
+    {
+     "type": "list",
+     "ordered": false,
+     "items": [
+      "Identifiants d'utilisateur, noms complets, adresses électroniques et libellés de rôle au sein de l'organisation, pour les utilisateurs provisionnés sur la plateforme.",
+      "Aucune preuve, à ce stade, d'accès au contenu des enquêtes, aux identifiants d'authentification ni aux jetons de session.",
+      "L'entreprise détermine encore quels enregistrements ont été consultés pour chaque organisation et promet un détail ultérieur."
+     ]
+    },
+    {
+     "type": "paragraph",
+     "text": "Ce qui est connu reste mince : Chainalysis n'a divulgué ni les failles exploitées, ni les outils internes touchés, ni la durée de l'accès. On ignore aussi si les attaquants ont utilisé un cadre offensif agentique existant, comme ARTEX, que Microsoft avait relié à une compromission de la chaîne d'approvisionnement de ConnectWise, ou des agents d'IA sur mesure."
+    },
+    {
+     "type": "heading",
+     "level": 2,
+     "text": "Ce que « agentique » veut dire"
+    },
+    {
+     "type": "paragraph",
+     "text": "Un système agentique enchaîne des tâches en plusieurs étapes avec peu d'intervention humaine. Appliqué à l'attaque, il peut automatiser une partie de l'intrusion : reconnaissance, essais de failles, déplacement latéral. L'entreprise affirme faire appel à des experts externes, corriger les failles et renforcer ses systèmes, tout en utilisant elle-même des grands modèles de langage pour appuyer une revue de sécurité élargie. Elle précise que l'incident n'a aucun lien avec le récent vol visant Binance."
+    },
+    {
+     "type": "heading",
+     "level": 2,
+     "text": "Conseils aux clients"
+    },
+    {
+     "type": "list",
+     "ordered": false,
+     "items": [
+      "Activer l'authentification à deux facteurs.",
+      "Se méfier des demandes inattendues de réinitialisation de mot de passe ou d'authentification.",
+      "Se méfier des escrocs se faisant passer pour Chainalysis, notamment avec des offres de récupération de fonds ou de recrutement."
+     ]
+    },
+    {
+     "type": "usecases",
+     "title": "Exemples d'utilisation",
+     "items": [
+      {
+       "icon": "⚖️",
+       "title": "Service d'enquête financière",
+       "text": "Un analyste dont le nom figure dans la base doit s'attendre à de l'hameçonnage ciblé qui cite son rôle et son organisation, et le signaler à son service de sécurité."
+      },
+      {
+       "icon": "🏦",
+       "title": "Plateforme d'échange cliente",
+       "text": "Elle contrôle les droits des comptes provisionnés chez le prestataire et relit les journaux de connexion de ses équipes de conformité."
+      },
+      {
+       "icon": "📧",
+       "title": "Particulier victime d'un vol de crypto-actifs",
+       "text": "Il se défie des messages prétendant venir d'un cabinet de « récupération de fonds » : c'est le scénario d'arnaque que l'entreprise signale elle-même."
+      }
+     ]
+    },
+    {
+     "type": "timeline",
+     "title": "D'où l'on vient, où l'on va",
+     "items": [
+      {
+       "label": "Octobre 2026",
+       "text": "Selon l'entreprise, accès non autorisé à des systèmes internes."
+      },
+      {
+       "label": "30 octobre 2026",
+       "text": "Chainalysis publie son avis et le texte de son courriel aux clients."
+      },
+      {
+       "label": "À venir",
+       "text": "Un détail par organisation des enregistrements consultés est annoncé."
+      }
+     ]
+    },
+    {
+     "type": "opinion",
+     "title": "Notre avis",
+     "paragraphs": [
+      "Les données exposées sont des données de contact, pas des preuves d'enquêtes, ce qui limite l'impact immédiat. Mais pour un acteur dont les clients sont des enquêteurs, un annuaire de noms et de rôles est une matière précieuse pour l'hameçonnage ciblé, voire pour l'intimidation.",
+      "L'élément le plus intéressant est le qualificatif d'« agentique », que l'entreprise ne documente pas : sans détails techniques, il est impossible de dire si l'IA a réellement changé l'attaque ou si le terme sert à expliquer une intrusion rapide. À surveiller dans les prochaines semaines, avec prudence. Cette analyse est une opinion."
+     ],
+     "verdict": "Un incident limité sur le papier, mais révélateur de la vitesse que l'on prête désormais aux attaques automatisées."
+    },
+    {
+     "type": "callout",
+     "title": "À retenir",
+     "text": "Informations issues de l'avis de Chainalysis relayé le 31 octobre 2026 ; l'enquête se poursuit et le périmètre pourrait évoluer."
+    }
+   ],
+   "publishedAt": "2026-10-31T18:17:58+01:00",
+   "readingMinutes": 3
+  },
+  {
+   "id": "prospero-harnais-agent-codage-cpp",
+   "category": "dev",
+   "icon": "🎭",
+   "importance": 3,
+   "title": "Prospero : un harnais d'agent de codage en C++ qui promet de consommer cent fois moins de ressources",
+   "summary": "Chris Wellons présente un outil libre en C++ et Dear ImGui qui relie n'importe quel modèle à des outils (fichiers, shell) et revendique deux ordres de grandeur de ressources en moins que les harnais bâtis sur des technologies web.",
+   "tags": [
+    "agents de codage",
+    "C++",
+    "Dear ImGui",
+    "MCP",
+    "outils de développement"
+   ],
+   "sourceDate": "2026-10-31",
+   "sources": [
+    {
+     "title": "Prospero: A new coding harness for a more civilized age",
+     "url": "https://nullprogram.com/blog/2026/10/31/",
+     "publisher": "null program"
+    }
+   ],
+   "illustration": {
+    "svg": "<svg xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"0 0 640 360\"><defs><linearGradient id=\"g\" x1=\"0\" y1=\"0\" x2=\"1\" y2=\"1\"><stop offset=\"0\" stop-color=\"hsl(265,62%,38%)\"/><stop offset=\"1\" stop-color=\"hsl(305,65%,20%)\"/></linearGradient></defs><rect width=\"640\" height=\"360\" fill=\"url(#g)\"/><rect x=\"150\" y=\"75\" width=\"340\" height=\"215\" rx=\"16\" fill=\"#fff\" opacity=\".92\"/><path d=\"M215 145l-45 40 45 40M425 145l45 40-45 40M350 130l-60 110\" stroke=\"hsl(265,60%,32%)\" stroke-width=\"14\" fill=\"none\" stroke-linecap=\"round\" stroke-linejoin=\"round\"/></svg>"
+   },
+   "blocks": [
+    {
+     "type": "paragraph",
+     "text": "Les agents de codage reposent sur un « harnais », le programme qui donne à un modèle des outils (lire et écrire des fichiers, lancer des commandes) et qui boucle sur les résultats. Beaucoup de harnais sont construits sur des piles web et occupent des gigaoctets de mémoire. Chris Wellons, auteur du blog null program, présente le 31 octobre 2026 Prospero, un harnais libre écrit en C++ avec l'interface Dear ImGui, qu'il décrit comme le contraire de cette tendance."
+    },
+    {
+     "type": "heading",
+     "level": 2,
+     "text": "L'argument de départ"
+    },
+    {
+     "type": "paragraph",
+     "text": "Pour l'auteur, un harnais est en substance « curl collé à `popen()` » : il n'y a pas de raison qu'il exige autant de mémoire. Il revendique environ deux ordres de grandeur de ressources en moins que les autres harnais, sans renoncer aux fonctions. Il s'agit d'une affirmation de l'auteur, qui n'a pas été vérifiée de façon indépendante dans les éléments consultés."
+    },
+    {
+     "type": "heading",
+     "level": 2,
+     "text": "Fonctions principales"
+    },
+    {
+     "type": "list",
+     "ordered": false,
+     "items": [
+      "**Fournisseur au choix** : Prospero ne fournit aucun modèle ; on branche llama.cpp, un modèle hébergé en interne, OpenRouter ou les API d'Anthropic et d'OpenAI. Un abonnement grand public à Claude ne peut pas servir.",
+      "**Sous-agents** : un agent peut en lancer d'autres, en parallèle ou pour garder un contexte propre, et ils peuvent échanger des messages.",
+      "**Déploiement distant** : via SSH ou WSL, une copie sans interface est déployée sur une autre machine, l'interface restant locale.",
+      "**Contrôle du bureau** : avec un modèle capable de vision, l'agent peut cliquer, saisir et glisser, sans intégration MCP propre à chaque application.",
+      "**Divers** : configuration dans un fichier INI, prise en charge de MCP, arbres de travail Git, bascule de shell en cours de session, bifurcation de sessions."
+     ]
+    },
+    {
+     "type": "heading",
+     "level": 2,
+     "text": "Des principes de robustesse"
+    },
+    {
+     "type": "paragraph",
+     "text": "L'auteur insiste sur un principe : ne jamais attendre indéfiniment. Chaque opération a une échéance ; une demande d'autorisation sans réponse expire en refus ; les requêtes réseau ont des délais maximaux ; une commande shell trop longue passe en tâche de fond que l'agent peut interroger. L'arbre de processus est arrêté d'un bloc, avec des objets de tâche sous Windows. Seule exception : en mode plan, l'agent attend l'utilisateur sans limite."
+    },
+    {
+     "type": "heading",
+     "level": 2,
+     "text": "Limites assumées"
+    },
+    {
+     "type": "list",
+     "ordered": false,
+     "items": [
+      "Le système de permissions est un rappel, **pas une barrière de sécurité** : l'agent peut accéder à tout ce qu'accède le harnais. Pour une vraie isolation, il faut un conteneur ou une autre machine.",
+      "Aucun terminal ni éditeur intégré : Prospero ouvre les outils externes.",
+      "Le déploiement distant exige l'édition Professionnelle, payante et sans DRM ; l'édition Communautaire est gratuite sur GitHub, avec un message d'incitation à l'achat.",
+      "Une configuration qui inclut une URL distante peut faire fuiter une variable d'environnement en pointant une clé d'API vers un point d'accès contrôlé par un tiers : à manier avec prudence."
+     ]
+    },
+    {
+     "type": "usecases",
+     "title": "Exemples d'utilisation",
+     "items": [
+      {
+       "icon": "🖥️",
+       "title": "Développeur sur un portable modeste",
+       "text": "Il lance un agent local sans que l'outil n'absorbe la mémoire dont son compilateur a besoin."
+      },
+      {
+       "icon": "🧪",
+       "title": "Équipe qui teste des modèles locaux",
+       "text": "Elle branche llama.cpp ou un serveur interne pour comparer des modèles sur les mêmes tâches, sans changer d'interface."
+      },
+      {
+       "icon": "🌐",
+       "title": "Administrateur de plusieurs serveurs",
+       "text": "Il pilote depuis son poste un agent qui s'exécute à distance par SSH, avec l'interface locale."
+      }
+     ]
+    },
+    {
+     "type": "timeline",
+     "title": "D'où l'on vient, où l'on va",
+     "items": [
+      {
+       "label": "Ces dernières années",
+       "text": "Les harnais d'agents se multiplient, souvent sur des technologies web."
+      },
+      {
+       "label": "31 octobre 2026",
+       "text": "Présentation de Prospero, éditions Communautaire et Professionnelle."
+      },
+      {
+       "label": "À venir",
+       "text": "Davantage de prise en charge de macOS et de Linux pour l'arrêt propre des arbres de processus, d'après l'auteur."
+      }
+     ]
+    },
+    {
+     "type": "opinion",
+     "title": "Notre avis",
+     "paragraphs": [
+      "Le plus intéressant n'est pas la performance revendiquée, mais le choix de conception : un outil qui gère les délais, les relances et l'arrêt propre prend au sérieux les situations ordinaires où un agent se bloque. C'est ce qui sépare un prototype d'un outil du quotidien.",
+      "La franchise sur les limites de sécurité est bienvenue ; elle rappelle qu'un agent doit tourner dans un environnement isolé. À un à trois ans, la concurrence entre harnais se jouera probablement sur la fiabilité et l'isolation plus que sur le nombre de fonctions. C'est une opinion."
+     ],
+     "verdict": "Une proposition rafraîchissante, à juger à l'usage et sur des mesures indépendantes."
+    },
+    {
+     "type": "callout",
+     "title": "À retenir",
+     "text": "Chiffres de ressources donnés par l'auteur, non vérifiés de façon indépendante. Prospero ne constitue pas une barrière de sécurité."
+    }
+   ],
+   "publishedAt": "2026-10-31T18:17:58+01:00",
+   "readingMinutes": 3
+  },
+  {
+   "id": "delivery-hero-http3-cloudflare-latence",
+   "category": "devops",
+   "icon": "🚀",
+   "importance": 3,
+   "title": "Delivery Hero a basculé vers HTTP/3 : l'écran d'accueil de son application répond 17 % plus vite",
+   "summary": "Lors de la conférence P99 2026, un ingénieur du groupe a détaillé le passage d'environ 95 % des utilisateurs à HTTP/3 derrière Cloudflare, les difficultés rencontrées sur Android et un défaut de contrôle de congestion encore à résoudre.",
+   "tags": [
+    "HTTP/3",
+    "QUIC",
+    "Cloudflare",
+    "latence",
+    "Android"
+   ],
+   "sourceDate": "2026-10-30",
+   "sources": [
+    {
+     "title": "HTTP/3 is faster with some work and help from Cloudflare",
+     "url": "https://www.theregister.com/devops/2026/10/30/http/3-is-faster-with-some-work-and-help-from-cloudflare/5306767",
+     "publisher": "The Register"
+    }
+   ],
+   "illustration": {
+    "svg": "<svg xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"0 0 640 360\"><defs><linearGradient id=\"g\" x1=\"0\" y1=\"0\" x2=\"1\" y2=\"1\"><stop offset=\"0\" stop-color=\"hsl(160,62%,38%)\"/><stop offset=\"1\" stop-color=\"hsl(200,65%,20%)\"/></linearGradient></defs><rect width=\"640\" height=\"360\" fill=\"url(#g)\"/><g fill=\"#fff\"><circle cx=\"320\" cy=\"180\" r=\"30\"/><circle cx=\"190\" cy=\"105\" r=\"20\"/><circle cx=\"450\" cy=\"105\" r=\"20\"/><circle cx=\"190\" cy=\"255\" r=\"20\"/><circle cx=\"450\" cy=\"255\" r=\"20\"/></g><path d=\"M320 180L190 105M320 180L450 105M320 180L190 255M320 180L450 255\" stroke=\"#fff\" stroke-width=\"7\" opacity=\".85\"/></svg>"
+   },
+   "blocks": [
+    {
+     "type": "paragraph",
+     "text": "Pour une application de livraison, quelques centaines de millisecondes de latence se paient en commandes abandonnées. Delivery Hero, groupe allemand qui revendique environ 60 millions d'utilisateurs en Europe, Amérique latine, Afrique, Moyen-Orient et Asie, a raconté lors de la conférence virtuelle P99 2026 comment il a basculé la majeure partie de ses utilisateurs vers HTTP/3. Elvis Chidera, ingénieur principal qui a piloté le projet, annonce un gain de 17 % sur le temps de réponse de bout en bout de l'écran d'accueil. Le groupe doit être racheté par Uber pour 14,8 milliards de dollars, selon The Register."
+    },
+    {
+     "type": "heading",
+     "level": 2,
+     "text": "Le goulot d'étranglement : le dernier kilomètre"
+    },
+    {
+     "type": "paragraph",
+     "text": "Le problème principal était le réseau côté utilisateur. Au Pakistan, les poignées de main sécurisées avec les serveurs pouvaient prendre près d'une seconde au 90e centile. HTTP/3, normalisé par l'IETF en 2022, remplace TCP par QUIC, qui fonctionne sur UDP. Deux propriétés comptaient surtout pour l'équipe."
+    },
+    {
+     "type": "list",
+     "ordered": false,
+     "items": [
+      "**Moins d'allers-retours** : avec un ticket de session en cache, la capacité 0-RTT de QUIC permet d'envoyer des données éligibles pendant que la poignée de main se termine.",
+      "**Pas de blocage en tête de file** : les paquets circulent sur plusieurs flux, de sorte qu'un paquet perdu ne bloque pas tout ce qui suit, contrairement à HTTP/2."
+     ]
+    },
+    {
+     "type": "heading",
+     "level": 2,
+     "text": "Mise en œuvre"
+    },
+    {
+     "type": "paragraph",
+     "text": "Côté serveur, le groupe utilisait déjà le réseau de diffusion de Cloudflare : activer HTTP/3 a demandé une simple reconfiguration. Apple prend en charge HTTP/3 depuis iOS 15 et la plupart des navigateurs natifs l'activent par défaut. Android a été plus délicat : la bibliothèque Cronet de Google mettait environ 800 ms à s'initialiser au 90e centile, ce qui annulait une partie du gain du 0-RTT. L'équipe a donc intégré son propre pont avec OKCronet et fait chevaucher l'initialisation avec d'autres tâches de fond."
+    },
+    {
+     "type": "heading",
+     "level": 2,
+     "text": "Résultats rapportés"
+    },
+    {
+     "type": "table",
+     "headers": [
+      "Indicateur",
+      "Résultat"
+     ],
+     "rows": [
+      [
+       "Temps de réponse de l'écran d'accueil",
+       "-17 %"
+      ],
+      [
+       "Utilisateurs passés à HTTP/3",
+       "environ 95 %"
+      ],
+      [
+       "Latence de la poignée de main",
+       "-51 %"
+      ],
+      [
+       "Latence au 95e centile (lecture)",
+       "de 1,2 s à 120 ms"
+      ],
+      [
+       "Pakistan",
+       "temps de réponse divisé par deux"
+      ]
+     ]
+    },
+    {
+     "type": "paragraph",
+     "text": "Les appareils qui ne peuvent pas utiliser HTTP/3, souvent parce que des réseaux bloquent UDP, retombent automatiquement sur HTTP/2. Reste un défaut : certains écrans secondaires restaient lents sur des marchés sujets aux pertes de paquets. Les ingénieurs l'attribuent à l'algorithme de contrôle de congestion CUBIC utilisé par Cloudflare, réputé peu efficace en cas de pertes ; face aux serveurs HTTP/3 de Google, qui emploient BBR, le problème n'apparaissait pas. Le groupe travaille avec Cloudflare pour le résoudre."
+    },
+    {
+     "type": "usecases",
+     "title": "Exemples d'utilisation",
+     "items": [
+      {
+       "icon": "📱",
+       "title": "Équipe mobile d'une application grand public",
+       "text": "Elle active HTTP/3 en commençant par un pays à réseau instable, mesure la latence avant et après, et garde le repli HTTP/2."
+      },
+      {
+       "icon": "🛰️",
+       "title": "Responsable d'infrastructure",
+       "text": "Il vérifie que son CDN permet HTTP/3 et teste l'effet de l'algorithme de congestion sur des liaisons à pertes."
+      },
+      {
+       "icon": "🔥",
+       "title": "Équipe de fiabilité",
+       "text": "Elle surveille le taux de repli vers HTTP/2, signe de réseaux qui bloquent UDP, plutôt que de ne regarder que la moyenne des temps de réponse."
+      }
+     ]
+    },
+    {
+     "type": "diagram",
+     "svg": "<svg xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"0 0 640 260\" font-family=\"system-ui,sans-serif\"><rect width=\"640\" height=\"260\" rx=\"16\" fill=\"#f4f6fa\"/><text x=\"320\" y=\"36\" text-anchor=\"middle\" font-size=\"17\" font-weight=\"700\" fill=\"#1b2433\">Ce que change HTTP/3 pour l&#x27;application</text><rect x=\"20\" y=\"70\" width=\"124\" height=\"130\" rx=\"12\" fill=\"hsl(160,55%,92%)\" stroke=\"hsl(160,50%,35%)\" stroke-width=\"2\"/><text x=\"82.0\" y=\"102\" text-anchor=\"middle\" font-size=\"14\" font-weight=\"700\" fill=\"#1b2433\">Poignée de main</text><text x=\"82.0\" y=\"128\" text-anchor=\"middle\" font-size=\"12\" fill=\"#2b3647\">TCP + TLS :</text><text x=\"82.0\" y=\"146\" text-anchor=\"middle\" font-size=\"12\" fill=\"#2b3647\">plusieurs</text><text x=\"82.0\" y=\"164\" text-anchor=\"middle\" font-size=\"12\" fill=\"#2b3647\">allers-retours</text><path d=\"M150 135H172M165 128l7 7-7 7\" stroke=\"hsl(160,50%,35%)\" stroke-width=\"3\" fill=\"none\" stroke-linecap=\"round\"/><rect x=\"178\" y=\"70\" width=\"124\" height=\"130\" rx=\"12\" fill=\"hsl(160,55%,92%)\" stroke=\"hsl(160,50%,35%)\" stroke-width=\"2\"/><text x=\"240.0\" y=\"102\" text-anchor=\"middle\" font-size=\"14\" font-weight=\"700\" fill=\"#1b2433\">QUIC 0-RTT</text><text x=\"240.0\" y=\"128\" text-anchor=\"middle\" font-size=\"12\" fill=\"#2b3647\">Données envoyées</text><text x=\"240.0\" y=\"146\" text-anchor=\"middle\" font-size=\"12\" fill=\"#2b3647\">dès le premier</text><text x=\"240.0\" y=\"164\" text-anchor=\"middle\" font-size=\"12\" fill=\"#2b3647\">échange</text><path d=\"M308 135H330M323 128l7 7-7 7\" stroke=\"hsl(160,50%,35%)\" stroke-width=\"3\" fill=\"none\" stroke-linecap=\"round\"/><rect x=\"336\" y=\"70\" width=\"124\" height=\"130\" rx=\"12\" fill=\"hsl(160,55%,92%)\" stroke=\"hsl(160,50%,35%)\" stroke-width=\"2\"/><text x=\"398.0\" y=\"102\" text-anchor=\"middle\" font-size=\"14\" font-weight=\"700\" fill=\"#1b2433\">Flux indépendants</text><text x=\"398.0\" y=\"128\" text-anchor=\"middle\" font-size=\"12\" fill=\"#2b3647\">Un paquet perdu</text><text x=\"398.0\" y=\"146\" text-anchor=\"middle\" font-size=\"12\" fill=\"#2b3647\">ne bloque pas les</text><text x=\"398.0\" y=\"164\" text-anchor=\"middle\" font-size=\"12\" fill=\"#2b3647\">autres</text><path d=\"M466 135H488M481 128l7 7-7 7\" stroke=\"hsl(160,50%,35%)\" stroke-width=\"3\" fill=\"none\" stroke-linecap=\"round\"/><rect x=\"494\" y=\"70\" width=\"124\" height=\"130\" rx=\"12\" fill=\"hsl(160,55%,92%)\" stroke=\"hsl(160,50%,35%)\" stroke-width=\"2\"/><text x=\"556.0\" y=\"102\" text-anchor=\"middle\" font-size=\"14\" font-weight=\"700\" fill=\"#1b2433\">Repli</text><text x=\"556.0\" y=\"128\" text-anchor=\"middle\" font-size=\"12\" fill=\"#2b3647\">HTTP/2 si UDP est</text><text x=\"556.0\" y=\"146\" text-anchor=\"middle\" font-size=\"12\" fill=\"#2b3647\">bloqué</text></svg>",
+     "alt": "Schéma en quatre étapes montrant les apports de HTTP/3 : handshake plus court, flux indépendants et repli automatique vers HTTP/2.",
+     "caption": "Principes de HTTP/3 évoqués lors de l'intervention de Delivery Hero."
+    },
+    {
+     "type": "timeline",
+     "title": "D'où l'on vient, où l'on va",
+     "items": [
+      {
+       "label": "2022",
+       "text": "Normalisation de HTTP/3 par l'IETF."
+      },
+      {
+       "label": "2026",
+       "text": "Delivery Hero généralise le protocole à environ 95 % de ses utilisateurs."
+      },
+      {
+       "label": "À venir",
+       "text": "Résolution, avec Cloudflare, du problème de contrôle de congestion sur les réseaux à pertes."
+      }
+     ]
+    },
+    {
+     "type": "opinion",
+     "title": "Notre avis",
+     "paragraphs": [
+      "Le chiffre le plus parlant n'est pas la moyenne mais la queue de distribution : passer de 1,2 s à 120 ms au 95e centile change l'expérience des utilisateurs les plus mal servis, souvent dans les marchés à forte croissance. Le coût, lui, a été surtout d'ingénierie côté Android, pas de configuration serveur.",
+      "Cet exemple suggère que HTTP/3 n'est pas un simple interrupteur : le réglage fin du client et des algorithmes de congestion compte autant que le protocole. D'ici un à trois ans, on peut penser que BBR ou ses équivalents deviendront un critère de choix des CDN. C'est une opinion."
+     ],
+     "verdict": "Un gain réel, mais qui demande du travail au-delà de l'activation du protocole."
+    },
+    {
+     "type": "callout",
+     "title": "À retenir",
+     "text": "Chiffres rapportés par The Register à partir d'une intervention de l'entreprise (30 octobre 2026), non audités de façon indépendante."
+    }
+   ],
+   "publishedAt": "2026-10-31T18:17:58+01:00",
+   "readingMinutes": 3
+  },
+  {
+   "id": "darkbloom-location-gpu-mac-paiements-faibles",
+   "category": "ia",
+   "icon": "🖥️",
+   "importance": 3,
+   "title": "Darkbloom : louer le GPU de son Mac pour l'inférence rapporte peu, et la chute du prix des jetons n'aide pas",
+   "summary": "Le réseau d'inférence distribué d'Eigen Labs prévient ses participants que les gains resteront faibles : environ 5,26 dollars par jour pour le médian du classement, face à des prix de jetons en forte baisse et à des centres de données plus efficaces.",
+   "tags": [
+    "Darkbloom",
+    "inférence",
+    "Mac",
+    "prix des jetons",
+    "OpenRouter"
+   ],
+   "sourceDate": "2026-10-30",
+   "sources": [
+    {
+     "title": "Darkbloom, which allowed Mac users to rent out their GPUs for AI inference, warns of low payouts",
+     "url": "https://www.theregister.com/ai-and-ml/2026/10/30/darkbloom-which-allowed-mac-users-to-rent-out-their-gpus-for-ai-inference-warns-of-low-payouts/5306782",
+     "publisher": "The Register"
+    }
+   ],
+   "illustration": {
+    "svg": "<svg xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"0 0 640 360\"><defs><linearGradient id=\"g\" x1=\"0\" y1=\"0\" x2=\"1\" y2=\"1\"><stop offset=\"0\" stop-color=\"hsl(320,62%,38%)\"/><stop offset=\"1\" stop-color=\"hsl(0,65%,20%)\"/></linearGradient></defs><rect width=\"640\" height=\"360\" fill=\"url(#g)\"/><rect x=\"230\" y=\"110\" width=\"180\" height=\"140\" rx=\"14\" fill=\"#fff\" opacity=\".92\"/><rect x=\"265\" y=\"145\" width=\"110\" height=\"70\" rx=\"8\" fill=\"hsl(320,60%,32%)\"/><path d=\"M255 110V80M290 110V80M325 110V80M360 110V80M395 110V80M255 250v30M290 250v30M325 250v30M360 250v30M395 250v30M230 140h-30M230 180h-30M230 220h-30M410 140h30M410 180h30M410 220h30\" stroke=\"#fff\" stroke-width=\"8\" stroke-linecap=\"round\"/></svg>"
+   },
+   "blocks": [
+    {
+     "type": "paragraph",
+     "text": "Louer la puissance de calcul de son ordinateur pendant qu'il dort : l'idée a séduit des utilisateurs de Mac, mais elle se heurte à l'économie de l'inférence. Darkbloom, un réseau distribué créé par Eigen Labs, à Seattle, permet de louer des appareils macOS pour exécuter des requêtes de modèles d'IA. Environ 800 participants y gagnent de quelques centimes à quelques dollars par jour, grâce à des requêtes acheminées par OpenRouter."
+    },
+    {
+     "type": "heading",
+     "level": 2,
+     "text": "Des gains modestes"
+    },
+    {
+     "type": "keyvalue",
+     "items": [
+      {
+       "label": "Participants",
+       "value": "environ 800"
+      },
+      {
+       "label": "Gain médian (50 premiers du classement)",
+       "value": "environ 5,26 $ par jour, soit près de 160 $ par mois"
+      },
+      {
+       "label": "Estimation maximale de Darkbloom",
+       "value": "jusqu'à 192 $ par mois pour un Mac mini M5 Pro avec 64 Go, à pleine utilisation"
+      },
+      {
+       "label": "Jetons traités",
+       "value": "un billion, jalon célébré par l'équipe"
+      }
+     ]
+    },
+    {
+     "type": "paragraph",
+     "text": "Dans un message sur Slack aux participants, le chercheur Kydo, d'Eigen Labs, a salué le cap du billion de jetons traités, mais a averti que les revenus étaient faibles et ne se redresseraient probablement pas de sitôt. Il l'explique par des centres de données moins chers : la production par grappe NVIDIA aurait été multipliée par environ 20 cette année. L'avantage de prix du réseau a disparu, et OpenRouter oriente de plus en plus son acheminement vers la vitesse de décodage, la quantification et la vitesse de préremplissage plutôt que vers le prix. Les Mac anciens ou peu puissants ne valent plus, selon lui, d'être mobilisés."
+    },
+    {
+     "type": "heading",
+     "level": 2,
+     "text": "Des prix de jetons en chute libre"
+    },
+    {
+     "type": "list",
+     "ordered": false,
+     "items": [
+      "Axios a rapporté une baisse de 54 % depuis mai.",
+      "L'indice de Ramp montre que le prix par million de jetons d'Anthropic a baissé de 77 %, de 2,65 $ le 1er mai 2026 à 0,62 $ le 22 octobre 2026."
+     ]
+    },
+    {
+     "type": "heading",
+     "level": 2,
+     "text": "Les pistes de Darkbloom"
+    },
+    {
+     "type": "list",
+     "ordered": false,
+     "items": [
+      "Analyser la demande pour orienter les participants vers les modèles les plus populaires.",
+      "Proposer d'autres travaux de calcul, comme des tâches d'intégration continue distribuées, qui demanderont un bac à sable et seront bientôt testées.",
+      "Se concentrer sur des grappes de Mac Studio haut de gamme reliées par Thunderbolt avec RDMA.",
+      "Améliorer le délai avant le premier jeton et trouver des acheteurs hors d'OpenRouter."
+     ]
+    },
+    {
+     "type": "paragraph",
+     "text": "Kydo s'attend à ce que de nombreuses machines quittent le réseau, mais assure que l'équipe, bien financée, poursuit le projet."
+    },
+    {
+     "type": "usecases",
+     "title": "Exemples d'utilisation",
+     "items": [
+      {
+       "icon": "💻",
+       "title": "Particulier avec un Mac récent",
+       "text": "Il compare les gains annoncés à sa facture d'électricité et à l'usure de la machine avant de laisser tourner l'application en continu."
+      },
+      {
+       "icon": "🧮",
+       "title": "Start-up d'inférence",
+       "text": "Elle étudie l'écart de compétitivité entre un réseau de machines grand public et des grappes de centres de données optimisés, en incluant la vitesse de décodage."
+      },
+      {
+       "icon": "🏫",
+       "title": "Laboratoire universitaire",
+       "text": "Il envisage des grappes de Mac Studio reliées en Thunderbolt pour des charges internes, plutôt que de louer à un marché ouvert."
+      }
+     ]
+    },
+    {
+     "type": "timeline",
+     "title": "D'où l'on vient, où l'on va",
+     "items": [
+      {
+       "label": "1er mai 2026",
+       "text": "Prix de référence de 2,65 $ le million de jetons chez Anthropic, d'après l'indice de Ramp."
+      },
+      {
+       "label": "22 octobre 2026",
+       "text": "Le même indice affiche 0,62 $."
+      },
+      {
+       "label": "30 octobre 2026",
+       "text": "Darkbloom avertit ses participants que les gains resteront faibles."
+      }
+     ]
+    },
+    {
+     "type": "opinion",
+     "title": "Notre avis",
+     "paragraphs": [
+      "L'épisode est un cas d'école : quand le prix du produit s'effondre et que l'offre industrielle gagne en efficacité, la capacité de particuliers, plus chère par jeton, perd son créneau. Le gain médian cité équivaut à quelques dollars par jour, avant frais d'électricité.",
+      "La piste la plus crédible est celle de la spécialisation : des grappes haut de gamme ou des charges de calcul qui valorisent la proximité plutôt que le prix. À un à trois ans, les réseaux participatifs qui survivront seront sans doute ceux qui offrent autre chose que du prix bas. Cette lecture est une opinion."
+     ],
+     "verdict": "Un modèle économique fragilisé par la baisse rapide du prix des jetons."
+    },
+    {
+     "type": "callout",
+     "title": "À retenir",
+     "text": "Chiffres rapportés par The Register le 30 octobre 2026, à partir des messages de l'équipe ; ils illustrent des gains avant frais d'électricité."
+    }
+   ],
+   "publishedAt": "2026-10-31T18:17:58+01:00",
+   "readingMinutes": 3
+  },
+  {
+   "id": "lattepanda-sigma-2-serveur-monocarte-ia-locale",
+   "category": "electronique",
+   "icon": "🐼",
+   "importance": 3,
+   "title": "LattePanda Sigma 2 : une carte monoplaque à 2 599 dollars annonce 180 TOPS pour l'IA locale",
+   "summary": "Basée sur la puce Intel Core Ultra X7 358H, la carte propose jusqu'à 64 Go de mémoire LPDDR5X, deux ports Ethernet 10 Gb/s et deux Thunderbolt 4, dans un format de 146 × 102 mm.",
+   "tags": [
+    "LattePanda",
+    "Intel Core Ultra",
+    "carte monoplaque",
+    "IA locale",
+    "Thunderbolt 4"
+   ],
+   "sourceDate": "2026-10-29",
+   "sources": [
+    {
+     "title": "$2600 LattePanda Sigma 2 single board server features 180 TOPS Intel Core Ultra X7 358H SoC for local AI applications",
+     "url": "https://www.cnx-software.com/2026/10/29/2600-lattepanda-sigma-2-single-board-server-features-180-tops-intel-core-ultra-x7-358h-soc-for-local-ai-applications/",
+     "publisher": "CNX Software"
+    }
+   ],
+   "illustration": {
+    "svg": "<svg xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"0 0 640 360\"><defs><linearGradient id=\"g\" x1=\"0\" y1=\"0\" x2=\"1\" y2=\"1\"><stop offset=\"0\" stop-color=\"hsl(30,62%,38%)\"/><stop offset=\"1\" stop-color=\"hsl(70,65%,20%)\"/></linearGradient></defs><rect width=\"640\" height=\"360\" fill=\"url(#g)\"/><rect x=\"230\" y=\"110\" width=\"180\" height=\"140\" rx=\"14\" fill=\"#fff\" opacity=\".92\"/><rect x=\"265\" y=\"145\" width=\"110\" height=\"70\" rx=\"8\" fill=\"hsl(30,60%,32%)\"/><path d=\"M255 110V80M290 110V80M325 110V80M360 110V80M395 110V80M255 250v30M290 250v30M325 250v30M360 250v30M395 250v30M230 140h-30M230 180h-30M230 220h-30M410 140h30M410 180h30M410 220h30\" stroke=\"#fff\" stroke-width=\"8\" stroke-linecap=\"round\"/></svg>"
+   },
+   "blocks": [
+    {
+     "type": "paragraph",
+     "text": "Les cartes monoplaques ne se limitent plus aux projets de bricolage à quelques dizaines d'euros. Le LattePanda Sigma 2, présenté par CNX Software le 29 octobre 2026, vise l'IA locale avec une puce Intel Core Ultra X7 358H (génération Panther Lake-H) et revendique jusqu'à 180 TOPS en additionnant processeur, GPU et NPU. Contrairement à des modules industriels équipés de la même puce, la carte est vendue au grand public."
+    },
+    {
+     "type": "heading",
+     "level": 2,
+     "text": "Fiche technique"
+    },
+    {
+     "type": "keyvalue",
+     "items": [
+      {
+       "label": "Processeur",
+       "value": "16 cœurs (4 P, 8 E, 4 E basse consommation), jusqu'à 4,8 GHz, 18 Mo de cache, 25 W de puissance de base"
+      },
+      {
+       "label": "GPU",
+       "value": "Intel Arc B390 à 12 cœurs, jusqu'à 122 TOPS en INT8"
+      },
+      {
+       "label": "NPU",
+       "value": "50 TOPS"
+      },
+      {
+       "label": "Mémoire",
+       "value": "jusqu'à 64 Go de LPDDR5X-8533, 136,5 Go/s"
+      },
+      {
+       "label": "Stockage",
+       "value": "SSD NVMe de 1 To préinstallé, trois emplacements M.2 M-Key, un M.2 E-Key, un port OCuLink"
+      },
+      {
+       "label": "Réseau",
+       "value": "deux ports 10 GbE (Realtek RTL8127) ; Wi-Fi et Bluetooth en option via le M.2 E-Key"
+      },
+      {
+       "label": "Ports",
+       "value": "deux Thunderbolt 4, deux USB 3.2 Gen 2, deux USB 2.0, HDMI 2.1, DisplayPort 2.1 via USB-C, eDP 1.5"
+      },
+      {
+       "label": "Dimensions",
+       "value": "146 × 102 mm"
+      },
+      {
+       "label": "Alimentation",
+       "value": "20 V via USB-C ou 15 à 20 V par prise coaxiale"
+      }
+     ]
+    },
+    {
+     "type": "heading",
+     "level": 2,
+     "text": "Entrées-sorties et logiciels"
+    },
+    {
+     "type": "paragraph",
+     "text": "La carte comprend un connecteur GPIO de 30 + 4 broches piloté par un coprocesseur Raspberry Pi RP2350, qui exécute MicroPython par défaut ; Arduino est également pris en charge. Le fabricant annonce la compatibilité avec Windows 11 et Ubuntu 24.04 LTS ou plus récent ; selon la documentation, Ubuntu 26.04 est préinstallé avec ses pilotes. Pour l'IA, la documentation décrit un serveur OpenVINO Model Server qui expose le modèle Qwen3.6-35B-A3B quantifié en INT4 par une API compatible OpenAI sur le port 8080, avec un tableau de bord OpenClaw sur le port 18789. Jusqu'à 59 Go de mémoire peuvent être alloués comme mémoire vidéo, pour environ 30 jetons par seconde selon le fabricant."
+    },
+    {
+     "type": "heading",
+     "level": 2,
+     "text": "Prix et disponibilité"
+    },
+    {
+     "type": "paragraph",
+     "text": "La configuration de 64 Go de mémoire et 1 To de SSD est proposée à 2 599 dollars en précommande chez DFRobot jusqu'à la mi-novembre, puis à 2 799 dollars. Le total de consommation du système n'est pas précisé dans l'article, qui mentionne seulement des limites de puissance configurables dans le BIOS. Les performances annoncées sont celles du fabricant."
+    },
+    {
+     "type": "usecases",
+     "title": "Exemples d'utilisation",
+     "items": [
+      {
+       "icon": "🏠",
+       "title": "Assistant d'IA à domicile",
+       "text": "Un passionné y exécute un modèle local pour des documents privés, sans les envoyer à un service en ligne."
+      },
+      {
+       "icon": "🏢",
+       "title": "Petit serveur de bureau",
+       "text": "Une équipe y héberge un modèle partagé et des services internes grâce aux deux ports 10 GbE."
+      },
+      {
+       "icon": "🤖",
+       "title": "Prototype de robotique",
+       "text": "Un développeur combine l'IA locale et les entrées-sorties GPIO du RP2350 pour piloter capteurs et actionneurs."
+      }
+     ]
+    },
+    {
+     "type": "timeline",
+     "title": "D'où l'on vient, où l'on va",
+     "items": [
+      {
+       "label": "Générations précédentes",
+       "text": "LattePanda propose des cartes x86 de petit format pour le bricolage et l'embarqué."
+      },
+      {
+       "label": "29 octobre 2026",
+       "text": "Annonce du Sigma 2 en précommande."
+      },
+      {
+       "label": "Mi-novembre 2026",
+       "text": "Fin du tarif de précommande, ensuite à 2 799 dollars."
+      }
+     ]
+    },
+    {
+     "type": "opinion",
+     "title": "Notre avis",
+     "paragraphs": [
+      "Le chiffre de 180 TOPS est une addition de composants différents : il ne dit pas ce que l'on obtient sur une charge réelle, et le débit annoncé de 30 jetons par seconde sur un modèle de 35 milliards de paramètres (activé partiellement) est plus parlant. Pour ce prix, on achète surtout une base compacte, avec beaucoup de connectique.",
+      "Le public visé reste étroit : les passionnés, les intégrateurs, les équipes qui veulent de l'IA hors cloud. À un à trois ans, la question sera de savoir si ces cartes tiennent face à des mini-PC grand public, moins chers et mieux refroidis. C'est une opinion."
+     ],
+     "verdict": "Un produit pour amateurs fortunés et intégrateurs, dont les performances réelles restent à mesurer."
+    },
+    {
+     "type": "callout",
+     "title": "À retenir",
+     "text": "Caractéristiques et prix annoncés par le fabricant, relevés au 29 octobre 2026 ; vérifiez avant achat."
+    }
+   ],
+   "publishedAt": "2026-10-31T18:17:58+01:00",
+   "readingMinutes": 3
+  }
+ ]
+}
