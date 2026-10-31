@@ -1,0 +1,744 @@
+{
+ "schemaVersion": "1.0",
+ "date": "2026-10-31",
+ "generatedAt": "2026-10-31T04:17:50+01:00",
+ "title": "Faille TCP du noyau Linux jusqu'à Linode, GPT-6.1 Terra, Copilot Fusion, WireGuard sans-IO et qubit en diamant",
+ "summary": "Cette édition suit la faille TCP CVE-2026-98432 qui mobilise Akamai et les éditeurs de VPN, le modèle GPT-6.1 Terra d'OpenAI tourné vers le prix par tâche, l'orchestrateur Copilot Fusion de GitHub, la bibliothèque WireGuard sans-IO sanstun et le prototype quantique à base de diamant de Fujitsu.",
+ "highlights": [
+  "La faille TCP CVE-2026-98432 du noyau Linux provoque un incident chez Akamai Linode ; une atténuation temporaire circule en attendant les correctifs.",
+  "GPT-6.1 Terra d'OpenAI : 1 dollar le million de tokens en entrée, 0,96 dollar par tâche selon Artificial Analysis.",
+  "Copilot Fusion route et combine plusieurs modèles ; GitHub promet jusqu'à 77 % d'économies, chiffre non validé indépendamment.",
+  "Fujitsu vise 250 qubits en 2030 avec un qubit optique en diamant, sans publier de taux d'erreur."
+ ],
+ "meta": {
+  "generator": "claude-scheduled-task"
+ },
+ "posts": [
+  {
+   "id": "cve-2026-98432-akamai-linode-incident-noyau-linux",
+   "category": "cybersecurite",
+   "icon": "🐧",
+   "importance": 5,
+   "title": "Noyau Linux : la faille TCP CVE-2026-98432 déclenche un incident chez Akamai Linode",
+   "summary": "Présentée comme exploitable à distance en laboratoire, la faille TCP du noyau Linux pousse Akamai à ouvrir un incident pour Linode, tandis que Pritunl publie une atténuation temporaire.",
+   "tags": [
+    "Linux",
+    "noyau",
+    "CVE-2026-98432",
+    "Akamai",
+    "Linode",
+    "TCP"
+   ],
+   "sourceDate": "2026-10-31",
+   "sources": [
+    {
+     "title": "Linode Security Incident",
+     "url": "https://status.linode.com/incidents/nt58zhx3pmgm",
+     "publisher": "Akamai Linode"
+    },
+    {
+     "title": "[SECURITY] Linux Kernel CVE-2026-98432",
+     "url": "https://forum.pritunl.com/t/security-linux-kernel-cve-2026-98432/3874",
+     "publisher": "Pritunl"
+    },
+    {
+     "title": "Linux Kernel TCP Flaw With 9.8 CVSS Score Affects Ubuntu, Red Hat and Other Distributions",
+     "url": "https://thehackernews.com/2026/10/linux-kernel-tcp-flaw-with-98-cvss.html",
+     "publisher": "The Hacker News"
+    }
+   ],
+   "illustration": {
+    "svg": "<svg xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"0 0 640 360\"><defs><linearGradient id=\"g\" x1=\"0\" y1=\"0\" x2=\"1\" y2=\"1\"><stop offset=\"0\" stop-color=\"hsl(175,62%,34%)\"/><stop offset=\"1\" stop-color=\"hsl(215,65%,20%)\"/></linearGradient></defs><rect width=\"640\" height=\"360\" fill=\"url(#g)\"/><circle cx=\"320\" cy=\"180\" r=\"84\" fill=\"none\" stroke=\"#fff\" stroke-width=\"6\"/><path d=\"M320 120 L320 180 L360 205\" stroke=\"#fff\" stroke-width=\"8\" fill=\"none\" stroke-linecap=\"round\"/><rect x=\"90\" y=\"110\" width=\"90\" height=\"140\" rx=\"10\" fill=\"#fff\" opacity=\".85\"/><rect x=\"460\" y=\"110\" width=\"90\" height=\"140\" rx=\"10\" fill=\"#fff\" opacity=\".85\"/><circle cx=\"135\" cy=\"150\" r=\"9\" fill=\"#e74c3c\"/><circle cx=\"505\" cy=\"150\" r=\"9\" fill=\"#e74c3c\"/></svg>"
+   },
+   "blocks": [
+    {
+     "type": "paragraph",
+     "text": "Une faille du noyau Linux, déjà évoquée par *Tech Daily*, change de dimension. La vulnérabilité **CVE-2026-98432**, une condition de concurrence dans l'établissement des connexions TCP en IPv4, est désormais présentée comme exploitable à distance pour obtenir les droits root, au moins dans des conditions de laboratoire. Dans la nuit du 30 au 31 octobre 2026, Akamai a publié un incident de sécurité pour son offre Linode et un éditeur de VPN a diffusé une mesure d'atténuation temporaire. Ces deux signaux montrent que la faille quitte le cercle des spécialistes du noyau pour atteindre les équipes d'exploitation."
+    },
+    {
+     "type": "heading",
+     "level": 2,
+     "text": "Ce que l'on sait de la faille"
+    },
+    {
+     "type": "paragraph",
+     "text": "La vulnérabilité a été publiée le 15 octobre 2026. Elle concerne le traitement des paquets TCP et une utilisation de mémoire après libération (*use-after-free*) : lorsqu'une connexion s'établit, le noyau transmet à la nouvelle socket les options IP conservées avec la demande en attente, sans les copier. Si la socket est détruite alors qu'un autre cœur de processeur utilise encore ces options, le noyau lit une zone déjà libérée. Le défaut remonte à Linux 4.4 et ne touche pas IPv6. Les mainteneurs du noyau lui attribuent la note maximale de 9,8 sur 10, alors que plusieurs distributeurs la jugent nettement moins grave, car la course entre processeurs est difficile à gagner."
+    },
+    {
+     "type": "paragraph",
+     "text": "Selon le billet d'Anthropic rapporté par [The Hacker News](https://thehackernews.com/2026/10/linux-kernel-tcp-flaw-with-98-cvss.html), une exploitation en deux étapes a d'abord révélé une adresse du noyau pour contourner la randomisation KASLR, puis écrasé un pointeur de fonction afin d'exécuter une commande avec les droits root. Les essais ont demandé 48 minutes pour obtenir l'adresse, puis 5 minutes de plus pour la commande, sur des serveurs dotés d'un écouteur MPTCP. Aucun code d'exploitation n'a été publié."
+    },
+    {
+     "type": "diagram",
+     "svg": "<svg xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"0 0 600 240\" font-family=\"system-ui,sans-serif\" font-size=\"14\"><rect width=\"600\" height=\"240\" rx=\"14\" fill=\"#f4f6fb\" stroke=\"#c5cbe0\"/><text x=\"300\" y=\"30\" text-anchor=\"middle\" font-weight=\"700\" fill=\"#1d2a44\">Course entre deux cœurs de processeur</text><rect x=\"30\" y=\"55\" width=\"160\" height=\"60\" rx=\"10\" fill=\"#dff3ef\" stroke=\"#2a9d8f\"/><text x=\"110\" y=\"82\" text-anchor=\"middle\" fill=\"#14423d\">Cœur A</text><text x=\"110\" y=\"102\" text-anchor=\"middle\" fill=\"#14423d\" font-size=\"12\">socket détruite</text><rect x=\"410\" y=\"55\" width=\"160\" height=\"60\" rx=\"10\" fill=\"#dff3ef\" stroke=\"#2a9d8f\"/><text x=\"490\" y=\"82\" text-anchor=\"middle\" fill=\"#14423d\">Cœur B</text><text x=\"490\" y=\"102\" text-anchor=\"middle\" fill=\"#14423d\" font-size=\"12\">répond à une demande</text><rect x=\"210\" y=\"135\" width=\"180\" height=\"50\" rx=\"10\" fill=\"#fde8e8\" stroke=\"#c0392b\"/><text x=\"300\" y=\"157\" text-anchor=\"middle\" fill=\"#6b1d14\">Options IP libérées</text><text x=\"300\" y=\"175\" text-anchor=\"middle\" fill=\"#6b1d14\" font-size=\"12\">puis relues : use-after-free</text><path d=\"M110 115 L110 160 L205 160\" stroke=\"#2a9d8f\" stroke-width=\"2\" fill=\"none\"/><path d=\"M490 115 L490 160 L395 160\" stroke=\"#2a9d8f\" stroke-width=\"2\" fill=\"none\"/><text x=\"300\" y=\"215\" text-anchor=\"middle\" fill=\"#1d2a44\" font-size=\"12\">Correctif : attendre la fin des autres cœurs avant de libérer les options</text></svg>",
+     "alt": "Schéma montrant deux cœurs de processeur : l'un détruit la socket, l'autre relit les options IP déjà libérées, ce qui provoque l'utilisation après libération.",
+     "caption": "Le mécanisme de la faille : une course entre deux cœurs de processeur autour des options IP d'une connexion en attente."
+    },
+    {
+     "type": "heading",
+     "level": 2,
+     "text": "Les réactions de la nuit du 30 octobre"
+    },
+    {
+     "type": "paragraph",
+     "text": "Sur sa page d'état, Akamai indique avoir eu connaissance de la vulnérabilité le 30 octobre 2026 à 18 h 10 (UTC) et avoir ouvert une enquête. La dernière mise à jour, le 31 octobre à 1 h 55 (UTC), précise que des mesures d'atténuation sont en cours de déploiement. Le fournisseur n'observe aucun signe d'exploitation de la faille sur Akamai Compute et demande à ses clients d'appliquer les mises à jour du système d'exploitation dès qu'elles sont disponibles. Son avis ne désigne pas le composant concerné ; le lien avec CVE-2026-98432 figure dans l'intitulé de l'incident."
+    },
+    {
+     "type": "paragraph",
+     "text": "De son côté, l'éditeur Pritunl a publié le 30 octobre sur son forum une note de sécurité. Selon cette note, Oracle Linux (noyaux UEK), Debian et Amazon Linux 2023 disposent déjà de correctifs, tandis qu'aucun correctif n'est indiqué pour Ubuntu, AlmaLinux et Rocky Linux, et que la plupart des autres distributions travaillent encore sur le leur. Il s'agit d'un message communautaire, non d'un avis officiel : les versions doivent être vérifiées auprès de chaque distributeur."
+    },
+    {
+     "type": "heading",
+     "level": 2,
+     "text": "Une atténuation temporaire, à manier avec prudence"
+    },
+    {
+     "type": "paragraph",
+     "text": "Pritunl propose, en attendant les mises à jour, de bloquer dans la table `raw` du pare-feu, avant tout suivi de connexion, les paquets TCP IPv4 qui portent des options IP. L'éditeur affirme que cela n'affecte pas le trafic légitime et l'a testé sur ses serveurs VPN sans effet observé. Sur les distributions de la famille EL9, la règle `iptables` échoue faute du module `xt_u32` ; une variante en `nftables`, placée dans une table dédiée, est suggérée, mais elle ne survit pas au redémarrage. Les avis des éditeurs, eux, ne confirment pas qu'un contournement soit adapté à un déploiement courant, et l'équipe du noyau recommande plutôt de passer à la dernière version stable."
+    },
+    {
+     "type": "usecases",
+     "title": "Exemples d'utilisation",
+     "items": [
+      {
+       "icon": "🛠️",
+       "title": "Administrateur d'un parc de serveurs",
+       "text": "Il recense les machines exposées à Internet, vérifie la version du noyau installée, planifie le redémarrage après correctif et consigne chaque machine encore en attente."
+      },
+      {
+       "icon": "☁️",
+       "title": "Client d'un fournisseur d'hébergement",
+       "text": "Il applique les mises à jour du système invité sans attendre l'infrastructure du fournisseur, car la page d'état d'Akamai demande explicitement d'agir sur les charges de travail."
+      },
+      {
+       "icon": "🔐",
+       "title": "Responsable d'un service VPN",
+       "text": "Il teste la règle de filtrage des options IP sur un hôte non critique, puis la déploie en mesure transitoire, en gardant à l'esprit qu'elle ne remplace pas la mise à jour du noyau."
+      }
+     ]
+    },
+    {
+     "type": "timeline",
+     "title": "D'où l'on vient, où l'on va",
+     "items": [
+      {
+       "label": "5 octobre 2026",
+       "text": "Le correctif est appliqué dans le noyau, selon le commit cité par la presse spécialisée."
+      },
+      {
+       "label": "15 octobre 2026",
+       "text": "Publication de la vulnérabilité CVE-2026-98432."
+      },
+      {
+       "label": "27 octobre 2026",
+       "text": "Anthropic décrit une exploitation en laboratoire avec un écouteur MPTCP."
+      },
+      {
+       "label": "30-31 octobre 2026",
+       "text": "Incident ouvert chez Akamai pour Linode ; note d'atténuation publiée par Pritunl."
+      },
+      {
+       "label": "À suivre",
+       "text": "Publication des correctifs pour Ubuntu, Red Hat Enterprise Linux et les distributions encore en attente."
+      }
+     ]
+    },
+    {
+     "type": "opinion",
+     "title": "Notre avis",
+     "paragraphs": [
+      "Le débat sur la note de gravité, 9,8 pour les uns, bien moins pour les autres, occulte l'essentiel : une démonstration d'exploitation distante existe, même coûteuse en temps, et les hébergeurs commencent à réagir. Pour un serveur exposé, 53 minutes d'essais automatisés ne sont pas un obstacle durable. La prudence consiste à traiter la faille comme prioritaire sans attendre un score consensuel.",
+      "À un an ou deux, ce dossier illustre un changement d'échelle : des outils d'IA capables de découvrir puis d'exploiter des failles du noyau raccourcissent le délai entre divulgation et attaque plausible. Cela devrait pousser distributeurs et hébergeurs à publier des correctifs plus vite et à rendre les redémarrages moins pénibles. C'est une analyse, non un fait établi."
+     ],
+     "verdict": "Une faille à corriger sans attendre le consensus sur sa note : le délai entre divulgation et exploitation se raccourcit."
+    },
+    {
+     "type": "callout",
+     "title": "À retenir",
+     "text": "Mettre à jour le noyau dès qu'un correctif existe pour votre distribution, redémarrer, et ne recourir au filtrage des options IP qu'en mesure transitoire."
+    }
+   ],
+   "publishedAt": "2026-10-31T04:17:50+01:00"
+  },
+  {
+   "id": "openai-gpt-6-1-terra-prix-par-tache",
+   "category": "ia",
+   "icon": "💸",
+   "importance": 4,
+   "title": "GPT-6.1 Terra : OpenAI casse les prix avec un modèle intermédiaire à 1 dollar le million de tokens",
+   "summary": "Dévoilé le 27 octobre 2026, GPT-6.1 Terra mise sur le prix et le coût par tâche plutôt que sur le score maximal : cinquième de l'Intelligence Index d'Artificial Analysis, il coûte 0,96 dollar par tâche.",
+   "tags": [
+    "OpenAI",
+    "GPT-6.1 Terra",
+    "tarification",
+    "benchmarks"
+   ],
+   "sourceDate": "2026-10-28",
+   "sources": [
+    {
+     "title": "OpenAI casse les prix de GPT-6.1 Terra",
+     "url": "https://www.lemagit.fr/actualites/366652819/OpenAI-casse-les-prix-de-GPT-61-Terra",
+     "publisher": "LeMagIT"
+    }
+   ],
+   "illustration": {
+    "svg": "<svg xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"0 0 640 360\"><defs><linearGradient id=\"g\" x1=\"0\" y1=\"0\" x2=\"1\" y2=\"1\"><stop offset=\"0\" stop-color=\"hsl(320,62%,34%)\"/><stop offset=\"1\" stop-color=\"hsl(0,65%,20%)\"/></linearGradient></defs><rect width=\"640\" height=\"360\" fill=\"url(#g)\"/><circle cx=\"320\" cy=\"170\" r=\"70\" fill=\"none\" stroke=\"#fff\" stroke-width=\"7\"/><text x=\"320\" y=\"196\" text-anchor=\"middle\" font-size=\"70\" font-family=\"system-ui\" fill=\"#fff\" font-weight=\"700\">$</text><rect x=\"90\" y=\"250\" width=\"40\" height=\"60\" fill=\"#fff\" opacity=\".6\"/><rect x=\"150\" y=\"220\" width=\"40\" height=\"90\" fill=\"#fff\" opacity=\".7\"/><rect x=\"450\" y=\"200\" width=\"40\" height=\"110\" fill=\"#fff\" opacity=\".7\"/><rect x=\"510\" y=\"260\" width=\"40\" height=\"50\" fill=\"#fff\" opacity=\".6\"/></svg>"
+   },
+   "blocks": [
+    {
+     "type": "paragraph",
+     "text": "OpenAI a dévoilé le 27 octobre 2026 **GPT-6.1 Terra**, un modèle de milieu de gamme pensé pour le raisonnement visuel, le pilotage d'un ordinateur (*computer use*) et l'écriture. Son argument principal n'est pas le record de performance, mais le prix : un million de tokens en entrée coûte 1 dollar, contre 5 dollars en sortie. Dans un marché où les modèles se multiplient et où les budgets d'inférence pèsent de plus en plus, la manœuvre est moins anodine qu'il n'y paraît."
+    },
+    {
+     "type": "heading",
+     "level": 2,
+     "text": "Les caractéristiques annoncées"
+    },
+    {
+     "type": "paragraph",
+     "text": "Terra accepte un contexte d'un million de tokens en entrée et peut produire jusqu'à 128 000 tokens en une seule réponse. Sa date limite de connaissances est fixée au 1er juin 2026. Le tarif d'entrée de 1 dollar par million de tokens s'accompagne de 5 dollars en sortie et de 0,05 dollar pour les tokens en cache. Sur le papier, il coûte plus de deux fois moins cher que GPT-5.6 Terra, facturé 2 dollars en entrée et 12 dollars en sortie."
+    },
+    {
+     "type": "table",
+     "headers": [
+      "Modèle",
+      "Score Intelligence Index"
+     ],
+     "rows": [
+      [
+       "Claude Opus 5.5",
+       "58"
+      ],
+      [
+       "GPT-6 Astra",
+       "57"
+      ],
+      [
+       "GPT-6.1 Sol",
+       "55"
+      ],
+      [
+       "Claude Sonnet 5.5",
+       "54"
+      ],
+      [
+       "GPT-6.1 Terra",
+       "51"
+      ],
+      [
+       "Gemini 4 Argon",
+       "50"
+      ],
+      [
+       "Fable 5.1",
+       "49"
+      ],
+      [
+       "Kimi K3.1 Pro",
+       "46"
+      ]
+     ]
+    },
+    {
+     "type": "diagram",
+     "svg": "<svg xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"0 0 600 244\" font-family=\"system-ui,sans-serif\" font-size=\"14\"><rect width=\"600\" height=\"244\" rx=\"14\" fill=\"#f4f6fb\" stroke=\"#c5cbe0\"/><text x=\"300\" y=\"26\" text-anchor=\"middle\" font-weight=\"700\" fill=\"#1d2a44\">Artificial Analysis Intelligence Index</text><text x=\"150\" y=\"56\" text-anchor=\"end\" fill=\"#1d2a44\" font-size=\"13\">Claude Opus 5.5</text><rect x=\"160\" y=\"42\" width=\"364\" height=\"18\" rx=\"4\" fill=\"#7a86b8\"/><text x=\"529\" y=\"56\" fill=\"#1d2a44\" font-size=\"13\">58</text><text x=\"150\" y=\"80\" text-anchor=\"end\" fill=\"#1d2a44\" font-size=\"13\">GPT-6 Astra</text><rect x=\"160\" y=\"66\" width=\"351\" height=\"18\" rx=\"4\" fill=\"#7a86b8\"/><text x=\"516\" y=\"80\" fill=\"#1d2a44\" font-size=\"13\">57</text><text x=\"150\" y=\"104\" text-anchor=\"end\" fill=\"#1d2a44\" font-size=\"13\">GPT-6.1 Sol</text><rect x=\"160\" y=\"90\" width=\"325\" height=\"18\" rx=\"4\" fill=\"#7a86b8\"/><text x=\"490\" y=\"104\" fill=\"#1d2a44\" font-size=\"13\">55</text><text x=\"150\" y=\"128\" text-anchor=\"end\" fill=\"#1d2a44\" font-size=\"13\">Claude Sonnet 5.5</text><rect x=\"160\" y=\"114\" width=\"312\" height=\"18\" rx=\"4\" fill=\"#7a86b8\"/><text x=\"477\" y=\"128\" fill=\"#1d2a44\" font-size=\"13\">54</text><text x=\"150\" y=\"152\" text-anchor=\"end\" fill=\"#1d2a44\" font-size=\"13\">GPT-6.1 Terra</text><rect x=\"160\" y=\"138\" width=\"273\" height=\"18\" rx=\"4\" fill=\"#d6336c\"/><text x=\"438\" y=\"152\" fill=\"#1d2a44\" font-size=\"13\">51</text><text x=\"150\" y=\"176\" text-anchor=\"end\" fill=\"#1d2a44\" font-size=\"13\">Gemini 4 Argon</text><rect x=\"160\" y=\"162\" width=\"260\" height=\"18\" rx=\"4\" fill=\"#7a86b8\"/><text x=\"425\" y=\"176\" fill=\"#1d2a44\" font-size=\"13\">50</text><text x=\"150\" y=\"200\" text-anchor=\"end\" fill=\"#1d2a44\" font-size=\"13\">Fable 5.1</text><rect x=\"160\" y=\"186\" width=\"247\" height=\"18\" rx=\"4\" fill=\"#7a86b8\"/><text x=\"412\" y=\"200\" fill=\"#1d2a44\" font-size=\"13\">49</text><text x=\"150\" y=\"224\" text-anchor=\"end\" fill=\"#1d2a44\" font-size=\"13\">Kimi K3.1 Pro</text><rect x=\"160\" y=\"210\" width=\"208\" height=\"18\" rx=\"4\" fill=\"#7a86b8\"/><text x=\"373\" y=\"224\" fill=\"#1d2a44\" font-size=\"13\">46</text></svg>",
+     "alt": "Diagramme en barres des scores de huit modèles à l'Intelligence Index d'Artificial Analysis, GPT-6.1 Terra étant mis en évidence à 51.",
+     "caption": "Selon Artificial Analysis, GPT-6.1 Terra se place cinquième sur huit modèles comparés (indice sur 100)."
+    },
+    {
+     "type": "heading",
+     "level": 2,
+     "text": "Ce que mesurent les évaluations indépendantes"
+    },
+    {
+     "type": "paragraph",
+     "text": "D'après les chiffres d'Artificial Analysis relayés par [LeMagIT](https://www.lemagit.fr/actualites/366652819/OpenAI-casse-les-prix-de-GPT-61-Terra), Terra obtient 51 points à l'Intelligence Index, derrière Claude Opus 5.5 (58), GPT-6 Astra (57), GPT-6.1 Sol (55) et Claude Sonnet 5.5 (54), mais devant Gemini 4 Argon (50), Fable 5.1 (49) et Kimi K3.1 Pro (46). Sur l'indice dédié aux agents de programmation, il totalise 48 points, contre 54 pour Sol. Le modèle n'est donc pas le plus performant, ce que son positionnement intermédiaire laissait prévoir."
+    },
+    {
+     "type": "paragraph",
+     "text": "Le coût réel par tâche est plus parlant que le prix au token. Au niveau d'effort maximal, Terra revient à 0,96 dollar par tâche, contre 1,27 dollar pour Sol et 1,40 dollar pour GPT-5.6 Terra. Il consomme 99 millions de tokens pour l'ensemble du test, soit environ 61 000 tokens de résultat par tâche hors raisonnement. À un niveau d'effort élevé, il marque 45 points pour 0,40 dollar par tâche, là où Muse Wonder de Meta atteint 43 points pour 5,95 dollars. Claude Sonnet 5.5 à son niveau maximal donne un résultat équivalent à Terra, mais pour 4,09 dollars par tâche. Deux réserves s'imposent : la baisse vient surtout de la baisse des prix et d'un tokenizer plus économe, et Artificial Analysis a modifié ses bancs d'essai, de sorte que la comparaison avec GPT-5.6 Terra, dont les derniers résultats ne sont pas publiés, reste incomplète."
+    },
+    {
+     "type": "paragraph",
+     "text": "OpenAI annonce par ailleurs un taux d'hallucination ramené à 38 %, sans que la base de comparaison soit précisée dans l'article source : ce chiffre, communiqué par l'éditeur, appelle donc de la prudence. L'entreprise assure que Terra est aussi capable que Sol et Astra sur les tâches de cybersécurité et soumis aux mêmes filtres, avec des résultats identiques à ceux de GPT-5.6 Terra aux tests d'injection de prompts."
+    },
+    {
+     "type": "usecases",
+     "title": "Exemples d'utilisation",
+     "items": [
+      {
+       "icon": "🧾",
+       "title": "Traitement de documents en volume",
+       "text": "Une équipe finance fait lire des milliers de factures et de relevés au modèle : le contexte d'un million de tokens et le prix bas rendent l'opération économiquement raisonnable."
+      },
+      {
+       "icon": "🖥️",
+       "title": "Automatisation d'interfaces",
+       "text": "Un service informatique confie au modèle des tâches répétitives dans des applications sans API, en s'appuyant sur ses capacités de *computer use* et de raisonnement visuel."
+      },
+      {
+       "icon": "✍️",
+       "title": "Rédaction à grande échelle",
+       "text": "Une rédaction ou un service marketing produit des brouillons de fiches et de notes, relus ensuite par des humains, avec un coût par tâche contenu."
+      }
+     ]
+    },
+    {
+     "type": "timeline",
+     "title": "D'où l'on vient, où l'on va",
+     "items": [
+      {
+       "label": "Juillet 2026",
+       "text": "GPT-5.6 Terra coûtait 0,55 dollar par tâche selon l'ancien banc d'essai d'Artificial Analysis."
+      },
+      {
+       "label": "27 octobre 2026",
+       "text": "OpenAI dévoile GPT-6.1 Terra à 1 dollar et 5 dollars le million de tokens."
+      },
+      {
+       "label": "À suivre",
+       "text": "Les tests indépendants sur des charges réelles, plus parlants que les indices génériques."
+      }
+     ]
+    },
+    {
+     "type": "opinion",
+     "title": "Notre avis",
+     "paragraphs": [
+      "Terra illustre une évolution de fond : la bataille ne se joue plus seulement sur le score maximal, mais sur le coût de chaque tâche réussie. Pour une entreprise, un modèle un peu moins brillant mais deux fois moins cher et toujours capable de traiter un million de tokens peut être le meilleur choix. Le risque, souligné par des analystes cités dans l'article, est la confusion : la multiplication des modèles oblige à des tests internes que peu d'organisations savent mener.",
+      "À un horizon de un à trois ans, on peut s'attendre à ce que le routage automatique entre modèles devienne la norme, comme le montrent les offres de développement concurrentes. C'est une projection, pas un fait."
+     ],
+     "verdict": "Un modèle intermédiaire dont l'atout est le prix par tâche, à valider sur ses propres cas d'usage."
+    }
+   ],
+   "publishedAt": "2026-10-31T04:17:50+01:00"
+  },
+  {
+   "id": "github-copilot-fusion-routage-modeles",
+   "category": "dev",
+   "icon": "🔀",
+   "importance": 4,
+   "title": "Copilot Fusion : GitHub veut choisir et combiner les modèles d'IA à la place des développeurs",
+   "summary": "Présenté à GitHub Universe, Copilot Fusion orchestre plusieurs modèles selon la tâche et promet jusqu'à 77 % d'économies, mais sa transparence tarifaire reste discutée.",
+   "tags": [
+    "GitHub",
+    "Copilot",
+    "agents",
+    "orchestration de modèles"
+   ],
+   "sourceDate": "2026-10-29",
+   "sources": [
+    {
+     "title": "Copilot Fusion : GitHub veut choisir et combiner les modèles d'IA à la place des développeurs",
+     "url": "https://www.lemagit.fr/actualites/366653133/Copilot-Fusion-GitHub-veut-choisir-et-combiner-les-modeles-dIA-a-la-place-des-developpeurs",
+     "publisher": "LeMagIT"
+    }
+   ],
+   "cover": {
+    "url": "https://www.lemagit.fr/visuals/LeMagIT/hero_article/copilot%20fusion.jpg",
+    "alt": "Visuel illustrant Copilot Fusion de GitHub",
+    "credit": "lemagit.fr"
+   },
+   "illustration": {
+    "svg": "<svg xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"0 0 640 360\"><defs><linearGradient id=\"g\" x1=\"0\" y1=\"0\" x2=\"1\" y2=\"1\"><stop offset=\"0\" stop-color=\"hsl(265,62%,34%)\"/><stop offset=\"1\" stop-color=\"hsl(305,65%,20%)\"/></linearGradient></defs><rect width=\"640\" height=\"360\" fill=\"url(#g)\"/><circle cx=\"200\" cy=\"180\" r=\"55\" fill=\"#fff\" opacity=\".85\"/><circle cx=\"440\" cy=\"110\" r=\"40\" fill=\"#fff\" opacity=\".7\"/><circle cx=\"440\" cy=\"250\" r=\"40\" fill=\"#fff\" opacity=\".7\"/><path d=\"M250 165 L400 120 M250 195 L400 240\" stroke=\"#fff\" stroke-width=\"6\" fill=\"none\"/></svg>"
+   },
+   "blocks": [
+    {
+     "type": "paragraph",
+     "text": "Faut-il laisser un outil choisir à votre place le modèle d'IA qui écrit votre code ? C'est le pari de **Copilot Fusion**, présenté par GitHub lors de sa conférence Universe. Face à Claude Code, Codex, Cursor, Pi ou OpenCode, la filiale de Microsoft ne vante plus un modèle, mais une couche d'orchestration qui sélectionne, voire combine, plusieurs modèles de langage selon la tâche et le niveau d'effort demandé."
+    },
+    {
+     "type": "heading",
+     "level": 2,
+     "text": "Comment fonctionne Fusion"
+    },
+    {
+     "type": "paragraph",
+     "text": "Fusion repose sur le projet Hydra, décrit comme un « runtime intelligent » de routage de modèles. Un modèle équipé d'outils évalue d'abord la tâche, puis choisit le modèle d'exécution le plus efficace. Trois schémas sont pris en charge : *Single*, où un seul modèle traite la demande ; *Cascade*, où un petit modèle rédige un brouillon évalué par un modèle « juge » avant, si nécessaire, un passage à un modèle plus puissant ; et *Critique*, où plusieurs modèles isolés critiquent une réponse en parallèle avant sa révision."
+    },
+    {
+     "type": "diagram",
+     "svg": "<svg xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"0 0 600 228\" font-family=\"system-ui,sans-serif\" font-size=\"14\"><rect width=\"600\" height=\"228\" rx=\"14\" fill=\"#f4f6fb\" stroke=\"#c5cbe0\"/><text x=\"300\" y=\"26\" text-anchor=\"middle\" font-weight=\"700\" fill=\"#1d2a44\">Trois schémas d'exécution de Copilot Fusion</text><rect x=\"20\" y=\"45\" width=\"170\" height=\"130\" rx=\"10\" fill=\"#e8e4fb\" stroke=\"#6c5ce7\"/><text x=\"105\" y=\"70\" text-anchor=\"middle\" font-weight=\"700\" fill=\"#2b2470\">Single</text><text x=\"105\" y=\"100\" text-anchor=\"middle\" fill=\"#2b2470\" font-size=\"12\">Un seul modèle</text><text x=\"105\" y=\"118\" text-anchor=\"middle\" fill=\"#2b2470\" font-size=\"12\">réalise la tâche</text><rect x=\"215\" y=\"45\" width=\"170\" height=\"130\" rx=\"10\" fill=\"#e8e4fb\" stroke=\"#6c5ce7\"/><text x=\"300\" y=\"70\" text-anchor=\"middle\" font-weight=\"700\" fill=\"#2b2470\">Cascade</text><text x=\"300\" y=\"100\" text-anchor=\"middle\" fill=\"#2b2470\" font-size=\"12\">Petit modèle : brouillon</text><text x=\"300\" y=\"118\" text-anchor=\"middle\" fill=\"#2b2470\" font-size=\"12\">Juge : valide ou escalade</text><text x=\"300\" y=\"136\" text-anchor=\"middle\" fill=\"#2b2470\" font-size=\"12\">vers un modèle plus fort</text><rect x=\"410\" y=\"45\" width=\"170\" height=\"130\" rx=\"10\" fill=\"#e8e4fb\" stroke=\"#6c5ce7\"/><text x=\"495\" y=\"70\" text-anchor=\"middle\" font-weight=\"700\" fill=\"#2b2470\">Critique</text><text x=\"495\" y=\"100\" text-anchor=\"middle\" fill=\"#2b2470\" font-size=\"12\">Plusieurs modèles isolés</text><text x=\"495\" y=\"118\" text-anchor=\"middle\" fill=\"#2b2470\" font-size=\"12\">critiquent en parallèle,</text><text x=\"495\" y=\"136\" text-anchor=\"middle\" fill=\"#2b2470\" font-size=\"12\">puis la réponse est révisée</text><text x=\"300\" y=\"205\" text-anchor=\"middle\" fill=\"#1d2a44\" font-size=\"12\">Niveaux proposés au développeur : Standard, High, Max et Fast</text></svg>",
+     "alt": "Trois cadres présentant les schémas Single, Cascade et Critique de Copilot Fusion.",
+     "caption": "Les trois schémas d'orchestration de Copilot Fusion, d'après la présentation de GitHub."
+    },
+    {
+     "type": "paragraph",
+     "text": "Le développeur ne choisit plus un modèle précis : il sélectionne un niveau, **Standard** (petits modèles), **High** (milieu de gamme), **Max** (modèles de pointe) ou **Fast**. GitHub ne détaille pas dans sa documentation quels modèles sont combinés. Par défaut, selon Artificial Analysis, il s'agit de modèles d'OpenAI et d'Anthropic comme GPT-6 Astra, GPT-6 Sol, Claude Opus 5.5 et Sonnet 5.5. Les administrateurs peuvent aussi autoriser des modèles locaux, MAI Code Flash 1.1 et Qwen 3.8 Flash Next, sous Windows, Linux et macOS."
+    },
+    {
+     "type": "heading",
+     "level": 2,
+     "text": "Performances annoncées et prix"
+    },
+    {
+     "type": "paragraph",
+     "text": "D'après [LeMagIT](https://www.lemagit.fr/actualites/366653133/Copilot-Fusion-GitHub-veut-choisir-et-combiner-les-modeles-dIA-a-la-place-des-developpeurs), GitHub revendique jusqu'à 77 % d'économies dans certains cas pour une qualité proche de Claude Opus 5.5 au niveau Max, avec une exécution environ 40 % plus rapide. Sur l'indice des agents de programmation, Fusion au niveau Max consomme 7,2 millions de tokens par tâche, soit environ la moitié de Claude Code avec Opus 5.5, au prix de deux points de précision (60 contre 62). Au Terminal Bench 4.0, il arrive en tête avec 71 points, devant Muse Code avec Wonder Full (69), Claude Code avec Opus 5.5 ou Fable 5.1 (66) et Codex avec GPT-6.1 Sol (60). Ces résultats proviennent des tests d'Artificial Analysis et de la communication de GitHub, sans autre validation indépendante."
+    },
+    {
+     "type": "paragraph",
+     "text": "Côté facturation, un crédit d'IA coûte 0,01 dollar et GitHub répercute les tarifs des fournisseurs de modèles. La facturation à l'usage est active depuis le 1er juin 2026 et la consommation de crédits agentiques aurait plus que doublé depuis. Depuis le 28 octobre, GitHub Enterprise inclut l'accès à Copilot : la complétion de code est comprise, les fonctions agentiques consomment des crédits. Une remise de 30 % sur Fusion court jusqu'au 30 novembre 2026. L'outil est disponible sur toutes les formules Copilot dans Visual Studio Code, l'application GitHub Copilot, la ligne de commande et les IDE JetBrains."
+    },
+    {
+     "type": "usecases",
+     "title": "Exemples d'utilisation",
+     "items": [
+      {
+       "icon": "🧹",
+       "title": "Petites corrections au quotidien",
+       "text": "Une équipe laisse le niveau Standard traiter les renommages et corrections simples, pour éviter de mobiliser un modèle de pointe sur des tâches triviales."
+      },
+      {
+       "icon": "🏗️",
+       "title": "Refonte d'un module complexe",
+       "text": "Sur une tâche difficile, le niveau Max et le schéma *Critique* font relire le résultat par plusieurs modèles avant que le développeur ne le valide."
+      },
+      {
+       "icon": "📊",
+       "title": "Pilotage des coûts",
+       "text": "Un responsable d'ingénierie utilise les budgets et le suivi des tokens annoncés par GitHub pour borner la dépense mensuelle de ses équipes."
+      }
+     ]
+    },
+    {
+     "type": "timeline",
+     "title": "D'où l'on vient, où l'on va",
+     "items": [
+      {
+       "label": "1er juin 2026",
+       "text": "Début de la facturation à l'usage de Copilot."
+      },
+      {
+       "label": "28 octobre 2026",
+       "text": "GitHub Enterprise inclut l'accès à Copilot ; présentation de Fusion."
+      },
+      {
+       "label": "30 novembre 2026",
+       "text": "Fin de la remise de 30 % sur Copilot Fusion."
+      },
+      {
+       "label": "À suivre",
+       "text": "Prise en charge d'autres clients, annoncée sans date."
+      }
+     ]
+    },
+    {
+     "type": "opinion",
+     "title": "Notre avis",
+     "paragraphs": [
+      "Déléguer le choix du modèle a une logique économique évidente : utiliser un grand modèle pour une tâche triviale est un gaspillage. Mais l'abstraction par crédits et le flou sur les modèles réellement utilisés rendent le coût et la qualité plus difficiles à auditer. Les retours cités dans l'article sont partagés : certains reprochent au mode Auto de solliciter trop gros, d'autres un modèle trop limité.",
+      "À un à trois ans, le routage automatique devrait devenir une fonction standard des assistants de code, et la différenciation se déplacera vers la transparence et la mesure. C'est une projection argumentée, pas un fait."
+     ],
+     "verdict": "Une idée séduisante dont les promesses chiffrées restent à confirmer hors communication de GitHub."
+    }
+   ],
+   "publishedAt": "2026-10-31T04:17:50+01:00"
+  },
+  {
+   "id": "sanstun-wireguard-sans-io-rust",
+   "category": "dev",
+   "icon": "🔒",
+   "importance": 3,
+   "title": "sanstun : Firezone remplace boringtun par un WireGuard « sans-IO » en Rust",
+   "summary": "Firezone publie sanstun, une implémentation WireGuard en espace utilisateur qui sépare la logique du protocole des entrées-sorties pour faciliter les tests et le parallélisme.",
+   "tags": [
+    "WireGuard",
+    "Rust",
+    "VPN",
+    "sans-IO",
+    "Firezone"
+   ],
+   "sourceDate": "2026-10-30",
+   "sources": [
+    {
+     "title": "Introducing sanstun",
+     "url": "https://www.firezone.dev/blog/introducing-sanstun",
+     "publisher": "Firezone"
+    }
+   ],
+   "cover": {
+    "url": "https://www.firezone.dev/blog/opengraph-image?dc0a4d310bb2b9d5",
+    "alt": "Image de présentation du blog de Firezone",
+    "credit": "firezone.dev"
+   },
+   "illustration": {
+    "svg": "<svg xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"0 0 640 360\"><defs><linearGradient id=\"g\" x1=\"0\" y1=\"0\" x2=\"1\" y2=\"1\"><stop offset=\"0\" stop-color=\"hsl(265,62%,34%)\"/><stop offset=\"1\" stop-color=\"hsl(305,65%,20%)\"/></linearGradient></defs><rect width=\"640\" height=\"360\" fill=\"url(#g)\"/><rect x=\"80\" y=\"130\" width=\"130\" height=\"100\" rx=\"12\" fill=\"#fff\" opacity=\".85\"/><rect x=\"430\" y=\"130\" width=\"130\" height=\"100\" rx=\"12\" fill=\"#fff\" opacity=\".85\"/><path d=\"M210 180 L430 180\" stroke=\"#fff\" stroke-width=\"8\" stroke-dasharray=\"14 10\"/><circle cx=\"320\" cy=\"180\" r=\"26\" fill=\"#fff\"/><rect x=\"309\" y=\"176\" width=\"22\" height=\"18\" rx=\"3\" fill=\"hsl(265,60%,30%)\"/><path d=\"M314 176 v-6 a6 6 0 0 1 12 0 v6\" stroke=\"hsl(265,60%,30%)\" stroke-width=\"3\" fill=\"none\"/></svg>"
+   },
+   "blocks": [
+    {
+     "type": "paragraph",
+     "text": "Le projet **sanstun**, présenté par l'éditeur Firezone, propose une nouvelle implémentation en Rust de la machine à états du protocole WireGuard. Elle fonctionne en espace utilisateur, est publiée sous licence Apache 2.0 et remplace le fork de `boringtun` que Firezone maintenait jusqu'ici et qui est désormais déprécié. Derrière ce changement d'outil se cache un choix d'architecture : le style « sans-IO », qui sépare la logique du protocole de toutes les entrées-sorties."
+    },
+    {
+     "type": "heading",
+     "level": 2,
+     "text": "Le principe du « sans-IO »"
+    },
+    {
+     "type": "paragraph",
+     "text": "Dans une conception sans-IO, la bibliothèque ne lit ni n'écrit sur le réseau et ne consulte pas l'horloge : elle ne manipule que de l'état. Ce sont les fonctions appelantes qui apportent les paquets, le temps et l'aléa, et qui envoient ce que la bibliothèque produit. Selon Firezone, cette séparation rend les composants plus faciles à assembler et à tester, permet de simuler un système entier, évite le problème des « couleurs de fonctions » (code synchrone contre asynchrone) et s'accorde bien avec le modèle de propriété de Rust. Le concept n'est pas propre à ce langage."
+    },
+    {
+     "type": "paragraph",
+     "text": "Concrètement, les fonctions qui dépendent du temps prennent un `Instant` en paramètre (elles portent le suffixe `_at`), ce qui permet de simuler l'écoulement du temps dans des tests. La mise en tampon interne de `boringtun` a été supprimée : elle imposait des appels peu intuitifs, ajoutait des allocations et rendait la taille des tampons difficile à régler. En contrepartie, c'est à l'application de conserver les paquets tant qu'aucune session n'existe, et de piloter elle-même les temporisateurs et les événements."
+    },
+    {
+     "type": "heading",
+     "level": 2,
+     "text": "Une API découpée pour le parallélisme"
+    },
+    {
+     "type": "paragraph",
+     "text": "Tous les paquets entrants passent par `Interface::receive`, qui analyse le datagramme, vérifie le code d'authentification, gère les cookies et applique la limitation de débit. Les constructeurs des types de messages sont privés au crate : on ne peut donc pas appeler une fonction sans avoir franchi ces contrôles. Le routage vers les tunnels s'appuie sur un identifiant dérivé des 24 bits supérieurs de l'index de session. Les fonctions `begin_encapsulate`, `begin_decapsulate` et `commit_decapsulate` isolent la partie comptable, légère, de la partie de chiffrement, coûteuse, qui peut alors être confiée à des threads de travail."
+    },
+    {
+     "type": "table",
+     "headers": [
+      "Opération (benchmark data_path)",
+      "Paquet de 64 octets",
+      "Paquet de 1 280 octets"
+     ],
+     "rows": [
+      [
+       "begin_encapsulate",
+       "≈ 21 ns",
+       "≈ 21 ns"
+      ],
+      [
+       "encrypt",
+       "≈ 226 ns",
+       "≈ 934 ns"
+      ],
+      [
+       "begin_decapsulate",
+       "≈ 38 ns",
+       "≈ 38 ns"
+      ],
+      [
+       "decrypt",
+       "≈ 206 ns",
+       "≈ 915 ns"
+      ],
+      [
+       "commit_decapsulate",
+       "≈ 18 ns",
+       "≈ 18 ns"
+      ]
+     ]
+    },
+    {
+     "type": "paragraph",
+     "text": "Ces mesures, publiées par [Firezone](https://www.firezone.dev/blog/introducing-sanstun), montrent que la comptabilité ne dépend pas de la taille des paquets et représente environ 2 % du coût du chiffrement à 1 280 octets. Firezone évoque un gain théorique supérieur à 45 fois en parallélisant le chiffrement, tout en précisant que le gain réel sera plus faible à cause du coût des transferts entre threads. Le limiteur de débit reste monothread, sans verrou ni compteur atomique. L'article ne fournit pas de comparaison avec d'autres implémentations de WireGuard."
+    },
+    {
+     "type": "heading",
+     "level": 2,
+     "text": "Pourquoi quitter boringtun"
+    },
+    {
+     "type": "paragraph",
+     "text": "Firezone dit avoir utilisé `boringtun` pendant plus de deux ans et accumulé plus de 70 demandes de fusion de correctifs et d'extensions d'API. Rester compatible avec l'amont devenait de plus en plus difficile : mieux valait assumer une base distincte, conçue dès l'origine pour la simulation et le parallélisme. La plateforme d'accès zero trust de l'éditeur l'utilise comme socle, mais la bibliothèque vise tout projet bâti sur WireGuard : VPN, réseau maillé ou autre."
+    },
+    {
+     "type": "usecases",
+     "title": "Exemples d'utilisation",
+     "items": [
+      {
+       "icon": "🧪",
+       "title": "Tests déterministes d'un VPN",
+       "text": "Une équipe simule des pertes de paquets et des horloges accélérées dans ses tests, sans ouvrir de vraie socket ni attendre de vrais délais."
+      },
+      {
+       "icon": "🕸️",
+       "title": "Réseau maillé",
+       "text": "Un projet de réseau privé entre machines gère des centaines de tunnels et route chaque paquet vers le bon tunnel grâce à l'identifiant de session."
+      },
+      {
+       "icon": "⚡",
+       "title": "Passerelle à fort débit",
+       "text": "Un opérateur répartit le chiffrement d'un même tunnel sur plusieurs cœurs de processeur pour augmenter le débit d'une passerelle."
+      }
+     ]
+    },
+    {
+     "type": "timeline",
+     "title": "D'où l'on vient, où l'on va",
+     "items": [
+      {
+       "label": "Depuis plus de deux ans",
+       "text": "Firezone maintient un fork de `boringtun` avec plus de 70 demandes de fusion."
+      },
+      {
+       "label": "Octobre 2026",
+       "text": "Annonce de sanstun, code disponible sur GitHub et crates.io."
+      },
+      {
+       "label": "À suivre",
+       "text": "Mesures comparatives indépendantes et retours d'usage hors Firezone."
+      }
+     ]
+    },
+    {
+     "type": "opinion",
+     "title": "Notre avis",
+     "paragraphs": [
+      "Le style sans-IO n'a rien de spectaculaire, mais il déplace la complexité là où elle est testable. Pour un logiciel de sécurité réseau, pouvoir rejouer des scénarios complets de façon déterministe est un atout de fiabilité plus précieux que quelques nanosecondes. Le prix à payer est une application plus bavarde : tampons, temporisateurs et événements deviennent son affaire.",
+      "Si l'approche fait école, on peut imaginer d'autres briques du réseau chiffré découpées de la même manière dans les prochaines années. C'est une hypothèse d'évolution, pas une certitude."
+     ],
+     "verdict": "Un choix d'architecture solide pour tester et paralléliser, à confirmer par des comparatifs indépendants."
+    }
+   ],
+   "publishedAt": "2026-10-31T04:17:50+01:00"
+  },
+  {
+   "id": "fujitsu-prototype-quantique-diamant-etain",
+   "category": "electronique",
+   "icon": "💎",
+   "importance": 3,
+   "title": "Fujitsu dévoile un prototype d'ordinateur quantique à base de diamant et d'étain",
+   "summary": "Fujitsu et Delft misent sur un défaut du diamant, un atome d'étain entre deux lacunes, pour un qubit optique visant 250 qubits en 2030, sans données publiques sur les erreurs.",
+   "tags": [
+    "quantique",
+    "Fujitsu",
+    "diamant",
+    "qubit",
+    "photonique"
+   ],
+   "sourceDate": "2026-10-28",
+   "sources": [
+    {
+     "title": "Ordinateur quantique : Fujitsu présente un prototype basé sur un diamant",
+     "url": "https://www.lemagit.fr/actualites/366652697/Ordinateur-quantique-Fujitsu-presente-un-prototype-base-sur-un-diamant",
+     "publisher": "LeMagIT"
+    }
+   ],
+   "cover": {
+    "url": "https://www.lemagit.fr/visuals/LeMagIT/hero_article/hero-Fujitsu-Quantique-Prototype-Diamant.jpg",
+    "alt": "Visuel du prototype d'ordinateur quantique à diamant de Fujitsu",
+    "credit": "lemagit.fr"
+   },
+   "illustration": {
+    "svg": "<svg xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"0 0 640 360\"><defs><linearGradient id=\"g\" x1=\"0\" y1=\"0\" x2=\"1\" y2=\"1\"><stop offset=\"0\" stop-color=\"hsl(30,62%,34%)\"/><stop offset=\"1\" stop-color=\"hsl(70,65%,20%)\"/></linearGradient></defs><rect width=\"640\" height=\"360\" fill=\"url(#g)\"/><polygon points=\"320,80 400,150 320,270 240,150\" fill=\"#fff\" opacity=\".9\"/><polygon points=\"240,150 400,150 320,175\" fill=\"#fff\" opacity=\".55\"/><circle cx=\"320\" cy=\"150\" r=\"12\" fill=\"hsl(30,80%,40%)\"/><path d=\"M420 150 L560 110 M420 160 L570 170\" stroke=\"#fff\" stroke-width=\"5\" stroke-dasharray=\"8 8\"/></svg>"
+   },
+   "blocks": [
+    {
+     "type": "paragraph",
+     "text": "Fujitsu a présenté un prototype d'ordinateur quantique dont le qubit repose sur un diamant. Développée avec des chercheurs de l'université de technologie de Delft et la structure QuTech, issue de cette université, la machine mise sur un défaut précis du cristal pour stocker et lire l'information quantique avec de la lumière. L'entreprise vise 250 qubits en 2030 et 1 000 en 2035, mais les données publiques sur les performances du prototype restent minces."
+    },
+    {
+     "type": "heading",
+     "level": 2,
+     "text": "Un qubit niché dans un diamant"
+    },
+    {
+     "type": "paragraph",
+     "text": "Au centre du diamant, deux lacunes contiguës, c'est-à-dire deux emplacements où manquent des atomes de carbone, encadrent un atome d'étain : on parle de « centre lacune-étain ». C'est le seul qubit physique de la zone ; les autres atomes du réseau servent à acheminer les photons vers lui et à partir de lui. Le réseau de carbone, très régulier, conserve bien les états quantiques et limite l'influence du bruit extérieur, comme la chaleur ou la lumière parasite. Des travaux antérieurs employaient un atome d'azote ; l'étain produirait un signal environ dix fois plus brillant."
+    },
+    {
+     "type": "paragraph",
+     "text": "Le fonctionnement combine micro-ondes et lumière : les micro-ondes configurent le système selon le problème à traiter, puis le qubit émet de la lumière qui porte le résultat. Cette lumière peut voyager dans des fibres optiques, ce qui permettrait de relier le prototype à des ordinateurs classiques ou à d'autres machines quantiques. Selon [LeMagIT](https://www.lemagit.fr/actualites/366652697/Ordinateur-quantique-Fujitsu-presente-un-prototype-base-sur-un-diamant), le dispositif n'a pas besoin de cuve d'azote liquide, contrairement aux machines à circuits supraconducteurs, et pourrait prendre la forme d'un serveur en rack."
+    },
+    {
+     "type": "heading",
+     "level": 2,
+     "text": "Fabrication et feuille de route"
+    },
+    {
+     "type": "paragraph",
+     "text": "Fujitsu décrit plusieurs avancées de fabrication : des ions d'étain introduits dans des substrats de diamant pur, des substrats de dioxyde de silicium qui relient les diamants et véhiculent les micro-ondes, et des guides d'ondes en alumine, codéveloppés avec l'université de Tokyo, pour capter la lumière émise. La structure est passée de plusieurs centaines de micromètres à quelques centaines de nanomètres afin de tenir dans des puces. Le qubit logique prend la forme d'une « microépingle » de diamant contenant les ions d'étain."
+    },
+    {
+     "type": "table",
+     "headers": [
+      "Échéance",
+      "Objectif annoncé par Fujitsu"
+     ],
+     "rows": [
+      [
+       "2027",
+       "Mise en service d'exemplaires du prototype"
+      ],
+      [
+       "2030",
+       "Machine de 250 qubits, commercialisable"
+      ],
+      [
+       "2035",
+       "1 000 qubits"
+      ]
+     ]
+    },
+    {
+     "type": "paragraph",
+     "text": "Ces dates sont des ambitions, non des livrables confirmés. Le journaliste de LeMagIT relève que 250 qubits sont très insuffisants pour encoder les données manipulées par les ordinateurs classiques et que des problèmes à grande échelle exigeraient des dizaines de milliers de qubits. Chaque machine ne traiterait qu'une fraction des données, et enchaîner plusieurs machines serait une étape intermédiaire. Vivek Mahajan, directeur technique des plateformes de centres de données de Fujitsu, indique que les machines supraconductrices pourraient aussi être combinées avec ce type de système."
+    },
+    {
+     "type": "heading",
+     "level": 2,
+     "text": "Ce qui manque pour juger"
+    },
+    {
+     "type": "paragraph",
+     "text": "L'article source ne fournit ni temps de cohérence, ni taux d'erreur, ni fidélité des opérations, ni température de fonctionnement précise. Le bruit environnant reste le principal défi de toute l'informatique quantique : le diamant est présenté comme une piste pour le contenir, mais cette promesse n'est pas démontrée dans les éléments publiés. La communication d'entreprise date en outre d'août 2026 : il s'agit d'une annonce, pas d'un résultat évalué par des pairs."
+    },
+    {
+     "type": "usecases",
+     "title": "Exemples d'utilisation",
+     "items": [
+      {
+       "icon": "🧬",
+       "title": "Chimie et matériaux",
+       "text": "À terme, simuler des molécules pour de nouveaux matériaux, un usage souvent cité pour le quantique, mais hors de portée à 250 qubits."
+      },
+      {
+       "icon": "🌐",
+       "title": "Réseau quantique",
+       "text": "Relier plusieurs petites machines par fibre optique, grâce à des qubits qui communiquent par la lumière."
+      },
+      {
+       "icon": "🏢",
+       "title": "Machine en centre de données",
+       "text": "Installer un module au format rack à côté de serveurs classiques, sans l'infrastructure de refroidissement cryogénique des machines supraconductrices."
+      }
+     ]
+    },
+    {
+     "type": "timeline",
+     "title": "D'où l'on vient, où l'on va",
+     "items": [
+      {
+       "label": "Août 2026",
+       "text": "Communiqué de Fujitsu sur le prototype."
+      },
+      {
+       "label": "28 octobre 2026",
+       "text": "Analyse publiée par LeMagIT."
+      },
+      {
+       "label": "2027",
+       "text": "Mise en service d'exemplaires annoncée."
+      },
+      {
+       "label": "2030",
+       "text": "Objectif de 250 qubits commercialisables."
+      },
+      {
+       "label": "2035",
+       "text": "Objectif de 1 000 qubits."
+      }
+     ]
+    },
+    {
+     "type": "opinion",
+     "title": "Notre avis",
+     "paragraphs": [
+      "L'approche optique à base de diamant a un intérêt réel : température de fonctionnement plus accessible, interconnexion par fibre, format compact. Mais en l'absence de chiffres sur les erreurs et la cohérence, il est impossible de situer ce prototype par rapport aux concurrents supraconducteurs ou à ions piégés.",
+      "À trois ans, il faudra surtout observer si les exemplaires de 2027 sont accessibles à des chercheurs indépendants. Passer de un à 250 qubits est un saut d'ingénierie considérable ; cette lecture reste une opinion."
+     ],
+     "verdict": "Une piste crédible mais encore une annonce : il faut des mesures publiques pour la juger."
+    }
+   ],
+   "publishedAt": "2026-10-31T04:17:50+01:00"
+  }
+ ]
+}
