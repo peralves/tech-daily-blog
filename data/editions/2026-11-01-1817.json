@@ -1,0 +1,769 @@
+{
+ "schemaVersion": "1.0",
+ "date": "2026-11-01",
+ "generatedAt": "2026-11-01T18:17:38+01:00",
+ "title": "Tech : faille maximale dans LXD, script détourné chez Polymarket, WordPress 7.1.4, limites communes d'OpenAI et un modèle dans un secteur d'amorçage",
+ "summary": "Cette édition fait le point sur une vulnérabilité de gravité maximale dans LXD et MicroCloud, le détournement d'un script tiers qui a vidé des comptes Polymarket, le correctif WordPress 7.1.4 face à des milliers de tentatives d'attaque, la future allocation d'usage commune de ChatGPT et Codex, et un modèle de langage de 512 octets.",
+ "highlights": [
+  "LXD et MicroCloud : faille CVE-2026-112816 notée 10,0 ; mettre à jour ou restreindre l'API.",
+  "Polymarket : environ 2,7 millions de dollars détournés via le DNS d'un prestataire de mesure ; victimes remboursées.",
+  "WordPress 7.1.4 : 62 969 attaques bloquées en 24 heures par Wordfence.",
+  "OpenAI : ChatGPT et Codex partageront une même allocation d'usage dans les prochaines semaines.",
+  "bootgpt : un réseau de neurones dans un secteur d'amorçage de 512 octets."
+ ],
+ "meta": {
+  "generator": "claude-scheduled-task"
+ },
+ "posts": [
+  {
+   "id": "lxd-microcloud-cve-2026-112816-cvss-10",
+   "category": "cybersecurite",
+   "icon": "🔑",
+   "importance": 5,
+   "title": "LXD et MicroCloud : une faille notée 10 sur 10 permet de se faire passer pour un client de confiance sans clé privée",
+   "summary": "Une erreur de vérification des certificats TLS dans LXD et MicroCloud (CVE-2026-112816) permet à un attaquant disposant du seul certificat public d'un client déjà approuvé d'être accepté comme lui. Des versions corrigées existent, aucune exploitation n'est connue.",
+   "tags": [
+    "LXD",
+    "MicroCloud",
+    "TLS",
+    "CVE-2026-112816",
+    "Canonical",
+    "Incus"
+   ],
+   "readingMinutes": 5,
+   "publishedAt": "2026-11-01T18:17:38+01:00",
+   "sourceDate": "2026-11-01",
+   "sources": [
+    {
+     "title": "CVSS 10.0 LXD, MicroCloud Flaw Lets Attackers Impersonate Trusted Clients Without a Private Key",
+     "url": "https://thehackernews.com/2026/11/critical-lxd-and-microcloud-flaw-cvss.html",
+     "publisher": "The Hacker News"
+    }
+   ],
+   "illustration": {
+    "svg": "<svg xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"0 0 640 360\"><defs><linearGradient id=\"g\" x1=\"0\" y1=\"0\" x2=\"1\" y2=\"1\"><stop offset=\"0\" stop-color=\"hsl(175,65%,38%)\"/><stop offset=\"1\" stop-color=\"hsl(215,70%,24%)\"/></linearGradient></defs><rect width=\"640\" height=\"360\" fill=\"url(#g)\"/><circle cx=\"560\" cy=\"60\" r=\"90\" fill=\"#fff\" opacity=\".07\"/><circle cx=\"70\" cy=\"320\" r=\"110\" fill=\"#fff\" opacity=\".06\"/><rect x=\"250\" y=\"160\" width=\"140\" height=\"110\" rx=\"14\" fill=\"#fff\" opacity=\".92\"/><path d=\"M280 160 V125 A40 40 0 0 1 360 125 V160\" fill=\"none\" stroke=\"#fff\" stroke-width=\"14\"/><circle cx=\"320\" cy=\"212\" r=\"14\" fill=\"hsl(175,55%,32%)\"/></svg>"
+   },
+   "blocks": [
+    {
+     "type": "paragraph",
+     "text": "Les gestionnaires de conteneurs et de machines virtuelles sont des cibles de choix : celui qui en prend le contrôle contrôle aussi tout ce qu'ils hébergent. Canonical vient de publier des correctifs pour une vulnérabilité de LXD et de MicroCloud qui obtient la note maximale de 10,0 sur l'échelle CVSS. Référencée **CVE-2026-112816**, elle permet de se connecter en se faisant passer pour un client de confiance, sans posséder sa clé privée. Si le compte usurpé est privilégié, l'éditeur indique que l'attaquant peut obtenir un accès root sur la machine hôte."
+    },
+    {
+     "type": "paragraph",
+     "text": "Le problème a été signalé par le projet Incus, un fork communautaire de LXD, qui a publié le correctif dans sa version 7.6.0 en même temps que 17 autres corrections de sécurité. Canonical a ensuite confirmé que LXD était lui aussi concerné. Selon The Hacker News, qui rapporte l'affaire le 1er novembre 2026, une évaluation de la CISA datée du 30 octobre indique que la faille n'est pas connue pour être exploitée, et qu'elle ne figure pas dans le catalogue des vulnérabilités exploitées (KEV). Aucun code d'exploitation public n'a été signalé."
+    },
+    {
+     "type": "heading",
+     "level": 2,
+     "text": "Le mécanisme : une chaîne de certificats vérifiée de travers"
+    },
+    {
+     "type": "paragraph",
+     "text": "LXD et MicroCloud exposent leur API en HTTPS avec authentification mutuelle (mTLS) : le client présente un certificat, et il est considéré comme fiable si ce certificat figure dans le magasin de confiance du serveur. Or une connexion TLS ne prouve la possession de la clé privée que pour le certificat final, dit « feuille ». Le reste de la chaîne envoyée par le client n'est qu'un ensemble de certificats qu'il choisit d'y joindre."
+    },
+    {
+     "type": "paragraph",
+     "text": "Le défaut tient à la manière dont le serveur comparait ces certificats : il examinait tous ceux envoyés par le client face à son magasin de confiance, et pas uniquement le certificat feuille dont la clé avait été prouvée. Un attaquant peut donc récupérer le certificat public d'un client déjà approuvé, qui n'a rien de secret, le placer derrière son propre certificat dans la chaîne, et être accepté comme s'il était ce client."
+    },
+    {
+     "type": "diagram",
+     "svg": "<svg xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"0 0 640 220\" font-family=\"system-ui,sans-serif\"><rect width=\"640\" height=\"220\" rx=\"16\" fill=\"hsl(175,40%,95%)\" stroke=\"hsl(175,40%,70%)\"/><rect x=\"20\" y=\"55\" width=\"128\" height=\"110\" rx=\"12\" fill=\"hsl(175,55%,34%)\"/><text x=\"84\" y=\"100\" text-anchor=\"middle\" font-size=\"14\" font-weight=\"700\" fill=\"#fff\">Certificat public</text><text x=\"84\" y=\"128\" text-anchor=\"middle\" font-size=\"11\" fill=\"#fff\" opacity=\".9\">d'un client approuvé</text><path d=\"M150 110 H175\" stroke=\"hsl(175,55%,34%)\" stroke-width=\"3\"/><path d=\"M169 103 L177 110 L169 117Z\" fill=\"hsl(175,55%,34%)\"/><rect x=\"177\" y=\"55\" width=\"128\" height=\"110\" rx=\"12\" fill=\"hsl(175,55%,34%)\"/><text x=\"241\" y=\"100\" text-anchor=\"middle\" font-size=\"14\" font-weight=\"700\" fill=\"#fff\">Chaîne forgée</text><text x=\"241\" y=\"128\" text-anchor=\"middle\" font-size=\"11\" fill=\"#fff\" opacity=\".9\">son certificat + celui de la victime</text><path d=\"M307 110 H333\" stroke=\"hsl(175,55%,34%)\" stroke-width=\"3\"/><path d=\"M327 103 L335 110 L327 117Z\" fill=\"hsl(175,55%,34%)\"/><rect x=\"335\" y=\"55\" width=\"128\" height=\"110\" rx=\"12\" fill=\"hsl(175,55%,34%)\"/><text x=\"399\" y=\"100\" text-anchor=\"middle\" font-size=\"14\" font-weight=\"700\" fill=\"#fff\">Serveur LXD</text><text x=\"399\" y=\"128\" text-anchor=\"middle\" font-size=\"11\" fill=\"#fff\" opacity=\".9\">compare toute la chaîne</text><path d=\"M465 110 H490\" stroke=\"hsl(175,55%,34%)\" stroke-width=\"3\"/><path d=\"M484 103 L492 110 L484 117Z\" fill=\"hsl(175,55%,34%)\"/><rect x=\"492\" y=\"55\" width=\"128\" height=\"110\" rx=\"12\" fill=\"hsl(175,55%,34%)\"/><text x=\"556\" y=\"100\" text-anchor=\"middle\" font-size=\"14\" font-weight=\"700\" fill=\"#fff\">Accès accordé</text><text x=\"556\" y=\"128\" text-anchor=\"middle\" font-size=\"11\" fill=\"#fff\" opacity=\".9\">identité du client approuvé</text></svg>",
+     "alt": "Schéma en quatre étapes : l'attaquant récupère un certificat public approuvé, forge une chaîne, le serveur compare toute la chaîne au lieu de la seule feuille, et accorde l'accès.",
+     "caption": "Le serveur vérifie la possession de la clé du seul certificat feuille, mais fait confiance à n'importe quel certificat de la chaîne."
+    },
+    {
+     "type": "heading",
+     "level": 2,
+     "text": "Qui est exposé"
+    },
+    {
+     "type": "paragraph",
+     "text": "Deux conditions sont nécessaires : un accès réseau à l'API HTTPS et la connaissance du certificat public d'un client que le serveur approuve déjà. Un serveur LXD autonome n'expose pas son API par défaut : il n'écoute que sur une socket locale, tant que le réseau n'a pas été activé avec le paramètre `core.https_address`. Le risque concerne donc surtout les déploiements en grappe et les serveurs ouverts à distance."
+    },
+    {
+     "type": "paragraph",
+     "text": "MicroCloud présente un point faible supplémentaire : un attaquant capable de capter le certificat public d'un membre au moment où celui-ci rejoint la grappe peut ensuite se connecter à sa place. Les versions listées comme touchées dans l'enregistrement CVE sont LXD 4.0.14, 5.0.10, 5.21.8 et 6.9, chacune avant le correctif qui la suit."
+    },
+    {
+     "type": "table",
+     "headers": [
+      "Produit",
+      "Canal snap",
+      "Version corrigée"
+     ],
+     "rows": [
+      [
+       "LXD",
+       "6/stable",
+       "6.10.1"
+      ],
+      [
+       "LXD",
+       "5.21/stable",
+       "5.21.9"
+      ],
+      [
+       "LXD",
+       "5.0/stable",
+       "5.0.11"
+      ],
+      [
+       "LXD",
+       "4.0/stable",
+       "4.0.15"
+      ],
+      [
+       "MicroCloud",
+       "3/stable",
+       "3.4.1"
+      ],
+      [
+       "MicroCloud",
+       "2/stable",
+       "2.1.5"
+      ]
+     ]
+    },
+    {
+     "type": "paragraph",
+     "text": "Les paquets LXD des archives Ubuntu sont indiqués comme non concernés ou non fournis : les versions à mettre à jour sont donc celles distribuées par snap. Canonical précise que les versions de maintenance de LXD étaient encore en cours de passage du canal « candidate » au canal « stable » lors de la publication de son avis : il faut vérifier la version réellement installée après la mise à jour."
+    },
+    {
+     "type": "heading",
+     "level": 2,
+     "text": "Que faire"
+    },
+    {
+     "type": "list",
+     "items": [
+      "Mettre à jour avec `sudo snap refresh lxd` et `sudo snap refresh microcloud`, puis contrôler la version installée.",
+      "Limiter l'accès réseau à l'API aux seules machines d'administration, par exemple avec un pare-feu, en attendant le correctif : Canonical ne propose pas de contournement pour LXD.",
+      "Pour Incus, aucune option de configuration ne corrige le défaut : restreindre l'accès au port d'écoute et passer à la version 7.6.0.",
+      "Examiner les journaux d'accès à l'API à la recherche de connexions inattendues depuis des clients approuvés."
+     ]
+    },
+    {
+     "type": "usecases",
+     "title": "Exemples d'utilisation",
+     "items": [
+      {
+       "icon": "🏢",
+       "title": "Un hébergeur de machines virtuelles",
+       "text": "Un prestataire qui expose l'API LXD sur son réseau d'administration doit vérifier qu'elle n'est joignable que depuis des adresses connues, puis appliquer le correctif."
+      },
+      {
+       "icon": "🧪",
+       "title": "Une équipe qui utilise LXD pour ses tests",
+       "text": "Un serveur d'intégration continue dont l'API est ouverte pour piloter des conteneurs distants doit être mis à jour en priorité, car un accès root sur l'hôte donne accès à tous les conteneurs."
+      },
+      {
+       "icon": "🏠",
+       "title": "Un laboratoire personnel avec MicroCloud",
+       "text": "Un particulier qui monte une petite grappe doit rester attentif aux ajouts de membres : le certificat d'un nœud qui rejoint la grappe est un moment sensible tant que le correctif n'est pas installé."
+      }
+     ]
+    },
+    {
+     "type": "timeline",
+     "title": "D'où l'on vient, où l'on va",
+     "items": [
+      {
+       "label": "Octobre 2026",
+       "text": "Le projet Incus signale la faille (avis GHSA-xg75-xf37-cph9) et publie la version 7.6.0."
+      },
+      {
+       "label": "30 octobre 2026",
+       "text": "La CISA indique, dans l'enregistrement CVE, que la faille n'est pas connue pour être exploitée."
+      },
+      {
+       "label": "1er novembre 2026",
+       "text": "Canonical publie son avis ; les versions corrigées de LXD et MicroCloud sont en cours de diffusion sur le canal stable."
+      }
+     ]
+    },
+    {
+     "type": "opinion",
+     "title": "Notre avis",
+     "paragraphs": [
+      "La note de 10 sur 10 impressionne, mais elle décrit la gravité théorique, pas le risque réel : la plupart des installations de LXD n'exposent pas leur API sur le réseau, et l'attaque suppose de connaître un certificat déjà approuvé. Pour les administrateurs de grappes ouvertes, en revanche, la combinaison d'une usurpation sans secret et d'un accès root à l'hôte justifie une mise à jour immédiate.",
+      "Cette faille rappelle une règle ancienne de la cryptographie appliquée : ce qui est prouvé (la clé de la feuille) et ce qui est cru (le reste de la chaîne) doivent rester séparés. À un horizon d'un à trois ans, on peut s'attendre à ce que davantage d'outils d'infrastructure revoient leur logique de confiance mTLS et ajoutent des tests ciblés sur ce type de chaînes forgées."
+     ],
+     "verdict": "Une faille sérieuse mais ciblée : à corriger vite si l'API est joignable, sans panique ailleurs."
+    }
+   ],
+   "cover": {
+    "url": "https://blogger.googleusercontent.com/img/b/R29vZ2xl/AVvXsEg4Vibbj3miGalyf0avn_Z2WlLhFh5cC5ImXGFlOL0cisgxikHCcLzHjOVM3qO5B47V3uw62rWH6m6fP1svsH3TCG6i9sS19BIXn1CsDjKK3gnG6VQxkFwghemdeBlV4_AM5Ah-_TJ3T_5Gv-D5Pygrm-B5yzQnDqvIXmI2FyAeuzk57_l6esdhNrTMBj0/s1600/linux-vm.jpg",
+    "alt": "Illustration d'un article sur la faille de LXD et MicroCloud",
+    "credit": "thehackernews.com"
+   }
+  },
+  {
+   "id": "polymarket-script-debugbear-detourne",
+   "category": "cybersecurite",
+   "icon": "🎯",
+   "importance": 4,
+   "title": "Polymarket : un script tiers détourné via le DNS de DebugBear a vidé environ 2,7 millions de dollars de portefeuilles",
+   "summary": "Le 29 octobre, un script de mesure de performance chargé depuis DebugBear a été remplacé par du code malveillant sur le site de Polymarket. Des positions de 33 portefeuilles ont été déplacées ; la plateforme a remboursé les victimes, pour environ 3,9 millions de dollars au total.",
+   "tags": [
+    "Polymarket",
+    "chaîne d'approvisionnement",
+    "DNS",
+    "script tiers",
+    "SRI",
+    "crypto"
+   ],
+   "readingMinutes": 4,
+   "publishedAt": "2026-11-01T18:17:38+01:00",
+   "sourceDate": "2026-11-01",
+   "sources": [
+    {
+     "title": "Hackers Steal About $2.7 Million From Polymarket Traders via Hijacked DebugBear Script",
+     "url": "https://thehackernews.com/2026/11/hackers-steal-about-27-million-from.html",
+     "publisher": "The Hacker News"
+    }
+   ],
+   "illustration": {
+    "svg": "<svg xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"0 0 640 360\"><defs><linearGradient id=\"g\" x1=\"0\" y1=\"0\" x2=\"1\" y2=\"1\"><stop offset=\"0\" stop-color=\"hsl(175,65%,38%)\"/><stop offset=\"1\" stop-color=\"hsl(215,70%,24%)\"/></linearGradient></defs><rect width=\"640\" height=\"360\" fill=\"url(#g)\"/><circle cx=\"560\" cy=\"60\" r=\"90\" fill=\"#fff\" opacity=\".07\"/><circle cx=\"70\" cy=\"320\" r=\"110\" fill=\"#fff\" opacity=\".06\"/><g fill=\"none\" stroke=\"#fff\" stroke-width=\"14\" stroke-linecap=\"round\" stroke-linejoin=\"round\"><path d=\"M260 120 L200 180 L260 240\"/><path d=\"M380 120 L440 180 L380 240\"/><path d=\"M345 100 L295 260\"/></g></svg>"
+   },
+   "blocks": [
+    {
+     "type": "paragraph",
+     "text": "Pour mesurer la rapidité de ses pages, un site charge souvent un script fourni par un prestataire. Ce script s'exécute avec les mêmes droits que le site lui-même : s'il est piraté, c'est le site qui est piraté. C'est ce qui s'est produit le 29 octobre 2026 sur Polymarket, une plateforme de paris sur des événements. Selon The Hacker News, qui s'appuie sur les analyses de Hudson Rock et d'Ohey ainsi que sur les communications de Polymarket, du code malveillant a pris la place d'un script de DebugBear, un outil de mesure de la performance auprès de visiteurs réels."
+    },
+    {
+     "type": "heading",
+     "level": 2,
+     "text": "Ce qui s'est passé"
+    },
+    {
+     "type": "paragraph",
+     "text": "Le code malveillant agissait uniquement sur les traders connectés : il utilisait l'accès dont leur session ouverte disposait déjà et lisait les informations de compte stockées dans le navigateur, y compris des clés d'API de trading. Hudson Rock n'a trouvé aucun envoi de clé privée, de phrase de récupération ou de mot de passe vers un serveur. Les clés d'API seules ne permettent pas de passer des ordres, qui exigent aussi une signature du portefeuille."
+    },
+    {
+     "type": "paragraph",
+     "text": "Deux scénarios coexistaient. Pour les comptes ouverts avec un portefeuille crypto personnel, des positions ont été transférées directement vers le portefeuille de l'attaquant. Pour les comptes ouverts par courriel, les positions ont été vendues à des prix de plus en plus mauvais, puis le produit a été déplacé. Les demandes de signature transitaient par le relais de Polymarket, qui les soumettait à la blockchain."
+    },
+    {
+     "type": "diagram",
+     "svg": "<svg xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"0 0 640 220\" font-family=\"system-ui,sans-serif\"><rect width=\"640\" height=\"220\" rx=\"16\" fill=\"hsl(175,40%,95%)\" stroke=\"hsl(175,40%,70%)\"/><rect x=\"20\" y=\"55\" width=\"128\" height=\"110\" rx=\"12\" fill=\"hsl(175,55%,34%)\"/><text x=\"84\" y=\"100\" text-anchor=\"middle\" font-size=\"14\" font-weight=\"700\" fill=\"#fff\">DNS détourné</text><text x=\"84\" y=\"128\" text-anchor=\"middle\" font-size=\"11\" fill=\"#fff\" opacity=\".9\">chez le registrar de DebugBear</text><path d=\"M150 110 H175\" stroke=\"hsl(175,55%,34%)\" stroke-width=\"3\"/><path d=\"M169 103 L177 110 L169 117Z\" fill=\"hsl(175,55%,34%)\"/><rect x=\"177\" y=\"55\" width=\"128\" height=\"110\" rx=\"12\" fill=\"hsl(175,55%,34%)\"/><text x=\"241\" y=\"100\" text-anchor=\"middle\" font-size=\"14\" font-weight=\"700\" fill=\"#fff\">Script remplacé</text><text x=\"241\" y=\"128\" text-anchor=\"middle\" font-size=\"11\" fill=\"#fff\" opacity=\".9\">chargé sur le site</text><path d=\"M307 110 H333\" stroke=\"hsl(175,55%,34%)\" stroke-width=\"3\"/><path d=\"M327 103 L335 110 L327 117Z\" fill=\"hsl(175,55%,34%)\"/><rect x=\"335\" y=\"55\" width=\"128\" height=\"110\" rx=\"12\" fill=\"hsl(175,55%,34%)\"/><text x=\"399\" y=\"100\" text-anchor=\"middle\" font-size=\"14\" font-weight=\"700\" fill=\"#fff\">Session du trader</text><text x=\"399\" y=\"128\" text-anchor=\"middle\" font-size=\"11\" fill=\"#fff\" opacity=\".9\">signatures et ventes</text><path d=\"M465 110 H490\" stroke=\"hsl(175,55%,34%)\" stroke-width=\"3\"/><path d=\"M484 103 L492 110 L484 117Z\" fill=\"hsl(175,55%,34%)\"/><rect x=\"492\" y=\"55\" width=\"128\" height=\"110\" rx=\"12\" fill=\"hsl(175,55%,34%)\"/><text x=\"556\" y=\"100\" text-anchor=\"middle\" font-size=\"14\" font-weight=\"700\" fill=\"#fff\">Fonds déplacés</text><text x=\"556\" y=\"128\" text-anchor=\"middle\" font-size=\"11\" fill=\"#fff\" opacity=\".9\">vers le portefeuille de l'attaquant</text></svg>",
+     "alt": "Schéma en quatre étapes : le DNS de DebugBear est détourné, un script malveillant est servi, il agit dans la session du trader connecté, puis les fonds partent vers l'attaquant.",
+     "caption": "Chaîne d'attaque décrite par The Hacker News : un maillon externe, le DNS d'un prestataire, suffit à compromettre le site."
+    },
+    {
+     "type": "heading",
+     "level": 2,
+     "text": "Chronologie et chiffres"
+    },
+    {
+     "type": "keyvalue",
+     "items": [
+      {
+       "label": "Fenêtre d'attaque",
+       "value": "Le portefeuille de l'attaquant a reçu des fonds de 17 h 10 à 18 h 02 UTC, issus de 33 portefeuilles."
+      },
+      {
+       "label": "Montant observé",
+       "value": "Environ 2,64 millions de dollars en POL (28,6 millions de jetons) à 18 h 19 UTC, positions non comprises, au cours de 0,0922 dollar de DefiLlama."
+      },
+      {
+       "label": "Réaction",
+       "value": "Premier message de Polymarket à 17 h 38 UTC ; mode « annulation seule » et pause du relais à 18 h 05 UTC."
+      },
+      {
+       "label": "Remboursements",
+       "value": "Au 30 octobre, 689 des 726 portefeuilles touchés étaient intégralement remboursés ; environ 3,9 millions de dollars restitués au total."
+      }
+     ]
+    },
+    {
+     "type": "paragraph",
+     "text": "DebugBear explique que ses enregistrements DNS ont été compromis via son registrar, que l'attaque visait a priori un seul de ses clients et que ses propres systèmes ne présentent pas d'intrusion à ce stade ; l'enquête se poursuit. Le serveur malveillant ne répondait plus au 1er novembre. Polymarket a retiré le script dans l'heure, vidé ses caches, réinitialisé les sessions actives et saisi les forces de l'ordre."
+    },
+    {
+     "type": "heading",
+     "level": 2,
+     "text": "Les leçons pour les sites et les développeurs"
+    },
+    {
+     "type": "list",
+     "items": [
+      "Éviter tout code tiers inutile sur les pages où l'utilisateur signe ou échange des actifs.",
+      "Utiliser l'intégrité des sous-ressources (SRI) quand le fichier peut être figé : le navigateur rejette alors un contenu modifié. Autoriser un CDN dans une politique de sécurité du contenu (CSP) ne vérifie pas ce qu'il sert.",
+      "Durcir la CSP, épingler les versions et isoler les scripts tiers dans un cadre isolé.",
+      "Auditer ce que le code d'une page connectée peut demander à la personne de signer.",
+      "Côté utilisateur : refuser toute demande de signature inattendue."
+     ]
+    },
+    {
+     "type": "usecases",
+     "title": "Exemples d'utilisation",
+     "items": [
+      {
+       "icon": "🧑‍💻",
+       "title": "Une équipe web",
+       "text": "Une équipe qui charge des scripts de mesure ou de publicité peut lister tous les domaines tiers appelés par ses pages sensibles et supprimer ceux qui ne sont pas indispensables."
+      },
+      {
+       "icon": "🛡️",
+       "title": "Un responsable de la sécurité",
+       "text": "Il peut imposer une CSP stricte et la surveillance des modifications DNS des prestataires critiques, avec une alerte dès qu'un script change d'empreinte."
+      },
+      {
+       "icon": "👛",
+       "title": "Un trader",
+       "text": "Il peut séparer un portefeuille de petite taille pour l'usage courant d'un portefeuille principal, et vérifier chaque message de signature avant de l'approuver."
+      }
+     ]
+    },
+    {
+     "type": "timeline",
+     "title": "D'où l'on vient, où l'on va",
+     "items": [
+      {
+       "label": "29 octobre 2026",
+       "text": "Le script est remplacé ; Polymarket coupe les échanges et retire le code dans l'heure."
+      },
+      {
+       "label": "30 octobre 2026",
+       "text": "689 des 726 portefeuilles touchés sont intégralement remboursés."
+      },
+      {
+       "label": "1er novembre 2026",
+       "text": "L'adresse du serveur malveillant ne répond plus ; DebugBear demande à ses clients de retirer son code d'intégration."
+      }
+     ]
+    },
+    {
+     "type": "opinion",
+     "title": "Notre avis",
+     "paragraphs": [
+      "Cette affaire illustre un risque connu des responsables de la sécurité : la confiance accordée à un prestataire se transmet à toute sa chaîne technique, jusqu'à son registrar de noms de domaine. Ici, ni Polymarket ni ses utilisateurs n'ont commis d'erreur apparente, et c'est ce qui rend l'incident instructif.",
+      "À un horizon d'un à trois ans, on peut s'attendre à ce que les plateformes financières durcissent leurs pages de signature, avec moins de scripts tiers et davantage de contrôles d'intégrité. Reste que le remboursement rapide a limité les dégâts, ce qui n'est pas garanti pour des acteurs plus petits."
+     ],
+     "verdict": "Un script de mesure détourné suffit à vider des comptes : réduire le code tiers sur les pages sensibles est devenu une nécessité."
+    }
+   ],
+   "cover": {
+    "url": "https://blogger.googleusercontent.com/img/b/R29vZ2xl/AVvXsEhe0B28qLAtUMfqN29_phxZJVJORICkj_98MZFwDiXAxFTABw8G9qbsVyD98pg7T_Rvgv83NXyR5tNGYH4dRwlxs3QFTUZxDPHQs2BgFsnmGcOuVW1HkFVCfiCR3Y05kPQrfFx4S7A8DiFXXAAgdc5SiEKx0-0xrW5rNlNSyN3jZJcyXasdpCr5AG7KM3s/s1600/Polymarket.jpg",
+    "alt": "Illustration d'un article sur le piratage de Polymarket",
+    "credit": "thehackernews.com"
+   }
+  },
+  {
+   "id": "wordpress-7-1-4-faille-rce-mise-a-jour",
+   "category": "web",
+   "icon": "📝",
+   "importance": 4,
+   "title": "WordPress 7.1.4 : une faille d'exécution de code à distance visée par près de 63 000 tentatives en 24 heures",
+   "summary": "Le correctif 7.1.4, publié le 28 octobre, ferme une faille de WordPress (de la 4.7 à la 7.1.3) liée aux dossiers temporaires prévisibles lors des mises à jour complètes. Wordfence dit avoir bloqué 62 969 attaques en une journée.",
+   "tags": [
+    "WordPress",
+    "Wordfence",
+    "exécution de code à distance",
+    "mise à jour",
+    "condition de concurrence"
+   ],
+   "readingMinutes": 4,
+   "publishedAt": "2026-11-01T18:17:38+01:00",
+   "sourceDate": "2026-10-30",
+   "sources": [
+    {
+     "title": "WordPress RCE Flaw Draws Nearly 63,000 Attack Attempts in Just 24 Hours",
+     "url": "https://thehackernews.com/2026/10/wordpress-rce-flaw-draws-nearly-63000.html",
+     "publisher": "The Hacker News"
+    }
+   ],
+   "illustration": {
+    "svg": "<svg xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"0 0 640 360\"><defs><linearGradient id=\"g\" x1=\"0\" y1=\"0\" x2=\"1\" y2=\"1\"><stop offset=\"0\" stop-color=\"hsl(210,65%,38%)\"/><stop offset=\"1\" stop-color=\"hsl(250,70%,24%)\"/></linearGradient></defs><rect width=\"640\" height=\"360\" fill=\"url(#g)\"/><circle cx=\"560\" cy=\"60\" r=\"90\" fill=\"#fff\" opacity=\".07\"/><circle cx=\"70\" cy=\"320\" r=\"110\" fill=\"#fff\" opacity=\".06\"/><circle cx=\"320\" cy=\"180\" r=\"100\" fill=\"none\" stroke=\"#fff\" stroke-width=\"8\"/><ellipse cx=\"320\" cy=\"180\" rx=\"45\" ry=\"100\" fill=\"none\" stroke=\"#fff\" stroke-width=\"6\"/><path d=\"M220 180H420M236 130H404M236 230H404\" stroke=\"#fff\" stroke-width=\"5\" fill=\"none\"/></svg>"
+   },
+   "blocks": [
+    {
+     "type": "paragraph",
+     "text": "WordPress propulse une part considérable des sites web, et ses mises à jour de sécurité sont donc scrutées autant par les administrateurs que par les attaquants. La version **7.1.4**, publiée le 28 octobre 2026, corrige une faille d'exécution de code à distance qui touche toutes les versions de la 4.7 à la 7.1.3. Wordfence rapporte avoir bloqué 62 969 attaques ciblant ce défaut en 24 heures, selon The Hacker News (article du 30 octobre)."
+    },
+    {
+     "type": "heading",
+     "level": 2,
+     "text": "Une faille liée au moment de la mise à jour"
+    },
+    {
+     "type": "paragraph",
+     "text": "L'avis de sécurité porte la référence GHSA-4w3m-c66w-69mg, sans numéro CVE à ce stade, et une note CVSS de 8,1 (élevée). Selon Wordfence, la cause tient à des chemins de préparation prévisibles et accessibles depuis le web pendant les mises à jour complètes du cœur. Dans ces cas, WordPress décompresse des fichiers, dont l'installateur, dans un dossier prévisible situé sous `wp-content/upgrade`."
+    },
+    {
+     "type": "paragraph",
+     "text": "L'attaque est loin d'être triviale. Elle suppose une mise à jour complète contenant les fichiers de l'installateur, un accès web et PHP public à l'arborescence de préparation, un chemin prévisible ou découvert, et assez de temps pour finir avant que WordPress ne supprime les fichiers temporaires. Il s'agit d'une condition de concurrence : la fenêtre n'a duré que quelques secondes en laboratoire. Aucune authentification n'est requise."
+    },
+    {
+     "type": "keyvalue",
+     "items": [
+      {
+       "label": "Versions touchées",
+       "value": "WordPress 4.7 à 7.1.3"
+      },
+      {
+       "label": "Version corrigée",
+       "value": "7.1.4, publiée le 28 octobre 2026"
+      },
+      {
+       "label": "Note CVSS",
+       "value": "8,1 (élevée)"
+      },
+      {
+       "label": "Tentatives bloquées",
+       "value": "62 969 en 24 heures, selon Wordfence"
+      },
+      {
+       "label": "Cible repérée",
+       "value": "interrogation répétée de chemins comme `setup-config.php`"
+      }
+     ]
+    },
+    {
+     "type": "paragraph",
+     "text": "Wordfence observe que les attaquants interrogent en boucle des chemins tels que `setup-config.php`, et que deux des plus gros émetteurs ont sondé de petits groupes de sites pendant environ 14 heures et demie. Cela suggère des balayages automatisés guettant le bref instant où un site se met à jour, plutôt qu'une campagne ciblée."
+    },
+    {
+     "type": "heading",
+     "level": 2,
+     "text": "Ce qu'il faut faire"
+    },
+    {
+     "type": "list",
+     "items": [
+      "Passer à WordPress 7.1.4 dès que possible, y compris sur les sites dont les mises à jour automatiques sont désactivées.",
+      "Chercher dans les journaux des requêtes suspectes vers des fichiers PHP sous `wp-content/upgrade`.",
+      "Vérifier l'absence de comptes administrateurs, d'extensions ou de fichiers PHP inconnus après la mise à jour.",
+      "Interdire l'accès web au dossier `wp-content/upgrade` au niveau du serveur, si l'hébergement le permet."
+     ]
+    },
+    {
+     "type": "callout",
+     "title": "À retenir",
+     "text": "Mise à jour vers WordPress 7.1.4 recommandée pour toutes les versions de la 4.7 à la 7.1.3 ; l'exploitation exige de gagner une course de quelques secondes pendant une mise à jour complète."
+    },
+    {
+     "type": "usecases",
+     "title": "Exemples d'utilisation",
+     "items": [
+      {
+       "icon": "🏪",
+       "title": "Une boutique en ligne",
+       "text": "Une TPE dont le site de vente tourne sous WordPress peut planifier la mise à jour en dehors des heures de forte affluence, après une sauvegarde complète."
+      },
+      {
+       "icon": "🏢",
+       "title": "Une agence qui gère plusieurs sites",
+       "text": "Elle peut utiliser un outil de gestion de parc pour déployer 7.1.4 sur tous les clients et contrôler ensuite les journaux de chaque hébergement."
+      },
+      {
+       "icon": "🧑‍🏫",
+       "title": "Une association ou un blog personnel",
+       "text": "Un site rarement mis à jour doit activer les mises à jour automatiques de sécurité, afin de ne plus dépendre d'une intervention manuelle."
+      }
+     ]
+    },
+    {
+     "type": "timeline",
+     "title": "D'où l'on vient, où l'on va",
+     "items": [
+      {
+       "label": "28 octobre 2026",
+       "text": "Publication de WordPress 7.1.4 et de l'avis de sécurité."
+      },
+      {
+       "label": "30 octobre 2026",
+       "text": "Wordfence fait état de 62 969 attaques bloquées en 24 heures."
+      },
+      {
+       "label": "Prochaines semaines",
+       "text": "Les sites non mis à jour restent exposés ; aucun calendrier de publication d'un code d'exploitation n'est donné par les sources."
+      }
+     ]
+    },
+    {
+     "type": "opinion",
+     "title": "Notre avis",
+     "paragraphs": [
+      "Le chiffre de près de 63 000 tentatives frappe, mais il mesure surtout l'intensité des balayages : il ne dit pas combien de sites ont été compromis. La difficulté technique de l'attaque, qui exige de gagner une course, limite le risque pour un site isolé, sans l'éliminer pour les hébergeurs qui mettent à jour des milliers de sites.",
+      "Sur un à trois ans, cet épisode devrait pousser WordPress à rendre ses dossiers de préparation moins prévisibles et moins accessibles, et rappelle l'intérêt des mises à jour automatiques de sécurité, qui réduisent précisément la fenêtre d'exposition."
+     ],
+     "verdict": "Mettre à jour vers la 7.1.4 reste la seule vraie parade, même si la faille est difficile à exploiter."
+    }
+   ],
+   "cover": {
+    "url": "https://blogger.googleusercontent.com/img/b/R29vZ2xl/AVvXsEhf-pzflJO9HQoCdvBvYNtS12gwwEjAbM4dQ30ak7UYaIPzsVPN9MlFwvIDEFkbe9cWg4wQRFPbGfJ0YXjzGcBS6mUTwttwkQ8IR7OoHyTz3owZkVzYQOAObyJUqfjsC-PqMw2pv41_m68hb6ZkwJb56kGx-Ypv7GWZBtDzjyTTQ8L8i9NxA8_MDVoJSEba/s1600/wp-hack.jpg",
+    "alt": "Illustration d'un article sur la faille de WordPress",
+    "credit": "thehackernews.com"
+   }
+  },
+  {
+   "id": "openai-allocation-commune-chatgpt-codex",
+   "category": "ia",
+   "icon": "🧮",
+   "importance": 3,
+   "title": "OpenAI : ChatGPT et Codex partageront bientôt une seule allocation d'usage, et la discussion s'enflamme",
+   "summary": "Selon un courriel d'OpenAI relayé sur Hacker News, ChatGPT et Codex puiseront dans une même enveloppe d'usage « dans les prochaines semaines ». Le mode « Unlimited Instant » reste illimité. Les utilisateurs redoutent la fin du chat quasi sans limite.",
+   "tags": [
+    "OpenAI",
+    "ChatGPT",
+    "Codex",
+    "abonnements",
+    "limites d'usage"
+   ],
+   "readingMinutes": 4,
+   "publishedAt": "2026-11-01T18:17:38+01:00",
+   "sourceDate": "2026-11-01",
+   "sources": [
+    {
+     "title": "Understanding ChatGPT and Codex usage limits",
+     "url": "https://help.openai.com/en/articles/20001625-understanding-chatgpt-and-codex-usage-limits",
+     "publisher": "OpenAI"
+    },
+    {
+     "title": "Discussion Hacker News : ChatGPT and Codex usage limits merging",
+     "url": "https://news.ycombinator.com/item?id=50320588",
+     "publisher": "Hacker News"
+    }
+   ],
+   "illustration": {
+    "svg": "<svg xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"0 0 640 360\"><defs><linearGradient id=\"g\" x1=\"0\" y1=\"0\" x2=\"1\" y2=\"1\"><stop offset=\"0\" stop-color=\"hsl(320,65%,38%)\"/><stop offset=\"1\" stop-color=\"hsl(0,70%,24%)\"/></linearGradient></defs><rect width=\"640\" height=\"360\" fill=\"url(#g)\"/><circle cx=\"560\" cy=\"60\" r=\"90\" fill=\"#fff\" opacity=\".07\"/><circle cx=\"70\" cy=\"320\" r=\"110\" fill=\"#fff\" opacity=\".06\"/><g fill=\"#fff\"><rect x=\"190\" y=\"200\" width=\"50\" height=\"80\" rx=\"6\" opacity=\".75\"/><rect x=\"262\" y=\"150\" width=\"50\" height=\"130\" rx=\"6\" opacity=\".85\"/><rect x=\"334\" y=\"110\" width=\"50\" height=\"170\" rx=\"6\"/><rect x=\"406\" y=\"70\" width=\"50\" height=\"210\" rx=\"6\" opacity=\".9\"/></g><path d=\"M190 170 L270 120 L350 140 L440 60\" fill=\"none\" stroke=\"#fff\" stroke-width=\"6\" stroke-dasharray=\"2 12\" stroke-linecap=\"round\"/></svg>"
+   },
+   "blocks": [
+    {
+     "type": "paragraph",
+     "text": "Pour de nombreux abonnés, le prix d'un forfait d'IA se résume à une question : combien de temps puis-je l'utiliser avant d'être limité ? OpenAI s'apprête à changer la réponse. D'après un courriel adressé aux abonnés et discuté sur Hacker News, ChatGPT et Codex, son agent de programmation, vont partager une **allocation commune**, annoncée pour « les prochaines semaines » sans date précise. Les informations ci-dessous proviennent de la page d'aide d'OpenAI et des commentaires de la discussion ; elles n'ont pas pu être recoupées auprès d'autres sources."
+    },
+    {
+     "type": "heading",
+     "level": 2,
+     "text": "Ce qui change"
+    },
+    {
+     "type": "list",
+     "items": [
+      "Une seule enveloppe d'usage pour ChatGPT et Codex ; elle dépend du modèle et de la tâche, les modèles plus avancés et les tâches complexes en consommant davantage.",
+      "Le mode « Unlimited Instant » reste inclus dans les offres et ne compte pas dans l'allocation.",
+      "Les réglages (Settings → Usage) afficheront l'usage restant combiné et les dates de réinitialisation.",
+      "Une fois l'allocation épuisée, l'utilisateur peut attendre la réinitialisation, passer à une offre supérieure ou acheter des crédits.",
+      "Une expérience combinée « Chat et Work » est testée auprès d'un petit groupe ; Codex reste une expérience distincte dans l'application de bureau."
+     ]
+    },
+    {
+     "type": "paragraph",
+     "text": "La page d'aide mentionne aussi qu'une réduction annoncée pour ChatGPT Pro dans un courriel du 29 septembre a été annulée : les abonnés Pro à 200 dollars par mois conservent leur allocation supérieure, et ceux de l'allocation inférieure la voient doublée, sans changement de prix. Les offres Plus et Pro seraient concernées, ainsi que l'offre Go, d'après les commentateurs."
+    },
+    {
+     "type": "heading",
+     "level": 2,
+     "text": "Les réactions"
+    },
+    {
+     "type": "paragraph",
+     "text": "Les commentaires oscillent entre inquiétude et soupçon. Beaucoup d'utilisateurs s'appuyaient sur un chat quasi illimité, notamment pour des relectures de code liées à GitHub et de longues sessions de recherche, et s'attendent à ce que cela cesse. D'autres dénoncent une mesure peu lisible, car les jetons sont difficiles à se représenter ; leurs contradicteurs rappellent que l'éditeur publie un outil de décompte et des grilles tarifaires."
+    },
+    {
+     "type": "paragraph",
+     "text": "Certains y voient une façon de colmater un contournement : des utilisateurs auraient fait passer des tâches d'agent par le chat pour éviter les limites de Codex. D'autres évoquent la gestion des pics de charge ou la pression financière à l'approche d'une levée de fonds, ce qui relève de la spéculation. Plusieurs disent envisager Claude, Grok, Antigravity ou des modèles ouverts via OpenRouter ; un commentateur note qu'Anthropic a lui aussi modifié ses offres."
+    },
+    {
+     "type": "callout",
+     "title": "À retenir",
+     "text": "Aucune date n'est donnée ; les conséquences concrètes dépendront des plafonds réels, que l'éditeur n'a pas détaillés dans les éléments consultés."
+    },
+    {
+     "type": "usecases",
+     "title": "Exemples d'utilisation",
+     "items": [
+      {
+       "icon": "👩‍💻",
+       "title": "Un développeur indépendant",
+       "text": "Il peut suivre sa consommation combinée dans les réglages et réserver les modèles les plus coûteux aux tâches qui l'exigent vraiment."
+      },
+      {
+       "icon": "🏢",
+       "title": "Une petite équipe",
+       "text": "Elle peut comparer le coût d'un forfait supérieur avec l'achat de crédits ponctuels pour les semaines de livraison."
+      },
+      {
+       "icon": "📚",
+       "title": "Un étudiant ou un chercheur",
+       "text": "Il peut privilégier le mode illimité pour les échanges courts et garder l'allocation pour les analyses longues."
+      }
+     ]
+    },
+    {
+     "type": "timeline",
+     "title": "D'où l'on vient, où l'on va",
+     "items": [
+      {
+       "label": "29 septembre 2026",
+       "text": "Courriel annonçant une réduction pour ChatGPT Pro, ensuite annulée selon la page d'aide."
+      },
+      {
+       "label": "Début novembre 2026",
+       "text": "L'allocation commune est annoncée, sans calendrier précis."
+      },
+      {
+       "label": "Prochaines semaines",
+       "text": "Déploiement annoncé ; les plafonds par offre restent à confirmer."
+      }
+     ]
+    },
+    {
+     "type": "opinion",
+     "title": "Notre avis",
+     "paragraphs": [
+      "L'idée d'une allocation unique est cohérente : pour l'éditeur, une demande de calcul est une demande de calcul, qu'elle vienne du chat ou d'un agent. Pour l'utilisateur, elle supprime une frontière artificielle, mais elle ajoute une incertitude, puisque la dépense dépend désormais du modèle choisi et de la complexité de la tâche.",
+      "À un horizon d'un à trois ans, la tendance du marché va vers une facturation de plus en plus proche de la consommation réelle, y compris dans les abonnements. La vraie question sera la transparence : quel usage correspond à quel prix, et comment le vérifier ?"
+     ],
+     "verdict": "Une mesure logique pour OpenAI, mais dont la valeur pour les abonnés dépendra des plafonds publiés."
+    }
+   ]
+  },
+  {
+   "id": "bootgpt-modele-de-langage-secteur-d-amorcage",
+   "category": "dev",
+   "icon": "💾",
+   "importance": 2,
+   "title": "bootgpt : un petit modèle de langage tient dans un secteur d'amorçage de 512 octets et « rêve » des journaux de démarrage Linux",
+   "summary": "Un projet présenté sur Hacker News loge un réseau de neurones entier dans le secteur d'amorçage d'un disque : 510 octets de code x86 exécutent le modèle, dont les poids suivent dans les secteurs suivants. Il génère de faux messages de démarrage Linux à l'infini.",
+   "tags": [
+    "bootgpt",
+    "assembleur",
+    "demoscene",
+    "modèle de langage",
+    "x86",
+    "QEMU"
+   ],
+   "readingMinutes": 4,
+   "publishedAt": "2026-11-01T18:17:38+01:00",
+   "sourceDate": "2026-10-31",
+   "sources": [
+    {
+     "title": "bootgpt, dépôt GitHub",
+     "url": "https://github.com/kerlenton/bootgpt",
+     "publisher": "GitHub"
+    },
+    {
+     "title": "Show HN : A language model that lives in a boot sector",
+     "url": "https://news.ycombinator.com/item?id=50315782",
+     "publisher": "Hacker News"
+    }
+   ],
+   "illustration": {
+    "svg": "<svg xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"0 0 640 360\"><defs><linearGradient id=\"g\" x1=\"0\" y1=\"0\" x2=\"1\" y2=\"1\"><stop offset=\"0\" stop-color=\"hsl(265,65%,38%)\"/><stop offset=\"1\" stop-color=\"hsl(305,70%,24%)\"/></linearGradient></defs><rect width=\"640\" height=\"360\" fill=\"url(#g)\"/><circle cx=\"560\" cy=\"60\" r=\"90\" fill=\"#fff\" opacity=\".07\"/><circle cx=\"70\" cy=\"320\" r=\"110\" fill=\"#fff\" opacity=\".06\"/><rect x=\"240\" y=\"100\" width=\"160\" height=\"160\" rx=\"16\" fill=\"none\" stroke=\"#fff\" stroke-width=\"10\"/><rect x=\"285\" y=\"145\" width=\"70\" height=\"70\" rx=\"8\" fill=\"#fff\" opacity=\".9\"/><g stroke=\"#fff\" stroke-width=\"8\"><path d=\"M270 100V70M320 100V70M370 100V70M270 260V290M320 260V290M370 260V290M240 130H210M240 180H210M240 230H210M400 130H430M400 180H430M400 230H430\"/></g></svg>"
+   },
+   "blocks": [
+    {
+     "type": "paragraph",
+     "text": "Le secteur d'amorçage (MBR) d'un disque ne mesure que 512 octets, dont deux servent de signature : c'est un terrain de jeu historique de la « demoscene », où l'on y loge des jeux et des outils. Le projet **bootgpt**, présenté sur Hacker News (88 points, 5 commentaires au moment de la consultation), pousse l'idée plus loin : un modèle de langage à l'échelle du caractère, dont le moteur d'inférence occupe 510 octets de code, tandis que les poids, le vocabulaire et les chaînes de texte se trouvent dans les secteurs qui suivent."
+    },
+    {
+     "type": "heading",
+     "level": 2,
+     "text": "Comment ça marche"
+    },
+    {
+     "type": "paragraph",
+     "text": "Le réseau est volontairement minuscule : une seule couche cachée, des calculs entièrement en entiers sur 8 bits (int8). Il a été entraîné sur la sortie de `dmesg` d'une machine, c'est-à-dire sur les messages de démarrage du noyau Linux. Une fois lancé sous QEMU, il génère à l'infini de faux journaux de démarrage, des textes plausibles mais inventés, ce que l'auteur décrit comme un « rêve » de la machine."
+    },
+    {
+     "type": "paragraph",
+     "text": "Le code de démarrage exécute en assembleur x86 l'arithmétique entière du réseau. Un script d'entraînement, `train.py`, reproduit exactement les mêmes opérations entières : la sortie de QEMU coïncide donc caractère par caractère avec celle de la simulation, ce qui permet de contrôler le moteur."
+    },
+    {
+     "type": "keyvalue",
+     "items": [
+      {
+       "label": "Moteur d'inférence",
+       "value": "510 octets de code MBR (x86)"
+      },
+      {
+       "label": "Réseau",
+       "value": "caractère par caractère, une couche cachée, calcul en int8"
+      },
+      {
+       "label": "Données d'entraînement",
+       "value": "sorties `dmesg` d'une machine"
+      },
+      {
+       "label": "Exécution",
+       "value": "sous QEMU, génération sans fin de faux journaux de démarrage"
+      },
+      {
+       "label": "Langage du dépôt",
+       "value": "Python (49 étoiles à la consultation)"
+      }
+     ]
+    },
+    {
+     "type": "heading",
+     "level": 2,
+     "text": "Le débogage, partie visible du travail"
+    },
+    {
+     "type": "paragraph",
+     "text": "L'auteur raconte avoir comparé, neurone par neurone, les valeurs de la couche cachée lues par le port de débogage de QEMU avec celles du simulateur. Deux bogues sont cités : l'instruction `idiv` range son reste dans `edx`, ce qui écrasait un pointeur vers la table des biais ; et la routine d'affichage du BIOS remettait `bx` à zéro alors qu'il contenait le numéro du caractère prédit."
+    },
+    {
+     "type": "paragraph",
+     "text": "Le projet se compare à *sectorllm*, qui fait tenir un Llama 2 à cinq couches avec attention dans environ 1,2 Ko d'assembleur. bootgpt choisit l'inverse : moins de profondeur, mais tout dans un seul secteur."
+    },
+    {
+     "type": "callout",
+     "title": "À retenir",
+     "text": "Un modèle de langage utile n'a pas besoin de milliards de paramètres pour illustrer le principe : ici, un seul secteur de disque et un peu d'arithmétique entière suffisent."
+    },
+    {
+     "type": "usecases",
+     "title": "Exemples d'utilisation",
+     "items": [
+      {
+       "icon": "🎓",
+       "title": "Un enseignant d'informatique",
+       "text": "Il peut s'en servir pour montrer que l'inférence d'un réseau de neurones se réduit à des multiplications et des additions d'entiers."
+      },
+      {
+       "icon": "🔧",
+       "title": "Un passionné de bas niveau",
+       "text": "Il peut étudier le code pour apprendre à déboguer de l'assembleur en comparant un simulateur et une exécution réelle."
+      },
+      {
+       "icon": "🧪",
+       "title": "Un chercheur en compression de modèles",
+       "text": "Il peut y voir un cas extrême de quantification en int8 et de réduction d'architecture."
+      }
+     ]
+    },
+    {
+     "type": "timeline",
+     "title": "D'où l'on vient, où l'on va",
+     "items": [
+      {
+       "label": "Années 1980 à aujourd'hui",
+       "text": "Les secteurs d'amorçage servent de support à des démonstrations de la scène démo."
+      },
+      {
+       "label": "Projets voisins",
+       "text": "sectorllm, cité par l'auteur, loge un Llama 2 à cinq couches dans environ 1,2 Ko d'assembleur."
+      },
+      {
+       "label": "Novembre 2026",
+       "text": "bootgpt est présenté sur Hacker News ; aucune suite annoncée dans les éléments consultés."
+      }
+     ]
+    },
+    {
+     "type": "opinion",
+     "title": "Notre avis",
+     "paragraphs": [
+      "Rien de tout cela n'a d'usage industriel, et c'est précisément l'intérêt. En contraignant le modèle à tenir dans 512 octets, l'auteur rend visibles les mécanismes que les grands modèles cachent derrière des bibliothèques : quantification, arithmétique entière, parité exacte entre entraînement et exécution.",
+      "À un horizon d'un à trois ans, ce type d'expériences nourrit surtout la pédagogie et l'intérêt pour les modèles embarqués sur micro-contrôleurs. Les générations de faux journaux de démarrage montrent aussi, avec humour, la différence entre produire un texte vraisemblable et produire un texte vrai."
+     ],
+     "verdict": "Un jouet brillant, utile pour comprendre ce qu'est vraiment un modèle de langage."
+    }
+   ]
+  }
+ ]
+}
