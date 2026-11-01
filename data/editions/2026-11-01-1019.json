@@ -1,0 +1,1318 @@
+{
+ "schemaVersion": "1.0",
+ "date": "2026-11-01",
+ "generatedAt": "2026-11-01T10:19:33+01:00",
+ "title": "Tech : Mistral Large 4 en poids ouverts, alerte du CERT-FR sur PHP et Jepsen contre ParticleDB",
+ "summary": "Cette édition tech du dimanche 1er novembre 2026 prend du recul : le coût des frameworks JavaScript mesuré à l'ère des agents, la latence mémoire derrière un processeur « occupé », un grand modèle ouvert européen, une alerte de l'ANSSI sur PHP et un audit sévère d'une base de données pour l'IA.",
+ "highlights": [
+  "Mistral Large 4 : environ 1 000 milliards de paramètres en poids ouverts, sous licence MIT modifiée ; plusieurs scores restent auto-déclarés.",
+  "PHP : le CERT-FR signale deux failles d'exécution de code à distance déjà visées ; passer à 8.2.35, 8.3.36, 8.4.27 ou 8.5.12.",
+  "Jepsen recommande d'abandonner ParticleDB après 96 problèmes, dont des écritures validées perdues.",
+  "Un benchmark chiffre le coût d'un agent selon le framework : de 2,67 $ (Hono+htmx) à 4,97 $ (Angular) par run.",
+  "Un GROUP BY naïf bloque 50,1 % des créneaux d'exécution sur la mémoire, contre 23,5 % après partitionnement radix."
+ ],
+ "meta": {
+  "generator": "claude-scheduled-task"
+ },
+ "posts": [
+  {
+   "id": "mistral-large-4-poids-ouverts-licence-modifiee",
+   "category": "ia",
+   "icon": "🇪🇺",
+   "importance": 5,
+   "title": "Mistral Large 4 : environ mille milliards de paramètres en poids ouverts, sous une licence MIT modifiée",
+   "summary": "Mistral publie les poids de Mistral Large 4, un modèle hybride instruction et raisonnement de type mixture d'experts entraîné en Europe. Les scores annoncés sont en partie internes, et le rapport technique reste à venir.",
+   "tags": [
+    "Mistral",
+    "poids ouverts",
+    "mixture d'experts",
+    "agents de codage",
+    "licence"
+   ],
+   "readingMinutes": 6,
+   "sources": [
+    {
+     "title": "We're releasing the weights of Mistral Large 4",
+     "url": "https://mistral.ai/news/mistral-large-4-oss/",
+     "publisher": "Mistral AI"
+    }
+   ],
+   "cover": {
+    "url": "https://mistral.ai/cms-media/api/media/file/cover-mistral-sovereign%20copie.webp",
+    "alt": "Visuel de présentation de l'annonce de Mistral Large 4",
+    "credit": "mistral.ai"
+   },
+   "illustration": {
+    "svg": "<svg xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"0 0 640 360\"><defs><linearGradient id=\"g\" x1=\"0\" y1=\"0\" x2=\"1\" y2=\"1\"><stop offset=\"0\" stop-color=\"hsl(320,62%,38%)\"/><stop offset=\"1\" stop-color=\"hsl(0,65%,20%)\"/></linearGradient></defs><rect width=\"640\" height=\"360\" fill=\"url(#g)\"/><g stroke=\"#fff\" stroke-width=\"4\" opacity=\".75\"><path d=\"M140 100L260 180M140 260L260 180M140 180L260 180M260 180L380 110M260 180L380 250M260 180L380 180M380 110L500 180M380 250L500 180M380 180L500 180\"/></g><g fill=\"#fff\"><circle cx=\"140\" cy=\"100\" r=\"16\"/><circle cx=\"140\" cy=\"180\" r=\"16\"/><circle cx=\"140\" cy=\"260\" r=\"16\"/><circle cx=\"260\" cy=\"180\" r=\"24\"/><circle cx=\"380\" cy=\"110\" r=\"18\"/><circle cx=\"380\" cy=\"180\" r=\"18\"/><circle cx=\"380\" cy=\"250\" r=\"18\"/><circle cx=\"500\" cy=\"180\" r=\"26\"/></g><path d=\"M545 70l8 18 20 2-15 13 5 20-18-10-18 10 5-20-15-13 20-2z\" fill=\"#fff\"/></svg>"
+   },
+   "blocks": [
+    {
+     "type": "paragraph",
+     "text": "Mistral AI a publié sur son site l'annonce de la mise à disposition des poids de **Mistral Large 4**, surnommé « Le Chonk » dans le texte. Le modèle est présenté comme un modèle ouvert hybride, à la fois pour suivre des instructions et pour raisonner, construit selon l'architecture de la mixture d'experts et doté d'une entrée multimodale native. Mistral précise qu'il a été entraîné depuis zéro en Europe. La page ne donne pas la date exacte de mise en ligne des poids : elle indique seulement qu'une préversion publique était sortie « plus tôt ce mois-ci »."
+    },
+    {
+     "type": "heading",
+     "level": 2,
+     "text": "Ce que Mistral annonce"
+    },
+    {
+     "type": "keyvalue",
+     "items": [
+      {
+       "label": "Taille",
+       "value": "environ 1 000 milliards de paramètres au total (le nom du dépôt Hugging Face, « 1T-A52B », laisse penser à 52 milliards de paramètres actifs, sans que la page le confirme)"
+      },
+      {
+       "label": "Modes de raisonnement",
+       "value": "Low (tâches simples), Medium (usage courant), High (par défaut, tâches les plus exigeantes)"
+      },
+      {
+       "label": "Langues",
+       "value": "plus de 160"
+      },
+      {
+       "label": "Tarif de l'API (par million de jetons)",
+       "value": "0,70 $ en entrée, 0,07 $ en entrée mise en cache, 2,10 $ en sortie"
+      },
+      {
+       "label": "Licence",
+       "value": "« Mistral Ecosystem Open-Weight », une licence MIT modifiée"
+      },
+      {
+       "label": "Non précisé",
+       "value": "taille de la fenêtre de contexte, matériel requis, date exacte de sortie des poids"
+      }
+     ]
+    },
+    {
+     "type": "paragraph",
+     "text": "La licence autorise l'usage, la modification, l'ajustement fin et l'usage commercial. Une restriction vise toutefois les entreprises qui proposeraient le modèle sous forme de service (Model-as-a-Service) : elles doivent obtenir une licence commerciale distincte. Il s'agit donc de poids ouverts, au sens où ils sont téléchargeables et modifiables, mais pas d'un logiciel libre au sens strict."
+    },
+    {
+     "type": "heading",
+     "level": 2,
+     "text": "Des scores à lire avec prudence"
+    },
+    {
+     "type": "table",
+     "headers": [
+      "Évaluation",
+      "Résultat annoncé",
+      "Précision"
+     ],
+     "rows": [
+      [
+       "FrontierCode 2.0 (Cognition, jeu privé)",
+       "19,7 %",
+       "premier parmi les modèles ouverts comparés"
+      ],
+      [
+       "Artificial Analysis Coding Agent Index",
+       "48 %",
+       "à égalité avec GLM-5.3, avec 47 % de jetons en moins par tâche"
+      ],
+      [
+       "Terminal-Bench 4.0",
+       "41 %",
+       "contre 28 % pour la préversion (chiffre auto-déclaré)"
+      ],
+      [
+       "Surge Code (préférences humaines)",
+       "second rang",
+       "derrière Claude Opus 5.5 uniquement"
+      ],
+      [
+       "BrowseComp",
+       "84,5 %",
+       "résultat annoncé par Mistral"
+      ],
+      [
+       "B3 Agent Security",
+       "97,1 % d'attaques bloquées",
+       "contre 93,3 % pour la préversion"
+      ],
+      [
+       "Refus de requêtes cyber malveillantes",
+       "96,6 % en moyenne",
+       "le plus haut parmi les modèles ouverts mesurés"
+      ]
+     ]
+    },
+    {
+     "type": "paragraph",
+     "text": "Plusieurs de ces chiffres proviennent de tests internes ou de partenaires, et certains sont explicitement auto-déclarés. Un rapport technique complet est annoncé sans date. Mistral indique aussi avoir observé, sur du trafic réel, des tentatives d'attaque visant des systèmes réels, et avoir adapté ses garde-fous en conséquence. Une variante spécialisée en cybersécurité n'est proposée qu'à des partenaires sélectionnés, sous conditions contractuelles strictes."
+    },
+    {
+     "type": "heading",
+     "level": 2,
+     "text": "Où le trouver"
+    },
+    {
+     "type": "paragraph",
+     "text": "Le modèle est accessible par l'API de Mistral, Mistral Studio, OpenRouter et Microsoft Foundry. Les poids sont disponibles sur Hugging Face et déployables avec vLLM ou SGLang ; NVIDIA propose des points d'accès hébergés, un conteneur NIM et la prise en charge de NeMo AutoModel et de TensorRT-LLM. La personnalisation passe par Mistral Forge et Studio."
+    },
+    {
+     "type": "usecases",
+     "title": "Exemples d'utilisation",
+     "items": [
+      {
+       "icon": "🏢",
+       "title": "Héberger un assistant de code en interne",
+       "text": "Une entreprise soucieuse de garder son code source chez elle peut déployer les poids avec vLLM sur ses propres serveurs, à condition de disposer d'une infrastructure GPU adaptée, dont la page ne détaille pas les besoins."
+      },
+      {
+       "icon": "🧪",
+       "title": "Ajuster le modèle à un métier",
+       "text": "Un éditeur de logiciels peut affiner le modèle sur sa documentation et ses conventions, la licence autorisant la modification et l'usage commercial."
+      },
+      {
+       "icon": "🛡️",
+       "title": "Évaluer le comportement face aux attaques",
+       "text": "Une équipe de sécurité peut reproduire les tests d'injection et de refus de requêtes malveillantes avant d'exposer le modèle à des utilisateurs."
+      }
+     ]
+    },
+    {
+     "type": "timeline",
+     "title": "D'où l'on vient, où l'on va",
+     "items": [
+      {
+       "label": "Plus tôt dans le mois",
+       "text": "Mistral met en ligne une préversion publique de Large 4, selon la page d'annonce, sans date précise."
+      },
+      {
+       "label": "Début novembre 2026",
+       "text": "L'annonce de la mise à disposition des poids circule sur Hacker News le 1er novembre."
+      },
+      {
+       "label": "À venir",
+       "text": "Un rapport technique complet est annoncé comme prochain, sans date."
+      }
+     ]
+    },
+    {
+     "type": "opinion",
+     "title": "Notre avis",
+     "paragraphs": [
+      "Publier les poids d'un modèle de cette taille est un signal fort pour les entreprises européennes qui cherchent une alternative aux API américaines. Mais les mots comptent : la restriction visant les services hébergés limite la reprise par d'autres fournisseurs, et l'absence de données sur le contexte et le matériel rend impossible toute estimation du coût d'un déploiement maison. Quant aux scores, ils sont difficiles à comparer tant que le rapport technique manque et que plusieurs mesures sont internes.",
+      "À un horizon d'un à trois ans, la concurrence entre modèles ouverts de très grande taille devrait tirer les prix de l'inférence vers le bas, comme le suggère déjà le tarif annoncé ; le critère de choix se déplacera vers la confiance, la conformité et la facilité d'exploitation. C'est une opinion, non une certitude."
+     ],
+     "verdict": "Une ouverture notable, mais dont la portée réelle dépendra du rapport technique et des conditions de licence."
+    },
+    {
+     "type": "callout",
+     "title": "À retenir",
+     "text": "Mistral Large 4 : environ 1 000 milliards de paramètres, poids ouverts sous licence MIT modifiée, 0,70 $ / 2,10 $ le million de jetons en API. Les performances annoncées restent à confirmer."
+    }
+   ],
+   "publishedAt": "2026-11-01T10:19:33+01:00"
+  },
+  {
+   "id": "cert-fr-php-multiples-vulnerabilites-execution-code",
+   "category": "cybersecurite",
+   "icon": "🐘",
+   "importance": 5,
+   "title": "PHP : le CERT-FR alerte sur deux failles d'exécution de code à distance déjà visées par des tentatives d'exploitation",
+   "summary": "L'alerte CERTFR-2026-ALE-014, mise à jour le 27 octobre, recommande de passer à PHP 8.2.35, 8.3.36, 8.4.27 ou 8.5.12. Les branches 5.x à 8.1 ne reçoivent plus de correctifs.",
+   "tags": [
+    "PHP",
+    "CERT-FR",
+    "ANSSI",
+    "exécution de code à distance",
+    "mise à jour"
+   ],
+   "sourceDate": "2026-10-27",
+   "readingMinutes": 5,
+   "sources": [
+    {
+     "title": "CERTFR-2026-ALE-014 : [Màj] Multiples vulnérabilités dans PHP",
+     "url": "https://cert.cyber.gouv.fr/alerte/CERTFR-2026-ALE-014/",
+     "publisher": "CERT-FR (ANSSI)"
+    }
+   ],
+   "illustration": {
+    "svg": "<svg xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"0 0 640 360\"><defs><linearGradient id=\"g\" x1=\"0\" y1=\"0\" x2=\"1\" y2=\"1\"><stop offset=\"0\" stop-color=\"hsl(175,62%,38%)\"/><stop offset=\"1\" stop-color=\"hsl(215,65%,20%)\"/></linearGradient></defs><rect width=\"640\" height=\"360\" fill=\"url(#g)\"/><path d=\"M320 62l130 44v88c0 62-52 98-130 124-78-26-130-62-130-124v-88z\" fill=\"#fff\" opacity=\".93\"/><ellipse cx=\"320\" cy=\"178\" rx=\"70\" ry=\"38\" fill=\"hsl(175,55%,32%)\"/><text x=\"320\" y=\"190\" font-size=\"34\" font-weight=\"700\" text-anchor=\"middle\" fill=\"#fff\" font-family=\"system-ui,sans-serif\">php</text><path d=\"M255 118l22 14M385 118l-22 14M250 250l26-16M390 250l-26-16\" stroke=\"hsl(175,55%,32%)\" stroke-width=\"8\" stroke-linecap=\"round\"/><path d=\"M500 80l28 28M528 80l-28 28\" stroke=\"#fff\" stroke-width=\"10\" stroke-linecap=\"round\"/></svg>"
+   },
+   "blocks": [
+    {
+     "type": "paragraph",
+     "text": "Le CERT-FR, le centre gouvernemental de veille et de réponse aux attaques informatiques rattaché à l'ANSSI, a publié le 21 octobre 2026 un bulletin d'alerte consacré au langage **PHP**, mis à jour le 27 octobre. Intitulé « Multiples vulnérabilités dans PHP » (référence CERTFR-2026-ALE-014), il signale deux failles qui permettent, selon l'éditeur, d'exécuter du code à distance, et pour lesquelles des tentatives d'exploitation sont constatées. Le risque identifié est donc l'exécution de code arbitraire à distance."
+    },
+    {
+     "type": "paragraph",
+     "text": "PHP fait tourner une grande partie du web, y compris des gestionnaires de contenu, des boutiques en ligne et de nombreux produits qui l'embarquent sans le dire. Le bulletin précise que la liste des produits potentiellement touchés, établie par le NCSC néerlandais et citée par le CERT-FR, n'est pas exhaustive."
+    },
+    {
+     "type": "heading",
+     "level": 2,
+     "text": "Les trois vulnérabilités"
+    },
+    {
+     "type": "keyvalue",
+     "items": [
+      {
+       "label": "CVE-2026-109618",
+       "value": "exécution de code à distance selon l'éditeur ; une preuve de concept existe pour certains déploiements ; des tentatives d'exploitation sont constatées"
+      },
+      {
+       "label": "CVE-2026-109619",
+       "value": "exécution de code à distance selon l'éditeur ; mêmes constats que ci-dessus"
+      },
+      {
+       "label": "CVE-2026-115560",
+       "value": "ajoutée le 23 octobre ; l'éditeur juge son exploitation peu probable, car elle exige une combinaison particulière d'options de configuration et de code applicatif ; correctif prévu au prochain cycle de mises à jour"
+      }
+     ]
+    },
+    {
+     "type": "heading",
+     "level": 2,
+     "text": "Versions concernées et correctifs"
+    },
+    {
+     "type": "table",
+     "headers": [
+      "Branche de PHP",
+      "Versions touchées",
+      "Version corrigée"
+     ],
+     "rows": [
+      [
+       "8.5.x",
+       "antérieures à 8.5.12",
+       "8.5.12"
+      ],
+      [
+       "8.4.x",
+       "antérieures à 8.4.27",
+       "8.4.27"
+      ],
+      [
+       "8.3.x",
+       "antérieures à 8.3.36",
+       "8.3.36"
+      ],
+      [
+       "8.2.x",
+       "antérieures à 8.2.35",
+       "8.2.35"
+      ],
+      [
+       "5.x, 7.x, 8.0.x, 8.1.x",
+       "toutes les versions (branches non maintenues)",
+       "aucune : migrer vers une branche maintenue"
+      ]
+     ]
+    },
+    {
+     "type": "paragraph",
+     "text": "Les correctifs de sécurité sont disponibles sur le site de l'éditeur depuis le 21 octobre 2026 à 16 h, heure de Paris. Pour la troisième vulnérabilité, aucun correctif n'existait à la date du bulletin."
+    },
+    {
+     "type": "heading",
+     "level": 2,
+     "text": "Contournements provisoires et recommandations"
+    },
+    {
+     "type": "paragraph",
+     "text": "Le CERT-FR rappelle que les mesures de contournement réduisent la surface d'attaque sans protéger complètement : seule la mise à jour apporte une protection entière. Pour la première faille, il cite le réglage de `memory_limit` sur `-1`, une valeur faible pour `post_max_size` et une limitation des ressources mémoire utilisables par PHP. Pour la deuxième, il indique de définir `session.upload_progress.enabled=0` et de redémarrer chaque processus d'arrière-plan ; sur PHP 8.5.x, il ajoute `fatal_error_backtraces=0`, ainsi que la suppression des configurations incorrectes ou obsolètes qui génèrent des messages de diagnostic avant l'initialisation."
+    },
+    {
+     "type": "list",
+     "ordered": false,
+     "items": [
+      "Appliquer les correctifs de l'éditeur dès que possible, y compris pour les produits qui embarquent PHP.",
+      "Isoler les équipements concernés en attendant la mise à jour.",
+      "Migrer vers une version de PHP maintenue : les branches 5.x à 8.1.x ne sont plus supportées.",
+      "Surveiller les tentatives d'exploitation, avec une vigilance particulière pour la troisième faille tant qu'elle n'est pas corrigée."
+     ]
+    },
+    {
+     "type": "usecases",
+     "title": "Exemples d'utilisation",
+     "items": [
+      {
+       "icon": "🏪",
+       "title": "Une agence qui héberge des boutiques",
+       "text": "Elle inventorie les versions de PHP de chaque site client, planifie le passage à 8.3.36 ou 8.4.27 et applique d'ici là les contournements recommandés."
+      },
+      {
+       "icon": "🏛️",
+       "title": "Une collectivité avec un site ancien",
+       "text": "Un site tournant sur PHP 7.x n'a plus aucun correctif possible : la collectivité doit planifier une migration vers une branche maintenue et isoler le serveur en attendant."
+      },
+      {
+       "icon": "🧰",
+       "title": "Un éditeur de logiciel embarquant PHP",
+       "text": "Il vérifie la version du moteur livrée dans son produit et publie une mise à jour pour ses clients, car la faille ne dépend pas de leur code."
+      }
+     ]
+    },
+    {
+     "type": "timeline",
+     "title": "D'où l'on vient, où l'on va",
+     "items": [
+      {
+       "label": "21 octobre 2026",
+       "text": "Publication des correctifs par l'éditeur à 16 h (heure de Paris) et première version du bulletin du CERT-FR."
+      },
+      {
+       "label": "23 octobre 2026",
+       "text": "Ajout de la vulnérabilité CVE-2026-115560, pas encore corrigée."
+      },
+      {
+       "label": "27 octobre 2026",
+       "text": "Dernière mise à jour du bulletin."
+      },
+      {
+       "label": "À venir",
+       "text": "Un correctif pour CVE-2026-115560 est prévu au prochain cycle de mises à jour de PHP, sans date précisée."
+      }
+     ]
+    },
+    {
+     "type": "opinion",
+     "title": "Notre avis",
+     "paragraphs": [
+      "L'enseignement principal de ce bulletin n'est pas technique : il tient dans la liste des branches non maintenues. Tant que des sites tournent sous PHP 7 ou 8.0, chaque nouvelle faille devient une dette sans solution, et les contournements de configuration, comme le rappelle le CERT-FR, ne sont que des pansements. Le fait que des tentatives d'exploitation soient déjà constatées réduit la marge de manœuvre.",
+      "À un horizon d'un à trois ans, les obligations de sécurité de la chaîne d'approvisionnement logicielle, notamment pour les entités concernées par NIS2, devraient pousser les organisations à documenter leurs versions et à planifier les migrations. C'est une opinion : le bulletin ne traite pas de cet aspect réglementaire."
+     ],
+     "verdict": "Mettre à jour d'abord, vérifier la liste des produits embarquant PHP ensuite, et sortir des branches abandonnées."
+    },
+    {
+     "type": "callout",
+     "title": "À retenir",
+     "text": "Passer à PHP 8.2.35, 8.3.36, 8.4.27 ou 8.5.12 ; les branches 8.1 et antérieures n'ont plus de correctifs. Consulter le bulletin CERTFR-2026-ALE-014 pour le détail et ses mises à jour."
+    }
+   ],
+   "publishedAt": "2026-11-01T10:19:33+01:00"
+  },
+  {
+   "id": "cout-ia-frameworks-javascript-benchmark-nolan-lawson",
+   "category": "web",
+   "icon": "💸",
+   "importance": 4,
+   "title": "Le coût d'un framework JavaScript à l'ère des agents : un benchmark chiffre l'écart entre Hono+htmx et Angular",
+   "summary": "Nolan Lawson a demandé à un agent de codage de construire la même application avec douze frameworks. Le coût médian d'un run va de 2,67 $ à 4,97 $, et le poids de JavaScript livré de 0 à 142 Kio : un choix qui se mesure enfin.",
+   "tags": [
+    "JavaScript",
+    "frameworks",
+    "agents de codage",
+    "benchmark",
+    "performance web"
+   ],
+   "sourceDate": "2026-10-28",
+   "readingMinutes": 6,
+   "sources": [
+    {
+     "title": "The AI cost of JavaScript frameworks",
+     "url": "https://nolanlawson.com/2026/10/28/the-ai-cost-of-javascript-frameworks/",
+     "publisher": "Read the Tea Leaves (Nolan Lawson)"
+    }
+   ],
+   "cover": {
+    "url": "https://nolanlawson.com/_astro/frameworks.B14_z7MF_2lv3q1.webp",
+    "alt": "Visuel de présentation de l'article de Nolan Lawson sur les frameworks JavaScript",
+    "credit": "nolanlawson.com"
+   },
+   "illustration": {
+    "svg": "<svg xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"0 0 640 360\"><defs><linearGradient id=\"g\" x1=\"0\" y1=\"0\" x2=\"1\" y2=\"1\"><stop offset=\"0\" stop-color=\"hsl(210,62%,38%)\"/><stop offset=\"1\" stop-color=\"hsl(250,65%,20%)\"/></linearGradient></defs><rect width=\"640\" height=\"360\" fill=\"url(#g)\"/><rect x=\"120\" y=\"70\" width=\"400\" height=\"230\" rx=\"16\" fill=\"#fff\" opacity=\".93\"/><rect x=\"120\" y=\"70\" width=\"400\" height=\"38\" rx=\"16\" fill=\"#fff\"/><circle cx=\"148\" cy=\"89\" r=\"7\" fill=\"hsl(210,60%,40%)\"/><circle cx=\"172\" cy=\"89\" r=\"7\" fill=\"hsl(210,60%,55%)\"/><circle cx=\"196\" cy=\"89\" r=\"7\" fill=\"hsl(210,60%,70%)\"/><rect x=\"160\" y=\"140\" width=\"40\" height=\"130\" rx=\"6\" fill=\"hsl(210,60%,40%)\"/><rect x=\"230\" y=\"180\" width=\"40\" height=\"90\" rx=\"6\" fill=\"hsl(210,60%,50%)\"/><rect x=\"300\" y=\"210\" width=\"40\" height=\"60\" rx=\"6\" fill=\"hsl(210,60%,60%)\"/><path d=\"M380 150l-30 30 30 30M450 150l30 30-30 30\" stroke=\"hsl(210,60%,35%)\" stroke-width=\"12\" fill=\"none\" stroke-linecap=\"round\" stroke-linejoin=\"round\"/><circle cx=\"535\" cy=\"95\" r=\"34\" fill=\"#fff\"/><text x=\"535\" y=\"107\" font-size=\"36\" font-weight=\"700\" text-anchor=\"middle\" fill=\"hsl(210,60%,35%)\" font-family=\"system-ui,sans-serif\">$</text></svg>"
+   },
+   "blocks": [
+    {
+     "type": "paragraph",
+     "text": "Pendant des années, le choix d'un framework JavaScript s'est joué sur des préférences, des habitudes d'équipe et l'effet de mode. Avec l'arrivée des agents de codage, qui écrivent désormais une part croissante du code, une nouvelle question se pose : combien coûte, en temps et en jetons, de faire construire la même application par un agent selon le framework retenu ? Dans un billet publié le 28 octobre 2026 sur son blog, le développeur Nolan Lawson, qui travaille chez Socket, tente d'y répondre par la mesure plutôt que par l'intuition."
+    },
+    {
+     "type": "paragraph",
+     "text": "Son point de départ est simple : l'auteur estime que ce choix se fait encore « à l'ambiance » et qu'il est possible de s'appuyer sur des données. Le résultat est un benchmark public, dont le dépôt est ouvert à la reproduction, qui compare douze approches : Astro, Angular, Hono avec htmx, Next.js, Nuxt, Qwik, React Router, SolidStart, SvelteKit, TanStack Start, Gracile avec Lit, et une version « vanilla » reposant sur Vite seul."
+    },
+    {
+     "type": "heading",
+     "level": 2,
+     "text": "Un protocole volontairement cadré"
+    },
+    {
+     "type": "paragraph",
+     "text": "Chaque run confie à Claude Opus 5.5, réglé sur un effort élevé, la même spécification : une application de consultation de Pokémon construite sur la PokéAPI, avec liste, types, attaques, recherche et filtres. L'agent travaille dans un bac à sable, doit utiliser la dernière version du framework et dispose, quand ils existent, des serveurs MCP ou des « skills » fournis officiellement par chaque projet. Une suite de tests de conformité fondée sur l'arbre d'accessibilité vérifie que l'application remplit bien le cahier des charges ; elle interdit notamment de pré-générer tout le HTML de façon statique, ce qui fausserait la comparaison."
+    },
+    {
+     "type": "paragraph",
+     "text": "Les résultats sont des médianes de cinq runs par framework, sauf pour Angular, limité à trois runs : deux itérations n'ont pas produit d'application conforme à la spécification et n'ont pas été relancées. Le coût affiché correspond au tarif de l'API tel que le calcule Claude Code ; l'auteur utilise un forfait mensuel, ce n'est donc pas sa dépense réelle."
+    },
+    {
+     "type": "heading",
+     "level": 2,
+     "text": "Ce que disent les chiffres"
+    },
+    {
+     "type": "diagram",
+     "svg": "<svg xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"0 0 640 400\" font-family=\"system-ui,sans-serif\"><rect width=\"640\" height=\"400\" rx=\"16\" fill=\"#f3f5f9\" stroke=\"#c9d1de\"/><text x=\"20\" y=\"32\" font-size=\"16\" font-weight=\"700\" fill=\"#1a2233\">Coût médian d'un run, en dollars (tarif API)</text><text x=\"20\" y=\"70\" font-size=\"13\" fill=\"#1a2233\">Hono+htmx</text><rect x=\"190\" y=\"57\" width=\"160.2\" height=\"16\" rx=\"4\" fill=\"hsl(210,60%,36%)\"/><text x=\"358.2\" y=\"70\" font-size=\"13\" font-weight=\"600\" fill=\"#1a2233\">2,67 $</text><text x=\"20\" y=\"96\" font-size=\"13\" fill=\"#1a2233\">Astro</text><rect x=\"190\" y=\"83\" width=\"165.6\" height=\"16\" rx=\"4\" fill=\"hsl(210,60%,36%)\"/><text x=\"363.6\" y=\"96\" font-size=\"13\" font-weight=\"600\" fill=\"#1a2233\">2,76 $</text><text x=\"20\" y=\"122\" font-size=\"13\" fill=\"#1a2233\">Nuxt</text><rect x=\"190\" y=\"109\" width=\"169.2\" height=\"16\" rx=\"4\" fill=\"hsl(210,60%,36%)\"/><text x=\"367.2\" y=\"122\" font-size=\"13\" font-weight=\"600\" fill=\"#1a2233\">2,82 $</text><text x=\"20\" y=\"148\" font-size=\"13\" fill=\"#1a2233\">Vanilla (Vite)</text><rect x=\"190\" y=\"135\" width=\"178.8\" height=\"16\" rx=\"4\" fill=\"hsl(210,60%,36%)\"/><text x=\"376.8\" y=\"148\" font-size=\"13\" font-weight=\"600\" fill=\"#1a2233\">2,98 $</text><text x=\"20\" y=\"174\" font-size=\"13\" fill=\"#1a2233\">Next.js</text><rect x=\"190\" y=\"161\" width=\"188.4\" height=\"16\" rx=\"4\" fill=\"hsl(210,60%,36%)\"/><text x=\"386.4\" y=\"174\" font-size=\"13\" font-weight=\"600\" fill=\"#1a2233\">3,14 $</text><text x=\"20\" y=\"200\" font-size=\"13\" fill=\"#1a2233\">Qwik</text><rect x=\"190\" y=\"187\" width=\"196.2\" height=\"16\" rx=\"4\" fill=\"hsl(210,60%,36%)\"/><text x=\"394.2\" y=\"200\" font-size=\"13\" font-weight=\"600\" fill=\"#1a2233\">3,27 $</text><text x=\"20\" y=\"226\" font-size=\"13\" fill=\"#1a2233\">TanStack Start</text><rect x=\"190\" y=\"213\" width=\"212.4\" height=\"16\" rx=\"4\" fill=\"hsl(210,60%,36%)\"/><text x=\"410.4\" y=\"226\" font-size=\"13\" font-weight=\"600\" fill=\"#1a2233\">3,54 $</text><text x=\"20\" y=\"252\" font-size=\"13\" fill=\"#1a2233\">SolidStart</text><rect x=\"190\" y=\"239\" width=\"227.4\" height=\"16\" rx=\"4\" fill=\"hsl(210,60%,36%)\"/><text x=\"425.4\" y=\"252\" font-size=\"13\" font-weight=\"600\" fill=\"#1a2233\">3,79 $</text><text x=\"20\" y=\"278\" font-size=\"13\" fill=\"#1a2233\">React Router</text><rect x=\"190\" y=\"265\" width=\"228.6\" height=\"16\" rx=\"4\" fill=\"hsl(210,60%,36%)\"/><text x=\"426.6\" y=\"278\" font-size=\"13\" font-weight=\"600\" fill=\"#1a2233\">3,81 $</text><text x=\"20\" y=\"304\" font-size=\"13\" fill=\"#1a2233\">SvelteKit</text><rect x=\"190\" y=\"291\" width=\"256.8\" height=\"16\" rx=\"4\" fill=\"hsl(210,60%,36%)\"/><text x=\"454.8\" y=\"304\" font-size=\"13\" font-weight=\"600\" fill=\"#1a2233\">4,28 $</text><text x=\"20\" y=\"330\" font-size=\"13\" fill=\"#1a2233\">Gracile+Lit</text><rect x=\"190\" y=\"317\" width=\"279.0\" height=\"16\" rx=\"4\" fill=\"hsl(210,60%,36%)\"/><text x=\"477.0\" y=\"330\" font-size=\"13\" font-weight=\"600\" fill=\"#1a2233\">4,65 $</text><text x=\"20\" y=\"356\" font-size=\"13\" fill=\"#1a2233\">Angular</text><rect x=\"190\" y=\"343\" width=\"298.2\" height=\"16\" rx=\"4\" fill=\"hsl(210,60%,36%)\"/><text x=\"496.2\" y=\"356\" font-size=\"13\" font-weight=\"600\" fill=\"#1a2233\">4,97 $</text><text x=\"20\" y=\"388\" font-size=\"11\" fill=\"#4a5568\">Source : Nolan Lawson, 28 octobre 2026. Médiane de 5 runs (3 pour Angular).</text></svg>",
+     "alt": "Diagramme à barres horizontales du coût médian par framework, de Hono+htmx à 2,67 dollars jusqu'à Angular à 4,97 dollars.",
+     "caption": "Coût médian de construction de la même application, selon le framework. Les barres sont proportionnelles aux valeurs publiées."
+    },
+    {
+     "type": "table",
+     "headers": [
+      "Framework",
+      "Temps médian (min)",
+      "Jetons médians (millions)",
+      "JavaScript transféré (Kio)",
+      "LCP (ms)"
+     ],
+     "rows": [
+      [
+       "Astro",
+       "8,2",
+       "4,13",
+       "0",
+       "810"
+      ],
+      [
+       "Hono+htmx",
+       "8,6",
+       "4,26",
+       "18",
+       "978"
+      ],
+      [
+       "Nuxt",
+       "9,0",
+       "3,85",
+       "84",
+       "1 727"
+      ],
+      [
+       "Vanilla",
+       "10,1",
+       "5,00",
+       "7",
+       "1 667"
+      ],
+      [
+       "Next.js",
+       "10,9",
+       "4,99",
+       "142",
+       "2 090"
+      ],
+      [
+       "SvelteKit",
+       "10,8",
+       "8,53",
+       "36",
+       "1 130"
+      ],
+      [
+       "Angular",
+       "17,2",
+       "9,76",
+       "93",
+       "1 954"
+      ]
+     ]
+    },
+    {
+     "type": "paragraph",
+     "text": "Trois enseignements se dégagent. D'abord, les applications multipages (Astro, Hono avec htmx, Gracile avec Lit) obtiennent les meilleurs résultats de poids de JavaScript et de LCP, ce que l'auteur attendait. Astro n'envoie aucun octet de JavaScript et affiche son contenu principal en 810 ms en médiane ; Next.js en transfère 142 Kio pour 2 090 ms. Ensuite, Hono avec htmx produit environ 1 370 lignes de code, soit environ 70 % de la taille d'Angular (2 009 lignes), avec de meilleures performances. Enfin, Angular est le plus lent (17,2 minutes) et celui dont les résultats varient le plus."
+    },
+    {
+     "type": "paragraph",
+     "text": "Un constat nuance l'idée selon laquelle moins de dépendances rimerait avec moins de travail : la version « vanilla » coûte plus cher qu'Astro, Nuxt ou Hono et affiche un décalage de mise en page non nul (CLS de 0,111, contre zéro pour presque tous les autres). Selon l'auteur, un framework, même imparfait, semble donc préférable à du Vite brut."
+    },
+    {
+     "type": "heading",
+     "level": 2,
+     "text": "Les limites, que l'auteur détaille lui-même"
+    },
+    {
+     "type": "list",
+     "ordered": false,
+     "items": [
+      "**Une seule application** : petite et centrée sur le contenu, elle ne représente ni un tableau de bord ni une application très interactive.",
+      "**Un biais de la mesure** : Lighthouse et les Core Web Vitals favorisent structurellement les applications multipages face aux applications monopages.",
+      "**Une forte variance** : par exemple, une application Next.js ne chargeait pas ses images en différé, ce qui explique l'écart de LCP.",
+      "**Un contexte de test restreint** : Chromium uniquement, en mobile, avec ralentissement du processeur (4×) et réseau 4G lent.",
+      "**Des outils d'aide peu utilisés** : les serveurs MCP et les « skills » n'ont pas toujours été employés par l'agent ; leur efficacité reste donc incertaine.",
+      "**Un cas particulier** : SvelteKit 3 est trop récent pour figurer dans les données d'entraînement, et les agents ont dû lire son guide de migration à chaque run."
+     ]
+    },
+    {
+     "type": "usecases",
+     "title": "Exemples d'utilisation",
+     "items": [
+      {
+       "icon": "🧮",
+       "title": "Chiffrer un projet confié à un agent",
+       "text": "Une équipe qui prévoit de faire générer un site vitrine par un agent peut comparer les coûts médians par framework avant de choisir, et prévoir une marge pour les runs les plus chers."
+      },
+      {
+       "icon": "📱",
+       "title": "Viser le mobile sur réseau lent",
+       "text": "Pour un site de contenu consulté en 4G, le poids de JavaScript et le LCP du tableau orientent vers une approche multipage plutôt que vers une application monopage lourde."
+      },
+      {
+       "icon": "🔁",
+       "title": "Reproduire l'étude sur son propre cas",
+       "text": "Le dépôt étant public, un éditeur peut remplacer l'application Pokémon par son cahier des charges et vérifier si le classement tient pour son contexte."
+      }
+     ]
+    },
+    {
+     "type": "timeline",
+     "title": "D'où l'on vient, où l'on va",
+     "items": [
+      {
+       "label": "Avant les agents",
+       "text": "Le choix d'un framework reposait surtout sur l'expérience des équipes, l'écosystème et la mode du moment."
+      },
+      {
+       "label": "28 octobre 2026",
+       "text": "Nolan Lawson publie son benchmark chiffré, avec douze approches et un dépôt public."
+      },
+      {
+       "label": "À venir",
+       "text": "L'auteur invite à reproduire, modifier ou améliorer l'étude ; aucune nouvelle édition n'est annoncée dans le billet."
+      }
+     ]
+    },
+    {
+     "type": "opinion",
+     "title": "Notre avis",
+     "paragraphs": [
+      "La valeur de ce travail tient moins au classement qu'à la méthode : mesurer le coût d'un agent selon l'outil choisi est une préoccupation neuve, et la fourchette observée (de 2,67 $ à 4,97 $ par run) reste modeste face au salaire d'un développeur. Le vrai enjeu n'est donc pas la facture, mais la qualité du résultat livré : poids de JavaScript, vitesse d'affichage, accessibilité. Sur ce terrain, les écarts sont nets, mais ils portent sur une application unique et sur un outil de mesure qui avantage certaines architectures.",
+      "À un horizon d'un à trois ans, on peut penser que la « lisibilité pour les agents » deviendra un critère de choix à part entière, au même titre que la taille de la communauté. Les frameworks récents ou exigeants en conventions pourraient être pénalisés tant qu'ils sont absents des données d'entraînement, ce qui renforcerait les acteurs établis. C'est une hypothèse, non un fait."
+     ],
+     "verdict": "Un bon point de départ pour décider avec des données, à condition de ne pas généraliser à partir d'une seule application test."
+    },
+    {
+     "type": "callout",
+     "title": "À retenir",
+     "text": "Sur une application Pokémon, Hono+htmx et Astro sont les moins coûteux pour un agent et les plus légers côté navigateur ; Angular est le plus lent et le plus cher. Un résultat à valeur indicative, sur un seul cas."
+    }
+   ],
+   "publishedAt": "2026-11-01T10:19:33+01:00"
+  },
+  {
+   "id": "jepsen-particledb-96-problemes-isolation-revendiquee",
+   "category": "devops",
+   "icon": "🧪",
+   "importance": 4,
+   "title": "Jepsen déconseille ParticleDB : 96 problèmes relevés et des garanties d'isolation non tenues",
+   "summary": "Le rapport de Kyle Kingsbury du 31 octobre 2026 recommande d'abandonner ParticleDB, une base multi-modèle pour l'IA : pertes d'écritures validées, contraintes non appliquées et revendications de « Full ACID » non confirmées.",
+   "tags": [
+    "Jepsen",
+    "bases de données",
+    "fiabilité",
+    "ParticleDB",
+    "isolation transactionnelle"
+   ],
+   "sourceDate": "2026-10-31",
+   "readingMinutes": 6,
+   "sources": [
+    {
+     "title": "Jepsen: ParticleDB 1.1.4",
+     "url": "https://jepsen.io/analyses/particledb-1.1.4",
+     "publisher": "Jepsen"
+    }
+   ],
+   "illustration": {
+    "svg": "<svg xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"0 0 640 360\"><defs><linearGradient id=\"g\" x1=\"0\" y1=\"0\" x2=\"1\" y2=\"1\"><stop offset=\"0\" stop-color=\"hsl(160,62%,38%)\"/><stop offset=\"1\" stop-color=\"hsl(200,65%,20%)\"/></linearGradient></defs><rect width=\"640\" height=\"360\" fill=\"url(#g)\"/><path d=\"M200 110v140c0 28 54 46 120 46s120-18 120-46V110\" fill=\"#fff\" opacity=\".93\"/><ellipse cx=\"320\" cy=\"110\" rx=\"120\" ry=\"40\" fill=\"#fff\"/><path d=\"M200 170c0 22 54 40 120 40s120-18 120-40M200 225c0 22 54 40 120 40s120-18 120-40\" fill=\"none\" stroke=\"hsl(160,55%,30%)\" stroke-width=\"6\"/><path d=\"M300 120l22 38-24 22 28 42\" fill=\"none\" stroke=\"hsl(8,75%,48%)\" stroke-width=\"9\" stroke-linecap=\"round\" stroke-linejoin=\"round\"/><circle cx=\"500\" cy=\"90\" r=\"30\" fill=\"#fff\"/><path d=\"M486 90l10 12 20-24\" fill=\"none\" stroke=\"hsl(160,55%,30%)\" stroke-width=\"8\" stroke-linecap=\"round\" stroke-linejoin=\"round\"/></svg>"
+   },
+   "blocks": [
+    {
+     "type": "paragraph",
+     "text": "Lorsqu'une base de données affirme respecter les propriétés ACID, ses utilisateurs lui confient des commandes, des paiements ou des états de workflow. Le projet Jepsen, animé par Kyle Kingsbury, existe précisément pour vérifier ce genre de promesse en provoquant des pannes et en analysant les historiques de transactions. Son rapport sur **ParticleDB**, daté du 31 octobre 2026 et financé par Orkes, est sévère : Jepsen recommande d'arrêter tout déploiement et de migrer vers d'autres bases au plus tôt."
+    },
+    {
+     "type": "heading",
+     "level": 2,
+     "text": "Ce qu'est ParticleDB"
+    },
+    {
+     "type": "paragraph",
+     "text": "ParticleDB est une base multi-modèle conçue pour les charges de travail d'IA. Écrite en Rust, elle expose les protocoles de Postgres et de Redis et réunit SQL transactionnel, magasin clé-valeur, recherche vectorielle, analytique et fonctions définies par l'utilisateur, appelées « Particles ». Orkes l'a développée pour sa plateforme Conductor. Le rapport ne porte que sur le comportement d'un nœud unique : les versions fournies ne prenaient pas en charge la réplication Raft."
+    },
+    {
+     "type": "heading",
+     "level": 2,
+     "text": "Ce que Jepsen a constaté"
+    },
+    {
+     "type": "paragraph",
+     "text": "Les tests couvrent les versions de 1.1.4 à 1.1.18.11.rc-22, sur des nœuds Debian 13. Jepsen recense **96 problèmes**, dont 93 apparaissent sur des instances saines d'un seul nœud, c'est-à-dire sans qu'aucune panne ne soit injectée. Les catégories les plus marquantes :"
+    },
+    {
+     "type": "list",
+     "ordered": false,
+     "items": [
+      "**Disponibilité** : interblocages, plantages inexpliqués et transactions en verrouillage de table pouvant durer des dizaines de secondes.",
+      "**Contraintes non appliquées** : `NOT NULL`, `UNIQUE` et clés primaires pouvaient être violés, et des clés primaires devenaient `NULL`.",
+      "**Corruption d'état** : lignes « zombies » impossibles à supprimer, colonnes permutées, tables supprimées réapparaissant sous une forme altérée, chaînes converties en entiers.",
+      "**Fonctionnalités défaillantes** : requêtes préparées, authentification Postgres, clauses `WHERE` ignorées, jointures aux noms de colonnes erronés.",
+      "**Anomalies transactionnelles** : écritures validées perdues, lectures périmées, mises à jour perdues, lectures biaisées (read skew).",
+      "**Pannes** : perte partielle de données lors de corruptions du journal d'écriture anticipée, perte totale lors d'une simulation de lectures et d'écritures mal dirigées."
+     ]
+    },
+    {
+     "type": "diagram",
+     "svg": "<svg xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"0 0 640 270\" font-family=\"system-ui,sans-serif\"><rect width=\"640\" height=\"270\" rx=\"16\" fill=\"#f3f5f9\" stroke=\"#c9d1de\"/><text x=\"20\" y=\"30\" font-size=\"16\" font-weight=\"700\" fill=\"#1a2233\">Isolation revendiquée contre anomalies observées</text><text x=\"20\" y=\"58\" font-size=\"12\" font-weight=\"700\" fill=\"#4a5568\">MODE</text><text x=\"200\" y=\"58\" font-size=\"12\" font-weight=\"700\" fill=\"#4a5568\">REVENDIQUÉ (ORKES)</text><text x=\"400\" y=\"58\" font-size=\"12\" font-weight=\"700\" fill=\"#4a5568\">OBSERVÉ (JEPSEN)</text><rect x=\"12\" y=\"70\" width=\"616\" height=\"28\" rx=\"6\" fill=\"#ffffff\"/><text x=\"20\" y=\"89\" font-size=\"13\" fill=\"#1a2233\">occ-v3 (défaut)</text><rect x=\"196\" y=\"74\" width=\"172\" height=\"20\" rx=\"10\" fill=\"hsl(160,45%,82%)\"/><text x=\"206\" y=\"89\" font-size=\"12\" fill=\"#10372b\">Snapshot Isolation</text><rect x=\"396\" y=\"74\" width=\"224\" height=\"20\" rx=\"10\" fill=\"hsl(8,70%,88%)\"/><text x=\"406\" y=\"89\" font-size=\"12\" fill=\"#6b1d12\">écritures validées perdues</text><rect x=\"12\" y=\"104\" width=\"616\" height=\"28\" rx=\"6\" fill=\"#ffffff\"/><text x=\"20\" y=\"123\" font-size=\"13\" fill=\"#1a2233\">zero-copy-occ</text><rect x=\"196\" y=\"108\" width=\"172\" height=\"20\" rx=\"10\" fill=\"hsl(160,45%,82%)\"/><text x=\"206\" y=\"123\" font-size=\"12\" fill=\"#10372b\">Snapshot Isolation</text><rect x=\"396\" y=\"108\" width=\"224\" height=\"20\" rx=\"10\" fill=\"hsl(8,70%,88%)\"/><text x=\"406\" y=\"123\" font-size=\"12\" fill=\"#6b1d12\">anomalie G-single</text><rect x=\"12\" y=\"138\" width=\"616\" height=\"28\" rx=\"6\" fill=\"#ffffff\"/><text x=\"20\" y=\"157\" font-size=\"13\" fill=\"#1a2233\">serializable-ssi</text><rect x=\"196\" y=\"142\" width=\"172\" height=\"20\" rx=\"10\" fill=\"hsl(160,45%,82%)\"/><text x=\"206\" y=\"157\" font-size=\"12\" fill=\"#10372b\">Serializable</text><rect x=\"396\" y=\"142\" width=\"224\" height=\"20\" rx=\"10\" fill=\"hsl(8,70%,88%)\"/><text x=\"406\" y=\"157\" font-size=\"12\" fill=\"#6b1d12\">écritures validées perdues</text><rect x=\"12\" y=\"172\" width=\"616\" height=\"28\" rx=\"6\" fill=\"#ffffff\"/><text x=\"20\" y=\"191\" font-size=\"13\" fill=\"#1a2233\">table-2pl</text><rect x=\"196\" y=\"176\" width=\"172\" height=\"20\" rx=\"10\" fill=\"hsl(160,45%,82%)\"/><text x=\"206\" y=\"191\" font-size=\"12\" fill=\"#10372b\">Strong Serializable</text><rect x=\"396\" y=\"176\" width=\"224\" height=\"20\" rx=\"10\" fill=\"hsl(8,70%,88%)\"/><text x=\"406\" y=\"191\" font-size=\"12\" fill=\"#6b1d12\">écritures perdues, read skew</text><rect x=\"12\" y=\"206\" width=\"616\" height=\"28\" rx=\"6\" fill=\"#ffffff\"/><text x=\"20\" y=\"225\" font-size=\"13\" fill=\"#1a2233\">strict-serializable (rc-22)</text><rect x=\"196\" y=\"210\" width=\"172\" height=\"20\" rx=\"10\" fill=\"hsl(160,45%,82%)\"/><text x=\"206\" y=\"225\" font-size=\"12\" fill=\"#10372b\">Strong Serializable</text><rect x=\"396\" y=\"210\" width=\"224\" height=\"20\" rx=\"10\" fill=\"hsl(8,70%,88%)\"/><text x=\"406\" y=\"225\" font-size=\"12\" fill=\"#6b1d12\">lectures périmées</text><text x=\"20\" y=\"260\" font-size=\"11\" fill=\"#4a5568\">Source : rapport Jepsen du 31 octobre 2026 (versions 1.1.4 à 1.1.18.11.rc-22).</text></svg>",
+     "alt": "Tableau comparant, pour cinq modes de ParticleDB, le niveau d'isolation revendiqué et l'anomalie observée par Jepsen.",
+     "caption": "Pour chaque mode testé, le niveau annoncé par le guide de l'opérateur d'Orkes et l'anomalie relevée par Jepsen."
+    },
+    {
+     "type": "heading",
+     "level": 2,
+     "text": "Des revendications que le test n'a pas confirmées"
+    },
+    {
+     "type": "paragraph",
+     "text": "Le mode par défaut, `occ-v3`, est présenté comme offrant la Snapshot Isolation ; Jepsen y observe des pertes d'écritures validées, des anomalies internes et une anomalie G-single. Les modes `serializable-ssi` et `table-2pl` (revendiqués respectivement Serializable et Strong Serializable) perdent eux aussi des écritures. La page d'accueil affichait « Full ACID », alors que le texte voisin parlait de Snapshot Isolation, qui n'est pas une isolation complète. Le site annonçait en outre une preuve « formellement démontrée » en TLA+, mais aucune spécification n'a été fournie."
+    },
+    {
+     "type": "heading",
+     "level": 2,
+     "text": "Les correctifs annoncés"
+    },
+    {
+     "type": "paragraph",
+     "text": "Dans la version candidate rc-22, la plupart des problèmes semblent résolus, mais une dizaine subsistent : le mode `occ` perd encore des données en fonctionnement normal, et le mode `serializable` autorise des anomalies. Orkes affirme que la version 1.1.19-rc.13 corrige tous les problèmes du rapport ; Jepsen ne l'a pas testée. Orkes a également déclaré que les modes évalués étaient « expérimentaux », une affirmation que Jepsen juge difficile à étayer. Rappelons que Jepsen peut prouver la présence de bogues, jamais leur absence."
+    },
+    {
+     "type": "usecases",
+     "title": "Exemples d'utilisation",
+     "items": [
+      {
+       "icon": "🔎",
+       "title": "Auditer ses dépendances de données",
+       "text": "Une équipe qui utilise Conductor d'Orkes vérifie si ParticleDB sert de stockage à ses workflows et planifie la reconstruction de l'état depuis des sources fiables."
+      },
+      {
+       "icon": "📋",
+       "title": "Exiger des preuves avant d'adopter",
+       "text": "Un architecte compare les niveaux d'isolation annoncés par un fournisseur avec des tests indépendants avant de retenir une base pour des données critiques."
+      },
+      {
+       "icon": "🧪",
+       "title": "Intégrer des tests de pannes",
+       "text": "Une équipe plateforme reprend l'approche de Jepsen (historiques vérifiés, pannes injectées) pour qualifier ses propres bases avant la mise en production."
+      }
+     ]
+    },
+    {
+     "type": "timeline",
+     "title": "D'où l'on vient, où l'on va",
+     "items": [
+      {
+       "label": "Versions 1.1.4 à 1.1.18.11.rc-22",
+       "text": "Période couverte par les tests de Jepsen, financés par Orkes."
+      },
+      {
+       "label": "31 octobre 2026",
+       "text": "Publication du rapport, avec 96 problèmes recensés."
+      },
+      {
+       "label": "À venir",
+       "text": "La version 1.1.19-rc.13, présentée par Orkes comme corrigeant tous les problèmes, n'a pas été testée par Jepsen."
+      }
+     ]
+    },
+    {
+     "type": "opinion",
+     "title": "Notre avis",
+     "paragraphs": [
+      "Le plus préoccupant n'est pas la quantité de bogues, normale pour un produit jeune, mais l'écart entre le discours commercial et le comportement observé : « Full ACID » et « formellement démontré » sont des promesses précises, que l'on attend étayées. Le fait que 93 problèmes sur 96 surviennent sans panne injectée montre aussi que des tests fonctionnels élémentaires ne suffisaient pas. On notera néanmoins que le rapport porte sur un seul nœud et sur des versions antérieures aux correctifs revendiqués.",
+      "À un horizon d'un à trois ans, la multiplication des bases spécialisées pour l'IA devrait rendre les vérifications indépendantes plus nécessaires, voire exigées par les clients. C'est une opinion argumentée, pas une certitude."
+     ],
+     "verdict": "Tant qu'une version corrigée n'a pas été vérifiée de façon indépendante, mieux vaut éviter ParticleDB pour des données qui comptent."
+    },
+    {
+     "type": "callout",
+     "title": "À retenir",
+     "text": "Jepsen relève 96 problèmes dans ParticleDB et recommande de migrer. La version 1.1.19-rc.13, que l'éditeur dit corrigée, n'a pas été testée."
+    }
+   ],
+   "publishedAt": "2026-11-01T10:19:33+01:00"
+  },
+  {
+   "id": "latence-memoire-group-by-partitionnement-radix-epsio",
+   "category": "dev",
+   "icon": "🧠",
+   "importance": 3,
+   "title": "« It's the memory latency, stupid » : un processeur à 100 % peut passer la moitié de son temps à attendre la mémoire",
+   "summary": "Une étude d'Epsio Labs montre, compteurs matériels à l'appui, qu'un GROUP BY naïf bloque 50,1 % des créneaux d'exécution sur la mémoire, contre 23,5 % après un partitionnement radix en 4 096 tables.",
+   "tags": [
+    "performance",
+    "mémoire",
+    "base de données",
+    "cache",
+    "GROUP BY"
+   ],
+   "sourceDate": "2026-10-28",
+   "readingMinutes": 6,
+   "sources": [
+    {
+     "title": "It's the memory latency, stupid",
+     "url": "https://pivotlake.io/blog/its-the-memory-latency-stupid/",
+     "publisher": "Epsio Labs (Pivot)"
+    }
+   ],
+   "illustration": {
+    "svg": "<svg xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"0 0 640 360\"><defs><linearGradient id=\"g\" x1=\"0\" y1=\"0\" x2=\"1\" y2=\"1\"><stop offset=\"0\" stop-color=\"hsl(265,62%,38%)\"/><stop offset=\"1\" stop-color=\"hsl(305,65%,20%)\"/></linearGradient></defs><rect width=\"640\" height=\"360\" fill=\"url(#g)\"/><rect x=\"200\" y=\"90\" width=\"240\" height=\"180\" rx=\"14\" fill=\"#fff\" opacity=\".93\"/><rect x=\"226\" y=\"116\" width=\"188\" height=\"128\" rx=\"10\" fill=\"hsl(265,55%,60%)\"/><rect x=\"250\" y=\"140\" width=\"140\" height=\"80\" rx=\"8\" fill=\"hsl(265,55%,42%)\"/><rect x=\"278\" y=\"164\" width=\"84\" height=\"32\" rx=\"6\" fill=\"#fff\"/><path d=\"M230 90v-28M270 90v-28M310 90v-28M350 90v-28M390 90v-28M230 270v28M270 270v28M310 270v28M350 270v28M390 270v28M200 130h-28M200 180h-28M200 230h-28M440 130h28M440 180h28M440 230h28\" stroke=\"#fff\" stroke-width=\"8\" stroke-linecap=\"round\"/></svg>"
+   },
+   "blocks": [
+    {
+     "type": "paragraph",
+     "text": "Lorsqu'un outil de supervision affiche un processeur occupé à 100 %, on en déduit volontiers qu'il calcule à pleine vitesse. Maor Kern, d'Epsio Labs (éditeur du produit Pivot), montre dans un billet du 28 octobre 2026 que cette lecture peut être trompeuse : une grande partie de ce temps « occupé » est passée à attendre que la mémoire livre ses données. Son étude porte sur une opération banale, un regroupement SQL, et chiffre ce que coûte l'attente."
+    },
+    {
+     "type": "heading",
+     "level": 2,
+     "text": "Pourquoi la mémoire fait attendre le processeur"
+    },
+    {
+     "type": "paragraph",
+     "text": "Un cœur exécute de 4 à 8 instructions par nanoseconde. Or l'auteur rappelle des ordres de grandeur qui montrent l'écart avec la mémoire : un accès au cache L1 coûte environ 1 ns, soit 4 à 8 instructions ; le cache L2, de 3 à 4 ns ; le cache L3, de 10 à 15 ns ; la mémoire vive (DRAM), de 50 à 100 ns, ce qui représente 400 à 800 instructions qui ne sont pas exécutées pendant l'attente."
+    },
+    {
+     "type": "diagram",
+     "svg": "<svg xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"0 0 640 192\" font-family=\"system-ui,sans-serif\"><rect width=\"640\" height=\"192\" rx=\"16\" fill=\"#f3f5f9\" stroke=\"#c9d1de\"/><text x=\"20\" y=\"32\" font-size=\"16\" font-weight=\"700\" fill=\"#1a2233\">Latence d'accès par niveau de mémoire</text><text x=\"20\" y=\"70\" font-size=\"13\" fill=\"#1a2233\">Cache L1</text><rect x=\"190\" y=\"57\" width=\"3.8\" height=\"16\" rx=\"4\" fill=\"hsl(265,60%,36%)\"/><text x=\"201.8\" y=\"70\" font-size=\"13\" font-weight=\"600\" fill=\"#1a2233\">environ 1 ns</text><text x=\"20\" y=\"96\" font-size=\"13\" fill=\"#1a2233\">Cache L2</text><rect x=\"190\" y=\"83\" width=\"13.1\" height=\"16\" rx=\"4\" fill=\"hsl(265,60%,36%)\"/><text x=\"211.1\" y=\"96\" font-size=\"13\" font-weight=\"600\" fill=\"#1a2233\">3 à 4 ns</text><text x=\"20\" y=\"122\" font-size=\"13\" fill=\"#1a2233\">Cache L3</text><rect x=\"190\" y=\"109\" width=\"46.9\" height=\"16\" rx=\"4\" fill=\"hsl(265,60%,36%)\"/><text x=\"244.9\" y=\"122\" font-size=\"13\" font-weight=\"600\" fill=\"#1a2233\">10 à 15 ns</text><text x=\"20\" y=\"148\" font-size=\"13\" fill=\"#1a2233\">Mémoire DRAM</text><rect x=\"190\" y=\"135\" width=\"281.2\" height=\"16\" rx=\"4\" fill=\"hsl(265,60%,36%)\"/><text x=\"479.2\" y=\"148\" font-size=\"13\" font-weight=\"600\" fill=\"#1a2233\">50 à 100 ns</text><text x=\"20\" y=\"180\" font-size=\"11\" fill=\"#4a5568\">Ordres de grandeur cités par l'auteur ; longueur des barres calculée sur le milieu de chaque fourchette.</text></svg>",
+     "alt": "Diagramme à barres des latences : environ 1 ns pour L1, 3 à 4 ns pour L2, 10 à 15 ns pour L3 et 50 à 100 ns pour la DRAM.",
+     "caption": "Plus on s'éloigne du cœur, plus l'attente s'allonge : la DRAM est de l'ordre de 50 à 100 fois plus lente que le cache L1."
+    },
+    {
+     "type": "paragraph",
+     "text": "Le cas étudié est un `GROUP BY` comportant des millions de groupes. La table de hachage qui stocke les compteurs ne tient alors pas dans les caches : chaque ligne lue déclenche un accès aléatoire en DRAM. Le processeur paraît actif, mais il est bloqué en attente de données."
+    },
+    {
+     "type": "heading",
+     "level": 2,
+     "text": "Le protocole et les mesures"
+    },
+    {
+     "type": "paragraph",
+     "text": "L'expérience a été menée sur un serveur dédié équipé d'un AMD EPYC 9124 (16 cœurs, 128 Go de DDR5), restreint à un seul cœur. Les données proviennent du jeu ClickBench : 99 millions de lignes, dont environ 17 millions d'identifiants `UserID` distincts. Les compteurs matériels ont été lus avec `perf stat`, ce qui suppose un accès direct aux compteurs de l'AMD, non exposés sur les grandes plateformes de cloud public."
+    },
+    {
+     "type": "paragraph",
+     "text": "La parade consiste à effectuer un partitionnement radix : les 12 bits de poids fort du hachage répartissent les lignes en 4 096 partitions, chacune assez petite pour tenir en cache. Le processeur fait plus de travail au total, mais attend beaucoup moins."
+    },
+    {
+     "type": "table",
+     "headers": [
+      "Indicateur",
+      "Version naïve (table de hachage)",
+      "Partitionnement radix"
+     ],
+     "rows": [
+      [
+       "Temps, première exécution",
+       "3,9 s",
+       "3,3 s"
+      ],
+      [
+       "Temps, deuxième exécution (cache disque)",
+       "3,6 s",
+       "2,7 s"
+      ],
+      [
+       "Créneaux bloqués sur la mémoire",
+       "50,1 %",
+       "23,5 %"
+      ],
+      [
+       "Créneaux utiles (retirés)",
+       "16,1 %",
+       "32,2 %"
+      ],
+      [
+       "Chargements depuis la DRAM",
+       "76 190 837",
+       "25 688 280"
+      ],
+      [
+       "Données tirées de la DRAM",
+       "environ 4,5 Go",
+       "environ 1,5 Go"
+      ]
+     ]
+    },
+    {
+     "type": "paragraph",
+     "text": "Le nombre d'opérations retirées passe de 11,4 à 19,4 milliards : la version partitionnée exécute donc davantage d'instructions, mais le trafic vers la DRAM est divisé par trois environ. La version finale de Pivot, toujours sur un seul cœur, tombe à 1 848 ms, et à 171,773 ms sur 16 cœurs, selon l'auteur."
+    },
+    {
+     "type": "heading",
+     "level": 2,
+     "text": "Ce qu'il faut garder en tête"
+    },
+    {
+     "type": "list",
+     "ordered": false,
+     "items": [
+      "**Un seul jeu de données, une seule requête, une seule machine** : les chiffres ne se transposent pas tels quels à d'autres charges.",
+      "**Des compteurs propres à AMD** : d'autres processeurs exposent d'autres indicateurs.",
+      "**Le préchargement n'est pas quantifié** : l'auteur annonce qu'il sera traité ultérieurement.",
+      "**Un texte d'éditeur** : l'article est publié par la société qui commercialise Pivot et présente son produit de façon favorable."
+     ]
+    },
+    {
+     "type": "usecases",
+     "title": "Exemples d'utilisation",
+     "items": [
+      {
+       "icon": "🗄️",
+       "title": "Accélérer une agrégation analytique",
+       "text": "Un ingénieur données qui regroupe des centaines de millions de lignes sur une clé à forte cardinalité peut tester un partitionnement préalable pour que chaque table de hachage tienne en cache."
+      },
+      {
+       "icon": "🔍",
+       "title": "Diagnostiquer un « faux 100 % »",
+       "text": "Un développeur dont le service sature le processeur peut lire les compteurs `perf` pour savoir si le temps est consacré au calcul ou à l'attente de la mémoire avant d'ajouter des serveurs."
+      },
+      {
+       "icon": "🎓",
+       "title": "Enseigner la hiérarchie mémoire",
+       "text": "Un enseignant peut s'appuyer sur le tableau des latences pour montrer pourquoi la localité des données compte autant que la complexité algorithmique."
+      }
+     ]
+    },
+    {
+     "type": "timeline",
+     "title": "D'où l'on vient, où l'on va",
+     "items": [
+      {
+       "label": "Depuis des décennies",
+       "text": "L'écart de vitesse entre processeur et mémoire est un problème connu des concepteurs de bases de données ; les caches et le partitionnement sont des réponses classiques."
+      },
+      {
+       "label": "28 octobre 2026",
+       "text": "Epsio Labs publie des mesures sur un serveur AMD EPYC 9124 avec le jeu ClickBench."
+      },
+      {
+       "label": "À venir",
+       "text": "L'auteur annonce un prochain article consacré au préchargement ; aucune date n'est précisée."
+      }
+     ]
+    },
+    {
+     "type": "opinion",
+     "title": "Notre avis",
+     "paragraphs": [
+      "L'intérêt de ce billet est pédagogique : il rappelle qu'un indicateur d'utilisation du processeur ne dit rien de l'efficacité du travail accompli. Mesurer les créneaux bloqués plutôt que le pourcentage d'occupation est une pratique encore peu répandue en dehors des équipes de performance. Les gains obtenus sont réels mais s'obtiennent sur un cas favorable, et un partitionnement ajoute de la complexité qu'il faut justifier par des mesures sur sa propre charge.",
+      "À un horizon d'un à trois ans, avec des machines dotées de toujours plus de cœurs partageant la même bande passante mémoire, la localité des données devrait devenir un critère de conception de premier rang, y compris dans les moteurs de requêtes grand public. C'est une opinion, non un fait établi."
+     ],
+     "verdict": "Avant d'ajouter des cœurs, il vaut mieux savoir si le processeur calcule ou s'il attend."
+    },
+    {
+     "type": "callout",
+     "title": "À retenir",
+     "text": "Dans cette expérience, passer d'une table de hachage unique à 4 096 partitions fait baisser les créneaux bloqués sur la mémoire de 50,1 % à 23,5 % et divise par trois les chargements depuis la DRAM."
+    }
+   ],
+   "publishedAt": "2026-11-01T10:19:33+01:00"
+  },
+  {
+   "id": "bresil-tribunal-sanctionne-prompt-injection-requete",
+   "category": "ia",
+   "icon": "⚖️",
+   "importance": 3,
+   "title": "Brésil : un tribunal sanctionne deux avocats qui avaient caché une injection de prompt dans leur requête",
+   "summary": "Un tribunal du travail de l'État du Pará a infligé une amende de 10 % de la valeur de la demande à deux avocats : leur requête contenait, en blanc sur blanc, une consigne destinée aux outils d'IA de la justice. Le cas est repris par JetStream Security.",
+   "tags": [
+    "prompt injection",
+    "justice",
+    "IA générative",
+    "Brésil",
+    "déontologie"
+   ],
+   "sourceDate": "2026-07-01",
+   "readingMinutes": 5,
+   "sources": [
+    {
+     "title": "Brazilian Court Sanctions Lawyers for Prompt Injection in Court Filing",
+     "url": "https://jetstream.security/insights/brazilian-court-sanctions-prompt-injection-filing/",
+     "publisher": "JetStream Security"
+    }
+   ],
+   "illustration": {
+    "svg": "<svg xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"0 0 640 360\"><defs><linearGradient id=\"g\" x1=\"0\" y1=\"0\" x2=\"1\" y2=\"1\"><stop offset=\"0\" stop-color=\"hsl(320,62%,38%)\"/><stop offset=\"1\" stop-color=\"hsl(0,65%,20%)\"/></linearGradient></defs><rect width=\"640\" height=\"360\" fill=\"url(#g)\"/><path d=\"M320 70v220M230 290h180\" stroke=\"#fff\" stroke-width=\"12\" stroke-linecap=\"round\"/><path d=\"M170 120h300\" stroke=\"#fff\" stroke-width=\"10\" stroke-linecap=\"round\"/><path d=\"M170 120l-48 90h96zM470 120l-48 90h96z\" fill=\"none\" stroke=\"#fff\" stroke-width=\"7\" stroke-linejoin=\"round\"/><path d=\"M122 210a48 24 0 0 0 96 0zM422 210a48 24 0 0 0 96 0z\" fill=\"#fff\"/><circle cx=\"320\" cy=\"78\" r=\"14\" fill=\"#fff\"/><rect x=\"262\" y=\"236\" width=\"116\" height=\"10\" rx=\"5\" fill=\"#fff\" opacity=\".5\"/></svg>"
+   },
+   "blocks": [
+    {
+     "type": "paragraph",
+     "text": "Une décision rendue au Brésil rappelle que les tribunaux ne sont plus les seuls à lire les écritures des avocats : les logiciels le font aussi. Selon un billet de JetStream Security, une société de sécurité de l'IA, le 3e tribunal du travail de Parauapebas, dans l'État du Pará, a sanctionné deux avocats (ou deux cabinets, la source ne tranche pas) qui avaient glissé dans une requête une instruction invisible à l'œil nu, adressée aux systèmes d'intelligence artificielle chargés de l'examiner. Le billet est daté du 1er juillet 2026 ; il refait surface sur Hacker News le 1er novembre, et la décision elle-même est antérieure, un reportage du média brésilien G1 étant daté du 14 mai 2026."
+    },
+    {
+     "type": "heading",
+     "level": 2,
+     "text": "Ce que rapporte la source"
+    },
+    {
+     "type": "list",
+     "ordered": false,
+     "items": [
+      "**Le procédé** : un texte en police blanche sur fond blanc, invisible à la lecture normale. Il a été repéré lorsque le juge a examiné la requête avec Galileu, un outil d'IA générative utilisé à l'échelle nationale par le Conseil national de justice brésilien.",
+      "**Le contenu** : l'instruction commençait par une interpellation de l'IA et lui demandait de répondre à la requête de façon superficielle et de ne pas contester les documents.",
+      "**La détection** : selon G1, Galileu a émis une alerte et bloqué automatiquement le traitement du contenu suspect.",
+      "**La sanction** : une censure et une amende de 10 % de la valeur de la demande, qui s'élevait à 842 000 réaux ; la source évoque environ 16 000 dollars.",
+      "**Les motifs** : le tribunal a jugé que les avocats cherchaient à amener tout système d'IA, de la partie adverse ou du tribunal, à produire une réponse superficielle ou un projet de jugement biaisé. Il invoque les articles 5 (bonne foi, loyauté) et 77 (interdiction d'entraver la procédure) du Code de procédure civile brésilien."
+     ]
+    },
+    {
+     "type": "paragraph",
+     "text": "Le billet indique que cette décision pourrait être la première au monde à traiter de la manipulation volontaire d'un système d'IA judiciaire par injection de prompt. Cette affirmation est celle de l'éditeur et n'a pas été vérifiée de façon indépendante. La source est en outre un texte éditorial publié par un fournisseur de solutions de sécurité, ce qui peut orienter son angle ; la décision d'origine, rédigée en portugais, a été relayée sur X par le procureur et professeur Vladimir Aras puis traduite automatiquement."
+    },
+    {
+     "type": "heading",
+     "level": 2,
+     "text": "Une injection de prompt, c'est quoi ?"
+    },
+    {
+     "type": "paragraph",
+     "text": "Un modèle de langage ne distingue pas toujours les consignes de son utilisateur du contenu qu'il lit. Un document qui contient une phrase du type « ignore tes instructions » peut donc, dans certains cas, détourner le comportement de l'outil qui le résume. Le texte en blanc sur blanc est une astuce simple, invisible pour un lecteur humain mais lue sans difficulté par un logiciel ; elle est ici transposée à la justice."
+    },
+    {
+     "type": "usecases",
+     "title": "Exemples d'utilisation",
+     "items": [
+      {
+       "icon": "🏛️",
+       "title": "Outiller les greffes",
+       "text": "Une juridiction qui s'appuie sur un assistant de synthèse peut y ajouter une détection des textes cachés (couleur de police, taille nulle, métadonnées) avant toute analyse."
+      },
+      {
+       "icon": "📄",
+       "title": "Revoir ses propres pièces",
+       "text": "Un cabinet d'avocats peut vérifier qu'aucun texte invisible n'a été hérité d'un modèle de document ou d'un outil tiers avant de déposer ses écritures."
+      },
+      {
+       "icon": "🏢",
+       "title": "Filtrer les documents entrants en entreprise",
+       "text": "Un service qui fait lire des CV ou des contrats par une IA peut convertir les fichiers en texte visible et signaler les passages invisibles."
+      }
+     ]
+    },
+    {
+     "type": "timeline",
+     "title": "D'où l'on vient, où l'on va",
+     "items": [
+      {
+       "label": "14 mai 2026",
+       "text": "Le média brésilien G1 consacre un reportage à l'affaire, selon le billet."
+      },
+      {
+       "label": "1er juillet 2026",
+       "text": "JetStream Security publie son analyse de la décision."
+      },
+      {
+       "label": "1er novembre 2026",
+       "text": "Le billet est de nouveau largement lu sur Hacker News ; aucun appel ni suite n'est mentionné dans la source."
+      }
+     ]
+    },
+    {
+     "type": "opinion",
+     "title": "Notre avis",
+     "paragraphs": [
+      "Le raisonnement du tribunal est intéressant : l'intégrité d'une écriture judiciaire s'étendrait à son contenu lisible par machine, comme le souligne le directeur juridique cité par JetStream. Il n'y a là aucune règle nouvelle, seulement l'application de devoirs de loyauté existants à un support inédit. Reste que la sanction repose sur l'intention, établie ici par le caractère caché du texte ; la frontière sera moins nette quand une consigne sera simplement mal placée ou héritée d'un outil.",
+      "À un horizon d'un à trois ans, on peut s'attendre à voir des juridictions et des cabinets adopter des contrôles automatiques de documents, et la question se posera dans d'autres pays, où les cadres déontologiques diffèrent. Il s'agit d'une analyse, pas d'un constat : la source ne décrit que ce cas brésilien."
+     ],
+     "verdict": "Une décision locale, mais un avertissement utile : tout document lu par une IA est aussi un vecteur d'attaque."
+    },
+    {
+     "type": "callout",
+     "title": "À retenir",
+     "text": "Au Brésil, une amende de 10 % de la valeur de la demande (842 000 R$) a sanctionné un texte caché destiné aux IA. L'information vient d'un éditeur de sécurité et reste à recouper avec la décision originale."
+    }
+   ],
+   "publishedAt": "2026-11-01T10:19:33+01:00"
+  },
+  {
+   "id": "tangled-forge-code-federee-at-protocol",
+   "category": "devops",
+   "icon": "🕸️",
+   "importance": 3,
+   "title": "Tangled veut fédérer la forge de code : knots Rust, protocole AT et revues empilées",
+   "summary": "Dans un billet du 30 octobre 2026, Tangled défend l'idée d'une forge fédérée où l'on héberge son code sur ses propres serveurs. Plusieurs fonctions annoncées ne sont pas encore disponibles.",
+   "tags": [
+    "forge",
+    "Git",
+    "AT Protocol",
+    "auto-hébergement",
+    "Tangled"
+   ],
+   "sourceDate": "2026-10-30",
+   "readingMinutes": 5,
+   "sources": [
+    {
+     "title": "The federated code forge",
+     "url": "https://tangled.org/blog/forge/",
+     "publisher": "Tangled"
+    }
+   ],
+   "cover": {
+    "url": "https://assets.tangled.network/blog/forge/og.png",
+    "alt": "Visuel de présentation du billet de Tangled sur la forge fédérée",
+    "credit": "tangled.org"
+   },
+   "illustration": {
+    "svg": "<svg xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"0 0 640 360\"><defs><linearGradient id=\"g\" x1=\"0\" y1=\"0\" x2=\"1\" y2=\"1\"><stop offset=\"0\" stop-color=\"hsl(160,62%,38%)\"/><stop offset=\"1\" stop-color=\"hsl(200,65%,20%)\"/></linearGradient></defs><rect width=\"640\" height=\"360\" fill=\"url(#g)\"/><g stroke=\"#fff\" stroke-width=\"5\" opacity=\".8\"><path d=\"M320 180L180 100M320 180L180 260M320 180L460 100M320 180L460 260M180 100L180 260M460 100L460 260M180 100L320 62M460 100L320 62\"/></g><g fill=\"#fff\"><circle cx=\"320\" cy=\"180\" r=\"34\"/><circle cx=\"180\" cy=\"100\" r=\"22\"/><circle cx=\"180\" cy=\"260\" r=\"22\"/><circle cx=\"460\" cy=\"100\" r=\"22\"/><circle cx=\"460\" cy=\"260\" r=\"22\"/><circle cx=\"320\" cy=\"62\" r=\"16\"/></g><path d=\"M304 180h32M320 164v32\" stroke=\"hsl(160,55%,30%)\" stroke-width=\"7\" stroke-linecap=\"round\"/></svg>"
+   },
+   "blocks": [
+    {
+     "type": "paragraph",
+     "text": "Héberger son code chez un tiers apporte confort et visibilité, mais impose aussi de dépendre de sa disponibilité, de ses fonctions et de ses règles. Dans un billet du 30 octobre 2026, Anirudh, de l'équipe de **Tangled**, part de ce constat : selon lui, la dépendance aux forges centralisées « a mal vieilli ». Il met en regard la longévité de Git et du courrier électronique, protocoles ouverts, et l'ergonomie des forges, et présente Tangled comme la première forge réellement fédérée, où chacun peut héberger ses dépôts sur ses propres serveurs tout en collaborant avec les autres."
+    },
+    {
+     "type": "heading",
+     "level": 2,
+     "text": "Comment cela fonctionne"
+    },
+    {
+     "type": "paragraph",
+     "text": "Tangled repose sur l'**AT Protocol**, déjà connu pour servir de socle à des réseaux sociaux décentralisés. Les données de la forge sont décrites dans des lexiques `org.tangled.*`, qui remplacent les anciens `sh.tangled.*`. Cela permet à des tiers de s'abonner au flux d'événements (le « firehose »), de bâtir des extensions ou de développer leurs propres composants."
+    },
+    {
+     "type": "list",
+     "ordered": false,
+     "items": [
+      "**Knots** : les serveurs Git. Knot2, réécrit en Rust, intègre un serveur Git et un serveur SSH. Tickets, demandes de fusion, commentaires, réactions et étiquettes sont stockés dans le dépôt lui-même, sous forme d'objets collaboratifs, et synchronisés via le firehose.",
+      "**Attestations** : chaque création ou modification s'accompagne d'un enregistrement écrit sur le serveur de données personnel (PDS) de l'utilisateur, afin de vérifier l'intégrité dans les deux sens.",
+      "**Bobbin** : un indexeur Rust en mémoire, en lecture seule, déployé dans plus de 11 régions, qui alimente une nouvelle interface Svelte servie en périphérie du réseau.",
+      "**Organisations** : de véritables comptes AT Protocol, avec identifiant décentralisé et nom propres, hébergés sur une instance Tranquil PDS, sans mot de passe, sous la forme `<nom>.tngl.sh`.",
+      "**Revue de code** : demandes de fusion empilées, pour Git comme pour Jujutsu, et comparaison entre versions successives d'une même demande (anciennement les « rounds »)."
+     ]
+    },
+    {
+     "type": "paragraph",
+     "text": "L'ancienne architecture reposait sur un monolithe Go et une base SQLite unique installée sur un serveur en Suède, avec une latence de 50 à 100 ms jugée gênante pour les utilisateurs éloignés. La migration vers des indexeurs régionaux vise à corriger ce défaut ; aucun test de performance chiffré n'est fourni. Les « spindles » (utilisés pour l'intégration continue) sont mentionnés, avec un exemple d'implémentation personnalisée appelé tack, mais le billet n'en décrit pas le fonctionnement."
+    },
+    {
+     "type": "heading",
+     "level": 2,
+     "text": "Ce qui reste à venir"
+    },
+    {
+     "type": "paragraph",
+     "text": "Le billet est un texte de lancement : les formules du type « première forge réellement fédérée » ou « interface plus rapide » ne sont pas démontrées de façon indépendante. Les dépôts privés, un outil en ligne de commande, des kits de développement et des compétences pour agents sont annoncés mais pas encore disponibles. Les anciens comptes utilisés comme organisations doivent être migrés, sans que la procédure soit décrite, et les auto-hébergeurs doivent mettre leurs knots à jour, la version minimale à installer étant la v1.20.0."
+    },
+    {
+     "type": "usecases",
+     "title": "Exemples d'utilisation",
+     "items": [
+      {
+       "icon": "🏠",
+       "title": "Garder la main sur ses dépôts",
+       "text": "Un développeur indépendant installe son propre knot pour héberger son code tout en restant visible et contributeur sur l'ensemble du réseau."
+      },
+      {
+       "icon": "🏫",
+       "title": "Une organisation sans mot de passe",
+       "text": "Une association ou une équipe open source crée un compte d'organisation en `.tngl.sh` et y gère ses projets sans passer par une grande plateforme."
+      },
+      {
+       "icon": "🔧",
+       "title": "Réviser par petites étapes",
+       "text": "Une équipe adopte les demandes de fusion empilées pour livrer une grosse fonctionnalité en plusieurs tranches relues séparément, avec un diff entre chaque version."
+      }
+     ]
+    },
+    {
+     "type": "timeline",
+     "title": "D'où l'on vient, où l'on va",
+     "items": [
+      {
+       "label": "Jusqu'ici",
+       "text": "Un monolithe Go et une base SQLite unique en Suède, avec une latence de 50 à 100 ms pour les utilisateurs éloignés."
+      },
+      {
+       "label": "30 octobre 2026",
+       "text": "Le billet présente knot2 en Rust, l'indexeur bobbin dans plus de 11 régions et la nouvelle interface Svelte."
+      },
+      {
+       "label": "À venir",
+       "text": "Dépôts privés, ligne de commande, kits de développement et compétences pour agents sont annoncés sans calendrier."
+      }
+     ]
+    },
+    {
+     "type": "opinion",
+     "title": "Notre avis",
+     "paragraphs": [
+      "L'idée d'une forge fédérée est séduisante, mais l'histoire des protocoles ouverts montre que la fédération demande de l'ergonomie et de l'exploitation, pas seulement de la théorie. Le billet reste surtout programmatique : il décrit l'architecture, pas l'adoption ni la fiabilité. La question de la confiance, par exemple comment un auto-hébergeur gère les mises à jour de sécurité de son knot, reste ouverte.",
+      "À un horizon d'un à trois ans, si les dépôts privés et la CI deviennent réellement utilisables, Tangled pourrait séduire les projets libres soucieux de leur indépendance. Face aux plateformes dominantes, la bataille se jouera sur les intégrations, pas sur les principes. C'est une opinion, non un fait."
+     ],
+     "verdict": "Un projet à suivre pour son architecture, en attendant des fonctions essentielles encore absentes."
+    },
+    {
+     "type": "callout",
+     "title": "À retenir",
+     "text": "Tangled s'appuie sur l'AT Protocol pour fédérer les dépôts Git ; knots en Rust et indexeur régional sont décrits, mais dépôts privés, CLI et SDK restent à venir."
+    }
+   ],
+   "publishedAt": "2026-11-01T10:19:33+01:00"
+  },
+  {
+   "id": "projet-altoids-ordinateur-miniature-pere-fils-arduino",
+   "category": "electronique",
+   "icon": "🍬",
+   "importance": 2,
+   "title": "Projet Altoids : un père et son fils de 12 ans logent un mini-ordinateur dans une boîte de pastilles",
+   "summary": "Après deux mois et cinq versions, un Arduino Nano, un écran 128×64 et une batterie LiPo tiennent dans une boîte métallique. Le récit détaille aussi les pièges rencontrés, dont un brochage inventé par une IA.",
+   "tags": [
+    "Arduino",
+    "bricolage",
+    "LiPo",
+    "projet en famille"
+   ],
+   "sourceDate": "2026-10-31",
+   "readingMinutes": 5,
+   "sources": [
+    {
+     "title": "Altoids Project",
+     "url": "https://uvdn7.github.io/altoids-project/",
+     "publisher": "uvdn7.github.io"
+    }
+   ],
+   "illustration": {
+    "svg": "<svg xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"0 0 640 360\"><defs><linearGradient id=\"g\" x1=\"0\" y1=\"0\" x2=\"1\" y2=\"1\"><stop offset=\"0\" stop-color=\"hsl(30,62%,38%)\"/><stop offset=\"1\" stop-color=\"hsl(70,65%,20%)\"/></linearGradient></defs><rect width=\"640\" height=\"360\" fill=\"url(#g)\"/><rect x=\"150\" y=\"100\" width=\"340\" height=\"190\" rx=\"22\" fill=\"#fff\" opacity=\".93\"/><rect x=\"150\" y=\"100\" width=\"340\" height=\"44\" rx=\"22\" fill=\"#fff\"/><rect x=\"190\" y=\"164\" width=\"130\" height=\"86\" rx=\"8\" fill=\"hsl(30,45%,22%)\"/><rect x=\"202\" y=\"176\" width=\"106\" height=\"62\" rx=\"4\" fill=\"hsl(150,60%,60%)\"/><path d=\"M214 224l16-26 14 14 18-22 16 20 14-8\" fill=\"none\" stroke=\"hsl(30,45%,22%)\" stroke-width=\"5\" stroke-linecap=\"round\" stroke-linejoin=\"round\"/><rect x=\"350\" y=\"168\" width=\"110\" height=\"34\" rx=\"6\" fill=\"hsl(30,60%,45%)\"/><circle cx=\"380\" cy=\"235\" r=\"14\" fill=\"hsl(30,60%,45%)\"/><circle cx=\"430\" cy=\"235\" r=\"14\" fill=\"hsl(30,60%,60%)\"/><path d=\"M360 168v-14M380 168v-14M400 168v-14M420 168v-14M440 168v-14\" stroke=\"hsl(30,60%,45%)\" stroke-width=\"5\" stroke-linecap=\"round\"/></svg>"
+   },
+   "blocks": [
+    {
+     "type": "paragraph",
+     "text": "La boîte métallique de pastilles Altoids est un classique du bricolage électronique : assez solide pour protéger un circuit, assez petite pour tenir dans une poche. Dans un récit publié le 31 octobre 2026 sur son blog, un développeur qui signe « Lu » raconte comment il a construit avec son fils de 12 ans un mini-ordinateur dans un boîtier de ce type. Le projet a duré environ deux mois et a connu cinq versions successives."
+    },
+    {
+     "type": "heading",
+     "level": 2,
+     "text": "Le point de départ et la liste des pièces"
+    },
+    {
+     "type": "paragraph",
+     "text": "L'histoire commence par un robot récupéré gratuitement lors d'un Swapfest du MIT, probablement issu du kit Sparki d'Arcbotics. Le père et le fils en ont conservé l'écran de 128×64 pixels pour le réutiliser dans un nouveau boîtier. Le matériel final réunit :"
+    },
+    {
+     "type": "list",
+     "ordered": false,
+     "items": [
+      "un écran 128×64, d'abord celui du robot puis un modèle d'Adafruit ;",
+      "une carte Arduino Nano ;",
+      "des batteries LiPo avec un module d'alimentation PowerBoost d'Adafruit ;",
+      "des plaques d'essai à souder ;",
+      "des pièces imprimées en 3D, dessinées en CAO par le fils ;",
+      "du fil très fin de 30 AWG ;",
+      "un ThinkPad d'occasion pour la programmation."
+     ]
+    },
+    {
+     "type": "heading",
+     "level": 2,
+     "text": "Cinq versions, autant de leçons"
+    },
+    {
+     "type": "table",
+     "headers": [
+      "Version",
+      "Ce qui a été fait",
+      "Résultat"
+     ],
+     "rows": [
+      [
+       "v1",
+       "Affichage du jeu Space Trash avec la bibliothèque U8g2, brochage trouvé sur un forum Arduino",
+       "Fonctionne"
+      ],
+      [
+       "v2",
+       "Passage à l'Arduino Nano et à l'alimentation LiPo",
+       "Le couvercle ne ferme pas"
+      ],
+      [
+       "v3",
+       "Utilisation d'une vraie boîte Altoids, plus haute",
+       "Le couvercle ne ferme toujours pas"
+      ],
+      [
+       "v4",
+       "Écran collé sur le couvercle à la colle chaude",
+       "Fonctionne du premier coup, le couvercle ferme difficilement"
+      ],
+      [
+       "v5",
+       "Fil de 30 AWG, deux vraies pastilles dans des sachets zip de 1 pouce sur 1",
+       "Version finale"
+      ]
+     ]
+    },
+    {
+     "type": "paragraph",
+     "text": "Aucun composant de la première version n'a survécu aux itérations. Le récit ne cache pas les difficultés : un assistant d'IA a inventé un brochage à 20 broches pour un écran qui n'en a que 10, ce qui a obligé à chercher la bonne documentation ; le démontage de l'écran d'origine en a endommagé un exemplaire, qu'il a fallu remplacer ; le nouvel écran exigeait de dessouder deux cavaliers pour passer en mode SPI ; enfin les fils se sont cassés au bout d'un jour, et une réparation par rallonge soudée a échoué."
+    },
+    {
+     "type": "heading",
+     "level": 2,
+     "text": "Ce que le récit ne dit pas"
+    },
+    {
+     "type": "paragraph",
+     "text": "Le billet ne donne ni l'autonomie de la batterie, ni la consommation, ni mesure de performance. La solidité du montage reste incertaine : le couvercle ferme avec peine et les fils très fins sont fragiles. Il s'agit avant tout d'un témoignage de projet en famille, plus que d'un guide de reproduction."
+    },
+    {
+     "type": "usecases",
+     "title": "Exemples d'utilisation",
+     "items": [
+      {
+       "icon": "👨‍👦",
+       "title": "Un projet parent-enfant",
+       "text": "Un parent qui souhaite initier son enfant à l'électronique peut partir d'un écran récupéré et d'un Arduino Nano, et laisser l'enfant concevoir le boîtier en CAO."
+      },
+      {
+       "icon": "🎮",
+       "title": "Une console de poche minimaliste",
+       "text": "Avec la bibliothèque U8g2, un amateur peut faire tourner un petit jeu sur l'écran 128×64 et l'alimenter par une batterie LiPo."
+      },
+      {
+       "icon": "📚",
+       "title": "Un atelier pour un club",
+       "text": "Un fablab peut proposer le montage comme exercice : câbler un écran SPI, gérer l'alimentation et résoudre les problèmes de place dans un boîtier."
+      }
+     ]
+    },
+    {
+     "type": "timeline",
+     "title": "D'où l'on vient, où l'on va",
+     "items": [
+      {
+       "label": "Il y a environ deux mois",
+       "text": "Début du projet, à partir d'un robot récupéré au Swapfest du MIT."
+      },
+      {
+       "label": "31 octobre 2026",
+       "text": "Publication du récit des cinq versions, avec une vidéo de démonstration."
+      },
+      {
+       "label": "À venir",
+       "text": "Aucune évolution n'est annoncée dans le billet."
+      }
+     ]
+    },
+    {
+     "type": "opinion",
+     "title": "Notre avis",
+     "paragraphs": [
+      "Ce récit vaut surtout pour son honnêteté : il montre que le plus difficile en électronique d'amateur n'est pas le logiciel mais la mécanique et le câblage, et qu'un assistant d'IA peut produire avec aplomb un brochage faux. Le conseil implicite est de toujours confronter une réponse générée à la fiche technique du composant avant de souder.",
+      "À un horizon d'un à trois ans, on peut imaginer que les assistants d'IA aideront davantage à concevoir des boîtiers et à débloquer des erreurs de câblage, mais cela ne dispensera pas de vérifier à l'aide de la documentation. C'est une opinion, pas un constat issu de la source."
+     ],
+     "verdict": "Un joli projet de bricolage familial, et un rappel utile : contrôler la fiche technique avant de souder."
+    },
+    {
+     "type": "callout",
+     "title": "À retenir",
+     "text": "Cinq versions, un Arduino Nano, un écran 128×64 et une batterie LiPo : le projet fonctionne, mais le récit ne fournit ni autonomie ni mesures."
+    }
+   ],
+   "publishedAt": "2026-11-01T10:19:33+01:00"
+  }
+ ]
+}
