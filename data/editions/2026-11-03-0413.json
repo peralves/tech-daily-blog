@@ -1,0 +1,679 @@
+{
+ "schemaVersion": "1.0",
+ "date": "2026-11-03",
+ "generatedAt": "2026-11-03T03:16:41+00:00",
+ "title": "Tech du 3 novembre : GitLab sous attaque, rançongiciel contre les NAS Synology et des modèles qui réécrivent des poids",
+ "summary": "Une édition centrée sur la sécurité des infrastructures auto-hébergées, une recherche du MIT sur la lecture et l'écriture directe des poids de réseaux de neurones, la refonte du constructeur de zones DNS de Cloudflare et l'ouverture du firmware de Polyend.",
+ "highlights": [
+  "GitLab : la faille CVE-2026-97229 est exploitée et plus de 1 000 serveurs restent vulnérables.",
+  "Synology alerte sur le rançongiciel C3RB3R qui vise les DSM obsolètes.",
+  "MIT CSAIL : un grand modèle lit, écrit et répare des poids de réseaux.",
+  "Cloudflare divise par sept la mémoire de son constructeur de zones DNS.",
+  "Polyend ouvre le code du firmware de ses Tracker."
+ ],
+ "meta": {
+  "generator": "claude-scheduled-task"
+ },
+ "posts": [
+  {
+   "id": "gitlab-cve-2026-97229-rce-plus-de-1000-serveurs",
+   "category": "cybersecurite",
+   "icon": "🦊",
+   "importance": 5,
+   "title": "GitLab : une faille d'exécution de code à distance notée au maximum est exploitée, plus de 1 000 serveurs restent vulnérables",
+   "summary": "La faille CVE-2026-97229, corrigée par GitLab le 12 octobre 2026, figure au catalogue des vulnérabilités exploitées de la CISA. Shadowserver recense encore plus de 1 000 instances exposées et non corrigées.",
+   "tags": [
+    "GitLab",
+    "CVE-2026-97229",
+    "exécution de code à distance",
+    "CISA KEV",
+    "CI/CD"
+   ],
+   "readingMinutes": 5,
+   "publishedAt": "2026-11-03T03:16:41+00:00",
+   "sourceDate": "2026-11-02",
+   "sources": [
+    {
+     "title": "Over 1,000 GitLab servers vulnerable to ongoing RCE attacks",
+     "url": "https://www.bleepingcomputer.com/news/security/over-1-000-gitlab-servers-vulnerable-to-code-execution-attacks/",
+     "publisher": "BleepingComputer"
+    }
+   ],
+   "illustration": {
+    "svg": "<svg xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"0 0 640 360\"><defs><linearGradient id=\"g\" x1=\"0\" y1=\"0\" x2=\"1\" y2=\"1\"><stop offset=\"0\" stop-color=\"hsl(175,65%,38%)\"/><stop offset=\"1\" stop-color=\"hsl(215,70%,22%)\"/></linearGradient></defs><rect width=\"640\" height=\"360\" fill=\"url(#g)\"/><circle cx=\"540\" cy=\"60\" r=\"90\" fill=\"#fff\" opacity=\".07\"/><circle cx=\"70\" cy=\"320\" r=\"110\" fill=\"#fff\" opacity=\".06\"/><path d=\"M0 300 Q160 240 320 290 T640 270 V360 H0Z\" fill=\"#fff\" opacity=\".08\"/><text x=\"320\" y=\"230\" font-size=\"130\" text-anchor=\"middle\" opacity=\".95\">🦊</text></svg>"
+   },
+   "blocks": [
+    {
+     "type": "paragraph",
+     "text": "Les forges logicielles auto-hébergées font partie des cibles les plus rentables pour un attaquant : elles concentrent le code source, les secrets de déploiement et les accès aux environnements de production. C'est ce qui rend l'alerte du week-end du 1er novembre 2026 particulièrement sérieuse. D'après BleepingComputer, plus de 1 000 serveurs GitLab exposés sur internet restent vulnérables à une faille d'exécution de code à distance déjà exploitée dans la nature, alors qu'un correctif est disponible depuis le 12 octobre."
+    },
+    {
+     "type": "heading",
+     "level": 2,
+     "text": "Ce que l'on sait de la faille"
+    },
+    {
+     "type": "paragraph",
+     "text": "La vulnérabilité porte l'identifiant **CVE-2026-97229**. Il s'agit d'un dépassement d'entier (CWE-190) dans le compilateur d'expressions régulières utilisé pour interpréter les fichiers de configuration des pipelines CI/CD. Selon GitLab, un utilisateur non authentifié peut, dans certaines conditions, faire exécuter du code arbitraire sur le serveur grâce à une expression régulière spécialement fabriquée. La cause racine tient à une validation insuffisante de ces expressions avant leur compilation. La gravité est notée au niveau maximal."
+    },
+    {
+     "type": "list",
+     "items": [
+      "**Produits concernés** : les éditions Community (CE) et Enterprise (EE) de GitLab auto-hébergées, avant application des correctifs.",
+      "**Versions corrigées** : 19.4.2, 19.3.5 et 19.2.8, publiées le 12 octobre 2026, selon la branche utilisée.",
+      "**GitLab.com** exécute déjà la version corrigée ; les clients GitLab Dedicated n'ont aucune action à mener.",
+      "**Exploitation** : la CISA a confirmé l'exploitation dans la nature et ajouté la faille à son catalogue des vulnérabilités exploitées (KEV), en imposant aux agences fédérales américaines une échéance de correction fixée au dimanche."
+     ]
+    },
+    {
+     "type": "paragraph",
+     "text": "Le décompte des serveurs exposés provient de Shadowserver, qui indique suivre plus de 1 000 instances vulnérables à cette faille. L'article ne précise pas qui a découvert le bogue ni quels groupes l'exploitent, ni ce que les attaquants font une fois sur le serveur."
+    },
+    {
+     "type": "heading",
+     "level": 2,
+     "text": "Une série qui s'allonge"
+    },
+    {
+     "type": "paragraph",
+     "text": "Cette alerte s'inscrit dans une succession de failles critiques touchant le même composant ou la même plateforme. BleepingComputer rappelle la CVE-2026-85706 (septembre), un défaut de traversée de chemin dans l'API des commits qui permettait de dérober des identifiants, signalé comme exploité par la CISA, ainsi que la CVE-2026-110264 (octobre), une autre faille maximale dans le même compilateur d'expressions régulières, pour laquelle Shadowserver compte plus de 11 300 instances vulnérables sur environ 39 000 observées chaque jour. Depuis novembre 2021, la CISA a inscrit six failles de GitLab à son catalogue ; l'une d'elles a servi dans des attaques par rançongiciel."
+    },
+    {
+     "type": "diagram",
+     "svg": "<svg xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"0 0 640 260\" font-family=\"system-ui,sans-serif\"><rect width=\"640\" height=\"260\" rx=\"14\" fill=\"#f3f5f9\"/><defs><marker id=\"a\" markerWidth=\"8\" markerHeight=\"8\" refX=\"6\" refY=\"4\" orient=\"auto\"><path d=\"M0 0 L8 4 L0 8Z\" fill=\"#374151\"/></marker></defs><text x=\"320\" y=\"34\" font-size=\"16\" font-weight=\"700\" text-anchor=\"middle\" fill=\"#1f2937\">CVE-2026-97229 : de la correction à l'exposition</text><rect x=\"20\" y=\"70\" width=\"180\" height=\"130\" rx=\"10\" fill=\"#fff\" stroke=\"#6b7280\"/><text x=\"110\" y=\"105\" font-size=\"14\" font-weight=\"700\" text-anchor=\"middle\" fill=\"#111827\">12 octobre</text><text x=\"110\" y=\"132\" font-size=\"12\" text-anchor=\"middle\" fill=\"#374151\">Correctifs publiés</text><text x=\"110\" y=\"150\" font-size=\"12\" text-anchor=\"middle\" fill=\"#374151\">19.4.2 · 19.3.5 · 19.2.8</text><path d=\"M204 135 h22\" stroke=\"#374151\" stroke-width=\"2.5\" marker-end=\"url(#a)\"/><rect x=\"230\" y=\"70\" width=\"180\" height=\"130\" rx=\"10\" fill=\"#fff\" stroke=\"#6b7280\"/><text x=\"320\" y=\"105\" font-size=\"14\" font-weight=\"700\" text-anchor=\"middle\" fill=\"#111827\">Fin octobre</text><text x=\"320\" y=\"132\" font-size=\"12\" text-anchor=\"middle\" fill=\"#374151\">Exploitation confirmée</text><text x=\"320\" y=\"150\" font-size=\"12\" text-anchor=\"middle\" fill=\"#374151\">ajout au catalogue KEV</text><path d=\"M414 135 h22\" stroke=\"#374151\" stroke-width=\"2.5\" marker-end=\"url(#a)\"/><rect x=\"440\" y=\"70\" width=\"180\" height=\"130\" rx=\"10\" fill=\"#fff\" stroke=\"#6b7280\"/><text x=\"530\" y=\"105\" font-size=\"14\" font-weight=\"700\" text-anchor=\"middle\" fill=\"#111827\">1er novembre</text><text x=\"530\" y=\"132\" font-size=\"12\" text-anchor=\"middle\" fill=\"#374151\">Shadowserver</text><text x=\"530\" y=\"150\" font-size=\"12\" text-anchor=\"middle\" fill=\"#374151\">+ de 1 000 instances</text><text x=\"530\" y=\"168\" font-size=\"12\" text-anchor=\"middle\" fill=\"#374151\">encore exposées</text></svg>",
+     "alt": "Frise en trois étapes : correctifs le 12 octobre, exploitation confirmée fin octobre, plus de 1 000 serveurs encore vulnérables le 1er novembre.",
+     "caption": "Les trois temps de l'alerte, d'après les informations rapportées par BleepingComputer."
+    },
+    {
+     "type": "heading",
+     "level": 2,
+     "text": "Que faire concrètement"
+    },
+    {
+     "type": "paragraph",
+     "text": "La consigne de GitLab est sans ambiguïté : mettre à jour immédiatement les installations auto-hébergées vers l'une des trois versions corrigées correspondant à la branche en service. Pour une organisation française, l'urgence est double. D'une part, un serveur GitLab compromis donne accès à des clés de déploiement, des jetons d'API et parfois à des données personnelles, ce qui peut déclencher une obligation de notification à la CNIL en cas de violation. D'autre part, la mise à jour ne suffit pas si l'instance a été exposée pendant les trois semaines écoulées : il faut aussi rechercher des traces de compromission et faire tourner les secrets stockés dans les variables CI/CD."
+    },
+    {
+     "type": "usecases",
+     "title": "Exemples d'utilisation",
+     "items": [
+      {
+       "icon": "🛠️",
+       "title": "Une PME avec un GitLab auto-hébergé",
+       "text": "Elle vérifie la version installée, applique la mise à jour de sa branche, puis consulte les journaux d'accès à la recherche de pipelines ou de comptes créés sans explication."
+      },
+      {
+       "icon": "🏢",
+       "title": "Une équipe sécurité d'un grand groupe",
+       "text": "Elle inventorie toutes les instances GitLab, y compris celles oubliées par des équipes projet, et les retire d'internet derrière un VPN ou un reverse proxy authentifié."
+      },
+      {
+       "icon": "🔑",
+       "title": "Un développeur indépendant",
+       "text": "Il change les jetons d'accès et les clés de déploiement enregistrés dans ses projets, par précaution, après avoir mis son instance à jour."
+      }
+     ]
+    },
+    {
+     "type": "timeline",
+     "title": "D'où l'on vient, où l'on va",
+     "items": [
+      {
+       "label": "Novembre 2021",
+       "text": "Premier ajout d'une faille GitLab au catalogue KEV de la CISA."
+      },
+      {
+       "label": "Septembre 2026",
+       "text": "CVE-2026-85706 : traversée de chemin dans l'API des commits, exploitée."
+      },
+      {
+       "label": "12 octobre 2026",
+       "text": "Publication des versions 19.4.2, 19.3.5 et 19.2.8."
+      },
+      {
+       "label": "1er novembre 2026",
+       "text": "Plus de 1 000 serveurs encore vulnérables selon Shadowserver."
+      }
+     ]
+    },
+    {
+     "type": "opinion",
+     "title": "Notre avis",
+     "paragraphs": [
+      "Le schéma est classique et il est préoccupant : le correctif existe depuis trois semaines, l'exploitation est confirmée, et pourtant un millier de serveurs restent à la merci du premier scanner venu. Ce n'est pas un défaut de la plateforme seule, mais de la gestion des mises à jour des installations auto-hébergées, souvent considérées comme des outils internes alors qu'elles sont joignables depuis internet. La répétition de failles dans le même compilateur d'expressions régulières laisse aussi penser que cette brique mérite un audit approfondi.",
+      "À un horizon d'un à trois ans, la pression devrait pousser les éditeurs vers des mises à jour automatiques plus agressives et les entreprises vers l'exposition minimale : une forge interne n'a pas vocation à être publique. Cette lecture est une opinion, non un fait établi."
+     ],
+     "verdict": "Quand un correctif a trois semaines et que l'exploitation est avérée, chaque jour de retard est un risque assumé."
+    }
+   ]
+  },
+  {
+   "id": "synology-c3rb3r-rancongiciel-nas-dsm-obsolete",
+   "category": "cybersecurite",
+   "icon": "💾",
+   "importance": 4,
+   "title": "Synology alerte sur le rançongiciel C3RB3R, qui chiffre les NAS fonctionnant avec une version obsolète de DSM",
+   "summary": "Le fabricant demande à ses clients de mettre à jour DSM sans attendre. Un avertissement rare : le précédent datait d'août 2019. Les victimes voient leurs fichiers renommés en « .L0CK3D ».",
+   "tags": [
+    "Synology",
+    "NAS",
+    "rançongiciel",
+    "C3RB3R",
+    "DSM"
+   ],
+   "readingMinutes": 5,
+   "publishedAt": "2026-11-03T03:16:41+00:00",
+   "sourceDate": "2026-11-02",
+   "sources": [
+    {
+     "title": "Synology warns of C3RB3R ransomware attacks targeting NAS devices",
+     "url": "https://www.bleepingcomputer.com/news/security/synology-warns-customers-of-ongoing-c3rb3r-ransomware-attacks/",
+     "publisher": "BleepingComputer"
+    }
+   ],
+   "illustration": {
+    "svg": "<svg xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"0 0 640 360\"><defs><linearGradient id=\"g\" x1=\"0\" y1=\"0\" x2=\"1\" y2=\"1\"><stop offset=\"0\" stop-color=\"hsl(175,65%,38%)\"/><stop offset=\"1\" stop-color=\"hsl(215,70%,22%)\"/></linearGradient></defs><rect width=\"640\" height=\"360\" fill=\"url(#g)\"/><circle cx=\"540\" cy=\"60\" r=\"90\" fill=\"#fff\" opacity=\".07\"/><circle cx=\"70\" cy=\"320\" r=\"110\" fill=\"#fff\" opacity=\".06\"/><path d=\"M0 300 Q160 240 320 290 T640 270 V360 H0Z\" fill=\"#fff\" opacity=\".08\"/><text x=\"320\" y=\"230\" font-size=\"130\" text-anchor=\"middle\" opacity=\".95\">💾</text></svg>"
+   },
+   "blocks": [
+    {
+     "type": "paragraph",
+     "text": "Pour des milliers de particuliers et de petites entreprises, le NAS est à la fois l'archive des photos de famille, la sauvegarde des postes de travail et le partage de fichiers de l'équipe. Quand il est chiffré par un rançongiciel, tout cela disparaît d'un coup. Synology vient d'avertir ses clients d'une vague d'attaques du rançongiciel **C3RB3R**, qui vise les boîtiers faisant tourner d'anciennes versions du système DSM (DiskStation Manager), rapporte BleepingComputer."
+    },
+    {
+     "type": "heading",
+     "level": 2,
+     "text": "Ce que Synology a annoncé"
+    },
+    {
+     "type": "paragraph",
+     "text": "Dans un avis publié jeudi, le fabricant explique que les attaquants exploitent une vulnérabilité pourtant corrigée depuis décembre 2024, et qu'ils s'en prennent aux appareils qui n'ont jamais été mis à jour. Synology renvoie vers son avis de novembre 2024, référencé SA-24-20, qui traite de trois failles : CVE-2024-10441 (exécution de code arbitraire), CVE-2024-50629 (lecture arbitraire de fichiers) et CVE-2024-10445 (écriture arbitraire de fichiers). L'article précise toutefois que la faille réellement utilisée n'est pas nommée, et que les dates citées (décembre 2024 pour le correctif, novembre 2024 pour l'avis) ne se recoupent pas parfaitement : la chronologie exacte reste donc incertaine."
+    },
+    {
+     "type": "paragraph",
+     "text": "Les premiers témoignages de victimes sont apparus plus de deux semaines avant l'avis. Les fichiers chiffrés reçoivent l'extension « .L0CK3D » et une note de rançon nommée read-me3.txt exige le paiement, de plusieurs milliers de dollars selon l'article, pour obtenir un outil de déchiffrement vendu via un portail sur le réseau Tor. La note avertit que les outils de restauration tiers détruiraient les fichiers et propose de restaurer gratuitement un fichier à titre de test."
+    },
+    {
+     "type": "list",
+     "items": [
+      "**DSM 7.2.2** : passer à 7.2.2-72806-1 ou plus récent (gravité critique).",
+      "**DSM 7.2.1** : 7.2.1-69057-6 ou plus récent (critique).",
+      "**DSM 7.2** : 7.2-64570-4 ou plus récent (critique).",
+      "**DSM 7.1** : 7.1.1-42962-7 ou plus récent (critique).",
+      "**DSM 6.2** : 6.2.4-25556-8 ou plus récent (gravité modérée)."
+     ]
+    },
+    {
+     "type": "paragraph",
+     "text": "Synology recommande aussi d'activer les mises à jour automatiques et de **bloquer l'accès à l'interface web d'administration depuis internet**. L'article ne liste aucun modèle de NAS en particulier : c'est la version de DSM qui compte. Il ne fournit pas non plus d'indicateurs de compromission détaillés ni de confirmation de la méthode d'accès initiale."
+    },
+    {
+     "type": "heading",
+     "level": 2,
+     "text": "Un contexte qui pèse"
+    },
+    {
+     "type": "paragraph",
+     "text": "Shadowserver suit plus de 380 000 NAS Synology joignables depuis internet, sans qu'on sache combien sont déjà corrigés. Le nom C3RB3R, aussi écrit Cerber ou CerberImposter, emprunte à une opération de rançongiciel en tant que service apparue en 2016 et disparue fin 2019, qui aurait représenté à son apogée plus de 80 % des attaques de ce type selon l'article. La variante actuelle est apparue en décembre 2021 contre des serveurs Atlassian Confluence et GitLab. Synology émet très rarement ce genre d'alerte : la précédente remonte à août 2019, après des attaques par force brute ayant mené à des infections par eCh0raix."
+    },
+    {
+     "type": "diagram",
+     "svg": "<svg xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"0 0 640 260\" font-family=\"system-ui,sans-serif\"><rect width=\"640\" height=\"260\" rx=\"14\" fill=\"#f3f5f9\"/><defs><marker id=\"a\" markerWidth=\"8\" markerHeight=\"8\" refX=\"6\" refY=\"4\" orient=\"auto\"><path d=\"M0 0 L8 4 L0 8Z\" fill=\"#374151\"/></marker></defs><text x=\"320\" y=\"34\" font-size=\"16\" font-weight=\"700\" text-anchor=\"middle\" fill=\"#1f2937\">Comment un NAS devient une victime</text><rect x=\"20\" y=\"70\" width=\"180\" height=\"130\" rx=\"10\" fill=\"#fff\" stroke=\"#6b7280\"/><text x=\"110\" y=\"105\" font-size=\"14\" font-weight=\"700\" text-anchor=\"middle\" fill=\"#111827\">1. Exposition</text><text x=\"110\" y=\"132\" font-size=\"12\" text-anchor=\"middle\" fill=\"#374151\">NAS joignable</text><text x=\"110\" y=\"150\" font-size=\"12\" text-anchor=\"middle\" fill=\"#374151\">depuis internet</text><path d=\"M204 135 h22\" stroke=\"#374151\" stroke-width=\"2.5\" marker-end=\"url(#a)\"/><rect x=\"230\" y=\"70\" width=\"180\" height=\"130\" rx=\"10\" fill=\"#fff\" stroke=\"#6b7280\"/><text x=\"320\" y=\"105\" font-size=\"14\" font-weight=\"700\" text-anchor=\"middle\" fill=\"#111827\">2. Faille ancienne</text><text x=\"320\" y=\"132\" font-size=\"12\" text-anchor=\"middle\" fill=\"#374151\">DSM jamais mis à jour</text><text x=\"320\" y=\"150\" font-size=\"12\" text-anchor=\"middle\" fill=\"#374151\">(avis SA-24-20)</text><path d=\"M414 135 h22\" stroke=\"#374151\" stroke-width=\"2.5\" marker-end=\"url(#a)\"/><rect x=\"440\" y=\"70\" width=\"180\" height=\"130\" rx=\"10\" fill=\"#fff\" stroke=\"#6b7280\"/><text x=\"530\" y=\"105\" font-size=\"14\" font-weight=\"700\" text-anchor=\"middle\" fill=\"#111827\">3. Chiffrement</text><text x=\"530\" y=\"132\" font-size=\"12\" text-anchor=\"middle\" fill=\"#374151\">Fichiers .L0CK3D</text><text x=\"530\" y=\"150\" font-size=\"12\" text-anchor=\"middle\" fill=\"#374151\">note read-me3.txt</text></svg>",
+     "alt": "Schéma en trois étapes : NAS exposé sur internet, faille ancienne non corrigée, chiffrement des fichiers avec la note de rançon.",
+     "caption": "Chaîne d'attaque probable d'après l'avis de Synology ; la faille exacte n'est pas confirmée par la source."
+    },
+    {
+     "type": "usecases",
+     "title": "Exemples d'utilisation",
+     "items": [
+      {
+       "icon": "🏠",
+       "title": "Un particulier qui stocke ses photos",
+       "text": "Il vérifie dans DSM la version installée, active les mises à jour automatiques et coupe l'accès distant direct à l'administration."
+      },
+      {
+       "icon": "🧾",
+       "title": "Un cabinet de quelques salariés",
+       "text": "Il applique le correctif, puis contrôle qu'une sauvegarde hors ligne ou immuable existe en dehors du NAS."
+      },
+      {
+       "icon": "🔍",
+       "title": "Un prestataire informatique",
+       "text": "Il recense les NAS de ses clients, repère ceux qui sont en DSM 6.2 ou 7.1 non mis à jour et planifie leur correction en priorité."
+      }
+     ]
+    },
+    {
+     "type": "timeline",
+     "title": "D'où l'on vient, où l'on va",
+     "items": [
+      {
+       "label": "2016",
+       "text": "Apparition de l'opération Cerber."
+      },
+      {
+       "label": "Août 2019",
+       "text": "Dernier avertissement de ce type émis par Synology (eCh0raix)."
+      },
+      {
+       "label": "Décembre 2021",
+       "text": "Première observation de C3RB3R contre Confluence et GitLab."
+      },
+      {
+       "label": "Novembre 2026",
+       "text": "Avis de Synology sur la vague C3RB3R visant les DSM obsolètes."
+      }
+     ]
+    },
+    {
+     "type": "opinion",
+     "title": "Notre avis",
+     "paragraphs": [
+      "Le message est simple et inconfortable : le correctif existe depuis près de deux ans, et ce sont les appareils oubliés qui paient. Le NAS grand public a longtemps été vendu comme un appareil qu'on installe et qu'on oublie ; or un équipement joignable depuis internet demande la même hygiène qu'un serveur. L'absence d'informations précises sur la faille exploitée limite l'évaluation du risque réel.",
+      "Dans un à trois ans, on peut attendre des mises à jour automatiques activées par défaut et des alertes plus visibles dans l'interface, car les assurances et les régulateurs finiront par exiger cette hygiène minimale. Cette perspective relève de l'opinion."
+     ],
+     "verdict": "Un NAS non mis à jour et exposé à internet est une invitation, quel que soit le fabricant."
+    }
+   ]
+  },
+  {
+   "id": "astra-programmation-espace-des-poids-llm-ecrit-des-reseaux",
+   "category": "ia",
+   "icon": "🧠",
+   "importance": 5,
+   "title": "« Programmation dans l'espace des poids » : un grand modèle lit, écrit et corrige directement les poids de réseaux de neurones",
+   "summary": "Des chercheurs du MIT CSAIL montrent qu'un modèle de frontière, désigné « GPT-6 Astra », peut identifier la tâche d'un réseau à partir de ses seuls poids, en écrire de toutes pièces ou en réparer un. Les résultats sont spectaculaires mais, de l'aveu des auteurs, encore limités.",
+   "tags": [
+    "MIT CSAIL",
+    "poids de réseaux",
+    "Qwen",
+    "agents",
+    "interprétabilité"
+   ],
+   "readingMinutes": 6,
+   "publishedAt": "2026-11-03T03:16:41+00:00",
+   "sourceDate": "2026-11-02",
+   "sources": [
+    {
+     "title": "Sparks of Weight-Space Programming",
+     "url": "https://rikiyat.github.io/blog/weight-space-programming/",
+     "publisher": "Rikiya Takehi et al. (MIT CSAIL)"
+    },
+    {
+     "title": "Discussion sur Hacker News",
+     "url": "https://news.ycombinator.com/item?id=50341174",
+     "publisher": "Hacker News"
+    }
+   ],
+   "illustration": {
+    "svg": "<svg xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"0 0 640 360\"><defs><linearGradient id=\"g\" x1=\"0\" y1=\"0\" x2=\"1\" y2=\"1\"><stop offset=\"0\" stop-color=\"hsl(320,65%,38%)\"/><stop offset=\"1\" stop-color=\"hsl(17,70%,22%)\"/></linearGradient></defs><rect width=\"640\" height=\"360\" fill=\"url(#g)\"/><circle cx=\"520\" cy=\"60\" r=\"90\" fill=\"#fff\" opacity=\".07\"/><circle cx=\"100\" cy=\"320\" r=\"110\" fill=\"#fff\" opacity=\".06\"/><path d=\"M0 300 Q160 240 320 290 T640 270 V360 H0Z\" fill=\"#fff\" opacity=\".08\"/><text x=\"320\" y=\"230\" font-size=\"130\" text-anchor=\"middle\" opacity=\".95\">🧠</text></svg>"
+   },
+   "cover": {
+    "url": "https://rikiyat.github.io/images/blog/weight-space-programming.png",
+    "alt": "Illustration du billet « Sparks of Weight-Space Programming »",
+    "credit": "rikiyat.github.io"
+   },
+   "blocks": [
+    {
+     "type": "paragraph",
+     "text": "Entraîner un réseau de neurones consiste, d'ordinaire, à ajuster ses poids par descente de gradient sur de grandes quantités de données. Une équipe du MIT CSAIL (Rikiya Takehi, Teoh, Zhang et Omar Khattab) propose une autre voie : laisser un grand modèle de langage **raisonner en langage naturel** sur les poids d'un réseau, les lire, puis les modifier directement. Ils appellent cela la *programmation dans l'espace des poids*. Leur billet publié le 2 novembre 2026 a dépassé les 2 000 points sur Hacker News."
+    },
+    {
+     "type": "heading",
+     "level": 2,
+     "text": "Huit expériences, des résultats contrastés"
+    },
+    {
+     "type": "paragraph",
+     "text": "Le modèle utilisé est présenté dans le billet comme « GPT-6 Astra », avec ou sans outils selon les essais ; la page ne décrit ni son architecture ni son entraînement. Les expériences vont de la simple lecture à l'écriture complète."
+    },
+    {
+     "type": "list",
+     "items": [
+      "**Lecture** : à partir des 17 253 poids bruts de quatre petits réseaux entraînés par PPO, le modèle a nommé le bon jeu (Breakout, Pong, Pac-Man, Freeway) dans les quatre cas. Il a aussi identifié la forme (cercle, triangle, carré) produite par trois modèles de diffusion, sans jamais les exécuter.",
+      "**Langage** : sur trois transformeurs au niveau du caractère (7,16 millions de poids) entraînés sur du Python, du romaji et de l'anglais, il a reconnu la bonne langue d'entraînement en ne voyant que les blocs intermédiaires, et retrouvé toutes les têtes d'attention de copie mesurées.",
+      "**Réparation** : un acteur PPO qui n'avait jamais réussi sa tâche en 256 épisodes a réussi 1 024 épisodes sur 1 024 après une seule modification touchant 3,5 % de ses poids.",
+      "**Écriture** : sur trois jeux MinAtar, des réseaux écrits en une seule réponse, sans données ni gradient, ont battu un PPO entraîné pendant 100 millions de pas dans les trois cas. À 500 millions de pas, le score reste environ vingt fois supérieur à Breakout, proche sur Asterix et à environ 60 % sur Seaquest. Sur le go en 9×9, un réseau de 1,48 million de poids écrit par le modèle a gagné plus de la moitié de ses parties contre deux petits réseaux PPO."
+     ]
+    },
+    {
+     "type": "paragraph",
+     "text": "L'expérience la plus citée concerne **Qwen3.5-0.8B**. Le modèle a relié les boucles de répétition de la version de base à une direction écrite par les couches MLP 15 et 19, puis l'a soustraite de 64 colonnes de sortie par couche, soit 131 072 poids (0,016 %). Avec 50 passes avant, le score passe de 7,9 à 48,1 sur MATH-500, de 13,8 à 67,1 sur GSM8K et de 21,0 à 62,3 sur IFEval, tandis que la part de réponses bloquées à la limite de jetons tombe de 93,0 % à 33,1 %."
+    },
+    {
+     "type": "diagram",
+     "svg": "<svg xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"0 0 640 260\" font-family=\"system-ui,sans-serif\"><rect width=\"640\" height=\"260\" rx=\"14\" fill=\"#f3f5f9\"/><text x=\"320\" y=\"32\" font-size=\"16\" font-weight=\"700\" text-anchor=\"middle\" fill=\"#1f2937\">Qwen3.5-0.8B avant et après édition (score)</text><text x=\"200\" y=\"77\" font-size=\"13\" text-anchor=\"end\" fill=\"#111827\">MATH-500 base</text><rect x=\"210\" y=\"56\" width=\"40\" height=\"30\" rx=\"5\" fill=\"#3b6fd8\"/><text x=\"256\" y=\"77\" font-size=\"13\" fill=\"#111827\">7.9</text><text x=\"200\" y=\"124\" font-size=\"13\" text-anchor=\"end\" fill=\"#111827\">MATH-500 édité</text><rect x=\"210\" y=\"104\" width=\"244\" height=\"30\" rx=\"5\" fill=\"#3b6fd8\"/><text x=\"460\" y=\"124\" font-size=\"13\" fill=\"#111827\">48.1</text><text x=\"200\" y=\"172\" font-size=\"13\" text-anchor=\"end\" fill=\"#111827\">GSM8K base</text><rect x=\"210\" y=\"151\" width=\"70\" height=\"30\" rx=\"5\" fill=\"#3b6fd8\"/><text x=\"286\" y=\"172\" font-size=\"13\" fill=\"#111827\">13.8</text><text x=\"200\" y=\"220\" font-size=\"13\" text-anchor=\"end\" fill=\"#111827\">GSM8K édité</text><rect x=\"210\" y=\"198\" width=\"340\" height=\"30\" rx=\"5\" fill=\"#3b6fd8\"/><text x=\"556\" y=\"220\" font-size=\"13\" fill=\"#111827\">67.1</text></svg>",
+     "alt": "Histogramme comparant les scores de Qwen3.5-0.8B avant et après l'édition des poids sur MATH-500 et GSM8K.",
+     "caption": "Scores rapportés par les auteurs avec 50 passes avant ; ils n'ont pas été reproduits de façon indépendante ici."
+    },
+    {
+     "type": "heading",
+     "level": 2,
+     "text": "Les limites, et les réserves de la communauté"
+    },
+    {
+     "type": "paragraph",
+     "text": "Les auteurs reconnaissent des capacités « enthousiasmantes mais encore limitées ». Sur Gemma 3 270M, un modèle qui boucle rarement (8,5 % de réponses à la limite), aucune amélioration n'a été obtenue : les scores restent entre 6,8 et 7,7. Leur lecture : éditer des poids peut lever un obstacle, pas ajouter une compétence absente. Dans le test de complaisance, la lecture des seuls poids a échoué en quatre essais ; le modèle n'a identifié le réseau « flatteur » qu'en inspectant des motifs d'attention."
+    },
+    {
+     "type": "paragraph",
+     "text": "Sur Hacker News, plusieurs commentateurs notent que la méthode ressemble à la direction de refus et à l'« abliteration » déjà connues, que les expériences sont plus étroites que le titre ne le laisse croire, et que l'amélioration porte sur un petit modèle édité par un plus grand, pas sur un modèle qui s'améliore lui-même. Ces réserves sont des avis de lecteurs, pas des résultats."
+    },
+    {
+     "type": "usecases",
+     "title": "Ce que cela pourrait permettre",
+     "items": [
+      {
+       "icon": "🔎",
+       "title": "Audit de modèles",
+       "text": "Repérer un comportement caché, par exemple une complaisance excessive, sans disposer d'un jeu d'évaluation complet."
+      },
+      {
+       "icon": "🧰",
+       "title": "Réparation ciblée",
+       "text": "Corriger un défaut précis d'un petit modèle, comme des boucles de répétition, sans réentraînement coûteux."
+      },
+      {
+       "icon": "⚡",
+       "title": "Initialisation économique",
+       "text": "Obtenir un point de départ raisonnable pour une tâche simple en écrivant les poids directement."
+      }
+     ]
+    },
+    {
+     "type": "timeline",
+     "title": "D'où l'on vient, où l'on va",
+     "items": [
+      {
+       "label": "2025-2026",
+       "text": "Les méthodes de direction d'activations et d'« abliteration » se diffusent dans la recherche."
+      },
+      {
+       "label": "2 novembre 2026",
+       "text": "Publication du billet « Sparks of Weight-Space Programming » et des journaux sur GitHub."
+      },
+      {
+       "label": "À venir",
+       "text": "Les auteurs annoncent un banc d'essai et un cadre d'exécution dédiés."
+      }
+     ]
+    },
+    {
+     "type": "opinion",
+     "title": "Notre avis",
+     "paragraphs": [
+      "L'intérêt réel est moins la performance brute que le changement de posture : le modèle n'est plus seulement un utilisateur de réseaux, il devient un outil d'inspection et de chirurgie. Les chiffres sont impressionnants mais proviennent des auteurs eux-mêmes, sur des réseaux petits ou des tâches simples, et le recul de MATH-500 signalé par des commentateurs sur une variante rappelle qu'une réparation ciblée peut coûter ailleurs. Il faudra des reproductions indépendantes.",
+      "À un ou trois ans, l'audit de modèles par d'autres modèles pourrait devenir une pratique courante, utile pour la sécurité comme pour la mise au point. Cela soulève aussi la question de l'édition malveillante de poids partagés publiquement. Cette vision est une opinion, non un résultat."
+     ],
+     "verdict": "Une piste sérieuse pour l'interprétabilité, dont l'ampleur reste à confirmer par des tiers."
+    }
+   ]
+  },
+  {
+   "id": "cloudflare-dns-builds-cibles-memoire-divisee-par-sept",
+   "category": "devops",
+   "icon": "☁️",
+   "importance": 3,
+   "title": "Cloudflare réduit de 85 % la mémoire de son constructeur de zones DNS en ne reconstruisant que ce qui change",
+   "summary": "Face à des zones de plus de 20 millions d'enregistrements et à 700 modifications DNS par seconde, Cloudflare a remplacé les reconstructions complètes par cinq types de constructions ciblées, avec un plan prudent et une vérification avant écriture.",
+   "tags": [
+    "Cloudflare",
+    "DNS",
+    "Kafka",
+    "Quicksilver",
+    "performance"
+   ],
+   "readingMinutes": 5,
+   "publishedAt": "2026-11-03T03:16:41+00:00",
+   "sourceDate": "2026-11-02",
+   "sources": [
+    {
+     "title": "Targeted DNS zone builds (blog Cloudflare)",
+     "url": "https://blog.cloudflare.com/dns-targeted-zone-builds/",
+     "publisher": "Cloudflare"
+    },
+    {
+     "title": "Discussion sur Hacker News",
+     "url": "https://news.ycombinator.com/item?id=50337558",
+     "publisher": "Hacker News"
+    }
+   ],
+   "illustration": {
+    "svg": "<svg xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"0 0 640 360\"><defs><linearGradient id=\"g\" x1=\"0\" y1=\"0\" x2=\"1\" y2=\"1\"><stop offset=\"0\" stop-color=\"hsl(160,65%,38%)\"/><stop offset=\"1\" stop-color=\"hsl(234,70%,22%)\"/></linearGradient></defs><rect width=\"640\" height=\"360\" fill=\"url(#g)\"/><circle cx=\"500\" cy=\"60\" r=\"90\" fill=\"#fff\" opacity=\".07\"/><circle cx=\"130\" cy=\"320\" r=\"110\" fill=\"#fff\" opacity=\".06\"/><path d=\"M0 300 Q160 240 320 290 T640 270 V360 H0Z\" fill=\"#fff\" opacity=\".08\"/><text x=\"320\" y=\"230\" font-size=\"130\" text-anchor=\"middle\" opacity=\".95\">☁️</text></svg>"
+   },
+   "cover": {
+    "url": "https://blog.cloudflare.com/_emdash/api/media/file/01M6426V7J1FR4KZEYMQP555R0.01M6426VZJHB2XCKTQ39W2S71Z.png",
+    "alt": "Visuel du billet de Cloudflare sur les constructions ciblées de zones DNS",
+    "credit": "blog.cloudflare.com"
+   },
+   "blocks": [
+    {
+     "type": "paragraph",
+     "text": "Derrière chaque changement d'enregistrement DNS chez Cloudflare se trouve un composant, le *Zone Builder*, chargé de transformer l'état d'une zone en clés distribuées sur le réseau via Quicksilver, la base clé-valeur maison. Dans un billet daté du 2 novembre 2026, l'entreprise explique comment elle a cessé de tout recalculer à chaque modification, avec un gain de mémoire de l'ordre de 85 % et une forte baisse des pics de latence."
+    },
+    {
+     "type": "heading",
+     "level": 2,
+     "text": "Le problème : une charge qui a presque triplé"
+    },
+    {
+     "type": "paragraph",
+     "text": "Depuis un précédent billet de 2022, la charge du Zone Builder est passée d'environ 250 à environ 700 modifications d'enregistrements DNS par seconde, auxquelles s'ajoutent près de 100 autres événements par seconde, comme des changements de réglages. Certaines zones dépassent 20 millions d'enregistrements, et l'on s'attend à des centaines de millions. Or une « construction complète » doit lire, encoder et comparer chaque enregistrement en gardant toute la zone en mémoire : pour les plus grandes, elle n'y tient plus. Certains réglages étaient en outre difficiles à cibler : activer Universal SSL modifie des métadonnées et peut toucher les enregistrements CAA à l'apex de la zone."
+    },
+    {
+     "type": "heading",
+     "level": 2,
+     "text": "La solution : cinq types de constructions"
+    },
+    {
+     "type": "paragraph",
+     "text": "L'ancien système n'avait pas besoin de savoir *pourquoi* une zone changeait : il recalculait l'état voulu, le comparait à Quicksilver et n'écrivait que les clés modifiées. C'était simple et juste, mais le coût croissait avec la taille de la zone. Le nouveau système enrichit les événements (champs modifiés, anciennes et nouvelles valeurs) et un planificateur choisit la plus petite construction dont il peut prouver qu'elle est sûre."
+    },
+    {
+     "type": "list",
+     "items": [
+      "**Ressources seules** : uniquement les noms DNS concernés (cas typique des enregistrements A, AAAA, TXT et CNAME).",
+      "**Ressources et métadonnées** : par exemple pour les serveurs de noms ou les jokers.",
+      "**Apex et métadonnées** : par exemple pour Universal SSL.",
+      "**Purge** : la zone ne doit plus être publiée.",
+      "**Zone complète** : quand rien de plus petit ne peut être démontré sûr."
+     ]
+    },
+    {
+     "type": "paragraph",
+     "text": "La règle d'or est l'équivalence octet par octet : toute clé écrite par une construction ciblée doit être identique à celle qu'écrirait une construction complète, faute de quoi le planificateur retombe sur la zone entière. Juste avant l'exécution, le Zone Builder relit l'état courant sur des réplicas de base de données, avec un contrôle final contre les lectures en retard ; ce nouvel état peut promouvoir une construction en complète, la convertir en purge, l'ignorer ou reconstruire les métadonnées."
+    },
+    {
+     "type": "diagram",
+     "svg": "<svg xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"0 0 640 260\" font-family=\"system-ui,sans-serif\"><rect width=\"640\" height=\"260\" rx=\"14\" fill=\"#f3f5f9\"/><defs><marker id=\"a\" markerWidth=\"8\" markerHeight=\"8\" refX=\"6\" refY=\"4\" orient=\"auto\"><path d=\"M0 0 L8 4 L0 8Z\" fill=\"#374151\"/></marker></defs><text x=\"320\" y=\"34\" font-size=\"16\" font-weight=\"700\" text-anchor=\"middle\" fill=\"#1f2937\">Construction ciblée d'une zone DNS</text><rect x=\"20\" y=\"70\" width=\"128\" height=\"130\" rx=\"10\" fill=\"#fff\" stroke=\"#6b7280\"/><text x=\"84\" y=\"105\" font-size=\"14\" font-weight=\"700\" text-anchor=\"middle\" fill=\"#111827\">Événement</text><text x=\"84\" y=\"132\" font-size=\"12\" text-anchor=\"middle\" fill=\"#374151\">champs modifiés</text><text x=\"84\" y=\"150\" font-size=\"12\" text-anchor=\"middle\" fill=\"#374151\">+ valeurs</text><path d=\"M152 135 h22\" stroke=\"#374151\" stroke-width=\"2.5\" marker-end=\"url(#a)\"/><rect x=\"178\" y=\"70\" width=\"128\" height=\"130\" rx=\"10\" fill=\"#fff\" stroke=\"#6b7280\"/><text x=\"241\" y=\"105\" font-size=\"14\" font-weight=\"700\" text-anchor=\"middle\" fill=\"#111827\">Planificateur</text><text x=\"241\" y=\"132\" font-size=\"12\" text-anchor=\"middle\" fill=\"#374151\">plus petite</text><text x=\"241\" y=\"150\" font-size=\"12\" text-anchor=\"middle\" fill=\"#374151\">construction sûre</text><path d=\"M309 135 h22\" stroke=\"#374151\" stroke-width=\"2.5\" marker-end=\"url(#a)\"/><rect x=\"335\" y=\"70\" width=\"128\" height=\"130\" rx=\"10\" fill=\"#fff\" stroke=\"#6b7280\"/><text x=\"399\" y=\"105\" font-size=\"14\" font-weight=\"700\" text-anchor=\"middle\" fill=\"#111827\">Vérification</text><text x=\"399\" y=\"132\" font-size=\"12\" text-anchor=\"middle\" fill=\"#374151\">relecture de l'état</text><text x=\"399\" y=\"150\" font-size=\"12\" text-anchor=\"middle\" fill=\"#374151\">sur réplicas</text><path d=\"M466 135 h22\" stroke=\"#374151\" stroke-width=\"2.5\" marker-end=\"url(#a)\"/><rect x=\"492\" y=\"70\" width=\"128\" height=\"130\" rx=\"10\" fill=\"#fff\" stroke=\"#6b7280\"/><text x=\"556\" y=\"105\" font-size=\"14\" font-weight=\"700\" text-anchor=\"middle\" fill=\"#111827\">Écriture</text><text x=\"556\" y=\"132\" font-size=\"12\" text-anchor=\"middle\" fill=\"#374151\">clés modifiées</text><text x=\"556\" y=\"150\" font-size=\"12\" text-anchor=\"middle\" fill=\"#374151\">vers Quicksilver</text></svg>",
+     "alt": "Quatre étapes : événement enrichi, planificateur, vérification de l'état courant, écriture des clés modifiées dans Quicksilver.",
+     "caption": "Schéma simplifié du fonctionnement décrit par Cloudflare."
+    },
+    {
+     "type": "heading",
+     "level": 2,
+     "text": "Les résultats chiffrés"
+    },
+    {
+     "type": "paragraph",
+     "text": "Sur 24 heures, 86,81 % des constructions n'ont touché que des ressources, et 92,95 % ont évité la reconstruction complète ; la part de constructions complètes a baissé d'environ 40 %, de 11,88 % à 7,04 %. Le plus grand pic du 99e centile de délai est passé de 14,6 minutes à 1,21 minute, soit douze fois moins. La mémoire moyenne d'ensemble de travail passe de 49 Gio à 7 Gio (−86 %), et le pic de 79 Gio à 12 Gio (−85 %). Pour valider le tout, Cloudflare a comparé un échantillon de 20 % des zones avec un constructeur miroir : un taux de différence de 0,31 % sur 234 313 zones, majoritairement dû à des décalages temporels."
+    },
+    {
+     "type": "callout",
+     "title": "À retenir",
+     "text": "Ces délais ne mesurent que le temps du Zone Builder, pas la diffusion de Quicksilver sur le réseau, et une bonne part provient d'un intervalle de reconstruction volontaire. Les redémarrages peuvent rejouer du travail. Au-delà d'un seuil d'enregistrements, le système n'escalade jamais vers une reconstruction complète : Cloudflare présente ce compromis comme assumé."
+    },
+    {
+     "type": "usecases",
+     "title": "Exemples d'utilisation",
+     "items": [
+      {
+       "icon": "🌐",
+       "title": "Un client avec une très grande zone",
+       "text": "Un ajout d'enregistrement TXT est publié sans relire des millions d'entrées, avec un délai plus court."
+      },
+      {
+       "icon": "🔒",
+       "title": "Activation d'Universal SSL",
+       "text": "Seuls l'apex et les métadonnées sont reconstruits, au lieu de la zone entière."
+      },
+      {
+       "icon": "🧑‍💻",
+       "title": "Une équipe plateforme interne",
+       "text": "Elle peut s'inspirer du principe « l'incertitude se résout toujours en plus de travail » pour optimiser un pipeline sans sacrifier la correction."
+      }
+     ]
+    },
+    {
+     "type": "timeline",
+     "title": "D'où l'on vient, où l'on va",
+     "items": [
+      {
+       "label": "2022",
+       "text": "Premier billet : constructions par enregistrement, environ 150 fois plus rapides en moyenne."
+      },
+      {
+       "label": "2026",
+       "text": "Passage à 700 modifications par seconde et à des zones de plus de 20 millions d'enregistrements."
+      },
+      {
+       "label": "2 novembre 2026",
+       "text": "Publication du déploiement des constructions ciblées, progressivement des zones gratuites aux zones payantes."
+      }
+     ]
+    },
+    {
+     "type": "opinion",
+     "title": "Notre avis",
+     "paragraphs": [
+      "L'intérêt de ce billet tient à sa méthode : des optimisations agressives encadrées par une règle d'équivalence stricte, un miroir de production et un déploiement par paliers. C'est exactement ce qu'on attend d'un système où une erreur coupe l'accès à des sites entiers. Les discussions annexes sur la mémoire, par exemple celles d'Electron sur Hacker News, éloignent du sujet, mais rappellent que l'efficacité rapporte surtout aux infrastructures côté serveur.",
+      "Dans les années à venir, ce schéma « événement riche, planificateur prudent, vérification juste avant écriture » devrait se répandre dans les systèmes à cohérence forte. Cette projection est une opinion."
+     ],
+     "verdict": "Une optimisation exemplaire parce qu'elle ne négocie pas sur la correction."
+    }
+   ]
+  },
+  {
+   "id": "polyend-tracker-community-edition-firmware-ouvert",
+   "category": "electronique",
+   "icon": "🎛️",
+   "importance": 3,
+   "title": "Polyend publie le code source du firmware des Tracker et lance la « Community Edition 1.0 »",
+   "summary": "Le fabricant polonais ouvre le firmware du Tracker, du Tracker+ et du Tracker Mini, avec un système de récupération contre les mauvaises versions et des kits de développement pour créer ses propres synthés et effets.",
+   "tags": [
+    "Polyend",
+    "Tracker",
+    "firmware",
+    "open source",
+    "musique électronique"
+   ],
+   "readingMinutes": 5,
+   "publishedAt": "2026-11-03T03:16:41+00:00",
+   "sourceDate": "2026-11-02",
+   "sources": [
+    {
+     "title": "Tracker Community Edition 1.0 (Polyend)",
+     "url": "https://polyend.com/whats-up/tracker-the-biggest-update-yet/",
+     "publisher": "Polyend"
+    },
+    {
+     "title": "Discussion sur Hacker News",
+     "url": "https://news.ycombinator.com/item?id=50340159",
+     "publisher": "Hacker News"
+    }
+   ],
+   "illustration": {
+    "svg": "<svg xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"0 0 640 360\"><defs><linearGradient id=\"g\" x1=\"0\" y1=\"0\" x2=\"1\" y2=\"1\"><stop offset=\"0\" stop-color=\"hsl(30,65%,38%)\"/><stop offset=\"1\" stop-color=\"hsl(121,70%,22%)\"/></linearGradient></defs><rect width=\"640\" height=\"360\" fill=\"url(#g)\"/><circle cx=\"480\" cy=\"60\" r=\"90\" fill=\"#fff\" opacity=\".07\"/><circle cx=\"160\" cy=\"320\" r=\"110\" fill=\"#fff\" opacity=\".06\"/><path d=\"M0 300 Q160 240 320 290 T640 270 V360 H0Z\" fill=\"#fff\" opacity=\".08\"/><text x=\"320\" y=\"230\" font-size=\"130\" text-anchor=\"middle\" opacity=\".95\">🎛️</text></svg>"
+   },
+   "cover": {
+    "url": "https://polyend-website.fra1.digitaloceanspaces.com/wp-content/uploads/2026/11/02162002/tracker-1.jpeg",
+    "alt": "Instruments Polyend Tracker présentés pour la Community Edition 1.0",
+    "credit": "polyend.com"
+   },
+   "blocks": [
+    {
+     "type": "paragraph",
+     "text": "Il est encore rare qu'un fabricant d'instruments de musique électronique publie le firmware complet de ses machines. C'est pourtant ce que vient de faire Polyend, le 2 novembre 2026 : le code source du firmware du Tracker d'origine, du Tracker+ et du Tracker Mini est désormais disponible sur GitHub (dépôt « polyend/tracker-ce »), accompagné d'une version appelée **Tracker Community Edition 1.0**."
+    },
+    {
+     "type": "heading",
+     "level": 2,
+     "text": "Ce qui est publié"
+    },
+    {
+     "type": "paragraph",
+     "text": "Les propriétaires peuvent installer cette édition sur n'importe lequel des trois modèles, la modifier et partager leurs versions. Un système de récupération intégré doit empêcher qu'une version défectueuse ne rende l'appareil inutilisable. La page de Polyend ne précise pas la licence du code, ce point restant à vérifier sur le dépôt, ni la politique de garantie."
+    },
+    {
+     "type": "list",
+     "items": [
+      "**Échantillons longs** : lecture en continu depuis la carte SD, disponible sur le Tracker d'origine.",
+      "**Micro-déplacements et volume** : enregistrement du timing et de la vélocité sans occuper les emplacements d'effets de pas, avec de nouvelles conditions de probabilité (« Chance »).",
+      "**Éditeur d'échantillons** : six effets et générateurs intégrés, plus un SDK de greffons pour en créer et en partager.",
+      "**Synthés** : deux nouveaux moteurs, CHIP et DIRT, sur Tracker+ et Tracker Mini, et un SDK pour des moteurs personnalisés.",
+      "**Modulation et synchronisation** : enveloppes et LFO pour les tables d'ondes sur les trois modèles, chargement et sauvegarde de projets plus rapides, horloge MIDI plus précise.",
+      "**Personnalisation** : création de thèmes et de polices depuis un navigateur."
+     ]
+    },
+    {
+     "type": "heading",
+     "level": 2,
+     "text": "Les réactions"
+    },
+    {
+     "type": "paragraph",
+     "text": "Sur Hacker News, la discussion relie cette ouverture à la popularité des firmwares alternatifs pour d'autres appareils et à d'anciens travaux de rétro-ingénierie du binaire fermé du Tracker. Un commentateur y voit un transfert de la maintenance vers la communauté. Un autre souligne que Polyend dit ne pas couvrir par la garantie standard les problèmes dus à un firmware personnalisé, tout en proposant des réparations payantes hors garantie ; ce point est rapporté par des commentateurs, pas par la page consultée. Plusieurs lecteurs y voient aussi une tendance plus large, citant la publication du code de l'LXR-02 d'Erica Synths."
+    },
+    {
+     "type": "diagram",
+     "svg": "<svg xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"0 0 640 260\" font-family=\"system-ui,sans-serif\"><rect width=\"640\" height=\"260\" rx=\"14\" fill=\"#f3f5f9\"/><defs><marker id=\"a\" markerWidth=\"8\" markerHeight=\"8\" refX=\"6\" refY=\"4\" orient=\"auto\"><path d=\"M0 0 L8 4 L0 8Z\" fill=\"#374151\"/></marker></defs><text x=\"320\" y=\"34\" font-size=\"16\" font-weight=\"700\" text-anchor=\"middle\" fill=\"#1f2937\">Du dépôt à la machine</text><rect x=\"20\" y=\"70\" width=\"128\" height=\"130\" rx=\"10\" fill=\"#fff\" stroke=\"#6b7280\"/><text x=\"84\" y=\"105\" font-size=\"14\" font-weight=\"700\" text-anchor=\"middle\" fill=\"#111827\">Code source</text><text x=\"84\" y=\"132\" font-size=\"12\" text-anchor=\"middle\" fill=\"#374151\">publié sur GitHub</text><text x=\"84\" y=\"150\" font-size=\"12\" text-anchor=\"middle\" fill=\"#374151\">polyend/tracker-ce</text><path d=\"M152 135 h22\" stroke=\"#374151\" stroke-width=\"2.5\" marker-end=\"url(#a)\"/><rect x=\"178\" y=\"70\" width=\"128\" height=\"130\" rx=\"10\" fill=\"#fff\" stroke=\"#6b7280\"/><text x=\"241\" y=\"105\" font-size=\"14\" font-weight=\"700\" text-anchor=\"middle\" fill=\"#111827\">Communauté</text><text x=\"241\" y=\"132\" font-size=\"12\" text-anchor=\"middle\" fill=\"#374151\">modifie, ajoute</text><text x=\"241\" y=\"150\" font-size=\"12\" text-anchor=\"middle\" fill=\"#374151\">synthés, effets, thèmes</text><path d=\"M309 135 h22\" stroke=\"#374151\" stroke-width=\"2.5\" marker-end=\"url(#a)\"/><rect x=\"335\" y=\"70\" width=\"128\" height=\"130\" rx=\"10\" fill=\"#fff\" stroke=\"#6b7280\"/><text x=\"399\" y=\"105\" font-size=\"14\" font-weight=\"700\" text-anchor=\"middle\" fill=\"#111827\">Appareil</text><text x=\"399\" y=\"132\" font-size=\"12\" text-anchor=\"middle\" fill=\"#374151\">Tracker · Tracker+</text><text x=\"399\" y=\"150\" font-size=\"12\" text-anchor=\"middle\" fill=\"#374151\">Tracker Mini</text><path d=\"M466 135 h22\" stroke=\"#374151\" stroke-width=\"2.5\" marker-end=\"url(#a)\"/><rect x=\"492\" y=\"70\" width=\"128\" height=\"130\" rx=\"10\" fill=\"#fff\" stroke=\"#6b7280\"/><text x=\"556\" y=\"105\" font-size=\"14\" font-weight=\"700\" text-anchor=\"middle\" fill=\"#111827\">Filet</text><text x=\"556\" y=\"132\" font-size=\"12\" text-anchor=\"middle\" fill=\"#374151\">système de</text><text x=\"556\" y=\"150\" font-size=\"12\" text-anchor=\"middle\" fill=\"#374151\">récupération</text></svg>",
+     "alt": "Schéma : code source sur GitHub, modifié par la communauté, installé sur trois modèles de Tracker, avec un système de récupération.",
+     "caption": "Fonctionnement général de la Community Edition, d'après la page de Polyend."
+    },
+    {
+     "type": "usecases",
+     "title": "Exemples d'utilisation",
+     "items": [
+      {
+       "icon": "🎹",
+       "title": "Un musicien de scène",
+       "text": "Il installe CHIP ou DIRT sur son Tracker+ pour obtenir des timbres que le firmware d'origine ne proposait pas."
+      },
+      {
+       "icon": "🛠️",
+       "title": "Un développeur amateur",
+       "text": "Il écrit un greffon d'effet avec le SDK et le partage avec d'autres utilisateurs."
+      },
+      {
+       "icon": "🎨",
+       "title": "Un graphiste sonore",
+       "text": "Il dessine un thème et une police adaptés à sa lecture sur scène, avec l'outil du navigateur."
+      }
+     ]
+    },
+    {
+     "type": "timeline",
+     "title": "D'où l'on vient, où l'on va",
+     "items": [
+      {
+       "label": "Avant 2026",
+       "text": "Firmware fermé, des tentatives de rétro-ingénierie par la communauté."
+      },
+      {
+       "label": "2 novembre 2026",
+       "text": "Publication du code source et de la Community Edition 1.0."
+      }
+     ]
+    },
+    {
+     "type": "opinion",
+     "title": "Notre avis",
+     "paragraphs": [
+      "L'ouverture du code est un pari à double tranchant : elle prolonge la vie des machines et fait travailler la communauté, mais elle déplace en partie le support vers elle. Le système de récupération est la condition qui rend le geste crédible. Il reste à connaître la licence et les règles de garantie pour mesurer ce que le fabricant concède vraiment.",
+      "Dans un à trois ans, d'autres constructeurs de matériel musical pourraient suivre, notamment si la rétro-ingénierie assistée par outils d'IA rend le secret moins efficace. Cette lecture est une opinion."
+     ],
+     "verdict": "Un bon signal pour le matériel durable, à confirmer par la licence."
+    }
+   ]
+  }
+ ]
+}
