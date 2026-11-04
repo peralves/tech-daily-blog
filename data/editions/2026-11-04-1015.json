@@ -1,0 +1,909 @@
+{
+ "schemaVersion": "1.0",
+ "date": "2026-11-04",
+ "generatedAt": "2026-11-04T10:15:15+01:00",
+ "title": "Tech du 4 novembre : Android et WordPress sous pression, fin du JIT de Python, Tor Browser 16, Revolut et AMD",
+ "summary": "Une édition consacrée au bulletin de sécurité Android de novembre, à l'exploitation d'une faille du noyau de WordPress, au retrait programmé du JIT expérimental de CPython, à la sortie de Tor Browser 16.0, aux assistants de code auto-hébergés de Revolut, à la traçabilité des pipelines CI et aux résultats d'AMD.",
+ "highlights": [
+  "Android : CVE-2026-58868, faille critique à distance sans interaction, corrigée aux niveaux de correctif 2026-11-01 et 2026-11-05.",
+  "WordPress : CVE-2026-119977 exploitée pendant les mises à niveau, inscrite au catalogue KEV de la CISA.",
+  "Python : le JIT expérimental de CPython sera retiré après le retrait du PEP 836.",
+  "Revolut : environ 90 % d'économies annoncées avec des modèles GLM auto-hébergés.",
+  "AMD : 13,4 milliards de dollars de revenus, les centres de données en hausse de 97 %."
+ ],
+ "meta": {
+  "generator": "claude-scheduled-task"
+ },
+ "posts": [
+  {
+   "id": "android-bulletin-novembre-2026-faille-critique-rce",
+   "category": "cybersecurite",
+   "icon": "📱",
+   "importance": 5,
+   "title": "Android : le bulletin de novembre corrige une faille critique d'exécution de code à distance, sans action de l'utilisateur",
+   "summary": "La faille CVE-2026-58868 touche Android 14 à 17 et peut être déclenchée sans interaction. Google ne signale aucune attaque, mais les correctifs dépendent des constructeurs et des opérateurs.",
+   "tags": [
+    "Android",
+    "CVE-2026-58868",
+    "bulletin de sécurité",
+    "mobile",
+    "correctifs"
+   ],
+   "sourceDate": "2026-11-04",
+   "publishedAt": "2026-11-04T10:15:15+01:00",
+   "readingMinutes": 5,
+   "sources": [
+    {
+     "title": "Google Issues Patches for Critical Android Flaw That Could Allow RCE Without User Interaction",
+     "url": "https://thehackernews.com/2026/11/google-patches-critical-android-flaw.html",
+     "publisher": "The Hacker News"
+    }
+   ],
+   "cover": {
+    "url": "https://blogger.googleusercontent.com/img/b/R29vZ2xl/AVvXsEgm9fDI_lHL64S1r-eoB5-99WagZJBIjKDF-bEJ9egJw_EiLUomXSakGnV0vdq9Fqu2j6KVWM4upLmOwweDCKQ32f21W8CTsQHnoGMhFm-ISPNQEg1Jq5WbDujqLHVkGSEsox0Xd3Yc5Dd-v4-6rdzU4akd97y7cBhRYFO2ofmxpf3HYspJ6MkJs2RtfC4/s1600/android-patch.jpg",
+    "alt": "Illustration d'un robot Android accompagnée d'un bouclier, utilisée par The Hacker News pour le bulletin de sécurité Android",
+    "credit": "thehackernews.com"
+   },
+   "illustration": {
+    "svg": "<svg xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"0 0 640 360\" role=\"img\" aria-hidden=\"true\"><defs><linearGradient id=\"g\" x1=\"0\" y1=\"0\" x2=\"1\" y2=\"1\"><stop offset=\"0\" stop-color=\"hsl(175,65%,32%)\"/><stop offset=\"1\" stop-color=\"hsl(215,70%,52%)\"/></linearGradient></defs><rect width=\"640\" height=\"360\" fill=\"url(#g)\"/><circle cx=\"540\" cy=\"60\" r=\"90\" fill=\"#fff\" opacity=\".07\"/><circle cx=\"90\" cy=\"320\" r=\"110\" fill=\"#fff\" opacity=\".06\"/><rect x=\"250\" y=\"70\" width=\"140\" height=\"220\" rx=\"22\" fill=\"none\" stroke=\"#fff\" stroke-width=\"8\"/><rect x=\"270\" y=\"100\" width=\"100\" height=\"150\" rx=\"6\" fill=\"#fff\" opacity=\".25\"/><circle cx=\"320\" cy=\"272\" r=\"9\" fill=\"#fff\"/><path d=\"M320 120 l38 14 v34 c0 26-16 44-38 54 c-22-10-38-28-38-54 v-34z\" fill=\"#fff\"/><path d=\"M304 170 l12 12 24-26\" fill=\"none\" stroke=\"hsl(175,65%,32%)\" stroke-width=\"7\"/></svg>"
+   },
+   "blocks": [
+    {
+     "type": "paragraph",
+     "text": "Le 4 novembre 2026, la presse spécialisée relaie le bulletin de sécurité Android de novembre, publié par Google. Il recense **216 vulnérabilités**, dont **23 classées critiques**. Parmi elles, la faille **CVE-2026-58868** concentre l'attention : selon Google, elle pourrait permettre à un attaquant d'exécuter du code à distance sur un téléphone, sans que son propriétaire ait à cliquer, à ouvrir un fichier ou à accepter quoi que ce soit."
+    },
+    {
+     "type": "heading",
+     "text": "Ce que l'on sait de CVE-2026-58868"
+    },
+    {
+     "type": "paragraph",
+     "text": "La faille est décrite comme une écriture hors limites, causée par un débordement de tampon dans le tas, dans la fonction `onOutputReceived` du fichier `FrameDecoder.cpp`. Elle concerne les versions **Android 14 à 17**. Ni le bulletin ni la fiche CVE n'expliquent comment un attaquant atteindrait ce code, ce qui limite pour l'instant l'évaluation concrète du risque. La note « critique » de Google suppose en outre que les protections d'Android et des services Google soient désactivées ou contournées."
+    },
+    {
+     "type": "paragraph",
+     "text": "Les versions 12 et 13 ne figurent pas parmi les versions affectées, mais les documents publiés ne précisent pas si elles contiennent ou non le défaut. À la date de publication, Google ne signale aucune exploitation active, et la faille ne figure pas dans le catalogue des vulnérabilités exploitées de l'agence américaine CISA. Aucune solution de contournement n'est proposée pour les téléphones qui ne peuvent pas encore installer la mise à jour."
+    },
+    {
+     "type": "diagram",
+     "svg": "<svg xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"0 0 640 220\" font-family=\"system-ui,sans-serif\" font-size=\"14\"><rect width=\"640\" height=\"220\" rx=\"14\" fill=\"#f4f6fa\" stroke=\"#c9d1e0\"/><rect x=\"30\" y=\"40\" width=\"170\" height=\"70\" rx=\"10\" fill=\"#dbe7ff\" stroke=\"#5b73a8\"/><text x=\"115\" y=\"68\" text-anchor=\"middle\" fill=\"#1b2438\" font-weight=\"600\">Niveau 2026-11-01</text><text x=\"115\" y=\"90\" text-anchor=\"middle\" fill=\"#344060\" font-size=\"12\">Framework, System, runtime</text><rect x=\"235\" y=\"40\" width=\"170\" height=\"70\" rx=\"10\" fill=\"#d6f2e3\" stroke=\"#5b73a8\"/><text x=\"320\" y=\"68\" text-anchor=\"middle\" fill=\"#1b2438\" font-weight=\"600\">Niveau 2026-11-05</text><text x=\"320\" y=\"90\" text-anchor=\"middle\" fill=\"#344060\" font-size=\"12\">Tout le bulletin + composants tiers</text><rect x=\"440\" y=\"40\" width=\"170\" height=\"70\" rx=\"10\" fill=\"#fde9c8\" stroke=\"#5b73a8\"/><text x=\"525\" y=\"68\" text-anchor=\"middle\" fill=\"#1b2438\" font-weight=\"600\">Votre téléphone</text><text x=\"525\" y=\"90\" text-anchor=\"middle\" fill=\"#344060\" font-size=\"12\">Mise à jour selon le constructeur</text><line x1=\"200\" y1=\"75\" x2=\"233\" y2=\"75\" stroke=\"#5b73a8\" stroke-width=\"2.5\"/><polygon points=\"233,75 224,69 224,81\" fill=\"#5b73a8\"/><line x1=\"405\" y1=\"75\" x2=\"438\" y2=\"75\" stroke=\"#5b73a8\" stroke-width=\"2.5\"/><polygon points=\"438,75 429,69 429,81\" fill=\"#5b73a8\"/><text x=\"320\" y=\"165\" text-anchor=\"middle\" fill=\"#1b2438\">CVE-2026-58868 est corrigée dès le niveau 2026-11-01.</text><text x=\"320\" y=\"190\" text-anchor=\"middle\" fill=\"#344060\" font-size=\"12\">Le niveau 2026-11-05 ajoute noyau, Arm, MediaTek, Unisoc, Qualcomm, Imagination.</text></svg>",
+     "alt": "Schéma des deux niveaux de correctif du bulletin Android de novembre 2026 et du chemin jusqu'au téléphone.",
+     "caption": "Deux niveaux de correctif : le premier couvre la faille principale, le second l'ensemble du bulletin."
+    },
+    {
+     "type": "heading",
+     "text": "Deux niveaux de correctif à distinguer"
+    },
+    {
+     "type": "list",
+     "items": [
+      "Le niveau de correctif **2026-11-01** (ou plus récent) corrige CVE-2026-58868 et les autres failles des composants Framework, System et environnement d'exécution Android.",
+      "Le niveau **2026-11-05** (ou plus récent) corrige l'ensemble du bulletin, y compris les failles du noyau et des composants d'Arm, d'Imagination Technologies, de MediaTek, d'Unisoc et de Qualcomm.",
+      "Certains correctifs transitent aussi par les mises à jour du système via Google Play (Android 10 et suivants), mais pas CVE-2026-58868 : seule la date du correctif de sécurité fait foi."
+     ]
+    },
+    {
+     "type": "heading",
+     "text": "Autres failles notables du bulletin"
+    },
+    {
+     "type": "paragraph",
+     "text": "**CVE-2026-58882** est une faille critique de déni de service à distance, sans interaction, dans la fonction `decodeWapPdu`, qui traite les messages WAP Push transmis par SMS. Un chercheur publiant sous le nom « Mark B » a décrit le 29 octobre un « SMS de la mort » visant une fonction du même nom : un seul message mal formé ferait planter l'application de téléphonie et couperait toute communication en cours, y compris un appel d'urgence. Ni Google ni la fiche CVE ne confirment qu'il s'agisse du même défaut, et le chercheur indique que les versions 12 et 13, qui exécutent le même code, ne reçoivent pas de correctif. Une application de démonstration publique existerait."
+    },
+    {
+     "type": "paragraph",
+     "text": "Deux autres failles critiques d'exécution de code à distance, **CVE-2026-58876** et **CVE-2026-58936**, touchent le composant System. Six failles critiques concernent le noyau, dont deux dans le code Bluetooth, la plus grave pouvant permettre une élévation de privilèges à distance. Le niveau 2026-11-05 corrige aussi des failles critiques dans le code modem de MediaTek, qui dit n'avoir connaissance d'aucune exploitation, et dans un composant propriétaire de Qualcomm."
+    },
+    {
+     "type": "usecases",
+     "title": "Exemples d'utilisation",
+     "items": [
+      {
+       "icon": "🏢",
+       "title": "Parc de téléphones d'entreprise",
+       "text": "Un responsable informatique interroge sa console de gestion de flotte pour lister les appareils sous le niveau 2026-11-05 et planifie leur mise à jour en priorité."
+      },
+      {
+       "icon": "👨‍👩‍👧",
+       "title": "Smartphone familial ancien",
+       "text": "Un particulier ouvre Paramètres > À propos du téléphone et constate que le niveau de correctif date de plusieurs mois : il se renseigne auprès du constructeur ou envisage un remplacement."
+      },
+      {
+       "icon": "🛠️",
+       "title": "Test de réception du correctif",
+       "text": "Un intégrateur vérifie sur un appareil de test que le niveau affiché correspond bien à la version livrée par l'opérateur avant de déployer à grande échelle."
+      }
+     ]
+    },
+    {
+     "type": "timeline",
+     "title": "D'où l'on vient, où l'on va",
+     "items": [
+      {
+       "label": "29 octobre 2026",
+       "text": "Un chercheur publie un article sur un plantage déclenché par SMS dans une fonction proche de `decodeWapPdu`."
+      },
+      {
+       "label": "Début novembre 2026",
+       "text": "Google publie le bulletin de sécurité Android de novembre, avec deux niveaux de correctif (1er et 5 novembre)."
+      },
+      {
+       "label": "À venir",
+       "text": "Les constructeurs et opérateurs diffusent les mises à jour à leur rythme ; les détails techniques de CVE-2026-58868 pourraient être précisés ultérieurement."
+      }
+     ]
+    },
+    {
+     "type": "opinion",
+     "title": "Notre avis",
+     "paragraphs": [
+      "Le bulletin rappelle une réalité peu visible pour le grand public : un correctif existe dès que Google le publie, mais il n'atteint l'utilisateur qu'après le passage par le constructeur et l'opérateur. Cet écart, de quelques jours à plusieurs mois selon les modèles, est la vraie surface d'exposition. L'absence d'exploitation connue est rassurante, mais elle peut changer vite une fois les correctifs analysés par des attaquants.",
+      "À un horizon d'un à trois ans, la dissociation progressive de composants vers des mises à jour passant par Google Play pourrait réduire cet écart. Il s'agit d'une tendance plausible, pas d'un acquis : tant que des failles critiques restent hors de ce circuit, comme ici, la ponctualité des constructeurs reste décisive."
+     ],
+     "verdict": "Un correctif publié ne protège personne tant qu'il n'est pas installé : vérifiez la date de correctif de vos appareils."
+    },
+    {
+     "type": "callout",
+     "title": "À retenir",
+     "text": "Vérifiez Paramètres > À propos du téléphone > Niveau du correctif de sécurité Android. Visez 2026-11-05 ou plus récent et appliquez les mises à jour proposées."
+    }
+   ]
+  },
+  {
+   "id": "wordpress-core-cve-2026-119977-cisa-kev",
+   "category": "cybersecurite",
+   "icon": "🧩",
+   "importance": 4,
+   "title": "WordPress : une faille de concurrence dans le noyau, exploitée lors des mises à jour, entre au catalogue de la CISA",
+   "summary": "CVE-2026-119977 (CVSS 8,1) permet à un attaquant non authentifié d'exécuter du code pendant une mise à niveau complète. Wordfence a bloqué des milliers de tentatives en quelques heures.",
+   "tags": [
+    "WordPress",
+    "CVE-2026-119977",
+    "CISA",
+    "KEV",
+    "Wordfence"
+   ],
+   "sourceDate": "2026-11-04",
+   "publishedAt": "2026-11-04T10:15:15+01:00",
+   "readingMinutes": 4,
+   "sources": [
+    {
+     "title": "CISA Confirms Hackers Exploiting WordPress Core Flaw During Software Upgrades",
+     "url": "https://thehackernews.com/2026/11/cisa-confirms-hackers-exploiting.html",
+     "publisher": "The Hacker News"
+    }
+   ],
+   "cover": {
+    "url": "https://blogger.googleusercontent.com/img/b/R29vZ2xl/AVvXsEg9IgE0BWDAvYzjY8wFSMADIRn69AMLYxUa-oPoOISNBOpPbxwBNoWrbXWzI6P0deiU6WDqitiIZx1gFXSAlR8xX9rj56BuU48veMEPJAGSsmQTbVPirFOCuyMc_KQxtbPfc841GZGZ-3HSYYHCGbHnzrihtwQUaMlXrT3leLzI2USh00hc9OBw4k1SCJt4/s1600/wp-exploit.jpg",
+    "alt": "Illustration sur l'exploitation d'une faille du noyau de WordPress",
+    "credit": "thehackernews.com"
+   },
+   "illustration": {
+    "svg": "<svg xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"0 0 640 360\" role=\"img\" aria-hidden=\"true\"><defs><linearGradient id=\"g\" x1=\"0\" y1=\"0\" x2=\"1\" y2=\"1\"><stop offset=\"0\" stop-color=\"hsl(175,65%,32%)\"/><stop offset=\"1\" stop-color=\"hsl(215,70%,52%)\"/></linearGradient></defs><rect width=\"640\" height=\"360\" fill=\"url(#g)\"/><circle cx=\"540\" cy=\"60\" r=\"90\" fill=\"#fff\" opacity=\".07\"/><circle cx=\"90\" cy=\"320\" r=\"110\" fill=\"#fff\" opacity=\".06\"/><rect x=\"150\" y=\"80\" width=\"340\" height=\"200\" rx=\"14\" fill=\"none\" stroke=\"#fff\" stroke-width=\"7\"/><rect x=\"150\" y=\"80\" width=\"340\" height=\"38\" rx=\"14\" fill=\"#fff\" opacity=\".35\"/><circle cx=\"175\" cy=\"99\" r=\"6\" fill=\"#fff\"/><circle cx=\"197\" cy=\"99\" r=\"6\" fill=\"#fff\"/><path d=\"M215 160 h210 M215 195 h150 M215 230 h180\" stroke=\"#fff\" stroke-width=\"9\" stroke-linecap=\"round\" opacity=\".8\"/><circle cx=\"470\" cy=\"250\" r=\"44\" fill=\"#fff\"/><path d=\"M470 222 v34 M470 268 v2\" stroke=\"hsl(175,65%,32%)\" stroke-width=\"10\" stroke-linecap=\"round\"/></svg>"
+   },
+   "blocks": [
+    {
+     "type": "paragraph",
+     "text": "L'agence américaine CISA a ajouté, début novembre 2026, une faille du noyau de WordPress à son catalogue des vulnérabilités connues comme exploitées (KEV), après avoir confirmé des attaques réelles. Référencée **CVE-2026-119977** et notée **8,1** sur l'échelle CVSS, elle est une condition de concurrence de type TOCTOU (*time-of-check to time-of-use*) : le système vérifie un état, puis agit un instant plus tard, et un attaquant peut modifier la situation entre les deux."
+    },
+    {
+     "type": "heading",
+     "text": "Un défaut lié à la mise à niveau complète"
+    },
+    {
+     "type": "paragraph",
+     "text": "Selon la CISA, la faille tient à des **chemins de préparation prévisibles et accessibles depuis le web**, utilisés pendant les mises à niveau complètes du noyau. Pendant cette courte fenêtre, un attaquant peut interférer avec les fichiers temporaires et obtenir l'exécution de code arbitraire sur le serveur. Wordfence précise que l'exploitation ne nécessite aucun compte sur le site : l'attaque est donc non authentifiée, ce qui élargit considérablement le nombre de cibles potentielles, WordPress équipant une très grande part des sites web."
+    },
+    {
+     "type": "paragraph",
+     "text": "Les correctifs ont été publiés fin octobre 2026 par le biais d'un avis de sécurité GitHub (GHSA-4w3m-c66w-69mg). La source consultée ne donne pas les numéros de version concernés ni les versions corrigées ; il faut donc se reporter à l'avis officiel et à l'interface d'administration du site pour connaître la version à installer."
+    },
+    {
+     "type": "heading",
+     "text": "Une exploitation déjà massive"
+    },
+    {
+     "type": "list",
+     "items": [
+      "Wordfence a enregistré plus de **18 500 requêtes** visant des chemins d'installation temporaires de type `setup-config.php` dans les 21 premières heures suivant la divulgation publique.",
+      "Au moment de la rédaction de la source, **12 632 tentatives** avaient été bloquées en 24 heures.",
+      "Le pot de miel de Previdian a relevé trois tentatives depuis une adresse britannique dès le 30 octobre 2026.",
+      "Les agences civiles fédérales américaines doivent appliquer les correctifs avant le **6 novembre 2026**."
+     ]
+    },
+    {
+     "type": "paragraph",
+     "text": "Ces chiffres montrent qu'une fois un correctif publié, l'analyse du changement par les attaquants est quasi immédiate : le délai entre la publication et les premières attaques se compte en jours, voire en heures. L'avis de la CISA vise formellement les agences américaines, mais la liste KEV sert de référence aux équipes de sécurité du monde entier, dont celles des organisations françaises."
+    },
+    {
+     "type": "usecases",
+     "title": "Exemples d'utilisation",
+     "items": [
+      {
+       "icon": "🏪",
+       "title": "Boutique en ligne",
+       "text": "Un commerçant dont le site WordPress se met à jour automatiquement vérifie dans l'administration que la version installée est bien celle qui contient le correctif."
+      },
+      {
+       "icon": "🧑‍💻",
+       "title": "Agence web",
+       "text": "Une agence qui gère des dizaines de sites contrôle en lot leur version, désactive temporairement les mises à niveau manuelles et surveille les journaux à la recherche de requêtes vers `setup-config.php`."
+      },
+      {
+       "icon": "🏛️",
+       "title": "Collectivité",
+       "text": "Le service informatique d'une mairie fait inventorier ses sites WordPress, y compris ceux oubliés, et applique la mise à jour avant la date limite qu'il s'est fixée."
+      }
+     ]
+    },
+    {
+     "type": "timeline",
+     "title": "D'où l'on vient, où l'on va",
+     "items": [
+      {
+       "label": "Fin octobre 2026",
+       "text": "Publication des correctifs via l'avis GHSA-4w3m-c66w-69mg."
+      },
+      {
+       "label": "30 octobre 2026",
+       "text": "Premières tentatives d'exploitation relevées par un pot de miel."
+      },
+      {
+       "label": "Début novembre 2026",
+       "text": "La CISA ajoute CVE-2026-119977 au catalogue KEV ; Wordfence compte plus de 18 500 requêtes en 21 heures."
+      },
+      {
+       "label": "6 novembre 2026",
+       "text": "Échéance imposée aux agences civiles fédérales américaines."
+      }
+     ]
+    },
+    {
+     "type": "opinion",
+     "title": "Notre avis",
+     "paragraphs": [
+      "Cette affaire illustre un paradoxe : le mécanisme de mise à jour, censé protéger, devient lui-même la porte d'entrée. Les chemins prévisibles et exposés sont un classique des erreurs de conception, et leur correction est généralement simple une fois identifiée. Le vrai risque tient aux sites qui ne se mettent pas à jour, par négligence ou par abandon.",
+      "À moyen terme, on peut attendre davantage de mises à jour automatiques activées par défaut et un durcissement des répertoires temporaires. C'est une évolution souhaitable, qui ne dispensera pas les propriétaires de sites de surveiller leurs journaux."
+     ],
+     "verdict": "Une faille non authentifiée dans le noyau de WordPress est un risque à traiter dans la journée, pas dans le mois."
+    },
+    {
+     "type": "callout",
+     "title": "À retenir",
+     "text": "Installez sans attendre la dernière version de WordPress, vérifiez les journaux d'accès pour `setup-config.php` et consultez l'avis GHSA-4w3m-c66w-69mg pour les versions exactes."
+    }
+   ]
+  },
+  {
+   "id": "cpython-jit-experimental-retire-pep-836",
+   "category": "dev",
+   "icon": "🐍",
+   "importance": 4,
+   "title": "Python : le compilateur JIT expérimental de CPython sera retiré après le retrait du PEP 836",
+   "summary": "Le 19 octobre, le PEP 836 qui visait un JIT officiellement pris en charge a été retiré. Le code expérimental devrait quitter la branche principale tôt dans le cycle de Python 3.16.",
+   "tags": [
+    "Python",
+    "CPython",
+    "JIT",
+    "PEP 836",
+    "Steering Council"
+   ],
+   "sourceDate": "2026-10-26",
+   "publishedAt": "2026-11-04T10:15:15+01:00",
+   "readingMinutes": 4,
+   "sources": [
+    {
+     "title": "Python jettisons the native JIT, at least for now",
+     "url": "https://www.infoworld.com/article/4241003/python-jettisons-the-native-jit-at-least-for-now.html",
+     "publisher": "InfoWorld"
+    },
+    {
+     "title": "Python's experimental JIT to be removed",
+     "url": "https://lwn.net/Articles/1102102/",
+     "publisher": "LWN.net"
+    },
+    {
+     "title": "PEP 836: JIT Go Brrr: The Path to a Supported JIT Compiler for CPython",
+     "url": "https://discuss.python.org/t/pep-836-jit-go-brrr-the-path-to-a-supported-jit-compiler-for-cpython/108010",
+     "publisher": "Discourse Python"
+    }
+   ],
+   "cover": {
+    "url": "https://www.infoworld.com/wp-content/uploads/2026/10/4241003-0-69625400-1793116047-shutterstock_1150398050.jpg?quality=50&strip=all&w=1024",
+    "alt": "Illustration générique de code informatique à l'écran",
+    "credit": "infoworld.com"
+   },
+   "illustration": {
+    "svg": "<svg xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"0 0 640 360\" role=\"img\" aria-hidden=\"true\"><defs><linearGradient id=\"g\" x1=\"0\" y1=\"0\" x2=\"1\" y2=\"1\"><stop offset=\"0\" stop-color=\"hsl(265,65%,32%)\"/><stop offset=\"1\" stop-color=\"hsl(305,70%,52%)\"/></linearGradient></defs><rect width=\"640\" height=\"360\" fill=\"url(#g)\"/><circle cx=\"540\" cy=\"60\" r=\"90\" fill=\"#fff\" opacity=\".07\"/><circle cx=\"90\" cy=\"320\" r=\"110\" fill=\"#fff\" opacity=\".06\"/><path d=\"M250 110 l-80 70 80 70\" fill=\"none\" stroke=\"#fff\" stroke-width=\"16\" stroke-linecap=\"round\" stroke-linejoin=\"round\"/><path d=\"M390 110 l80 70 -80 70\" fill=\"none\" stroke=\"#fff\" stroke-width=\"16\" stroke-linecap=\"round\" stroke-linejoin=\"round\"/><path d=\"M345 100 l-50 160\" stroke=\"#fff\" stroke-width=\"14\" stroke-linecap=\"round\"/><path d=\"M300 300 h120\" stroke=\"#fff\" stroke-width=\"8\" stroke-linecap=\"round\" opacity=\".6\"/></svg>"
+   },
+   "blocks": [
+    {
+     "type": "paragraph",
+     "text": "Le compilateur à la volée (JIT) expérimental de CPython, l'implémentation de référence de Python, est en passe d'être supprimé. Le 19 octobre 2026, l'auteur du **PEP 836**, intitulé « JIT Go Brrr: The Path to a Supported JIT Compiler for CPython », l'a retiré. Cette proposition devait faire passer le JIT du statut d'option expérimentale à celui de composant officiellement pris en charge. Son retrait enterre, au moins pour l'instant, cette perspective."
+    },
+    {
+     "type": "heading",
+     "text": "Pourquoi la proposition a été retirée"
+    },
+    {
+     "type": "paragraph",
+     "text": "L'auteur, qui est aussi gestionnaire de versions pour Python 3.16 et 3.17, a expliqué que le Steering Council, l'instance de gouvernance du langage, place la barre très haut pour une proposition de cette ampleur, et que l'équipe n'avait pas la disponibilité personnelle nécessaire pour porter la version actuelle du texte. Le conseil avait suspendu les travaux sur le JIT en juin 2026 et réclamait un PEP couvrant trois points : le **support** du composant dans la durée, l'**évaluation de ses performances** et son **intégration** au reste de CPython."
+    },
+    {
+     "type": "paragraph",
+     "text": "Selon les comptes rendus, le PEP 836 n'apportait pas assez de détails sur ces trois aspects. Le sujet n'est donc pas seulement technique : un JIT intégré engage les mainteneurs sur la durée, avec des coûts de maintenance, de tests sur plusieurs plateformes et de compatibilité avec le reste de l'interpréteur."
+    },
+    {
+     "type": "heading",
+     "text": "Ce qui va se passer"
+    },
+    {
+     "type": "list",
+     "items": [
+      "Le JIT devrait être retiré de la branche principale assez rapidement, afin que d'éventuels problèmes liés à ce retrait soient traités tôt dans le cycle de développement de **Python 3.16**. Aucun commit de suppression n'a été confirmé dans les sources consultées.",
+      "Les auteurs prévoient de rendre l'implémentation de référence disponible et de la lier depuis le PEP retiré.",
+      "D'autres personnes peuvent poursuivre le travail hors du dépôt principal de CPython ; des projets tiers comme CinderX, de Meta, proposent un JIT en extension, eux aussi considérés comme expérimentaux."
+     ]
+    },
+    {
+     "type": "paragraph",
+     "text": "Les sources divergent légèrement sur la présentation : l'une évoque une évaluation encore en cours par le conseil sur le maintien du JIT comme expérience, l'autre présente la suppression comme décidée. L'article de LWN, daté du 26 octobre, indique que le développement est de fait arrêté."
+    },
+    {
+     "type": "usecases",
+     "title": "Exemples d'utilisation",
+     "items": [
+      {
+       "icon": "🧮",
+       "title": "Calcul scientifique",
+       "text": "Une équipe qui utilisait le JIT expérimental pour accélérer des boucles numériques bascule vers des bibliothèques compilées comme NumPy, ou vers une extension tierce, pour ne plus dépendre d'une fonction amenée à disparaître."
+      },
+      {
+       "icon": "🏗️",
+       "title": "Intégration continue",
+       "text": "Un projet qui testait ses paquets avec l'option de compilation du JIT retire ce paramètre de ses configurations pour anticiper Python 3.16."
+      },
+      {
+       "icon": "🔬",
+       "title": "Expérimentation hors dépôt",
+       "text": "Un chercheur en compilation récupère le code de référence lié au PEP retiré pour poursuivre ses travaux dans un dépôt séparé."
+      }
+     ]
+    },
+    {
+     "type": "timeline",
+     "title": "D'où l'on vient, où l'on va",
+     "items": [
+      {
+       "label": "Juin 2026",
+       "text": "Le Steering Council suspend les travaux sur le JIT et demande un PEP détaillé."
+      },
+      {
+       "label": "19 octobre 2026",
+       "text": "Le PEP 836 est retiré par son auteur."
+      },
+      {
+       "label": "26 octobre 2026",
+       "text": "LWN et InfoWorld rapportent la suppression prochaine du JIT expérimental."
+      },
+      {
+       "label": "Cycle de Python 3.16",
+       "text": "Retrait probable du code de la branche principale."
+      }
+     ]
+    },
+    {
+     "type": "opinion",
+     "title": "Notre avis",
+     "paragraphs": [
+      "Cet épisode a le mérite de la clarté : un composant de cette taille ne peut pas rester indéfiniment « expérimental ». Soit une équipe s'engage sur son support, ses mesures de performance et son intégration, soit il disparaît. Le conseil a préféré l'absence d'engagement flou, ce qui protège la maintenabilité de CPython, au prix d'une promesse de performances repoussée.",
+      "Dans les un à trois ans, les gains de vitesse de Python devraient plutôt venir des optimisations de l'interpréteur et des extensions compilées. Un JIT pris en charge n'est pas exclu à terme, mais cela dépendra d'une équipe disposée à le soutenir, ce qui est une hypothèse et non un fait."
+     ],
+     "verdict": "Mieux vaut un JIT retiré proprement qu'un JIT expérimental que personne ne peut garantir."
+    }
+   ]
+  },
+  {
+   "id": "tor-browser-16-firefox-esr-153",
+   "category": "web",
+   "icon": "🧅",
+   "importance": 3,
+   "title": "Tor Browser 16.0 : première version stable sur Firefox ESR 153, titres de fenêtres génériques et paramètres refondus",
+   "summary": "La version 16.0 ajoute le support natif de Linux ARM 64 bits, abandonne le x86 32 bits et propose en option des titres de fenêtre génériques pour masquer les pages visitées aux autres applications.",
+   "tags": [
+    "Tor Browser",
+    "Firefox ESR",
+    "vie privée",
+    "navigateur",
+    "Android"
+   ],
+   "sourceDate": "2026-10-29",
+   "publishedAt": "2026-11-04T10:15:15+01:00",
+   "readingMinutes": 4,
+   "sources": [
+    {
+     "title": "New Release: Tor Browser 16.0",
+     "url": "https://blog.torproject.org/new-release-tor-browser-160/",
+     "publisher": "Tor Project"
+    },
+    {
+     "title": "Tor Browser 16.0 released",
+     "url": "https://lwn.net/Articles/1104846/",
+     "publisher": "LWN.net"
+    }
+   ],
+   "cover": {
+    "url": "https://blog.torproject.org/new-release-tor-browser-160/lead.png",
+    "alt": "Visuel de présentation de la version 16.0 de Tor Browser",
+    "credit": "blog.torproject.org"
+   },
+   "illustration": {
+    "svg": "<svg xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"0 0 640 360\" role=\"img\" aria-hidden=\"true\"><defs><linearGradient id=\"g\" x1=\"0\" y1=\"0\" x2=\"1\" y2=\"1\"><stop offset=\"0\" stop-color=\"hsl(210,65%,32%)\"/><stop offset=\"1\" stop-color=\"hsl(250,70%,52%)\"/></linearGradient></defs><rect width=\"640\" height=\"360\" fill=\"url(#g)\"/><circle cx=\"540\" cy=\"60\" r=\"90\" fill=\"#fff\" opacity=\".07\"/><circle cx=\"90\" cy=\"320\" r=\"110\" fill=\"#fff\" opacity=\".06\"/><circle cx=\"320\" cy=\"180\" r=\"100\" fill=\"none\" stroke=\"#fff\" stroke-width=\"8\"/><circle cx=\"320\" cy=\"180\" r=\"62\" fill=\"none\" stroke=\"#fff\" stroke-width=\"8\" opacity=\".8\"/><circle cx=\"320\" cy=\"180\" r=\"24\" fill=\"#fff\"/><path d=\"M220 180 h-60 M420 180 h60 M320 80 v-40 M320 280 v40\" stroke=\"#fff\" stroke-width=\"8\" stroke-linecap=\"round\"/><circle cx=\"160\" cy=\"180\" r=\"12\" fill=\"#fff\"/><circle cx=\"480\" cy=\"180\" r=\"12\" fill=\"#fff\"/></svg>"
+   },
+   "blocks": [
+    {
+     "type": "paragraph",
+     "text": "Le Tor Project a publié **Tor Browser 16.0**, présentée comme la première version stable fondée sur **Firefox ESR 153**, pour ordinateur et pour Android. L'annonce officielle date du 29 octobre 2026 et le site LWN.net l'a relayée le 2 novembre. Sur ordinateur, le navigateur s'appuie sur Firefox 153.6.0 ESR ; sur Android, sur GeckoView 153.6.0 ESR. Cette bascule annuelle de version de support étendu est toujours un moment délicat : chaque changement de Firefox doit être examiné pour ses effets possibles sur l'anonymat."
+    },
+    {
+     "type": "heading",
+     "text": "Un audit de fond avant la bascule"
+    },
+    {
+     "type": "paragraph",
+     "text": "L'équipe indique avoir passé en revue plus de 270 tickets Bugzilla de Firefox susceptibles d'affecter la vie privée ou la sécurité. Plusieurs fonctions ont été désactivées ou masquées pour limiter les risques d'identification par empreinte numérique, notamment **WebGPU**, **XSLT**, les fonctions d'IA, l'API Reporting, les suggestions de recherche et l'affichage en écran partagé. Des correctifs ont aussi été apportés au niveau de sécurité « Plus sûr », à la gestion des sites oignon et au comportement des proxys."
+    },
+    {
+     "type": "heading",
+     "text": "Les nouveautés pour les utilisateurs"
+    },
+    {
+     "type": "list",
+     "items": [
+      "**Paramètres refondus** : la page Général est scindée en Apparence, Téléchargements, Onglets et navigation, Accessibilité et Langues ; les sections Connexion et Niveau de sécurité sont reconstruites avec les composants de Firefox. Les réglages risquant de nuire à la vie privée sont masqués ou accompagnés d'avertissements, et les préférences existantes sont conservées.",
+      "**Titres de fenêtre génériques** (en option) : dans Vie privée et sécurité > Protections contre les applications tierces, cette fonction remplace le titre de la fenêtre par « Tor Browser », afin que les autres logiciels ne puissent pas lire le titre des pages consultées. L'équipe demande des retours car elle peut perturber des lecteurs d'écran et certains environnements de bureau.",
+      "**Manuel intégré** : la page `about:manual` reprend le contenu du site d'assistance et fonctionne hors ligne.",
+      "**Linux** : prise en charge native du 64 bits ARM (AArch64) ; fin du support du x86 32 bits, comme Firefox."
+     ]
+    },
+    {
+     "type": "paragraph",
+     "text": "Sur Android, une grande partie de l'interface passe à Jetpack Compose et à Material Design 3. Pour rester sous la limite de 100 Mo imposée par Google Play pour les paquets APK, le manuel n'y est pas intégré. Côté composants, la version met à jour tor (0.4.9.15), NoScript (13.6.37.1984) et Go (1.26.10)."
+    },
+    {
+     "type": "usecases",
+     "title": "Exemples d'utilisation",
+     "items": [
+      {
+       "icon": "📰",
+       "title": "Journaliste en déplacement",
+       "text": "Une journaliste active les titres de fenêtre génériques pour qu'un logiciel de partage d'écran ou de capture n'affiche pas le titre des pages qu'elle consulte."
+      },
+      {
+       "icon": "🖥️",
+       "title": "Poste Linux sur carte ARM",
+       "text": "Un utilisateur d'un mini-ordinateur ARM 64 bits installe désormais la version native plutôt que de passer par une solution de contournement."
+      },
+      {
+       "icon": "🏫",
+       "title": "Atelier de sensibilisation",
+       "text": "Un formateur s'appuie sur le manuel hors ligne intégré pour expliquer les niveaux de sécurité lors d'une séance sans connexion fiable."
+      }
+     ]
+    },
+    {
+     "type": "timeline",
+     "title": "D'où l'on vient, où l'on va",
+     "items": [
+      {
+       "label": "15.0.26",
+       "text": "Dernière version de la branche précédente, base du journal complet des changements."
+      },
+      {
+       "label": "29 octobre 2026",
+       "text": "Publication de Tor Browser 16.0 sur Firefox ESR 153."
+      },
+      {
+       "label": "À venir",
+       "text": "Un affichage refondu des circuits, montrant les circuits multi-chemins et des informations sur le site, doit arriver d'abord dans la version alpha, puis sur Android."
+      }
+     ]
+    },
+    {
+     "type": "opinion",
+     "title": "Notre avis",
+     "paragraphs": [
+      "Tor Browser avance sur un équilibre difficile : suivre Firefox pour la sécurité, tout en désactivant ce qui ferait de chaque utilisateur un cas unique. La refonte des paramètres va dans le bon sens, car la plupart des fuites de vie privée viennent d'un réglage mal compris. Le prix à payer est une dépendance forte au calendrier de Mozilla.",
+      "Sur un à trois ans, la question sera de savoir si l'équipe pourra continuer à auditer chaque nouvelle fonction de Firefox, de plus en plus riche, sans multiplier les désactivations. C'est un pari d'organisation plus que de technique."
+     ],
+     "verdict": "Une mise à jour majeure sans bouleversement visible pour la sécurité, mais utile pour la vie privée au quotidien."
+    }
+   ]
+  },
+  {
+   "id": "revolut-assistants-code-auto-heberges-glm",
+   "category": "ia",
+   "icon": "💸",
+   "importance": 4,
+   "title": "Revolut : des assistants de code auto-hébergés pour réduire la facture d'environ 90 %, au prix de compromis assumés",
+   "summary": "Lors d'une conférence, un responsable de Revolut a détaillé le passage à des modèles GLM auto-hébergés pour environ 2 000 ingénieurs. Les modèles commerciaux restent utilisés pour certains usages.",
+   "tags": [
+    "IA",
+    "assistants de code",
+    "GLM",
+    "Revolut",
+    "modèles ouverts"
+   ],
+   "sourceDate": "2026-11-03",
+   "publishedAt": "2026-11-04T10:15:15+01:00",
+   "readingMinutes": 5,
+   "sources": [
+    {
+     "title": "British fintech Revolut slashes AI coding costs 10x by cutting out Claude and going self-hosted",
+     "url": "https://www.theregister.com/ai-and-ml/2026/11/03/british-fintech-revolut-slashes-ai-coding-costs-10x-by-cutting-out-claude-and-going-self-hosted/5307345",
+     "publisher": "The Register"
+    }
+   ],
+   "cover": {
+    "url": "https://image.theregister.com/260288.jpg?imageId=260288&x=0&y=0&cropw=100&croph=100&panox=0&panoy=0&panow=100&panoh=100&width=1200&height=683",
+    "alt": "Image d'illustration éditoriale de The Register pour l'article sur Revolut et l'IA de programmation",
+    "credit": "theregister.com"
+   },
+   "illustration": {
+    "svg": "<svg xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"0 0 640 360\" role=\"img\" aria-hidden=\"true\"><defs><linearGradient id=\"g\" x1=\"0\" y1=\"0\" x2=\"1\" y2=\"1\"><stop offset=\"0\" stop-color=\"hsl(320,65%,32%)\"/><stop offset=\"1\" stop-color=\"hsl(0,70%,52%)\"/></linearGradient></defs><rect width=\"640\" height=\"360\" fill=\"url(#g)\"/><circle cx=\"540\" cy=\"60\" r=\"90\" fill=\"#fff\" opacity=\".07\"/><circle cx=\"90\" cy=\"320\" r=\"110\" fill=\"#fff\" opacity=\".06\"/><rect x=\"230\" y=\"90\" width=\"180\" height=\"180\" rx=\"16\" fill=\"none\" stroke=\"#fff\" stroke-width=\"8\"/><rect x=\"270\" y=\"130\" width=\"100\" height=\"100\" rx=\"10\" fill=\"#fff\"/><path d=\"M260 90 v-36 M320 90 v-36 M380 90 v-36 M260 270 v36 M320 270 v36 M380 270 v36 M230 130 h-36 M230 180 h-36 M230 230 h-36 M410 130 h36 M410 180 h36 M410 230 h36\" stroke=\"#fff\" stroke-width=\"8\" stroke-linecap=\"round\"/><text x=\"320\" y=\"196\" text-anchor=\"middle\" font-size=\"40\" font-family=\"system-ui\" fill=\"hsl(320,65%,32%)\" font-weight=\"700\">AI</text></svg>"
+   },
+   "blocks": [
+    {
+     "type": "paragraph",
+     "text": "La banque en ligne britannique Revolut affirme avoir réduit d'environ **90 %** le coût de l'inférence de ses assistants de programmation en faisant des modèles auto-hébergés son option par défaut. Le chiffre provient d'une intervention de David Abitbol, responsable des opérations et de l'infrastructure, à la conférence AI Engineer de New York en octobre 2026, rapportée le 3 novembre par The Register. Le titre de l'article parle de « suppression » de Claude, mais le contenu nuance : les modèles commerciaux n'ont pas été totalement abandonnés."
+    },
+    {
+     "type": "heading",
+     "text": "Les chiffres annoncés"
+    },
+    {
+     "type": "list",
+     "items": [
+      "Le modèle **GLM 5.1**, auto-hébergé, coûterait environ 0,30 dollar par million de jetons, soit à peu près un dixième du prix de l'usage de Codex d'OpenAI ou de Claude Code d'Anthropic.",
+      "Le déploiement concerne environ 2 000 ingénieurs ; Revolut revendique un gain de 60 % sur le temps de codage et de 70 % sur le délai de livraison.",
+      "Au début, certains ingénieurs auraient dépensé de 1 000 à 10 000 dollars par mois pour peu de résultats, d'où des plafonds budgétaires stricts et un nombre limité de jetons."
+     ]
+    },
+    {
+     "type": "paragraph",
+     "text": "Ces résultats sont déclarés par l'entreprise elle-même lors d'une présentation ; ils n'ont pas fait l'objet d'une vérification indépendante dans la source. La méthode de mesure des gains de productivité n'est pas détaillée."
+    },
+    {
+     "type": "heading",
+     "text": "Un parcours en trois temps"
+    },
+    {
+     "type": "paragraph",
+     "text": "Revolut a d'abord déployé Gemini début 2025, puis Claude Code début 2026, avant de passer à l'auto-hébergement avec GLM-5.1, modèle du développeur chinois Z.ai, puis GLM-5.3. GLM-5.1 compte environ 754 milliards de paramètres au total, dont 40 milliards actifs par jeton généré. Ses poids exigent environ 380 Go de mémoire de GPU, plus 6 à 26 Go par utilisateur pour le contexte selon la précision. Pour GLM-5.3, l'entreprise utilise 56 GPU Nvidia B200, soit l'équivalent de sept systèmes DGX B200 à huit GPU."
+    },
+    {
+     "type": "paragraph",
+     "text": "Selon l'intervenant, les gains les plus importants viennent du réglage logiciel plutôt que de GPU supplémentaires : réglage des hyperparamètres, quantification NVFP4, séparation du pré-remplissage et du décodage, et choix de la longueur de contexte. Il juge qu'environ 256 000 jetons de contexte constituent le bon compromis, même si le modèle en accepte un million, et il lâche : « La longue fenêtre est une arnaque. » Les objectifs sont un premier jeton en moins de trois secondes et environ 200 jetons par seconde en usage courant."
+    },
+    {
+     "type": "heading",
+     "text": "Des limites reconnues"
+    },
+    {
+     "type": "paragraph",
+     "text": "GLM ne traite que du texte, ce qui le rend peu adapté au travail sur les interfaces. Revolut utilise donc un routeur de modèles qui envoie les requêtes visuelles à d'autres modèles, comme Gemini ou GPT, tandis que la génération de code reste sur GLM. L'intervenant reconnaît les inquiétudes liées aux modèles ouverts d'origine chinoise, mais estime que le risque principal vient de l'appel à des API hébergées hors de Chine ; faire tourner les modèles sur site ou dans un nuage régional réduit selon lui cette préoccupation."
+    },
+    {
+     "type": "usecases",
+     "title": "Exemples d'utilisation",
+     "items": [
+      {
+       "icon": "🐞",
+       "title": "Débogage en parallèle",
+       "text": "Un ingénieur lance plusieurs analyses d'incident en parallèle sur le modèle interne et consulte les résultats à mesure qu'ils arrivent, sans surveiller le débit."
+      },
+      {
+       "icon": "🎫",
+       "title": "Tickets et documentation",
+       "text": "Une équipe confie à l'assistant la rédaction et le tri de tickets Jira et de pages Confluence, des tâches où les jetons illimités changent l'usage."
+      },
+      {
+       "icon": "🧭",
+       "title": "Routage selon la tâche",
+       "text": "Une plateforme interne envoie une capture d'écran à un modèle capable de vision, et une demande de refactorisation au modèle auto-hébergé."
+      }
+     ]
+    },
+    {
+     "type": "timeline",
+     "title": "D'où l'on vient, où l'on va",
+     "items": [
+      {
+       "label": "Début 2025",
+       "text": "Revolut déploie Gemini auprès de ses ingénieurs."
+      },
+      {
+       "label": "Début 2026",
+       "text": "Déploiement de Claude Code."
+      },
+      {
+       "label": "Octobre 2026",
+       "text": "Présentation à AI Engineer du passage à GLM auto-hébergé."
+      },
+      {
+       "label": "Depuis",
+       "text": "Migration de GLM-5.1 vers GLM-5.3 sur 56 GPU B200."
+      }
+     ]
+    },
+    {
+     "type": "opinion",
+     "title": "Notre avis",
+     "paragraphs": [
+      "Le chiffre de 90 % impressionne, mais il compare un coût marginal de jetons à un prix catalogue : l'investissement en GPU, l'exploitation et les équipes nécessaires ne sont pas inclus dans les 0,30 dollar. Pour une entreprise de la taille de Revolut, le calcul semble favorable ; pour une PME, l'équation sera très différente.",
+      "À un horizon d'un à trois ans, l'architecture la plus probable est hybride : un modèle ouvert pour le gros du volume, des modèles commerciaux pour les tâches où ils font la différence, et un routeur entre les deux. C'est une projection, fondée sur ce que décrit Revolut, et non une certitude."
+     ],
+     "verdict": "L'auto-hébergement est rentable à grande échelle, à condition de savoir l'exploiter."
+    }
+   ]
+  },
+  {
+   "id": "tracer-ci-github-actions-opentelemetry-sans-toucher-workflows",
+   "category": "devops",
+   "icon": "🔭",
+   "importance": 3,
+   "title": "Tracer les pipelines CI de GitHub Actions avec OpenTelemetry, sans modifier un seul fichier de workflow",
+   "summary": "Un retour d'expérience publié sur le blog de la CNCF décrit un webhook d'organisation et un collecteur OpenTelemetry qui transforment chaque exécution de workflow en trace distribuée.",
+   "tags": [
+    "OpenTelemetry",
+    "GitHub Actions",
+    "CI/CD",
+    "observabilité",
+    "CNCF"
+   ],
+   "sourceDate": "2026-10-21",
+   "publishedAt": "2026-11-04T10:15:15+01:00",
+   "readingMinutes": 5,
+   "sources": [
+    {
+     "title": "Distributed tracing for CI pipelines without touching a single workflow file",
+     "url": "https://www.cncf.io/blog/2026/10/21/distributed-tracing-for-ci-pipelines-without-touching-a-single-workflow-file-2/",
+     "publisher": "CNCF"
+    }
+   ],
+   "cover": {
+    "url": "https://www.cncf.io/wp-content/uploads/2026/10/Carbon-as-a-first-class-signal-3.jpg",
+    "alt": "Visuel du blog de la CNCF utilisé pour l'article sur la trace des pipelines CI",
+    "credit": "cncf.io"
+   },
+   "illustration": {
+    "svg": "<svg xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"0 0 640 360\" role=\"img\" aria-hidden=\"true\"><defs><linearGradient id=\"g\" x1=\"0\" y1=\"0\" x2=\"1\" y2=\"1\"><stop offset=\"0\" stop-color=\"hsl(160,65%,32%)\"/><stop offset=\"1\" stop-color=\"hsl(200,70%,52%)\"/></linearGradient></defs><rect width=\"640\" height=\"360\" fill=\"url(#g)\"/><circle cx=\"540\" cy=\"60\" r=\"90\" fill=\"#fff\" opacity=\".07\"/><circle cx=\"90\" cy=\"320\" r=\"110\" fill=\"#fff\" opacity=\".06\"/><g stroke=\"#fff\" stroke-width=\"7\" stroke-linecap=\"round\"><path d=\"M130 120 h280\"/><path d=\"M190 180 h200\"/><path d=\"M250 240 h260\"/></g><g fill=\"#fff\"><circle cx=\"130\" cy=\"120\" r=\"12\"/><circle cx=\"190\" cy=\"180\" r=\"12\"/><circle cx=\"250\" cy=\"240\" r=\"12\"/><circle cx=\"410\" cy=\"120\" r=\"12\"/><circle cx=\"390\" cy=\"180\" r=\"12\"/><circle cx=\"510\" cy=\"240\" r=\"12\"/></g><path d=\"M130 120 v0 M190 180 v0\" stroke=\"#fff\"/></svg>"
+   },
+   "blocks": [
+    {
+     "type": "paragraph",
+     "text": "Comprendre pourquoi un pipeline d'intégration continue ralentit, quels tests sont instables ou combien de temps un job attend un exécuteur disponible reste difficile avec les seules statistiques de GitHub Actions, limitées à chaque dépôt. George Sims, de Proton.me, décrit dans un billet du blog de la CNCF, daté du 21 octobre 2026, une approche qui évite d'instrumenter les dépôts un par un : écouter les événements de GitHub au niveau de l'organisation et les convertir en traces distribuées."
+    },
+    {
+     "type": "heading",
+     "text": "Le principe : un webhook, un collecteur"
+    },
+    {
+     "type": "paragraph",
+     "text": "Chaque exécution de workflow et chaque job émettent des événements `workflow_run` et `workflow_job`. Un **unique webhook d'organisation** les envoie à un collecteur OpenTelemetry, dont le composant `githubreceiver`, issu de la distribution contrib et encore au stade alpha, les convertit en spans OTLP. Un exporteur OTLP les transmet ensuite à n'importe quel outil compatible, comme Tempo, Jaeger ou Datadog ; l'auteur considère le choix du serveur de traces comme la décision la moins importante. Les nouveaux dépôts sont tracés dès leur création, sans modification de leurs workflows."
+    },
+    {
+     "type": "diagram",
+     "svg": "<svg xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"0 0 640 220\" font-family=\"system-ui,sans-serif\" font-size=\"14\"><rect width=\"640\" height=\"220\" rx=\"14\" fill=\"#f4f6fa\" stroke=\"#c9d1e0\"/><rect x=\"20\" y=\"30\" width=\"150\" height=\"70\" rx=\"10\" fill=\"#dbe7ff\" stroke=\"#5b73a8\"/><text x=\"95\" y=\"58\" text-anchor=\"middle\" fill=\"#1b2438\" font-weight=\"600\">Dépôts GitHub</text><text x=\"95\" y=\"80\" text-anchor=\"middle\" fill=\"#344060\" font-size=\"12\">workflow_run / job</text><line x1=\"170\" y1=\"65\" x2=\"208\" y2=\"65\" stroke=\"#5b73a8\" stroke-width=\"2.5\"/><polygon points=\"208,65 199,59 199,71\" fill=\"#5b73a8\"/><rect x=\"210\" y=\"30\" width=\"170\" height=\"70\" rx=\"10\" fill=\"#fde9c8\" stroke=\"#5b73a8\"/><text x=\"295\" y=\"58\" text-anchor=\"middle\" fill=\"#1b2438\" font-weight=\"600\">Webhook d'organisation</text><text x=\"295\" y=\"80\" text-anchor=\"middle\" fill=\"#344060\" font-size=\"12\">un seul point d'entrée</text><line x1=\"380\" y1=\"65\" x2=\"418\" y2=\"65\" stroke=\"#5b73a8\" stroke-width=\"2.5\"/><polygon points=\"418,65 409,59 409,71\" fill=\"#5b73a8\"/><rect x=\"420\" y=\"30\" width=\"200\" height=\"70\" rx=\"10\" fill=\"#d6f2e3\" stroke=\"#5b73a8\"/><text x=\"520\" y=\"58\" text-anchor=\"middle\" fill=\"#1b2438\" font-weight=\"600\">Collecteur OpenTelemetry</text><text x=\"520\" y=\"80\" text-anchor=\"middle\" fill=\"#344060\" font-size=\"12\">githubreceiver (alpha)</text><line x1=\"520\" y1=\"100\" x2=\"520\" y2=\"128\" stroke=\"#5b73a8\" stroke-width=\"2.5\"/><polygon points=\"520,128 511,122 511,134\" fill=\"#5b73a8\"/><rect x=\"420\" y=\"130\" width=\"200\" height=\"60\" rx=\"10\" fill=\"#e9ddf7\" stroke=\"#5b73a8\"/><text x=\"520\" y=\"158\" text-anchor=\"middle\" fill=\"#1b2438\" font-weight=\"600\">Exporteur OTLP</text><text x=\"520\" y=\"180\" text-anchor=\"middle\" fill=\"#344060\" font-size=\"12\">Tempo, Jaeger, Datadog…</text><text x=\"20\" y=\"150\" fill=\"#1b2438\" font-weight=\"600\">Workflow → Job → Étape</text><text x=\"20\" y=\"172\" fill=\"#344060\" font-size=\"12\">Chaque niveau devient un span ;</text><text x=\"20\" y=\"190\" fill=\"#344060\" font-size=\"12\">identifiants dérivés du run et du check run.</text></svg>",
+     "alt": "Schéma montrant les dépôts GitHub envoyant des événements à un webhook d'organisation, puis à un collecteur OpenTelemetry et à un exporteur OTLP.",
+     "caption": "Du dépôt à la trace : un seul webhook d'organisation alimente le collecteur OpenTelemetry."
+    },
+    {
+     "type": "heading",
+     "text": "Une structure de spans pensée pour être prolongée"
+    },
+    {
+     "type": "paragraph",
+     "text": "Un workflow devient le span racine, chaque job un span enfant, chaque étape un span enfant de son job. Les identifiants de trace et de span sont déterministes : ils sont calculés à partir de l'identifiant d'exécution du workflow et de celui du check run de chaque job. Il devient ainsi possible, depuis l'intérieur d'une étape, d'émettre de la télémétrie personnalisée qui se rattache à la même trace sans coordination avec le collecteur."
+    },
+    {
+     "type": "heading",
+     "text": "Précautions de déploiement"
+    },
+    {
+     "type": "list",
+     "items": [
+      "Le collecteur doit être joignable depuis Internet : l'auteur recommande une liste d'adresses autorisées ou un pare-feu applicatif limité aux plages de GitHub, plutôt que de se reposer uniquement sur le secret partagé.",
+      "Une application GitHub peut remplacer la gestion d'un secret partagé ; un webhook d'organisation exige des droits d'administration.",
+      "Le composant étant en alpha, il faut épingler la version du collecteur car la configuration peut changer ; sur GitHub Enterprise Server, la livraison des webhooks doit être validée avant de supposer une parité avec github.com."
+     ]
+    },
+    {
+     "type": "paragraph",
+     "text": "Pour dimensionner l'ensemble, il suggère de compter les dépôts réellement actifs sur une semaine type, puis de multiplier par le nombre d'exécutions, d'étapes par workflow et la taille des messages, avant de comparer le volume obtenu à celui des traces applicatives. L'article ne fournit pas de chiffres mesurés ni de résultats quantifiés, et il ne traite pas encore des alertes, annoncées pour un prochain billet."
+    },
+    {
+     "type": "usecases",
+     "title": "Exemples d'utilisation",
+     "items": [
+      {
+       "icon": "⏱️",
+       "title": "Chasse aux lenteurs",
+       "text": "Une équipe plateforme repère qu'un job passe plus de temps en file d'attente que d'exécution, et ajuste la capacité de ses exécuteurs."
+      },
+      {
+       "icon": "🎲",
+       "title": "Tests instables",
+       "text": "Un responsable qualité compare les traces d'un même workflow pour isoler les étapes qui échouent par intermittence."
+      },
+      {
+       "icon": "📊",
+       "title": "Vue transverse",
+       "text": "Un directeur technique obtient un tableau de bord par équipe et par type de workflow, impossible avec les statistiques d'un seul dépôt."
+      }
+     ]
+    },
+    {
+     "type": "timeline",
+     "title": "D'où l'on vient, où l'on va",
+     "items": [
+      {
+       "label": "Aujourd'hui",
+       "text": "Le récepteur GitHub du collecteur OpenTelemetry est en alpha ; la configuration peut évoluer."
+      },
+      {
+       "label": "Prochain billet annoncé",
+       "text": "L'auteur promet un second volet sur la conception des alertes : seuils de temps d'attente, tests instables, bruit."
+      }
+     ]
+    },
+    {
+     "type": "opinion",
+     "title": "Notre avis",
+     "paragraphs": [
+      "L'idée est séduisante par sa sobriété : un point de collecte unique évite des mois de modification de dépôts. Elle complète utilement les métriques de la flotte d'exécuteurs (ARC), qui répondent à des questions différentes. Le revers, c'est qu'on expose un point d'entrée public et qu'on dépend d'un composant encore jeune.",
+      "Sur un à trois ans, on peut penser que l'observabilité de la chaîne de livraison deviendra aussi banale que celle des applications, et que les éditeurs d'intégration continue fourniront nativement ces traces. Il s'agit d'une prévision plausible, non d'un fait établi."
+     ],
+     "verdict": "Une bonne recette pour voir enfin où passe le temps des pipelines, à condition de verrouiller l'entrée du collecteur."
+    },
+    {
+     "type": "callout",
+     "title": "À retenir",
+     "text": "À vérifier avant de déployer : version du collecteur épinglée, secret hors du dépôt, filtrage IP des appels entrants."
+    }
+   ]
+  },
+  {
+   "id": "amd-resultats-t3-2026-depasser-intel-x86",
+   "category": "electronique",
+   "icon": "🧠",
+   "importance": 4,
+   "title": "AMD : 13,4 milliards de dollars de revenus au troisième trimestre et la perspective de dépasser Intel dans les puces x86",
+   "summary": "Porté par les centres de données (+97 %), AMD annonce une hausse de 45 % de son chiffre d'affaires et prévoit environ 17 milliards de dollars le trimestre prochain, contre 15 à 16 pour Intel.",
+   "tags": [
+    "AMD",
+    "Intel",
+    "x86",
+    "centres de données",
+    "semi-conducteurs"
+   ],
+   "sourceDate": "2026-11-04",
+   "publishedAt": "2026-11-04T10:15:15+01:00",
+   "readingMinutes": 4,
+   "sources": [
+    {
+     "title": "AMD on track to overtake Intel as biggest x86 outfit",
+     "url": "https://www.theregister.com/systems/2026/11/04/amd-on-track-to-overtake-intel-as-biggest-x86-outfit/5307448",
+     "publisher": "The Register"
+    }
+   ],
+   "cover": {
+    "url": "https://image.theregister.com/1662910.jpg?imageId=1662910&x=0&y=0&cropw=100&croph=100&panox=0&panoy=0&panow=100&panoh=100&width=1200&height=683",
+    "alt": "Photographie illustrant les processeurs AMD, publiée par The Register",
+    "credit": "theregister.com"
+   },
+   "illustration": {
+    "svg": "<svg xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"0 0 640 360\" role=\"img\" aria-hidden=\"true\"><defs><linearGradient id=\"g\" x1=\"0\" y1=\"0\" x2=\"1\" y2=\"1\"><stop offset=\"0\" stop-color=\"hsl(30,65%,32%)\"/><stop offset=\"1\" stop-color=\"hsl(70,70%,52%)\"/></linearGradient></defs><rect width=\"640\" height=\"360\" fill=\"url(#g)\"/><circle cx=\"540\" cy=\"60\" r=\"90\" fill=\"#fff\" opacity=\".07\"/><circle cx=\"90\" cy=\"320\" r=\"110\" fill=\"#fff\" opacity=\".06\"/><rect x=\"230\" y=\"90\" width=\"180\" height=\"180\" rx=\"14\" fill=\"#fff\" opacity=\".9\"/><rect x=\"262\" y=\"122\" width=\"116\" height=\"116\" rx=\"8\" fill=\"none\" stroke=\"hsl(30,70%,40%)\" stroke-width=\"6\"/><path d=\"M262 160 h116 M262 200 h116 M300 122 v116 M340 122 v116\" stroke=\"hsl(30,70%,40%)\" stroke-width=\"3\" opacity=\".6\"/><path d=\"M230 120 h-40 M230 180 h-40 M230 240 h-40 M410 120 h40 M410 180 h40 M410 240 h40 M270 90 v-36 M320 90 v-36 M370 90 v-36 M270 270 v36 M320 270 v36 M370 270 v36\" stroke=\"#fff\" stroke-width=\"8\" stroke-linecap=\"round\"/></svg>"
+   },
+   "blocks": [
+    {
+     "type": "paragraph",
+     "text": "AMD a publié le 3 novembre 2026 ses résultats du troisième trimestre, et The Register en tire, le 4 novembre, une conclusion forte : le fabricant pourrait bientôt dépasser Intel comme premier vendeur de puces x86 en chiffre d'affaires. Le calcul exclut les activités de fonderie d'Intel, qui lui assurent, selon l'article, un revenu total encore supérieur. La comparaison porte donc sur la seule vente de processeurs."
+    },
+    {
+     "type": "heading",
+     "text": "Les chiffres du trimestre"
+    },
+    {
+     "type": "keyvalue",
+     "items": [
+      {
+       "label": "Chiffre d'affaires total",
+       "value": "13,4 milliards de dollars, +45 % sur un an"
+      },
+      {
+       "label": "Centres de données",
+       "value": "8,5 milliards de dollars, +97 %"
+      },
+      {
+       "label": "Client et jeux",
+       "value": "3,7 milliards de dollars, -8 %"
+      },
+      {
+       "label": "Puces pour PC",
+       "value": "2,9 milliards de dollars, +7 %, portées par les Ryzen mobiles"
+      },
+      {
+       "label": "Prévision du trimestre suivant",
+       "value": "environ 17 milliards de dollars"
+      }
+     ]
+    },
+    {
+     "type": "paragraph",
+     "text": "Le recul de 8 % du segment client et jeux est plus marqué que les 5 % de baisse qui avaient pénalisé l'action d'Intel, mais il est largement compensé par l'envolée des centres de données. Intel a pour sa part annoncé viser de 15 à 16 milliards de dollars de revenus au prochain trimestre, ce que l'article décrit comme une croissance quasi nulle. Après la clôture, l'action AMD gagnait environ 5 %."
+    },
+    {
+     "type": "heading",
+     "text": "Les déclarations de Lisa Su"
+    },
+    {
+     "type": "paragraph",
+     "text": "La directrice générale, Lisa Su, anticipe que 2027 sera une année forte à la fois pour les processeurs et pour l'IA en centre de données. Elle table sur une croissance globale supérieure à 80 %, avec des revenus de processeurs pour serveurs à peu près doublés et des revenus d'IA pour centres de données plus que doublés. Elle affirme avoir sécurisé les plaquettes, les substrats, l'assemblage avancé et la mémoire nécessaires, et investir avec ses partenaires pour des capacités à long terme. Elle cite aussi l'adoption croissante des PC Ryzen PRO dans de grandes banques, chez des constructeurs automobiles et dans la santé."
+    },
+    {
+     "type": "paragraph",
+     "text": "Ces objectifs sont des déclarations de la direction, non des résultats acquis. L'article rappelle par ailleurs qu'AMD reste derrière Nvidia sur les processeurs graphiques, et qu'elle est « sans doute » leader technologique sur les processeurs de serveurs, formulation qui témoigne d'une appréciation, pas d'un constat chiffré."
+    },
+    {
+     "type": "usecases",
+     "title": "Exemples d'utilisation",
+     "items": [
+      {
+       "icon": "🏦",
+       "title": "Parc de PC d'une banque",
+       "text": "Une direction informatique choisit des PC professionnels à base de Ryzen PRO pour renouveler sa flotte, en s'appuyant sur la gestion centralisée de ces machines."
+      },
+      {
+       "icon": "🖧",
+       "title": "Appel d'offres serveur",
+       "text": "Un hébergeur compare des serveurs à processeurs AMD et Intel sur le prix, la consommation et les délais de livraison, désormais influencés par les capacités annoncées."
+      },
+      {
+       "icon": "🎮",
+       "title": "Achat d'un portable",
+       "text": "Un particulier surveille les prix des portables Ryzen, dont le segment progresse, sans s'attendre à des baisses liées à ces résultats."
+      }
+     ]
+    },
+    {
+     "type": "timeline",
+     "title": "D'où l'on vient, où l'on va",
+     "items": [
+      {
+       "label": "3 novembre 2026",
+       "text": "AMD publie des revenus de 13,4 milliards de dollars au troisième trimestre."
+      },
+      {
+       "label": "Trimestre suivant",
+       "text": "Prévision d'AMD : environ 17 milliards de dollars ; Intel vise 15 à 16 milliards."
+      },
+      {
+       "label": "2027",
+       "text": "Lisa Su annonce une croissance supérieure à 80 % ; objectif non garanti."
+      }
+     ]
+    },
+    {
+     "type": "opinion",
+     "title": "Notre avis",
+     "paragraphs": [
+      "Ce dépassement potentiel est surtout un symbole : il raconte le déplacement du centre de gravité du marché des puces vers les centres de données et l'IA, au détriment du PC grand public. Qu'il se concrétise ou non dépendra de la capacité d'AMD à livrer, la chaîne d'approvisionnement étant, de l'aveu même de sa dirigeante, le point critique.",
+      "À un horizon d'un à trois ans, la concurrence devrait porter autant sur l'assemblage avancé et la mémoire que sur l'architecture des cœurs. C'est une lecture personnelle, qui ne repose pas sur un chiffre publié."
+     ],
+     "verdict": "L'avantage d'AMD se joue désormais autant dans les usines et les chaînes logistiques que dans les cœurs de processeur."
+    }
+   ]
+  }
+ ]
+}
