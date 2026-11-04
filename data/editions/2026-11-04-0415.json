@@ -1,0 +1,791 @@
+{
+ "schemaVersion": "1.0",
+ "date": "2026-11-04",
+ "generatedAt": "2026-11-04T04:16:56+01:00",
+ "title": "Tech du 4 novembre : faille TCP dans le noyau Linux, mise à jour piégée de cPGuard, LLMjacking, vote raté pour C++26 et affaire Postman",
+ "summary": "Une édition consacrée à la faille CVE-2026-98432 du noyau Linux, au détournement du canal de mise à jour de cPGuard, aux factures de LLMjacking signalées par Google, au rejet du projet de norme C++26 et à l'installation automatique de plugins par Postman.",
+ "highlights": [
+  "Noyau Linux : une faille TCP IPv4 notée 9,8, correctifs Red Hat publiés, Ubuntu en test.",
+  "cPGuard : versions 5.88.12 à 5.88.19 piégées, rotation des secrets nécessaire.",
+  "LLMjacking : jusqu'à un million de dollars de frais en nuage selon Google.",
+  "C++26 : le vote de la norme ISO échoue, réunion de crise le 16 novembre.",
+  "Postman : installation automatique de plugins d'agents de code contestée."
+ ],
+ "meta": {
+  "generator": "claude-scheduled-task"
+ },
+ "posts": [
+  {
+   "id": "linux-tcp-use-after-free-cve-2026-98432-rce",
+   "category": "cybersecurite",
+   "icon": "🐧",
+   "importance": 5,
+   "title": "Noyau Linux : une faille TCP IPv4 notée 9,8 permet une exécution de code à distance, Red Hat et Ubuntu publient des correctifs",
+   "summary": "Présente depuis Linux 4.4, la faille CVE-2026-98432 touche le traitement des connexions TCP IPv4. Red Hat l'a requalifiée de modérée à critique et a publié des noyaux corrigés ; ceux d'Ubuntu restent pour l'instant en test.",
+   "tags": [
+    "Linux",
+    "noyau",
+    "CVE-2026-98432",
+    "TCP",
+    "Red Hat",
+    "Ubuntu"
+   ],
+   "sourceDate": "2026-11-03",
+   "sources": [
+    {
+     "title": "Red Hat Patches 9.8-Rated Linux TCP RCE Flaw While Ubuntu Releases Fixes for Testing",
+     "url": "https://thehackernews.com/2026/11/red-hat-patches-98-rated-linux-tcp-rce.html",
+     "publisher": "The Hacker News"
+    }
+   ],
+   "illustration": {
+    "svg": "<svg xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"0 0 640 360\" role=\"img\" aria-hidden=\"true\"><defs><linearGradient id=\"g\" x1=\"0\" y1=\"0\" x2=\"1\" y2=\"1\"><stop offset=\"0\" stop-color=\"hsl(175,65%,32%)\"/><stop offset=\"1\" stop-color=\"hsl(215,70%,52%)\"/></linearGradient></defs><rect width=\"640\" height=\"360\" fill=\"url(#g)\"/><circle cx=\"540\" cy=\"60\" r=\"90\" fill=\"#fff\" opacity=\".07\"/><circle cx=\"90\" cy=\"320\" r=\"110\" fill=\"#fff\" opacity=\".06\"/><g stroke=\"#fff\" stroke-width=\"5\" opacity=\".85\"><line x1=\"320\" y1=\"180\" x2=\"200\" y2=\"110\"/><line x1=\"320\" y1=\"180\" x2=\"440\" y2=\"110\"/><line x1=\"320\" y1=\"180\" x2=\"210\" y2=\"260\"/><line x1=\"320\" y1=\"180\" x2=\"450\" y2=\"255\"/></g><g fill=\"#fff\"><circle cx=\"320\" cy=\"180\" r=\"30\"/><circle cx=\"200\" cy=\"110\" r=\"18\"/><circle cx=\"440\" cy=\"110\" r=\"18\"/><circle cx=\"210\" cy=\"260\" r=\"18\"/><circle cx=\"450\" cy=\"255\" r=\"18\"/></g></svg>"
+   },
+   "blocks": [
+    {
+     "type": "paragraph",
+     "text": "Une faille du noyau Linux, identifiée sous la référence **CVE-2026-98432**, permet à un attaquant distant et sans authentification de provoquer une corruption de mémoire pouvant mener à l'exécution de code. Elle se situe dans le code TCP du protocole IPv4, présent dans le noyau depuis la version 4.4, ce qui concerne un très grand nombre de serveurs, de boîtiers réseau et d'images de conteneurs. Le 3 novembre 2026, The Hacker News a fait le point sur l'état des correctifs : Red Hat a livré des noyaux corrigés, Canonical propose les siens en préversion, et d'autres distributions avaient déjà publié leurs mises à jour en octobre."
+    },
+    {
+     "type": "heading",
+     "text": "Comment fonctionne la faille"
+    },
+    {
+     "type": "paragraph",
+     "text": "Lorsqu'un serveur accepte une connexion TCP en IPv4, le noyau transmet à la nouvelle socket les options IP contenues dans la demande de connexion, sans en faire une copie. Si le client retransmet sa demande pendant qu'un autre cœur de processeur lit encore ces options, le noyau peut lire une zone mémoire déjà libérée : c'est une vulnérabilité de type *use-after-free*, déclenchée par une condition de concurrence. L'attaquant n'a besoin que d'envoyer des demandes de connexion portant les options IPv4 *Record Route* ou *Timestamp* vers n'importe quel port en écoute. Le chemin principal en IPv6 n'est pas concerné."
+    },
+    {
+     "type": "diagram",
+     "svg": "<svg xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"0 0 640 220\" font-family=\"system-ui,sans-serif\" font-size=\"14\"><rect width=\"640\" height=\"220\" rx=\"14\" fill=\"#eef3f6\"/><g fill=\"#fff\" stroke=\"#0f766e\" stroke-width=\"2\"><rect x=\"20\" y=\"70\" width=\"140\" height=\"80\" rx=\"10\"/><rect x=\"250\" y=\"70\" width=\"140\" height=\"80\" rx=\"10\"/><rect x=\"480\" y=\"70\" width=\"140\" height=\"80\" rx=\"10\"/></g><g fill=\"#0f2f2c\" text-anchor=\"middle\"><text x=\"90\" y=\"105\">Client</text><text x=\"90\" y=\"127\">SYN + options IP</text><text x=\"320\" y=\"105\">Noyau Linux</text><text x=\"320\" y=\"127\">options partagées</text><text x=\"550\" y=\"105\">Mémoire libérée</text><text x=\"550\" y=\"127\">lue à nouveau</text></g><g stroke=\"#0f766e\" stroke-width=\"3\" fill=\"none\"><path d=\"M160 110 H245\"/><path d=\"M390 110 H475\"/></g><g fill=\"#0f766e\"><path d=\"M245 110 l-12 -7 v14z\"/><path d=\"M475 110 l-12 -7 v14z\"/></g><text x=\"320\" y=\"190\" text-anchor=\"middle\" fill=\"#0f2f2c\">Retransmission du SYN pendant une lecture : accès après libération</text></svg>",
+     "alt": "Schéma en trois étapes : un client envoie un SYN avec des options IP, le noyau partage ces options avec la nouvelle socket, puis une retransmission provoque la lecture d'une mémoire libérée.",
+     "caption": "Principe de la faille : des options IP partagées sans copie, puis lues après libération lors d'une retransmission."
+    },
+    {
+     "type": "heading",
+     "text": "Une gravité réévaluée"
+    },
+    {
+     "type": "list",
+     "items": [
+      "L'équipe des CVE du noyau Linux attribue la note CVSS de **9,8**.",
+      "Red Hat l'avait d'abord classée « modérée » (5,9) avant de la relever à 9,8, soit « critique ».",
+      "Amazon Linux retient 8,1 (« importante ») et décrit surtout un plantage avec corruption possible de la mémoire."
+     ]
+    },
+    {
+     "type": "paragraph",
+     "text": "Le correctif amont a été intégré en octobre. Aucun éditeur, aucun CERT ni l'équipe des CVE du noyau ne signale d'attaque réelle, et la faille ne figurait pas, au 30 octobre, dans le catalogue des vulnérabilités exploitées de la CISA américaine. Anthropic a toutefois indiqué le 27 octobre qu'un modèle de recherche interne non publié avait écrit un exploit donnant un accès root à distance contre des serveurs Linux dotés d'un écouteur MPTCP : environ 48 minutes pour obtenir une adresse du noyau, puis 5 minutes pour un interpréteur de commandes root. Le code n'a pas été diffusé. Un code de démonstration qui se limite à déclencher la course critique circule sur GitHub."
+    },
+    {
+     "type": "heading",
+     "text": "Où en sont les correctifs"
+    },
+    {
+     "type": "table",
+     "headers": [
+      "Distribution",
+      "État au 3 novembre 2026"
+     ],
+     "rows": [
+      [
+       "RHEL 8, 9 et 10",
+       "Noyaux corrigés publiés le 1er novembre, redémarrage nécessaire"
+      ],
+      [
+       "Ubuntu 22.04, 24.04 et 26.04 LTS",
+       "Correctifs dans le canal optionnel « proposed », sans date de diffusion"
+      ],
+      [
+       "Ubuntu 20.04 et plus anciennes",
+       "Pas de correctif ; Expanded Security Maintenance (Ubuntu Pro) requis"
+      ],
+      [
+       "Debian, Oracle Linux, SUSE",
+       "Correctifs publiés en octobre"
+      ],
+      [
+       "Amazon Linux",
+       "Paquets corrigés entre le 24 et le 30 octobre"
+      ]
+     ]
+    },
+    {
+     "type": "paragraph",
+     "text": "Red Hat a aussi diffusé le 30 octobre une règle *nftables* qui rejette les paquets TCP IPv4 entrants portant des options IP. Elle bloque le déclencheur connu mais n'empêche pas toute exploitation, peut perturber des applications qui s'appuient sur ces options, et ne s'applique qu'à la machine où elle est chargée : selon un membre de l'équipe noyau de CIQ, le trafic entre conteneurs d'un même hôte peut la contourner. Désactiver MPTCP a été suggéré, mais la faille se situe dans le chemin TCP IPv4 et non dans MPTCP : cette mesure ne suffit donc pas. Canonical estime que seules les mises à jour de sécurité constituent une mitigation appropriée."
+    },
+    {
+     "type": "usecases",
+     "title": "Ce que cela change concrètement",
+     "items": [
+      {
+       "icon": "🏢",
+       "title": "Hébergeur ou PME avec des serveurs RHEL",
+       "text": "L'équipe planifie le redémarrage des machines exposées à Internet dès cette semaine, en commençant par les services en écoute sur le port 443 ou 22."
+      },
+      {
+       "icon": "🐳",
+       "title": "Plateforme de conteneurs",
+       "text": "Le noyau étant partagé avec l'hôte, c'est l'hôte qu'il faut corriger : mettre à jour l'image d'un conteneur ne change rien à la faille."
+      },
+      {
+       "icon": "📦",
+       "title": "Parc Ubuntu 20.04 sans Ubuntu Pro",
+       "text": "Le service informatique inventorie ces machines et décide entre l'abonnement ESM, la migration vers une version supportée ou, à défaut, une isolation réseau stricte."
+      }
+     ]
+    },
+    {
+     "type": "timeline",
+     "title": "D'où l'on vient, où l'on va",
+     "items": [
+      {
+       "label": "Octobre 2026",
+       "text": "Le correctif est intégré au noyau amont ; Debian, Oracle Linux, SUSE et Amazon Linux publient leurs paquets."
+      },
+      {
+       "label": "27 octobre 2026",
+       "text": "Anthropic annonce qu'un modèle interne a écrit un exploit pour cette faille."
+      },
+      {
+       "label": "1er novembre 2026",
+       "text": "Red Hat livre les noyaux corrigés pour RHEL 8, 9 et 10."
+      },
+      {
+       "label": "2 novembre 2026",
+       "text": "Canonical publie ses correctifs dans le canal « proposed »."
+      }
+     ]
+    },
+    {
+     "type": "opinion",
+     "title": "Notre avis",
+     "paragraphs": [
+      "L'épisode illustre un déplacement du risque : une faille vieille de plus de dix ans, dans l'un des composants les plus audités du noyau, est désormais à la portée d'outils automatisés capables de produire des exploits en moins d'une heure. Le délai entre publication d'un correctif amont et déploiement chez les utilisateurs, ici plusieurs semaines pour certaines distributions, devient la vraie fenêtre d'exposition.",
+      "À un horizon d'un à trois ans, il faut s'attendre à ce que les éditeurs raccourcissent ces délais et à ce que les équipes d'exploitation généralisent les redémarrages à chaud et les noyaux à jour par défaut. La polémique sur la notation initiale de Red Hat rappelle aussi qu'un score CVSS n'est qu'une estimation, qui peut changer lorsque l'on comprend mieux l'exploitabilité."
+     ],
+     "verdict": "Pas d'attaque connue à ce jour, mais le temps de mise à jour est désormais l'élément décisif."
+    },
+    {
+     "type": "callout",
+     "title": "À retenir",
+     "text": "Appliquez les noyaux corrigés dès qu'ils sont disponibles pour votre distribution et redémarrez. Réservez la règle nftables à une mesure d'attente, et vérifiez les avis de l'ANSSI et du CERT-FR pour votre parc."
+    }
+   ],
+   "publishedAt": "2026-11-04T04:16:56+01:00",
+   "readingMinutes": 4
+  },
+  {
+   "id": "cpguard-mise-a-jour-detournee-portes-derobee-serveurs-linux",
+   "category": "cybersecurite",
+   "icon": "🧨",
+   "importance": 4,
+   "title": "cPGuard : le canal de mise à jour détourné pour installer une porte dérobée et voler des empreintes de mots de passe",
+   "summary": "Le 2 novembre 2026, un attaquant disposant d'identifiants volés a poussé de fausses mises à jour de cPGuard, un outil de sécurité pour serveurs Linux. Les versions 5.88.12 à 5.88.19 sont concernées ; la 5.88.25 supprime la porte dérobée.",
+   "tags": [
+    "cPGuard",
+    "OPSSHIELD",
+    "chaîne d'approvisionnement",
+    "Linux",
+    "porte dérobée"
+   ],
+   "sourceDate": "2026-11-03",
+   "sources": [
+    {
+     "title": "cPGuard Update Channel Hijacked to Backdoor Linux Servers and Collect Password Hashes",
+     "url": "https://thehackernews.com/2026/11/cpguard-update-channel-hijacked-to.html",
+     "publisher": "The Hacker News"
+    }
+   ],
+   "illustration": {
+    "svg": "<svg xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"0 0 640 360\" role=\"img\" aria-hidden=\"true\"><defs><linearGradient id=\"g\" x1=\"0\" y1=\"0\" x2=\"1\" y2=\"1\"><stop offset=\"0\" stop-color=\"hsl(175,65%,32%)\"/><stop offset=\"1\" stop-color=\"hsl(215,70%,52%)\"/></linearGradient></defs><rect width=\"640\" height=\"360\" fill=\"url(#g)\"/><circle cx=\"540\" cy=\"60\" r=\"90\" fill=\"#fff\" opacity=\".07\"/><circle cx=\"90\" cy=\"320\" r=\"110\" fill=\"#fff\" opacity=\".06\"/><circle cx=\"250\" cy=\"180\" r=\"55\" fill=\"none\" stroke=\"#fff\" stroke-width=\"12\"/><path d=\"M305 180 H460 M410 180 V225 M440 180 V215\" stroke=\"#fff\" stroke-width=\"12\" stroke-linecap=\"round\" fill=\"none\"/></svg>"
+   },
+   "blocks": [
+    {
+     "type": "paragraph",
+     "text": "Les outils de sécurité installés avec des privilèges élevés constituent une cible de choix : qui contrôle leur mise à jour contrôle les serveurs qui les font tourner. C'est ce qui s'est produit avec **cPGuard**, un produit de l'éditeur OPSSHIELD destiné aux serveurs Linux. Selon l'avis publié par l'éditeur et relayé le 3 novembre 2026 par The Hacker News, un attaquant est entré dans le système de mise à jour avec des identifiants compromis à 2 h 6 (UTC) le 2 novembre, puis a distribué un script malveillant aux serveurs qui sont venus chercher une mise à jour."
+    },
+    {
+     "type": "heading",
+     "text": "Ce que faisait le script"
+    },
+    {
+     "type": "paragraph",
+     "text": "Le script installait une porte dérobée, c'est-à-dire un interpréteur de commandes caché, et collectait des fichiers sensibles du compte root avant de les envoyer vers un serveur de licences d'OPSSHIELD, au moyen d'un compte compromis. L'attaquant est ensuite venu récupérer 32 fichiers, chacun associé à un serveur client. Les données visées sont les suivantes :"
+    },
+    {
+     "type": "list",
+     "items": [
+      "`/etc/shadow` et `/etc/passwd`, donc les empreintes des mots de passe des comptes locaux ;",
+      "le fichier de configuration MariaDB ou MySQL de root (`my.cnf`) ;",
+      "l'historique des commandes de root, qui contient parfois des secrets saisis en clair ;",
+      "les fichiers `authorized_keys` et `known_hosts` de root pour SSH."
+     ]
+    },
+    {
+     "type": "paragraph",
+     "text": "Les empreintes de mots de passe peuvent être cassées hors ligne, surtout lorsque les mots de passe sont faibles ou déjà apparus dans des fuites. Les secrets présents dans les configurations de bases de données et dans l'historique, eux, ne bénéficient d'aucune protection comparable."
+    },
+    {
+     "type": "heading",
+     "text": "Versions et indicateurs de compromission"
+    },
+    {
+     "type": "keyvalue",
+     "items": [
+      {
+       "label": "Versions malveillantes",
+       "value": "5.88.12 à 5.88.19"
+      },
+      {
+       "label": "Version corrigée",
+       "value": "5.88.25 et suivantes"
+      },
+      {
+       "label": "Script",
+       "value": "cpguard-v58812-i91511.sh"
+      },
+      {
+       "label": "Porte dérobée",
+       "value": "/var/tmp/.cpg91511_sh"
+      },
+      {
+       "label": "Dossier de collecte",
+       "value": "/var/tmp/.cpg91511"
+      },
+      {
+       "label": "Archive",
+       "value": "/var/tmp/.cpg91511/loot.tgz"
+      }
+     ]
+    },
+    {
+     "type": "paragraph",
+     "text": "OPSSHIELD affirme avoir détecté l'attaque moins de douze heures après la diffusion des versions piégées, avoir révoqué ses identifiants d'infrastructure et empêché le script d'atteindre d'autres serveurs. Le nombre de serveurs touchés n'est pas connu : certains n'ont peut-être pas exécuté le script, puisqu'ils vérifient les mises à jour à intervalles réguliers. La suppression des fichiers par la mise à jour ne prouve pas que le script ne s'est jamais exécuté. Un serveur qui a installé une version concernée doit donc être considéré comme potentiellement compromis, même après la mise à jour."
+    },
+    {
+     "type": "heading",
+     "text": "Que faire"
+    },
+    {
+     "type": "paragraph",
+     "text": "Pour tous les serveurs, l'éditeur demande de lancer `cpgcli update --start` puis de vérifier avec `cpgcli --version` que la version est au moins la 5.88.25. Pour ceux qui ont pu exécuter le script, il faut, depuis un environnement de reprise de confiance, réinitialiser les mots de passe de root et des autres comptes locaux, changer ceux qui étaient réutilisés ailleurs, renouveler les mots de passe de bases de données, les clés d'accès S3, les jetons DigitalOcean et tous les secrets présents dans l'historique de root, puis remplacer les clés privées SSH de `/root/.ssh` et retirer les anciennes clés publiques des systèmes qui leur faisaient confiance. La commande `grep 'Successfully updated' /opt/cpguard/logs/install_log` indique si une version affectée a été installée, mais un journal absent ou incomplet ne permet pas de conclure à l'innocuité."
+    },
+    {
+     "type": "usecases",
+     "title": "Ce que cela change concrètement",
+     "items": [
+      {
+       "icon": "🖥️",
+       "title": "Hébergeur web avec cPanel",
+       "text": "L'administrateur recense les serveurs où cPGuard est installé, vérifie les journaux de mise à jour et planifie la rotation des secrets avant de rouvrir les accès."
+      },
+      {
+       "icon": "🔑",
+       "title": "Agence qui gère des serveurs clients",
+       "text": "Elle change les clés SSH et les mots de passe de base de données, puis prévient ses clients, qui peuvent avoir des obligations de notification en cas de violation de données."
+      },
+      {
+       "icon": "🧾",
+       "title": "Responsable sécurité d'une PME",
+       "text": "Il ajoute la surveillance des fichiers temporaires inhabituels dans `/var/tmp` à ses contrôles et vérifie que les comptes root n'utilisent pas de mots de passe faibles."
+      }
+     ]
+    },
+    {
+     "type": "timeline",
+     "title": "D'où l'on vient, où l'on va",
+     "items": [
+      {
+       "label": "2 novembre 2026, 2 h 6 UTC",
+       "text": "Intrusion dans le système de mise à jour avec des identifiants compromis."
+      },
+      {
+       "label": "2 novembre 2026",
+       "text": "Diffusion des versions 5.88.12 à 5.88.19 ; détection en moins de douze heures selon l'éditeur."
+      },
+      {
+       "label": "3 novembre 2026",
+       "text": "Publication de l'avis et de la version 5.88.25 qui retire la porte dérobée."
+      },
+      {
+       "label": "À venir",
+       "text": "L'enquête doit encore établir comment les identifiants ont été obtenus et si la clé privée du support a été exposée."
+      }
+     ]
+    },
+    {
+     "type": "opinion",
+     "title": "Notre avis",
+     "paragraphs": [
+      "Cet incident rappelle la logique des attaques sur la chaîne d'approvisionnement : le logiciel de sécurité devient le vecteur, car il est installé partout, avec les droits les plus élevés et avec la confiance de l'administrateur. La réponse d'OPSSHIELD est plutôt rapide, mais plusieurs points restent ouverts, notamment la compromission initiale et la clé de support SSH installée chez les clients.",
+      "Dans les prochaines années, on peut attendre une pression accrue pour que les mises à jour soient signées par une clé hors ligne, vérifiées côté client et, si possible, différées de quelques heures. Un canal de mise à jour qui repose sur un seul jeu d'identifiants en ligne n'est plus acceptable pour un produit qui s'exécute en root."
+     ],
+     "verdict": "Un outil de sécurité n'est digne de confiance que si sa propre chaîne de mise à jour est blindée."
+    },
+    {
+     "type": "callout",
+     "title": "À retenir",
+     "text": "Les serveurs ayant installé une version 5.88.12 à 5.88.19 doivent être traités comme compromis : mise à jour, puis rotation de tous les secrets accessibles à root."
+    }
+   ],
+   "publishedAt": "2026-11-04T04:16:56+01:00",
+   "readingMinutes": 4
+  },
+  {
+   "id": "google-llmjacking-factures-cloud-un-million-de-dollars",
+   "category": "cybersecurite",
+   "icon": "💸",
+   "importance": 4,
+   "title": "LLMjacking : Google alerte sur le détournement d'accès aux modèles de langage, jusqu'à un million de dollars de frais en nuage",
+   "summary": "Le Google Threat Intelligence Group et Mandiant décrivent des attaquants qui volent des clés d'API ou des jetons cloud pour consommer des modèles de langage aux frais des victimes, avec des factures de plus de 100 000 dollars en une journée.",
+   "tags": [
+    "LLMjacking",
+    "Google",
+    "Mandiant",
+    "cloud",
+    "clés d'API",
+    "IA"
+   ],
+   "sourceDate": "2026-11-03",
+   "sources": [
+    {
+     "title": "Google Warns LLMjacking Attacks Are Costing Some Enterprises Up to $1 Million in Cloud Charges",
+     "url": "https://thehackernews.com/2026/11/google-warns-llmjacking-attacks-are.html",
+     "publisher": "The Hacker News"
+    }
+   ],
+   "illustration": {
+    "svg": "<svg xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"0 0 640 360\" role=\"img\" aria-hidden=\"true\"><defs><linearGradient id=\"g\" x1=\"0\" y1=\"0\" x2=\"1\" y2=\"1\"><stop offset=\"0\" stop-color=\"hsl(175,65%,32%)\"/><stop offset=\"1\" stop-color=\"hsl(215,70%,52%)\"/></linearGradient></defs><rect width=\"640\" height=\"360\" fill=\"url(#g)\"/><circle cx=\"540\" cy=\"60\" r=\"90\" fill=\"#fff\" opacity=\".07\"/><circle cx=\"90\" cy=\"320\" r=\"110\" fill=\"#fff\" opacity=\".06\"/><path d=\"M320 90 L420 125 V200 C420 255 375 285 320 305 C265 285 220 255 220 200 V125 Z\" fill=\"none\" stroke=\"#fff\" stroke-width=\"10\" opacity=\".9\"/><path d=\"M280 195 L310 225 L365 160\" fill=\"none\" stroke=\"#fff\" stroke-width=\"12\" stroke-linecap=\"round\"/></svg>"
+   },
+   "blocks": [
+    {
+     "type": "paragraph",
+     "text": "Le détournement de puissance de calcul n'est pas nouveau : les « cryptomineurs » en ont longtemps été la forme la plus courante. Selon un avertissement publié par le Google Threat Intelligence Group (GTIG) et Mandiant, relayé le 3 novembre 2026, il se déplace vers les modèles de langage. Ce phénomène, appelé *LLMjacking*, consiste à utiliser sans autorisation l'accès d'une organisation à des services d'IA générative : c'est la victime qui paie la consommation."
+    },
+    {
+     "type": "heading",
+     "text": "Comment les attaquants obtiennent l'accès"
+    },
+    {
+     "type": "paragraph",
+     "text": "Le point d'entrée le plus fréquent est un identifiant cloud volé ou exposé : clés d'accès IAM, clés de compte de service, jetons d'accès personnels GitHub, jetons de session actifs. Les clés d'API de modèles peuvent aussi provenir d'hameçonnage, de fuites de code source, d'environnements mal configurés ou de code exposé côté client. Les entités touchées se trouvent en Amérique du Nord, en Amérique du Sud et en Asie-Pacifique, dans les services financiers, le commerce, la technologie et les transports."
+    },
+    {
+     "type": "heading",
+     "text": "Des factures qui s'envolent en quelques heures"
+    },
+    {
+     "type": "list",
+     "items": [
+      "Dans certains incidents, les frais frauduleux ont dépassé **100 000 dollars en une seule journée**.",
+      "Dans certaines organisations, le cumul a atteint **1 million de dollars** avant la révocation de l'accès.",
+      "Les pratiques vont de la manipulation d'un agent conversationnel de support, poussé à écrire du code, jusqu'au ciblage direct des ressources du modèle via des points d'accès exposés ou des clés valides."
+     ]
+    },
+    {
+     "type": "paragraph",
+     "text": "Le rapport décrit le cas d'un groupe suivi sous le nom **UNC6993**, entré par une clé de compte de service mal protégée. Il a aussi mis en ligne une page d'hameçonnage imitant un portail d'application, qui demandait aux utilisateurs de coller un bloc JSON contenant un jeton d'accès actif : le mot de passe et l'authentification multifacteur étaient ainsi contournés. Le groupe a ensuite créé de nouvelles clés d'API et généré plus de 100 000 dollars de frais. D'autres attaquants ont utilisé un jeton GitHub volé pour lire des dépôts privés, ou tiré parti de la faille CVE-2026-40217 dans LiteLLM pour élever leurs privilèges."
+    },
+    {
+     "type": "heading",
+     "text": "Une économie souterraine"
+    },
+    {
+     "type": "paragraph",
+     "text": "Google observe l'apparition de « mélangeurs de LLM » : des passerelles qui agrègent des accès volés et les revendent via des boutiques clandestines. L'une d'elles propose un forfait de jetons « illimité » pour environ 60 dollars par mois. Pour échapper aux limites de débit, certains attaquants créent et suppriment en continu des comptes de service éphémères. Un rapport distinct de Symantec et Carbon Black décrit en outre un service qui installe les véritables outils en ligne de commande Codex et Claude Code, puis les reconfigure pour faire transiter toutes les requêtes par une infrastructure tierce ; il concerne surtout une douzaine d'organisations, principalement en Chine continentale. Symantec n'a pas relevé de collecte des requêtes ni de manipulation des réponses, mais souligne les risques."
+    },
+    {
+     "type": "usecases",
+     "title": "Ce que cela change concrètement",
+     "items": [
+      {
+       "icon": "🛒",
+       "title": "Boutique en ligne avec un assistant d'achat",
+       "text": "Une clé d'API committée par erreur dans un dépôt public est repérée en quelques minutes. L'équipe met en place des plafonds de budget et des alertes de dépense par projet."
+      },
+      {
+       "icon": "🏦",
+       "title": "Équipe de développement dans une banque",
+       "text": "Les jetons personnels GitHub sont limités dans le temps et les clés de compte de service sont remplacées par des identités fédérées à courte durée de vie."
+      },
+      {
+       "icon": "🧪",
+       "title": "Start-up qui expérimente des agents",
+       "text": "Elle sépare les clés de test et de production et surveille les pics de consommation de jetons à des heures inhabituelles."
+      }
+     ]
+    },
+    {
+     "type": "timeline",
+     "title": "D'où l'on vient, où l'on va",
+     "items": [
+      {
+       "label": "Avant 2026",
+       "text": "Le détournement de ressources cloud vise surtout la cryptomonnaie."
+      },
+      {
+       "label": "2026",
+       "text": "Les attaquants se tournent vers l'accès aux modèles de langage ; des revendeurs se spécialisent."
+      },
+      {
+       "label": "3 novembre 2026",
+       "text": "Google estime que le LLMjacking supplantera de plus en plus les autres formes de détournement de ressources."
+      }
+     ]
+    },
+    {
+     "type": "opinion",
+     "title": "Notre avis",
+     "paragraphs": [
+      "Le mérite de ce rapport est de rappeler que la menace n'est pas seulement l'IA utilisée comme arme, mais l'IA comme ressource facturable. Une clé d'API est un moyen de paiement : elle doit être gérée comme tel, avec des plafonds, de l'observabilité et une rotation régulière.",
+      "À un horizon d'un à trois ans, la généralisation des agents autonomes multipliera les clés, les jetons et les intermédiaires de routage, donc la surface d'attaque. Les fournisseurs devront proposer des budgets stricts par défaut ; sans cela, la facture continuera à retomber sur la victime."
+     ],
+     "verdict": "Une clé d'API de modèle se protège comme une carte bancaire : plafond, alerte et révocation rapide."
+    },
+    {
+     "type": "callout",
+     "title": "À retenir",
+     "text": "Posez des plafonds de dépense et des alertes sur vos comptes d'IA, ne stockez aucune clé dans le code, et révoquez immédiatement toute clé exposée."
+    }
+   ],
+   "publishedAt": "2026-11-04T04:16:56+01:00",
+   "readingMinutes": 4
+  },
+  {
+   "id": "cpp26-vote-iso-desapprouve-contrats",
+   "category": "dev",
+   "icon": "🧱",
+   "importance": 5,
+   "title": "C++26 : le projet de norme internationale est rejeté au vote de l'ISO, une première pour le langage",
+   "summary": "Le 23 octobre 2026, les organismes nationaux ont désapprouvé le projet de norme C++26, principalement à cause des « contrats ». Le comité WG21 se réunit le 16 novembre pour tenter de sortir de l'impasse.",
+   "tags": [
+    "C++",
+    "C++26",
+    "ISO",
+    "WG21",
+    "contrats"
+   ],
+   "sourceDate": "2026-11-03",
+   "sources": [
+    {
+     "title": "C++26 Disapproved",
+     "url": "https://andreasfertig.com/blog/2026/11/cpp26-dis-failed-how-does-cpp-survive/",
+     "publisher": "Andreas Fertig"
+    }
+   ],
+   "illustration": {
+    "svg": "<svg xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"0 0 640 360\" role=\"img\" aria-hidden=\"true\"><defs><linearGradient id=\"g\" x1=\"0\" y1=\"0\" x2=\"1\" y2=\"1\"><stop offset=\"0\" stop-color=\"hsl(265,65%,32%)\"/><stop offset=\"1\" stop-color=\"hsl(305,70%,52%)\"/></linearGradient></defs><rect width=\"640\" height=\"360\" fill=\"url(#g)\"/><circle cx=\"540\" cy=\"60\" r=\"90\" fill=\"#fff\" opacity=\".07\"/><circle cx=\"90\" cy=\"320\" r=\"110\" fill=\"#fff\" opacity=\".06\"/><path d=\"M240 120 L170 180 L240 240 M400 120 L470 180 L400 240\" fill=\"none\" stroke=\"#fff\" stroke-width=\"14\" stroke-linecap=\"round\" stroke-linejoin=\"round\"/><path d=\"M345 110 L295 250\" stroke=\"#fff\" stroke-width=\"12\" stroke-linecap=\"round\"/></svg>"
+   },
+   "blocks": [
+    {
+     "type": "paragraph",
+     "text": "Une norme de langage de programmation se vote comme un traité : à la fin d'un long processus, chaque pays membre de l'ISO donne son avis sur le texte. Le 23 octobre 2026, à l'issue d'une période de vote de douze semaines, le projet de norme internationale (*Draft International Standard*, DIS) de **C++26** a été « désapprouvé ». Selon Andreas Fertig, membre de la délégation allemande au comité de normalisation WG21, c'est la première fois qu'un DIS du C++ échoue ; le seul précédent qu'il ait trouvé est le projet C++/CLI, arrêté en 2006."
+    },
+    {
+     "type": "heading",
+     "text": "Pourquoi le vote a échoué"
+    },
+    {
+     "type": "paragraph",
+     "text": "Un DIS doit recueillir une majorité des deux tiers. Les commentaires des organismes nationaux visent surtout les **contrats**, une fonctionnalité du langage qui permet d'exprimer des préconditions et des postconditions vérifiables, et que plusieurs pays jugent insuffisamment mûre. D'après l'auteur du billet, le sujet n'est pas nouveau : une première forme des contrats avait été ajoutée au brouillon de C++20 à Cologne en 2019, puis retirée lors de la même réunion. Un groupe d'étude a ensuite travaillé jusqu'en 2024 environ, le groupe d'évolution du langage a validé le texte à la majorité, et le comité a approuvé le brouillon de C++26 avec les contrats en mars 2026, à une large majorité mais pas à l'unanimité."
+    },
+    {
+     "type": "heading",
+     "text": "Les issues possibles"
+    },
+    {
+     "type": "list",
+     "items": [
+      "soumettre un brouillon révisé à un nouveau vote de DIS ;",
+      "renvoyer un brouillon révisé au comité, à l'étape précédente ;",
+      "publier le texte révisé comme spécification technique ;",
+      "abandonner le projet ;",
+      "hypothèse évoquée par l'auteur : retirer C++26, revenir à C++23 et reporter les fonctionnalités vers C++29."
+     ]
+    },
+    {
+     "type": "paragraph",
+     "text": "Toutes ces voies exigent une majorité au sein de WG21, qui a déjà voté pour C++26 avec les contrats à plus des deux tiers. L'auteur souligne que la pratique ancienne voulait que les organismes nationaux ne votent contre une norme qu'en cas d'élément nouveau ou d'erreur de procédure ; il estime que ce ne fut pas le cas ici. La prochaine réunion du comité, le **16 novembre 2026**, aura pour priorité de débloquer la situation. Ce texte est un point de vue de participant, pas une position officielle du comité."
+    },
+    {
+     "type": "usecases",
+     "title": "Ce que cela change concrètement",
+     "items": [
+      {
+       "icon": "🏭",
+       "title": "Éditeur de logiciel embarqué",
+       "text": "Il continue à compiler en C++20 ou C++23, qui restent stables, et attend la décision du comité avant d'adopter des fonctionnalités de C++26."
+      },
+      {
+       "icon": "🎮",
+       "title": "Studio de jeu vidéo",
+       "text": "L'équipe teste les fonctionnalités de C++26 déjà disponibles dans les compilateurs, tout en les isolant derrière des macros pour pouvoir revenir en arrière."
+      },
+      {
+       "icon": "🎓",
+       "title": "Enseignant en informatique",
+       "text": "Il présente le cas comme un exemple de gouvernance technique : une norme est aussi un compromis politique entre pays et industriels."
+      }
+     ]
+    },
+    {
+     "type": "timeline",
+     "title": "D'où l'on vient, où l'on va",
+     "items": [
+      {
+       "label": "2019",
+       "text": "Une première version des contrats entre dans le brouillon de C++20, puis en est retirée."
+      },
+      {
+       "label": "Mars 2026",
+       "text": "Le comité approuve le brouillon de C++26 avec les contrats."
+      },
+      {
+       "label": "23 octobre 2026",
+       "text": "Le vote du DIS est négatif."
+      },
+      {
+       "label": "16 novembre 2026",
+       "text": "Réunion de WG21 pour choisir la suite."
+      }
+     ]
+    },
+    {
+     "type": "opinion",
+     "title": "Notre avis",
+     "paragraphs": [
+      "Ce rejet n'invalide pas les compilateurs ni le code existant : les fonctionnalités déjà implémentées restent utilisables. Le vrai risque est ailleurs, dans la confiance accordée au processus. Un vote négatif qui reprend des arguments déjà examinés peut inciter chacun à rouvrir des débats tranchés, et ralentir la norme suivante.",
+      "À un horizon d'un à trois ans, le scénario le plus plausible est un compromis : retirer ou réduire les contrats, ou les publier à part. Dans tous les cas, l'écosystème apprendra à ne pas dépendre d'une date de norme pour adopter des fonctionnalités, ce qui est déjà la pratique des grands projets."
+     ],
+     "verdict": "Une crise de gouvernance plus qu'une crise technique : la norme tiendra si le comité retrouve un consensus."
+    }
+   ],
+   "publishedAt": "2026-11-04T04:16:56+01:00",
+   "readingMinutes": 3
+  },
+  {
+   "id": "postman-installation-automatique-plugins-agents-ia",
+   "category": "dev",
+   "icon": "📮",
+   "importance": 4,
+   "title": "Postman installe automatiquement des plugins pour agents de code : une affaire de consentement qui secoue les développeurs",
+   "summary": "Un signalement très commenté accuse l'application de bureau Postman d'installer sans consentement clair des modules pour Codex, Claude Code et un connecteur MCP. L'éditeur promet de rendre l'option plus explicite.",
+   "tags": [
+    "Postman",
+    "agents de code",
+    "MCP",
+    "consentement",
+    "sécurité"
+   ],
+   "sourceDate": "2026-11-03",
+   "sources": [
+    {
+     "title": "[SEVERE] Desktop auto-installs Codex/Claude plugins (issue n° 14370)",
+     "url": "https://github.com/postmanlabs/postman-app-support/issues/14370",
+     "publisher": "GitHub"
+    }
+   ],
+   "illustration": {
+    "svg": "<svg xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"0 0 640 360\" role=\"img\" aria-hidden=\"true\"><defs><linearGradient id=\"g\" x1=\"0\" y1=\"0\" x2=\"1\" y2=\"1\"><stop offset=\"0\" stop-color=\"hsl(265,65%,32%)\"/><stop offset=\"1\" stop-color=\"hsl(305,70%,52%)\"/></linearGradient></defs><rect width=\"640\" height=\"360\" fill=\"url(#g)\"/><circle cx=\"540\" cy=\"60\" r=\"90\" fill=\"#fff\" opacity=\".07\"/><circle cx=\"90\" cy=\"320\" r=\"110\" fill=\"#fff\" opacity=\".06\"/><rect x=\"170\" y=\"95\" width=\"300\" height=\"190\" rx=\"18\" fill=\"none\" stroke=\"#fff\" stroke-width=\"9\"/><line x1=\"170\" y1=\"140\" x2=\"470\" y2=\"140\" stroke=\"#fff\" stroke-width=\"7\"/><path d=\"M320 165 A55 55 0 1 0 320 275 A40 40 0 1 1 320 165 Z\" fill=\"#fff\" opacity=\".9\"/></svg>"
+   },
+   "blocks": [
+    {
+     "type": "paragraph",
+     "text": "Un client d'API peut-il s'inviter dans les outils d'IA installés sur la machine de son utilisateur ? C'est la question posée par un signalement ouvert le 25 octobre 2026 sur le dépôt de support de Postman, qui avait dépassé le millier de points sur Hacker News le 3 novembre. L'auteur affirme qu'après l'ouverture de Postman Desktop 12.33.4 sous macOS, plusieurs intégrations ont été installées sans consentement clair. Les éléments décrits ci-dessous sont les affirmations du signalement et de ses commentateurs ; ils n'ont pas été reproduits sur une machine neuve dans la discussion."
+    },
+    {
+     "type": "heading",
+     "text": "Ce que le signalement décrit"
+    },
+    {
+     "type": "list",
+     "items": [
+      "un plugin Codex à l'échelle de l'utilisateur, un plugin Claude Code, une connexion MCP distante et l'outil en ligne de commande de Postman ;",
+      "des entrées dans les journaux de l'application (`auto-existing-upgrade`, `codex:installed`, `claude-code:installed`) ;",
+      "une modification de `~/.codex/config.toml` avec une place de marché Postman, un plugin activé et des enregistrements de confiance pour un crochet de démarrage ;",
+      "un crochet de session qui demande à l'agent de charger la compétence `postman:api-engineer` avant toute tâche d'ingénierie d'API non triviale ;",
+      "un connecteur MCP pointant vers `https://mcp.postman.com/mcp`."
+     ]
+    },
+    {
+     "type": "paragraph",
+     "text": "L'auteur reproche aussi à l'installateur d'approuver lui-même son crochet dans la configuration de Codex. Il précise toutefois que l'enregistrement de confiance ne prouve pas, à lui seul, quelle partie l'a créé, et ne prétend à aucune exfiltration de données. D'autres utilisateurs ont constaté le même comportement après une mise à jour de 12.31.3 vers 12.35.1, avec des différences : l'un n'a trouvé aucun enregistrement de confiance dans Codex, un autre a relevé une entrée Postman dans la configuration de Copilot qui subsistait après la désinstallation depuis le menu."
+    },
+    {
+     "type": "heading",
+     "text": "La réponse de Postman"
+    },
+    {
+     "type": "paragraph",
+     "text": "Le 3 novembre, un représentant de l'éditeur a répondu que le produit regroupe l'outil en ligne de commande et les plugins pour agents parce que beaucoup d'utilisateurs avaient du mal à les installer et à les relier séparément. Il affirme que ces composants sont mentionnés sur la page de téléchargement et dans le flux de mise à jour, et qu'ils peuvent être désinstallés depuis l'application. Postman s'est engagé à rendre l'option « plus claire, surtout pour les utilisateurs existants » et à revoir l'approbation des crochets et le comportement au démarrage de session. Aucun correctif n'était documenté à ce stade. Des commentateurs affirment qu'une copie d'archive du 26 octobre ne montrait pas la mention sur la page de téléchargement, ce qui n'a pas été vérifié ici."
+    },
+    {
+     "type": "heading",
+     "text": "Ce que demande le signalement"
+    },
+    {
+     "type": "list",
+     "items": [
+      "traiter l'affaire comme un incident de consentement ;",
+      "suspendre l'installation automatique pour les utilisateurs existants ;",
+      "retirer l'auto-approbation des crochets ;",
+      "fournir une désinstallation complète (configurations, marketplaces, connexions MCP, binaire) ;",
+      "limiter les instructions de démarrage aux demandes explicitement liées à Postman."
+     ]
+    },
+    {
+     "type": "usecases",
+     "title": "Ce que cela change concrètement",
+     "items": [
+      {
+       "icon": "👩‍💻",
+       "title": "Développeuse qui utilise Codex ou Claude Code",
+       "text": "Elle contrôle ses fichiers de configuration (`~/.codex/config.toml`, paramètres de Claude Code) et supprime ce qu'elle n'a pas choisi d'installer."
+      },
+      {
+       "icon": "🏢",
+       "title": "Équipe sécurité d'une entreprise",
+       "text": "Elle ajoute les dossiers de configuration des agents à son inventaire et exige une validation avant l'installation de plugins par un outil tiers."
+      },
+      {
+       "icon": "🧰",
+       "title": "Équipe qui cherche une alternative",
+       "text": "Elle évalue des clients d'API open source cités par la communauté, comme Bruno ou Insomnia, selon sa politique de confidentialité."
+      }
+     ]
+    },
+    {
+     "type": "timeline",
+     "title": "D'où l'on vient, où l'on va",
+     "items": [
+      {
+       "label": "25 octobre 2026",
+       "text": "Ouverture du signalement sur GitHub."
+      },
+      {
+       "label": "3 novembre 2026",
+       "text": "Nouveaux témoignages, réponse de Postman et forte discussion sur Hacker News."
+      },
+      {
+       "label": "À venir",
+       "text": "L'éditeur doit préciser l'opt-in et revoir l'approbation des crochets."
+      }
+     ]
+    },
+    {
+     "type": "opinion",
+     "title": "Notre avis",
+     "paragraphs": [
+      "Au-delà de Postman, l'affaire pose le problème de la frontière de confiance entre outils : un logiciel qui modifie la configuration d'un agent de code peut influencer ce que cet agent fait ensuite, d'où l'importance d'un consentement explicite. Même si l'intention de l'éditeur est de faciliter l'usage, installer des instructions de démarrage dans l'outil d'un autre éditeur relève d'une décision que l'utilisateur doit prendre.",
+      "À un horizon d'un à trois ans, on peut s'attendre à ce que les agents durcissent leurs mécanismes d'approbation des plugins, et à ce que les éditeurs d'outils adoptent par défaut un modèle d'adhésion volontaire. La confiance, ici, se gagne en demandant avant d'installer."
+     ],
+     "verdict": "Un outil d'IA n'a pas à s'installer dans un autre sans demander : le consentement doit rester explicite."
+    }
+   ],
+   "publishedAt": "2026-11-04T04:16:56+01:00",
+   "readingMinutes": 4
+  },
+  {
+   "id": "safari-27-3-mode-sombre-adaptatif",
+   "category": "web",
+   "icon": "🌙",
+   "importance": 3,
+   "title": "Safari 27.3 : un « mode sombre adaptatif » assombrit automatiquement les sites qui n'en proposent pas",
+   "summary": "WebKit présente dans la bêta de Safari 27.3 une fonction qui convertit les pages claires en pages sombres lorsque l'utilisateur l'active, avec des règles précises pour les images, les dégradés et les contrastes.",
+   "tags": [
+    "Safari",
+    "WebKit",
+    "mode sombre",
+    "CSS",
+    "accessibilité"
+   ],
+   "sourceDate": "2026-11-03",
+   "sources": [
+    {
+     "title": "Introducing Adaptive Dark Mode",
+     "url": "https://webkit.org/blog/18541/introducing-adaptive-dark-mode/",
+     "publisher": "WebKit"
+    }
+   ],
+   "illustration": {
+    "svg": "<svg xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"0 0 640 360\" role=\"img\" aria-hidden=\"true\"><defs><linearGradient id=\"g\" x1=\"0\" y1=\"0\" x2=\"1\" y2=\"1\"><stop offset=\"0\" stop-color=\"hsl(210,65%,32%)\"/><stop offset=\"1\" stop-color=\"hsl(250,70%,52%)\"/></linearGradient></defs><rect width=\"640\" height=\"360\" fill=\"url(#g)\"/><circle cx=\"540\" cy=\"60\" r=\"90\" fill=\"#fff\" opacity=\".07\"/><circle cx=\"90\" cy=\"320\" r=\"110\" fill=\"#fff\" opacity=\".06\"/><rect x=\"170\" y=\"95\" width=\"300\" height=\"190\" rx=\"18\" fill=\"none\" stroke=\"#fff\" stroke-width=\"9\"/><line x1=\"170\" y1=\"140\" x2=\"470\" y2=\"140\" stroke=\"#fff\" stroke-width=\"7\"/><path d=\"M320 165 A55 55 0 1 0 320 275 A40 40 0 1 1 320 165 Z\" fill=\"#fff\" opacity=\".9\"/></svg>"
+   },
+   "blocks": [
+    {
+     "type": "paragraph",
+     "text": "Le mode sombre est devenu une attente courante, mais beaucoup de sites n'ont jamais été conçus pour lui. Dans la bêta de **Safari 27.3**, annoncée sur le blog de WebKit le 3 novembre 2026, Apple ajoute un *mode sombre adaptatif* : lorsque l'utilisateur l'active, le navigateur transforme les pages à fond clair en pages sombres, sans intervention du site. Les pages qui prennent déjà en charge le mode sombre ne sont pas modifiées."
+    },
+    {
+     "type": "heading",
+     "text": "Comment cela fonctionne"
+    },
+    {
+     "type": "paragraph",
+     "text": "Pour l'essayer, il faut régler l'apparence du système sur sombre, ouvrir un site à fond clair, puis toucher « Essayer » sur l'aperçu proposé par Safari. Le navigateur estime rapidement si une page est majoritairement claire ou sombre. Les pages sombres restent telles quelles ; les pages claires sont converties en inversant la luminosité tout en conservant la teinte. Le texte vise un rapport de contraste de 4,5:1, le seuil recommandé par les règles d'accessibilité WCAG, et les dégradés CSS clairs sont assombris."
+    },
+    {
+     "type": "list",
+     "items": [
+      "**Images** : la plupart restent inchangées ; les couleurs des SVG sont ajustées si nécessaire, et de simples logos bitmap noir et blanc peuvent être inversés.",
+      "**Limites** : les masques et `mix-blend-mode` peuvent être désactivés sur les éléments transformés ; le contenu de `<canvas>` n'est pas modifié.",
+      "**Confidentialité** : les sites ne peuvent pas détecter que la fonction est active, et les scripts qui lisent les couleurs CSS obtiennent les valeurs d'origine."
+     ]
+    },
+    {
+     "type": "heading",
+     "text": "Ce que peuvent faire les développeurs"
+    },
+    {
+     "type": "paragraph",
+     "text": "Pour refuser la transformation, un site peut déclarer `color-scheme: light only` dans une balise meta ou en CSS ; toutefois, le mot-clé `only` n'était pas encore pris en charge dans la première bêta de Safari 27.3. Pour offrir un vrai mode sombre, les sites peuvent déclarer `color-scheme: light dark` et utiliser `prefers-color-scheme` ou la fonction `light-dark()`, en les indiquant tôt dans l'en-tête HTML ou dans le CSS, et non par JavaScript tardif. WebKit conseille aussi de préférer les logos en SVG, les couleurs et dégradés CSS aux images de fond en mosaïque, et les images à fond transparent. Les propriétaires de sites peuvent écrire à web-evangelist@apple.com, et les utilisateurs signaler les sites problématiques via l'Assistant de commentaires."
+    },
+    {
+     "type": "usecases",
+     "title": "Ce que cela change concrètement",
+     "items": [
+      {
+       "icon": "📖",
+       "title": "Lecteur le soir",
+       "text": "Il lit des sites d'actualité sans mode sombre sans être ébloui, sans extension à installer."
+      },
+      {
+       "icon": "🛠️",
+       "title": "Intégrateur web",
+       "text": "Il teste ses pages avec la fonction activée, repère un logo bitmap mal inversé et le remplace par un SVG."
+      },
+      {
+       "icon": "♿",
+       "title": "Utilisateur sensible à la lumière",
+       "text": "Il active la fonction pour réduire la fatigue visuelle sur des sites anciens, tout en gardant le contrôle depuis les réglages."
+      }
+     ]
+    },
+    {
+     "type": "timeline",
+     "title": "D'où l'on vient, où l'on va",
+     "items": [
+      {
+       "label": "3 novembre 2026",
+       "text": "Safari 27.3 bêta présente le mode sombre adaptatif."
+      },
+      {
+       "label": "Première bêta",
+       "text": "Le mot-clé `only` de `color-scheme` n'est pas encore pris en charge ; l'évolution de la fonction dépendra des retours."
+      }
+     ]
+    },
+    {
+     "type": "opinion",
+     "title": "Notre avis",
+     "paragraphs": [
+      "La démarche est pragmatique : plutôt que d'attendre que chaque site soit repensé, le navigateur prend en charge le contraste, la teinte et les images. Elle a un coût pour les créateurs de sites, dont l'identité visuelle peut être altérée, d'où l'intérêt d'un moyen de refus clair.",
+      "Dans un à trois ans, la fonction pourrait pousser les sites à déclarer explicitement leur schéma de couleurs, ce qui améliorerait l'accessibilité d'ensemble. Elle ne remplace pas un vrai thème sombre, mais elle réduit le nombre de sites laissés de côté."
+     ],
+     "verdict": "Un bon filet de sécurité pour les sites anciens, à condition que le refus soit simple pour les éditeurs."
+    }
+   ],
+   "publishedAt": "2026-11-04T04:16:56+01:00",
+   "readingMinutes": 3
+  }
+ ]
+}
