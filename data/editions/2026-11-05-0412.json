@@ -1,0 +1,1099 @@
+{
+  "schemaVersion": "1.0",
+  "date": "2026-11-05",
+  "generatedAt": "2026-11-05T03:17:46+00:00",
+  "title": "Tech du 5 novembre : Metabase, Rails, Xen, campagne APT29, Fedora 45, Mistral Large 4 et Rocky Linux",
+  "summary": "Une édition tournée vers la sécurité des applications et de l'infrastructure : une injection SQL critique exploitée dans Metabase, une faille d'Active Storage dans Rails, des failles d'isolation dans Xen et une campagne d'exploits mobiles. Côté logiciel libre, Fedora 45, Mistral Large 4 en poids ouverts et la plateforme de tests Testrarc de Rocky Linux.",
+  "highlights": [
+    "Metabase : injection SQL notée 10,0, exploitée, avec exploit public ; mise à jour immédiate recommandée.",
+    "Rails : Active Storage et ImageMagick peuvent mener à l'écriture de fichiers ; versions 8.0.5.2 et 8.1.4.1.",
+    "Xen : XSA-523 permet à une VM d'accéder à la mémoire des autres, correctifs disponibles pour 4.17 à 4.19.",
+    "Fedora 45 : signatures RPM obligatoires et ptrace restreint par défaut.",
+    "Mistral Large 4 : poids ouverts, licence MIT modifiée, scores publiés par l'éditeur."
+  ],
+  "meta": {
+    "generator": "claude-scheduled-task"
+  },
+  "posts": [
+    {
+      "id": "metabase-cve-2026-72898-injection-sql-exploitee",
+      "category": "cybersecurite",
+      "icon": "🛢️",
+      "importance": 5,
+      "title": "Metabase : une injection SQL notée 10,0 donne un accès administrateur sans authentification, et elle est déjà exploitée",
+      "summary": "Le CSA de Singapour alerte sur la faille CVE-2026-72898 de l'outil d'analyse de données Metabase : un attaquant distant peut injecter du SQL et prendre la main sur l'instance. Un exploit public circule et des attaques sont en cours.",
+      "tags": [
+        "Metabase",
+        "CVE-2026-72898",
+        "injection SQL",
+        "exploitation active",
+        "correctif"
+      ],
+      "sourceDate": "2026-11-04",
+      "readingMinutes": 4,
+      "publishedAt": "2026-11-05T03:17:46+00:00",
+      "illustration": {
+        "svg": "<svg xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"0 0 640 360\" role=\"img\" aria-hidden=\"true\"><defs><linearGradient id=\"g\" x1=\"0\" y1=\"0\" x2=\"1\" y2=\"1\"><stop offset=\"0\" stop-color=\"hsl(175,65%,28%)\"/><stop offset=\"1\" stop-color=\"hsl(215,70%,48%)\"/></linearGradient></defs><rect width=\"640\" height=\"360\" fill=\"url(#g)\"/><circle cx=\"560\" cy=\"60\" r=\"90\" fill=\"#fff\" opacity=\".07\"/><circle cx=\"80\" cy=\"320\" r=\"110\" fill=\"#fff\" opacity=\".06\"/><rect x=\"220\" y=\"75\" width=\"200\" height=\"60\" rx=\"10\" fill=\"#fff\" opacity=\".93\"/><rect x=\"220\" y=\"150\" width=\"200\" height=\"60\" rx=\"10\" fill=\"#fff\" opacity=\".8\"/><rect x=\"220\" y=\"225\" width=\"200\" height=\"60\" rx=\"10\" fill=\"#fff\" opacity=\".65\"/><circle cx=\"250\" cy=\"105\" r=\"8\" fill=\"hsl(175,65%,32%)\"/><circle cx=\"250\" cy=\"180\" r=\"8\" fill=\"hsl(175,65%,32%)\"/><circle cx=\"250\" cy=\"255\" r=\"8\" fill=\"hsl(175,65%,32%)\"/></svg>"
+      },
+      "sources": [
+        {
+          "title": "Active Exploitation of Metabase Vulnerability (AL-2026-158)",
+          "url": "https://www.csa.gov.sg/alerts-and-advisories/alerts/al-2026-158/",
+          "publisher": "Cyber Security Agency of Singapore"
+        }
+      ],
+      "blocks": [
+        {
+          "type": "paragraph",
+          "text": "Metabase est un outil open source très répandu pour interroger des bases de données et produire des tableaux de bord, souvent branché directement sur les données de production d'une entreprise. C'est ce qui rend la vulnérabilité **CVE-2026-72898**, signalée le 4 novembre 2026 par l'agence de cybersécurité de Singapour (CSA), particulièrement sérieuse : elle porte le score maximal de 10,0 sur l'échelle CVSS v3.1, elle est activement exploitée et une preuve de concept est publiquement disponible."
+        },
+        {
+          "type": "heading",
+          "text": "Ce que permet la faille"
+        },
+        {
+          "type": "paragraph",
+          "text": "Selon l'alerte, un attaquant distant et non authentifié peut injecter des requêtes SQL arbitraires dans la base de données interne de l'application, puis obtenir un accès administrateur à l'instance Metabase. Autrement dit, aucun compte n'est nécessaire : une instance joignable depuis Internet suffit. Une fois administrateur, l'attaquant peut en principe consulter les connexions configurées vers les bases de données métier, lire les données qu'elles exposent et exécuter les requêtes autorisées à Metabase. L'alerte ne décrit toutefois pas les actions menées dans les attaques observées ; ce point reste donc inconnu."
+        },
+        {
+          "type": "keyvalue",
+          "items": [
+            {
+              "label": "Produit",
+              "value": "Metabase (éditions open source et Enterprise : séries 0.x et 1.x)"
+            },
+            {
+              "label": "Identifiant",
+              "value": "CVE-2026-72898"
+            },
+            {
+              "label": "Gravité",
+              "value": "CVSS v3.1 : 10,0 (critique)"
+            },
+            {
+              "label": "État",
+              "value": "Exploitation active ; exploit de démonstration public"
+            },
+            {
+              "label": "Alerte",
+              "value": "CSA de Singapour, 4 novembre 2026"
+            }
+          ]
+        },
+        {
+          "type": "heading",
+          "text": "Versions concernées et mesures recommandées"
+        },
+        {
+          "type": "paragraph",
+          "text": "Le CSA liste six branches touchées, dans chacune des deux numérotations : de la 0.58.0 à la 0.58.23, de la 0.59.0 à la 0.59.20, de la 0.60.0 à la 0.60.16, de la 0.61.0 à la 0.61.10, de la 0.62.0 à la 0.62.8 et de la 0.63.0 à la 0.63.4, avec les mêmes intervalles pour les versions 1.58 à 1.63. Le numéro exact de la première version corrigée de chaque branche n'est pas donné dans l'alerte : il faut le lire dans l'avis de l'éditeur."
+        },
+        {
+          "type": "list",
+          "items": [
+            "**Mettre à jour sans délai** vers la dernière version corrigée de sa branche.",
+            "Pour une instance auto-hébergée et exposée, suivre les consignes post-mise à jour de Metabase : révoquer les sessions actives, examiner les comptes administrateurs et les clés d'API, renouveler les identifiants des bases connectées et analyser les journaux.",
+            "En attendant la mise à jour, **bloquer l'accès à l'endpoint** `/api/session/reset_password` (contournement indiqué par le CSA)."
+          ]
+        },
+        {
+          "type": "diagram",
+          "svg": "<svg xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"0 0 640 210\" role=\"img\"><rect width=\"640\" height=\"210\" rx=\"16\" fill=\"#f4f7fb\"/><rect x=\"20\" y=\"70\" width=\"129\" height=\"90\" rx=\"12\" fill=\"#e8f0fe\" stroke=\"#4a6fa5\" stroke-width=\"1.5\"/><text x=\"84\" y=\"105\" text-anchor=\"middle\" font-family=\"system-ui,sans-serif\" font-size=\"14\" font-weight=\"700\" fill=\"#1b2a41\">Requête web</text><text x=\"84\" y=\"130\" text-anchor=\"middle\" font-family=\"system-ui,sans-serif\" font-size=\"11.5\" fill=\"#33475b\">non authentifiée</text><path d=\"M153 115h20m-6-6l6 6-6 6\" stroke=\"#4a6fa5\" stroke-width=\"2.5\" fill=\"none\"/><rect x=\"177\" y=\"70\" width=\"129\" height=\"90\" rx=\"12\" fill=\"#e8f0fe\" stroke=\"#4a6fa5\" stroke-width=\"1.5\"/><text x=\"242\" y=\"105\" text-anchor=\"middle\" font-family=\"system-ui,sans-serif\" font-size=\"14\" font-weight=\"700\" fill=\"#1b2a41\">Injection SQL</text><text x=\"242\" y=\"130\" text-anchor=\"middle\" font-family=\"system-ui,sans-serif\" font-size=\"11.5\" fill=\"#33475b\">base interne</text><path d=\"M310 115h20m-6-6l6 6-6 6\" stroke=\"#4a6fa5\" stroke-width=\"2.5\" fill=\"none\"/><rect x=\"334\" y=\"70\" width=\"129\" height=\"90\" rx=\"12\" fill=\"#e8f0fe\" stroke=\"#4a6fa5\" stroke-width=\"1.5\"/><text x=\"398\" y=\"105\" text-anchor=\"middle\" font-family=\"system-ui,sans-serif\" font-size=\"14\" font-weight=\"700\" fill=\"#1b2a41\">Compte admin</text><text x=\"398\" y=\"130\" text-anchor=\"middle\" font-family=\"system-ui,sans-serif\" font-size=\"11.5\" fill=\"#33475b\">instance prise</text><path d=\"M467 115h20m-6-6l6 6-6 6\" stroke=\"#4a6fa5\" stroke-width=\"2.5\" fill=\"none\"/><rect x=\"491\" y=\"70\" width=\"129\" height=\"90\" rx=\"12\" fill=\"#fde8e8\" stroke=\"#4a6fa5\" stroke-width=\"1.5\"/><text x=\"556\" y=\"105\" text-anchor=\"middle\" font-family=\"system-ui,sans-serif\" font-size=\"14\" font-weight=\"700\" fill=\"#1b2a41\">Bases métier</text><text x=\"556\" y=\"130\" text-anchor=\"middle\" font-family=\"system-ui,sans-serif\" font-size=\"11.5\" fill=\"#33475b\">données exposées</text></svg>",
+          "alt": "Schéma en quatre étapes : requête web non authentifiée, injection SQL dans la base interne, obtention d'un compte administrateur, exposition possible des bases métier connectées.",
+          "caption": "Enchaînement décrit par l'alerte (dernière étape : conséquence possible, non constatée dans les sources)."
+        },
+        {
+          "type": "usecases",
+          "title": "Exemples d'utilisation",
+          "items": [
+            {
+              "icon": "🏢",
+              "title": "PME avec tableau de bord exposé",
+              "text": "Une entreprise qui publie Metabase sur Internet pour ses équipes commerciales doit d'abord vérifier sa version, puis restreindre l'accès derrière un VPN ou un proxy authentifié."
+            },
+            {
+              "icon": "🔑",
+              "title": "Rotation des secrets",
+              "text": "Après mise à jour, l'équipe technique renouvelle les mots de passe des bases connectées, car l'exploitation a pu avoir lieu avant le correctif."
+            },
+            {
+              "icon": "🔍",
+              "title": "Recherche d'intrusion",
+              "text": "Un responsable sécurité cherche dans les journaux d'accès les appels à l'endpoint de réinitialisation de mot de passe et la création inattendue de comptes administrateurs."
+            }
+          ]
+        },
+        {
+          "type": "timeline",
+          "title": "D'où l'on vient, où l'on va",
+          "items": [
+            {
+              "label": "4 novembre 2026",
+              "text": "Le CSA de Singapour publie l'alerte AL-2026-158 et signale l'exploitation active."
+            },
+            {
+              "label": "Prochains jours",
+              "text": "Les éditeurs et les équipes de sécurité devraient publier des indicateurs de compromission ; rien n'est annoncé à ce stade."
+            }
+          ]
+        },
+        {
+          "type": "opinion",
+          "title": "Notre avis",
+          "paragraphs": [
+            "Ce type de faille illustre un risque récurrent : les outils d'analyse de données sont installés vite, rarement rattachés au périmètre de sécurité et pourtant connectés à des sources très sensibles. Un score de 10,0 avec exploit public signifie que le délai entre l'alerte et les premières attaques de masse se compte en heures, pas en semaines.",
+            "À un à trois ans, la leçon devrait se traduire par un inventaire plus rigoureux des applications internes exposées et par l'abandon progressif des accès directs depuis Internet au profit de passerelles d'authentification. C'est une projection, pas un fait : beaucoup d'instances resteront oubliées."
+          ],
+          "verdict": "Mettre à jour d'abord, enquêter ensuite : une instance Metabase exposée doit être considérée comme potentiellement compromise tant que son historique n'a pas été vérifié."
+        },
+        {
+          "type": "callout",
+          "title": "À retenir",
+          "text": "Si votre Metabase est joignable depuis Internet et appartient à l'une des branches 0.58 à 0.63 ou 1.58 à 1.63, mettez-la à jour aujourd'hui, bloquez `/api/session/reset_password` en attendant, puis renouvelez les identifiants des bases connectées."
+        }
+      ]
+    },
+    {
+      "id": "rails-active-storage-imagemagick-ghsa-f3w6-w445-fwh9",
+      "category": "cybersecurite",
+      "icon": "💎",
+      "importance": 4,
+      "title": "Rails : une faille d'Active Storage notée 9,8 permet d'écrire des fichiers sur le serveur via un envoi piégé traité par ImageMagick",
+      "summary": "Les mainteneurs de Ruby on Rails corrigent des failles d'Active Storage liées à ImageMagick. Un fichier SVG piégé peut écrire, voire lire, des fichiers sur le serveur ; les versions 8.0.5.2 et 8.1.4.1 corrigent le problème.",
+      "tags": [
+        "Ruby on Rails",
+        "Active Storage",
+        "ImageMagick",
+        "GHSA-f3w6-w445-fwh9",
+        "correctif"
+      ],
+      "sourceDate": "2026-11-04",
+      "readingMinutes": 5,
+      "publishedAt": "2026-11-05T03:17:46+00:00",
+      "illustration": {
+        "svg": "<svg xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"0 0 640 360\" role=\"img\" aria-hidden=\"true\"><defs><linearGradient id=\"g\" x1=\"0\" y1=\"0\" x2=\"1\" y2=\"1\"><stop offset=\"0\" stop-color=\"hsl(175,65%,28%)\"/><stop offset=\"1\" stop-color=\"hsl(0,70%,48%)\"/></linearGradient></defs><rect width=\"640\" height=\"360\" fill=\"url(#g)\"/><circle cx=\"560\" cy=\"60\" r=\"90\" fill=\"#fff\" opacity=\".07\"/><circle cx=\"80\" cy=\"320\" r=\"110\" fill=\"#fff\" opacity=\".06\"/><rect x=\"240\" y=\"60\" width=\"160\" height=\"220\" rx=\"12\" fill=\"#fff\" opacity=\".93\"/><path d=\"M270 110h100M270 150h100M270 190h100M270 230h60\" stroke=\"hsl(175,65%,32%)\" stroke-width=\"10\" stroke-linecap=\"round\"/></svg>"
+      },
+      "cover": {
+        "url": "https://blogger.googleusercontent.com/img/b/R29vZ2xl/AVvXsEiaJWnScdkMx0R5_Zt00NtYVNjNavBR7IMrLzJM_tZGMTpZtAvV7uNWt6BQbBrlUzH-aBoj_ZmMEOG__aTA8VmfTeiHUR9gfqNe2eYf9fSM-sYQkmCOg10qZ3ZaKyM_RS1QUQhm8s5NMw-xnYaWMDgDakmFyp9tbJgQ4hOZTf0cxe9E6x7uWt3JeN6bS3k/s1600/ruby-rails.jpg",
+        "alt": "Logo de Ruby on Rails illustrant l'article sur la faille d'Active Storage",
+        "credit": "thehackernews.com"
+      },
+      "sources": [
+        {
+          "title": "Critical Rails Flaw Lets Attackers Write Server Files via Crafted ImageMagick Uploads",
+          "url": "https://thehackernews.com/2026/11/critical-rails-flaw-lets-attackers.html",
+          "publisher": "The Hacker News"
+        }
+      ],
+      "blocks": [
+        {
+          "type": "paragraph",
+          "text": "Active Storage est le composant de Ruby on Rails chargé de gérer les fichiers envoyés par les utilisateurs : photos de profil, pièces jointes, documents. Pour en tirer des vignettes, il s'appuie le plus souvent sur ImageMagick. C'est précisément cette chaîne que vise un avis de sécurité publié le 4 novembre 2026, suivi sous l'identifiant **GHSA-f3w6-w445-fwh9** (aucun numéro CVE n'est associé à ce jour) et noté 9,8 sur 10."
+        },
+        {
+          "type": "heading",
+          "text": "Comment l'attaque fonctionne"
+        },
+        {
+          "type": "paragraph",
+          "text": "Un attaquant non authentifié envoie un fichier spécialement conçu. L'analyseur d'ImageMagick s'exécute dès qu'un fichier est attaché. Un SVG piégé atteint le *coder* MSL d'ImageMagick, capable de lire et d'écrire les fichiers que son script désigne. Active Storage ne limite pas lui-même les coders autorisés : seule la politique ImageMagick du serveur peut les restreindre. Le résultat est l'écriture de fichiers arbitraires et, avec le service de stockage Disk, la lecture de ceux que l'application peut ouvrir. Cela peut exposer la `secret_key_base` et d'autres identifiants, ouvrant la voie à une exécution de code à distance ou à un déplacement latéral."
+        },
+        {
+          "type": "paragraph",
+          "text": "Les mainteneurs précisent que les trois conditions suivantes doivent être réunies pour qu'une application soit exposée :"
+        },
+        {
+          "type": "list",
+          "items": [
+            "elle utilise ImageMagick pour Active Storage (`variant_processor = :mini_magick`, valeur par défaut pour un `load_defaults` 6.1 ou antérieur) ;",
+            "la politique ImageMagick du serveur ne bloque pas les coders concernés (selon Rails, celles fournies par Debian et Ubuntu ne les bloquent pas) ;",
+            "l'application accepte des envois de fichiers d'utilisateurs non fiables."
+          ]
+        },
+        {
+          "type": "heading",
+          "text": "Versions et mesures"
+        },
+        {
+          "type": "keyvalue",
+          "items": [
+            {
+              "label": "Versions corrigées",
+              "value": "8.0.5.2 et 8.1.4.1"
+            },
+            {
+              "label": "Séries non corrigées",
+              "value": "Antérieures à 8.0 : plus supportées, aucun correctif"
+            },
+            {
+              "label": "Prérequis",
+              "value": "mini_magick 5.1 ou plus récent pour les applications en `:mini_magick`"
+            },
+            {
+              "label": "Seconde faille",
+              "value": "GHSA-v924-7rp8-4mxh, CVSS 8,8 : extension conservée des fichiers temporaires"
+            },
+            {
+              "label": "Découverte",
+              "value": "RyotaK (GMO Flatt Security), via HackerOne"
+            }
+          ]
+        },
+        {
+          "type": "paragraph",
+          "text": "Après la mise à jour, l'avis recommande de vérifier que la nouvelle politique est bien chargée avec `bin/rails runner 'puts MiniMagick.identify { |i| i.list \"policy\" }'` et de s'assurer qu'elle n'est pas neutralisée par un remplacement de `MiniMagick.cli_env`, de `MiniMagick.cli_prefix` ou par un `MiniMagick::Shell` personnalisé. Une règle générique dans la politique serveur peut aussi annuler le blocage, et GraphicsMagick n'est pas protégé par cette politique. Si la mise à jour est impossible, il faut recopier les règles du fichier `policy.xml` fourni par Rails dans la politique système d'ImageMagick en bloquant au minimum MSL, les coders Ghostscript et le délégué `gs`. En cas de stockage Disk exposé, la `secret_key_base` et tous les secrets accessibles au processus doivent être changés."
+        },
+        {
+          "type": "paragraph",
+          "text": "Rails indique qu'une chaîne d'attaque lui a été signalée, sans affirmer qu'elle soit la seule, et ne confirme pas d'exploitation réelle. L'avis n'explique pas non plus comment vérifier si une application a déjà été ciblée."
+        },
+        {
+          "type": "diagram",
+          "svg": "<svg xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"0 0 640 210\" role=\"img\"><rect width=\"640\" height=\"210\" rx=\"16\" fill=\"#f4f7fb\"/><rect x=\"20\" y=\"70\" width=\"129\" height=\"90\" rx=\"12\" fill=\"#e8f0fe\" stroke=\"#4a6fa5\" stroke-width=\"1.5\"/><text x=\"84\" y=\"105\" text-anchor=\"middle\" font-family=\"system-ui,sans-serif\" font-size=\"14\" font-weight=\"700\" fill=\"#1b2a41\">SVG piégé</text><text x=\"84\" y=\"130\" text-anchor=\"middle\" font-family=\"system-ui,sans-serif\" font-size=\"11.5\" fill=\"#33475b\">envoi par un visiteur</text><path d=\"M153 115h20m-6-6l6 6-6 6\" stroke=\"#4a6fa5\" stroke-width=\"2.5\" fill=\"none\"/><rect x=\"177\" y=\"70\" width=\"129\" height=\"90\" rx=\"12\" fill=\"#e8f0fe\" stroke=\"#4a6fa5\" stroke-width=\"1.5\"/><text x=\"242\" y=\"105\" text-anchor=\"middle\" font-family=\"system-ui,sans-serif\" font-size=\"14\" font-weight=\"700\" fill=\"#1b2a41\">Active Storage</text><text x=\"242\" y=\"130\" text-anchor=\"middle\" font-family=\"system-ui,sans-serif\" font-size=\"11.5\" fill=\"#33475b\">analyse automatique</text><path d=\"M310 115h20m-6-6l6 6-6 6\" stroke=\"#4a6fa5\" stroke-width=\"2.5\" fill=\"none\"/><rect x=\"334\" y=\"70\" width=\"129\" height=\"90\" rx=\"12\" fill=\"#e8f0fe\" stroke=\"#4a6fa5\" stroke-width=\"1.5\"/><text x=\"398\" y=\"105\" text-anchor=\"middle\" font-family=\"system-ui,sans-serif\" font-size=\"14\" font-weight=\"700\" fill=\"#1b2a41\">ImageMagick</text><text x=\"398\" y=\"130\" text-anchor=\"middle\" font-family=\"system-ui,sans-serif\" font-size=\"11.5\" fill=\"#33475b\">coder MSL</text><path d=\"M467 115h20m-6-6l6 6-6 6\" stroke=\"#4a6fa5\" stroke-width=\"2.5\" fill=\"none\"/><rect x=\"491\" y=\"70\" width=\"129\" height=\"90\" rx=\"12\" fill=\"#fde8e8\" stroke=\"#4a6fa5\" stroke-width=\"1.5\"/><text x=\"556\" y=\"105\" text-anchor=\"middle\" font-family=\"system-ui,sans-serif\" font-size=\"14\" font-weight=\"700\" fill=\"#1b2a41\">Fichiers serveur</text><text x=\"556\" y=\"130\" text-anchor=\"middle\" font-family=\"system-ui,sans-serif\" font-size=\"11.5\" fill=\"#33475b\">écriture, lecture</text></svg>",
+          "alt": "Schéma en quatre étapes : un SVG piégé est envoyé, Active Storage l'analyse, ImageMagick exécute le coder MSL, des fichiers du serveur sont écrits ou lus.",
+          "caption": "Chaîne décrite dans l'avis Rails : la politique ImageMagick du serveur est le seul garde-fou avant correctif."
+        },
+        {
+          "type": "usecases",
+          "title": "Exemples d'utilisation",
+          "items": [
+            {
+              "icon": "🖼️",
+              "title": "Site de petites annonces",
+              "text": "Une application qui accepte des photos de n'importe quel visiteur doit mettre à jour Rails en priorité, car c'est le cas d'usage le plus directement exposé."
+            },
+            {
+              "icon": "🧾",
+              "title": "Application interne",
+              "text": "Un outil réservé aux salariés est moins exposé, mais un compte compromis suffit pour envoyer le fichier piégé : la mise à jour reste nécessaire."
+            },
+            {
+              "icon": "🐳",
+              "title": "Image de conteneur",
+              "text": "Une équipe DevOps peut ajouter la politique restrictive à l'image Docker de l'application, en plus de la mise à jour, pour limiter les dégâts de futures failles de ce type."
+            }
+          ]
+        },
+        {
+          "type": "timeline",
+          "title": "D'où l'on vient, où l'on va",
+          "items": [
+            {
+              "label": "4 novembre 2026",
+              "text": "Publication de l'avis GHSA-f3w6-w445-fwh9 et des versions 8.0.5.2 et 8.1.4.1."
+            },
+            {
+              "label": "Dans les jours qui viennent",
+              "text": "Les applications en production doivent migrer ; les séries antérieures à 8.0 n'étant plus supportées, leurs responsables devront changer de branche ou appliquer eux-mêmes la politique restrictive."
+            }
+          ]
+        },
+        {
+          "type": "opinion",
+          "title": "Notre avis",
+          "paragraphs": [
+            "L'affaire rappelle qu'une bibliothèque de traitement d'images est un interpréteur déguisé : formats comme SVG ou MSL peuvent déclencher des comportements que personne n'attend d'une simple vignette. Le point faible tient ici à une responsabilité mal placée, puisque le framework s'en remet à la configuration du serveur, que les politiques par défaut de Debian et d'Ubuntu ne durcissent pas.",
+            "D'ici un à trois ans, on peut raisonnablement attendre des défauts plus stricts, avec une liste blanche de formats dans les frameworks, mais ce n'est qu'une projection. En attendant, la prudence consiste à refuser les formats inutiles et à isoler le traitement des images."
+          ],
+          "verdict": "Mettre à jour Rails et vérifier la politique ImageMagick sont deux gestes distincts : l'un sans l'autre laisse une brèche."
+        },
+        {
+          "type": "callout",
+          "title": "À retenir",
+          "text": "Passez à Rails 8.0.5.2 ou 8.1.4.1, vérifiez avec la commande indiquée que la politique ImageMagick est bien appliquée, et changez vos secrets si vous avez un doute sur une exposition du stockage Disk."
+        }
+      ]
+    },
+    {
+      "id": "xen-xsa-523-grant-copy-memoire-vm",
+      "category": "cybersecurite",
+      "icon": "🧱",
+      "importance": 4,
+      "title": "Xen : deux failles de copie entre machines virtuelles (XSA-523) permettent de lire et d'écrire la mémoire d'autres VM, découvertes avec l'aide de Claude",
+      "summary": "L'avis XSA-523 du Xen Project décrit deux failles dans l'opération « grant copy » : une VM malveillante peut accéder à la mémoire d'autres VM, dom0 compris. Des correctifs existent, sans contournement connu.",
+      "tags": [
+        "Xen",
+        "XSA-523",
+        "virtualisation",
+        "hyperviseur",
+        "CVE-2026-102703"
+      ],
+      "sourceDate": "2026-11-04",
+      "readingMinutes": 5,
+      "publishedAt": "2026-11-05T03:17:46+00:00",
+      "illustration": {
+        "svg": "<svg xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"0 0 640 360\" role=\"img\" aria-hidden=\"true\"><defs><linearGradient id=\"g\" x1=\"0\" y1=\"0\" x2=\"1\" y2=\"1\"><stop offset=\"0\" stop-color=\"hsl(175,65%,28%)\"/><stop offset=\"1\" stop-color=\"hsl(210,70%,48%)\"/></linearGradient></defs><rect width=\"640\" height=\"360\" fill=\"url(#g)\"/><circle cx=\"560\" cy=\"60\" r=\"90\" fill=\"#fff\" opacity=\".07\"/><circle cx=\"80\" cy=\"320\" r=\"110\" fill=\"#fff\" opacity=\".06\"/><rect x=\"220\" y=\"75\" width=\"200\" height=\"60\" rx=\"10\" fill=\"#fff\" opacity=\".93\"/><rect x=\"220\" y=\"150\" width=\"200\" height=\"60\" rx=\"10\" fill=\"#fff\" opacity=\".8\"/><rect x=\"220\" y=\"225\" width=\"200\" height=\"60\" rx=\"10\" fill=\"#fff\" opacity=\".65\"/><circle cx=\"250\" cy=\"105\" r=\"8\" fill=\"hsl(175,65%,32%)\"/><circle cx=\"250\" cy=\"180\" r=\"8\" fill=\"hsl(175,65%,32%)\"/><circle cx=\"250\" cy=\"255\" r=\"8\" fill=\"hsl(175,65%,32%)\"/></svg>"
+      },
+      "cover": {
+        "url": "https://blogger.googleusercontent.com/img/b/R29vZ2xl/AVvXsEiAVPXiuTBfhBnpwaZHMfSDWymKJrXbS88kOEO1Xuh5t11qAnwSKeFTHGQy6ZG9Sr2N-wRYrJg58x3lKFbybvU9p1a85lxaCHfBa61vO1DfjEhUi5Yzf6bQS1eN7Mu-s_sUwkE-JGc-UznJ1p0qfmwMDusXFzWawXKXMt6jj-vENxyQG12uAUDUe0p0gtg/s1600/xen.jpg",
+        "alt": "Illustration de l'article sur les failles de l'hyperviseur Xen",
+        "credit": "thehackernews.com"
+      },
+      "sources": [
+        {
+          "title": "Xen Hypervisor Flaws Let One Malicious VM Read and Write Any Other VM's Memory",
+          "url": "https://thehackernews.com/2026/11/xen-hypervisor-flaws-let-one-malicious.html",
+          "publisher": "The Hacker News"
+        }
+      ],
+      "blocks": [
+        {
+          "type": "paragraph",
+          "text": "Dans un environnement virtualisé, la promesse centrale de l'hyperviseur est l'isolation : une machine virtuelle ne doit jamais pouvoir toucher à la mémoire d'une autre. L'avis **XSA-523**, publié le 3 novembre 2026 par le Xen Project et relayé le lendemain, décrit deux failles (CVE-2026-102703 et CVE-2026-102704) qui brisent cette promesse. Une VM malveillante peut, selon l'avis, lire et écrire la mémoire d'autres VM, y compris celle de dom0, la machine privilégiée qui administre l'hôte."
+        },
+        {
+          "type": "heading",
+          "text": "Un raccourci d'optimisation au cœur du problème"
+        },
+        {
+          "type": "paragraph",
+          "text": "Les deux failles touchent l'opération de copie de données entre machines virtuelles, appelée *grant copy*. Pour accélérer le traitement d'un lot de copies portant sur une même page mémoire, Xen réutilise des vérifications déjà effectuées. Dans certains cas, il ne les refait pas alors qu'il le devrait, ce qui laisse une VM contourner les contrôles d'accès. L'avis ne précise ni la gravité chiffrée (aucun score CVSS n'est donné) ni les privilèges exacts requis à l'intérieur de la VM attaquante, ni les architectures concernées."
+        },
+        {
+          "type": "keyvalue",
+          "items": [
+            {
+              "label": "Avis",
+              "value": "XSA-523, publié le 3 novembre 2026"
+            },
+            {
+              "label": "Identifiants",
+              "value": "CVE-2026-102703 et CVE-2026-102704"
+            },
+            {
+              "label": "Versions touchées",
+              "value": "Toutes les versions de Xen à partir de la 4.6 (4.5 et antérieures non concernées)"
+            },
+            {
+              "label": "Contournement",
+              "value": "Aucun connu : application des correctifs nécessaire"
+            },
+            {
+              "label": "Exploitation",
+              "value": "Aucune attaque mentionnée dans l'avis"
+            }
+          ]
+        },
+        {
+          "type": "heading",
+          "text": "Correctifs disponibles"
+        },
+        {
+          "type": "list",
+          "items": [
+            "**Sources Xen** : correctifs pour xen-unstable jusqu'à la série 4.19.x, ainsi que pour les séries 4.18.x et 4.17.x.",
+            "**XCP-ng 8.3** : paquet xen-4.17.7-4.2.xcpng8.3 publié le 3 novembre, avec redémarrage des hôtes.",
+            "**Qubes OS 4.3** : paquets Xen 4.19.6-3 dans dom0, redémarrage nécessaire.",
+            "**Debian** : bookworm, trixie et forky restaient vulnérables au 4 novembre ; la version sid est corrigée.",
+            "**Xen 4.6 à 4.16** : aucun correctif dans l'avis (le support de la 4.16 a pris fin le 2 décembre 2024)."
+          ]
+        },
+        {
+          "type": "paragraph",
+          "text": "Le point le plus notable tient à la découverte : l'avis crédite Anthropic, avec son modèle Claude, pour la détection ; Stephan Lipp (Ada Logics) a validé la faille et l'équipe CodeAnt AI Security Research l'a signalée de façon indépendante. L'avis précise par ailleurs que XSA-523 est distincte de XSA-500, une autre faille de copie de *grant* divulguée le 28 juillet."
+        },
+        {
+          "type": "diagram",
+          "svg": "<svg xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"0 0 640 210\" role=\"img\"><rect width=\"640\" height=\"210\" rx=\"16\" fill=\"#f4f7fb\"/><rect x=\"20\" y=\"70\" width=\"129\" height=\"90\" rx=\"12\" fill=\"#e8f0fe\" stroke=\"#4a6fa5\" stroke-width=\"1.5\"/><text x=\"84\" y=\"105\" text-anchor=\"middle\" font-family=\"system-ui,sans-serif\" font-size=\"14\" font-weight=\"700\" fill=\"#1b2a41\">VM malveillante</text><text x=\"84\" y=\"130\" text-anchor=\"middle\" font-family=\"system-ui,sans-serif\" font-size=\"11.5\" fill=\"#33475b\">lot de copies</text><path d=\"M153 115h20m-6-6l6 6-6 6\" stroke=\"#4a6fa5\" stroke-width=\"2.5\" fill=\"none\"/><rect x=\"177\" y=\"70\" width=\"129\" height=\"90\" rx=\"12\" fill=\"#e8f0fe\" stroke=\"#4a6fa5\" stroke-width=\"1.5\"/><text x=\"242\" y=\"105\" text-anchor=\"middle\" font-family=\"system-ui,sans-serif\" font-size=\"14\" font-weight=\"700\" fill=\"#1b2a41\">Xen</text><text x=\"242\" y=\"130\" text-anchor=\"middle\" font-family=\"system-ui,sans-serif\" font-size=\"11.5\" fill=\"#33475b\">réutilise des contrôles</text><path d=\"M310 115h20m-6-6l6 6-6 6\" stroke=\"#4a6fa5\" stroke-width=\"2.5\" fill=\"none\"/><rect x=\"334\" y=\"70\" width=\"129\" height=\"90\" rx=\"12\" fill=\"#e8f0fe\" stroke=\"#4a6fa5\" stroke-width=\"1.5\"/><text x=\"398\" y=\"105\" text-anchor=\"middle\" font-family=\"system-ui,sans-serif\" font-size=\"14\" font-weight=\"700\" fill=\"#1b2a41\">Page mémoire</text><text x=\"398\" y=\"130\" text-anchor=\"middle\" font-family=\"system-ui,sans-serif\" font-size=\"11.5\" fill=\"#33475b\">contrôle non refait</text><path d=\"M467 115h20m-6-6l6 6-6 6\" stroke=\"#4a6fa5\" stroke-width=\"2.5\" fill=\"none\"/><rect x=\"491\" y=\"70\" width=\"129\" height=\"90\" rx=\"12\" fill=\"#fde8e8\" stroke=\"#4a6fa5\" stroke-width=\"1.5\"/><text x=\"556\" y=\"105\" text-anchor=\"middle\" font-family=\"system-ui,sans-serif\" font-size=\"14\" font-weight=\"700\" fill=\"#1b2a41\">Autres VM</text><text x=\"556\" y=\"130\" text-anchor=\"middle\" font-family=\"system-ui,sans-serif\" font-size=\"11.5\" fill=\"#33475b\">lecture, écriture</text></svg>",
+          "alt": "Schéma en quatre étapes : une VM malveillante lance un lot de copies, Xen réutilise des vérifications, le contrôle n'est pas refait pour une page, la mémoire d'autres VM devient accessible.",
+          "caption": "Mécanisme simplifié de XSA-523 d'après l'avis du Xen Project."
+        },
+        {
+          "type": "usecases",
+          "title": "Exemples d'utilisation",
+          "items": [
+            {
+              "icon": "☁️",
+              "title": "Hébergeur de serveurs virtuels",
+              "text": "Un hébergeur qui loue des VM à des clients différents doit planifier des redémarrages d'hôtes pour appliquer le correctif, avec migration à chaud des charges quand c'est possible."
+            },
+            {
+              "icon": "🧪",
+              "title": "Laboratoire interne",
+              "text": "Une équipe qui exécute des VM de test non fiables à côté de VM de production doit les séparer sur des hôtes distincts tant que le correctif n'est pas déployé."
+            },
+            {
+              "icon": "🛡️",
+              "title": "Poste Qubes OS",
+              "text": "Un utilisateur de Qubes OS met à jour dom0 et redémarre, car le système isole précisément ses usages dans des VM."
+            }
+          ]
+        },
+        {
+          "type": "timeline",
+          "title": "D'où l'on vient, où l'on va",
+          "items": [
+            {
+              "label": "28 juillet 2026",
+              "text": "Divulgation de XSA-500, autre faille de copie de *grant*, distincte de celle-ci."
+            },
+            {
+              "label": "3 novembre 2026",
+              "text": "Publication de l'avis XSA-523 et premiers paquets (XCP-ng, Qubes OS)."
+            },
+            {
+              "label": "À venir",
+              "text": "Les distributions encore vulnérables, comme Debian stable, doivent publier leurs correctifs ; aucune date n'est annoncée."
+            }
+          ]
+        },
+        {
+          "type": "opinion",
+          "title": "Notre avis",
+          "paragraphs": [
+            "Une faille d'isolation dans un hyperviseur est l'une des plus coûteuses qui soient, parce qu'elle touche le principe même du cloud mutualisé. La bonne nouvelle est l'absence d'exploitation connue et l'existence de correctifs pour les séries récentes ; la mauvaise est le sort des versions anciennes, sans correctif, que certains hébergeurs font encore tourner.",
+            "Le crédit accordé à un modèle d'IA pour la découverte est un signal : l'audit automatisé de code très ancien et très optimisé progresse, ce qui devrait multiplier les avis de ce type. C'est une projection, mais elle plaide pour des cycles de correctifs plus rapides côté exploitants."
+          ],
+          "verdict": "Appliquer les correctifs et redémarrer les hôtes : sans mitigation connue, c'est la seule protection."
+        },
+        {
+          "type": "callout",
+          "title": "À retenir",
+          "text": "Si vous exploitez Xen, identifiez la série utilisée : 4.17 à 4.19 disposent de correctifs, tandis que les versions de 4.6 à 4.16 n'en ont pas et doivent être migrées."
+        }
+      ]
+    },
+    {
+      "id": "apt29-poisoned-source-plerdy-ios-android",
+      "category": "cybersecurite",
+      "icon": "🕸️",
+      "importance": 4,
+      "title": "« Poisoned Source » : un script d'analyse web ukrainien détourné pour diffuser des exploits iOS et Android, une campagne attribuée avec prudence à APT29",
+      "summary": "Sekoia décrit une campagne qui injecte du JavaScript dans des sites légitimes et dans le script Plerdy SEO Tracker afin de livrer des chaînes d'exploits visant iPhone et Android. Le lien avec APT29 repose sur des similitudes de code.",
+      "tags": [
+        "APT29",
+        "Sekoia",
+        "Plerdy",
+        "iOS",
+        "Android",
+        "chaîne d'approvisionnement"
+      ],
+      "sourceDate": "2026-11-04",
+      "readingMinutes": 6,
+      "publishedAt": "2026-11-05T03:17:46+00:00",
+      "illustration": {
+        "svg": "<svg xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"0 0 640 360\" role=\"img\" aria-hidden=\"true\"><defs><linearGradient id=\"g\" x1=\"0\" y1=\"0\" x2=\"1\" y2=\"1\"><stop offset=\"0\" stop-color=\"hsl(175,65%,28%)\"/><stop offset=\"1\" stop-color=\"hsl(300,70%,48%)\"/></linearGradient></defs><rect width=\"640\" height=\"360\" fill=\"url(#g)\"/><circle cx=\"560\" cy=\"60\" r=\"90\" fill=\"#fff\" opacity=\".07\"/><circle cx=\"80\" cy=\"320\" r=\"110\" fill=\"#fff\" opacity=\".06\"/><circle cx=\"320\" cy=\"180\" r=\"34\" fill=\"#fff\"/><circle cx=\"210\" cy=\"110\" r=\"22\" fill=\"#fff\" opacity=\".85\"/><circle cx=\"430\" cy=\"110\" r=\"22\" fill=\"#fff\" opacity=\".85\"/><circle cx=\"210\" cy=\"260\" r=\"22\" fill=\"#fff\" opacity=\".85\"/><circle cx=\"430\" cy=\"260\" r=\"22\" fill=\"#fff\" opacity=\".85\"/><path d=\"M290 160L225 120M350 160l65-40M290 200l-65 50M350 200l65 50\" stroke=\"#fff\" stroke-width=\"7\"/></svg>"
+      },
+      "cover": {
+        "url": "https://blogger.googleusercontent.com/img/b/R29vZ2xl/AVvXsEhx1cus2o8fkYGLhQu9BfPgGtAUwnmTAMucLagfAodBuRoYnyxGIJKgpqtKFyCSV-WSG3pDqmPujhj-iwoOZB-zF8JjbQMrLzDHYtdTPA3hD3Kc3rqYQM4CQwkICwZkh8K6O8ZSt-WAA_PBoUA6lHwh_55dbDlKizsjzcTN847c9BSHsWHmrAP42JHRHIYS/s1600/ios-exploit.jpg",
+        "alt": "Illustration d'une chaîne d'exploitation visant des téléphones",
+        "credit": "thehackernews.com"
+      },
+      "sources": [
+        {
+          "title": "APT29-Linked Hackers Hijack Web Analytics Script to Deliver iOS and Android Exploits",
+          "url": "https://thehackernews.com/2026/11/apt29-linked-hackers-hijack-web.html",
+          "publisher": "The Hacker News"
+        }
+      ],
+      "blocks": [
+        {
+          "type": "paragraph",
+          "text": "Quand un script tiers est chargé sur des milliers de pages, le compromettre revient à piéger tous ces sites d'un seul geste. C'est ce que décrit Sekoia dans une campagne baptisée **« Poisoned Source »**, découverte à la mi-octobre 2026 et rapportée le 4 novembre par The Hacker News. Elle serait liée, avec prudence, au groupe russe APT29 : l'article emploie des formulations conditionnelles et ne donne pas de niveau de confiance chiffré."
+        },
+        {
+          "type": "heading",
+          "text": "Les vecteurs : sites compromis, faux domaines et script piégé"
+        },
+        {
+          "type": "list",
+          "items": [
+            "Des sites légitimes compromis, parmi lesquels une grande association professionnelle de l'industrie chimique américaine, un parti politique européen d'extrême droite et un site lié au secteur militaire bulgare.",
+            "Des faux domaines imitant des sites américains très en vue (comme « america250[.]holiday ») et des sites ukrainiens, tchèques et bulgares.",
+            "Le service ukrainien d'analyse web **Plerdy SEO Tracker**, dont le fichier `main.js` a été modifié entre le 27 août et le 3 septembre 2026."
+          ]
+        },
+        {
+          "type": "paragraph",
+          "text": "Le JavaScript injecté collecte d'abord les attributs du navigateur et de l'appareil. Selon le profil, l'infrastructure de livraison envoie une chaîne d'exploitation propre à iOS ou à Android. Les données volées (cookies, mots de passe Wi-Fi, données de l'appareil) sont expédiées vers un serveur dont l'adresse est indiquée dans le rapport."
+        },
+        {
+          "type": "heading",
+          "text": "Trois chaînes d'exploitation"
+        },
+        {
+          "type": "table",
+          "headers": [
+            "Classe",
+            "Cible",
+            "Vulnérabilités",
+            "Objectif"
+          ],
+          "rows": [
+            [
+              "A",
+              "iOS 16.7",
+              "CVE-2025-43529, CVE-2024-27834",
+              "Vol de cookies via JavaScript"
+            ],
+            [
+              "B",
+              "iOS 18.5",
+              "Chaîne « DarkSword » : CVE-2025-43529, CVE-2026-20700, CVE-2025-14174, CVE-2025-43510, CVE-2025-43520",
+              "Exfiltration complète : messages, trousseau iCloud, Wi-Fi, photos"
+            ],
+            [
+              "C",
+              "Android, Chrome 139 à 145 (hors 143)",
+              "CVE-2026-3910, CVE-2025-27038",
+              "Exécution de code, sortie du bac à sable, déploiement d'AndroSnitch"
+            ]
+          ]
+        },
+        {
+          "type": "paragraph",
+          "text": "Ce sont des failles « N-day », c'est-à-dire déjà corrigées par les éditeurs : l'attaque cible donc des appareils non mis à jour. Sur Android, la chaîne vérifie le modèle et s'arrête sur le Samsung Galaxy S25 Ultra (SM-S938B) ; le logiciel malveillant ne s'installe pas de manière persistante."
+        },
+        {
+          "type": "heading",
+          "text": "Une attribution à manier avec précaution"
+        },
+        {
+          "type": "paragraph",
+          "text": "Le rapprochement avec APT29 repose sur la ressemblance avec ANDROSNATCH, documenté par Google en août 2024 pour une campagne attribuée avec réserve à ce même groupe contre un site gouvernemental mongol. Sekoia ignore si l'opération visait des sites précis ou collectait les données de façon indiscriminée avant tri. L'article note aussi la réutilisation par des acteurs étatiques de kits commerciaux d'exploitation, comme DarkSword, et rattache la campagne à l'écosystème Coruna, dont le kit a fuité : d'autres acteurs peuvent donc l'employer. L'article ne contient pas de section de recommandations."
+        },
+        {
+          "type": "diagram",
+          "svg": "<svg xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"0 0 640 210\" role=\"img\"><rect width=\"640\" height=\"210\" rx=\"16\" fill=\"#f4f7fb\"/><rect x=\"20\" y=\"70\" width=\"129\" height=\"90\" rx=\"12\" fill=\"#e8f0fe\" stroke=\"#4a6fa5\" stroke-width=\"1.5\"/><text x=\"84\" y=\"105\" text-anchor=\"middle\" font-family=\"system-ui,sans-serif\" font-size=\"14\" font-weight=\"700\" fill=\"#1b2a41\">Site ou script</text><text x=\"84\" y=\"130\" text-anchor=\"middle\" font-family=\"system-ui,sans-serif\" font-size=\"11.5\" fill=\"#33475b\">compromis</text><path d=\"M153 115h20m-6-6l6 6-6 6\" stroke=\"#4a6fa5\" stroke-width=\"2.5\" fill=\"none\"/><rect x=\"177\" y=\"70\" width=\"129\" height=\"90\" rx=\"12\" fill=\"#e8f0fe\" stroke=\"#4a6fa5\" stroke-width=\"1.5\"/><text x=\"242\" y=\"105\" text-anchor=\"middle\" font-family=\"system-ui,sans-serif\" font-size=\"14\" font-weight=\"700\" fill=\"#1b2a41\">JavaScript</text><text x=\"242\" y=\"130\" text-anchor=\"middle\" font-family=\"system-ui,sans-serif\" font-size=\"11.5\" fill=\"#33475b\">profilage du visiteur</text><path d=\"M310 115h20m-6-6l6 6-6 6\" stroke=\"#4a6fa5\" stroke-width=\"2.5\" fill=\"none\"/><rect x=\"334\" y=\"70\" width=\"129\" height=\"90\" rx=\"12\" fill=\"#e8f0fe\" stroke=\"#4a6fa5\" stroke-width=\"1.5\"/><text x=\"398\" y=\"105\" text-anchor=\"middle\" font-family=\"system-ui,sans-serif\" font-size=\"14\" font-weight=\"700\" fill=\"#1b2a41\">Chaîne iOS / Android</text><text x=\"398\" y=\"130\" text-anchor=\"middle\" font-family=\"system-ui,sans-serif\" font-size=\"11.5\" fill=\"#33475b\">selon l'appareil</text><path d=\"M467 115h20m-6-6l6 6-6 6\" stroke=\"#4a6fa5\" stroke-width=\"2.5\" fill=\"none\"/><rect x=\"491\" y=\"70\" width=\"129\" height=\"90\" rx=\"12\" fill=\"#fde8e8\" stroke=\"#4a6fa5\" stroke-width=\"1.5\"/><text x=\"556\" y=\"105\" text-anchor=\"middle\" font-family=\"system-ui,sans-serif\" font-size=\"14\" font-weight=\"700\" fill=\"#1b2a41\">Vol de données</text><text x=\"556\" y=\"130\" text-anchor=\"middle\" font-family=\"system-ui,sans-serif\" font-size=\"11.5\" fill=\"#33475b\">cookies, messages</text></svg>",
+          "alt": "Schéma en quatre étapes : un site ou un script est compromis, le JavaScript profile le visiteur, une chaîne d'exploitation iOS ou Android est livrée, des données sont volées.",
+          "caption": "Fonctionnement de la campagne « Poisoned Source » d'après Sekoia."
+        },
+        {
+          "type": "usecases",
+          "title": "Exemples d'utilisation",
+          "items": [
+            {
+              "icon": "📱",
+              "title": "Mise à jour du parc mobile",
+              "text": "Une DSI vérifie que les iPhone et Android de ses salariés sont à jour, puisque les failles utilisées sont déjà corrigées."
+            },
+            {
+              "icon": "🌐",
+              "title": "Maîtrise des scripts tiers",
+              "text": "Un site d'entreprise recense les scripts externes qu'il charge et active l'intégrité des sous-ressources (SRI) pour être alerté si un fichier change."
+            },
+            {
+              "icon": "🧭",
+              "title": "Veille ciblée",
+              "text": "Une organisation du secteur de la défense ou de la politique renforce la surveillance du trafic sortant de ses navigateurs, car ces sites attirent des visiteurs à forte valeur."
+            }
+          ]
+        },
+        {
+          "type": "timeline",
+          "title": "D'où l'on vient, où l'on va",
+          "items": [
+            {
+              "label": "Août 2024",
+              "text": "Google documente ANDROSNATCH dans une campagne visant un site gouvernemental mongol."
+            },
+            {
+              "label": "27 août - 3 septembre 2026",
+              "text": "Le script Plerdy SEO Tracker est modifié."
+            },
+            {
+              "label": "Mi-octobre 2026",
+              "text": "Sekoia découvre la campagne."
+            },
+            {
+              "label": "4 novembre 2026",
+              "text": "Publication du rapport relayé par la presse spécialisée."
+            }
+          ]
+        },
+        {
+          "type": "opinion",
+          "title": "Notre avis",
+          "paragraphs": [
+            "La campagne rappelle que le maillon faible n'est souvent pas le site visé mais le script tiers qu'il charge. Les failles utilisées étant corrigées, la défense la plus efficace reste banale : mettre à jour les appareils et réduire la quantité de code externe exécuté dans les navigateurs.",
+            "Pour les un à trois prochaines années, la circulation de kits d'exploitation entre acteurs étatiques et criminels laisse prévoir davantage de campagnes de ce type, y compris contre des cibles moins prestigieuses ; il s'agit d'une analyse et non d'un constat."
+          ],
+          "verdict": "Une attribution prudente ne change rien à l'action : appliquer les correctifs mobiles et surveiller les scripts tiers."
+        },
+        {
+          "type": "callout",
+          "title": "À retenir",
+          "text": "L'attribution à APT29 reste un soupçon fondé sur des similarités de code. Ce qui est établi, c'est la présence d'un script détourné et de chaînes d'exploitation contre des appareils non mis à jour."
+        }
+      ]
+    },
+    {
+      "id": "fedora-45-noyau-7-2-gnome-51-signatures-rpm",
+      "category": "dev",
+      "icon": "🎩",
+      "importance": 4,
+      "title": "Fedora 45 est disponible : signatures RPM obligatoires, ptrace restreint, installation sur Stratis et Plasma 6.8 sans session X11 native",
+      "summary": "Sortie le 3 novembre 2026 après deux reports, Fedora 45 embarque le noyau Linux 7.2, GNOME 51 et une chaîne d'outils renouvelée. Plusieurs durcissements de sécurité passent en réglage par défaut.",
+      "tags": [
+        "Fedora",
+        "Linux",
+        "GNOME 51",
+        "KDE Plasma",
+        "RPM",
+        "Podman 6"
+      ],
+      "sourceDate": "2026-11-03",
+      "readingMinutes": 6,
+      "publishedAt": "2026-11-05T03:17:46+00:00",
+      "illustration": {
+        "svg": "<svg xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"0 0 640 360\" role=\"img\" aria-hidden=\"true\"><defs><linearGradient id=\"g\" x1=\"0\" y1=\"0\" x2=\"1\" y2=\"1\"><stop offset=\"0\" stop-color=\"hsl(265,65%,28%)\"/><stop offset=\"1\" stop-color=\"hsl(200,70%,48%)\"/></linearGradient></defs><rect width=\"640\" height=\"360\" fill=\"url(#g)\"/><circle cx=\"560\" cy=\"60\" r=\"90\" fill=\"#fff\" opacity=\".07\"/><circle cx=\"80\" cy=\"320\" r=\"110\" fill=\"#fff\" opacity=\".06\"/><rect x=\"190\" y=\"80\" width=\"260\" height=\"200\" rx=\"16\" fill=\"#fff\" opacity=\".93\"/><path d=\"M225 140l40 30-40 30\" stroke=\"hsl(265,65%,32%)\" stroke-width=\"14\" fill=\"none\" stroke-linecap=\"round\" stroke-linejoin=\"round\"/><path d=\"M290 205h90\" stroke=\"hsl(265,65%,32%)\" stroke-width=\"14\" stroke-linecap=\"round\"/></svg>"
+      },
+      "cover": {
+        "url": "https://linuxiac.com/wp-content/uploads/2026/11/fedora45.jpg",
+        "alt": "Visuel de la sortie de Fedora Linux 45",
+        "credit": "linuxiac.com"
+      },
+      "sources": [
+        {
+          "title": "Fedora Linux 45 Officially Released, This Is What's New",
+          "url": "https://linuxiac.com/fedora-45-officially-released/",
+          "publisher": "Linuxiac"
+        },
+        {
+          "title": "Bazzite 45 Released with Fedora 45",
+          "url": "https://linuxiac.com/bazzite-45-released-with-fedora-45-adds-anti-cheat-compatibility-checker/",
+          "publisher": "Linuxiac"
+        }
+      ],
+      "blocks": [
+        {
+          "type": "paragraph",
+          "text": "Fedora Linux 45 est sortie officiellement le 3 novembre 2026, avec deux reports par rapport à la date initiale du 20 octobre. La distribution, qui sert de terrain d'essai aux technologies ensuite reprises par Red Hat Enterprise Linux, mise cette fois sur le durcissement par défaut, un installateur plus ouvert et un bureau qui tourne définitivement la page de X11."
+        },
+        {
+          "type": "heading",
+          "text": "Les versions embarquées"
+        },
+        {
+          "type": "keyvalue",
+          "items": [
+            {
+              "label": "Noyau",
+              "value": "Linux 7.2"
+            },
+            {
+              "label": "Bureaux",
+              "value": "GNOME 51 (Workstation) ; KDE Plasma 6.8.2 (édition KDE)"
+            },
+            {
+              "label": "Outils de développement",
+              "value": "RPM 6.1, Python 3.15, GCC 16.2, glibc 2.44, LLVM 23, Go 1.27, Perl 5.44"
+            },
+            {
+              "label": "Conteneurs",
+              "value": "Podman 6"
+            },
+            {
+              "label": "Autres",
+              "value": "Pandas 3, Lua 5.5"
+            }
+          ]
+        },
+        {
+          "type": "paragraph",
+          "text": "À noter : les sources divergent sur la version de Plasma (6.7 ou 6.8) ; Linuxiac, source principale de cet article, indique 6.8.2 pour l'édition KDE."
+        },
+        {
+          "type": "heading",
+          "text": "Sécurité : deux changements de comportement"
+        },
+        {
+          "type": "list",
+          "items": [
+            "**Signatures RPM vérifiées par défaut** : les paquets doivent présenter des signatures et des empreintes valides avant installation.",
+            "**ptrace restreint** pour les utilisateurs non privilégiés : un processus ne peut plus inspecter librement les autres processus du même utilisateur, ce qui complique le vol de secrets en mémoire par un logiciel malveillant local.",
+            "**Oo7**, un service de secrets écrit en Rust, remplace d'anciens composants dans certaines configurations."
+          ]
+        },
+        {
+          "type": "heading",
+          "text": "Installateur et console"
+        },
+        {
+          "type": "paragraph",
+          "text": "Anaconda sait désormais installer le système sur du stockage géré par Stratis, en mode manuel via l'interface web ou en mode automatisé par Kickstart, et Cockpit Storage devient accessible depuis l'installateur. Silverblue et Kinoite passent à l'interface web d'Anaconda et autorisent une installation à distance sécurisée par navigateur (HTTPS et code PIN). Fedora CoreOS active par défaut systemd-oomd et le swap zram. Côté console, la couche *fbcon* du noyau cède la place à **kmscon**, une implémentation en espace utilisateur."
+        },
+        {
+          "type": "heading",
+          "text": "Bureaux et retraits"
+        },
+        {
+          "type": "paragraph",
+          "text": "KDE Plasma 6.8 gère des bureaux virtuels indépendants par écran et abandonne les sessions X11 natives ; les applications X11 restent prises en charge via XWayland. GNOME 51 apporte la rotation automatique de l'écran, les cartes hors ligne et une meilleure gestion des applications non maintenues. À l'inverse, les plugins VPN NetworkManager-vpnc et NetworkManager-fortisslvpn sont supprimés : ils sont retirés automatiquement lors de la mise à niveau et la documentation conseille de migrer vers OpenConnect ou Libreswan. Les utilisateurs qui s'appuient sur ces plugins doivent donc préparer leur configuration avant de monter de version."
+        },
+        {
+          "type": "paragraph",
+          "text": "L'écosystème suit déjà : Bazzite 45, la variante orientée jeu, est publiée sur la base de Fedora 45 avec un outil de vérification de compatibilité avec les systèmes anti-triche."
+        },
+        {
+          "type": "usecases",
+          "title": "Exemples d'utilisation",
+          "items": [
+            {
+              "icon": "🖥️",
+              "title": "Poste de développement",
+              "text": "Un développeur profite de Python 3.15, GCC 16.2 et Go 1.27 sans dépôt tiers, mais teste d'abord ses outils sous Podman 6, dont l'API et la ligne de commande changent."
+            },
+            {
+              "icon": "🔐",
+              "title": "Parc d'ordinateurs d'entreprise",
+              "text": "Un administrateur vérifie que ses paquets internes sont signés, la vérification des signatures RPM étant désormais appliquée par défaut."
+            },
+            {
+              "icon": "🔌",
+              "title": "Utilisateur de VPN Fortinet",
+              "text": "Une personne qui utilise le plugin fortisslvpn teste OpenConnect avant la mise à niveau pour ne pas perdre sa connexion à distance."
+            }
+          ]
+        },
+        {
+          "type": "timeline",
+          "title": "D'où l'on vient, où l'on va",
+          "items": [
+            {
+              "label": "20 octobre 2026",
+              "text": "Date initiale annoncée, manquée à deux reprises."
+            },
+            {
+              "label": "3 novembre 2026",
+              "text": "Sortie officielle de Fedora 45 avec Linux 7.2."
+            },
+            {
+              "label": "Bientôt",
+              "text": "Un article de presse spécialisée évoque l'arrivée prochaine du noyau 7.3 en mise à jour ; non confirmé par la source principale."
+            }
+          ]
+        },
+        {
+          "type": "opinion",
+          "title": "Notre avis",
+          "paragraphs": [
+            "Fedora 45 est une version de transition assumée : elle durcit par défaut ce que d'autres distributions laissent en option, quitte à casser des habitudes, comme les anciens plugins VPN ou les sessions X11 de KDE. Le prix à payer est une migration plus exigeante pour les utilisateurs avancés.",
+            "Dans un à trois ans, l'enjeu sera de voir si ces choix, signatures obligatoires et ptrace restreint, se généralisent aux distributions concurrentes et à RHEL. C'est plausible, mais cela reste une projection."
+          ],
+          "verdict": "Une version plus stricte et plus moderne, à adopter après avoir testé ses VPN et ses outils de conteneurs."
+        },
+        {
+          "type": "callout",
+          "title": "À retenir",
+          "text": "Avant de monter en version, vérifiez vos plugins VPN NetworkManager (vpnc, fortisslvpn) et vos dépôts tiers non signés : ce sont les deux points qui peuvent casser une mise à niveau."
+        }
+      ]
+    },
+    {
+      "id": "mistral-large-4-poids-ouverts-licence-modifiee",
+      "category": "ia",
+      "icon": "🧠",
+      "importance": 4,
+      "title": "Mistral Large 4 « Le Chonk » : un modèle d'environ 1 000 milliards de paramètres publié en poids ouverts sous licence MIT modifiée",
+      "summary": "Mistral AI publie les poids de Mistral Large 4, un modèle multimodal d'environ 1 000 milliards de paramètres. Les performances annoncées en programmation agentique sont celles de l'éditeur, sans vérification indépendante des poids finaux.",
+      "tags": [
+        "Mistral AI",
+        "modèle ouvert",
+        "poids ouverts",
+        "programmation agentique",
+        "licence"
+      ],
+      "sourceDate": "2026-10-29",
+      "readingMinutes": 6,
+      "publishedAt": "2026-11-05T03:17:46+00:00",
+      "illustration": {
+        "svg": "<svg xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"0 0 640 360\" role=\"img\" aria-hidden=\"true\"><defs><linearGradient id=\"g\" x1=\"0\" y1=\"0\" x2=\"1\" y2=\"1\"><stop offset=\"0\" stop-color=\"hsl(320,65%,28%)\"/><stop offset=\"1\" stop-color=\"hsl(20,70%,48%)\"/></linearGradient></defs><rect width=\"640\" height=\"360\" fill=\"url(#g)\"/><circle cx=\"560\" cy=\"60\" r=\"90\" fill=\"#fff\" opacity=\".07\"/><circle cx=\"80\" cy=\"320\" r=\"110\" fill=\"#fff\" opacity=\".06\"/><circle cx=\"270\" cy=\"150\" r=\"50\" fill=\"#fff\" opacity=\".93\"/><circle cx=\"370\" cy=\"150\" r=\"50\" fill=\"#fff\" opacity=\".93\"/><circle cx=\"320\" cy=\"215\" r=\"50\" fill=\"#fff\" opacity=\".85\"/><path d=\"M270 150h100M320 150v65\" stroke=\"hsl(320,65%,32%)\" stroke-width=\"8\"/><circle cx=\"270\" cy=\"150\" r=\"12\" fill=\"hsl(320,65%,32%)\"/><circle cx=\"370\" cy=\"150\" r=\"12\" fill=\"hsl(320,65%,32%)\"/><circle cx=\"320\" cy=\"215\" r=\"12\" fill=\"hsl(320,65%,32%)\"/></svg>"
+      },
+      "cover": {
+        "url": "https://mistral.ai/cms-media/api/media/file/cover-mistral-sovereign%20copie.webp",
+        "alt": "Visuel de présentation de Mistral AI",
+        "credit": "mistral.ai"
+      },
+      "sources": [
+        {
+          "title": "Mistral Large 4 (Le Chonk) is now open weight",
+          "url": "https://mistral.ai/news/mistral-large-4-oss/",
+          "publisher": "Mistral AI"
+        }
+      ],
+      "blocks": [
+        {
+          "type": "paragraph",
+          "text": "Mistral AI a rendu publics les poids de **Mistral Large 4**, surnommé « Le Chonk », son plus grand modèle accessible au public. Après une préversion annoncée plus tôt dans le mois d'octobre 2026, la version finale, qui a bénéficié d'un entraînement par renforcement supplémentaire selon des synthèses tierces, est téléchargeable sur Hugging Face et proposée via l'API de l'éditeur. Pour l'écosystème français de l'IA, c'est un jalon : un modèle de cette taille accessible en poids ouverts reste rare."
+        },
+        {
+          "type": "heading",
+          "text": "Ce que l'éditeur annonce"
+        },
+        {
+          "type": "keyvalue",
+          "items": [
+            {
+              "label": "Taille",
+              "value": "Environ 1 000 milliards de paramètres, nativement multimodal"
+            },
+            {
+              "label": "Paramètres actifs",
+              "value": "Environ 52 milliards d'après le nom du dépôt (« 1T-A52B ») ; la page n'en dit pas plus"
+            },
+            {
+              "label": "Modes de raisonnement",
+              "value": "Low, Medium et High (par défaut)"
+            },
+            {
+              "label": "Licence",
+              "value": "Mistral Ecosystem Open-Weight, MIT modifiée : usage, modification et commercialisation libres ; licence commerciale séparée pour les offres Model-as-a-Service"
+            },
+            {
+              "label": "Tarifs API",
+              "value": "0,70 $ par million de jetons en entrée (0,07 $ en cache), 2,10 $ en sortie"
+            }
+          ]
+        },
+        {
+          "type": "paragraph",
+          "text": "La fenêtre de contexte n'est pas indiquée sur la page de l'éditeur ; plusieurs synthèses tierces évoquent un million de jetons, ce qui doit être confirmé sur la fiche du modèle. Les poids sont déployables avec vLLM ou SGLang, et le modèle est aussi disponible en conteneur NVIDIA NIM, avec TensorRT-LLM et NeMo AutoModel, ainsi que sur Mistral Studio, OpenRouter et Microsoft Foundry."
+        },
+        {
+          "type": "heading",
+          "text": "Des performances à prendre avec recul"
+        },
+        {
+          "type": "table",
+          "headers": [
+            "Évaluation",
+            "Score annoncé"
+          ],
+          "rows": [
+            [
+              "FrontierCode 2.0",
+              "19,7 %"
+            ],
+            [
+              "Artificial Analysis Coding Agent Index",
+              "48 % (à égalité avec GLM-5.3, avec 47 % de jetons en moins par tâche)"
+            ],
+            [
+              "Terminal-Bench 4.0",
+              "41 % (+13 points par rapport à la préversion)"
+            ],
+            [
+              "BrowseComp",
+              "84,5 %"
+            ],
+            [
+              "Artificial Analysis Cyber Index",
+              "51 %"
+            ],
+            [
+              "Refus de requêtes cyber malveillantes",
+              "96,6 %"
+            ]
+          ]
+        },
+        {
+          "type": "paragraph",
+          "text": "Ces chiffres proviennent de Mistral ou de tiers cités sur sa page et n'ont pas été vérifiés indépendamment. Des synthèses secondaires rapportent des évaluations indépendantes de la préversion, nettement plus basses que celles de concurrents ouverts, mais elles précèdent la publication des poids finaux : le jugement doit donc rester ouvert."
+        },
+        {
+          "type": "diagram",
+          "svg": "<svg xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"0 0 640 210\" role=\"img\"><rect width=\"640\" height=\"210\" rx=\"16\" fill=\"#f4f7fb\"/><rect x=\"20\" y=\"70\" width=\"129\" height=\"90\" rx=\"12\" fill=\"#e8f0fe\" stroke=\"#4a6fa5\" stroke-width=\"1.5\"/><text x=\"84\" y=\"105\" text-anchor=\"middle\" font-family=\"system-ui,sans-serif\" font-size=\"14\" font-weight=\"700\" fill=\"#1b2a41\">Poids ouverts</text><text x=\"84\" y=\"130\" text-anchor=\"middle\" font-family=\"system-ui,sans-serif\" font-size=\"11.5\" fill=\"#33475b\">Hugging Face</text><path d=\"M153 115h20m-6-6l6 6-6 6\" stroke=\"#4a6fa5\" stroke-width=\"2.5\" fill=\"none\"/><rect x=\"177\" y=\"70\" width=\"129\" height=\"90\" rx=\"12\" fill=\"#e8f0fe\" stroke=\"#4a6fa5\" stroke-width=\"1.5\"/><text x=\"242\" y=\"105\" text-anchor=\"middle\" font-family=\"system-ui,sans-serif\" font-size=\"14\" font-weight=\"700\" fill=\"#1b2a41\">Déploiement</text><text x=\"242\" y=\"130\" text-anchor=\"middle\" font-family=\"system-ui,sans-serif\" font-size=\"11.5\" fill=\"#33475b\">vLLM, SGLang, NIM</text><path d=\"M310 115h20m-6-6l6 6-6 6\" stroke=\"#4a6fa5\" stroke-width=\"2.5\" fill=\"none\"/><rect x=\"334\" y=\"70\" width=\"129\" height=\"90\" rx=\"12\" fill=\"#e8f0fe\" stroke=\"#4a6fa5\" stroke-width=\"1.5\"/><text x=\"398\" y=\"105\" text-anchor=\"middle\" font-family=\"system-ui,sans-serif\" font-size=\"14\" font-weight=\"700\" fill=\"#1b2a41\">Licence MIT modifiée</text><text x=\"398\" y=\"130\" text-anchor=\"middle\" font-family=\"system-ui,sans-serif\" font-size=\"11.5\" fill=\"#33475b\">usage commercial libre</text><path d=\"M467 115h20m-6-6l6 6-6 6\" stroke=\"#4a6fa5\" stroke-width=\"2.5\" fill=\"none\"/><rect x=\"491\" y=\"70\" width=\"129\" height=\"90\" rx=\"12\" fill=\"#e8f0fe\" stroke=\"#4a6fa5\" stroke-width=\"1.5\"/><text x=\"556\" y=\"105\" text-anchor=\"middle\" font-family=\"system-ui,sans-serif\" font-size=\"14\" font-weight=\"700\" fill=\"#1b2a41\">Offre MaaS</text><text x=\"556\" y=\"130\" text-anchor=\"middle\" font-family=\"system-ui,sans-serif\" font-size=\"11.5\" fill=\"#33475b\">licence séparée</text></svg>",
+          "alt": "Schéma en quatre étapes : poids ouverts sur Hugging Face, déploiement avec vLLM, SGLang ou NIM, licence MIT modifiée autorisant l'usage commercial, licence séparée pour les offres Model-as-a-Service.",
+          "caption": "Chemin d'usage d'un modèle sous licence Mistral Ecosystem Open-Weight."
+        },
+        {
+          "type": "usecases",
+          "title": "Exemples d'utilisation",
+          "items": [
+            {
+              "icon": "🏛️",
+              "title": "Souveraineté des données",
+              "text": "Une administration ou un hôpital héberge le modèle sur ses propres serveurs pour traiter des documents sensibles sans les envoyer à un service étranger, à condition de disposer de l'infrastructure nécessaire."
+            },
+            {
+              "icon": "🧑‍💻",
+              "title": "Agent de programmation",
+              "text": "Une équipe logicielle branche le modèle sur ses outils en ligne de commande pour automatiser des corrections de bogues, en mesurant d'abord ses résultats sur son propre code."
+            },
+            {
+              "icon": "📉",
+              "title": "Maîtrise des coûts",
+              "text": "Une jeune pousse compare le prix de l'API (2,10 $ par million de jetons en sortie) au coût d'un hébergement dédié avant de choisir."
+            }
+          ]
+        },
+        {
+          "type": "timeline",
+          "title": "D'où l'on vient, où l'on va",
+          "items": [
+            {
+              "label": "Début octobre 2026",
+              "text": "Mistral présente une préversion de Mistral Large 4."
+            },
+            {
+              "label": "29 octobre 2026",
+              "text": "Publication des poids, selon des synthèses concordantes."
+            },
+            {
+              "label": "2027",
+              "text": "Les évaluations indépendantes des poids finaux et les retours d'usage diront si le modèle tient ses promesses ; rien n'est annoncé."
+            }
+          ]
+        },
+        {
+          "type": "opinion",
+          "title": "Notre avis",
+          "paragraphs": [
+            "L'ouverture des poids d'un modèle de cette taille compte moins pour le téléchargement individuel, hors de portée de la plupart des machines, que pour l'écosystème d'hébergeurs et d'entreprises qui peuvent désormais l'auditer et l'adapter. La licence reste toutefois plus restrictive qu'une licence libre classique, en particulier pour les fournisseurs d'offres hébergées.",
+            "Sur un à trois ans, la compétition se jouera sur le coût par tâche et la fiabilité des agents plutôt que sur le nombre de paramètres. L'argument de la sobriété en jetons de Mistral va dans ce sens, mais il dépend de mesures indépendantes."
+          ],
+          "verdict": "Une avancée réelle pour l'ouverture, à juger sur pièces : les scores publiés sont ceux de l'éditeur."
+        },
+        {
+          "type": "callout",
+          "title": "À retenir",
+          "text": "« Poids ouverts » ne signifie pas « licence libre » : lisez les conditions de la licence Mistral Ecosystem Open-Weight avant tout déploiement commercial, notamment pour une offre de service hébergée."
+        }
+      ]
+    },
+    {
+      "id": "rocky-linux-testrarc-tests-de-publication-transparents",
+      "category": "devops",
+      "icon": "🧪",
+      "importance": 3,
+      "title": "Rocky Linux lance Testrarc, une plateforme ouverte pour suivre les tests de publication sur cinq architectures",
+      "summary": "Rocky Linux remplace ses anciens Playbooks Mattermost par Testrarc, un tableau de bord public où les contributeurs saisissent les résultats de validation des versions bêta, déjà utilisé pour Rocky Linux 10.3 et 9.9.",
+      "tags": [
+        "Rocky Linux",
+        "Testrarc",
+        "tests de publication",
+        "open source",
+        "communauté"
+      ],
+      "sourceDate": "2026-11-04",
+      "readingMinutes": 5,
+      "publishedAt": "2026-11-05T03:17:46+00:00",
+      "illustration": {
+        "svg": "<svg xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"0 0 640 360\" role=\"img\" aria-hidden=\"true\"><defs><linearGradient id=\"g\" x1=\"0\" y1=\"0\" x2=\"1\" y2=\"1\"><stop offset=\"0\" stop-color=\"hsl(160,65%,28%)\"/><stop offset=\"1\" stop-color=\"hsl(210,70%,48%)\"/></linearGradient></defs><rect width=\"640\" height=\"360\" fill=\"url(#g)\"/><circle cx=\"560\" cy=\"60\" r=\"90\" fill=\"#fff\" opacity=\".07\"/><circle cx=\"80\" cy=\"320\" r=\"110\" fill=\"#fff\" opacity=\".06\"/><rect x=\"240\" y=\"60\" width=\"160\" height=\"220\" rx=\"12\" fill=\"#fff\" opacity=\".93\"/><path d=\"M270 110h100M270 150h100M270 190h100M270 230h60\" stroke=\"hsl(160,65%,32%)\" stroke-width=\"10\" stroke-linecap=\"round\"/></svg>"
+      },
+      "cover": {
+        "url": "https://linuxiac.com/wp-content/uploads/2026/11/rocky-linux-testrarc.jpg",
+        "alt": "Visuel de l'annonce de Testrarc par Rocky Linux",
+        "credit": "linuxiac.com"
+      },
+      "sources": [
+        {
+          "title": "Rocky Linux Unveils Testrarc for Transparent Release Testing",
+          "url": "https://linuxiac.com/rocky-linux-unveils-testrarc-for-transparent-release-testing/",
+          "publisher": "Linuxiac"
+        }
+      ],
+      "blocks": [
+        {
+          "type": "paragraph",
+          "text": "Valider une distribution Linux avant sa sortie suppose de tester des centaines de scénarios sur plusieurs architectures et environnements. Rocky Linux, qui prolonge l'esprit de CentOS en tant que clone communautaire de Red Hat Enterprise Linux, a présenté le 4 novembre 2026 **Testrarc**, une plateforme web open source destinée à coordonner ces tests, suivre les résultats et ouvrir le processus aux volontaires."
+        },
+        {
+          "type": "heading",
+          "text": "Pourquoi remplacer l'existant"
+        },
+        {
+          "type": "paragraph",
+          "text": "Depuis 2022, le projet organisait ses tests avec les Playbooks de Mattermost. L'extension des vérifications à davantage d'architectures et d'environnements a motivé la création d'un outil dédié. Testrarc suit les tests du stade bêta jusqu'aux *release candidates* : un tableau de bord indique ce qui est terminé, ce qui a échoué et ce qu'il reste à valider. Chaque test enregistre un résultat (réussi, échoué ou partiellement terminé), le nom du contributeur et l'environnement utilisé : machine physique, KVM, conteneurs, autres machines virtuelles ou cloud."
+        },
+        {
+          "type": "keyvalue",
+          "items": [
+            {
+              "label": "Langage et cadre",
+              "value": "Python avec le framework Rio"
+            },
+            {
+              "label": "Architectures prises en charge",
+              "value": "x86_64, aarch64, riscv64, ppc64le, s390x"
+            },
+            {
+              "label": "Consultation",
+              "value": "Sans authentification"
+            },
+            {
+              "label": "Envoi de résultats",
+              "value": "Compte Rocky Linux requis"
+            },
+            {
+              "label": "Adresse",
+              "value": "testrarc.rockylinux.org/app/home"
+            }
+          ]
+        },
+        {
+          "type": "paragraph",
+          "text": "Ce choix répond à un problème classique des projets communautaires : plus le nombre de variantes à vérifier augmente (architectures, hyperviseurs, nuages publics), plus un suivi artisanal devient fragile. Un outil spécialisé conserve l'historique des résultats, évite les doublons entre testeurs et permet aux responsables de la publication de savoir précisément quelles zones restent sans couverture avant de décider d'une sortie."
+        },
+        {
+          "type": "heading",
+          "text": "Ouvrir les tests aux volontaires"
+        },
+        {
+          "type": "paragraph",
+          "text": "Un filtre `community_testable` aide les contributeurs à repérer les tests réalisables sans matériel spécialisé ni infrastructure avancée, ce qui abaisse la barrière d'entrée. La plateforme affiche déjà les résultats des bêtas de **Rocky Linux 10.3** et **9.9**, en cours de validation avant leur sortie stable. L'article précise que Testrarc est open source, mais ne donne ni la licence ni l'adresse du dépôt de code."
+        },
+        {
+          "type": "diagram",
+          "svg": "<svg xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"0 0 640 210\" role=\"img\"><rect width=\"640\" height=\"210\" rx=\"16\" fill=\"#f4f7fb\"/><rect x=\"20\" y=\"70\" width=\"129\" height=\"90\" rx=\"12\" fill=\"#e8f0fe\" stroke=\"#4a6fa5\" stroke-width=\"1.5\"/><text x=\"84\" y=\"105\" text-anchor=\"middle\" font-family=\"system-ui,sans-serif\" font-size=\"14\" font-weight=\"700\" fill=\"#1b2a41\">Bêta</text><text x=\"84\" y=\"130\" text-anchor=\"middle\" font-family=\"system-ui,sans-serif\" font-size=\"11.5\" fill=\"#33475b\">construction</text><path d=\"M153 115h20m-6-6l6 6-6 6\" stroke=\"#4a6fa5\" stroke-width=\"2.5\" fill=\"none\"/><rect x=\"177\" y=\"70\" width=\"129\" height=\"90\" rx=\"12\" fill=\"#e8f0fe\" stroke=\"#4a6fa5\" stroke-width=\"1.5\"/><text x=\"242\" y=\"105\" text-anchor=\"middle\" font-family=\"system-ui,sans-serif\" font-size=\"14\" font-weight=\"700\" fill=\"#1b2a41\">Tests</text><text x=\"242\" y=\"130\" text-anchor=\"middle\" font-family=\"system-ui,sans-serif\" font-size=\"11.5\" fill=\"#33475b\">contributeurs</text><path d=\"M310 115h20m-6-6l6 6-6 6\" stroke=\"#4a6fa5\" stroke-width=\"2.5\" fill=\"none\"/><rect x=\"334\" y=\"70\" width=\"129\" height=\"90\" rx=\"12\" fill=\"#e8f0fe\" stroke=\"#4a6fa5\" stroke-width=\"1.5\"/><text x=\"398\" y=\"105\" text-anchor=\"middle\" font-family=\"system-ui,sans-serif\" font-size=\"14\" font-weight=\"700\" fill=\"#1b2a41\">Tableau de bord</text><text x=\"398\" y=\"130\" text-anchor=\"middle\" font-family=\"system-ui,sans-serif\" font-size=\"11.5\" fill=\"#33475b\">résultats publics</text><path d=\"M467 115h20m-6-6l6 6-6 6\" stroke=\"#4a6fa5\" stroke-width=\"2.5\" fill=\"none\"/><rect x=\"491\" y=\"70\" width=\"129\" height=\"90\" rx=\"12\" fill=\"#e8f0fe\" stroke=\"#4a6fa5\" stroke-width=\"1.5\"/><text x=\"556\" y=\"105\" text-anchor=\"middle\" font-family=\"system-ui,sans-serif\" font-size=\"14\" font-weight=\"700\" fill=\"#1b2a41\">Release candidate</text><text x=\"556\" y=\"130\" text-anchor=\"middle\" font-family=\"system-ui,sans-serif\" font-size=\"11.5\" fill=\"#33475b\">validation</text></svg>",
+          "alt": "Schéma en quatre étapes : version bêta, tests menés par les contributeurs, tableau de bord public des résultats, puis release candidate.",
+          "caption": "Cycle de validation suivi dans Testrarc, d'après la description de Rocky Linux."
+        },
+        {
+          "type": "usecases",
+          "title": "Exemples d'utilisation",
+          "items": [
+            {
+              "icon": "🧑‍🔧",
+              "title": "Administrateur système",
+              "text": "Un administrateur dispose d'une machine ARM de test et valide les scénarios marqués `community_testable` pour la prochaine version de Rocky Linux."
+            },
+            {
+              "icon": "🏢",
+              "title": "Entreprise utilisatrice",
+              "text": "Une DSI consulte sans compte l'état des tests de Rocky Linux 10.3 avant de planifier sa migration."
+            },
+            {
+              "icon": "🛰️",
+              "title": "Projet sur architecture rare",
+              "text": "Un contributeur disposant d'une machine s390x ou ppc64le fournit des résultats que peu de testeurs peuvent produire."
+            }
+          ]
+        },
+        {
+          "type": "timeline",
+          "title": "D'où l'on vient, où l'on va",
+          "items": [
+            {
+              "label": "2022",
+              "text": "Le projet organise ses tests avec les Playbooks Mattermost."
+            },
+            {
+              "label": "4 novembre 2026",
+              "text": "Présentation de Testrarc."
+            },
+            {
+              "label": "Prochaines semaines",
+              "text": "Validation des bêtas 10.3 et 9.9 avant la sortie stable ; les dates ne sont pas précisées."
+            }
+          ]
+        },
+        {
+          "type": "opinion",
+          "title": "Notre avis",
+          "paragraphs": [
+            "La transparence des tests est un argument commercial pour une distribution qui vise les entreprises : savoir qui a testé quoi, sur quel matériel, rassure davantage qu'une simple annonce de sortie. Le risque est que le tableau de bord devienne un outil réservé aux habitués si la participation reste faible.",
+            "À un ou trois ans, la réussite se mesurera au nombre de contributeurs externes et à la couverture des architectures rares. C'est une hypothèse, que l'adoption devra confirmer."
+          ],
+          "verdict": "Une bonne idée de gouvernance ouverte, à suivre par le nombre de testeurs réels."
+        },
+        {
+          "type": "callout",
+          "title": "À retenir",
+          "text": "Testrarc est consultable sans compte ; il faut en revanche un compte Rocky Linux pour envoyer des résultats de tests."
+        }
+      ]
+    }
+  ]
+}
