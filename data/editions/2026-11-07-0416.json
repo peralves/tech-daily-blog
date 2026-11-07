@@ -1,0 +1,1000 @@
+{
+ "schemaVersion": "1.0",
+ "date": "2026-11-07",
+ "generatedAt": "2026-11-07T04:16:55+01:00",
+ "title": "Édition tech du 7 novembre 2026 : faille WordPress, agents d'IA et stockage Git",
+ "summary": "Une faille WordPress exploitée se glisse pendant la mise à jour, des chercheurs montrent qu'une extension peut piloter Claude Desktop, et GitHub prépare un stockage Git pour des milliers d'agents.",
+ "highlights": [
+  "WordPress : bloquer le dossier d'upgrade avant d'installer la 7.1.4",
+  "Claude Dispatch : une extension de navigateur pourrait envoyer des ordres à l'agent",
+  "Barracuda : deux failles chaînées donnent un accès root, correctifs disponibles",
+  "libghostty 1.0 : une bibliothèque de terminal à ABI stable",
+  "GitHub vise 7 200 envois par seconde sur un dépôt avec Rubicon"
+ ],
+ "meta": {
+  "generator": "claude-scheduled-task"
+ },
+ "posts": [
+  {
+   "id": "wordpress-cve-2026-119977-course-de-vitesse-mise-a-jour",
+   "category": "cybersecurite",
+   "title": "WordPress : installer le correctif d'une faille exploitée peut exposer le site une dernière fois",
+   "summary": "La faille CVE-2026-119977 touche le mécanisme de mise à jour du cœur de WordPress. Pendant l'installation de la version 7.1.4, un attaquant peut tenter d'exécuter du code sur le site. Bloquer l'accès web au dossier d'upgrade avant la mise à jour réduit le risque.",
+   "tags": [
+    "WordPress",
+    "CVE-2026-119977",
+    "CISA KEV",
+    "mise à jour"
+   ],
+   "importance": 5,
+   "readingMinutes": 6,
+   "publishedAt": "2026-11-07T04:16:55+01:00",
+   "icon": "🧩",
+   "illustration": {
+    "svg": "<svg xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"0 0 640 360\"><defs><linearGradient id=\"g\" x1=\"0\" y1=\"0\" x2=\"1\" y2=\"1\"><stop offset=\"0\" stop-color=\"hsl(175,65%,38%)\"/><stop offset=\"1\" stop-color=\"hsl(215,70%,55%)\"/></linearGradient></defs><rect width=\"640\" height=\"360\" fill=\"url(#g)\"/><circle cx=\"560\" cy=\"60\" r=\"90\" fill=\"#fff\" fill-opacity=\".08\"/><circle cx=\"70\" cy=\"310\" r=\"110\" fill=\"#fff\" fill-opacity=\".07\"/><path d=\"M320 70 L420 105 V190 C420 250 370 285 320 300 C270 285 220 250 220 190 V105 Z\" fill=\"#fff\" fill-opacity=\".9\"/><path d=\"M280 185 L310 215 L365 150\" stroke=\"hsl(175,60%,35%)\" stroke-width=\"16\" fill=\"none\" stroke-linecap=\"round\"/></svg>"
+   },
+   "sources": [
+    {
+     "title": "Installing the Fix for an Exploited WordPress Flaw Can Expose Some Sites One Last Time",
+     "url": "https://thehackernews.com/2026/11/installing-fix-for-exploited-wordpress.html",
+     "publisher": "The Hacker News"
+    }
+   ],
+   "blocks": [
+    {
+     "type": "paragraph",
+     "text": "Installer un correctif de sécurité est le réflexe numéro un des administrateurs. Avec la faille **CVE-2026-119977**, ce réflexe comporte pourtant un angle mort : c'est la mise à jour elle-même qui ouvre, quelques secondes durant, la fenêtre d'attaque. L'identifiant a été attribué par Wordfence, qui la note 8,1 sur 10 à l'échelle CVSS, alors que l'avis de WordPress la classe comme faible. L'agence américaine CISA l'a ajoutée cette semaine à son catalogue des vulnérabilités exploitées (KEV), sans décrire les attaques observées."
+    },
+    {
+     "type": "paragraph",
+     "text": "Le problème a été découvert par Umut Bayram, de Picus Security. Selon l'analyse relayée par The Hacker News, il concerne toutes les versions de WordPress de la 4.7 à la 7.1.3 ; le correctif est livré dans la version **7.1.4**, avec des versions corrigées pour les branches plus anciennes, jusqu'à la 4.7."
+    },
+    {
+     "type": "heading",
+     "text": "Comment fonctionne la course de vitesse"
+    },
+    {
+     "type": "paragraph",
+     "text": "Lors d'une mise à jour du cœur avec un paquet complet, WordPress décompresse une copie de la nouvelle version dans un dossier temporaire situé sous `wp-content/upgrade`. Cette copie contient l'installeur, que le serveur web peut généralement atteindre. Un attaquant non authentifié qui devine le nom du dossier et joint l'installeur avant que WordPress ne supprime la copie peut exécuter du code sur le serveur."
+    },
+    {
+     "type": "paragraph",
+     "text": "Avant le correctif, l'attaquant pouvait utiliser cet installeur pour écrire un fichier `wp-config.php` malveillant dans la copie temporaire. La mise à jour recopiait ensuite ce fichier par-dessus le vrai. En cas de succès, l'attaquant installe sa propre base de données, s'y connecte et exécute du PHP avec les droits du serveur web, ce qui lui donne accès en lecture et en écriture aux fichiers du site actif."
+    },
+    {
+     "type": "paragraph",
+     "text": "Le correctif donne désormais un nom aléatoire au dossier. Mais la mise à jour qui installe ce correctif exécute encore l'ancien code d'installation déjà présent sur le site. Sur les sites en 5.9 ou plus récent, cet ancien code nomme le dossier d'après le fichier téléchargé : le nom est donc prévisible durant cette unique mise à jour. Sur les branches 4.4 à 5.8, l'ancien code ajoute des caractères aléatoires, ce qui masque le dossier tant que son nom ne fuit pas ailleurs, par exemple dans un message d'erreur."
+    },
+    {
+     "type": "keyvalue",
+     "items": [
+      {
+       "label": "Identifiant",
+       "value": "CVE-2026-119977"
+      },
+      {
+       "label": "Versions touchées",
+       "value": "WordPress 4.7 à 7.1.3"
+      },
+      {
+       "label": "Version corrigée",
+       "value": "7.1.4 et rétroportages jusqu'à la branche 4.7"
+      },
+      {
+       "label": "Découvreur",
+       "value": "Umut Bayram (Picus Security)"
+      },
+      {
+       "label": "Exploitation",
+       "value": "Inscrite au catalogue KEV de la CISA cette semaine"
+      },
+      {
+       "label": "Fenêtre d'exposition",
+       "value": "Quelques secondes en laboratoire"
+      }
+     ]
+    },
+    {
+     "type": "heading",
+     "text": "Tous les sites ne sont pas exposés de la même façon"
+    },
+    {
+     "type": "paragraph",
+     "text": "Les paquets complets contiennent toujours les fichiers de l'installeur et sont donc exposés. Les paquets partiels, qui ne contiennent que les fichiers modifiés, ne le sont que s'ils incluent ces fichiers. The Hacker News a constaté que WordPress.org proposait des paquets partiels pour les mises à jour au sein d'une même branche, y compris automatiques (de 7.1.3 à 7.1.4), mais uniquement des paquets complets pour passer d'une branche à l'autre (de 7.0.7 à 7.1.4). WordPress bascule aussi sur un paquet complet lorsque les sommes de contrôle des fichiers ne correspondent pas, ou lors d'une réinstallation."
+    },
+    {
+     "type": "paragraph",
+     "text": "Selon le chercheur, ce n'est donc pas le type de paquet qui décide, mais la question de savoir si l'outil de mise à jour déjà installé sur le site a été corrigé. Wordfence indique avoir observé des tentatives d'attaque neuf minutes après le déploiement de sa règle de pare-feu, le jour de la publication, et deux sources très actives ont sondé de petits groupes de sites pendant environ 14,5 heures, ce qui correspond à une tentative de saisir l'instant précis d'une mise à jour. Du code présenté comme un exploit circule sur des dépôts GitHub publics ; son efficacité réelle n'est pas établie."
+    },
+    {
+     "type": "heading",
+     "text": "Que faire avant de mettre à jour"
+    },
+    {
+     "type": "list",
+     "items": [
+      "**Bloquer l'accès web à `wp-content/upgrade`** avant la mise à jour. WordPress lit ce dossier depuis le disque : refuser l'accès HTTP ne gêne pas la mise à jour.",
+      "Sous Nginx : `location ^~ /wp-content/upgrade/ { deny all; }`. Sous Apache : `Require all denied` dans un bloc `<Directory>` du fichier de configuration du site, ou `RedirectMatch 403 ^/wp-content/upgrade/` placé avant les règles de réécriture du `.htaccess` racine.",
+      "Ne pas déposer de fichier `.htaccess` dans ce dossier : l'ancien outil le vide avant de décompresser et le supprimerait.",
+      "Vérifier qu'une requête vers `/wp-content/upgrade/` renvoie bien un code 403, puis installer la 7.1.4 ou la version corrigée de sa branche.",
+      "Les sites en 4.6 ou plus ancien ne reçoivent plus de correctifs de sécurité : ils doivent migrer vers une version prise en charge."
+     ]
+    },
+    {
+     "type": "diagram",
+     "svg": "<svg xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"0 0 640 290\" font-family=\"system-ui,sans-serif\"><defs><marker id=\"a\" markerWidth=\"8\" markerHeight=\"8\" refX=\"6\" refY=\"4\" orient=\"auto\"><path d=\"M0 0 L8 4 L0 8 Z\" fill=\"#55627a\"/></marker></defs><rect width=\"640\" height=\"290\" rx=\"16\" fill=\"#f4f6fa\"/><text x=\"320\" y=\"34\" text-anchor=\"middle\" font-size=\"18\" font-weight=\"700\" fill=\"#1b2330\">Où se loge la fenêtre d'attaque</text><rect x=\"20\" y=\"60\" width=\"180\" height=\"80\" rx=\"12\" fill=\"#fff\" stroke=\"hsl(175,60%,45%)\" stroke-width=\"2.5\"/><circle cx=\"38\" cy=\"64\" r=\"13\" fill=\"hsl(175,60%,40%)\"/><text x=\"38\" y=\"69\" text-anchor=\"middle\" font-size=\"14\" font-weight=\"700\" fill=\"#fff\">1</text><text x=\"116\" y=\"88\" text-anchor=\"middle\" font-size=\"14\" fill=\"#1b2330\">Le site lance la mise</text><text x=\"116\" y=\"105\" text-anchor=\"middle\" font-size=\"14\" fill=\"#1b2330\">à jour du cœur</text><rect x=\"230\" y=\"60\" width=\"180\" height=\"80\" rx=\"12\" fill=\"#fff\" stroke=\"hsl(175,60%,45%)\" stroke-width=\"2.5\"/><circle cx=\"248\" cy=\"64\" r=\"13\" fill=\"hsl(175,60%,40%)\"/><text x=\"248\" y=\"69\" text-anchor=\"middle\" font-size=\"14\" font-weight=\"700\" fill=\"#fff\">2</text><text x=\"326\" y=\"88\" text-anchor=\"middle\" font-size=\"14\" fill=\"#1b2330\">Copie temporaire dans</text><text x=\"326\" y=\"105\" text-anchor=\"middle\" font-size=\"14\" fill=\"#1b2330\">wp-content/upgrade</text><rect x=\"440\" y=\"60\" width=\"180\" height=\"80\" rx=\"12\" fill=\"#fff\" stroke=\"hsl(175,60%,45%)\" stroke-width=\"2.5\"/><circle cx=\"458\" cy=\"64\" r=\"13\" fill=\"hsl(175,60%,40%)\"/><text x=\"458\" y=\"69\" text-anchor=\"middle\" font-size=\"14\" font-weight=\"700\" fill=\"#fff\">3</text><text x=\"536\" y=\"80\" text-anchor=\"middle\" font-size=\"14\" fill=\"#1b2330\">Fenêtre de quelques</text><text x=\"536\" y=\"97\" text-anchor=\"middle\" font-size=\"14\" fill=\"#1b2330\">secondes : installeur</text><text x=\"536\" y=\"114\" text-anchor=\"middle\" font-size=\"14\" fill=\"#1b2330\">joignable</text><rect x=\"20\" y=\"170\" width=\"180\" height=\"80\" rx=\"12\" fill=\"#fff\" stroke=\"hsl(175,60%,45%)\" stroke-width=\"2.5\"/><circle cx=\"38\" cy=\"174\" r=\"13\" fill=\"hsl(175,60%,40%)\"/><text x=\"38\" y=\"179\" text-anchor=\"middle\" font-size=\"14\" font-weight=\"700\" fill=\"#fff\">4</text><text x=\"116\" y=\"190\" text-anchor=\"middle\" font-size=\"14\" fill=\"#1b2330\">Nom du dossier</text><text x=\"116\" y=\"207\" text-anchor=\"middle\" font-size=\"14\" fill=\"#1b2330\">prévisible : attaque</text><text x=\"116\" y=\"224\" text-anchor=\"middle\" font-size=\"14\" fill=\"#1b2330\">possible</text><rect x=\"230\" y=\"170\" width=\"180\" height=\"80\" rx=\"12\" fill=\"#fff\" stroke=\"hsl(175,60%,45%)\" stroke-width=\"2.5\"/><circle cx=\"248\" cy=\"174\" r=\"13\" fill=\"hsl(175,60%,40%)\"/><text x=\"248\" y=\"179\" text-anchor=\"middle\" font-size=\"14\" font-weight=\"700\" fill=\"#fff\">5</text><text x=\"326\" y=\"190\" text-anchor=\"middle\" font-size=\"14\" fill=\"#1b2330\">Suppression de la</text><text x=\"326\" y=\"207\" text-anchor=\"middle\" font-size=\"14\" fill=\"#1b2330\">copie, site mis à</text><text x=\"326\" y=\"224\" text-anchor=\"middle\" font-size=\"14\" fill=\"#1b2330\">jour</text><path d=\"M200 100 H228\" stroke=\"#55627a\" stroke-width=\"3\" marker-end=\"url(#a)\"/><path d=\"M410 100 H438\" stroke=\"#55627a\" stroke-width=\"3\" marker-end=\"url(#a)\"/><path d=\"M530 140 V155 H110 V168\" stroke=\"#55627a\" stroke-width=\"3\" fill=\"none\" marker-end=\"url(#a)\"/><path d=\"M200 210 H228\" stroke=\"#55627a\" stroke-width=\"3\" marker-end=\"url(#a)\"/></svg>",
+     "alt": "Schéma en cinq étapes d'une mise à jour WordPress, avec la fenêtre d'attaque au moment où la copie temporaire est joignable.",
+     "caption": "Le risque se concentre sur les quelques secondes où la copie temporaire existe encore."
+    },
+    {
+     "type": "usecases",
+     "title": "Exemples d'utilisation",
+     "items": [
+      {
+       "icon": "🛒",
+       "title": "Boutique en ligne",
+       "text": "Un commerçant met à jour WordPress un samedi matin. En bloquant d'abord le dossier d'upgrade, il évite qu'un robot qui guette les mises à jour n'atteigne l'installeur."
+      },
+      {
+       "icon": "🏢",
+       "title": "Agence web",
+       "text": "Une agence gère quarante sites. Elle ajoute la règle de blocage à son modèle de configuration Nginx, puis déploie la 7.1.4 site par site."
+      },
+      {
+       "icon": "🔎",
+       "title": "Équipe sécurité",
+       "text": "Un responsable vérifie les journaux à la recherche de requêtes inattendues vers des fichiers PHP du dossier d'upgrade, de comptes administrateur inconnus ou d'extensions que personne n'a installées."
+      }
+     ]
+    },
+    {
+     "type": "timeline",
+     "title": "D'où l'on vient, où l'on va",
+     "items": [
+      {
+       "label": "2008",
+       "text": "D'après le chercheur, l'origine du défaut remonte à WordPress 2.7."
+      },
+      {
+       "label": "Semaine précédente",
+       "text": "Le correctif 7.1.4 est publié ; Wordfence observe des tentatives dès la mise en ligne de sa règle."
+      },
+      {
+       "label": "Cette semaine",
+       "text": "La CISA inscrit la faille à son catalogue des vulnérabilités exploitées."
+      },
+      {
+       "label": "À venir",
+       "text": "Les sites encore sur d'anciennes branches doivent migrer : aucune correction n'existe pour la 4.6 et antérieures."
+      }
+     ]
+    },
+    {
+     "type": "opinion",
+     "title": "Notre avis",
+     "paragraphs": [
+      "Cette faille rappelle qu'un correctif n'est efficace que si le chemin qui l'installe est lui-même sûr. Le désaccord de notation entre Wordfence (8,1) et WordPress (faible) mérite d'être lu avec prudence : la fenêtre d'exploitation est très courte, mais les tentatives observées montrent que des attaquants automatisés savent guetter ces instants, surtout sur les parcs de sites mis à jour en masse.",
+      "D'ici un à trois ans, on peut raisonnablement s'attendre à ce que les mises à jour de cœur des gestionnaires de contenu s'exécutent hors de la racine web, ou depuis un dossier inaccessible par défaut. C'est une évolution souhaitable, mais elle suppose de modifier des habitudes d'hébergement installées depuis plus de quinze ans."
+     ],
+     "verdict": "Mettre à jour reste indispensable, mais bloquer d'abord le dossier temporaire fait la différence."
+    },
+    {
+     "type": "callout",
+     "title": "À retenir",
+     "text": "Bloquez l'accès web à `wp-content/upgrade`, vérifiez le code 403, puis installez la 7.1.4 (ou la version corrigée de votre branche). Source : The Hacker News, 6 novembre 2026."
+    }
+   ],
+   "sourceDate": "2026-11-06"
+  },
+  {
+   "id": "claude-dispatch-extensions-navigateur-execution-code",
+   "category": "cybersecurite",
+   "title": "Claude Dispatch : une extension de navigateur pourrait envoyer des ordres à Claude Desktop",
+   "summary": "Des chercheurs de Forever Security montrent qu'une extension active sur claude.ai peut piloter Claude Desktop via la fonction Dispatch et lui faire installer un paquet npm. Aucune attaque réelle n'est signalée ; la faille serait toujours exploitable selon eux.",
+   "tags": [
+    "Claude Desktop",
+    "Dispatch",
+    "extensions de navigateur",
+    "agents IA"
+   ],
+   "importance": 4,
+   "readingMinutes": 5,
+   "publishedAt": "2026-11-07T04:16:55+01:00",
+   "icon": "🧪",
+   "illustration": {
+    "svg": "<svg xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"0 0 640 360\"><defs><linearGradient id=\"g\" x1=\"0\" y1=\"0\" x2=\"1\" y2=\"1\"><stop offset=\"0\" stop-color=\"hsl(175,65%,38%)\"/><stop offset=\"1\" stop-color=\"hsl(215,70%,55%)\"/></linearGradient></defs><rect width=\"640\" height=\"360\" fill=\"url(#g)\"/><circle cx=\"560\" cy=\"60\" r=\"90\" fill=\"#fff\" fill-opacity=\".08\"/><circle cx=\"70\" cy=\"310\" r=\"110\" fill=\"#fff\" fill-opacity=\".07\"/><rect x=\"150\" y=\"80\" width=\"340\" height=\"200\" rx=\"18\" fill=\"#fff\" fill-opacity=\".92\"/><rect x=\"150\" y=\"80\" width=\"340\" height=\"36\" rx=\"18\" fill=\"#fff\" fill-opacity=\".6\"/><path d=\"M185 160 L225 190 L185 220\" stroke=\"hsl(175,60%,35%)\" stroke-width=\"12\" fill=\"none\" stroke-linecap=\"round\" stroke-linejoin=\"round\"/><rect x=\"250\" y=\"212\" width=\"90\" height=\"12\" rx=\"6\" fill=\"hsl(175,60%,35%)\"/></svg>"
+   },
+   "sources": [
+    {
+     "title": "Malicious Browser Extensions Could Use Claude Dispatch to Run Code on Users' Computers",
+     "url": "https://thehackernews.com/2026/11/malicious-browser-extensions-could-use.html",
+     "publisher": "The Hacker News"
+    }
+   ],
+   "blocks": [
+    {
+     "type": "paragraph",
+     "text": "Les assistants d'IA capables d'agir sur un ordinateur posent une question de sécurité nouvelle : qui peut leur donner des ordres ? Selon une démonstration publiée par la société Forever Security et rapportée le 6 novembre 2026 par The Hacker News, la réponse comporte un maillon faible inattendu : une simple extension de navigateur."
+    },
+    {
+     "type": "heading",
+     "text": "La fonction Dispatch en bref"
+    },
+    {
+     "type": "paragraph",
+     "text": "Dispatch permet d'envoyer des tâches depuis un téléphone vers Claude Desktop. Dans l'application, il fait partie de Cowork et apparaît dans le panneau de gauche. Il ne fonctionne que si l'ordinateur est allumé et l'application ouverte. D'après les chercheurs, Dispatch acceptait une session claude.ai ordinaire, connectée au compte, alors même que le site n'affichait aucun lien vers cette fonction."
+    },
+    {
+     "type": "paragraph",
+     "text": "Conséquence : une extension capable d'exécuter des scripts sur claude.ai pouvait transmettre des instructions à Claude Desktop comme si l'utilisateur les avait tapées. L'extension peut être malveillante, être légitime mais recevoir une mise à jour compromise, ou être légitime mais comporter elle-même une faille. L'attaque suppose aussi que la personne soit connectée à claude.ai et à Claude Desktop, avec Dispatch activé."
+    },
+    {
+     "type": "heading",
+     "text": "La démonstration"
+    },
+    {
+     "type": "list",
+     "items": [
+      "Un script ouvre Dispatch et envoie quatre messages demandant à Claude d'installer un paquet npm.",
+      "Claude hésite d'abord devant ce paquet inconnu ; un message suivant, présenté comme venant de l'utilisateur, le fait céder.",
+      "Les demandes d'autorisation s'affichent dans la page web que contrôle l'extension : le script clique sur « Autoriser » chaque seconde, sans qu'un humain ait à intervenir.",
+      "Claude lance une installation globale ; le script d'installation du paquet ouvre la Calculatrice. Aucune faille du navigateur n'a été nécessaire."
+     ]
+    },
+    {
+     "type": "paragraph",
+     "text": "Les chercheurs soulignent que la même étape aurait pu voler des fichiers ou installer une porte dérobée, compte tenu des permissions accordées à Claude. Le test a été mené avec le navigateur et Claude Desktop sur la même machine, et aucune attaque réelle n'est signalée. Un scénario inter-appareils est décrit, sans être démontré : comme Dispatch relie les appareils, l'extension pourrait atteindre un Claude Desktop installé sur un autre ordinateur connecté au même compte. Les chercheurs disent avoir vu, chez leurs clients, des comptes Claude personnels avec Dispatch inter-appareils activé sur des postes professionnels."
+    },
+    {
+     "type": "keyvalue",
+     "items": [
+      {
+       "label": "Chercheurs",
+       "value": "Forever Security (Gal Weizman)"
+      },
+      {
+       "label": "Signalement à Anthropic",
+       "value": "14 mai ; jugé valide le 19 mai, puis clos comme doublon d'un problème déjà identifié en interne"
+      },
+      {
+       "label": "État annoncé de Dispatch",
+       "value": "Fermé aux nouveaux utilisateurs ; retrait annoncé aux chercheurs le 13 octobre, objectif fin octobre"
+      },
+      {
+       "label": "Correctif",
+       "value": "Aucun correctif ni numéro de version cité ; faille encore exploitable selon les chercheurs"
+      }
+     ]
+    },
+    {
+     "type": "diagram",
+     "svg": "<svg xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"0 0 640 290\" font-family=\"system-ui,sans-serif\"><defs><marker id=\"a\" markerWidth=\"8\" markerHeight=\"8\" refX=\"6\" refY=\"4\" orient=\"auto\"><path d=\"M0 0 L8 4 L0 8 Z\" fill=\"#55627a\"/></marker></defs><rect width=\"640\" height=\"290\" rx=\"16\" fill=\"#f4f6fa\"/><text x=\"320\" y=\"34\" text-anchor=\"middle\" font-size=\"18\" font-weight=\"700\" fill=\"#1b2330\">Chaîne d'attaque démontrée</text><rect x=\"20\" y=\"60\" width=\"180\" height=\"80\" rx=\"12\" fill=\"#fff\" stroke=\"hsl(175,60%,45%)\" stroke-width=\"2.5\"/><circle cx=\"38\" cy=\"64\" r=\"13\" fill=\"hsl(175,60%,40%)\"/><text x=\"38\" y=\"69\" text-anchor=\"middle\" font-size=\"14\" font-weight=\"700\" fill=\"#fff\">1</text><text x=\"116\" y=\"88\" text-anchor=\"middle\" font-size=\"14\" fill=\"#1b2330\">Extension active sur</text><text x=\"116\" y=\"105\" text-anchor=\"middle\" font-size=\"14\" fill=\"#1b2330\">claude.ai</text><rect x=\"230\" y=\"60\" width=\"180\" height=\"80\" rx=\"12\" fill=\"#fff\" stroke=\"hsl(175,60%,45%)\" stroke-width=\"2.5\"/><circle cx=\"248\" cy=\"64\" r=\"13\" fill=\"hsl(175,60%,40%)\"/><text x=\"248\" y=\"69\" text-anchor=\"middle\" font-size=\"14\" font-weight=\"700\" fill=\"#fff\">2</text><text x=\"326\" y=\"88\" text-anchor=\"middle\" font-size=\"14\" fill=\"#1b2330\">Session claude.ai</text><text x=\"326\" y=\"105\" text-anchor=\"middle\" font-size=\"14\" fill=\"#1b2330\">acceptée par Dispatch</text><rect x=\"440\" y=\"60\" width=\"180\" height=\"80\" rx=\"12\" fill=\"#fff\" stroke=\"hsl(175,60%,45%)\" stroke-width=\"2.5\"/><circle cx=\"458\" cy=\"64\" r=\"13\" fill=\"hsl(175,60%,40%)\"/><text x=\"458\" y=\"69\" text-anchor=\"middle\" font-size=\"14\" font-weight=\"700\" fill=\"#fff\">3</text><text x=\"536\" y=\"88\" text-anchor=\"middle\" font-size=\"14\" fill=\"#1b2330\">Ordre transmis à</text><text x=\"536\" y=\"105\" text-anchor=\"middle\" font-size=\"14\" fill=\"#1b2330\">Claude Desktop</text><rect x=\"20\" y=\"170\" width=\"180\" height=\"80\" rx=\"12\" fill=\"#fff\" stroke=\"hsl(175,60%,45%)\" stroke-width=\"2.5\"/><circle cx=\"38\" cy=\"174\" r=\"13\" fill=\"hsl(175,60%,40%)\"/><text x=\"38\" y=\"179\" text-anchor=\"middle\" font-size=\"14\" font-weight=\"700\" fill=\"#fff\">4</text><text x=\"116\" y=\"198\" text-anchor=\"middle\" font-size=\"14\" fill=\"#1b2330\">Clic automatique sur</text><text x=\"116\" y=\"215\" text-anchor=\"middle\" font-size=\"14\" fill=\"#1b2330\">« Autoriser »</text><rect x=\"230\" y=\"170\" width=\"180\" height=\"80\" rx=\"12\" fill=\"#fff\" stroke=\"hsl(175,60%,45%)\" stroke-width=\"2.5\"/><circle cx=\"248\" cy=\"174\" r=\"13\" fill=\"hsl(175,60%,40%)\"/><text x=\"248\" y=\"179\" text-anchor=\"middle\" font-size=\"14\" font-weight=\"700\" fill=\"#fff\">5</text><text x=\"326\" y=\"190\" text-anchor=\"middle\" font-size=\"14\" fill=\"#1b2330\">Installation d'un</text><text x=\"326\" y=\"207\" text-anchor=\"middle\" font-size=\"14\" fill=\"#1b2330\">paquet npm sur le</text><text x=\"326\" y=\"224\" text-anchor=\"middle\" font-size=\"14\" fill=\"#1b2330\">poste</text><path d=\"M200 100 H228\" stroke=\"#55627a\" stroke-width=\"3\" marker-end=\"url(#a)\"/><path d=\"M410 100 H438\" stroke=\"#55627a\" stroke-width=\"3\" marker-end=\"url(#a)\"/><path d=\"M530 140 V155 H110 V168\" stroke=\"#55627a\" stroke-width=\"3\" fill=\"none\" marker-end=\"url(#a)\"/><path d=\"M200 210 H228\" stroke=\"#55627a\" stroke-width=\"3\" marker-end=\"url(#a)\"/></svg>",
+     "alt": "Schéma en cinq étapes : de l'extension de navigateur à l'installation d'un paquet npm sur l'ordinateur.",
+     "caption": "La démonstration repose sur la confiance accordée à la session web."
+    },
+    {
+     "type": "heading",
+     "text": "Ce que recommandent les chercheurs"
+    },
+    {
+     "type": "list",
+     "items": [
+      "Désactiver Dispatch inter-appareils si l'usage n'est pas indispensable, sinon vérifier comment les appareils sont appairés, approuvés et retirés.",
+      "Traiter les extensions comme des logiciels : contrôler leurs permissions, encadrer leur installation et examiner les mises à jour qui élargissent leurs accès.",
+      "Surveiller l'activité des agents d'IA : installations de paquets inattendues, changements de réglages, accès aux identifiants, connexions externes."
+     ]
+    },
+    {
+     "type": "paragraph",
+     "text": "Les chercheurs avertissent aussi que le principe sous-jacent subsisterait : Claude Code Remote Control et les sessions Cowork pourraient permettre la même attaque. Ils ne l'ont pas testé et annoncent un second article. La page d'aide de Dispatch ne mentionne pas le retrait annoncé."
+    },
+    {
+     "type": "usecases",
+     "title": "Ce que cela change concrètement",
+     "items": [
+      {
+       "icon": "💼",
+       "title": "Poste professionnel",
+       "text": "Un salarié connecte son compte personnel à l'ordinateur de l'entreprise. Une extension de productivité compromise pourrait alors envoyer des ordres au poste de travail. La désactivation de Dispatch inter-appareils supprime ce chemin."
+      },
+      {
+       "icon": "🧑‍💻",
+       "title": "Développeur",
+       "text": "Un développeur installe de nombreuses extensions de navigateur. Un inventaire régulier et la suppression de celles qui demandent l'accès à tous les sites réduisent la surface d'attaque."
+      },
+      {
+       "icon": "🛡️",
+       "title": "Équipe informatique",
+       "text": "Une DSI interdit l'installation libre d'extensions sur les postes équipés d'agents d'IA et journalise les installations de paquets lancées par ces agents."
+      }
+     ]
+    },
+    {
+     "type": "timeline",
+     "title": "D'où l'on vient, où l'on va",
+     "items": [
+      {
+       "label": "14 mai 2026",
+       "text": "Signalement à Anthropic par Forever Security."
+      },
+      {
+       "label": "19 mai 2026",
+       "text": "Rapport jugé valide, puis clos comme doublon."
+      },
+      {
+       "label": "13 octobre 2026",
+       "text": "Anthropic indique aux chercheurs que Dispatch sera retiré, avec une cible fin octobre."
+      },
+      {
+       "label": "6 novembre 2026",
+       "text": "Publication de l'analyse ; les chercheurs jugent la faille toujours exploitable."
+      }
+     ]
+    },
+    {
+     "type": "opinion",
+     "title": "Notre avis",
+     "paragraphs": [
+      "Le cas illustre un défaut de conception plus qu'un bogue isolé : la frontière entre le navigateur, très riche en extensions, et un agent qui agit sur le système est trop poreuse. L'article ne rapporte ni attaque réelle ni version corrigée, et la démonstration exige un contexte précis ; il faut donc éviter de dramatiser, mais le scénario inter-appareils, non démontré, reste le plus préoccupant en entreprise.",
+      "Dans un à trois ans, les agents qui pilotent un ordinateur devront probablement authentifier chaque canal de commande séparément, avec des autorisations impossibles à valider depuis une page web. C'est une opinion : aujourd'hui, la commodité d'envoyer une tâche depuis son téléphone l'emporte encore sur ces garde-fous."
+     ],
+     "verdict": "Un agent qui exécute des commandes doit vérifier qui les lui envoie."
+    },
+    {
+     "type": "callout",
+     "title": "À retenir",
+     "text": "Aucun correctif n'est cité : désactivez Dispatch inter-appareils si vous n'en avez pas besoin et auditez vos extensions de navigateur. Source : The Hacker News, 6 novembre 2026."
+    }
+   ],
+   "sourceDate": "2026-11-06"
+  },
+  {
+   "id": "barracuda-email-security-gateway-chaine-acces-root",
+   "category": "cybersecurite",
+   "title": "Barracuda Email Security Gateway : deux failles chaînées donnent un accès root sans identifiant",
+   "summary": "watchTowr détaille l'enchaînement de deux vulnérabilités de la passerelle Barracuda, CVE-2026-116606 et CVE-2026-111560, qui permet d'exécuter des commandes en root sans authentification. Des correctifs existent ; aucune exploitation n'est signalée.",
+   "tags": [
+    "Barracuda",
+    "watchTowr",
+    "CVE-2026-116606",
+    "CVE-2026-111560"
+   ],
+   "importance": 3,
+   "readingMinutes": 4,
+   "publishedAt": "2026-11-07T04:16:55+01:00",
+   "icon": "📧",
+   "illustration": {
+    "svg": "<svg xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"0 0 640 360\"><defs><linearGradient id=\"g\" x1=\"0\" y1=\"0\" x2=\"1\" y2=\"1\"><stop offset=\"0\" stop-color=\"hsl(175,65%,38%)\"/><stop offset=\"1\" stop-color=\"hsl(215,70%,55%)\"/></linearGradient></defs><rect width=\"640\" height=\"360\" fill=\"url(#g)\"/><circle cx=\"560\" cy=\"60\" r=\"90\" fill=\"#fff\" fill-opacity=\".08\"/><circle cx=\"70\" cy=\"310\" r=\"110\" fill=\"#fff\" fill-opacity=\".07\"/><path d=\"M320 70 L420 105 V190 C420 250 370 285 320 300 C270 285 220 250 220 190 V105 Z\" fill=\"#fff\" fill-opacity=\".9\"/><path d=\"M280 185 L310 215 L365 150\" stroke=\"hsl(175,60%,35%)\" stroke-width=\"16\" fill=\"none\" stroke-linecap=\"round\"/></svg>"
+   },
+   "sources": [
+    {
+     "title": "Experts Demonstrate Barracuda Email Security Gateway Chain Enabling Root Access Without Login",
+     "url": "https://thehackernews.com/2026/11/experts-demonstrate-barracuda-email.html",
+     "publisher": "The Hacker News"
+    }
+   ],
+   "blocks": [
+    {
+     "type": "paragraph",
+     "text": "Les passerelles de filtrage de courriels sont des cibles de choix : placées en bordure du réseau, elles voient passer tout le courrier d'une organisation. Le 6 novembre 2026, The Hacker News rapporte que la société watchTowr a publié l'analyse technique de deux failles de l'Email Security Gateway de Barracuda, dont l'enchaînement permet d'exécuter des commandes avec les droits root sans aucune connexion préalable. Barracuda avait publié ses correctifs le lundi précédent."
+    },
+    {
+     "type": "heading",
+     "text": "Les deux failles"
+    },
+    {
+     "type": "keyvalue",
+     "items": [
+      {
+       "label": "CVE-2026-116606",
+       "value": "Contournement d'autorisation : un attaquant non authentifié peut restaurer une sauvegarde de configuration forgée et modifier les réglages globaux. Ne touche que l'Email Security Gateway. Note de 9,3 sur 10 attribuée par Mandiant."
+      },
+      {
+       "label": "CVE-2026-111560",
+       "value": "Injection de commande exécutée en root. Elle exige normalement un compte administrateur, que la première faille fournit sur l'Email Security Gateway. Note de 8,6 sur 10 ; touche aussi cinq autres produits, où le compte administrateur reste nécessaire."
+      },
+      {
+       "label": "Version corrigée",
+       "value": "9.4.0.030 et ultérieures pour l'Email Security Gateway ; les autres produits sont détaillés dans l'avis de Barracuda"
+      }
+     ]
+    },
+    {
+     "type": "heading",
+     "text": "Le déroulement de l'attaque selon watchTowr"
+    },
+    {
+     "type": "list",
+     "items": [
+      "Un changement de mot de passe qui échoue renvoie à l'attaquant un rôle à faibles privilèges au lieu d'interrompre la requête. Cela laisse accessible, sans connexion, une fonction de restauration de sauvegarde.",
+      "Cette fonction accepte une sauvegarde téléversée. Elle contient une valeur de fuseau horaire que l'appareil exécute plus tard comme une commande shell avec les droits root.",
+      "Barracuda protège ses sauvegardes par une somme de contrôle, mais le secret servant à la calculer est écrit en dur dans le code : l'attaquant peut donc fabriquer une somme valide.",
+      "watchTowr a démontré l'attaque en écrivant un fichier sur l'appareil avec les droits root."
+     ]
+    },
+    {
+     "type": "paragraph",
+     "text": "L'intérêt de cette chaîne tient à la mécanique : aucune des deux failles n'est dévastatrice seule sur la plupart des produits, car l'injection de commande demande un compte administrateur. C'est le contournement d'autorisation qui transforme l'accès en attaque sans identifiant, sur la seule passerelle de courriels."
+    },
+    {
+     "type": "diagram",
+     "svg": "<svg xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"0 0 640 290\" font-family=\"system-ui,sans-serif\"><defs><marker id=\"a\" markerWidth=\"8\" markerHeight=\"8\" refX=\"6\" refY=\"4\" orient=\"auto\"><path d=\"M0 0 L8 4 L0 8 Z\" fill=\"#55627a\"/></marker></defs><rect width=\"640\" height=\"290\" rx=\"16\" fill=\"#f4f6fa\"/><text x=\"320\" y=\"34\" text-anchor=\"middle\" font-size=\"18\" font-weight=\"700\" fill=\"#1b2330\">Enchaînement des deux failles (selon watchTowr)</text><rect x=\"20\" y=\"60\" width=\"180\" height=\"80\" rx=\"12\" fill=\"#fff\" stroke=\"hsl(175,60%,45%)\" stroke-width=\"2.5\"/><circle cx=\"38\" cy=\"64\" r=\"13\" fill=\"hsl(175,60%,40%)\"/><text x=\"38\" y=\"69\" text-anchor=\"middle\" font-size=\"14\" font-weight=\"700\" fill=\"#fff\">1</text><text x=\"116\" y=\"72\" text-anchor=\"middle\" font-size=\"14\" fill=\"#1b2330\">Requête sans</text><text x=\"116\" y=\"89\" text-anchor=\"middle\" font-size=\"14\" fill=\"#1b2330\">connexion : échec du</text><text x=\"116\" y=\"106\" text-anchor=\"middle\" font-size=\"14\" fill=\"#1b2330\">changement de mot de</text><rect x=\"230\" y=\"60\" width=\"180\" height=\"80\" rx=\"12\" fill=\"#fff\" stroke=\"hsl(175,60%,45%)\" stroke-width=\"2.5\"/><circle cx=\"248\" cy=\"64\" r=\"13\" fill=\"hsl(175,60%,40%)\"/><text x=\"248\" y=\"69\" text-anchor=\"middle\" font-size=\"14\" font-weight=\"700\" fill=\"#fff\">2</text><text x=\"326\" y=\"80\" text-anchor=\"middle\" font-size=\"14\" fill=\"#1b2330\">Rôle à faibles</text><text x=\"326\" y=\"97\" text-anchor=\"middle\" font-size=\"14\" fill=\"#1b2330\">privilèges accordé</text><text x=\"326\" y=\"114\" text-anchor=\"middle\" font-size=\"14\" fill=\"#1b2330\">par erreur</text><rect x=\"440\" y=\"60\" width=\"180\" height=\"80\" rx=\"12\" fill=\"#fff\" stroke=\"hsl(175,60%,45%)\" stroke-width=\"2.5\"/><circle cx=\"458\" cy=\"64\" r=\"13\" fill=\"hsl(175,60%,40%)\"/><text x=\"458\" y=\"69\" text-anchor=\"middle\" font-size=\"14\" font-weight=\"700\" fill=\"#fff\">3</text><text x=\"536\" y=\"72\" text-anchor=\"middle\" font-size=\"14\" fill=\"#1b2330\">Restauration d'une</text><text x=\"536\" y=\"89\" text-anchor=\"middle\" font-size=\"14\" fill=\"#1b2330\">sauvegarde forgée</text><text x=\"536\" y=\"106\" text-anchor=\"middle\" font-size=\"14\" fill=\"#1b2330\">(somme de contrôle</text><rect x=\"20\" y=\"170\" width=\"180\" height=\"80\" rx=\"12\" fill=\"#fff\" stroke=\"hsl(175,60%,45%)\" stroke-width=\"2.5\"/><circle cx=\"38\" cy=\"174\" r=\"13\" fill=\"hsl(175,60%,40%)\"/><text x=\"38\" y=\"179\" text-anchor=\"middle\" font-size=\"14\" font-weight=\"700\" fill=\"#fff\">4</text><text x=\"116\" y=\"190\" text-anchor=\"middle\" font-size=\"14\" fill=\"#1b2330\">Fuseau horaire</text><text x=\"116\" y=\"207\" text-anchor=\"middle\" font-size=\"14\" fill=\"#1b2330\">exécuté comme</text><text x=\"116\" y=\"224\" text-anchor=\"middle\" font-size=\"14\" fill=\"#1b2330\">commande</text><rect x=\"230\" y=\"170\" width=\"180\" height=\"80\" rx=\"12\" fill=\"#fff\" stroke=\"hsl(175,60%,45%)\" stroke-width=\"2.5\"/><circle cx=\"248\" cy=\"174\" r=\"13\" fill=\"hsl(175,60%,40%)\"/><text x=\"248\" y=\"179\" text-anchor=\"middle\" font-size=\"14\" font-weight=\"700\" fill=\"#fff\">5</text><text x=\"326\" y=\"198\" text-anchor=\"middle\" font-size=\"14\" fill=\"#1b2330\">Exécution en root sur</text><text x=\"326\" y=\"215\" text-anchor=\"middle\" font-size=\"14\" fill=\"#1b2330\">l'appareil</text><path d=\"M200 100 H228\" stroke=\"#55627a\" stroke-width=\"3\" marker-end=\"url(#a)\"/><path d=\"M410 100 H438\" stroke=\"#55627a\" stroke-width=\"3\" marker-end=\"url(#a)\"/><path d=\"M530 140 V155 H110 V168\" stroke=\"#55627a\" stroke-width=\"3\" fill=\"none\" marker-end=\"url(#a)\"/><path d=\"M200 210 H228\" stroke=\"#55627a\" stroke-width=\"3\" marker-end=\"url(#a)\"/></svg>",
+     "alt": "Schéma en cinq étapes montrant comment un contournement d'autorisation mène à une exécution de commande en root.",
+     "caption": "La chaîne exploite une erreur de gestion d'échec et un secret codé en dur."
+    },
+    {
+     "type": "heading",
+     "text": "Mesures recommandées et état d'exploitation"
+    },
+    {
+     "type": "list",
+     "items": [
+      "Appliquer le correctif de chaque produit concerné ou passer au micrologiciel corrigé.",
+      "Si le correctif ne peut pas être installé tout de suite, restreindre l'interface d'administration aux réseaux internes de confiance.",
+      "Si la mise à jour automatique avait été désactivée, la réactiver."
+     ]
+    },
+    {
+     "type": "paragraph",
+     "text": "Au moment de la publication, aucune des deux failles ne figure au catalogue KEV de la CISA et aucun rapport public ne les relie à une attaque. watchTowr a publié un outil de détection qui indique si un appareil est vulnérable, mais pas d'exploit. Le contexte historique mérite d'être signalé sans être confondu : en 2023, un groupe suivi sous le nom UNC4841 avait exploité en zero-day une autre faille, CVE-2023-2868, sur ce même type de passerelle. L'article précise qu'elle n'a aucun lien avec les failles de cette semaine, et que rien ne relie la nouvelle paire à un attaquant."
+    },
+    {
+     "type": "usecases",
+     "title": "Exemples d'utilisation",
+     "items": [
+      {
+       "icon": "🏫",
+       "title": "Établissement scolaire",
+       "text": "Le service informatique d'un lycée vérifie la version de sa passerelle, la passe en 9.4.0.030 et s'assure que l'interface d'administration n'est joignable que depuis le réseau interne."
+      },
+      {
+       "icon": "🏥",
+       "title": "Hôpital",
+       "text": "Une équipe sécurité lance l'outil de détection de watchTowr sur ses appareils avant la fenêtre de maintenance, afin de classer les machines à corriger en priorité."
+      },
+      {
+       "icon": "🏭",
+       "title": "PME industrielle",
+       "text": "Un prestataire qui gère le courrier de plusieurs clients réactive la mise à jour automatique sur toutes les passerelles pour ne plus dépendre d'une intervention manuelle."
+      }
+     ]
+    },
+    {
+     "type": "timeline",
+     "title": "D'où l'on vient, où l'on va",
+     "items": [
+      {
+       "label": "2023",
+       "text": "UNC4841 exploite une autre faille, CVE-2023-2868, sur des passerelles Barracuda."
+      },
+      {
+       "label": "Lundi précédent",
+       "text": "Barracuda publie les correctifs."
+      },
+      {
+       "label": "Jeudi 5 novembre 2026",
+       "text": "watchTowr publie son analyse et un outil de détection."
+      },
+      {
+       "label": "À venir",
+       "text": "Une exploitation n'est pas exclue : le détail technique est public, mais aucun exploit ne l'est à ce jour."
+      }
+     ]
+    },
+    {
+     "type": "opinion",
+     "title": "Notre avis",
+     "paragraphs": [
+      "Cette affaire montre la fragilité des appliances de bordure : un secret codé en dur et une gestion d'erreur trop permissive suffisent à faire d'une injection « réservée aux administrateurs » une faille accessible à tous. Barracuda a corrigé vite et aucune attaque n'est rapportée, ce qui est rassurant ; mais le détail technique étant désormais public, l'écart entre publication et exploitation se réduit.",
+      "À l'horizon d'un à trois ans, on peut attendre des éditeurs qu'ils signent les sauvegardes avec des secrets propres à chaque appareil. C'est une opinion, fondée sur la répétition de ce type de défaut dans les équipements de sécurité de bordure."
+     ],
+     "verdict": "Corrigez maintenant : le détail de la chaîne est public."
+    },
+    {
+     "type": "callout",
+     "title": "À retenir",
+     "text": "Mettez à jour vers le micrologiciel corrigé (9.4.0.030 pour l'Email Security Gateway) et limitez l'accès à l'interface d'administration. Source : The Hacker News, 6 novembre 2026."
+    }
+   ],
+   "sourceDate": "2026-11-06"
+  },
+  {
+   "id": "libghostty-1-0-bibliotheque-terminal-abi-stable",
+   "category": "dev",
+   "title": "libghostty 1.0 : le cœur du terminal Ghostty devient une bibliothèque C stable",
+   "summary": "Mitchell Hashimoto publie libghostty-vt 1.0, une bibliothèque C portable d'émulation de terminal sous licence MIT, avec une interface binaire stable. Elle équipe déjà le terminal intégré des IDE JetBrains.",
+   "tags": [
+    "Ghostty",
+    "libghostty",
+    "terminal",
+    "C",
+    "open source"
+   ],
+   "importance": 4,
+   "readingMinutes": 4,
+   "publishedAt": "2026-11-07T04:16:55+01:00",
+   "icon": "⌨️",
+   "illustration": {
+    "svg": "<svg xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"0 0 640 360\"><defs><linearGradient id=\"g\" x1=\"0\" y1=\"0\" x2=\"1\" y2=\"1\"><stop offset=\"0\" stop-color=\"hsl(265,65%,38%)\"/><stop offset=\"1\" stop-color=\"hsl(305,70%,55%)\"/></linearGradient></defs><rect width=\"640\" height=\"360\" fill=\"url(#g)\"/><circle cx=\"560\" cy=\"60\" r=\"90\" fill=\"#fff\" fill-opacity=\".08\"/><circle cx=\"70\" cy=\"310\" r=\"110\" fill=\"#fff\" fill-opacity=\".07\"/><rect x=\"150\" y=\"80\" width=\"340\" height=\"200\" rx=\"18\" fill=\"#fff\" fill-opacity=\".92\"/><rect x=\"150\" y=\"80\" width=\"340\" height=\"36\" rx=\"18\" fill=\"#fff\" fill-opacity=\".6\"/><path d=\"M185 160 L225 190 L185 220\" stroke=\"hsl(265,60%,35%)\" stroke-width=\"12\" fill=\"none\" stroke-linecap=\"round\" stroke-linejoin=\"round\"/><rect x=\"250\" y=\"212\" width=\"90\" height=\"12\" rx=\"6\" fill=\"hsl(265,60%,35%)\"/></svg>"
+   },
+   "sources": [
+    {
+     "title": "Libghostty 1.0",
+     "url": "https://mitchellh.com/writing/libghostty-1-0",
+     "publisher": "mitchellh.com"
+    }
+   ],
+   "blocks": [
+    {
+     "type": "paragraph",
+     "text": "Un terminal paraît simple jusqu'à ce qu'on doive en écrire un : séquences d'échappement, Unicode, images, performances. Le 6 novembre 2026, Mitchell Hashimoto a publié **libghostty-vt 1.0**, une bibliothèque C portable et performante d'émulation de terminal extraite du cœur de Ghostty. Cette version déclare stables la bibliothèque et son interface binaire (ABI) C. L'auteur décrit cette API comme un émulateur de terminal complet, que l'on intègre dans sa propre application."
+    },
+    {
+     "type": "heading",
+     "text": "Une interface conçue pour durer"
+    },
+    {
+     "type": "list",
+     "items": [
+      "Tous les objets sont des poignées opaques ; les valeurs se lisent et s'écrivent par un petit ensemble d'accesseurs à clés énumérées, ce qui permet d'ajouter des valeurs sans nouveau symbole.",
+      "Avec un en-tête plus récent que la bibliothèque, l'appelant reçoit `GHOSTTY_UNSUPPORTED` plutôt qu'un plantage.",
+      "Les structures non opaques portent leur taille ou des champs réservés, afin de pouvoir s'étendre ; les énumérations sont figées sur `int` autant que la norme C le permet.",
+      "L'intégration continue contrôle l'ABI avec libabigail sous Linux, par rapport à une référence enregistrée, et avec des manifestes de types sous macOS et WebAssembly.",
+      "Sur les plateformes ELF, les symboles exportés sont versionnés : une bibliothèque incompatible échoue au chargement, avec un message explicite. Le versionnement sémantique s'accompagne de promesses strictes de compatibilité."
+     ]
+    },
+    {
+     "type": "heading",
+     "text": "Plateformes, licence et dépendances"
+    },
+    {
+     "type": "keyvalue",
+     "items": [
+      {
+       "label": "Plateformes testées en CI",
+       "value": "Linux (glibc, musl) x86_64 et aarch64 ; macOS 13+ ; iOS 13+ ; FreeBSD ; Windows x86_64 ; Android ; WebAssembly wasm32"
+      },
+      {
+       "label": "Compilées sans tests",
+       "value": "riscv32 et thumb (bare metal), WASI, Windows arm64, illumos, x86 32 bits"
+      },
+      {
+       "label": "Licence",
+       "value": "MIT, sans code copyleft dans l'arbre de dépendances"
+      },
+      {
+       "label": "Dépendances à l'exécution",
+       "value": "libc seulement ; sans SIMD, la bibliothèque devient autonome (freestanding)"
+      },
+      {
+       "label": "Dépendances embarquées",
+       "value": "simdutf et Google Highway (SIMD), une table Unicode compacte, Wuffs (images du protocole graphique Kitty)"
+      }
+     ]
+    },
+    {
+     "type": "paragraph",
+     "text": "Côté livraison, la bibliothèque a son propre cycle de versions, distinct de l'application Ghostty. Chaque version comprend une archive source signée et une archive des dépendances pour compiler hors ligne ; la compilation respecte `--prefix`, `DESTDIR` et `lib64`. Un manifeste lisible par machine liste version, licence SPDX et empreinte de chaque dépendance, et un indicateur permet aux distributions de lier simdutf ou Highway dynamiquement. Le build WebAssembly optimisé en taille pèse moins de 1 Mo avec toutes les fonctions ; des options de compilation retirent des sous-systèmes, les fonctions exclues existant toujours et renvoyant `GHOSTTY_UNSUPPORTED`."
+    },
+    {
+     "type": "heading",
+     "text": "Sobriété et adoption"
+    },
+    {
+     "type": "paragraph",
+     "text": "La bibliothèque ne crée aucun fil d'exécution et n'alloue que via un allocateur personnalisable. L'auteur rapporte un essai sur un serveur Linux à 4 cœurs et 8 Go de mémoire avec 10 000 terminaux actifs, chacun relié à un interpréteur réel ; il précise avoir utilisé `dash`, car `bash` consommait trop de mémoire."
+    },
+    {
+     "type": "paragraph",
+     "text": "Les utilisateurs cités vont des IDE aux outils de développement : le terminal intégré des environnements JetBrains repose désormais dessus (JetBrains fait état de plus de 12,5 millions d'utilisateurs actifs récurrents) ; une demande de fusion approuvée remplace libvterm par `libghostty-vt` dans Neovim, en attente d'une version étiquetée ; des développeurs de KDE expérimentent un remplaçant de Konsole nommé KWi. On trouve aussi Vercel Turborepo, devenv, Antithesis, Ghostel (Emacs), ghostty-web (WASM compatible avec l'API de Xterm.js) et OrbStack. L'auteur affirme que davantage de personnes utilisent un terminal propulsé par libghostty que l'application Ghostty elle-même. Des liaisons communautaires existent pour Rust, Go, JavaScript, Swift, Python, .NET, Elixir, Dart ou Java, et la liste awesome-libghostty recense bien plus d'une centaine de projets."
+    },
+    {
+     "type": "diagram",
+     "svg": "<svg xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"0 0 640 180\" font-family=\"system-ui,sans-serif\"><defs><marker id=\"a\" markerWidth=\"8\" markerHeight=\"8\" refX=\"6\" refY=\"4\" orient=\"auto\"><path d=\"M0 0 L8 4 L0 8 Z\" fill=\"#55627a\"/></marker></defs><rect width=\"640\" height=\"180\" rx=\"16\" fill=\"#f4f6fa\"/><text x=\"320\" y=\"34\" text-anchor=\"middle\" font-size=\"18\" font-weight=\"700\" fill=\"#1b2330\">Le rôle de libghostty dans une application</text><rect x=\"20\" y=\"60\" width=\"128\" height=\"80\" rx=\"12\" fill=\"#fff\" stroke=\"hsl(265,60%,45%)\" stroke-width=\"2.5\"/><circle cx=\"38\" cy=\"64\" r=\"13\" fill=\"hsl(265,60%,40%)\"/><text x=\"38\" y=\"69\" text-anchor=\"middle\" font-size=\"14\" font-weight=\"700\" fill=\"#fff\">1</text><text x=\"90\" y=\"80\" text-anchor=\"middle\" font-size=\"14\" fill=\"#1b2330\">Flux d'octets</text><text x=\"90\" y=\"97\" text-anchor=\"middle\" font-size=\"14\" fill=\"#1b2330\">du programme</text><text x=\"90\" y=\"114\" text-anchor=\"middle\" font-size=\"14\" fill=\"#1b2330\">(shell, outil)</text><rect x=\"178\" y=\"60\" width=\"128\" height=\"80\" rx=\"12\" fill=\"#fff\" stroke=\"hsl(265,60%,45%)\" stroke-width=\"2.5\"/><circle cx=\"196\" cy=\"64\" r=\"13\" fill=\"hsl(265,60%,40%)\"/><text x=\"196\" y=\"69\" text-anchor=\"middle\" font-size=\"14\" font-weight=\"700\" fill=\"#fff\">2</text><text x=\"247\" y=\"64\" text-anchor=\"middle\" font-size=\"14\" fill=\"#1b2330\">libghostty-vt :</text><text x=\"247\" y=\"81\" text-anchor=\"middle\" font-size=\"14\" fill=\"#1b2330\">analyse des</text><text x=\"247\" y=\"98\" text-anchor=\"middle\" font-size=\"14\" fill=\"#1b2330\">séquences et</text><rect x=\"335\" y=\"60\" width=\"128\" height=\"80\" rx=\"12\" fill=\"#fff\" stroke=\"hsl(265,60%,45%)\" stroke-width=\"2.5\"/><circle cx=\"353\" cy=\"64\" r=\"13\" fill=\"hsl(265,60%,40%)\"/><text x=\"353\" y=\"69\" text-anchor=\"middle\" font-size=\"14\" font-weight=\"700\" fill=\"#fff\">3</text><text x=\"405\" y=\"88\" text-anchor=\"middle\" font-size=\"14\" fill=\"#1b2330\">API C stable et</text><text x=\"405\" y=\"105\" text-anchor=\"middle\" font-size=\"14\" fill=\"#1b2330\">ABI versionnée</text><rect x=\"492\" y=\"60\" width=\"128\" height=\"80\" rx=\"12\" fill=\"#fff\" stroke=\"hsl(265,60%,45%)\" stroke-width=\"2.5\"/><circle cx=\"510\" cy=\"64\" r=\"13\" fill=\"hsl(265,60%,40%)\"/><text x=\"510\" y=\"69\" text-anchor=\"middle\" font-size=\"14\" font-weight=\"700\" fill=\"#fff\">4</text><text x=\"562\" y=\"72\" text-anchor=\"middle\" font-size=\"14\" fill=\"#1b2330\">L'application</text><text x=\"562\" y=\"89\" text-anchor=\"middle\" font-size=\"14\" fill=\"#1b2330\">affiche : IDE,</text><text x=\"562\" y=\"106\" text-anchor=\"middle\" font-size=\"14\" fill=\"#1b2330\">éditeur, page</text><path d=\"M148 100 H176\" stroke=\"#55627a\" stroke-width=\"3\" marker-end=\"url(#a)\"/><path d=\"M305 100 H333\" stroke=\"#55627a\" stroke-width=\"3\" marker-end=\"url(#a)\"/><path d=\"M462 100 H490\" stroke=\"#55627a\" stroke-width=\"3\" marker-end=\"url(#a)\"/></svg>",
+     "alt": "Schéma en quatre étapes : un flux d'octets est analysé par libghostty puis affiché par l'application hôte.",
+     "caption": "La bibliothèque gère l'état du terminal ; l'affichage reste à l'application."
+    },
+    {
+     "type": "usecases",
+     "title": "Exemples d'utilisation",
+     "items": [
+      {
+       "icon": "🧰",
+       "title": "Éditeur de code",
+       "text": "Un éditeur remplace son émulateur maison par libghostty-vt et profite des mises à jour de compatibilité sans réécrire son affichage."
+      },
+      {
+       "icon": "🌐",
+       "title": "Outil web",
+       "text": "Une plateforme de formation intègre un terminal dans une page via la version WebAssembly, pour exécuter des exercices en ligne."
+      },
+      {
+       "icon": "🖥️",
+       "title": "Gestionnaire de sessions",
+       "text": "Un outil d'administration affiche des milliers de sessions à la fois, grâce à une bibliothèque sans fil d'exécution ni allocation cachée."
+      }
+     ]
+    },
+    {
+     "type": "timeline",
+     "title": "D'où l'on vient, où l'on va",
+     "items": [
+      {
+       "label": "6 novembre 2026",
+       "text": "Publication de libghostty-vt 1.0, avec bibliothèque et ABI déclarées stables."
+      },
+      {
+       "label": "À venir",
+       "text": "Neovim attend une version étiquetée pour fusionner le remplacement de libvterm."
+      },
+      {
+       "label": "À venir",
+       "text": "Des développeurs de KDE expérimentent KWi, un remplaçant de Konsole."
+      }
+     ]
+    },
+    {
+     "type": "opinion",
+     "title": "Notre avis",
+     "paragraphs": [
+      "La promesse d'une ABI stable est le vrai événement : c'est elle qui permet aux distributions et aux éditeurs de dépendre de la bibliothèque sans craindre une casse à chaque version. Les chiffres d'adoption viennent toutefois de l'auteur lui-même ; les tests de charge avec `dash` sont instructifs, mais ils ne disent rien de charges réelles plus lourdes.",
+      "À un horizon d'un à trois ans, l'émulation de terminal pourrait se banaliser comme brique partagée, à l'image des moteurs de rendu de texte. C'est une projection : elle dépendra de la fusion effective dans Neovim et de l'accueil des distributions."
+     ],
+     "verdict": "Une brique de terminal réutilisable, stable et sous licence permissive."
+    },
+    {
+     "type": "callout",
+     "title": "À retenir",
+     "text": "Documentation, exemples et téléchargements : lib.ghostty.org (selon l'auteur). Source : mitchellh.com, 6 novembre 2026."
+    }
+   ],
+   "sourceDate": "2026-11-06"
+  },
+  {
+   "id": "github-nouvelle-architecture-stockage-git-agents",
+   "category": "devops",
+   "title": "GitHub dévoile une architecture de stockage Git conçue pour des milliers d'agents en parallèle",
+   "summary": "GitHub décrit le projet Rubicon : stockage des objets sur Azure Blob Storage, réplicas jetables et journal Ref-CAS. En test interne, 5 000 agents ont poussé jusqu'à 7 200 fois par seconde sur un seul dépôt. L'architecture est en préversion privée limitée.",
+   "tags": [
+    "GitHub",
+    "Git",
+    "stockage",
+    "agents",
+    "Azure"
+   ],
+   "importance": 4,
+   "readingMinutes": 5,
+   "publishedAt": "2026-11-07T04:16:55+01:00",
+   "icon": "🗄️",
+   "illustration": {
+    "svg": "<svg xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"0 0 640 360\"><defs><linearGradient id=\"g\" x1=\"0\" y1=\"0\" x2=\"1\" y2=\"1\"><stop offset=\"0\" stop-color=\"hsl(160,65%,38%)\"/><stop offset=\"1\" stop-color=\"hsl(200,70%,55%)\"/></linearGradient></defs><rect width=\"640\" height=\"360\" fill=\"url(#g)\"/><circle cx=\"560\" cy=\"60\" r=\"90\" fill=\"#fff\" fill-opacity=\".08\"/><circle cx=\"70\" cy=\"310\" r=\"110\" fill=\"#fff\" fill-opacity=\".07\"/><g fill=\"#fff\" fill-opacity=\".92\"><circle cx=\"270\" cy=\"190\" r=\"55\"/><circle cx=\"340\" cy=\"160\" r=\"70\"/><circle cx=\"410\" cy=\"195\" r=\"50\"/><rect x=\"215\" y=\"190\" width=\"245\" height=\"55\" rx=\"27\"/></g><g stroke=\"#fff\" stroke-width=\"6\" stroke-opacity=\".8\"><path d=\"M250 290 V260 M320 295 V250 M390 290 V260\"/></g></svg>"
+   },
+   "sources": [
+    {
+     "title": "Inside GitHub's new Git storage architecture",
+     "url": "https://github.blog/engineering/architecture-optimization/inside-githubs-new-git-storage-architecture/",
+     "publisher": "GitHub Blog"
+    }
+   ],
+   "blocks": [
+    {
+     "type": "paragraph",
+     "text": "Git a été pensé pour des humains qui poussent quelques fois par jour. Avec des agents de programmation qui travaillent en parallèle sur le même dépôt, la charge change de nature. Dans un article daté du 5 novembre 2026, GitHub détaille la nouvelle architecture de stockage Git annoncée fin octobre à GitHub Universe, conçue pour que « des milliers d'agents poussent en même temps vers un seul dépôt »."
+    },
+    {
+     "type": "heading",
+     "text": "Pourquoi changer"
+    },
+    {
+     "type": "list",
+     "items": [
+      "Le trafic des agents progresse vite : les dépôts les plus chargés reçoivent au plus quelques dizaines d'écritures par seconde, par rafales. GitHub s'attend à des débits soutenus d'ici environ un an.",
+      "Les lectures amplifient les écritures : chaque envoi déclenche des exécutions d'intégration continue, des récupérations pour le déploiement et des lectures d'agents.",
+      "Exemple de croissance : les requêtes quotidiennes d'un dépôt ont été multipliées par environ 4 entre mars et mai 2026, de 44 à 181 millions par jour en moyenne, et ont continué de croître de façon exponentielle.",
+      "Objectif : au moins deux ordres de grandeur de capacité de plus que les besoins actuels."
+     ]
+    },
+    {
+     "type": "heading",
+     "text": "Les chiffres des essais internes"
+    },
+    {
+     "type": "keyvalue",
+     "items": [
+      {
+       "label": "Agents simultanés",
+       "value": "5 000 sur un seul dépôt"
+      },
+      {
+       "label": "Débit d'envois",
+       "value": "7 200 pushes par seconde sur un seul dépôt"
+      },
+      {
+       "label": "Latence de lecture",
+       "value": "Constamment faible pendant cette charge"
+      },
+      {
+       "label": "Statut",
+       "value": "Préversion privée limitée ; déploiement plus large prévu début 2027"
+      }
+     ]
+    },
+    {
+     "type": "paragraph",
+     "text": "Ces mesures viennent d'essais internes de GitHub : elles n'ont pas été reproduites par un tiers."
+    },
+    {
+     "type": "heading",
+     "text": "Comment c'est construit"
+    },
+    {
+     "type": "paragraph",
+     "text": "Deux principes guident le projet, démarré en mai 2026 sous le nom de code Rubicon. D'abord, minimiser la coordination : les objets Git sont immuables et nommés d'après leur contenu, des écrivains concurrents peuvent donc les stocker sans se mettre d'accord ; seul l'ordre des mises à jour de références, de petite taille, doit être arbitré. Ensuite, séparer le stockage du calcul, pour que stockage, service et maintenance évoluent indépendamment."
+    },
+    {
+     "type": "list",
+     "items": [
+      "**Spokes** garde le routage, l'équilibrage de charge, le placement et l'équité entre locataires.",
+      "**Réplicas virtuels** : du calcul jetable qui sert les lectures et les écritures ; les disques locaux ne sont que des caches reconstructibles, et un dépôt qui grossit reçoit davantage de réplicas.",
+      "**Azure Blob Storage** conserve les paquets, les index, les accélérateurs de lecture, les réponses de récupération en cache et les points de contrôle des références.",
+      "**Ref-CAS** : un journal répliqué dédié aux références et au manifeste des paquets, qui ne contient que des pointeurs vers les données.",
+      "**Nœuds de compaction** : ils fusionnent les paquets et suppriment les objets inaccessibles en arrière-plan, pour libérer les réplicas."
+     ]
+    },
+    {
+     "type": "paragraph",
+     "text": "Au moment d'une écriture, un réplica indexe le paquet reçu, le téléverse vers Blob Storage, puis valide une transaction Ref-CAS : les références ne pointent donc que vers des objets durables. En lecture, le réplica envoie la version de références qu'il connaît ; si elle est à jour, la réponse se résume à une comparaison sans donnée de référence, sinon il reçoit les références, la version et les pointeurs de paquets."
+    },
+    {
+     "type": "diagram",
+     "svg": "<svg xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"0 0 640 180\" font-family=\"system-ui,sans-serif\"><defs><marker id=\"a\" markerWidth=\"8\" markerHeight=\"8\" refX=\"6\" refY=\"4\" orient=\"auto\"><path d=\"M0 0 L8 4 L0 8 Z\" fill=\"#55627a\"/></marker></defs><rect width=\"640\" height=\"180\" rx=\"16\" fill=\"#f4f6fa\"/><text x=\"320\" y=\"34\" text-anchor=\"middle\" font-size=\"18\" font-weight=\"700\" fill=\"#1b2330\">Chemin d'écriture simplifié</text><rect x=\"20\" y=\"60\" width=\"128\" height=\"80\" rx=\"12\" fill=\"#fff\" stroke=\"hsl(160,60%,45%)\" stroke-width=\"2.5\"/><circle cx=\"38\" cy=\"64\" r=\"13\" fill=\"hsl(160,60%,40%)\"/><text x=\"38\" y=\"69\" text-anchor=\"middle\" font-size=\"14\" font-weight=\"700\" fill=\"#fff\">1</text><text x=\"90\" y=\"80\" text-anchor=\"middle\" font-size=\"14\" fill=\"#1b2330\">Un agent pousse</text><text x=\"90\" y=\"97\" text-anchor=\"middle\" font-size=\"14\" fill=\"#1b2330\">un paquet vers</text><text x=\"90\" y=\"114\" text-anchor=\"middle\" font-size=\"14\" fill=\"#1b2330\">le dépôt</text><rect x=\"178\" y=\"60\" width=\"128\" height=\"80\" rx=\"12\" fill=\"#fff\" stroke=\"hsl(160,60%,45%)\" stroke-width=\"2.5\"/><circle cx=\"196\" cy=\"64\" r=\"13\" fill=\"hsl(160,60%,40%)\"/><text x=\"196\" y=\"69\" text-anchor=\"middle\" font-size=\"14\" font-weight=\"700\" fill=\"#fff\">2</text><text x=\"247\" y=\"64\" text-anchor=\"middle\" font-size=\"14\" fill=\"#1b2330\">Le réplica</text><text x=\"247\" y=\"81\" text-anchor=\"middle\" font-size=\"14\" fill=\"#1b2330\">indexe et</text><text x=\"247\" y=\"98\" text-anchor=\"middle\" font-size=\"14\" fill=\"#1b2330\">téléverse vers</text><rect x=\"335\" y=\"60\" width=\"128\" height=\"80\" rx=\"12\" fill=\"#fff\" stroke=\"hsl(160,60%,45%)\" stroke-width=\"2.5\"/><circle cx=\"353\" cy=\"64\" r=\"13\" fill=\"hsl(160,60%,40%)\"/><text x=\"353\" y=\"69\" text-anchor=\"middle\" font-size=\"14\" font-weight=\"700\" fill=\"#fff\">3</text><text x=\"405\" y=\"80\" text-anchor=\"middle\" font-size=\"14\" fill=\"#1b2330\">Une transaction</text><text x=\"405\" y=\"97\" text-anchor=\"middle\" font-size=\"14\" fill=\"#1b2330\">Ref-CAS valide</text><text x=\"405\" y=\"114\" text-anchor=\"middle\" font-size=\"14\" fill=\"#1b2330\">les références</text><rect x=\"492\" y=\"60\" width=\"128\" height=\"80\" rx=\"12\" fill=\"#fff\" stroke=\"hsl(160,60%,45%)\" stroke-width=\"2.5\"/><circle cx=\"510\" cy=\"64\" r=\"13\" fill=\"hsl(160,60%,40%)\"/><text x=\"510\" y=\"69\" text-anchor=\"middle\" font-size=\"14\" font-weight=\"700\" fill=\"#fff\">4</text><text x=\"562\" y=\"64\" text-anchor=\"middle\" font-size=\"14\" fill=\"#1b2330\">Les nœuds de</text><text x=\"562\" y=\"81\" text-anchor=\"middle\" font-size=\"14\" fill=\"#1b2330\">compaction</text><text x=\"562\" y=\"98\" text-anchor=\"middle\" font-size=\"14\" fill=\"#1b2330\">fusionnent les</text><path d=\"M148 100 H176\" stroke=\"#55627a\" stroke-width=\"3\" marker-end=\"url(#a)\"/><path d=\"M305 100 H333\" stroke=\"#55627a\" stroke-width=\"3\" marker-end=\"url(#a)\"/><path d=\"M462 100 H490\" stroke=\"#55627a\" stroke-width=\"3\" marker-end=\"url(#a)\"/></svg>",
+     "alt": "Schéma en quatre étapes du chemin d'écriture : réception, stockage durable, validation des références, compaction.",
+     "caption": "Les références ne pointent que vers des objets déjà stockés durablement."
+    },
+    {
+     "type": "heading",
+     "text": "Pourquoi un journal Ref-CAS"
+    },
+    {
+     "type": "paragraph",
+     "text": "GitHub explique avoir écarté deux pistes. Un journal d'écriture anticipée dans un seul blob est correct et bon marché à lire, mais limité à une écriture par aller-retour de blob, soit quelques centaines par seconde. Des blobs de références segmentés améliorent le parallélisme d'écriture, mais obligent chaque lecture à consulter tous les segments et la ralentissent au niveau du plus lent, alors que les lectures dominent largement. Ref-CAS, journal validé par quorum avec comparaison-et-échange par référence, ne verrouille que les références touchées ; comme la plupart des envois d'agents visent des branches distinctes, les conflits sont rares. La compaction prend des baux par fragment, vérifie que les paquets produits contiennent exactement les mêmes objets que ceux d'entrée, puis publie en deux transactions ; le nombre de paquets reste à peu près stable quand les envois augmentent."
+    },
+    {
+     "type": "usecases",
+     "title": "Exemples d'utilisation",
+     "items": [
+      {
+       "icon": "🤖",
+       "title": "Flotte d'agents",
+       "text": "Une équipe lance des centaines d'agents qui corrigent chacun un ticket sur sa propre branche : les écritures se répartissent sans se bloquer."
+      },
+      {
+       "icon": "🚀",
+       "title": "Intégration continue",
+       "text": "Chaque push déclenche des récupérations ; les réponses en cache et la lecture à version comparée réduisent la charge."
+      },
+      {
+       "icon": "🏢",
+       "title": "Monodépôt d'entreprise",
+       "text": "Un grand monodépôt voit sa latence de lecture rester stable alors que les écritures augmentent."
+      }
+     ]
+    },
+    {
+     "type": "timeline",
+     "title": "D'où l'on vient, où l'on va",
+     "items": [
+      {
+       "label": "Mai 2026",
+       "text": "Démarrage du projet Rubicon."
+      },
+      {
+       "label": "Mars à mai 2026",
+       "text": "Les requêtes quotidiennes d'un dépôt passent de 44 à 181 millions."
+      },
+      {
+       "label": "Fin octobre 2026",
+       "text": "Annonce à GitHub Universe."
+      },
+      {
+       "label": "Début 2027",
+       "text": "Déploiement plus large prévu après la préversion privée limitée."
+      }
+     ]
+    },
+    {
+     "type": "opinion",
+     "title": "Notre avis",
+     "paragraphs": [
+      "Le choix de rendre le calcul jetable et de confier la durabilité à un stockage objet est cohérent avec la nature immuable des objets Git, et l'analyse des alternatives écartées est sérieuse. Reste que les performances annoncées proviennent d'essais internes, sur un service qui n'est pas encore ouvert : il faudra attendre des retours d'utilisateurs.",
+      "Pour les trois prochaines années, la vraie question est la facture : l'architecture vise des débits que peu de projets atteindront. Elle prépare surtout un monde où des agents deviennent les principaux contributeurs, ce qui reste une hypothèse de GitHub."
+     ],
+     "verdict": "Une réponse crédible à une charge d'agents, encore à valider hors des laboratoires."
+    },
+    {
+     "type": "callout",
+     "title": "À retenir",
+     "text": "Préversion privée limitée, déploiement plus large prévu début 2027 selon GitHub. Source : GitHub Blog, 5 novembre 2026."
+    }
+   ],
+   "sourceDate": "2026-11-05"
+  },
+  {
+   "id": "hightouch-juges-llm-resolution-identites-cout",
+   "category": "ia",
+   "title": "Résolution d'identités : un petit modèle qui consulte Opus rivalise avec lui à moindre coût",
+   "summary": "Hightouch compare des modèles pour détecter les fusions abusives de profils. Opus seul atteint 99 % sur un test facile ; un schéma hybride avec le modèle Jev monte à 98,8 % pour environ 4 fois moins cher. L'étude porte sur des données synthétiques.",
+   "tags": [
+    "LLM",
+    "évaluation",
+    "résolution d'identités",
+    "coûts"
+   ],
+   "importance": 3,
+   "readingMinutes": 5,
+   "publishedAt": "2026-11-07T04:16:55+01:00",
+   "icon": "🧮",
+   "illustration": {
+    "svg": "<svg xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"0 0 640 360\"><defs><linearGradient id=\"g\" x1=\"0\" y1=\"0\" x2=\"1\" y2=\"1\"><stop offset=\"0\" stop-color=\"hsl(320,65%,38%)\"/><stop offset=\"1\" stop-color=\"hsl(0,70%,55%)\"/></linearGradient></defs><rect width=\"640\" height=\"360\" fill=\"url(#g)\"/><circle cx=\"560\" cy=\"60\" r=\"90\" fill=\"#fff\" fill-opacity=\".08\"/><circle cx=\"70\" cy=\"310\" r=\"110\" fill=\"#fff\" fill-opacity=\".07\"/><g fill=\"#fff\" fill-opacity=\".92\"><rect x=\"170\" y=\"200\" width=\"50\" height=\"80\" rx=\"8\"/><rect x=\"245\" y=\"160\" width=\"50\" height=\"120\" rx=\"8\"/><rect x=\"320\" y=\"120\" width=\"50\" height=\"160\" rx=\"8\"/><rect x=\"395\" y=\"80\" width=\"50\" height=\"200\" rx=\"8\"/></g><path d=\"M175 170 L250 135 L325 95 L430 55\" stroke=\"#fff\" stroke-width=\"6\" fill=\"none\" stroke-linecap=\"round\"/></svg>"
+   },
+   "sources": [
+    {
+     "title": "A Jev that can ask Opus for help gives Opus accuracy at 4x lower cost",
+     "url": "https://hightouch.com/blog/llm-judges-identity-resolution",
+     "publisher": "Hightouch"
+    }
+   ],
+   "blocks": [
+    {
+     "type": "paragraph",
+     "text": "Rapprocher des fiches clients qui désignent la même personne est un problème banal et pourtant coûteux. Le 4 novembre 2026, l'éditeur Hightouch a publié une étude qui teste si des modèles de langage peuvent servir de juges pour contrôler ce travail à grande échelle. Le résultat intéressant n'est pas un nouveau score, mais un compromis de coût : un petit modèle qui ne sollicite le grand qu'en cas de doute."
+    },
+    {
+     "type": "heading",
+     "text": "Le problème : la fusion abusive"
+    },
+    {
+     "type": "paragraph",
+     "text": "La résolution d'identités regroupe des enregistrements en « identités ». Son échec principal est la **fusion abusive** : une identité qui contient des enregistrements de plusieurs personnes réelles. La vérification humaine est lente, environ 50 identités à l'heure selon les auteurs, d'où l'idée de déléguer à des modèles."
+    },
+    {
+     "type": "heading",
+     "text": "La méthode"
+    },
+    {
+     "type": "list",
+     "items": [
+      "Modèles de pointe comparés : Claude Opus 5.5, Gemini 3.1 Pro et GPT-6 Sol.",
+      "Modèles de décision, qui renvoient un score de confiance entre 0 et 1 : GPT-6 Luna (API Decisions) et Jev.",
+      "Banc d'essai de 1 000 identités construites avec pseudopeople, un générateur de données synthétiques d'une ville américaine : la moitié sont des personnes uniques aux enregistrements bruités, l'autre moitié des fusions abusives.",
+      "Un message-guide décrit les erreurs de saisie courantes (fautes, surnoms, dates inversées) pour que les modèles ne les prennent pas pour des personnes différentes.",
+      "Un second jeu, plus difficile, avec des cas piégés : fautes sur des champs clés et sosies administratifs comme des jumeaux ou un père et son fils homonymes.",
+      "Un montage hybride : le modèle bon marché juge toutes les identités et seules celles situées dans une bande de confiance (par exemple 30 à 90 %) passent à Opus pour un second avis."
+     ]
+    },
+    {
+     "type": "heading",
+     "text": "Les résultats"
+    },
+    {
+     "type": "diagram",
+     "svg": "<svg xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"0 0 640 310\" font-family=\"system-ui,sans-serif\"><rect width=\"640\" height=\"310\" rx=\"16\" fill=\"#f4f6fa\"/><text x=\"320\" y=\"34\" text-anchor=\"middle\" font-size=\"18\" font-weight=\"700\" fill=\"#1b2330\">Précision sur le test facile (%)</text><text x=\"20\" y=\"76\" font-size=\"14\" fill=\"#1b2330\">Opus seul</text><rect x=\"200\" y=\"58\" width=\"380\" height=\"26\" rx=\"6\" fill=\"hsl(320,60%,45%)\"/><text x=\"588\" y=\"76\" font-size=\"14\" font-weight=\"700\" fill=\"#1b2330\">99,0 %</text><text x=\"20\" y=\"124\" font-size=\"14\" fill=\"#1b2330\">Hybride Jev (30–90 %)</text><rect x=\"200\" y=\"106\" width=\"379\" height=\"26\" rx=\"6\" fill=\"hsl(320,60%,45%)\"/><text x=\"587\" y=\"124\" font-size=\"14\" font-weight=\"700\" fill=\"#1b2330\">98,8 %</text><text x=\"20\" y=\"172\" font-size=\"14\" fill=\"#1b2330\">Hybride Luna (10–90 %)</text><rect x=\"200\" y=\"154\" width=\"378\" height=\"26\" rx=\"6\" fill=\"hsl(320,60%,45%)\"/><text x=\"586\" y=\"172\" font-size=\"14\" font-weight=\"700\" fill=\"#1b2330\">98,5 %</text><text x=\"20\" y=\"220\" font-size=\"14\" fill=\"#1b2330\">Luna seul (seuil 70 %)</text><rect x=\"200\" y=\"202\" width=\"373\" height=\"26\" rx=\"6\" fill=\"hsl(320,60%,45%)\"/><text x=\"581\" y=\"220\" font-size=\"14\" font-weight=\"700\" fill=\"#1b2330\">97,3 %</text><text x=\"20\" y=\"268\" font-size=\"14\" fill=\"#1b2330\">Jev seul (seuil 60 %)</text><rect x=\"200\" y=\"250\" width=\"367\" height=\"26\" rx=\"6\" fill=\"hsl(320,60%,45%)\"/><text x=\"575\" y=\"268\" font-size=\"14\" font-weight=\"700\" fill=\"#1b2330\">95,7 %</text></svg>",
+     "alt": "Diagramme en barres de la précision sur le test facile : Opus seul 99,0 %, hybride Jev 98,8 %, hybride Luna 98,5 %, Luna seul 97,3 %, Jev seul 95,7 %.",
+     "caption": "Précision mesurée sur le jeu facile, selon Hightouch."
+    },
+    {
+     "type": "keyvalue",
+     "items": [
+      {
+       "label": "Opus seul (facile)",
+       "value": "99,0 % ; 2,2 s par identité ; 3,86 $ pour 1 000"
+      },
+      {
+       "label": "Luna seul (facile)",
+       "value": "97,3 % ; 0,17 s ; 0,10 $"
+      },
+      {
+       "label": "Jev seul (facile)",
+       "value": "95,7 % ; 0,15 s ; 0,05 $"
+      },
+      {
+       "label": "Hybride Luna (facile)",
+       "value": "98,5 % ; 0,30 s ; 0,33 $"
+      },
+      {
+       "label": "Hybride Jev (facile)",
+       "value": "98,8 % ; 0,63 s ; 0,88 $"
+      },
+      {
+       "label": "Opus seul (difficile)",
+       "value": "95,1 % ; 5,39 $ pour 1 000"
+      },
+      {
+       "label": "Luna, Jev seuls (difficile)",
+       "value": "88,8 % et 89,1 %"
+      },
+      {
+       "label": "Hybrides (difficile)",
+       "value": "Luna : 91,6 % pour 1,15 $ ; Jev : 95,3 % pour 2,94 $"
+      }
+     ]
+    },
+    {
+     "type": "paragraph",
+     "text": "Deux enseignements ressortent. Luna bat Jev d'emblée sur le test facile, mais les deux font jeu égal sur le difficile. Les erreurs de Jev se concentrent autour de 50 % de confiance : il est bien calibré. Luna, au contraire, se trompe souvent avec une confiance de 90 à 100 %, d'où l'avantage de Jev dans le montage hybride, puisque c'est l'incertitude qui déclenche l'appel au grand modèle."
+    },
+    {
+     "type": "paragraph",
+     "text": "Les modèles de décision sont jusqu'à 90 fois moins chers et plus de 10 fois plus rapides, mais ils restent environ 6 points derrière Opus seul sur les cas difficiles. L'hybride Jev coûte environ 4 fois moins qu'Opus sur le test facile, mais seulement 1,8 fois moins sur le difficile. Ajouter du contexte sur les données dans le message n'aide les modèles de pointe que d'environ un point et n'aide pas les modèles de décision."
+    },
+    {
+     "type": "heading",
+     "text": "Les limites annoncées"
+    },
+    {
+     "type": "list",
+     "items": [
+      "Le banc d'essai est synthétique et les cas difficiles ont été conçus par les auteurs.",
+      "Coûts et latences reflètent leur propre installation ; les seuils ont été réglés sur ces données.",
+      "L'étude ne couvre ni les fusions manquantes (sous-fusion) ni les modèles de décision à poids ouverts.",
+      "Estimer un taux de fusion abusive à ±1 % par échantillonnage humain demanderait plus de 1 000 échantillons."
+     ]
+    },
+    {
+     "type": "usecases",
+     "title": "Exemples d'utilisation",
+     "items": [
+      {
+       "icon": "🛍️",
+       "title": "Base clients",
+       "text": "Une enseigne détecte des profils fusionnés à tort avant d'envoyer une campagne, ce qui évite d'écrire à la mauvaise personne."
+      },
+      {
+       "icon": "🏦",
+       "title": "Service conformité",
+       "text": "Une banque trie les doublons de dossiers : le petit modèle écarte les cas évidents et l'humain n'examine que les zones d'incertitude."
+      },
+      {
+       "icon": "🏥",
+       "title": "Annuaire de patients",
+       "text": "Un établissement contrôle ses rapprochements de dossiers avec un second avis ciblé, et garde la décision finale à un professionnel."
+      }
+     ]
+    },
+    {
+     "type": "timeline",
+     "title": "D'où l'on vient, où l'on va",
+     "items": [
+      {
+       "label": "Aujourd'hui",
+       "text": "Les contrôles reposent encore largement sur l'examen humain, environ 50 identités à l'heure."
+      },
+      {
+       "label": "Prochains articles",
+       "text": "Hightouch annonce vouloir couvrir la sous-fusion et les modèles à poids ouverts."
+      },
+      {
+       "label": "Plus tard",
+       "text": "L'approche reste à confirmer sur des données réelles, hors banc d'essai synthétique."
+      }
+     ]
+    },
+    {
+     "type": "opinion",
+     "title": "Notre avis",
+     "paragraphs": [
+      "Le principe de cascade, où le modèle économique s'en remet au plus cher quand sa confiance chute, est solide et transposable bien au-delà de l'identité. La limite est connue : les auteurs ont réglé leurs seuils sur les mêmes données que celles évaluées, et leur propre jeu difficile est fabriqué ; l'économie de 1,8 fois sur ce dernier est modeste.",
+      "D'ici un à trois ans, ce type de cascade pourrait devenir la norme dans les chaînes de contrôle de données, avec des modèles de décision calibrés comme premier filtre. Il s'agit d'une opinion : le facteur décisif sera la calibration, pas la taille."
+     ],
+     "verdict": "Le gain vient moins du modèle le plus fort que de savoir quand le consulter."
+    },
+    {
+     "type": "callout",
+     "title": "À retenir",
+     "text": "Étude du 4 novembre 2026 : données synthétiques, seuils réglés sur le même jeu. À confirmer en conditions réelles."
+    }
+   ],
+   "sourceDate": "2026-11-04"
+  }
+ ]
+}
