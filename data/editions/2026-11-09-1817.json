@@ -1,0 +1,994 @@
+{
+ "schemaVersion": "1.0",
+ "date": "2026-11-09",
+ "generatedAt": "2026-11-09T18:17:36+01:00",
+ "title": "Tech : SonicWall et OpenSSH sous attaque, PyPI renforce la provenance, l'écart des prix GPU",
+ "summary": "Cette édition tech rassemble deux failles exploitées, SonicWall et OpenSSH sous Alpine, le détournement de contrôleurs de réfrigération, un nouvel outil de provenance chez PyPI, un gros lot de correctifs pour Azure Linux et deux sujets d'IA : les prix de location des GPU et les modèles du monde contrefactuels.",
+ "highlights": [
+  "La CISA signale l'exploitation d'une faille SonicWall qui contourne la double authentification SAML",
+  "OpenSSH « SSHole » : une connexion sans mot de passe sous Alpine, exploitée en moins de neuf heures",
+  "Des contrôleurs de réfrigération Copeland détournés en relais de spam, avec des consignes à 110 °C et 150 °C",
+  "PyPI affiche la provenance des versions dans un nouvel onglet Security",
+  "Un même GPU H100 se loue de 2,69 à 12,29 dollars de l'heure"
+ ],
+ "meta": {
+  "generator": "claude-scheduled-task"
+ },
+ "posts": [
+  {
+   "id": "sonicwall-sslvpn-cve-2026-19868-contournement-mfa",
+   "category": "cybersecurite",
+   "title": "SonicWall : la faille CVE-2026-19868 contourne l'authentification multifacteur SAML des VPN SSL, et elle est exploitée",
+   "summary": "Une faille du service SSL-VPN de SonicOS permet à un utilisateur muni d'identifiants valides d'éviter le contrôle SAML, donc la double authentification. La CISA l'a ajoutée à son catalogue des failles exploitées le 6 novembre 2026.",
+   "tags": [
+    "SonicWall",
+    "SonicOS",
+    "VPN",
+    "MFA",
+    "SAML",
+    "CISA"
+   ],
+   "importance": 5,
+   "readingMinutes": 4,
+   "publishedAt": "2026-11-09T18:17:36+01:00",
+   "sourceDate": "2026-11-09",
+   "icon": "🧱",
+   "sources": [
+    {
+     "title": "Exploited SonicWall SSL-VPN flaw lets attackers bypass SAML-enforced MFA (CVE-2026-19868)",
+     "url": "https://www.helpnetsecurity.com/2026/11/09/exploited-sonicwall-ssl-vpn-flaw-lets-attackers-bypass-saml-enforced-mfa-cve-2026-19868/",
+     "publisher": "Help Net Security"
+    },
+    {
+     "title": "CISA Flags SonicWall SonicOS MFA Bypass Flaw Amid Reports of Possible Exploitation",
+     "url": "https://thehackernews.com/2026/11/cisa-flags-sonicwall-sonicos-mfa-bypass.html",
+     "publisher": "The Hacker News"
+    }
+   ],
+   "illustration": {
+    "svg": "<svg xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"0 0 640 360\" role=\"img\" aria-hidden=\"true\"><defs><linearGradient id=\"ge85321\" x1=\"0\" y1=\"0\" x2=\"1\" y2=\"1\"><stop offset=\"0\" stop-color=\"hsl(175,65%,38%)\"/><stop offset=\"1\" stop-color=\"hsl(210,60%,20%)\"/></linearGradient></defs><rect width=\"640\" height=\"360\" fill=\"url(#ge85321)\"/><circle cx=\"560\" cy=\"60\" r=\"120\" fill=\"#fff\" opacity=\".07\"/><circle cx=\"80\" cy=\"320\" r=\"150\" fill=\"#fff\" opacity=\".06\"/><circle cx=\"320\" cy=\"180\" r=\"92\" fill=\"#fff\" opacity=\".9\"/><circle cx=\"320\" cy=\"180\" r=\"120\" fill=\"none\" stroke=\"#fff\" stroke-width=\"3\" opacity=\".4\"/><rect x=\"90\" y=\"70\" width=\"70\" height=\"8\" rx=\"4\" fill=\"#fff\" opacity=\".5\"/><rect x=\"90\" y=\"90\" width=\"44\" height=\"8\" rx=\"4\" fill=\"#fff\" opacity=\".35\"/><rect x=\"480\" y=\"270\" width=\"80\" height=\"8\" rx=\"4\" fill=\"#fff\" opacity=\".5\"/><rect x=\"500\" y=\"290\" width=\"50\" height=\"8\" rx=\"4\" fill=\"#fff\" opacity=\".35\"/><text x=\"320\" y=\"212\" font-size=\"88\" text-anchor=\"middle\">🧱</text></svg>"
+   },
+   "cover": {
+    "url": "https://img.helpnetsecurity.com/wp-content/uploads/2024/08/26192636/sonicwall-2.webp",
+    "alt": "Pare-feu SonicWall",
+    "credit": "helpnetsecurity.com"
+   },
+   "blocks": [
+    {
+     "type": "paragraph",
+     "text": "Les pare-feu et passerelles VPN sont la porte d'entrée de nombreux réseaux d'entreprise, ce qui en fait des cibles de choix. Le 6 novembre 2026, l'agence américaine CISA a ajouté à son catalogue des vulnérabilités exploitées (KEV) la faille **CVE-2026-19868**, qui touche le service SSL-VPN de SonicOS, le système des pare-feu SonicWall. Il s'agit d'un défaut d'application de l'authentification : lorsque SAML est activé pour les connexions VPN, un utilisateur disposant d'identifiants valides pour une autre méthode d'authentification peut contourner les contrôles SAML, et donc l'authentification multifacteur (MFA) censée être imposée par ce biais."
+    },
+    {
+     "type": "paragraph",
+     "text": "SonicWall a publié l'avis SNWLID-2026-0014 et indique avoir enquêté sur un rapport faisant état d'une exploitation potentielle. L'éditeur n'a toutefois diffusé ni détail sur les attaques, ni indicateurs de compromission. Le nombre d'organisations touchées reste inconnu, de même que les actions menées par les attaquants une fois à l'intérieur. À la date de rédaction, aucun éditeur de sécurité n'avait publié d'analyse indépendante."
+    },
+    {
+     "type": "heading",
+     "level": 2,
+     "text": "Ce que l'on sait de la faille"
+    },
+    {
+     "type": "keyvalue",
+     "items": [
+      {
+       "label": "Identifiant",
+       "value": "CVE-2026-19868 (score CVSS non précisé dans les sources consultées)"
+      },
+      {
+       "label": "Produit",
+       "value": "SonicOS, service SSL-VPN, pare-feu Gen7 et Gen8 (physiques et virtuels)"
+      },
+      {
+       "label": "Condition",
+       "value": "SAML activé pour les connexions SSL-VPN"
+      },
+      {
+       "label": "Prérequis de l'attaquant",
+       "value": "Des identifiants valides pour une autre méthode d'authentification"
+      },
+      {
+       "label": "Découverte",
+       "value": "Signalée par Ryan Harris, de l'ESN Electronic Office"
+      }
+     ]
+    },
+    {
+     "type": "paragraph",
+     "text": "Cette précision compte : il ne s'agit pas d'un accès sans aucune authentification. L'attaquant doit déjà posséder un identifiant et un mot de passe valides, obtenus par exemple par hameçonnage, par réutilisation de mots de passe ou dans une fuite de données. La faille rend alors inutile la deuxième barrière, celle qui devait justement empêcher qu'un mot de passe volé suffise."
+    },
+    {
+     "type": "heading",
+     "level": 2,
+     "text": "Versions concernées et correctifs"
+    },
+    {
+     "type": "list",
+     "items": [
+      "Gen7 : firmware 7.3.3-7015 et versions antérieures ; correctif dans la version 7.3.4-7013 ou supérieure.",
+      "Gen8 : firmware 8.2.2-8015 et versions antérieures ; correctif dans la version 8.2.3-8015.",
+      "Gen6 : non listé comme vulnérable, mais en fin de support ; SonicWall recommande de migrer vers un équipement Gen8.",
+      "Les mêmes versions corrigent six autres vulnérabilités, qui ne sont pas signalées comme exploitées."
+     ]
+    },
+    {
+     "type": "paragraph",
+     "text": "Aucun contournement provisoire n'est proposé : la seule parade est l'application du correctif. Les agences civiles fédérales américaines ont jusqu'au 20 novembre 2026 pour s'y conformer, une échéance qui donne un ordre de grandeur de l'urgence même pour les entreprises françaises qui ne sont pas soumises à cette obligation."
+    },
+    {
+     "type": "usecases",
+     "title": "Exemples d'utilisation",
+     "items": [
+      {
+       "icon": "🔎",
+       "title": "Contrôler les journaux du fournisseur d'identité",
+       "text": "Une équipe informatique compare les connexions SSL-VPN récentes avec les journaux de son fournisseur d'identité (IdP) : une session VPN réussie sans événement MFA correspondant est suspecte."
+      },
+      {
+       "icon": "🔑",
+       "title": "Réinitialiser les comptes concernés",
+       "text": "Après avoir repéré une session douteuse, l'entreprise réinitialise le mot de passe du compte, révoque ses sessions et vérifie les ressources auxquelles il a accédé pendant la connexion."
+      },
+      {
+       "icon": "🏢",
+       "title": "Planifier la sortie du Gen6",
+       "text": "Une PME qui exploite encore un pare-feu Gen6, sans correctif possible, inscrit son remplacement par un modèle Gen8 dans son budget plutôt que de repousser la décision."
+      }
+     ]
+    },
+    {
+     "type": "timeline",
+     "title": "D'où l'on vient, où l'on va",
+     "items": [
+      {
+       "label": "2025",
+       "text": "Des affiliés du rançongiciel Akira compromettent des pare-feu SonicWall malgré une authentification à usage unique (OTP), selon les éléments rappelés par la presse spécialisée."
+      },
+      {
+       "label": "Début 2026",
+       "text": "ReliaQuest observe l'exploitation de CVE-2024-12802, un autre contournement de MFA sur le SSL-VPN de SonicWall."
+      },
+      {
+       "label": "6 novembre 2026",
+       "text": "La CISA ajoute CVE-2026-19868 au catalogue des failles exploitées."
+      },
+      {
+       "label": "20 novembre 2026",
+       "text": "Date limite imposée aux agences civiles fédérales américaines pour appliquer le correctif."
+      }
+     ]
+    },
+    {
+     "type": "opinion",
+     "title": "Notre avis",
+     "paragraphs": [
+      "Cette affaire illustre une limite de la double authentification : sa solidité dépend de l'endroit où elle est appliquée. Quand le contrôle est déporté vers un fournisseur d'identité via SAML mais que l'équipement réseau accepte encore une autre voie d'authentification, la chaîne n'est aussi forte que son maillon le plus faible. Les équipements de bordure restent en outre un terrain privilégié des attaquants, qui y trouvent un accès direct au réseau interne et peu de journalisation.",
+      "D'ici un à trois ans, on peut raisonnablement attendre davantage de pression sur les éditeurs pour que leurs passerelles imposent l'authentification de manière cohérente, et sur les entreprises pour qu'elles réduisent la surface exposée, par exemple avec des accès fondés sur l'identité plutôt que sur un VPN ouvert. Il s'agit d'une analyse, pas d'un fait établi."
+     ],
+     "verdict": "Appliquer le correctif sans attendre, puis vérifier les connexions passées : la double authentification ne protège que si elle est réellement imposée partout."
+    },
+    {
+     "type": "callout",
+     "title": "À retenir",
+     "text": "Mettre à jour vers 7.3.4-7013 (Gen7) ou 8.2.3-8015 (Gen8), examiner les connexions SSL-VPN récentes et réinitialiser les identifiants des comptes suspects. En France, l'ANSSI et le CERT-FR publient régulièrement des alertes sur ce type d'équipement."
+    }
+   ]
+  },
+  {
+   "id": "openssh-sshole-cve-2026-123158-alpine",
+   "category": "cybersecurite",
+   "title": "OpenSSH « SSHole » : une faille de 2016 permet de se connecter sans mot de passe sous Alpine Linux, exploitée en moins de neuf heures",
+   "summary": "La faille CVE-2026-123158 (CVSS 8,1) touche OpenSSH avec la bibliothèque musl sans PAM, comme dans la configuration par défaut d'Alpine. Les premiers essais d'exploitation ont été vus moins de neuf heures après sa publication.",
+   "tags": [
+    "OpenSSH",
+    "Alpine Linux",
+    "musl",
+    "authentification",
+    "CVE-2026-123158"
+   ],
+   "importance": 5,
+   "readingMinutes": 3,
+   "publishedAt": "2026-11-09T18:17:36+01:00",
+   "sourceDate": "2026-11-06",
+   "icon": "🕳️",
+   "sources": [
+    {
+     "title": "Hackers Target OpenSSH SSHole Flaw Within Hours of Disclosure, Gain Root on Honeypot",
+     "url": "https://thehackernews.com/2026/11/hackers-exploited-openssh-sshole-flaw.html",
+     "publisher": "The Hacker News"
+    }
+   ],
+   "illustration": {
+    "svg": "<svg xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"0 0 640 360\" role=\"img\" aria-hidden=\"true\"><defs><linearGradient id=\"gef3824\" x1=\"0\" y1=\"0\" x2=\"1\" y2=\"1\"><stop offset=\"0\" stop-color=\"hsl(175,65%,38%)\"/><stop offset=\"1\" stop-color=\"hsl(210,60%,20%)\"/></linearGradient></defs><rect width=\"640\" height=\"360\" fill=\"url(#gef3824)\"/><circle cx=\"560\" cy=\"60\" r=\"120\" fill=\"#fff\" opacity=\".07\"/><circle cx=\"80\" cy=\"320\" r=\"150\" fill=\"#fff\" opacity=\".06\"/><circle cx=\"320\" cy=\"180\" r=\"92\" fill=\"#fff\" opacity=\".9\"/><circle cx=\"320\" cy=\"180\" r=\"120\" fill=\"none\" stroke=\"#fff\" stroke-width=\"3\" opacity=\".4\"/><rect x=\"90\" y=\"70\" width=\"70\" height=\"8\" rx=\"4\" fill=\"#fff\" opacity=\".5\"/><rect x=\"90\" y=\"90\" width=\"44\" height=\"8\" rx=\"4\" fill=\"#fff\" opacity=\".35\"/><rect x=\"480\" y=\"270\" width=\"80\" height=\"8\" rx=\"4\" fill=\"#fff\" opacity=\".5\"/><rect x=\"500\" y=\"290\" width=\"50\" height=\"8\" rx=\"4\" fill=\"#fff\" opacity=\".35\"/><text x=\"320\" y=\"212\" font-size=\"88\" text-anchor=\"middle\">🕳️</text></svg>"
+   },
+   "cover": {
+    "url": "https://blogger.googleusercontent.com/img/b/R29vZ2xl/AVvXsEjHbl1TAGj_ZHZDF3oQ8AfebRDiovg_d8Wk4huY5VJkSa0csE45G7k5jwdG1De-W-7l2RjnyH_ZvT3vcioykVeOooifwvViM8RiuTu0gSt2t-XgOefyYKyM5_zbsI5WFNubkIT0hOUr4inPIQMvXs6GDTLa6j7XWL3etRJYvOcDLJxa3IDXv-KtuCma5JsG/s1600/ssh.jpg",
+    "alt": "Terminal SSH",
+    "credit": "thehackernews.com"
+   },
+   "blocks": [
+    {
+     "type": "paragraph",
+     "text": "OpenSSH est l'outil standard d'administration à distance des serveurs Linux. Une faille d'authentification y est donc toujours prise au sérieux. Celle publiée le 5 novembre 2026, baptisée « SSHole », porte l'identifiant **CVE-2026-123158** et un score CVSS de 8,1. Elle permet à un attaquant non authentifié de se connecter à des comptes configurés sans mot de passe utilisable, sans voler ni identifiant ni clé SSH. Son origine est ancienne : elle provient d'un correctif introduit en 2016 pour corriger CVE-2016-6210, une faille d'énumération de noms d'utilisateurs."
+    },
+    {
+     "type": "heading",
+     "level": 2,
+     "text": "Un astérisque pris pour un succès"
+    },
+    {
+     "type": "paragraph",
+     "text": "Sous Linux, un compte dont le mot de passe est désactivé au niveau du système porte la valeur « * » à la place d'un condensat (hash). Dans certaines conditions, un échec du calcul de condensat produit lui aussi cet astérisque. OpenSSH compare alors les deux valeurs, les trouve identiques et considère l'authentification comme réussie. Le déclencheur est simple : un mot de passe arbitraire de 257 à 1 024 octets fait échouer le calcul."
+    },
+    {
+     "type": "diagram",
+     "svg": "<svg xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"0 0 640 220\" font-family=\"system-ui,sans-serif\"><rect width=\"640\" height=\"220\" rx=\"14\" fill=\"#eef2f7\"/><defs><marker id=\"a\" markerWidth=\"8\" markerHeight=\"8\" refX=\"6\" refY=\"4\" orient=\"auto\"><path d=\"M0 0 L8 4 L0 8 z\" fill=\"#334\"/></marker></defs><rect x=\"40\" y=\"70\" width=\"116\" height=\"80\" rx=\"10\" fill=\"hsl(175,55%,32%)\"/><text x=\"98.0\" y=\"100\" fill=\"#fff\" font-size=\"14\" text-anchor=\"middle\">Mot de passe</text><text x=\"98.0\" y=\"120\" fill=\"#fff\" font-size=\"14\" text-anchor=\"middle\">de 257 à 1 024</text><text x=\"98.0\" y=\"140\" fill=\"#fff\" font-size=\"14\" text-anchor=\"middle\">octets envoyé</text><path d=\"M159 110 h18\" stroke=\"#334\" stroke-width=\"3\" marker-end=\"url(#a)\"/><rect x=\"180\" y=\"70\" width=\"116\" height=\"80\" rx=\"10\" fill=\"hsl(175,55%,32%)\"/><text x=\"238.0\" y=\"100\" fill=\"#fff\" font-size=\"14\" text-anchor=\"middle\">Le calcul du</text><text x=\"238.0\" y=\"120\" fill=\"#fff\" font-size=\"14\" text-anchor=\"middle\">condensat échoue</text><text x=\"238.0\" y=\"140\" fill=\"#fff\" font-size=\"14\" text-anchor=\"middle\">et renvoie « * »</text><path d=\"M299 110 h18\" stroke=\"#334\" stroke-width=\"3\" marker-end=\"url(#a)\"/><rect x=\"320\" y=\"70\" width=\"116\" height=\"80\" rx=\"10\" fill=\"hsl(175,55%,32%)\"/><text x=\"378.0\" y=\"100\" fill=\"#fff\" font-size=\"14\" text-anchor=\"middle\">sshd compare</text><text x=\"378.0\" y=\"120\" fill=\"#fff\" font-size=\"14\" text-anchor=\"middle\">avec le « * » du</text><text x=\"378.0\" y=\"140\" fill=\"#fff\" font-size=\"14\" text-anchor=\"middle\">compte verrouillé</text><path d=\"M439 110 h18\" stroke=\"#334\" stroke-width=\"3\" marker-end=\"url(#a)\"/><rect x=\"460\" y=\"70\" width=\"116\" height=\"80\" rx=\"10\" fill=\"hsl(175,55%,32%)\"/><text x=\"518.0\" y=\"100\" fill=\"#fff\" font-size=\"14\" text-anchor=\"middle\">Connexion</text><text x=\"518.0\" y=\"120\" fill=\"#fff\" font-size=\"14\" text-anchor=\"middle\">acceptée sans</text><text x=\"518.0\" y=\"140\" fill=\"#fff\" font-size=\"14\" text-anchor=\"middle\">mot de passe</text></svg>",
+     "alt": "Schéma en quatre étapes de la faille SSHole : mot de passe trop long, échec du condensat, comparaison avec l'astérisque, connexion acceptée.",
+     "caption": "Le mécanisme de la faille, d'après la description de la source."
+    },
+    {
+     "type": "heading",
+     "level": 2,
+     "text": "Qui est concerné ?"
+    },
+    {
+     "type": "list",
+     "items": [
+      "Les systèmes Linux utilisant OpenSSH avec la bibliothèque C **musl** et **PAM désactivé**, dont la configuration serveur par défaut d'Alpine Linux.",
+      "Ne sont pas concernés, selon la source : Dropbear, les distributions fondées sur glibc, les systèmes non Linux et ceux qui vérifient les mots de passe via PAM.",
+      "L'exploitation exige au moins un compte dont le condensat est « * » ; les comptes dotés d'un mot de passe valide ne sont pas contournés.",
+      "L'accès obtenu correspond aux permissions du compte visé, ce qui peut aller jusqu'à root."
+     ]
+    },
+    {
+     "type": "paragraph",
+     "text": "L'article ne précise pas la plage exacte de versions vulnérables, seulement que le défaut remonte au correctif de 2016. La correction est disponible dans **OpenSSH 10.6p2**, ou dans le paquet corrigé de la distribution, suivie d'un redémarrage de sshd. La faille a été découverte par le chercheur Ozgun Kultekin."
+    },
+    {
+     "type": "heading",
+     "level": 2,
+     "text": "Une exploitation quasi immédiate"
+    },
+    {
+     "type": "keyvalue",
+     "items": [
+      {
+       "label": "Première tentative",
+       "value": "Moins de neuf heures après la publication de la CVE (observation de Previdian)"
+      },
+      {
+       "label": "Compromission confirmée",
+       "value": "Accès root obtenu sur un honeypot Alpine Linux avec OpenSSH"
+      },
+      {
+       "label": "Bilan au 8 novembre 2026",
+       "value": "20 tentatives depuis 13 adresses IP, dans neuf pays dont le Japon, l'Iran et les États-Unis"
+      },
+      {
+       "label": "Actions observées",
+       "value": "Commandes de reconnaissance (id, uname, hostname) en sessions non interactives"
+      }
+     ]
+    },
+    {
+     "type": "usecases",
+     "title": "Exemples d'utilisation",
+     "items": [
+      {
+       "icon": "🧾",
+       "title": "Chercher les connexions anormales",
+       "text": "Un administrateur cherche dans /var/log/messages les lignes « Accepted password for » concernant des comptes sans mot de passe, comme alpine, root ou un utilisateur réservé aux clés."
+      },
+      {
+       "icon": "🐳",
+       "title": "Vérifier les images de conteneurs",
+       "text": "Une équipe qui construit ses images sur Alpine contrôle si un serveur SSH y est embarqué et à quelle version, car ces images circulent longtemps après leur publication."
+      },
+      {
+       "icon": "🧹",
+       "title": "Traiter le doute comme une compromission",
+       "text": "Si une connexion ne peut être exclue, Alpine recommande de considérer la machine comme compromise : vérification de doas, des utilisateurs récents, des fichiers et des authorized_keys."
+      }
+     ]
+    },
+    {
+     "type": "timeline",
+     "title": "D'où l'on vient, où l'on va",
+     "items": [
+      {
+       "label": "2016",
+       "text": "Un correctif contre l'énumération de noms d'utilisateurs introduit, sans le savoir, le défaut."
+      },
+      {
+       "label": "5 novembre 2026",
+       "text": "Publication de la CVE et de l'avis d'Alpine."
+      },
+      {
+       "label": "Moins de 9 h plus tard",
+       "text": "Premières tentatives d'exploitation observées."
+      },
+      {
+       "label": "8 novembre 2026",
+       "text": "Vingt tentatives recensées depuis treize adresses IP."
+      }
+     ]
+    },
+    {
+     "type": "opinion",
+     "title": "Notre avis",
+     "paragraphs": [
+      "Le cas montre qu'un correctif de sécurité peut mettre dix ans à révéler un effet de bord, et que la combinaison d'un composant courant avec une configuration par défaut particulière suffit à créer une faille sérieuse. Le périmètre reste limité à musl sans PAM, ce qui tempère l'alerte, mais ce périmètre inclut un système très répandu dans les conteneurs.",
+      "La rapidité de l'exploitation, moins de neuf heures, confirme que le délai entre publication et attaque se compte désormais en heures. À un horizon d'un à trois ans, les équipes qui n'automatisent pas la mise à jour des images et des paquets s'exposeront de plus en plus ; c'est notre lecture, non un constat chiffré."
+     ],
+     "verdict": "Mettre à jour vers OpenSSH 10.6p2 et relire les journaux : la fenêtre entre divulgation et attaque est désormais de quelques heures."
+    }
+   ]
+  },
+  {
+   "id": "controleurs-refrigeration-copeland-xweb-botnet",
+   "category": "cybersecurite",
+   "title": "Contrôleurs de réfrigération Copeland XWEB : des équipements de supermarché détournés en relais de spam et de proxy",
+   "summary": "Des chercheurs décrivent un réseau d'équipements Copeland XWEB PRO compromis qui envoient du courriel indésirable et servent de relais. Une autre équipe a observé 743 modifications de consignes, dont des températures de 110 °C et 150 °C.",
+   "tags": [
+    "Copeland",
+    "XWEB PRO",
+    "systèmes industriels",
+    "botnet",
+    "supermarchés"
+   ],
+   "importance": 4,
+   "readingMinutes": 4,
+   "publishedAt": "2026-11-09T18:17:36+01:00",
+   "sourceDate": "2026-11-09",
+   "icon": "🧊",
+   "sources": [
+    {
+     "title": "Hackers abuse refrigeration controllers to send spam and route proxy traffic",
+     "url": "https://www.helpnetsecurity.com/2026/11/09/copeland-xweb-refrigeration-controllers-spam-botnet/",
+     "publisher": "Help Net Security"
+    },
+    {
+     "title": "U.S. Agencies Warn Refrigeration Controller Attacks Could Cause Fires and Inventory Losses",
+     "url": "https://thehackernews.com/2026/11/us-agencies-warn-refrigeration.html",
+     "publisher": "The Hacker News"
+    }
+   ],
+   "illustration": {
+    "svg": "<svg xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"0 0 640 360\" role=\"img\" aria-hidden=\"true\"><defs><linearGradient id=\"gaef8e1\" x1=\"0\" y1=\"0\" x2=\"1\" y2=\"1\"><stop offset=\"0\" stop-color=\"hsl(175,65%,38%)\"/><stop offset=\"1\" stop-color=\"hsl(210,60%,20%)\"/></linearGradient></defs><rect width=\"640\" height=\"360\" fill=\"url(#gaef8e1)\"/><circle cx=\"560\" cy=\"60\" r=\"120\" fill=\"#fff\" opacity=\".07\"/><circle cx=\"80\" cy=\"320\" r=\"150\" fill=\"#fff\" opacity=\".06\"/><circle cx=\"320\" cy=\"180\" r=\"92\" fill=\"#fff\" opacity=\".9\"/><circle cx=\"320\" cy=\"180\" r=\"120\" fill=\"none\" stroke=\"#fff\" stroke-width=\"3\" opacity=\".4\"/><rect x=\"90\" y=\"70\" width=\"70\" height=\"8\" rx=\"4\" fill=\"#fff\" opacity=\".5\"/><rect x=\"90\" y=\"90\" width=\"44\" height=\"8\" rx=\"4\" fill=\"#fff\" opacity=\".35\"/><rect x=\"480\" y=\"270\" width=\"80\" height=\"8\" rx=\"4\" fill=\"#fff\" opacity=\".5\"/><rect x=\"500\" y=\"290\" width=\"50\" height=\"8\" rx=\"4\" fill=\"#fff\" opacity=\".35\"/><text x=\"320\" y=\"212\" font-size=\"88\" text-anchor=\"middle\">🧊</text></svg>"
+   },
+   "cover": {
+    "url": "https://img.helpnetsecurity.com/wp-content/uploads/2026/10/12180608/hand-laptop-warm-1500.webp",
+    "alt": "Rayon réfrigéré de supermarché",
+    "credit": "helpnetsecurity.com"
+   },
+   "blocks": [
+    {
+     "type": "paragraph",
+     "text": "Dans un supermarché, un contrôleur de réfrigération règle la température des rayons réfrigérés et congelés, et se pilote à distance via un navigateur. Des chercheurs de SecurityScorecard et de Ransom-ISAC décrivent, dans des travaux relayés le 9 novembre 2026 par Help Net Security, deux usages malveillants de ces boîtiers : un réseau de spam et de proxy d'une part, des modifications de consignes dangereuses d'autre part."
+    },
+    {
+     "type": "heading",
+     "level": 2,
+     "text": "Un botnet de spam fondé sur des XWEB PRO"
+    },
+    {
+     "type": "paragraph",
+     "text": "Les **Copeland XWEB PRO**, fabriqués à l'origine par Dixell, sont au cœur de l'analyse de SecurityScorecard. Neuf adresses IP, repérées pour la première fois le 2 novembre, envoyaient des courriels sans jamais en recevoir ; trois d'entre elles étaient des XWEB confirmés. Les trois nœuds les plus actifs partageaient environ 47 % de leurs cibles, et 508 des 1 041 cibles ont été visées par au moins deux nœuds, ce qui suggère un opérateur unique et coordonné. Les liens d'infrastructure de commande et contrôle sont toutefois faibles, et SecurityScorecard évalue sa confiance comme faible à moyenne."
+    },
+    {
+     "type": "keyvalue",
+     "items": [
+      {
+       "label": "Contrôleur en Namibie",
+       "value": "Passerelle tunnel représentant 71 % du trafic capturé"
+      },
+      {
+       "label": "Contrôleur à Trinité-et-Tobago",
+       "value": "10 643 hôtes contactés en 17 heures, comportement d'un point de sortie de proxy résidentiel"
+      },
+      {
+       "label": "Faille citée",
+       "value": "CVE-2026-25085 : contournement de l'invite de mot de passe par un utilisateur non authentifié"
+      },
+      {
+       "label": "Contexte",
+       "value": "Faille parmi 23 signalées à la CISA par Claroty Team82 ; avis publié en février 2026"
+      }
+     ]
+    },
+    {
+     "type": "heading",
+     "level": 2,
+     "text": "Des consignes à 110 °C et 150 °C"
+    },
+    {
+     "type": "paragraph",
+     "text": "Ransom-ISAC rapporte pour sa part un incident où aucune faille n'était nécessaire : le contrôleur utilisait encore les identifiants d'administrateur par défaut. Le 2 novembre, deux sessions d'administrateur venues d'Australie et des Pays-Bas ont lu les réglages de 31 appareils, puis effectué 743 modifications, dont des consignes de 110 °C et 150 °C. Les alarmes ont été désactivées et les claviers locaux verrouillés. Le journal ne permet pas de savoir si des denrées ont été perdues."
+    },
+    {
+     "type": "heading",
+     "level": 2,
+     "text": "Un contexte européen tendu"
+    },
+    {
+     "type": "list",
+     "items": [
+      "En octobre, des centaines de supermarchés français ont dû jeter des stocks après que des systèmes ont été basculés en mode chauffage pendant la nuit, selon la source.",
+      "Une nouvelle vague a touché la Belgique, le Luxembourg et la Suède environ trois semaines plus tard, puis la Finlande, l'Irlande, l'Estonie et les Pays-Bas.",
+      "Début novembre, l'EFS a confirmé une hausse de température dans les chambres froides de trois banques de sang, après la compromission d'un fournisseur d'équipements de réfrigération.",
+      "Les groupes prorusses NoName057(16) et Z-Pentest ont revendiqué les attaques contre les supermarchés le 4 novembre, sans confirmation ; aucun lien n'est établi avec les deux cas décrits ci-dessus."
+     ]
+    },
+    {
+     "type": "paragraph",
+     "text": "L'article ne mentionne pas de version corrigée ni de date de correctif. Il souligne que la mise à jour de ces équipements est souvent négligée, car elle peut exiger de les mettre hors ligne."
+    },
+    {
+     "type": "usecases",
+     "title": "Exemples d'utilisation",
+     "items": [
+      {
+       "icon": "🛒",
+       "title": "Retirer l'interface de l'internet",
+       "text": "Un gérant de magasin demande à son installateur de couper l'accès direct au contrôleur depuis internet et de passer par un accès distant protégé, avec authentification forte."
+      },
+      {
+       "icon": "🔐",
+       "title": "Changer les identifiants par défaut",
+       "text": "Un prestataire de maintenance recense ses boîtiers installés et remplace tous les mots de passe d'usine, la cause de l'incident décrit par Ransom-ISAC."
+      },
+      {
+       "icon": "📉",
+       "title": "Surveiller les écarts de température",
+       "text": "Une chaîne de distribution met en place des sondes indépendantes avec alerte, qui détectent une dérive même si les alarmes du contrôleur ont été désactivées."
+      }
+     ]
+    },
+    {
+     "type": "timeline",
+     "title": "D'où l'on vient, où l'on va",
+     "items": [
+      {
+       "label": "Février 2026",
+       "text": "Publication d'un avis de la CISA sur 23 vulnérabilités signalées par Claroty Team82."
+      },
+      {
+       "label": "Octobre 2026",
+       "text": "Basculements en mode chauffage dans des centaines de supermarchés français."
+      },
+      {
+       "label": "2 novembre 2026",
+       "text": "Premières adresses du botnet repérées ; 743 modifications de consignes constatées."
+      },
+      {
+       "label": "4 novembre 2026",
+       "text": "Revendication non confirmée de groupes prorusses."
+      }
+     ]
+    },
+    {
+     "type": "opinion",
+     "title": "Notre avis",
+     "paragraphs": [
+      "Le point notable est moins la sophistication que la banalité : des équipements industriels exposés, protégés par des mots de passe d'usine, deviennent à la fois des relais pour la criminalité ordinaire et des outils de sabotage possible. Les données disponibles sont partielles et la confiance des chercheurs est limitée, ce qui impose de la prudence sur l'ampleur réelle du phénomène.",
+      "À un horizon de un à trois ans, la sécurité des objets connectés de la chaîne du froid devrait devenir une obligation contractuelle autant que technique, notamment avec la directive NIS 2 en cours de transposition en France. C'est une projection, pas un fait."
+     ],
+     "verdict": "Des boîtiers de réfrigération joignables depuis internet avec un mot de passe d'usine sont une faille de gestion avant d'être une faille technique."
+    },
+    {
+     "type": "callout",
+     "title": "À retenir",
+     "text": "Ne pas exposer ces contrôleurs sur internet, supprimer les identifiants par défaut, surveiller indépendamment les températures et appliquer les correctifs du fabricant dès qu'ils existent."
+    }
+   ]
+  },
+  {
+   "id": "pypi-onglet-security-attestations-provenance",
+   "category": "dev",
+   "title": "PyPI ajoute un onglet « Security » pour vérifier la provenance des versions d'un paquet Python",
+   "summary": "Chaque page de projet PyPI affiche désormais les attestations de publication et de construction, avec des avertissements lorsqu'une version change d'origine. Une absence d'attestation ne prouve pas pour autant une intention malveillante.",
+   "tags": [
+    "PyPI",
+    "Python",
+    "chaîne d'approvisionnement",
+    "attestations",
+    "Trusted Publishing"
+   ],
+   "importance": 3,
+   "readingMinutes": 3,
+   "publishedAt": "2026-11-09T18:17:36+01:00",
+   "sourceDate": "2026-11-06",
+   "icon": "📦",
+   "sources": [
+    {
+     "title": "PyPI makes release attestations easier to find with new security tab",
+     "url": "https://www.helpnetsecurity.com/2026/11/09/pypi-security-tab-release-attestations/",
+     "publisher": "Help Net Security"
+    }
+   ],
+   "illustration": {
+    "svg": "<svg xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"0 0 640 360\" role=\"img\" aria-hidden=\"true\"><defs><linearGradient id=\"g4f56ab\" x1=\"0\" y1=\"0\" x2=\"1\" y2=\"1\"><stop offset=\"0\" stop-color=\"hsl(265,65%,38%)\"/><stop offset=\"1\" stop-color=\"hsl(300,60%,20%)\"/></linearGradient></defs><rect width=\"640\" height=\"360\" fill=\"url(#g4f56ab)\"/><circle cx=\"560\" cy=\"60\" r=\"120\" fill=\"#fff\" opacity=\".07\"/><circle cx=\"80\" cy=\"320\" r=\"150\" fill=\"#fff\" opacity=\".06\"/><circle cx=\"320\" cy=\"180\" r=\"92\" fill=\"#fff\" opacity=\".9\"/><circle cx=\"320\" cy=\"180\" r=\"120\" fill=\"none\" stroke=\"#fff\" stroke-width=\"3\" opacity=\".4\"/><rect x=\"90\" y=\"70\" width=\"70\" height=\"8\" rx=\"4\" fill=\"#fff\" opacity=\".5\"/><rect x=\"90\" y=\"90\" width=\"44\" height=\"8\" rx=\"4\" fill=\"#fff\" opacity=\".35\"/><rect x=\"480\" y=\"270\" width=\"80\" height=\"8\" rx=\"4\" fill=\"#fff\" opacity=\".5\"/><rect x=\"500\" y=\"290\" width=\"50\" height=\"8\" rx=\"4\" fill=\"#fff\" opacity=\".35\"/><text x=\"320\" y=\"212\" font-size=\"88\" text-anchor=\"middle\">📦</text></svg>"
+   },
+   "cover": {
+    "url": "https://img.helpnetsecurity.com/wp-content/uploads/2026/07/23092014/pypi-1500.webp",
+    "alt": "Logo PyPI",
+    "credit": "helpnetsecurity.com"
+   },
+   "blocks": [
+    {
+     "type": "paragraph",
+     "text": "Installer un paquet Python avec `pip` revient à faire confiance à son auteur et à la chaîne qui a produit les fichiers. Pour rendre cette confiance vérifiable, PyPI, l'index officiel des paquets Python, a ajouté un onglet **Security** à la page de chaque projet. Selon Help Net Security, la nouveauté a été présentée dans un billet de blog daté du 6 novembre 2026 par Nicole Harris, designer contributrice de PyPI. Elle s'appuie sur des attestations qui existaient déjà mais étaient difficiles à repérer."
+    },
+    {
+     "type": "heading",
+     "level": 2,
+     "text": "Deux types d'attestations"
+    },
+    {
+     "type": "list",
+     "items": [
+      "**PyPI Publish** : identifie le *Trusted Publisher* (éditeur de confiance) qui a envoyé le fichier.",
+      "**SLSA Build Provenance** : relie le fichier à son commit source, à la plateforme de construction et aux instructions de build.",
+      "Les détails sont consultables dans l'onglet, avec un lien vers le journal de transparence associé."
+     ]
+    },
+    {
+     "type": "paragraph",
+     "text": "Une version peut afficher une **provenance complète** lorsque chacun de ses fichiers possède au moins une attestation, ou **aucune provenance**. Ce second cas est fréquent pour les anciennes versions et pour les projets qui n'ont pas encore configuré le Trusted Publishing. Nicole Harris précise qu'une telle version n'est pas forcément malveillante : son origine ne peut simplement pas être vérifiée de façon cryptographique."
+    },
+    {
+     "type": "heading",
+     "level": 2,
+     "text": "Les avertissements affichés"
+    },
+    {
+     "type": "list",
+     "items": [
+      "Seule une partie des fichiers d'une version possède une attestation.",
+      "Les fichiers d'une même version proviennent de dépôts ou de systèmes de construction différents.",
+      "La version provient d'un autre dépôt ou d'un autre workflow que la précédente.",
+      "Un projet qui fournissait des attestations cesse de le faire."
+     ]
+    },
+    {
+     "type": "paragraph",
+     "text": "Ces avertissements apparaissent en haut de la page du projet, avec les mentions de versions retirées (*yanked*), de projets archivés et de préversions. Si un projet ou une version est en quarantaine, seule la bannière de quarantaine s'affiche. L'onglet *Release Files* permet de filtrer les fichiers et de voir la provenance de chacun ; pour les versions antérieures à la politique de juillet 2026, les fichiers envoyés plus de 14 jours après la version initiale sont signalés. L'onglet *Release History* aide à comparer les versions."
+    },
+    {
+     "type": "usecases",
+     "title": "Exemples d'utilisation",
+     "items": [
+      {
+       "icon": "🔍",
+       "title": "Vérifier avant d'installer",
+       "text": "Un développeur qui ajoute une dépendance critique ouvre l'onglet Security et vérifie que la dernière version garde la même provenance que les précédentes."
+      },
+      {
+       "icon": "🚨",
+       "title": "Repérer un changement suspect",
+       "text": "Une équipe de sécurité surveille les paquets dont le dépôt source change d'une version à l'autre, signe possible d'un pipeline compromis ou d'une prise de contrôle de compte."
+      },
+      {
+       "icon": "⚙️",
+       "title": "Activer le Trusted Publishing",
+       "text": "Un mainteneur de bibliothèque configure la publication de confiance dans son CI afin que ses versions affichent une provenance complète et rassurent ses utilisateurs."
+      }
+     ]
+    },
+    {
+     "type": "timeline",
+     "title": "D'où l'on vient, où l'on va",
+     "items": [
+      {
+       "label": "Juillet 2026",
+       "text": "Changement de politique de PyPI : les envois tardifs de fichiers sont refusés."
+      },
+      {
+       "label": "6 novembre 2026",
+       "text": "Billet de blog annonçant l'onglet Security et les mises à jour de l'interface."
+      },
+      {
+       "label": "Ensuite",
+       "text": "La couverture dépendra de l'adoption du Trusted Publishing par les mainteneurs ; l'article ne donne aucun chiffre d'adoption."
+      }
+     ]
+    },
+    {
+     "type": "opinion",
+     "title": "Notre avis",
+     "paragraphs": [
+      "L'intérêt principal est de rendre visible une information qui existait mais dormait dans des métadonnées. Les avertissements sont des indicateurs, pas des verdicts : un changement de workflow a souvent une explication légitime, comme le déplacement d'une organisation. Le risque est la fatigue d'alerte si trop de projets légitimes déclenchent des signaux.",
+      "D'ici un à trois ans, on peut attendre que les outils d'installation et les scanners de dépendances exploitent ces signaux automatiquement, voire les exigent pour certains projets sensibles. C'est une projection de notre part. Tant que l'adoption reste partielle, l'onglet complétera sans remplacer l'examen des mainteneurs et l'épinglage des versions."
+     ],
+     "verdict": "Un pas utile vers des dépendances Python vérifiables, dont la valeur dépendra de l'adoption par les mainteneurs."
+    }
+   ]
+  },
+  {
+   "id": "azure-linux-3-0-2022-470-cve",
+   "category": "devops",
+   "title": "Azure Linux 3.0.2022 : plus de 470 références CVE corrigées en une seule mise à jour, et des certificats retirés",
+   "summary": "La distribution de Microsoft a publié une version qui compile plus de 470 références CVE, touchant OpenSSL, curl, Kubernetes ou Docker, et qui retire la confiance accordée à des certificats racines après l'incident eMudhra.",
+   "tags": [
+    "Azure Linux",
+    "Microsoft",
+    "correctifs",
+    "conteneurs",
+    "certificats"
+   ],
+   "importance": 3,
+   "readingMinutes": 3,
+   "publishedAt": "2026-11-09T18:17:36+01:00",
+   "sourceDate": "2026-11-09",
+   "icon": "🐧",
+   "sources": [
+    {
+     "title": "Microsoft's Azure Linux gets 470-plus security fixes in one almighty patching session",
+     "url": "https://www.theregister.com/security/2026/11/09/microsofts-azure-linux-gets-470-plus-security-fixes-in-one-almighty-patching-session/5308434",
+     "publisher": "The Register"
+    }
+   ],
+   "illustration": {
+    "svg": "<svg xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"0 0 640 360\" role=\"img\" aria-hidden=\"true\"><defs><linearGradient id=\"g63ac6c\" x1=\"0\" y1=\"0\" x2=\"1\" y2=\"1\"><stop offset=\"0\" stop-color=\"hsl(160,65%,38%)\"/><stop offset=\"1\" stop-color=\"hsl(195,60%,20%)\"/></linearGradient></defs><rect width=\"640\" height=\"360\" fill=\"url(#g63ac6c)\"/><circle cx=\"560\" cy=\"60\" r=\"120\" fill=\"#fff\" opacity=\".07\"/><circle cx=\"80\" cy=\"320\" r=\"150\" fill=\"#fff\" opacity=\".06\"/><circle cx=\"320\" cy=\"180\" r=\"92\" fill=\"#fff\" opacity=\".9\"/><circle cx=\"320\" cy=\"180\" r=\"120\" fill=\"none\" stroke=\"#fff\" stroke-width=\"3\" opacity=\".4\"/><rect x=\"90\" y=\"70\" width=\"70\" height=\"8\" rx=\"4\" fill=\"#fff\" opacity=\".5\"/><rect x=\"90\" y=\"90\" width=\"44\" height=\"8\" rx=\"4\" fill=\"#fff\" opacity=\".35\"/><rect x=\"480\" y=\"270\" width=\"80\" height=\"8\" rx=\"4\" fill=\"#fff\" opacity=\".5\"/><rect x=\"500\" y=\"290\" width=\"50\" height=\"8\" rx=\"4\" fill=\"#fff\" opacity=\".35\"/><text x=\"320\" y=\"212\" font-size=\"88\" text-anchor=\"middle\">🐧</text></svg>"
+   },
+   "cover": {
+    "url": "https://image.theregister.com/5308444.jpg?imageId=5308444&x=0&y=0&cropw=100&croph=100&panox=0&panoy=0&panow=100&panoh=100&width=1200&height=683",
+    "alt": "Serveurs et conteneurs",
+    "credit": "theregister.com"
+   },
+   "blocks": [
+    {
+     "type": "paragraph",
+     "text": "Azure Linux, anciennement CBL-Mariner, est la distribution Linux de Microsoft, conçue surtout pour son infrastructure et ses services cloud, y compris les nœuds de conteneurs. La version **3.0.2022**, dont l'étiquette Git est datée du 5 novembre 2026, a été diffusée au cours du week-end précédant le 9 novembre. Ses notes de version contiennent plus de 470 références CVE, un chiffre spectaculaire qui demande à être nuancé."
+    },
+    {
+     "type": "heading",
+     "level": 2,
+     "text": "470 références, pas 470 failles"
+    },
+    {
+     "type": "paragraph",
+     "text": "Le total ne correspond pas à 470 vulnérabilités distinctes : une même faille apparaît plusieurs fois lorsqu'elle touche plusieurs paquets. Les composants de conteneurs, comme KubeVirt, containerd et Docker Compose, concentrent beaucoup d'entrées parce que plusieurs CVE reviennent sur plusieurs paquets. Parmi les logiciels corrigés figurent des briques très répandues : OpenSSL, curl, Kubernetes, Docker et QEMU. Le noyau Linux générique passe à la version 6.6.161.1."
+    },
+    {
+     "type": "heading",
+     "level": 2,
+     "text": "Le volet certificats"
+    },
+    {
+     "type": "paragraph",
+     "text": "La mise à jour fait suite à l'incident eMudhra, suivi sous la référence CVE-2026-114406 : une autorité de certification indienne a vu des clés privées compromises, dont celle d'un certificat intermédiaire. Microsoft a retiré ou cessé de faire confiance à des certificats racines pouvant valider les certificats intermédiaires compromis, et a ajouté des contrôles à Python et à Go pour rejeter les certificats concernés. La confiance TLS envers SSL.com a été conservée là où elle est nécessaire."
+    },
+    {
+     "type": "list",
+     "items": [
+      "Autres changements non liés à la sécurité : nouveaux Dockerfiles, correctif OpenVMM pour l'informatique confidentielle, corrections de blocages de systemd et ajustements des métadonnées GRUB liées à Secure Boot."
+     ]
+    },
+    {
+     "type": "heading",
+     "level": 2,
+     "text": "Un effet de la recherche de failles assistée par IA ?"
+    },
+    {
+     "type": "paragraph",
+     "text": "The Register situe cette publication dans la hausse des découvertes de vulnérabilités favorisée par l'IA, qui sature les équipes de développement. Linus Torvalds estime que cette vague pourrait commencer à reculer, au moins dans certaines parties du noyau : dans le sous-système eBPF, les correctifs arrivent désormais plus vite que les nouveaux rapports de bogues, mais ce n'est pas encore le cas ailleurs. Microsoft n'a pas indiqué si la recherche assistée par IA a contribué aux failles corrigées dans cette version."
+    },
+    {
+     "type": "usecases",
+     "title": "Exemples d'utilisation",
+     "items": [
+      {
+       "icon": "☸️",
+       "title": "Mettre à jour les nœuds Kubernetes",
+       "text": "Une équipe plateforme qui utilise des nœuds Azure Linux planifie une rotation des nœuds vers la nouvelle image, en commençant par les clusters exposés."
+      },
+      {
+       "icon": "🧪",
+       "title": "Tester avant de déployer",
+       "text": "Un responsable d'intégration continue reconstruit ses images avec la nouvelle base et rejoue ses tests, car un lot aussi large de correctifs peut changer des comportements."
+      },
+      {
+       "icon": "📜",
+       "title": "Vérifier la chaîne de confiance",
+       "text": "Un administrateur contrôle que ses applications Python et Go n'acceptent plus les certificats liés à l'incident eMudhra et qu'aucun service interne n'en dépendait."
+      }
+     ]
+    },
+    {
+     "type": "timeline",
+     "title": "D'où l'on vient, où l'on va",
+     "items": [
+      {
+       "label": "5 novembre 2026",
+       "text": "Date de l'étiquette Git de la version 3.0.2022."
+      },
+      {
+       "label": "Week-end suivant",
+       "text": "Diffusion de la mise à jour, signalée le 9 novembre par The Register."
+      },
+      {
+       "label": "Prochaines versions",
+       "text": "Linus Torvalds laisse entrevoir un reflux du flux de correctifs, mais seulement dans certaines parties du noyau."
+      }
+     ]
+    },
+    {
+     "type": "opinion",
+     "title": "Notre avis",
+     "paragraphs": [
+      "Un gros lot de correctifs est une bonne nouvelle pour la sécurité, à condition d'être appliqué. Pour les équipes, le risque est surtout organisationnel : tester et déployer plusieurs centaines de références CVE sans casser la production exige une automatisation solide. L'incident de certificats rappelle aussi que la confiance TLS est une dépendance partagée, qui se gère au niveau du système.",
+      "D'ici un à trois ans, la multiplication des rapports de failles aidés par l'IA devrait pousser les éditeurs de distributions à publier des correctifs plus fréquents et plus petits, ou à automatiser davantage la rotation des nœuds. C'est une projection de notre part."
+     ],
+     "verdict": "La taille du lot impressionne moins que l'enjeu réel : savoir déployer vite une image corrigée sans surprise."
+    }
+   ]
+  },
+  {
+   "id": "gpu-h100-prix-location-ecart-4-57",
+   "category": "ia",
+   "title": "Location de GPU H100 : de 2,69 à 12,29 dollars de l'heure selon le fournisseur, un écart de 4,57 fois",
+   "summary": "Une comparaison publiée sur GitHub relève, pour un même GPU H100 SXM 80 Go, des prix à la demande allant de 2,69 $ chez RunPod Community à 12,29 $ chez Azure. L'écart s'explique en partie par les services inclus.",
+   "tags": [
+    "GPU",
+    "H100",
+    "cloud",
+    "coût de calcul",
+    "IA"
+   ],
+   "importance": 3,
+   "readingMinutes": 3,
+   "publishedAt": "2026-11-09T18:17:36+01:00",
+   "sourceDate": "2026-11-09",
+   "icon": "💸",
+   "sources": [
+    {
+     "title": "data-receipts : 109 – GPU pricing",
+     "url": "https://github.com/datareceipts/data-receipts/tree/main/109-gpu-pricing",
+     "publisher": "GitHub (datareceipts)"
+    }
+   ],
+   "illustration": {
+    "svg": "<svg xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"0 0 640 360\" role=\"img\" aria-hidden=\"true\"><defs><linearGradient id=\"g5919a0\" x1=\"0\" y1=\"0\" x2=\"1\" y2=\"1\"><stop offset=\"0\" stop-color=\"hsl(320,65%,38%)\"/><stop offset=\"1\" stop-color=\"hsl(355,60%,20%)\"/></linearGradient></defs><rect width=\"640\" height=\"360\" fill=\"url(#g5919a0)\"/><circle cx=\"560\" cy=\"60\" r=\"120\" fill=\"#fff\" opacity=\".07\"/><circle cx=\"80\" cy=\"320\" r=\"150\" fill=\"#fff\" opacity=\".06\"/><circle cx=\"320\" cy=\"180\" r=\"92\" fill=\"#fff\" opacity=\".9\"/><circle cx=\"320\" cy=\"180\" r=\"120\" fill=\"none\" stroke=\"#fff\" stroke-width=\"3\" opacity=\".4\"/><rect x=\"90\" y=\"70\" width=\"70\" height=\"8\" rx=\"4\" fill=\"#fff\" opacity=\".5\"/><rect x=\"90\" y=\"90\" width=\"44\" height=\"8\" rx=\"4\" fill=\"#fff\" opacity=\".35\"/><rect x=\"480\" y=\"270\" width=\"80\" height=\"8\" rx=\"4\" fill=\"#fff\" opacity=\".5\"/><rect x=\"500\" y=\"290\" width=\"50\" height=\"8\" rx=\"4\" fill=\"#fff\" opacity=\".35\"/><text x=\"320\" y=\"212\" font-size=\"88\" text-anchor=\"middle\">💸</text></svg>"
+   },
+   "blocks": [
+    {
+     "type": "paragraph",
+     "text": "Entraîner ou faire tourner un modèle d'IA demande des GPU, et leur coût varie fortement d'un fournisseur à l'autre. Un dépôt GitHub intitulé *data-receipts* a comparé les prix de location à la demande du GPU **H100 SXM 80 Go** chez AWS, Azure et plusieurs fournisseurs spécialisés, remonté sur Hacker News le 9 novembre 2026. Le résultat saute aux yeux : de 2,69 à 12,29 dollars par GPU et par heure, soit un facteur de 4,57."
+    },
+    {
+     "type": "heading",
+     "level": 2,
+     "text": "Les chiffres relevés"
+    },
+    {
+     "type": "diagram",
+     "svg": "<svg xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"0 0 640 262\" font-family=\"system-ui,sans-serif\"><rect width=\"640\" height=\"262\" rx=\"14\" fill=\"#eef2f7\"/><text x=\"24\" y=\"34\" font-size=\"15\" font-weight=\"600\" fill=\"#1c2430\">Prix à la demande d&#x27;un H100 SXM 80 Go, en dollars par GPU et par heure</text><text x=\"24\" y=\"78\" font-size=\"13\" fill=\"#1c2430\">RunPod Community</text><rect x=\"190\" y=\"60\" width=\"83\" height=\"26\" rx=\"6\" fill=\"hsl(210,55%,36%)\"/><text x=\"281\" y=\"78\" font-size=\"13\" fill=\"#1c2430\">2,69 $</text><text x=\"24\" y=\"126\" font-size=\"13\" fill=\"#1c2430\">RunPod Secure</text><rect x=\"190\" y=\"108\" width=\"123\" height=\"26\" rx=\"6\" fill=\"hsl(210,55%,36%)\"/><text x=\"321\" y=\"126\" font-size=\"13\" fill=\"#1c2430\">3,99 $</text><text x=\"24\" y=\"174\" font-size=\"13\" fill=\"#1c2430\">AWS p5.48xlarge</text><rect x=\"190\" y=\"156\" width=\"212\" height=\"26\" rx=\"6\" fill=\"hsl(210,55%,36%)\"/><text x=\"410\" y=\"174\" font-size=\"13\" fill=\"#1c2430\">6,88 $</text><text x=\"24\" y=\"222\" font-size=\"13\" fill=\"#1c2430\">Azure ND96isr_H100_v5</text><rect x=\"190\" y=\"204\" width=\"380\" height=\"26\" rx=\"6\" fill=\"hsl(210,55%,36%)\"/><text x=\"578\" y=\"222\" font-size=\"13\" fill=\"#1c2430\">12,29 $</text></svg>",
+     "alt": "Diagramme en barres des prix de location d'un H100 : 2,69 dollars, 3,99, 6,88 et 12,29.",
+     "caption": "Prix à la demande par GPU et par heure, d'après la comparaison publiée sur GitHub (AWS us-east-1, Azure eastus)."
+    },
+    {
+     "type": "keyvalue",
+     "items": [
+      {
+       "label": "RunPod Community",
+       "value": "2,69 $ l'heure, environ 1 964 $ par mois (730 heures)"
+      },
+      {
+       "label": "RunPod Secure",
+       "value": "3,99 $ l'heure, environ 2 913 $ par mois"
+      },
+      {
+       "label": "AWS p5.48xlarge",
+       "value": "6,88 $ l'heure, environ 5 022 $ par mois"
+      },
+      {
+       "label": "Azure ND96isr_H100_v5",
+       "value": "12,29 $ l'heure, environ 8 972 $ par mois"
+      }
+     ]
+    },
+    {
+     "type": "paragraph",
+     "text": "La méthode compare uniquement des GPU identiques : les variantes H100 SXM 80 Go, PCIe 80 Go et NVL 94 Go sont séparées, et pour chaque fournisseur l'itinéraire le moins cher vers un GPU donné est retenu. Les prix AWS et Azure proviennent de leurs API publiques ; les tarifs des fournisseurs spécialisés ont été transcrits à la main."
+    },
+    {
+     "type": "heading",
+     "level": 2,
+     "text": "Pourquoi l'écart n'est pas une simple marge"
+    },
+    {
+     "type": "list",
+     "items": [
+      "L'offre Azure ND inclut une interconnexion InfiniBand de 400 Gbit/s par GPU avec GPUDirect RDMA, nécessaire à l'entraînement sur plusieurs nœuds ; l'offre Azure à un seul GPU est à 6,98 $.",
+      "RunPod Community repose sur des hôtes tiers, sans SLA de centre de données ni offres de conformité ou de capacité réservée.",
+      "Pour un réglage fin sur un seul nœud, l'interconnexion rapide est inutilisée ; pour un entraînement sur 64 nœuds, l'option la moins chère n'est pas viable."
+     ]
+    },
+    {
+     "type": "paragraph",
+     "text": "La comparaison a aussi des limites assumées : elle ne porte que sur les prix à la demande, sans réservations, engagements ni instances spot, qui réduiraient les tarifs des grands fournisseurs. Elle utilise une seule région par fournisseur et ne tient pas compte de la disponibilité, alors qu'un GPU bon marché mais indisponible n'a pas de prix réel. La date de relevé des prix n'est pas indiquée dans le contenu consulté."
+    },
+    {
+     "type": "usecases",
+     "title": "Ce que cela change concrètement",
+     "items": [
+      {
+       "icon": "🧪",
+       "title": "Prototyper à moindre coût",
+       "text": "Une jeune équipe qui teste un réglage fin sur un seul nœud choisit un fournisseur bon marché, sans payer une interconnexion inutile."
+      },
+      {
+       "icon": "🏭",
+       "title": "Entraîner à grande échelle",
+       "text": "Un laboratoire qui entraîne sur des dizaines de nœuds accepte un tarif plus élevé pour obtenir l'interconnexion et le SLA indispensables."
+      },
+      {
+       "icon": "📊",
+       "title": "Négocier et comparer",
+       "text": "Un directeur technique utilise ce type de grille pour demander une remise d'engagement à son fournisseur, ou pour répartir les charges entre deux clouds."
+      }
+     ]
+    },
+    {
+     "type": "timeline",
+     "title": "D'où l'on vient, où l'on va",
+     "items": [
+      {
+       "label": "Novembre 2026",
+       "text": "Publication de la comparaison, qui compare des prix à la demande pour un même GPU."
+      },
+      {
+       "label": "16 novembre 2026",
+       "text": "Entrée en vigueur des tarifs de Lambda selon sa page publiée ; le fournisseur est présenté séparément."
+      },
+      {
+       "label": "Ensuite",
+       "text": "Les prix évoluent vite ; seule une mise à jour régulière de la grille garde la comparaison utile."
+      }
+     ]
+    },
+    {
+     "type": "opinion",
+     "title": "Notre avis",
+     "paragraphs": [
+      "Ce type de comparaison rappelle que « le prix du GPU » n'existe pas : il y a un prix pour une machine, un réseau, une garantie et une disponibilité. L'écart de 4,57 fois est réel, mais il mélange marge, services et risque. Le piège serait de choisir uniquement le moins cher sans mesurer le coût d'un entraînement interrompu ou d'un GPU introuvable.",
+      "À un horizon d'un à trois ans, la concurrence des fournisseurs spécialisés et l'arrivée de nouvelles générations de puces devraient tirer les prix à la baisse, tout en creusant l'écart entre calcul brut et service géré. Cette projection est une opinion, non un fait."
+     ],
+     "verdict": "Un écart de 4,57 fois, mais qui s'explique en partie par les services inclus : comparer sur la charge réelle, pas sur le tarif affiché."
+    }
+   ]
+  },
+  {
+   "id": "modeles-du-monde-contrefactuels-lecun-balestriero",
+   "category": "ia",
+   "title": "Modèles du monde contrefactuels : Yann LeCun et ses coauteurs proposent de répondre à « et si j'avais agi autrement ? »",
+   "summary": "Un préprint d'AMI Labs, Brown et NYU ajoute à un modèle du monde une simple soustraction pour estimer ce qui se serait passé avec une autre action. Les résultats, obtenus en simulation, restent à confirmer par les pairs.",
+   "tags": [
+    "modèles du monde",
+    "JEPA",
+    "Yann LeCun",
+    "robotique",
+    "préprint"
+   ],
+   "importance": 3,
+   "readingMinutes": 3,
+   "publishedAt": "2026-11-09T18:17:36+01:00",
+   "sourceDate": "2026-11-09",
+   "icon": "🧠",
+   "sources": [
+    {
+     "title": "Machine learning researchers build a better world model",
+     "url": "https://www.theregister.com/ai-and-ml/2026/11/09/machine-learning-researchers-build-a-better-world-model/5308301",
+     "publisher": "The Register"
+    }
+   ],
+   "illustration": {
+    "svg": "<svg xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"0 0 640 360\" role=\"img\" aria-hidden=\"true\"><defs><linearGradient id=\"gace8a2\" x1=\"0\" y1=\"0\" x2=\"1\" y2=\"1\"><stop offset=\"0\" stop-color=\"hsl(320,65%,38%)\"/><stop offset=\"1\" stop-color=\"hsl(355,60%,20%)\"/></linearGradient></defs><rect width=\"640\" height=\"360\" fill=\"url(#gace8a2)\"/><circle cx=\"560\" cy=\"60\" r=\"120\" fill=\"#fff\" opacity=\".07\"/><circle cx=\"80\" cy=\"320\" r=\"150\" fill=\"#fff\" opacity=\".06\"/><circle cx=\"320\" cy=\"180\" r=\"92\" fill=\"#fff\" opacity=\".9\"/><circle cx=\"320\" cy=\"180\" r=\"120\" fill=\"none\" stroke=\"#fff\" stroke-width=\"3\" opacity=\".4\"/><rect x=\"90\" y=\"70\" width=\"70\" height=\"8\" rx=\"4\" fill=\"#fff\" opacity=\".5\"/><rect x=\"90\" y=\"90\" width=\"44\" height=\"8\" rx=\"4\" fill=\"#fff\" opacity=\".35\"/><rect x=\"480\" y=\"270\" width=\"80\" height=\"8\" rx=\"4\" fill=\"#fff\" opacity=\".5\"/><rect x=\"500\" y=\"290\" width=\"50\" height=\"8\" rx=\"4\" fill=\"#fff\" opacity=\".35\"/><text x=\"320\" y=\"212\" font-size=\"88\" text-anchor=\"middle\">🧠</text></svg>"
+   },
+   "cover": {
+    "url": "https://image.theregister.com/5308397.jpg?imageId=5308397&x=0&y=12.81&cropw=100&croph=63.55&panox=0&panoy=12.81&panow=100&panoh=63.55&width=1200&height=683",
+    "alt": "Robot en cours de planification",
+    "credit": "theregister.com"
+   },
+   "blocks": [
+    {
+     "type": "paragraph",
+     "text": "Un modèle du monde est un système d'IA qui prédit l'état suivant d'un environnement selon l'action choisie. Ceux qui existent, dont les architectures JEPA proposées en 2023, prédisent un résultat moyen et ne savent pas répondre à une question que se pose tout agent confronté à une surprise : que se serait-il passé si j'avais agi autrement ? Un préprint signé Randall Balestriero (Brown University, AMI Labs), Kerda Varaku et Yann LeCun (NYU, AMI Labs) propose une réponse, détaillée le 9 novembre 2026 par The Register."
+    },
+    {
+     "type": "heading",
+     "level": 2,
+     "text": "Une soustraction plutôt qu'un apprentissage"
+    },
+    {
+     "type": "paragraph",
+     "text": "Le texte s'intitule « Counterfactual World Models: Natura Non Facit Saltus », en référence au principe de Leibniz selon lequel la nature ne fait pas de sauts. Son idée tient en une formule : le contrefactuel est égal à ce qui s'est réellement passé, plus la différence entre la prédiction pour l'action alternative et la prédiction pour l'action effectuée. Cette soustraction remplace l'apprentissage explicite de la perturbation cachée qui a fait dévier le résultat."
+    },
+    {
+     "type": "paragraph",
+     "text": "La justification est d'ordre physique : sur de courts pas de temps, les effets de l'action et de la perturbation s'additionnent, et leur interaction croît avec le carré du pas de temps. Les auteurs affirment prouver que l'erreur de la règle décroît avec ce carré. La méthode s'applique à tout modèle qui prédit l'état moyen suivant selon une action, même si les JEPA s'y prêtent particulièrement bien."
+    },
+    {
+     "type": "diagram",
+     "svg": "<svg xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"0 0 640 220\" font-family=\"system-ui,sans-serif\"><rect width=\"640\" height=\"220\" rx=\"14\" fill=\"#eef2f7\"/><defs><marker id=\"a\" markerWidth=\"8\" markerHeight=\"8\" refX=\"6\" refY=\"4\" orient=\"auto\"><path d=\"M0 0 L8 4 L0 8 z\" fill=\"#334\"/></marker></defs><rect x=\"40\" y=\"70\" width=\"116\" height=\"80\" rx=\"10\" fill=\"hsl(265,55%,32%)\"/><text x=\"98.0\" y=\"100\" fill=\"#fff\" font-size=\"14\" text-anchor=\"middle\">Action réalisée</text><text x=\"98.0\" y=\"120\" fill=\"#fff\" font-size=\"14\" text-anchor=\"middle\">et résultat</text><text x=\"98.0\" y=\"140\" fill=\"#fff\" font-size=\"14\" text-anchor=\"middle\">observé</text><path d=\"M159 110 h18\" stroke=\"#334\" stroke-width=\"3\" marker-end=\"url(#a)\"/><rect x=\"180\" y=\"70\" width=\"116\" height=\"80\" rx=\"10\" fill=\"hsl(265,55%,32%)\"/><text x=\"238.0\" y=\"100\" fill=\"#fff\" font-size=\"14\" text-anchor=\"middle\">Prédiction pour</text><text x=\"238.0\" y=\"120\" fill=\"#fff\" font-size=\"14\" text-anchor=\"middle\">l&#x27;action réalisée</text><text x=\"238.0\" y=\"140\" fill=\"#fff\" font-size=\"14\" text-anchor=\"middle\">(modèle moyen)</text><path d=\"M299 110 h18\" stroke=\"#334\" stroke-width=\"3\" marker-end=\"url(#a)\"/><rect x=\"320\" y=\"70\" width=\"116\" height=\"80\" rx=\"10\" fill=\"hsl(265,55%,32%)\"/><text x=\"378.0\" y=\"100\" fill=\"#fff\" font-size=\"14\" text-anchor=\"middle\">Prédiction pour</text><text x=\"378.0\" y=\"120\" fill=\"#fff\" font-size=\"14\" text-anchor=\"middle\">l&#x27;action</text><text x=\"378.0\" y=\"140\" fill=\"#fff\" font-size=\"14\" text-anchor=\"middle\">alternative</text><path d=\"M439 110 h18\" stroke=\"#334\" stroke-width=\"3\" marker-end=\"url(#a)\"/><rect x=\"460\" y=\"70\" width=\"116\" height=\"80\" rx=\"10\" fill=\"hsl(265,55%,32%)\"/><text x=\"518.0\" y=\"100\" fill=\"#fff\" font-size=\"14\" text-anchor=\"middle\">Contrefactuel =</text><text x=\"518.0\" y=\"120\" fill=\"#fff\" font-size=\"14\" text-anchor=\"middle\">observé + (alternative</text><text x=\"518.0\" y=\"140\" fill=\"#fff\" font-size=\"14\" text-anchor=\"middle\">− réalisée)</text></svg>",
+     "alt": "Schéma en quatre étapes de la méthode contrefactuelle : observation, deux prédictions, soustraction.",
+     "caption": "Principe de la règle décrite dans le préprint, schématisé d'après la description de The Register."
+    },
+    {
+     "type": "heading",
+     "level": 2,
+     "text": "Résultats annoncés"
+    },
+    {
+     "type": "keyvalue",
+     "items": [
+      {
+       "label": "Expériences",
+       "value": "Encodeurs existants (DINOv2 et MAE) sans réglage fin, avec un petit prédicteur entraîné par-dessus"
+      },
+      {
+       "label": "Réussite après un événement imprévu",
+       "value": "35 à 69 % des cas, contre 14 à 23 % pour un planificateur qui connaît le vrai simulateur mais ignore le résultat observé"
+      },
+      {
+       "label": "Avec deux essais supplémentaires",
+       "value": "51 à 97 % de réussite sur le même événement"
+      }
+     ]
+    },
+    {
+     "type": "paragraph",
+     "text": "Tous ces chiffres proviennent de tâches simulées et d'un préprint non évalué par les pairs. L'article ne décrit aucun test sur des robots réels. La méthode repose en outre sur une hypothèse d'additivité des effets sur de courts pas de temps : sa validité dépend de ce cadre. Les auteurs soulignent qu'apprendre la perturbation cachée à partir de données ordinaires est impossible en général, ce qui avait rendu leur approche initiale fragile."
+    },
+    {
+     "type": "usecases",
+     "title": "Exemples d'utilisation",
+     "items": [
+      {
+       "icon": "🔁",
+       "title": "Relancer après une surprise",
+       "text": "Un robot de manutention dont la prise a échoué estime ce qu'un autre geste aurait donné et choisit la correction plutôt que de répéter le même mouvement."
+      },
+      {
+       "icon": "🔧",
+       "title": "S'adapter à une panne persistante",
+       "text": "Un robot dont un moteur est mal calibré déduit l'écart systématique et compense ses actions suivantes."
+      },
+      {
+       "icon": "🩺",
+       "title": "Comprendre les échecs",
+       "text": "Une équipe de recherche analyse après coup pourquoi une manœuvre a échoué en comparant le résultat réel et le contrefactuel estimé."
+      }
+     ]
+    },
+    {
+     "type": "timeline",
+     "title": "D'où l'on vient, où l'on va",
+     "items": [
+      {
+       "label": "2023",
+       "text": "Les architectures JEPA sont proposées comme modèles du monde qui prédisent des représentations."
+      },
+      {
+       "label": "9 novembre 2026",
+       "text": "Présentation du préprint sur les modèles du monde contrefactuels ; sa mise en ligne sur ArXiv était attendue la semaine suivante."
+      },
+      {
+       "label": "Ensuite",
+       "text": "Évaluation par les pairs et tests hors simulation, que l'article ne décrit pas."
+      }
+     ]
+    },
+    {
+     "type": "opinion",
+     "title": "Notre avis",
+     "paragraphs": [
+      "L'attrait de la méthode est sa sobriété : pas de nouveau réseau géant, un petit prédicteur et une soustraction. Si elle tient hors simulation, elle donnerait aux robots un moyen peu coûteux de corriger leurs erreurs. Mais l'écart entre des environnements simulés et le monde réel est le point faible habituel de ce type de travaux, et l'hypothèse physique de départ reste à éprouver.",
+      "À un horizon d'un à trois ans, on peut attendre des tests sur des robots physiques et des comparaisons avec d'autres approches de planification. C'est une projection, pas un résultat. Pour l'instant, il faut lire les pourcentages comme des indications issues d'un laboratoire."
+     ],
+     "verdict": "Une idée élégante et peu coûteuse, mais encore confinée à la simulation et au préprint."
+    }
+   ]
+  }
+ ]
+}
