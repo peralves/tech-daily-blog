@@ -1,0 +1,646 @@
+{
+  "schemaVersion": "1.0",
+  "date": "2026-11-10",
+  "generatedAt": "2026-11-10T18:17:15+01:00",
+  "title": "Tech du 10 novembre 2026 : N-central mis hors ligne, quatre failles SAP à 10 sur 10, un huitième zéro-jour Chrome et l'intrusion élargie chez Fireworks AI",
+  "summary": "Édition tech de la soirée : N-able coupe sa plateforme N-central après la publication de plus de 30 failles présumées, SAP corrige quatre failles maximales, Google colmate un nouveau zéro-jour Chrome et Fireworks AI révèle l'ampleur de son intrusion.",
+  "highlights": [
+    "N-able met N-central hors ligne et demande aux clients sur site d'éteindre leurs serveurs.",
+    "SAP corrige quatre failles CVSS 10,0, sans exploitation observée pour l'instant.",
+    "Chrome 157 corrige CVE-2026-125350, huitième zéro-jour exploité de l'année.",
+    "Fireworks AI : des données de facturation et des poids de modèles incomplets touchés via un fournisseur cloud tiers."
+  ],
+  "meta": {
+    "generator": "claude-scheduled-task"
+  },
+  "posts": [
+    {
+      "id": "n-able-n-central-hors-ligne-30-failles-able2shell",
+      "category": "cybersecurite",
+      "title": "N-able met N-central hors ligne après la publication de plus de 30 failles présumées « zéro jour »",
+      "summary": "Un chercheur a publié le 8 novembre 2026 des exploits pour plus de 30 failles de la plateforme de supervision N-central. L'éditeur a coupé ses environnements hébergés et demande aux clients sur site d'éteindre leurs serveurs, faute de correctif.",
+      "tags": [
+        "N-able",
+        "N-central",
+        "RMM",
+        "zéro jour",
+        "Able2Shell",
+        "MSP"
+      ],
+      "importance": 5,
+      "readingMinutes": 6,
+      "publishedAt": "2026-11-10T18:17:15+01:00",
+      "sourceDate": "2026-11-09",
+      "icon": "🛑",
+      "illustration": {
+        "svg": "<svg xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"0 0 640 360\"><defs><linearGradient id=\"g\" x1=\"0\" y1=\"0\" x2=\"1\" y2=\"1\"><stop offset=\"0\" stop-color=\"hsl(175,62%,38%)\"/><stop offset=\"1\" stop-color=\"hsl(215,65%,20%)\"/></linearGradient></defs><rect width=\"640\" height=\"360\" fill=\"url(#g)\"/><circle cx=\"90\" cy=\"40\" r=\"34\" fill=\"#fff\" fill-opacity=\".08\"/><circle cx=\"560\" cy=\"300\" r=\"60\" fill=\"#fff\" fill-opacity=\".08\"/><path d=\"M320 60 L440 105 V190 C440 252 390 290 320 312 C250 290 200 252 200 190 V105 Z\" fill=\"#fff\" fill-opacity=\".25\" stroke=\"#fff\" stroke-width=\"7\"/><path d=\"M285 185 h70 M320 150 v70\" stroke=\"#fff\" stroke-width=\"12\" stroke-linecap=\"round\"/></svg>"
+      },
+      "sources": [
+        {
+          "title": "N-able takes cloud platform offline after 30+ \"zero-days\" published",
+          "url": "https://www.bleepingcomputer.com/news/security/n-able-takes-cloud-platform-offline-after-30-plus-zero-days-published/",
+          "publisher": "BleepingComputer"
+        },
+        {
+          "title": "N-able Takes Hosted N-central Offline After Researcher Discloses 33 Zero-Days with PoC Exploits",
+          "url": "https://thehackernews.com/2026/11/n-able-takes-hosted-n-central-offline.html",
+          "publisher": "The Hacker News"
+        }
+      ],
+      "blocks": [
+        {
+          "type": "paragraph",
+          "text": "Quand l'outil qui gère le parc informatique de dizaines de clients devient lui-même la porte d'entrée, l'enjeu dépasse l'éditeur. C'est ce scénario que redoutent depuis lundi 9 novembre 2026 les prestataires de services gérés (MSP) qui s'appuient sur **N-central**, la plateforme de supervision et d'administration à distance (RMM) de N-able."
+        },
+        {
+          "type": "paragraph",
+          "text": "Dans la nuit du dimanche 8 au lundi 9 novembre, le chercheur Sean Bales a mis en ligne, dans un dépôt GitHub nommé *Able2Shell*, des exploits de démonstration pour plus de 30 failles présumées « zéro jour », c'est-à-dire non corrigées au moment de leur divulgation. Il les a testées sur une préversion, N-central Appliance 2026.4.0.31, et estime que la plupart, voire la totalité, touchent aussi les versions antérieures. Il a confirmé que la découverte avait été assistée par une IA. Aucun identifiant CVE n'avait été publié au moment des faits."
+        },
+        {
+          "type": "heading",
+          "text": "Ce que contiennent les failles",
+          "level": 2
+        },
+        {
+          "type": "list",
+          "items": [
+            "contournements d'authentification et divulgations d'identifiants ;",
+            "écritures arbitraires de fichiers et traversées de répertoires ;",
+            "failles de script intersites (XSS) et d'entité externe XML (XXE) ;",
+            "exécutions de code à distance."
+          ]
+        },
+        {
+          "type": "paragraph",
+          "text": "Selon le chercheur, la chaîne la plus grave exploite une faille XXE sans authentification dans la fonction d'import de services : elle permet de dérober une session locale de confiance, de réinitialiser un mot de passe et d'exécuter des commandes sous le compte `nable`. Le même exploit peut créer un compte « Default Administrator » aux identifiants choisis par l'attaquant. Une autre chaîne utilise un XSS stocké, déclenché lorsqu'un administrateur consulte des métadonnées de correctifs piégées, pour obtenir des commandes avec les droits root. Une élévation de privilèges relie enfin le compte `nable` à root."
+        },
+        {
+          "type": "heading",
+          "text": "La réponse de l'éditeur",
+          "level": 2
+        },
+        {
+          "type": "paragraph",
+          "text": "N-able a déclaré un incident de sécurité critique et mis hors ligne, le 9 novembre, ses environnements N-central hébergés en Amériques, en Europe et en Asie-Pacifique. Aux clients qui hébergent eux-mêmes la plateforme, il demande d'éteindre temporairement leurs serveurs jusqu'à nouvel ordre. Un correctif est en préparation, sans délai annoncé, et des points d'étape doivent être publiés toutes les quatre heures au plus."
+        },
+        {
+          "type": "paragraph",
+          "text": "L'éditeur affirme n'avoir observé aucune exploitation active ni accès non autorisé à des données. L'ampleur de la mesure suggère toutefois qu'il juge au moins une partie des affirmations crédibles ; BleepingComputer précise ne pas avoir vérifié indépendamment chacune d'elles."
+        },
+        {
+          "type": "diagram",
+          "svg": "<svg xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"0 0 640 260\"><rect width=\"640\" height=\"260\" rx=\"16\" fill=\"#eef2fa\"/><text x=\"320\" y=\"50\" text-anchor=\"middle\" font-family=\"system-ui,sans-serif\" font-size=\"17\" font-weight=\"700\" fill=\"#1a2233\">Chaîne décrite par le chercheur (à confirmer)</text><rect x=\"20\" y=\"90\" width=\"136\" height=\"110\" rx=\"12\" fill=\"#fff\" stroke=\"hsl(175,55%,45%)\" stroke-width=\"2\"/><text x=\"88.0\" y=\"125\" text-anchor=\"middle\" font-family=\"system-ui,sans-serif\" font-size=\"14\" font-weight=\"700\" fill=\"#1a2233\">Chercheur</text><text x=\"88.0\" y=\"155\" text-anchor=\"middle\" font-family=\"system-ui,sans-serif\" font-size=\"12\" fill=\"#3a4660\">publie 30+ exploits</text><path d=\"M158 145 h10\" stroke=\"hsl(175,55%,45%)\" stroke-width=\"3\"/><rect x=\"170\" y=\"90\" width=\"136\" height=\"110\" rx=\"12\" fill=\"#fff\" stroke=\"hsl(175,55%,45%)\" stroke-width=\"2\"/><text x=\"238.0\" y=\"125\" text-anchor=\"middle\" font-family=\"system-ui,sans-serif\" font-size=\"14\" font-weight=\"700\" fill=\"#1a2233\">N-central</text><text x=\"238.0\" y=\"155\" text-anchor=\"middle\" font-family=\"system-ui,sans-serif\" font-size=\"12\" fill=\"#3a4660\">XXE, XSS, RCE</text><path d=\"M308 145 h10\" stroke=\"hsl(175,55%,45%)\" stroke-width=\"3\"/><rect x=\"320\" y=\"90\" width=\"136\" height=\"110\" rx=\"12\" fill=\"#fff\" stroke=\"hsl(175,55%,45%)\" stroke-width=\"2\"/><text x=\"388.0\" y=\"125\" text-anchor=\"middle\" font-family=\"system-ui,sans-serif\" font-size=\"14\" font-weight=\"700\" fill=\"#1a2233\">Compte nable</text><text x=\"388.0\" y=\"155\" text-anchor=\"middle\" font-family=\"system-ui,sans-serif\" font-size=\"12\" fill=\"#3a4660\">commandes système</text><path d=\"M458 145 h10\" stroke=\"hsl(175,55%,45%)\" stroke-width=\"3\"/><rect x=\"470\" y=\"90\" width=\"136\" height=\"110\" rx=\"12\" fill=\"#fff\" stroke=\"hsl(175,55%,45%)\" stroke-width=\"2\"/><text x=\"538.0\" y=\"125\" text-anchor=\"middle\" font-family=\"system-ui,sans-serif\" font-size=\"14\" font-weight=\"700\" fill=\"#1a2233\">Root</text><text x=\"538.0\" y=\"155\" text-anchor=\"middle\" font-family=\"system-ui,sans-serif\" font-size=\"12\" fill=\"#3a4660\">contrôle total</text></svg>",
+          "alt": "Schéma en quatre étapes : publication des exploits, failles de N-central, compte nable, accès root.",
+          "caption": "Schéma simplifié de la chaîne d'attaque décrite par le chercheur ; elle n'a pas été confirmée de façon indépendante."
+        },
+        {
+          "type": "heading",
+          "text": "Un différend sur la divulgation",
+          "level": 2
+        },
+        {
+          "type": "paragraph",
+          "text": "Sean Bales explique avoir signalé, il y a cinq à six mois, deux exécutions de code à distance et une élévation de privilèges sur un autre produit de N-able, restées selon lui non corrigées, sans réponse à ses relances sur quatre à six semaines et sans rémunération via le programme de primes. Il dit avoir publié les exploits sans prévenir l'éditeur parce que celui-ci « ne prend pas la divulgation au sérieux ». Les dirigeants de N-able l'ont contacté pour lui demander de retirer le dépôt et de collaborer, sans menace de sa part. N-able n'a pas répondu aux questions sur ces signalements antérieurs."
+        },
+        {
+          "type": "usecases",
+          "title": "Ce que cela change concrètement",
+          "items": [
+            {
+              "icon": "🏢",
+              "title": "Un MSP sans supervision",
+              "text": "Un prestataire qui gère les postes de vingt PME perd la vue sur ses alertes, ses correctifs et ses scripts le temps de l'indisponibilité ; il doit suivre ses clients autrement."
+            },
+            {
+              "icon": "🖥️",
+              "title": "Un serveur sur site à éteindre",
+              "text": "Une DSI qui héberge N-central choisit entre couper un outil central et conserver une exposition. Un filtrage strict des accès entrants est une mesure d'attente à étudier."
+            },
+            {
+              "icon": "🔎",
+              "title": "Une revue des traces",
+              "text": "Même sans exploitation avérée, des équipes peuvent contrôler la création de comptes administrateurs inattendus et les connexions récentes, en s'appuyant sur les indications de l'éditeur."
+            }
+          ]
+        },
+        {
+          "type": "timeline",
+          "title": "D'où l'on vient, où l'on va",
+          "items": [
+            {
+              "label": "Il y a 5 à 6 mois",
+              "text": "Selon le chercheur, signalement de failles sur un autre produit de N-able, sans correctif à ce jour."
+            },
+            {
+              "label": "8 novembre 2026",
+              "text": "Publication du dépôt Able2Shell avec les exploits."
+            },
+            {
+              "label": "9 novembre 2026",
+              "text": "N-able coupe ses environnements hébergés et demande l'arrêt des serveurs sur site."
+            },
+            {
+              "label": "À venir",
+              "text": "Correctif annoncé, sans date ; mises à jour de statut régulières."
+            }
+          ]
+        },
+        {
+          "type": "opinion",
+          "title": "Notre avis",
+          "paragraphs": [
+            "Ce dossier illustre le risque de concentration : un outil d'administration à distance détient des accès privilégiés à de nombreux réseaux, donc une seule plateforme vulnérable expose toute une chaîne de clients. La décision de couper le service est lourde, mais elle est cohérente avec ce niveau de risque. Reste que la divulgation sans préavis oblige tout le monde à réagir dans l'urgence, avec un correctif absent.",
+            "Dans un à trois ans, la recherche de failles assistée par IA devrait multiplier ce type de publications massives : les éditeurs devront traiter les signalements plus vite, et les clients prévoir des solutions de repli quand un outil d'administration est indisponible. C'est une analyse, non un constat."
+          ],
+          "verdict": "Une affaire de confiance autant que de code : sans correctif ni calendrier, les clients de N-central doivent suivre les consignes de l'éditeur à la lettre."
+        },
+        {
+          "type": "callout",
+          "title": "À retenir",
+          "text": "Faits : plus de 30 failles présumées publiées le 8 novembre 2026, environnements hébergés coupés le 9, aucune exploitation constatée selon N-able, correctif en cours. Les affirmations du chercheur ne sont pas toutes vérifiées."
+        }
+      ],
+      "cover": {
+        "url": "https://www.bleepstatic.com/content/hl-images/2025/08/18/N-able.jpg",
+        "alt": "Logo N-able",
+        "credit": "bleepstatic.com"
+      }
+    },
+    {
+      "id": "sap-patch-day-novembre-2026-quatre-failles-cvss-10",
+      "category": "cybersecurite",
+      "title": "SAP : quatre failles notées 10 sur 10 corrigées lors du Patch Day de novembre, dont deux permettent l'exécution de code",
+      "summary": "Le 10 novembre 2026, SAP a publié des correctifs pour quatre vulnérabilités exploitables sans authentification, de NetWeaver au Web Dispatcher. Aucune exploitation n'a été observée, mais des preuves de concept existent.",
+      "tags": [
+        "SAP",
+        "NetWeaver",
+        "CVSS 10",
+        "ICM2SHELL",
+        "PROXYGATE",
+        "Patch Day"
+      ],
+      "importance": 5,
+      "readingMinutes": 6,
+      "publishedAt": "2026-11-10T18:17:15+01:00",
+      "sourceDate": "2026-11-10",
+      "icon": "🧱",
+      "illustration": {
+        "svg": "<svg xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"0 0 640 360\"><defs><linearGradient id=\"g\" x1=\"0\" y1=\"0\" x2=\"1\" y2=\"1\"><stop offset=\"0\" stop-color=\"hsl(160,62%,38%)\"/><stop offset=\"1\" stop-color=\"hsl(200,65%,20%)\"/></linearGradient></defs><rect width=\"640\" height=\"360\" fill=\"url(#g)\"/><circle cx=\"90\" cy=\"40\" r=\"34\" fill=\"#fff\" fill-opacity=\".08\"/><circle cx=\"560\" cy=\"300\" r=\"60\" fill=\"#fff\" fill-opacity=\".08\"/><ellipse cx=\"320\" cy=\"110\" rx=\"90\" ry=\"30\" fill=\"#fff\" fill-opacity=\".3\" stroke=\"#fff\" stroke-width=\"6\"/><path d=\"M230 110 v110 c0 17 40 30 90 30 s90 -13 90 -30 v-110\" fill=\"#fff\" fill-opacity=\".18\" stroke=\"#fff\" stroke-width=\"6\"/><path d=\"M230 165 c0 17 40 30 90 30 s90 -13 90 -30\" fill=\"none\" stroke=\"#fff\" stroke-width=\"5\"/></svg>"
+      },
+      "sources": [
+        {
+          "title": "SAP Patches Four CVSS 10.0 Flaws, Including Two Enabling Remote Code Execution",
+          "url": "https://thehackernews.com/2026/11/sap-patches-four-cvss-100-flaws.html",
+          "publisher": "The Hacker News"
+        },
+        {
+          "title": "SAP patches ICM2SHELL and PROXYGATE maximum severity flaws",
+          "url": "https://www.bleepingcomputer.com/news/security/sap-patches-four-maximum-severity-security-vulnerabilities/",
+          "publisher": "BleepingComputer"
+        }
+      ],
+      "blocks": [
+        {
+          "type": "paragraph",
+          "text": "Les systèmes SAP portent la comptabilité, la paie et la logistique de nombreuses grandes entreprises. Une faille notée **10 sur 10** à l'échelle CVSS, exploitable sans compte, y est donc prise très au sérieux. Le Patch Day du 10 novembre 2026 en compte quatre."
+        },
+        {
+          "type": "heading",
+          "text": "Les quatre vulnérabilités",
+          "level": 2
+        },
+        {
+          "type": "table",
+          "headers": [
+            "Identifiant",
+            "Composant",
+            "Effet",
+            "Note SAP"
+          ],
+          "rows": [
+            [
+              "CVE-2026-76964",
+              "ICM (NetWeaver AS ABAP)",
+              "Corruption de mémoire, exécution de code (ICM2SHELL)",
+              "3778530"
+            ],
+            [
+              "CVE-2026-89126",
+              "Web Dispatcher",
+              "Même cause que la précédente",
+              "3778556"
+            ],
+            [
+              "CVE-2026-89103",
+              "Gateway",
+              "Commandes système sous <sid>adm (PROXYGATE)",
+              "3798345"
+            ],
+            [
+              "CVE-2026-120017",
+              "Fournisseur de service SAML2 (AS ABAP)",
+              "Connexion en tant que n'importe quel utilisateur",
+              "3849308"
+            ]
+          ]
+        },
+        {
+          "type": "paragraph",
+          "text": "Les trois premières ont été découvertes par la société **Onapsis**, qui a baptisé la faille ICM2SHELL (ICM et Web Dispatcher) et PROXYGATE (Gateway) et a fourni à l'éditeur des exploits fonctionnels. Onapsis indique ne pas avoir observé d'attaques réelles. Pour la faille SAML2, l'article source ne précise ni chercheur ni état d'exploitation."
+        },
+        {
+          "type": "paragraph",
+          "text": "La faille SAML2 mérite une attention particulière : elle ne demande aucune action de l'utilisateur et permet, dans les configurations d'authentification unique concernées, de se connecter sous l'identité de n'importe quel compte, y compris à privilèges élevés. Les trois autres touchent des composants placés en frontal, souvent joignables depuis Internet pour les portails, les API ou les échanges entre sites. C'est cette exposition, plus que le score lui-même, qui fait la gravité de ce lot de correctifs."
+        },
+        {
+          "type": "paragraph",
+          "text": "Un point d'attention : les noyaux hors maintenance (par exemple 7.40, 7.45 ou 7.49 pour ICM et Web Dispatcher) sont aussi concernés et pourraient ne recevoir aucun correctif. Ces systèmes doivent migrer vers une version prise en charge."
+        },
+        {
+          "type": "heading",
+          "text": "Les recommandations des chercheurs",
+          "level": 2
+        },
+        {
+          "type": "list",
+          "items": [
+            "mettre à jour d'un seul mouvement le noyau et tous les Web Dispatchers : une instance oubliée laisse la faille ouverte ;",
+            "pour SAML2, il n'existe pas de contournement : vérifier les fournisseurs d'identité de confiance (transaction SAML2) et les journaux d'audit des connexions privilégiées ;",
+            "pour Gateway, contrôler la liste prxyinfo ou, à défaut, passer gw/acl_mode_proxy à 1 (valeur par défaut : 0), et restreindre les ports 33NN et 48NN ;",
+            "désactiver la prise en charge de WebSocket n'est qu'une mesure de dernier recours, qui casse certaines fonctions."
+          ]
+        },
+        {
+          "type": "diagram",
+          "svg": "<svg xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"0 0 640 260\"><rect width=\"640\" height=\"260\" rx=\"16\" fill=\"#eef2fa\"/><text x=\"320\" y=\"50\" text-anchor=\"middle\" font-family=\"system-ui,sans-serif\" font-size=\"17\" font-weight=\"700\" fill=\"#1a2233\">Où se situent les failles corrigées</text><rect x=\"20\" y=\"90\" width=\"136\" height=\"110\" rx=\"12\" fill=\"#fff\" stroke=\"hsl(160,55%,45%)\" stroke-width=\"2\"/><text x=\"88.0\" y=\"125\" text-anchor=\"middle\" font-family=\"system-ui,sans-serif\" font-size=\"14\" font-weight=\"700\" fill=\"#1a2233\">Internet</text><text x=\"88.0\" y=\"155\" text-anchor=\"middle\" font-family=\"system-ui,sans-serif\" font-size=\"12\" fill=\"#3a4660\">requête non authentifiée</text><path d=\"M158 145 h10\" stroke=\"hsl(160,55%,45%)\" stroke-width=\"3\"/><rect x=\"170\" y=\"90\" width=\"136\" height=\"110\" rx=\"12\" fill=\"#fff\" stroke=\"hsl(160,55%,45%)\" stroke-width=\"2\"/><text x=\"238.0\" y=\"125\" text-anchor=\"middle\" font-family=\"system-ui,sans-serif\" font-size=\"14\" font-weight=\"700\" fill=\"#1a2233\">Web Dispatcher</text><text x=\"238.0\" y=\"155\" text-anchor=\"middle\" font-family=\"system-ui,sans-serif\" font-size=\"12\" fill=\"#3a4660\">ICM2SHELL</text><path d=\"M308 145 h10\" stroke=\"hsl(160,55%,45%)\" stroke-width=\"3\"/><rect x=\"320\" y=\"90\" width=\"136\" height=\"110\" rx=\"12\" fill=\"#fff\" stroke=\"hsl(160,55%,45%)\" stroke-width=\"2\"/><text x=\"388.0\" y=\"125\" text-anchor=\"middle\" font-family=\"system-ui,sans-serif\" font-size=\"14\" font-weight=\"700\" fill=\"#1a2233\">ICM / Gateway</text><text x=\"388.0\" y=\"155\" text-anchor=\"middle\" font-family=\"system-ui,sans-serif\" font-size=\"12\" fill=\"#3a4660\">code ou commandes</text><path d=\"M458 145 h10\" stroke=\"hsl(160,55%,45%)\" stroke-width=\"3\"/><rect x=\"470\" y=\"90\" width=\"136\" height=\"110\" rx=\"12\" fill=\"#fff\" stroke=\"hsl(160,55%,45%)\" stroke-width=\"2\"/><text x=\"538.0\" y=\"125\" text-anchor=\"middle\" font-family=\"system-ui,sans-serif\" font-size=\"14\" font-weight=\"700\" fill=\"#1a2233\">Serveur SAP</text><text x=\"538.0\" y=\"155\" text-anchor=\"middle\" font-family=\"system-ui,sans-serif\" font-size=\"12\" fill=\"#3a4660\">droits <sid>adm</text></svg>",
+          "alt": "Schéma d'une requête externe traversant le Web Dispatcher puis l'ICM ou le Gateway jusqu'au serveur SAP.",
+          "caption": "Chemin schématique d'une requête vers un serveur SAP ; les failles se situent sur ces composants exposés."
+        },
+        {
+          "type": "usecases",
+          "title": "Ce que cela change concrètement",
+          "items": [
+            {
+              "icon": "🏭",
+              "title": "Un industriel avec ERP exposé",
+              "text": "Un groupe dont le portail fournisseurs passe par un Web Dispatcher doit d'abord recenser toutes ses instances, y compris celles oubliées en préproduction."
+            },
+            {
+              "icon": "🔐",
+              "title": "Une entreprise en authentification unique",
+              "text": "Une société qui s'authentifie par SAML sur AS ABAP doit examiner ses fournisseurs d'identité et les connexions de comptes privilégiés depuis des sources inhabituelles."
+            },
+            {
+              "icon": "🗂️",
+              "title": "Un parc ancien",
+              "text": "Une DSI qui exploite un noyau 7.49 doit planifier une migration, car aucun correctif n'est garanti pour ces versions."
+            }
+          ]
+        },
+        {
+          "type": "timeline",
+          "title": "D'où l'on vient, où l'on va",
+          "items": [
+            {
+              "label": "9 juin 2026",
+              "text": "Correction d'une autre faille SAML (CVE-2026-44748), qui nécessitait un compte utilisateur."
+            },
+            {
+              "label": "10 novembre 2026",
+              "text": "Patch Day : quatre failles de score 10,0 corrigées."
+            },
+            {
+              "label": "À venir",
+              "text": "Le correctif du noyau 7.93 de niveau 402 est annoncé pour plus tard ; en attendant, les niveaux 401 mis à jour ou 420 et suivants sont cités."
+            }
+          ]
+        },
+        {
+          "type": "opinion",
+          "title": "Notre avis",
+          "paragraphs": [
+            "Le score maximal ne dit pas tout : la vraie difficulté est opérationnelle. Corriger SAP demande des fenêtres de maintenance, des tests et un inventaire précis des composants. Or c'est justement l'inventaire qui manque souvent, et un seul Web Dispatcher oublié suffit à laisser la porte ouverte.",
+            "À un à trois ans, la présence de preuves de concept dès la publication des correctifs raccourcira le délai dont disposent les équipes. Les entreprises qui n'auront pas automatisé leur inventaire resteront exposées. Il s'agit d'une analyse, pas d'un constat."
+          ],
+          "verdict": "Aucune attaque observée à ce jour, mais avec des exploits déjà écrits, le délai de correction se compte en jours."
+        },
+        {
+          "type": "callout",
+          "title": "À retenir",
+          "text": "Faits : quatre failles CVSS 10,0 corrigées le 10 novembre 2026, sans exploitation connue d'Onapsis ; mise à jour coordonnée du noyau et des Web Dispatchers recommandée."
+        }
+      ],
+      "cover": {
+        "url": "https://blogger.googleusercontent.com/img/b/R29vZ2xl/AVvXsEgo4snqwJ4uD_sRDyI8zs23mcfFTWfZoSrn9n1hbUrsHbyWy-1VFL8amxqQnLb7LSTPkuSwnsPofUJT6anObg-nU4Q5e01WBb3IixN_PdL-1MJ2nOip4qSTEoVDmePRlOgjSVjvtbH8vFlQgxtGuKuqmuHWLyzIavw2Sj4VtZBlTYhUqeySbQcDMEr4Wns/s1700-nu-rw-lo-l85-e365/sap-flaws.jpg",
+        "alt": "Illustration sur les failles SAP corrigées",
+        "credit": "thehackernews.com"
+      }
+    },
+    {
+      "id": "chrome-157-huitieme-zero-jour-2026-cve-2026-125350",
+      "category": "cybersecurite",
+      "title": "Chrome 157 : Google corrige un huitième zéro-jour exploité en 2026, une faille d'utilisation après libération dans le composant XML",
+      "summary": "La mise à jour de Chrome publiée le 9 novembre 2026 corrige neuf failles, dont CVE-2026-125350, déjà exploitée. Google ne dit pas comment ni par qui.",
+      "tags": [
+        "Chrome",
+        "zéro jour",
+        "CVE-2026-125350",
+        "navigateur",
+        "correctif"
+      ],
+      "importance": 4,
+      "readingMinutes": 5,
+      "publishedAt": "2026-11-10T18:17:15+01:00",
+      "sourceDate": "2026-11-10",
+      "icon": "🌐",
+      "illustration": {
+        "svg": "<svg xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"0 0 640 360\"><defs><linearGradient id=\"g\" x1=\"0\" y1=\"0\" x2=\"1\" y2=\"1\"><stop offset=\"0\" stop-color=\"hsl(210,62%,38%)\"/><stop offset=\"1\" stop-color=\"hsl(250,65%,20%)\"/></linearGradient></defs><rect width=\"640\" height=\"360\" fill=\"url(#g)\"/><circle cx=\"90\" cy=\"40\" r=\"34\" fill=\"#fff\" fill-opacity=\".08\"/><circle cx=\"560\" cy=\"300\" r=\"60\" fill=\"#fff\" fill-opacity=\".08\"/><circle cx=\"320\" cy=\"180\" r=\"100\" fill=\"#fff\" fill-opacity=\".2\" stroke=\"#fff\" stroke-width=\"7\"/><circle cx=\"320\" cy=\"180\" r=\"38\" fill=\"#fff\"/><path d=\"M320 80 L420 232 M320 80 L220 232\" stroke=\"#fff\" stroke-width=\"7\" fill=\"none\"/></svg>"
+      },
+      "sources": [
+        {
+          "title": "Google Issues Chrome Security Update for Eighth Actively Exploited Zero-Day of 2026",
+          "url": "https://thehackernews.com/2026/11/google-issues-chrome-security-update.html",
+          "publisher": "The Hacker News"
+        },
+        {
+          "title": "Google patches eighth Chrome zero-day exploited in attacks this year",
+          "url": "https://www.bleepingcomputer.com/news/security/google-patches-eighth-chrome-zero-day-exploited-in-attacks-this-year/",
+          "publisher": "BleepingComputer"
+        }
+      ],
+      "blocks": [
+        {
+          "type": "paragraph",
+          "text": "Le navigateur est devenu la première surface d'attaque des postes de travail : il ouvre des pages venues de n'importe où et traite des formats complexes. La mise à jour stable de Chrome publiée lundi 9 novembre 2026 corrige **neuf failles de sécurité**, dont une est déjà exploitée dans la nature."
+        },
+        {
+          "type": "heading",
+          "text": "La faille exploitée",
+          "level": 2
+        },
+        {
+          "type": "keyvalue",
+          "items": [
+            {
+              "label": "Identifiant",
+              "value": "CVE-2026-125350"
+            },
+            {
+              "label": "Type",
+              "value": "utilisation après libération (use-after-free) dans le composant XML"
+            },
+            {
+              "label": "Gravité",
+              "value": "élevée"
+            },
+            {
+              "label": "Signalement",
+              "value": "6 novembre 2026, par un chercheur anonyme"
+            },
+            {
+              "label": "Versions corrigées",
+              "value": "157.0.8103.50 (Linux) ; 157.0.8103.50/.51 (Windows, macOS)"
+            }
+          ]
+        },
+        {
+          "type": "paragraph",
+          "text": "Google indique avoir connaissance de l'existence d'un exploit en circulation, mais ne précise ni la manière dont la faille est utilisée ni l'identité des attaquants. L'entreprise a coutume de restreindre les détails tant qu'une majorité d'utilisateurs n'a pas mis à jour, et plus longtemps si une bibliothèque tierce concernée n'est pas encore corrigée."
+        },
+        {
+          "type": "paragraph",
+          "text": "Une faille d'utilisation après libération survient lorsqu'un programme continue d'utiliser une zone mémoire déjà libérée : un attaquant peut alors, selon les cas, faire exécuter du code. Elle s'exploite généralement à partir d'une page web conçue pour cela."
+        },
+        {
+          "type": "heading",
+          "text": "Huit zéro-jours depuis janvier",
+          "level": 2
+        },
+        {
+          "type": "paragraph",
+          "text": "Avec ce correctif, Chrome compte huit failles activement exploitées en 2026 : CVE-2026-2441, 3909, 3910, 5281, 11645, 85046, 87491 et donc 125350. Ce rythme, soit près d'une par mois et demi, confirme que les navigateurs restent des cibles prioritaires pour les acteurs de l'espionnage comme pour les criminels."
+        },
+        {
+          "type": "diagram",
+          "svg": "<svg xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"0 0 640 260\"><rect width=\"640\" height=\"260\" rx=\"16\" fill=\"#eef2fa\"/><text x=\"320\" y=\"50\" text-anchor=\"middle\" font-family=\"system-ui,sans-serif\" font-size=\"17\" font-weight=\"700\" fill=\"#1a2233\">De la page piégée au correctif</text><rect x=\"20\" y=\"90\" width=\"136\" height=\"110\" rx=\"12\" fill=\"#fff\" stroke=\"hsl(210,55%,45%)\" stroke-width=\"2\"/><text x=\"88.0\" y=\"125\" text-anchor=\"middle\" font-family=\"system-ui,sans-serif\" font-size=\"14\" font-weight=\"700\" fill=\"#1a2233\">Page piégée</text><text x=\"88.0\" y=\"155\" text-anchor=\"middle\" font-family=\"system-ui,sans-serif\" font-size=\"12\" fill=\"#3a4660\">contenu XML conçu</text><path d=\"M158 145 h10\" stroke=\"hsl(210,55%,45%)\" stroke-width=\"3\"/><rect x=\"170\" y=\"90\" width=\"136\" height=\"110\" rx=\"12\" fill=\"#fff\" stroke=\"hsl(210,55%,45%)\" stroke-width=\"2\"/><text x=\"238.0\" y=\"125\" text-anchor=\"middle\" font-family=\"system-ui,sans-serif\" font-size=\"14\" font-weight=\"700\" fill=\"#1a2233\">Chrome < 157</text><text x=\"238.0\" y=\"155\" text-anchor=\"middle\" font-family=\"system-ui,sans-serif\" font-size=\"12\" fill=\"#3a4660\">mémoire libérée réutilisée</text><path d=\"M308 145 h10\" stroke=\"hsl(210,55%,45%)\" stroke-width=\"3\"/><rect x=\"320\" y=\"90\" width=\"136\" height=\"110\" rx=\"12\" fill=\"#fff\" stroke=\"hsl(210,55%,45%)\" stroke-width=\"2\"/><text x=\"388.0\" y=\"125\" text-anchor=\"middle\" font-family=\"system-ui,sans-serif\" font-size=\"14\" font-weight=\"700\" fill=\"#1a2233\">Exploit</text><text x=\"388.0\" y=\"155\" text-anchor=\"middle\" font-family=\"system-ui,sans-serif\" font-size=\"12\" fill=\"#3a4660\">exécution possible</text><path d=\"M458 145 h10\" stroke=\"hsl(210,55%,45%)\" stroke-width=\"3\"/><rect x=\"470\" y=\"90\" width=\"136\" height=\"110\" rx=\"12\" fill=\"#fff\" stroke=\"hsl(210,55%,45%)\" stroke-width=\"2\"/><text x=\"538.0\" y=\"125\" text-anchor=\"middle\" font-family=\"system-ui,sans-serif\" font-size=\"14\" font-weight=\"700\" fill=\"#1a2233\">Chrome 157</text><text x=\"538.0\" y=\"155\" text-anchor=\"middle\" font-family=\"system-ui,sans-serif\" font-size=\"12\" fill=\"#3a4660\">faille corrigée</text></svg>",
+          "alt": "Schéma en quatre étapes allant de la page piégée à la version corrigée de Chrome.",
+          "caption": "Principe général d'une faille d'utilisation après libération, illustré de manière simplifiée."
+        },
+        {
+          "type": "paragraph",
+          "text": "Pour les entreprises, l'enjeu est de savoir en combien de temps le correctif atteint l'ensemble du parc. Un navigateur laissé ouvert plusieurs jours, un poste hors ligne ou une machine virtuelle de bureau persistante peuvent rester en version vulnérable alors que le déploiement est considéré comme terminé. Les outils de gestion permettent de mesurer l'écart et de planifier une relance forcée en dehors des heures de travail."
+        },
+        {
+          "type": "heading",
+          "text": "Comment se protéger",
+          "level": 2
+        },
+        {
+          "type": "list",
+          "items": [
+            "ouvrir le menu « Plus » puis « Aide » et « À propos de Google Chrome », puis relancer le navigateur ;",
+            "vérifier que la version affichée est au moins 157.0.8103.50 ;",
+            "pour Edge, Brave, Opera ou Vivaldi, installer les mises à jour dès qu'elles sont proposées."
+          ]
+        },
+        {
+          "type": "usecases",
+          "title": "Ce que cela change concrètement",
+          "items": [
+            {
+              "icon": "👩‍💻",
+              "title": "Un particulier",
+              "text": "Il lui suffit de relancer son navigateur pour appliquer le correctif : un onglet resté ouvert pendant des jours peut retarder la mise à jour."
+            },
+            {
+              "icon": "🏢",
+              "title": "Une PME",
+              "text": "Elle peut vérifier par sa console de gestion que tous les postes sont passés en version 157 et forcer la relance au besoin."
+            },
+            {
+              "icon": "🛠️",
+              "title": "Un éditeur de navigateur dérivé",
+              "text": "Les navigateurs fondés sur Chromium doivent intégrer le correctif à leur propre rythme ; leurs utilisateurs restent exposés dans l'intervalle."
+            }
+          ]
+        },
+        {
+          "type": "timeline",
+          "title": "D'où l'on vient, où l'on va",
+          "items": [
+            {
+              "label": "6 novembre 2026",
+              "text": "Signalement de CVE-2026-125350 à Google par un chercheur anonyme."
+            },
+            {
+              "label": "9 novembre 2026",
+              "text": "Publication de Chrome 157.0.8103.50 et corrections de neuf failles."
+            },
+            {
+              "label": "À venir",
+              "text": "Les détails techniques seront publiés une fois la majorité des utilisateurs à jour."
+            }
+          ]
+        },
+        {
+          "type": "opinion",
+          "title": "Notre avis",
+          "paragraphs": [
+            "Le défaut de mémoire reste la source principale des failles critiques dans les navigateurs, malgré des années d'efforts. Le correctif est rapide : trois jours séparent le signalement de la publication. Mais l'exploitation préalable montre qu'il y a toujours une fenêtre pendant laquelle des attaquants disposent d'une longueur d'avance.",
+            "À un à trois ans, la généralisation de langages à mémoire sûre dans les composants de navigateur devrait réduire ce type de faille, sans l'éliminer. Ceci est une opinion argumentée, non une certitude."
+          ],
+          "verdict": "La meilleure défense reste la plus simple : relancer son navigateur pour appliquer la mise à jour."
+        },
+        {
+          "type": "callout",
+          "title": "À retenir",
+          "text": "Faits : Chrome 157.0.8103.50 corrige CVE-2026-125350, exploitée avant correctif, huitième zéro-jour de 2026. Mettez à jour et relancez."
+        }
+      ],
+      "cover": {
+        "url": "https://blogger.googleusercontent.com/img/b/R29vZ2xl/AVvXsEhjk5S9J891bQS8W6TgyoiEPQ7geGia8FqqWjckFlo9qMH2wXIXv-7gyod1XKUpI9BfgcliN2Re8A85rJ121jxqgfnw1LsjYBvAYtX7694GVgMF7B94G0n5MzqMaKqLAbr-No1nqrN0gyF8MFR_bYQIYlqiTh_FzobmWrq4NOCLbcW_78uEMMW5FE4eqJoo/s1700-nu-rw-lo-l85-e365/chrome-0day.jpg",
+        "alt": "Illustration sur le zéro-jour Chrome",
+        "credit": "thehackernews.com"
+      }
+    },
+    {
+      "id": "fireworks-ai-nouvelle-intrusion-via-un-fournisseur-cloud",
+      "category": "cybersecurite",
+      "title": "Fireworks AI : l'intrusion s'élargit aux données de facturation et à des poids de modèles incomplets, via un fournisseur cloud tiers",
+      "summary": "La plateforme d'inférence Fireworks AI révèle une seconde phase d'attaque : des machines de R&D hébergées chez un fournisseur cloud ont servi à lancer une charge non autorisée. Un acteur motivé par l'argent revendrait l'accès à des modèles de langage.",
+      "tags": [
+        "Fireworks AI",
+        "LLMjacking",
+        "fuite de données",
+        "IA",
+        "cloud"
+      ],
+      "importance": 4,
+      "readingMinutes": 5,
+      "publishedAt": "2026-11-10T18:17:15+01:00",
+      "sourceDate": "2026-11-10",
+      "icon": "🔑",
+      "illustration": {
+        "svg": "<svg xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"0 0 640 360\"><defs><linearGradient id=\"g\" x1=\"0\" y1=\"0\" x2=\"1\" y2=\"1\"><stop offset=\"0\" stop-color=\"hsl(320,62%,38%)\"/><stop offset=\"1\" stop-color=\"hsl(0,65%,20%)\"/></linearGradient></defs><rect width=\"640\" height=\"360\" fill=\"url(#g)\"/><circle cx=\"90\" cy=\"40\" r=\"34\" fill=\"#fff\" fill-opacity=\".08\"/><circle cx=\"560\" cy=\"300\" r=\"60\" fill=\"#fff\" fill-opacity=\".08\"/><rect x=\"230\" y=\"110\" width=\"180\" height=\"140\" rx=\"16\" fill=\"#fff\" fill-opacity=\".25\" stroke=\"#fff\" stroke-width=\"6\"/><circle cx=\"285\" cy=\"180\" r=\"14\" fill=\"#fff\"/><circle cx=\"355\" cy=\"180\" r=\"14\" fill=\"#fff\"/><path d=\"M290 220 h60 M320 110 v-35\" stroke=\"#fff\" stroke-width=\"7\" stroke-linecap=\"round\"/><circle cx=\"320\" cy=\"68\" r=\"9\" fill=\"#fff\"/></svg>"
+      },
+      "sources": [
+        {
+          "title": "Fireworks AI Breach Widens to Expose Customer Billing Data and Incomplete Model Weights",
+          "url": "https://thehackernews.com/2026/11/fireworks-ai-breach-widens-to-expose.html",
+          "publisher": "The Hacker News"
+        },
+        {
+          "title": "Fireworks AI discloses new breach after cloud provider hack",
+          "url": "https://www.bleepingcomputer.com/news/security/fireworks-ai-discloses-new-breach-after-cloud-provider-hack/",
+          "publisher": "BleepingComputer"
+        }
+      ],
+      "blocks": [
+        {
+          "type": "paragraph",
+          "text": "Les plateformes qui hébergent des modèles d'intelligence artificielle concentrent des clés d'accès, des jeux de données et des poids de modèles : autant de ressources de valeur. L'incident révélé par **Fireworks AI** montre comment une compromission en cascade peut dépasser le périmètre initial."
+        },
+        {
+          "type": "heading",
+          "text": "Chronologie des faits",
+          "level": 2
+        },
+        {
+          "type": "timeline",
+          "title": "Déroulé de l'incident",
+          "items": [
+            {
+              "label": "6 octobre 2026",
+              "text": "Détection d'un usage non autorisé d'identifiants internes ; l'attaquant accède à des variables d'environnement de tâches d'évaluation chez un nombre limité de clients."
+            },
+            {
+              "label": "10 octobre 2026",
+              "text": "Premier bulletin : des clés d'API et des jetons stockés comme secrets ont été capturés ; aucun signe d'accès aux modèles, aux jeux de données ou au trafic d'inférence."
+            },
+            {
+              "label": "23 et 24 octobre 2026",
+              "text": "L'attaquant atteint l'environnement de développement via un fournisseur cloud tiers non nommé qui hébergeait des machines de R&D, puis lance une charge de travail non autorisée."
+            },
+            {
+              "label": "25 octobre 2026",
+              "text": "Fireworks indique ne pas avoir détecté d'autre accès réussi à la plateforme utilisée par les clients."
+            }
+          ]
+        },
+        {
+          "type": "heading",
+          "text": "Ce qui a été exposé",
+          "level": 2
+        },
+        {
+          "type": "list",
+          "items": [
+            "métadonnées de ressources : identifiants, noms, descriptions et dates de création ;",
+            "informations de facturation : adresses de facturation et de livraison, historique des factures et paiements, solde et crédits consommés ;",
+            "un sous-ensemble de poids de modèles incomplets et de jeux de données de certains clients ;",
+            "les variables d'environnement, dont des clés d'API et des jetons, déjà signalées."
+          ]
+        },
+        {
+          "type": "paragraph",
+          "text": "Fireworks précise ne pas conserver les numéros de carte bancaire, qui ne sont donc pas concernés. À noter : le premier bulletin excluait tout accès aux jeux de données, alors que la mise à jour en reconnaît un sous-ensemble touché pour certains clients. L'entreprise affirme avoir révoqué les identifiants internes compromis, renouvelé les jetons de comptes de service, révoqué les clés d'API touchées ou créées par l'attaquant, isolé les systèmes concernés et renforcé les contrôles d'accès et la journalisation."
+        },
+        {
+          "type": "heading",
+          "text": "Le « LLMjacking »",
+          "level": 2
+        },
+        {
+          "type": "paragraph",
+          "text": "Fireworks rattache l'activité à un groupe cybercriminel financièrement motivé qui revend l'accès à des modèles de langage obtenu frauduleusement à des passerelles de routage illicites. Ce procédé, appelé *LLMjacking*, consiste à détourner l'accès d'une victime à des modèles d'IA grâce à des identifiants volés : la victime paie la facture. Google a récemment signalé que ces attaques visent de plus en plus les infrastructures d'IA."
+        },
+        {
+          "type": "diagram",
+          "svg": "<svg xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"0 0 640 260\"><rect width=\"640\" height=\"260\" rx=\"16\" fill=\"#eef2fa\"/><text x=\"320\" y=\"50\" text-anchor=\"middle\" font-family=\"system-ui,sans-serif\" font-size=\"17\" font-weight=\"700\" fill=\"#1a2233\">Mécanisme du LLMjacking décrit</text><rect x=\"20\" y=\"90\" width=\"136\" height=\"110\" rx=\"12\" fill=\"#fff\" stroke=\"hsl(320,55%,45%)\" stroke-width=\"2\"/><text x=\"88.0\" y=\"125\" text-anchor=\"middle\" font-family=\"system-ui,sans-serif\" font-size=\"14\" font-weight=\"700\" fill=\"#1a2233\">Identifiants volés</text><text x=\"88.0\" y=\"155\" text-anchor=\"middle\" font-family=\"system-ui,sans-serif\" font-size=\"12\" fill=\"#3a4660\">clés, jetons</text><path d=\"M158 145 h10\" stroke=\"hsl(320,55%,45%)\" stroke-width=\"3\"/><rect x=\"170\" y=\"90\" width=\"136\" height=\"110\" rx=\"12\" fill=\"#fff\" stroke=\"hsl(320,55%,45%)\" stroke-width=\"2\"/><text x=\"238.0\" y=\"125\" text-anchor=\"middle\" font-family=\"system-ui,sans-serif\" font-size=\"14\" font-weight=\"700\" fill=\"#1a2233\">Machines R&D</text><text x=\"238.0\" y=\"155\" text-anchor=\"middle\" font-family=\"system-ui,sans-serif\" font-size=\"12\" fill=\"#3a4660\">chez un tiers cloud</text><path d=\"M308 145 h10\" stroke=\"hsl(320,55%,45%)\" stroke-width=\"3\"/><rect x=\"320\" y=\"90\" width=\"136\" height=\"110\" rx=\"12\" fill=\"#fff\" stroke=\"hsl(320,55%,45%)\" stroke-width=\"2\"/><text x=\"388.0\" y=\"125\" text-anchor=\"middle\" font-family=\"system-ui,sans-serif\" font-size=\"14\" font-weight=\"700\" fill=\"#1a2233\">Charge non autorisée</text><text x=\"388.0\" y=\"155\" text-anchor=\"middle\" font-family=\"system-ui,sans-serif\" font-size=\"12\" fill=\"#3a4660\">calcul détourné</text><path d=\"M458 145 h10\" stroke=\"hsl(320,55%,45%)\" stroke-width=\"3\"/><rect x=\"470\" y=\"90\" width=\"136\" height=\"110\" rx=\"12\" fill=\"#fff\" stroke=\"hsl(320,55%,45%)\" stroke-width=\"2\"/><text x=\"538.0\" y=\"125\" text-anchor=\"middle\" font-family=\"system-ui,sans-serif\" font-size=\"14\" font-weight=\"700\" fill=\"#1a2233\">Revente</text><text x=\"538.0\" y=\"155\" text-anchor=\"middle\" font-family=\"system-ui,sans-serif\" font-size=\"12\" fill=\"#3a4660\">accès LLM illicite</text></svg>",
+          "alt": "Schéma en quatre étapes : identifiants volés, machines de R&D, charge non autorisée, revente d'accès.",
+          "caption": "Schéma simplifié du mécanisme décrit par l'entreprise ; certains détails restent non publics."
+        },
+        {
+          "type": "usecases",
+          "title": "Ce que cela change concrètement",
+          "items": [
+            {
+              "icon": "🔁",
+              "title": "Une start-up cliente",
+              "text": "Elle fait tourner ses clés d'API et recherche des usages anormaux de ses crédits, même si elle n'a pas été notifiée."
+            },
+            {
+              "icon": "💳",
+              "title": "Un responsable financier",
+              "text": "Il surveille les factures d'inférence pour repérer une consommation inhabituelle, signe possible de détournement."
+            },
+            {
+              "icon": "🧩",
+              "title": "Un éditeur de modèles",
+              "text": "Il vérifie quels poids ou jeux de données ont pu transiter par la plateforme et évalue la sensibilité des fichiers partiels exposés."
+            }
+          ]
+        },
+        {
+          "type": "opinion",
+          "title": "Notre avis",
+          "paragraphs": [
+            "L'épisode rappelle que la sécurité d'une chaîne d'IA dépend de maillons discrets : environnements d'évaluation, machines de R&D chez un hébergeur tiers, variables d'environnement. L'écart entre le premier bulletin et le second montre aussi la difficulté de cerner un périmètre en cours d'enquête, ce qui plaide pour une communication prudente.",
+            "À un à trois ans, les clés d'accès aux modèles deviendront une cible aussi courante que les identifiants cloud, ce qui poussera vers des clés à durée de vie courte et à portée restreinte. C'est une analyse, pas un fait établi."
+          ],
+          "verdict": "Les clés d'API d'IA sont désormais des secrets de production : à renouveler et à surveiller comme tels."
+        },
+        {
+          "type": "callout",
+          "title": "À retenir",
+          "text": "Faits : intrusion détectée le 6 octobre 2026, élargie les 23 et 24 octobre, avec exposition de données de facturation et de poids de modèles incomplets ; pas de numéros de carte concernés selon Fireworks."
+        }
+      ],
+      "cover": {
+        "url": "https://blogger.googleusercontent.com/img/b/R29vZ2xl/AVvXsEg-mBJN_E4CjW3MXyjYYdeCGcyR052aVnG3uUWjaEfafvPAdatcJhn9LbtngqXBb5JsVwJVoorc8i41nTbYR9UcwVrwWNzU-WAfVk2yL32hYW1elVMJtwauW53nhRG37EwbovnFCW8InensI8tKoR9pqcWnZx54t6xOU_HsjjR9KWTLwVr_MBcknFeGShZU/s1700-nu-rw-lo-l85-e365/fire.jpg",
+        "alt": "Illustration sur l'intrusion chez Fireworks AI",
+        "credit": "thehackernews.com"
+      }
+    }
+  ]
+}
