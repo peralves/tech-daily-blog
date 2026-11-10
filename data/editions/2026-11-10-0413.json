@@ -1,0 +1,762 @@
+{
+ "schemaVersion": "1.0",
+ "date": "2026-11-10",
+ "generatedAt": "2026-11-10T04:16:55+01:00",
+ "title": "Tech du 10 novembre : un cloud AWS pillé par un prestataire, des voitures déverrouillées à distance, Mythos chez Cisco et IBM",
+ "summary": "Édition tech : une campagne exploite des rôles AWS laissés ouverts pour voler des secrets, des chercheurs prennent le contrôle de véhicules via leurs applications, Mythos entre dans des produits de sécurité, Hyperlight isole du code en micro-VM et ST dévoile le STM32G5.",
+ "highlights": [
+  "Qubole : des rôles IAM inter-comptes ont permis de voler des secrets et des données S3 chez plusieurs clients.",
+  "Voitures connectées : des chaînes de failles côté serveur d'identité permettaient d'envoyer des commandes à des véhicules.",
+  "Cisco et IBM intègrent les capacités de Mythos sans livrer le modèle.",
+  "Hyperlight : des micro-VM restaurées depuis un instantané en environ 3 ms pour isoler du code non fiable.",
+  "STM32G5 : un Cortex-M33 à 280 MHz pour l'alimentation numérique et les moteurs."
+ ],
+ "meta": {
+  "generator": "claude-scheduled-task"
+ },
+ "posts": [
+  {
+   "id": "qubole-aws-roles-compromis-secrets-voles",
+   "category": "cybersecurite",
+   "title": "Qubole : des identifiants compromis ont servi à piller des secrets dans les comptes AWS de clients",
+   "summary": "Wiz et Mandiant décrivent une attaque de chaîne d'approvisionnement qui abuse des rôles IAM inter-comptes liés à la plateforme Qubole. Des secrets et des compartiments S3 ont été dérobés. Le point central : des relations de confiance laissées actives après l'abandon du service.",
+   "tags": [
+    "AWS",
+    "IAM",
+    "chaîne d'approvisionnement",
+    "Qubole",
+    "Wiz"
+   ],
+   "importance": 5,
+   "readingMinutes": 5,
+   "sourceDate": "2026-11-09",
+   "icon": "🔑",
+   "cover": {
+    "url": "https://image.theregister.com/1681829.jpg?imageId=1681829&x=0&y=0&cropw=100&croph=100&panox=0&panoy=0&panow=100&panoh=100&width=1200&height=683",
+    "alt": "Illustration d'actualité sur la sécurité informatique et les accès cloud",
+    "credit": "theregister.com"
+   },
+   "sources": [
+    {
+     "title": "Attackers backdoor trusted AWS integrations to steal secrets",
+     "url": "https://www.theregister.com/security/2026/11/09/attackers-backdoor-trusted-aws-integrations-to-steal-secrets/5308553",
+     "publisher": "The Register"
+    }
+   ],
+   "illustration": {
+    "svg": "<svg xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"0 0 640 360\"><defs><linearGradient id=\"g\" x1=\"0\" y1=\"0\" x2=\"1\" y2=\"1\"><stop offset=\"0\" stop-color=\"hsl(175,62%,38%)\"/><stop offset=\"1\" stop-color=\"hsl(210,65%,20%)\"/></linearGradient></defs><rect width=\"640\" height=\"360\" fill=\"url(#g)\"/><circle cx=\"97\" cy=\"53\" r=\"21\" fill=\"#fff\" fill-opacity=\".08\"/><circle cx=\"228\" cy=\"124\" r=\"34\" fill=\"#fff\" fill-opacity=\".08\"/><circle cx=\"359\" cy=\"195\" r=\"47\" fill=\"#fff\" fill-opacity=\".08\"/><circle cx=\"490\" cy=\"266\" r=\"20\" fill=\"#fff\" fill-opacity=\".08\"/><circle cx=\"621\" cy=\"337\" r=\"33\" fill=\"#fff\" fill-opacity=\".08\"/><circle cx=\"112\" cy=\"48\" r=\"46\" fill=\"#fff\" fill-opacity=\".08\"/><path d=\"M210 250 C160 250 160 180 215 180 C225 130 305 120 330 165 C380 140 430 175 420 220 C470 225 470 250 430 250 Z\" fill=\"#fff\" fill-opacity=\".25\" stroke=\"#fff\" stroke-width=\"7\"/><circle cx=\"300\" cy=\"215\" r=\"14\" fill=\"#fff\"/><path d=\"M314 215 H380 M360 215 V235 M376 215 V230\" stroke=\"#fff\" stroke-width=\"7\" fill=\"none\"/></svg>"
+   },
+   "blocks": [
+    {
+     "type": "paragraph",
+     "text": "Une campagne d'attaque, décrite le 9 novembre 2026 par les chercheurs de Wiz avec les équipes de réponse à incident de Mandiant (Google), exploite une faiblesse très répandue dans le cloud : la confiance accordée à un prestataire tiers. Des identifiants rattachés au compte AWS de Qubole, une plateforme de traitement de données, ont été utilisés pour entrer dans les environnements AWS de plusieurs clients et en extraire des secrets, puis des données. L'activité suspecte a d'abord été repérée par Sentra."
+    },
+    {
+     "type": "heading",
+     "level": 2,
+     "text": "Le mécanisme : des rôles inter-comptes qui survivent au service"
+    },
+    {
+     "type": "paragraph",
+     "text": "Qubole s'appuie sur des rôles IAM inter-comptes. Ce montage évite aux clients de transmettre des clés d'accès AWS durables : le client crée dans son compte un rôle dont la politique de confiance autorise le compte du prestataire à l'endosser, et le prestataire obtient alors des identifiants temporaires. C'est une bonne pratique, mais elle repose sur une hypothèse : tant que la politique de confiance existe, quiconque contrôle les identifiants du compte tiers peut endosser le rôle."
+    },
+    {
+     "type": "paragraph",
+     "text": "C'est précisément ce qui s'est produit. Selon Wiz, de nombreuses organisations ont laissé actives leurs politiques de confiance même après avoir abandonné la plateforme. Les attaquants, disposant d'identifiants liés au compte de Qubole, ont appelé l'action `sts:AssumeRole` pour obtenir des identifiants temporaires sur les rôles d'intégration des clients."
+    },
+    {
+     "type": "heading",
+     "level": 2,
+     "text": "Ce que les chercheurs ont observé"
+    },
+    {
+     "type": "keyvalue",
+     "items": [
+      {
+       "label": "Premier épisode",
+       "value": "Du 8 au 11 octobre : une campagne distincte, fondée sur des clés d'accès appartenant aux clients pour les intégrations Qubole. Un petit nombre de compromissions, sans lien formellement établi avec la suite."
+      },
+      {
+       "label": "Activité principale",
+       "value": "À partir du 14 octobre : appels à `sts:AssumeRole` depuis des identifiants du compte de Qubole vers des rôles d'intégration gérés par les clients."
+      },
+      {
+       "label": "Évolution",
+       "value": "Le 18 octobre : les attaquants utilisent un second utilisateur IAM du même compte."
+      },
+      {
+       "label": "Services visités",
+       "value": "Lambda, Secrets Manager et SSM Parameter Store, où se trouvent identifiants, clés et autres secrets."
+      },
+      {
+       "label": "Outils",
+       "value": "TruffleHog, pour tester des identifiants AWS et repérer des secrets Microsoft Entra ID ; des identifiants clients Okta trouvés sur place ont servi à demander des jetons OAuth."
+      },
+      {
+       "label": "Données",
+       "value": "Des données S3 ont été copiées, parfois des compartiments entiers."
+      }
+     ]
+    },
+    {
+     "type": "paragraph",
+     "text": "Wiz qualifie l'opération de campagne opportuniste et large, touchant « plusieurs » environnements, sans donner le nombre d'organisations concernées. Aucun groupe n'est identifié et les chercheurs ignorent l'usage fait des données volées. Selon The Register, ni AWS ni Qubole n'avaient répondu à ses sollicitations au moment de la publication."
+    },
+    {
+     "type": "diagram",
+     "svg": "<svg xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"0 0 640 300\" font-family=\"system-ui,sans-serif\"><rect width=\"640\" height=\"300\" rx=\"16\" fill=\"#f4f6fa\" stroke=\"#c9d1de\"/><text x=\"320\" y=\"40\" text-anchor=\"middle\" font-size=\"18\" font-weight=\"700\" fill=\"#1d2433\">Parcours de l'attaque</text><rect x=\"20\" y=\"95\" width=\"129\" height=\"150\" rx=\"12\" fill=\"#fff\" stroke=\"#5b7bd5\" stroke-width=\"2\"/><circle cx=\"42\" cy=\"117\" r=\"14\" fill=\"#5b7bd5\"/><text x=\"42\" y=\"122\" text-anchor=\"middle\" font-size=\"14\" font-weight=\"700\" fill=\"#fff\">1</text><text x=\"30\" y=\"153\" font-size=\"13\" font-weight=\"700\" fill=\"#1d2433\">Identifiants tiers</text><text x=\"30\" y=\"173\" font-size=\"11.5\" fill=\"#3a4357\">Accès au compte AWS</text><text x=\"30\" y=\"189\" font-size=\"11.5\" fill=\"#3a4357\">de la plateforme Qubole</text><path d=\"M152 170 H168\" stroke=\"#5b7bd5\" stroke-width=\"3\"/><path d=\"M174 170 l-6 -6 v12 z\" fill=\"#5b7bd5\"/><rect x=\"177\" y=\"95\" width=\"129\" height=\"150\" rx=\"12\" fill=\"#fff\" stroke=\"#5b7bd5\" stroke-width=\"2\"/><circle cx=\"199\" cy=\"117\" r=\"14\" fill=\"#5b7bd5\"/><text x=\"199\" y=\"122\" text-anchor=\"middle\" font-size=\"14\" font-weight=\"700\" fill=\"#fff\">2</text><text x=\"187\" y=\"153\" font-size=\"13\" font-weight=\"700\" fill=\"#1d2433\">AssumeRole</text><text x=\"187\" y=\"173\" font-size=\"11.5\" fill=\"#3a4357\">Jetons temporaires sur</text><text x=\"187\" y=\"189\" font-size=\"11.5\" fill=\"#3a4357\">les rôles des clients</text><path d=\"M309 170 H325\" stroke=\"#5b7bd5\" stroke-width=\"3\"/><path d=\"M331 170 l-6 -6 v12 z\" fill=\"#5b7bd5\"/><rect x=\"334\" y=\"95\" width=\"129\" height=\"150\" rx=\"12\" fill=\"#fff\" stroke=\"#5b7bd5\" stroke-width=\"2\"/><circle cx=\"356\" cy=\"117\" r=\"14\" fill=\"#5b7bd5\"/><text x=\"356\" y=\"122\" text-anchor=\"middle\" font-size=\"14\" font-weight=\"700\" fill=\"#fff\">3</text><text x=\"344\" y=\"153\" font-size=\"13\" font-weight=\"700\" fill=\"#1d2433\">Collecte</text><text x=\"344\" y=\"173\" font-size=\"11.5\" fill=\"#3a4357\">Secrets Manager, SSM,</text><text x=\"344\" y=\"189\" font-size=\"11.5\" fill=\"#3a4357\">Lambda : secrets lus</text><path d=\"M466 170 H482\" stroke=\"#5b7bd5\" stroke-width=\"3\"/><path d=\"M488 170 l-6 -6 v12 z\" fill=\"#5b7bd5\"/><rect x=\"491\" y=\"95\" width=\"129\" height=\"150\" rx=\"12\" fill=\"#fff\" stroke=\"#5b7bd5\" stroke-width=\"2\"/><circle cx=\"513\" cy=\"117\" r=\"14\" fill=\"#5b7bd5\"/><text x=\"513\" y=\"122\" text-anchor=\"middle\" font-size=\"14\" font-weight=\"700\" fill=\"#fff\">4</text><text x=\"501\" y=\"153\" font-size=\"13\" font-weight=\"700\" fill=\"#1d2433\">Exfiltration</text><text x=\"501\" y=\"173\" font-size=\"11.5\" fill=\"#3a4357\">Données S3, parfois</text><text x=\"501\" y=\"189\" font-size=\"11.5\" fill=\"#3a4357\">des buckets entiers</text><text x=\"320\" y=\"275\" text-anchor=\"middle\" font-size=\"12\" fill=\"#3a4357\">Une confiance inter-comptes laissée active suffit à ouvrir la première porte.</text></svg>",
+     "alt": "Schéma en quatre étapes de l'attaque : identifiants du prestataire, endossement des rôles, collecte de secrets, exfiltration de données S3.",
+     "caption": "D'après la description de Wiz relayée par The Register."
+    },
+    {
+     "type": "heading",
+     "level": 2,
+     "text": "Les mesures recommandées"
+    },
+    {
+     "type": "list",
+     "items": [
+      "Supprimer les politiques de confiance des intégrations Qubole qui ne servent plus.",
+      "Examiner les journaux CloudTrail depuis le 1er octobre pour repérer des événements `AssumeRole` dont `userIdentity.accountId` vaut 805246085872, surtout depuis des adresses IP extérieures à AWS.",
+      "Pour chaque session suspecte, analyser l'activité qui suit, en particulier sur Secrets Manager, SSM Parameter Store, Lambda et S3.",
+      "Si un rôle a été endossé, renouveler tous les secrets, paramètres et variables d'environnement Lambda qu'il pouvait lire, puis révoquer ses sessions actives : la simple rotation ne met pas fin aux sessions déjà émises."
+     ]
+    },
+    {
+     "type": "usecases",
+     "title": "Exemples d'utilisation",
+     "items": [
+      {
+       "icon": "🧹",
+       "title": "Inventaire des accès tiers",
+       "text": "Une PME qui a migré hors d'une plateforme de données parcourt ses rôles IAM, repère ceux dont la confiance pointe vers un compte externe et supprime les restes."
+      },
+      {
+       "icon": "🔍",
+       "title": "Chasse dans les journaux",
+       "text": "Une équipe sécurité requête CloudTrail sur l'identifiant de compte publié et recoupe les sessions avec les accès aux secrets."
+      },
+      {
+       "icon": "🔄",
+       "title": "Rotation ciblée",
+       "text": "Un responsable d'exploitation renouvelle d'abord les secrets lisibles par le rôle concerné, en commençant par ceux qui donnent accès à d'autres services (Okta, Entra ID)."
+      }
+     ]
+    },
+    {
+     "type": "timeline",
+     "title": "D'où l'on vient, où l'on va",
+     "items": [
+      {
+       "label": "8-11 octobre 2026",
+       "text": "Première série de compromissions via des clés d'accès clients."
+      },
+      {
+       "label": "14-18 octobre 2026",
+       "text": "Endossement de rôles depuis des identifiants du compte de Qubole, puis usage d'un second utilisateur IAM."
+      },
+      {
+       "label": "9 novembre 2026",
+       "text": "Publication de l'analyse de Wiz et Mandiant."
+      },
+      {
+       "label": "Ensuite",
+       "text": "Les clients doivent auditer leurs journaux ; aucun bilan chiffré des victimes n'a été publié."
+      }
+     ]
+    },
+    {
+     "type": "opinion",
+     "title": "Notre avis",
+     "paragraphs": [
+      "Cette affaire rappelle que le modèle de responsabilité partagée du cloud ne s'arrête pas aux clés : une politique de confiance est un droit d'entrée permanent, et il ne disparaît pas parce qu'un contrat s'achève. Le défaut ici n'est pas une faille logicielle au sens classique, mais l'absence de nettoyage des accès délégués, un angle mort fréquent dans les organisations qui changent d'outils.",
+      "D'ici un à trois ans, on peut s'attendre à ce que l'inventaire continu des accès délégués devienne une exigence standard : alertes sur les rôles dormants, expiration automatique des relations de confiance, conditions d'identifiant externe obligatoires. C'est une projection, mais elle découle d'une logique simple : plus les entreprises empilent de prestataires, plus la surface de confiance explose."
+     ],
+     "verdict": "Une confiance non révoquée est une vulnérabilité, même sans une ligne de code défaillante."
+    },
+    {
+     "type": "callout",
+     "title": "À retenir",
+     "text": "Auditez les rôles IAM qui font confiance à un compte externe, supprimez ceux des services abandonnés et surveillez `AssumeRole` dans CloudTrail. Le renouvellement des secrets doit s'accompagner de la révocation des sessions."
+    }
+   ],
+   "publishedAt": "2026-11-10T04:16:55+01:00"
+  },
+  {
+   "id": "applications-android-constructeurs-forgerock-deverrouillage-distance",
+   "category": "cybersecurite",
+   "title": "Voitures connectées : deux chercheurs déverrouillent des véhicules à distance via les applications Android de deux constructeurs",
+   "summary": "Shubham Shah et Sam Curry ont enchaîné contournement de pare-feu, identifiants par défaut et accès aux serveurs d'identité ForgeRock pour envoyer des commandes à des véhicules en Australie et aux États-Unis. Les failles ont été corrigées en deux heures.",
+   "tags": [
+    "automobile",
+    "ForgeRock",
+    "vulnérabilités",
+    "Android",
+    "Sam Curry"
+   ],
+   "importance": 4,
+   "readingMinutes": 5,
+   "sourceDate": "2026-11-09",
+   "icon": "🚗",
+   "cover": {
+    "url": "https://image.theregister.com/5306530.jpg?imageId=5306530&x=0&y=0&cropw=100&croph=100&panox=0&panoy=0&panow=100&panoh=100&width=1200&height=683",
+    "alt": "Illustration d'actualité sur la sécurité des véhicules connectés",
+    "credit": "theregister.com"
+   },
+   "sources": [
+    {
+     "title": "Researchers pwn automakers' Android apps to remotely unlock cars, honk horns",
+     "url": "https://www.theregister.com/security/2026/11/09/researchers-pwn-automakers-android-apps-to-remotely-unlock-cars-honk-horns/5308483",
+     "publisher": "The Register"
+    }
+   ],
+   "illustration": {
+    "svg": "<svg xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"0 0 640 360\"><defs><linearGradient id=\"g\" x1=\"0\" y1=\"0\" x2=\"1\" y2=\"1\"><stop offset=\"0\" stop-color=\"hsl(175,62%,38%)\"/><stop offset=\"1\" stop-color=\"hsl(210,65%,20%)\"/></linearGradient></defs><rect width=\"640\" height=\"360\" fill=\"url(#g)\"/><circle cx=\"194\" cy=\"106\" r=\"22\" fill=\"#fff\" fill-opacity=\".08\"/><circle cx=\"325\" cy=\"177\" r=\"35\" fill=\"#fff\" fill-opacity=\".08\"/><circle cx=\"456\" cy=\"248\" r=\"48\" fill=\"#fff\" fill-opacity=\".08\"/><circle cx=\"587\" cy=\"319\" r=\"21\" fill=\"#fff\" fill-opacity=\".08\"/><circle cx=\"78\" cy=\"30\" r=\"34\" fill=\"#fff\" fill-opacity=\".08\"/><circle cx=\"209\" cy=\"101\" r=\"47\" fill=\"#fff\" fill-opacity=\".08\"/><path d=\"M170 235 L190 175 C195 160 205 150 225 150 H415 C435 150 445 160 450 175 L470 235 Z\" fill=\"#fff\" fill-opacity=\".25\" stroke=\"#fff\" stroke-width=\"7\"/><circle cx=\"225\" cy=\"245\" r=\"24\" fill=\"#fff\"/><circle cx=\"415\" cy=\"245\" r=\"24\" fill=\"#fff\"/><path d=\"M290 110 C310 90 330 90 350 110 M265 85 C300 55 340 55 375 85\" stroke=\"#fff\" stroke-width=\"6\" fill=\"none\" stroke-linecap=\"round\"/></svg>"
+   },
+   "blocks": [
+    {
+     "type": "paragraph",
+     "text": "Deux chercheurs en sécurité, Shubham Shah (cofondateur d'Assetnote) et Sam Curry, ont montré qu'il était possible de prendre le contrôle à distance de véhicules en s'attaquant non pas à la voiture, mais à l'infrastructure d'identité qui se cache derrière les applications mobiles Android de deux constructeurs. Selon The Register, qui a publié l'information le 9 novembre 2026, les deux marques utilisent la plateforme d'identité ForgeRock et les chercheurs ont décrit deux chaînes d'attaque distinctes, l'une pour l'Australie, l'autre pour les États-Unis."
+    },
+    {
+     "type": "paragraph",
+     "text": "Les constructeurs ne sont pas nommés. Des internautes ont avancé les noms de Toyota et Lexus ; un porte-parole de Toyota n'a ni confirmé ni démenti. Cette identification reste donc une spéculation. Les deux chercheurs avaient déjà signalé des failles chez Hyundai, Kia, Subaru et d'autres."
+    },
+    {
+     "type": "heading",
+     "level": 2,
+     "text": "La chaîne australienne"
+    },
+    {
+     "type": "list",
+     "items": [
+      "Les numéros d'identification de véhicule (VIN) étaient obtenus via des services publics de vérification de plaques d'immatriculation.",
+      "Des API internes renvoyaient des données personnelles, dont les adresses e-mail des propriétaires.",
+      "Des identifiants d'administration ForgeRock OpenIDM codés en dur, prévus pour un environnement de test, fonctionnaient aussi en production.",
+      "Une faille de traversée de chemin permettait de contourner le pare-feu applicatif (WAF).",
+      "Avec la seule adresse e-mail d'un propriétaire, un attaquant pouvait prendre le contrôle du compte, générer des jetons d'authentification et envoyer des commandes au véhicule."
+     ]
+    },
+    {
+     "type": "heading",
+     "level": 2,
+     "text": "La chaîne américaine"
+    },
+    {
+     "type": "list",
+     "items": [
+      "Une confusion de chemin permettait là aussi de contourner le WAF et d'atteindre la console d'administration Apache Felix.",
+      "Des identifiants d'usine par défaut sur la console web OSGi de Felix donnaient un accès administrateur.",
+      "Une tâche planifiée du gestionnaire de configuration exécutait un script Groovy en ligne, ce qui offrait un accès shell aux serveurs d'identité.",
+      "Des points d'accès d'administration locaux permettaient de lire ou modifier les données d'utilisateurs, de se connecter aux comptes des propriétaires et d'émettre les mêmes commandes qu'en Australie."
+     ]
+    },
+    {
+     "type": "paragraph",
+     "text": "Shubham Shah juge que l'attaque américaine a « demandé beaucoup plus de travail » que l'australienne. Les chercheurs ont prévenu les constructeurs début 2026 ; d'après la chronologie de Sam Curry, les failles ont été corrigées dans les deux heures suivant le signalement."
+    },
+    {
+     "type": "diagram",
+     "svg": "<svg xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"0 0 640 300\" font-family=\"system-ui,sans-serif\"><rect width=\"640\" height=\"300\" rx=\"16\" fill=\"#f4f6fa\" stroke=\"#c9d1de\"/><text x=\"320\" y=\"40\" text-anchor=\"middle\" font-size=\"18\" font-weight=\"700\" fill=\"#1d2433\">Du compte au véhicule</text><rect x=\"20\" y=\"95\" width=\"129\" height=\"150\" rx=\"12\" fill=\"#fff\" stroke=\"#5b7bd5\" stroke-width=\"2\"/><circle cx=\"42\" cy=\"117\" r=\"14\" fill=\"#5b7bd5\"/><text x=\"42\" y=\"122\" text-anchor=\"middle\" font-size=\"14\" font-weight=\"700\" fill=\"#fff\">1</text><text x=\"30\" y=\"153\" font-size=\"13\" font-weight=\"700\" fill=\"#1d2433\">Reconnaissance</text><text x=\"30\" y=\"173\" font-size=\"11.5\" fill=\"#3a4357\">VIN via plaque,</text><text x=\"30\" y=\"189\" font-size=\"11.5\" fill=\"#3a4357\">e-mail du propriétaire</text><path d=\"M152 170 H168\" stroke=\"#5b7bd5\" stroke-width=\"3\"/><path d=\"M174 170 l-6 -6 v12 z\" fill=\"#5b7bd5\"/><rect x=\"177\" y=\"95\" width=\"129\" height=\"150\" rx=\"12\" fill=\"#fff\" stroke=\"#5b7bd5\" stroke-width=\"2\"/><circle cx=\"199\" cy=\"117\" r=\"14\" fill=\"#5b7bd5\"/><text x=\"199\" y=\"122\" text-anchor=\"middle\" font-size=\"14\" font-weight=\"700\" fill=\"#fff\">2</text><text x=\"187\" y=\"153\" font-size=\"13\" font-weight=\"700\" fill=\"#1d2433\">Contournement</text><text x=\"187\" y=\"173\" font-size=\"11.5\" fill=\"#3a4357\">WAF contourné par</text><text x=\"187\" y=\"189\" font-size=\"11.5\" fill=\"#3a4357\">chemin détourné</text><path d=\"M309 170 H325\" stroke=\"#5b7bd5\" stroke-width=\"3\"/><path d=\"M331 170 l-6 -6 v12 z\" fill=\"#5b7bd5\"/><rect x=\"334\" y=\"95\" width=\"129\" height=\"150\" rx=\"12\" fill=\"#fff\" stroke=\"#5b7bd5\" stroke-width=\"2\"/><circle cx=\"356\" cy=\"117\" r=\"14\" fill=\"#5b7bd5\"/><text x=\"356\" y=\"122\" text-anchor=\"middle\" font-size=\"14\" font-weight=\"700\" fill=\"#fff\">3</text><text x=\"344\" y=\"153\" font-size=\"13\" font-weight=\"700\" fill=\"#1d2433\">Prise de compte</text><text x=\"344\" y=\"173\" font-size=\"11.5\" fill=\"#3a4357\">Jeton généré,</text><text x=\"344\" y=\"189\" font-size=\"11.5\" fill=\"#3a4357\">accès aux comptes</text><path d=\"M466 170 H482\" stroke=\"#5b7bd5\" stroke-width=\"3\"/><path d=\"M488 170 l-6 -6 v12 z\" fill=\"#5b7bd5\"/><rect x=\"491\" y=\"95\" width=\"129\" height=\"150\" rx=\"12\" fill=\"#fff\" stroke=\"#5b7bd5\" stroke-width=\"2\"/><circle cx=\"513\" cy=\"117\" r=\"14\" fill=\"#5b7bd5\"/><text x=\"513\" y=\"122\" text-anchor=\"middle\" font-size=\"14\" font-weight=\"700\" fill=\"#fff\">4</text><text x=\"501\" y=\"153\" font-size=\"13\" font-weight=\"700\" fill=\"#1d2433\">Commandes</text><text x=\"501\" y=\"173\" font-size=\"11.5\" fill=\"#3a4357\">Déverrouillage, klaxon,</text><text x=\"501\" y=\"189\" font-size=\"11.5\" fill=\"#3a4357\">autres actions</text><text x=\"320\" y=\"275\" text-anchor=\"middle\" font-size=\"12\" fill=\"#3a4357\">Le véhicule n'est pas attaqué directement : c'est le compte qui l'est.</text></svg>",
+     "alt": "Schéma en quatre étapes : reconnaissance, contournement du pare-feu, prise de contrôle du compte, envoi de commandes au véhicule.",
+     "caption": "Résumé simplifié des chaînes décrites par les chercheurs ; les étapes exactes varient selon le pays."
+    },
+    {
+     "type": "usecases",
+     "title": "Ce que cela change concrètement",
+     "items": [
+      {
+       "icon": "🅿️",
+       "title": "Véhicule en stationnement",
+       "text": "Un propriétaire dont l'e-mail est connu pourrait, dans le scénario décrit, voir sa voiture déverrouillée à distance : le risque est le vol d'objets ou du véhicule."
+      },
+      {
+       "icon": "🚚",
+       "title": "Flottes d'entreprise",
+       "text": "Un gestionnaire de flotte qui lie des dizaines de véhicules à des comptes partagés doit vérifier que le prestataire de connectivité applique des secrets uniques par environnement."
+      },
+      {
+       "icon": "🛠️",
+       "title": "Équipes de développement",
+       "text": "Une équipe qui expose une console d'administration derrière un WAF apprend qu'un pare-feu ne remplace ni le changement des mots de passe par défaut ni l'isolement du réseau."
+      }
+     ]
+    },
+    {
+     "type": "timeline",
+     "title": "D'où l'on vient, où l'on va",
+     "items": [
+      {
+       "label": "Début 2026",
+       "text": "Les chercheurs développent les exploits et préviennent les constructeurs."
+      },
+      {
+       "label": "Après le signalement",
+       "text": "Correctifs déployés en deux heures, selon Sam Curry."
+      },
+      {
+       "label": "9 novembre 2026",
+       "text": "Publication de la presse spécialisée sur les deux chaînes d'attaque."
+      },
+      {
+       "label": "Ensuite",
+       "text": "D'autres constructeurs utilisant la même plateforme pourraient être concernés ; rien n'est confirmé à ce stade."
+      }
+     ]
+    },
+    {
+     "type": "opinion",
+     "title": "Notre avis",
+     "paragraphs": [
+      "Le cas illustre un déplacement du risque : la cybersécurité d'une voiture connectée se joue moins dans son électronique embarquée que dans le cloud qui gère les comptes et les commandes. Les failles décrites sont banales — identifiants par défaut, secrets codés en dur, traversée de chemin — mais elles deviennent graves quand elles ouvrent l'accès à un objet physique de plusieurs tonnes.",
+      "À un horizon de un à trois ans, la pression réglementaire européenne sur les produits connectés (exigences de sécurité des produits numériques, normes automobiles de cybersécurité) devrait pousser les constructeurs à tester leurs plateformes d'identité comme ils testent leurs freins. Il s'agit d'une analyse, non d'un fait établi."
+     ],
+     "verdict": "Un correctif en deux heures est rassurant, mais la même faille de conception peut exister ailleurs."
+    },
+    {
+     "type": "callout",
+     "title": "À retenir",
+     "text": "Les détails restent ceux de The Register : les deux constructeurs ne sont pas nommés officiellement et aucune exploitation malveillante n'est rapportée."
+    }
+   ],
+   "publishedAt": "2026-11-10T04:16:55+01:00"
+  },
+  {
+   "id": "mythos-cisco-ibm-detection-vulnerabilites-produits",
+   "category": "ia",
+   "title": "Mythos d'Anthropic intégré aux produits de sécurité de Cisco et d'IBM, sans livrer le modèle aux clients",
+   "summary": "Cisco et IBM intègrent les capacités de recherche de failles du modèle Mythos dans leurs outils, sans donner accès au modèle lui-même. Anthropic présente aussi la version 5.2 de ses modèles, plus rapide et moins chère.",
+   "tags": [
+    "Anthropic",
+    "Mythos",
+    "Cisco",
+    "IBM",
+    "sécurité"
+   ],
+   "importance": 4,
+   "readingMinutes": 5,
+   "sourceDate": "2026-11-10",
+   "icon": "🛡️",
+   "cover": {
+    "url": "https://image.theregister.com/245983.jpg?imageId=245983&x=0&y=0&cropw=100&croph=100&panox=0&panoy=0&panow=100&panoh=100&width=1200&height=683",
+    "alt": "Illustration d'actualité sur l'intelligence artificielle et la sécurité",
+    "credit": "theregister.com"
+   },
+   "sources": [
+    {
+     "title": "Anthropic's super bug-finding Mythos model is going into Cisco and IBM products",
+     "url": "https://www.theregister.com/ai-and-ml/2026/11/10/anthropics-super-bug-finding-mythos-model-is-going-into-cisco-and-ibm-products/5308616",
+     "publisher": "The Register"
+    }
+   ],
+   "illustration": {
+    "svg": "<svg xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"0 0 640 360\"><defs><linearGradient id=\"g\" x1=\"0\" y1=\"0\" x2=\"1\" y2=\"1\"><stop offset=\"0\" stop-color=\"hsl(320,62%,38%)\"/><stop offset=\"1\" stop-color=\"hsl(355,65%,20%)\"/></linearGradient></defs><rect width=\"640\" height=\"360\" fill=\"url(#g)\"/><circle cx=\"291\" cy=\"159\" r=\"23\" fill=\"#fff\" fill-opacity=\".08\"/><circle cx=\"422\" cy=\"230\" r=\"36\" fill=\"#fff\" fill-opacity=\".08\"/><circle cx=\"553\" cy=\"301\" r=\"49\" fill=\"#fff\" fill-opacity=\".08\"/><circle cx=\"44\" cy=\"12\" r=\"22\" fill=\"#fff\" fill-opacity=\".08\"/><circle cx=\"175\" cy=\"83\" r=\"35\" fill=\"#fff\" fill-opacity=\".08\"/><circle cx=\"306\" cy=\"154\" r=\"48\" fill=\"#fff\" fill-opacity=\".08\"/><path d=\"M320 70 L420 105 V190 C420 250 370 290 320 310 C270 290 220 250 220 190 V105 Z\" fill=\"none\" stroke=\"#fff\" stroke-width=\"8\"/><path d=\"M280 185 L310 215 L365 155\" fill=\"none\" stroke=\"#fff\" stroke-width=\"12\" stroke-linecap=\"round\"/></svg>"
+   },
+   "blocks": [
+    {
+     "type": "paragraph",
+     "text": "Le 10 novembre 2026, The Register rapporte qu'Anthropic permet à Cisco et à IBM de brancher Mythos, son modèle spécialisé dans la découverte de failles logicielles, dans leurs produits de sécurité. Le principe est de proposer les capacités du modèle aux clients sans leur remettre le modèle lui-même, ce qui limite le risque qu'un outil puissant de recherche de vulnérabilités tombe entre de mauvaises mains."
+    },
+    {
+     "type": "heading",
+     "level": 2,
+     "text": "Ce qu'annoncent les deux entreprises"
+    },
+    {
+     "type": "keyvalue",
+     "items": [
+      {
+       "label": "Cisco",
+       "value": "Annonce faite lors d'un événement à Melbourne. La suite AI Defense, qui teste modèles, agents et applications d'IA à la recherche de faiblesses, peut désormais s'appuyer sur Mythos, en complément de son « red teaming » automatisé existant. Disponible dans les licences actuelles, sans surcoût."
+      },
+      {
+       "label": "IBM",
+       "value": "Annonce quelques heures plus tard. Mythos sera intégré à l'outil Concert, qui analyse les applications pour détecter risques et faiblesses. IBM promet de trouver des défauts que les scanners classiques manquent, de déterminer lesquels présentent un risque réel et de proposer des correctifs soumis à l'approbation des développeurs."
+      }
+     ]
+    },
+    {
+     "type": "paragraph",
+     "text": "Anthropic avait d'abord donné accès à Mythos via le programme « Project Glasswing », réservé à des organisations sélectionnées qui testent leurs propres bases de code, puis a élargi l'accès par d'autres programmes contrôlés. Natalie Mead, responsable de l'IA appliquée pour l'Asie-Pacifique chez Anthropic, a indiqué qu'une longue file d'acheteurs attend le modèle et que des partenariats comme celui de Cisco facilitent la réponse à cette demande. Elle n'a pas dit si d'autres accords du même type existaient."
+    },
+    {
+     "type": "heading",
+     "level": 2,
+     "text": "Pourquoi l'accès est contrôlé"
+    },
+    {
+     "type": "paragraph",
+     "text": "Un modèle capable de trouver des failles peut servir aussi bien à les corriger qu'à les exploiter. The Register souligne ce risque : c'est la raison d'être d'un accès encadré. Le choix d'intégrer le modèle derrière des produits, plutôt que de le distribuer, déplace le contrôle vers l'éditeur du produit, qui peut filtrer les usages, journaliser les requêtes et limiter les résultats."
+    },
+    {
+     "type": "heading",
+     "level": 2,
+     "text": "Une version 5.2 le même jour"
+    },
+    {
+     "type": "paragraph",
+     "text": "Le même jour, Anthropic a publié la version 5.2 de ses modèles Mythos et Fable. L'entreprise affirme des réponses jusqu'à 30 % plus rapides que la version 5.1 et un coût moindre : 8 dollars par million de jetons en entrée et 40 dollars en sortie. Un « mode rapide » accélère la génération jusqu'à 2,5 fois, mais double les tarifs (16 et 80 dollars). Anthropic dit avoir mené des tests de sécurité avant publication, y compris de nouvelles évaluations sur les évasions de bac à sable, et conclut que les risques majeurs liés à un désalignement restent faibles. Ces chiffres sont ceux de l'entreprise, rapportés par la presse."
+    },
+    {
+     "type": "usecases",
+     "title": "Exemples d'utilisation",
+     "items": [
+      {
+       "icon": "🏢",
+       "title": "Équipe sécurité d'un grand compte",
+       "text": "Une équipe déjà cliente d'AI Defense active l'option Mythos pour tester ses agents internes avant mise en production, sans nouveau contrat."
+      },
+      {
+       "icon": "🧑‍💻",
+       "title": "Développeurs d'applications",
+       "text": "Un éditeur utilisant Concert reçoit, pour une faille jugée critique, un correctif proposé qu'un développeur relit avant de l'intégrer."
+      },
+      {
+       "icon": "🏛️",
+       "title": "Organisation sans équipe dédiée",
+       "text": "Une collectivité achète une prestation d'analyse plutôt qu'un accès brut au modèle, ce qui lui évite de gérer un outil à double usage."
+      }
+     ]
+    },
+    {
+     "type": "timeline",
+     "title": "D'où l'on vient, où l'on va",
+     "items": [
+      {
+       "label": "Avant novembre 2026",
+       "text": "Accès à Mythos limité à des organisations sélectionnées via Project Glasswing."
+      },
+      {
+       "label": "10 novembre 2026",
+       "text": "Cisco et IBM annoncent l'intégration ; Anthropic publie la version 5.2."
+      },
+      {
+       "label": "Ensuite",
+       "text": "Anthropic n'a pas précisé si d'autres accords suivront."
+      }
+     ]
+    },
+    {
+     "type": "opinion",
+     "title": "Notre avis",
+     "paragraphs": [
+      "L'approche « capacité sans modèle » est un compromis pragmatique : elle diffuse la détection de failles au-delà des quelques organisations triées sur le volet, tout en gardant la main sur l'outil. Sa limite est la confiance : les clients doivent croire que les éditeurs filtrent correctement, et ils ne peuvent pas auditer le modèle.",
+      "Dans un à trois ans, la recherche de failles par modèle pourrait devenir une fonction ordinaire des scanners du marché. La question deviendra alors celle des délais : si les défenseurs trouvent plus vite les failles, les attaquants qui disposent d'outils comparables aussi. C'est une analyse, pas un constat."
+     ],
+     "verdict": "Un bon compromis de diffusion, à surveiller sur la transparence et les garde-fous."
+    }
+   ],
+   "publishedAt": "2026-11-10T04:16:55+01:00"
+  },
+  {
+   "id": "hyperlight-micro-vm-unikraft-linux-isolation-agents",
+   "category": "devops",
+   "title": "Hyperlight : faire tourner des applications Linux dans des micro-VM isolées, avec un redémarrage depuis un instantané en environ 3 ms",
+   "summary": "Microsoft présente hyperlight-unikraft, un outil du projet Hyperlight (bac à sable CNCF) qui exécute des binaires Linux non modifiés dans une micro-VM, pour isoler du code généré ou tiers. Les mesures publiées proviennent d'une seule machine.",
+   "tags": [
+    "CNCF",
+    "Hyperlight",
+    "micro-VM",
+    "unikernel",
+    "sandbox"
+   ],
+   "importance": 3,
+   "readingMinutes": 5,
+   "sourceDate": "2026-11-09",
+   "icon": "📦",
+   "sources": [
+    {
+     "title": "Run Linux applications in hypervisor-isolated micro-VMs with Hyperlight",
+     "url": "https://www.cncf.io/blog/2026/11/09/run-linux-applications-in-hypervisor-isolated-micro-vms-with-hyperlight/",
+     "publisher": "CNCF"
+    }
+   ],
+   "illustration": {
+    "svg": "<svg xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"0 0 640 360\"><defs><linearGradient id=\"g\" x1=\"0\" y1=\"0\" x2=\"1\" y2=\"1\"><stop offset=\"0\" stop-color=\"hsl(160,62%,38%)\"/><stop offset=\"1\" stop-color=\"hsl(195,65%,20%)\"/></linearGradient></defs><rect width=\"640\" height=\"360\" fill=\"url(#g)\"/><circle cx=\"388\" cy=\"212\" r=\"24\" fill=\"#fff\" fill-opacity=\".08\"/><circle cx=\"519\" cy=\"283\" r=\"37\" fill=\"#fff\" fill-opacity=\".08\"/><circle cx=\"10\" cy=\"354\" r=\"50\" fill=\"#fff\" fill-opacity=\".08\"/><circle cx=\"141\" cy=\"65\" r=\"23\" fill=\"#fff\" fill-opacity=\".08\"/><circle cx=\"272\" cy=\"136\" r=\"36\" fill=\"#fff\" fill-opacity=\".08\"/><circle cx=\"403\" cy=\"207\" r=\"49\" fill=\"#fff\" fill-opacity=\".08\"/><rect x=\"200\" y=\"100\" width=\"240\" height=\"160\" rx=\"18\" fill=\"#fff\" fill-opacity=\".15\" stroke=\"#fff\" stroke-width=\"7\" stroke-dasharray=\"14 10\"/><rect x=\"250\" y=\"140\" width=\"140\" height=\"80\" rx=\"10\" fill=\"#fff\" fill-opacity=\".85\"/><path d=\"M285 180 H355 M320 160 V200\" stroke=\"currentColor\" stroke-width=\"0\"/><circle cx=\"320\" cy=\"180\" r=\"12\" fill=\"none\" stroke=\"#333\" stroke-width=\"5\"/></svg>"
+   },
+   "blocks": [
+    {
+     "type": "paragraph",
+     "text": "Un code que l'on n'a pas écrit — script produit par une IA, extension fournie par un client, dépendance tierce — a besoin d'une frontière de sécurité. Dans un billet publié le 9 novembre 2026 sur le blog de la CNCF, Danilo Chiarlone (Microsoft) présente Hyperlight, un projet du niveau « Sandbox » de la fondation, et sa nouvelle brique hyperlight-unikraft, pilotée par la commande `hluk`."
+    },
+    {
+     "type": "heading",
+     "level": 2,
+     "text": "Comment ça fonctionne"
+    },
+    {
+     "type": "paragraph",
+     "text": "Hyperlight est décrit comme une « bibliothèque de moniteur de machine virtuelle » (VMM) : l'application l'intègre directement, au lieu de lancer un processus séparé comme avec QEMU ou Firecracker. Le cœur est écrit en Rust, avec des kits pour Python et .NET. À chaque demande de bac à sable, Hyperlight crée une micro-VM dotée de sa propre mémoire, isolée par les extensions de virtualisation du processeur via l'hyperviseur de l'hôte : KVM ou MSHV sous Linux, WHP sous Windows, Hypervisor.framework sous macOS."
+    },
+    {
+     "type": "list",
+     "items": [
+      "Aucun périphérique émulé : l'invité ne peut joindre l'hôte que par les fonctions que celui-ci expose.",
+      "Accès fondé sur les capacités : l'intégrateur rédige une liste d'autorisations, rien n'est accordé par défaut. Sans réseau ni fichiers hôte tant qu'ils ne sont pas ajoutés.",
+      "hyperlight-unikraft exécute un unikernel Unikraft dans la micro-VM, ce qui permet de lancer des binaires Linux non modifiés, sans SDK ni libc spécifique : Python, Node.js, .NET, Java, PHP, Go, Rust, C, Bash et PowerShell, sur x86_64 et arm64.",
+      "Le premier lancement démarre l'invité et enregistre un instantané ; les suivants le restaurent, en environ 3 ms selon l'auteur."
+     ]
+    },
+    {
+     "type": "heading",
+     "level": 2,
+     "text": "Des mesures à prendre avec prudence"
+    },
+    {
+     "type": "paragraph",
+     "text": "Les chiffres cités proviennent d'une unique machine virtuelle Azure de 8 vCPU, en virtualisation imbriquée (hluk 0.20.1, novembre 2026). Ils illustrent l'intérêt de l'instantané plus qu'ils ne fournissent une garantie générale."
+    },
+    {
+     "type": "table",
+     "headers": [
+      "Charge",
+      "hluk (instantané)",
+      "Natif"
+     ],
+     "rows": [
+      [
+       "Python « hello world »",
+       "22 ms",
+       "17 ms"
+      ],
+      [
+       "Node.js « hello world »",
+       "39 ms",
+       "22 ms"
+      ],
+      [
+       "C# compilé dans l'invité (Roslyn)",
+       "95 ms",
+       "1 549 ms (`dotnet run`)"
+      ],
+      [
+       "Python avec numpy, pandas, scikit-learn",
+       "45 ms",
+       "1 119 ms"
+      ]
+     ]
+    },
+    {
+     "type": "paragraph",
+     "text": "Pour des programmes triviaux, la micro-VM est donc plus lente que l'exécution native. Le gain apparaît quand le démarrage du langage est coûteux, puisque l'instantané restaure ce travail déjà fait. Huit micro-VM partageant un même instantané Python ont servi environ 850 appels par seconde au total. Le billet ne donne pas de chiffre de consommation mémoire."
+    },
+    {
+     "type": "diagram",
+     "svg": "<svg xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"0 0 640 300\" font-family=\"system-ui,sans-serif\"><rect width=\"640\" height=\"300\" rx=\"16\" fill=\"#f4f6fa\" stroke=\"#c9d1de\"/><text x=\"320\" y=\"40\" text-anchor=\"middle\" font-size=\"18\" font-weight=\"700\" fill=\"#1d2433\">Démarrage par instantané</text><rect x=\"20\" y=\"95\" width=\"129\" height=\"150\" rx=\"12\" fill=\"#fff\" stroke=\"#5b7bd5\" stroke-width=\"2\"/><circle cx=\"42\" cy=\"117\" r=\"14\" fill=\"#5b7bd5\"/><text x=\"42\" y=\"122\" text-anchor=\"middle\" font-size=\"14\" font-weight=\"700\" fill=\"#fff\">1</text><text x=\"30\" y=\"153\" font-size=\"13\" font-weight=\"700\" fill=\"#1d2433\">Premier lancement</text><text x=\"30\" y=\"173\" font-size=\"11.5\" fill=\"#3a4357\">Démarre l'invité et</text><text x=\"30\" y=\"189\" font-size=\"11.5\" fill=\"#3a4357\">chauffe le runtime</text><path d=\"M152 170 H168\" stroke=\"#5b7bd5\" stroke-width=\"3\"/><path d=\"M174 170 l-6 -6 v12 z\" fill=\"#5b7bd5\"/><rect x=\"177\" y=\"95\" width=\"129\" height=\"150\" rx=\"12\" fill=\"#fff\" stroke=\"#5b7bd5\" stroke-width=\"2\"/><circle cx=\"199\" cy=\"117\" r=\"14\" fill=\"#5b7bd5\"/><text x=\"199\" y=\"122\" text-anchor=\"middle\" font-size=\"14\" font-weight=\"700\" fill=\"#fff\">2</text><text x=\"187\" y=\"153\" font-size=\"13\" font-weight=\"700\" fill=\"#1d2433\">Instantané</text><text x=\"187\" y=\"173\" font-size=\"11.5\" fill=\"#3a4357\">État inactif de la</text><text x=\"187\" y=\"189\" font-size=\"11.5\" fill=\"#3a4357\">micro-VM enregistré</text><path d=\"M309 170 H325\" stroke=\"#5b7bd5\" stroke-width=\"3\"/><path d=\"M331 170 l-6 -6 v12 z\" fill=\"#5b7bd5\"/><rect x=\"334\" y=\"95\" width=\"129\" height=\"150\" rx=\"12\" fill=\"#fff\" stroke=\"#5b7bd5\" stroke-width=\"2\"/><circle cx=\"356\" cy=\"117\" r=\"14\" fill=\"#5b7bd5\"/><text x=\"356\" y=\"122\" text-anchor=\"middle\" font-size=\"14\" font-weight=\"700\" fill=\"#fff\">3</text><text x=\"344\" y=\"153\" font-size=\"13\" font-weight=\"700\" fill=\"#1d2433\">Restauration</text><text x=\"344\" y=\"173\" font-size=\"11.5\" fill=\"#3a4357\">≈ 3 ms selon</text><text x=\"344\" y=\"189\" font-size=\"11.5\" fill=\"#3a4357\">l'auteur</text><path d=\"M466 170 H482\" stroke=\"#5b7bd5\" stroke-width=\"3\"/><path d=\"M488 170 l-6 -6 v12 z\" fill=\"#5b7bd5\"/><rect x=\"491\" y=\"95\" width=\"129\" height=\"150\" rx=\"12\" fill=\"#fff\" stroke=\"#5b7bd5\" stroke-width=\"2\"/><circle cx=\"513\" cy=\"117\" r=\"14\" fill=\"#5b7bd5\"/><text x=\"513\" y=\"122\" text-anchor=\"middle\" font-size=\"14\" font-weight=\"700\" fill=\"#fff\">4</text><text x=\"501\" y=\"153\" font-size=\"13\" font-weight=\"700\" fill=\"#1d2433\">Exécution</text><text x=\"501\" y=\"173\" font-size=\"11.5\" fill=\"#3a4357\">Code isolé, sans</text><text x=\"501\" y=\"189\" font-size=\"11.5\" fill=\"#3a4357\">réseau par défaut</text><text x=\"320\" y=\"275\" text-anchor=\"middle\" font-size=\"12\" fill=\"#3a4357\">On paie le démarrage une fois, puis on restaure.</text></svg>",
+     "alt": "Schéma en quatre étapes : premier lancement, enregistrement d'un instantané, restauration, exécution isolée.",
+     "caption": "Principe décrit par le billet de la CNCF."
+    },
+    {
+     "type": "heading",
+     "level": 2,
+     "text": "Des intégrations déjà listées"
+    },
+    {
+     "type": "paragraph",
+     "text": "Le billet cite plusieurs usages : urunc, pour lancer ces invités comme des conteneurs OCI sous containerd (donc Docker ou Kubernetes avec une RuntimeClass) ; agent-sandbox, pour des pods de bac à sable Kubernetes ; des extensions pour smolagents, pour un serveur MCP exposant un outil `run_python`, pour des fonctions Python de ClickHouse, pour le SDK OpenAI Agents et pour l'évaluation de code généré pendant un apprentissage par renforcement. L'auteur justifie l'effort par deux incidents de 2026 : le ver npm Mini Shai-Hulud (mai) et des bogues mémoire du runtime PHP baptisés PHP2Shell (octobre)."
+    },
+    {
+     "type": "usecases",
+     "title": "Exemples d'utilisation",
+     "items": [
+      {
+       "icon": "🤖",
+       "title": "Agents de programmation",
+       "text": "Un service exécute le code produit par un agent dans une micro-VM neuve à chaque étape, sans réseau, puis la jette."
+      },
+      {
+       "icon": "🧪",
+       "title": "Évaluation de modèles",
+       "text": "Une équipe d'entraînement note des milliers de solutions générées en les lançant depuis un instantané chaud, sur la machine d'entraînement."
+      },
+      {
+       "icon": "🧩",
+       "title": "Plugins clients",
+       "text": "Un éditeur SaaS permet à ses clients d'écrire des fonctions Python utilisateur, chacune isolée dans sa propre micro-VM."
+      }
+     ]
+    },
+    {
+     "type": "timeline",
+     "title": "D'où l'on vient, où l'on va",
+     "items": [
+      {
+       "label": "Mai 2026",
+       "text": "Ver npm Mini Shai-Hulud, cité comme motivation."
+      },
+      {
+       "label": "Octobre 2026",
+       "text": "Bogues mémoire PHP2Shell dans le runtime PHP."
+      },
+      {
+       "label": "Novembre 2026",
+       "text": "hyperlight-unikraft (hluk 0.20.1) présenté sur le blog de la CNCF."
+      }
+     ]
+    },
+    {
+     "type": "opinion",
+     "title": "Notre avis",
+     "paragraphs": [
+      "L'idée est séduisante : garder l'ergonomie d'un conteneur tout en obtenant l'isolation d'une machine virtuelle, avec un démarrage assez rapide pour créer une VM par appel. Les limites sont celles d'un projet jeune : mesures sur une seule machine, absence de chiffres mémoire, et un billet écrit par un employé du principal contributeur.",
+      "Si l'approche tient ses promesses, les micro-VM à instantané pourraient devenir le réflexe pour exécuter du code non fiable, notamment celui des agents d'IA. Cela reste une projection : la maturité dépendra des audits et des retours de production."
+     ],
+     "verdict": "Prometteur pour l'isolation du code généré, à confirmer hors des mesures de l'auteur."
+    }
+   ],
+   "publishedAt": "2026-11-10T04:16:55+01:00"
+  },
+  {
+   "id": "stm32g5-cortex-m33-280-mhz-puissance-numerique-moteurs",
+   "category": "electronique",
+   "title": "STM32G5 : ST propose un Cortex-M33 à 280 MHz pour l'alimentation numérique et le contrôle moteur",
+   "summary": "La famille STM32G5 double les performances CoreMark du STM32G4, avec un minuteur haute résolution de 111 ps, des convertisseurs à 5 MSPS et TrustZone. Les microcontrôleurs sont en production, à environ 1,03 dollar l'unité par 10 000.",
+   "tags": [
+    "STM32",
+    "Cortex-M33",
+    "contrôle moteur",
+    "alimentation numérique",
+    "microcontrôleur"
+   ],
+   "importance": 3,
+   "readingMinutes": 5,
+   "sourceDate": "2026-11-10",
+   "icon": "🔌",
+   "cover": {
+    "url": "https://www.cnx-software.com/wp-content/uploads/2026/11/STM32G5.jpg",
+    "alt": "Présentation de la famille de microcontrôleurs STMicroelectronics STM32G5",
+    "credit": "cnx-software.com"
+   },
+   "sources": [
+    {
+     "title": "280 MHz STMicro STM32G5 Cortex-M33 mixed-signal MCU targets digital power and motor control applications",
+     "url": "https://www.cnx-software.com/2026/11/10/280-mhz-stmicro-stm32g5-cortex-m33-mixed-signal-mcu-targets-digital-power-and-motor-control-applications/",
+     "publisher": "CNX Software"
+    }
+   ],
+   "illustration": {
+    "svg": "<svg xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"0 0 640 360\"><defs><linearGradient id=\"g\" x1=\"0\" y1=\"0\" x2=\"1\" y2=\"1\"><stop offset=\"0\" stop-color=\"hsl(30,62%,38%)\"/><stop offset=\"1\" stop-color=\"hsl(65,65%,20%)\"/></linearGradient></defs><rect width=\"640\" height=\"360\" fill=\"url(#g)\"/><circle cx=\"485\" cy=\"265\" r=\"25\" fill=\"#fff\" fill-opacity=\".08\"/><circle cx=\"616\" cy=\"336\" r=\"38\" fill=\"#fff\" fill-opacity=\".08\"/><circle cx=\"107\" cy=\"47\" r=\"51\" fill=\"#fff\" fill-opacity=\".08\"/><circle cx=\"238\" cy=\"118\" r=\"24\" fill=\"#fff\" fill-opacity=\".08\"/><circle cx=\"369\" cy=\"189\" r=\"37\" fill=\"#fff\" fill-opacity=\".08\"/><circle cx=\"500\" cy=\"260\" r=\"50\" fill=\"#fff\" fill-opacity=\".08\"/><rect x=\"230\" y=\"110\" width=\"180\" height=\"140\" rx=\"14\" fill=\"#fff\" fill-opacity=\".2\" stroke=\"#fff\" stroke-width=\"7\"/><rect x=\"275\" y=\"145\" width=\"90\" height=\"70\" rx=\"6\" fill=\"#fff\"/><g stroke=\"#fff\" stroke-width=\"8\" stroke-linecap=\"round\"><path d=\"M260 90V110M300 90V110M340 90V110M380 90V110M260 250V270M300 250V270M340 250V270M380 250V270M210 140H230M210 180H230M210 220H230M410 140H430M410 180H430M410 220H430\"/></g></svg>"
+   },
+   "blocks": [
+    {
+     "type": "paragraph",
+     "text": "STMicroelectronics élargit sa gamme de microcontrôleurs « signaux mixtes » avec la famille STM32G5, détaillée le 10 novembre 2026 par CNX Software. Elle repose sur un cœur Arm Cortex-M33 cadencé jusqu'à 280 MHz, avec TrustZone, unité de calcul flottant simple précision et instructions DSP, et vise les conversions d'énergie, les onduleurs et la commande de moteurs. Les composants sont déclarés en production."
+    },
+    {
+     "type": "heading",
+     "level": 2,
+     "text": "Performances et mémoire"
+    },
+    {
+     "type": "list",
+     "items": [
+      "1 136 CoreMark (4,059 par MHz) et 420 DMIPS, contre 569 CoreMark pour la génération STM32G4.",
+      "Mémoire flash double banque de 64 à 512 Ko avec correction d'erreurs et lecture pendant écriture ; jusqu'à 48 Ko de flash de données par banque, garantie pour 100 000 cycles.",
+      "60 ou 112 Ko de SRAM avec ECC, selon les variantes, et 20 ou 32 Ko de CCM-SRAM.",
+      "Caches d'instructions de 8 Ko et, sur les STM32G55x et G56x, de données de 4 Ko ; interface XSPI sur ces deux sous-familles."
+     ]
+    },
+    {
+     "type": "heading",
+     "level": 2,
+     "text": "Le cœur du sujet : le temps réel analogique"
+    },
+    {
+     "type": "keyvalue",
+     "items": [
+      {
+       "label": "Minuteur haute résolution (HRTIM)",
+       "value": "111 ps de résolution (184 ps sur STM32G4) et jusqu'à 12 sorties MLI, sur la série G5x4 uniquement"
+      },
+      {
+       "label": "Convertisseurs analogique-numérique",
+       "value": "Jusqu'à 3 CAN de 12 bits à 5 MSPS (4 MSPS sur G4), jusqu'à 39 canaux"
+      },
+      {
+       "label": "Convertisseurs numérique-analogique",
+       "value": "8 canaux de 12 bits"
+      },
+      {
+       "label": "Comparateurs",
+       "value": "Jusqu'à 8, avec un temps de propagation de 20 ns"
+      },
+      {
+       "label": "Accélérateurs",
+       "value": "CORDIC et jusqu'à 2 unités FMAC ; réseau logique programmable (PLA) sur G55x et G56x"
+      },
+      {
+       "label": "Interfaces",
+       "value": "Jusqu'à 3 FDCAN, USB Type-C Power Delivery 3.1 sur certains boîtiers, interfaces de codeurs Hiperface DSL et EnDat 3.0 sur G55x et G56x"
+      }
+     ]
+    },
+    {
+     "type": "paragraph",
+     "text": "Ces briques ciblent le même objectif : fermer une boucle de régulation rapidement, sans composants externes. Le CORDIC et le FMAC déchargent le cœur des calculs trigonométriques et des filtres, tandis que le HRTIM permet de piloter finement des étages de puissance."
+    },
+    {
+     "type": "heading",
+     "level": 2,
+     "text": "Sécurité et disponibilité"
+    },
+    {
+     "type": "paragraph",
+     "text": "TrustZone, démarrage sécurisé, mises à jour sécurisées, authentification du débogage, racine de confiance immuable de ST et clé matérielle unique figurent selon les variantes, avec accélérateurs AES, PKA, HASH et générateur aléatoire. ST vise les certifications SESIP niveau 3 et PSA niveau 3 (en cours) et annonce la prise en charge d'une bibliothèque logicielle de cryptographie post-quantique. Une série double cœur STM32G5D, avec accélération matérielle ML-KEM, ML-DSA et SLH-DSA, est annoncée pour 2027."
+    },
+    {
+     "type": "paragraph",
+     "text": "Le prix indiqué est d'environ 1,034 dollar par unité à partir de 10 000 pièces. Les cartes d'évaluation incluent la NUCLEO-G564RE (47,59 dollars) et le kit de contrôle moteur B-G564E-MC1S (78,61 dollars) ; un kit d'alimentation numérique B-G564E-DPOW1 est annoncé. Les outils comprennent STM32CubeG5, STM32CubeMX2, STM32CubeIDE, X-CUBE-MCSDK et X-CUBE-DPOWER."
+    },
+    {
+     "type": "usecases",
+     "title": "Exemples d'utilisation",
+     "items": [
+      {
+       "icon": "⚙️",
+       "title": "Variateur pour moteur industriel",
+       "text": "Un fabricant remplace un STM32G4 par un G5 pour passer à une boucle de courant plus rapide et ajouter un codeur EnDat 3.0."
+      },
+      {
+       "icon": "🔋",
+       "title": "Alimentation à découpage numérique",
+       "text": "Un concepteur d'alimentation de serveur exploite le HRTIM à 111 ps et les comparateurs rapides pour piloter plusieurs phases."
+      },
+      {
+       "icon": "🔐",
+       "title": "Équipement industriel connecté",
+       "text": "Un fabricant s'appuie sur TrustZone et le démarrage sécurisé pour préparer des exigences de cybersécurité sur ses produits."
+      }
+     ]
+    },
+    {
+     "type": "timeline",
+     "title": "D'où l'on vient, où l'on va",
+     "items": [
+      {
+       "label": "Génération précédente",
+       "text": "STM32G4 : 569 CoreMark, HRTIM à 184 ps, CAN à 4 MSPS."
+      },
+      {
+       "label": "Novembre 2026",
+       "text": "STM32G5 en production, cartes d'évaluation disponibles."
+      },
+      {
+       "label": "2027",
+       "text": "STM32G5D double cœur annoncé, avec accélération post-quantique matérielle."
+      }
+     ]
+    },
+    {
+     "type": "opinion",
+     "title": "Notre avis",
+     "paragraphs": [
+      "Le gain annoncé est net sur le papier : le double de CoreMark, une résolution temporelle améliorée et des CAN plus rapides. Mais il faut rester prudent, car les chiffres sont ceux du constructeur et les fonctions varient fortement d'une variante à l'autre (HRTIM, PLA, XSPI, amplificateurs). Bien choisir la référence compte autant que la fréquence.",
+      "À un horizon de un à trois ans, la sécurité intégrée et le post-quantique devraient devenir un critère d'achat standard, y compris pour des produits d'alimentation et de moteurs jusque-là peu concernés. C'est une analyse, pas une certitude."
+     ],
+     "verdict": "Une mise à niveau solide pour la commande moteur, à choisir variante par variante."
+    }
+   ],
+   "publishedAt": "2026-11-10T04:16:55+01:00"
+  }
+ ]
+}
