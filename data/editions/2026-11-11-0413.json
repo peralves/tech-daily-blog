@@ -1,0 +1,690 @@
+{
+ "schemaVersion": "1.0",
+ "date": "2026-11-11",
+ "generatedAt": "2026-11-11T04:17:14+01:00",
+ "title": "Tech du 11 novembre 2026 : une faille de Git à l'exécution de code, Xen Orchestra exploitée, l'intrusion chez NEAR AI et deux idées d'électronique libre",
+ "summary": "Au menu de cette édition : des correctifs en série pour Git après la découverte d'une faille d'exécution de code lors des clones récursifs, l'exploitation active d'une faille critique dans la console Xen Orchestra, une intrusion chez NEAR AI via le moteur SGLang, puis deux projets d'électronique : un simulateur de cartes pour tester le firmware et une carte libre pour un assistant vocal local.",
+ "highlights": [
+  "Git 2.56.1 et six versions de maintenance corrigent CVE-2026-111760, une faille de clone récursif",
+  "Xen Orchestra : VSA-2026-062 est exploitée, mettre à jour vers 6.9.1 ou 6.10.0",
+  "NEAR AI : un défaut de SGLang contourne la protection de l'enclave TEE",
+  "LabWired simule des cartes entières pour tester le firmware en intégration continue",
+  "LocalDot : un Echo Dot local avec Home Assistant, livraisons attendues en avril 2027"
+ ],
+ "meta": {
+  "generator": "claude-scheduled-task"
+ },
+ "posts": [
+  {
+   "id": "git-cve-2026-111760-clone-recursif-sous-modules",
+   "category": "cybersecurite",
+   "title": "Git : une faille de troncature d'entier permet d'exécuter du code lors d'un clone récursif, des correctifs sont publiés pour sept branches",
+   "summary": "Le 10 novembre 2026, le projet Git a publié la version 2.56.1 et six versions de maintenance. La faille CVE-2026-111760 peut faire exécuter du code à la victime qui clone récursivement un dépôt piégé. Quatre autres vulnérabilités sont corrigées dans le même lot.",
+   "tags": [
+    "Git",
+    "CVE-2026-111760",
+    "sous-modules",
+    "chaîne d'approvisionnement",
+    "GitHub"
+   ],
+   "importance": 5,
+   "readingMinutes": 6,
+   "publishedAt": "2026-11-11T04:17:14+01:00",
+   "sourceDate": "2026-11-10",
+   "icon": "🧬",
+   "illustration": {
+    "svg": "<svg xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"0 0 640 360\"><defs><linearGradient id=\"g\" x1=\"0\" y1=\"0\" x2=\"1\" y2=\"1\"><stop offset=\"0\" stop-color=\"hsl(175,70%,32%)\"/><stop offset=\"1\" stop-color=\"hsl(215,70%,18%)\"/></linearGradient></defs><rect width=\"640\" height=\"360\" fill=\"url(#g)\"/><g fill=\"none\" stroke=\"#fff\" stroke-width=\"6\" stroke-linecap=\"round\" stroke-linejoin=\"round\" opacity=\"0.92\"><circle cx=\"200\" cy=\"260\" r=\"26\"/><circle cx=\"320\" cy=\"150\" r=\"26\"/><circle cx=\"440\" cy=\"100\" r=\"26\"/><circle cx=\"440\" cy=\"240\" r=\"26\"/><path d=\"M200 234 C200 190 290 190 300 168 M338 134 L420 108 M338 166 L420 232\"/><path d=\"M130 90 l40 0 M130 110 l70 0 M130 130 l30 0\" opacity=\"0.6\"/></g><circle cx=\"560\" cy=\"60\" r=\"90\" fill=\"#fff\" opacity=\"0.06\"/><circle cx=\"80\" cy=\"320\" r=\"120\" fill=\"#fff\" opacity=\"0.05\"/></svg>"
+   },
+   "cover": {
+    "url": "https://blogger.googleusercontent.com/img/b/R29vZ2xl/AVvXsEipoPlLYj_xfJ8bsfRTONwa3estE9I2un_9OBx2fVuxEp-zoiADgipn-gGOeU4TqqyjqjrCpoGXC4jmuF7o1e_PUMbr-QoHDdPZEDWavb4VbjtWbOxMfmz-E9fIPT2DHEXYCN53l2jtiJGVfEFjHsR8gaHeyF59Yii0oTnP73vaslLWPzuideEGxTy6S9U/s1700-nu-rw-lo-l85-e365/gits.jpg",
+    "alt": "Illustration de l'article sur la faille de Git liée aux clones récursifs",
+    "credit": "thehackernews.com"
+   },
+   "sources": [
+    {
+     "title": "Git Patches Flaw That Lets Malicious Repositories Execute Code During Recursive Clones",
+     "url": "https://thehackernews.com/2026/11/git-patches-flaw-that-lets-malicious.html",
+     "publisher": "The Hacker News"
+    }
+   ],
+   "blocks": [
+    {
+     "type": "paragraph",
+     "text": "Cloner un dépôt est l'un des gestes les plus banals du quotidien d'un développeur, et l'un des moins surveillés. Le 10 novembre 2026, le projet Git a publié des correctifs pour une vulnérabilité, référencée **CVE-2026-111760**, qui transforme cette banalité en vecteur d'attaque : un dépôt malveillant, cloné avec ses sous-modules, peut faire exécuter du code à la machine de la victime. La source consultée ne précise ni la note CVSS ni l'identité de la personne ayant signalé la faille."
+    },
+    {
+     "type": "heading",
+     "text": "Le mécanisme : un chemin trop long, un nom raccourci",
+     "level": 2
+    },
+    {
+     "type": "paragraph",
+     "text": "Le défaut vient d'une **troncature d'entier** dans la gestion de l'index de Git. Un chemin de fichier extrêmement long franchit la vérification de sécurité, mais Git l'écrit ensuite sur le disque sous un nom plus court, que l'attaquant peut arranger pour qu'il vaille `.git`. Autrement dit, la vérification et l'écriture ne voient pas le même chemin."
+    },
+    {
+     "type": "paragraph",
+     "text": "L'attaquant s'en sert ensuite sur un sous-module. Dans un sous-module fraîchement cloné, `.git` est un simple fichier, et non un répertoire. Git refuse normalement de remplacer un répertoire `.git` par un lien symbolique, mais cette protection ne joue pas ici. Le fichier `.git` du sous-module est donc remplacé par un lien symbolique pointant vers un dossier contenant des crochets (*hooks*) ou une configuration choisis par l'attaquant. Dès que Git utilise ce dossier, le code de l'attaquant s'exécute."
+    },
+    {
+     "type": "diagram",
+     "svg": "<svg xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"0 0 640 260\" font-family=\"system-ui,sans-serif\"><defs><marker id=\"a\" markerWidth=\"8\" markerHeight=\"8\" refX=\"6\" refY=\"4\" orient=\"auto\"><path d=\"M0 0L8 4L0 8z\" fill=\"#0b7285\"/></marker></defs><rect width=\"640\" height=\"260\" rx=\"18\" fill=\"#eef6f8\"/><text x=\"320\" y=\"45\" text-anchor=\"middle\" font-size=\"17\" font-weight=\"700\" fill=\"#14303a\">Du clone à l'exécution de code</text><rect x=\"40\" y=\"90\" width=\"120\" height=\"120\" rx=\"14\" fill=\"#fff\" stroke=\"#0b7285\" stroke-width=\"2.5\"/><text x=\"100.0\" y=\"135\" text-anchor=\"middle\" font-size=\"13\" font-weight=\"700\" fill=\"#14303a\">Dépôt piégé</text><text x=\"100.0\" y=\"165\" text-anchor=\"middle\" font-size=\"10.5\" fill=\"#3d5560\">chemin très long</text><path d=\"M164 150 h12\" stroke=\"#0b7285\" stroke-width=\"3\" marker-end=\"url(#a)\"/><rect x=\"180\" y=\"90\" width=\"120\" height=\"120\" rx=\"14\" fill=\"#fff\" stroke=\"#0b7285\" stroke-width=\"2.5\"/><text x=\"240.0\" y=\"135\" text-anchor=\"middle\" font-size=\"13\" font-weight=\"700\" fill=\"#14303a\">Clone récursif</text><text x=\"240.0\" y=\"165\" text-anchor=\"middle\" font-size=\"10.5\" fill=\"#3d5560\">avec sous-modules</text><path d=\"M304 150 h12\" stroke=\"#0b7285\" stroke-width=\"3\" marker-end=\"url(#a)\"/><rect x=\"320\" y=\"90\" width=\"120\" height=\"120\" rx=\"14\" fill=\"#fff\" stroke=\"#0b7285\" stroke-width=\"2.5\"/><text x=\"380.0\" y=\"135\" text-anchor=\"middle\" font-size=\"13\" font-weight=\"700\" fill=\"#14303a\">Lien symbolique</text><text x=\"380.0\" y=\"165\" text-anchor=\"middle\" font-size=\"10.5\" fill=\"#3d5560\">.git détourné</text><path d=\"M444 150 h12\" stroke=\"#0b7285\" stroke-width=\"3\" marker-end=\"url(#a)\"/><rect x=\"460\" y=\"90\" width=\"120\" height=\"120\" rx=\"14\" fill=\"#fff\" stroke=\"#0b7285\" stroke-width=\"2.5\"/><text x=\"520.0\" y=\"135\" text-anchor=\"middle\" font-size=\"13\" font-weight=\"700\" fill=\"#14303a\">Crochet Git</text><text x=\"520.0\" y=\"165\" text-anchor=\"middle\" font-size=\"10.5\" fill=\"#3d5560\">code exécuté</text></svg>",
+     "alt": "Schéma en quatre étapes : un dépôt piégé contient un chemin très long, le clone récursif l'écrit sous le nom .git, un lien symbolique détourne le dossier Git du sous-module, puis un crochet exécute le code de l'attaquant.",
+     "caption": "Chaîne d'attaque décrite par la source, simplifiée."
+    },
+    {
+     "type": "heading",
+     "text": "Qui est concerné, et quelles versions installer",
+     "level": 2
+    },
+    {
+     "type": "paragraph",
+     "text": "La condition est précise : la victime doit cloner de façon **récursive**, c'est-à-dire avec les sous-modules, un dépôt contrôlé par l'attaquant. La source n'indique pas la plage exacte des versions touchées, mais les correctifs couvrent les séries 2.50 à 2.56, ce qui laisse penser qu'elles le sont toutes."
+    },
+    {
+     "type": "list",
+     "items": [
+      "Git 2.56.1 pour la branche la plus récente",
+      "Versions de maintenance : 2.50.2, 2.51.3, 2.52.1, 2.53.1, 2.54.1 et 2.55.1"
+     ]
+    },
+    {
+     "type": "paragraph",
+     "text": "Les plateformes de développement réagissent à des rythmes différents. GitHub a déjà appliqué les correctifs sur github.com et GitHub Enterprise Cloud. Pour GitHub Enterprise Server, les versions corrigées sont les **3.19.15, 3.20.11, 3.21.9 et 3.22.4**. Des versions corrigées de GitHub Desktop et de l'application GitHub Copilot sont en préparation, et GitHub Codespaces ainsi que GitHub Actions recevront le Git corrigé. Côté Windows, Git for Windows n'avait pas encore publié de version fondée sur Git 2.56.1 le mardi 10 novembre à 19 h 09 UTC, selon la vérification de la source."
+    },
+    {
+     "type": "heading",
+     "text": "Quatre autres failles corrigées dans le même lot",
+     "level": 2
+    },
+    {
+     "type": "list",
+     "items": [
+      "**CVE-2026-113408** : traversée de chemin via un nom de branche envoyé par un serveur malveillant lors du clonage d'un dépôt vide en protocole v2 ; avec le moteur de références par fichiers, une mise à jour ultérieure peut écrire hors du dossier des références.",
+      "**CVE-2026-114467** : la fusion d'une étiquette portant plus de deux signatures GPG corrompt la pile mémoire et provoque un déni de service.",
+      "**CVE-2026-114469** : un correctif binaire volumineux contourne la limite d'environ 1 Gio et provoque une lecture hors limites.",
+      "**CVE-2026-105437** : une fusion de grande taille, avec de nombreux conflits et un très grand attribut `conflict-marker-size`, peut déborder un tampon du tas. GitLab, qui a attribué ce CVE, juge les serveurs d'hébergement exécutant `git merge-tree` les plus exposés ; ceux qui ne peuvent pas être mis à jour peuvent fixer `conflict-marker-size=7` dans `info/attributes`.",
+      "**CVE-2026-114466** : trois fonctions de `fast-import` pouvaient lire des fichiers arbitraires ou en créer ; Git les rejette désormais sauf avec `--allow-unsafe-features`."
+     ]
+    },
+    {
+     "type": "usecases",
+     "title": "Exemples d'utilisation",
+     "items": [
+      {
+       "icon": "🧑‍💻",
+       "title": "Le développeur qui audite un dépôt externe",
+       "text": "Il clone un projet découvert en ligne pour l'examiner. Avec un clone récursif, un dépôt piégé pourrait exécuter du code sur son poste avant même qu'il ait lu une ligne."
+      },
+      {
+       "icon": "🏭",
+       "title": "L'équipe qui exploite des serveurs d'intégration continue",
+       "text": "Ses machines clonent automatiquement des dépôts, parfois avec leurs sous-modules. Mettre à jour Git sur les exécuteurs est la priorité, car ils détiennent souvent des secrets de déploiement."
+      },
+      {
+       "icon": "🏢",
+       "title": "L'hébergeur interne de code",
+       "text": "Une instance GitLab ou GitHub Enterprise Server auto-hébergée doit appliquer les versions corrigées de l'éditeur et vérifier la présence de Git embarqué dans ses outils."
+      }
+     ]
+    },
+    {
+     "type": "timeline",
+     "title": "D'où l'on vient, où l'on va",
+     "items": [
+      {
+       "label": "Avant le 10 novembre 2026",
+       "text": "La faille existe dans les séries 2.50 à 2.56 de Git, sans que la source indique depuis quand elle est connue."
+      },
+      {
+       "label": "10 novembre 2026",
+       "text": "Publication de Git 2.56.1 et de six versions de maintenance ; GitHub corrige github.com et GitHub Enterprise Cloud."
+      },
+      {
+       "label": "Dans les prochains jours",
+       "text": "Versions corrigées annoncées pour GitHub Desktop, l'application Copilot, Codespaces et Actions ; Git for Windows reste à publier."
+      }
+     ]
+    },
+    {
+     "type": "opinion",
+     "title": "Notre avis",
+     "paragraphs": [
+      "Cette faille rappelle que la confiance accordée à un dépôt ne se limite pas à son contenu : la manière dont l'outil le **matérialise sur le disque** compte autant. Les sous-modules, rarement examinés, multiplient les occasions de surprise, et un clone récursif exécuté automatiquement par un robot d'intégration est exactement le type d'action qu'un attaquant peut déclencher à distance.",
+      "D'ici un à trois ans, il est vraisemblable que les outils de développement durcissent leurs réglages par défaut : clones en bac à sable, refus des liens symboliques dans `.git`, ou confirmation avant de traiter des sous-modules d'origine inconnue. C'est une opinion, pas un fait annoncé."
+     ],
+     "verdict": "Mettre à jour Git partout où l'on clone des dépôts tiers, en commençant par les machines d'intégration continue."
+    },
+    {
+     "type": "callout",
+     "title": "À retenir",
+     "text": "Faits : CVE-2026-111760, troncature d'entier dans l'index de Git, exécution de code lors d'un clone récursif ; correctifs en 2.56.1 et en versions de maintenance 2.50.2 à 2.55.1 ; note CVSS non précisée par la source. En attendant, évitez les clones récursifs de dépôts non fiables."
+    }
+   ]
+  },
+  {
+   "id": "xen-orchestra-vsa-2026-062-contournement-authentification",
+   "category": "cybersecurite",
+   "title": "Xen Orchestra : un contournement d'authentification critique est exploité, Vates publie les versions 6.9.1 et 6.10.0",
+   "summary": "L'éditeur français Vates VMS signale l'exploitation active de la faille VSA-2026-062 : un cookie d'authentification forgé suffit à obtenir des droits d'administrateur sur la console de gestion de virtualisation. Les correctifs sont disponibles ; des indicateurs de compromission sont publiés.",
+   "tags": [
+    "Xen Orchestra",
+    "Vates",
+    "XCP-ng",
+    "authentification",
+    "virtualisation"
+   ],
+   "importance": 4,
+   "readingMinutes": 6,
+   "publishedAt": "2026-11-11T04:17:14+01:00",
+   "sourceDate": "2026-11-10",
+   "icon": "🖥️",
+   "illustration": {
+    "svg": "<svg xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"0 0 640 360\"><defs><linearGradient id=\"g\" x1=\"0\" y1=\"0\" x2=\"1\" y2=\"1\"><stop offset=\"0\" stop-color=\"hsl(175,70%,32%)\"/><stop offset=\"1\" stop-color=\"hsl(215,70%,18%)\"/></linearGradient></defs><rect width=\"640\" height=\"360\" fill=\"url(#g)\"/><g fill=\"none\" stroke=\"#fff\" stroke-width=\"6\" stroke-linecap=\"round\" stroke-linejoin=\"round\" opacity=\"0.92\"><rect x=\"170\" y=\"80\" width=\"300\" height=\"70\" rx=\"10\"/><rect x=\"170\" y=\"170\" width=\"300\" height=\"70\" rx=\"10\"/><rect x=\"170\" y=\"260\" width=\"300\" height=\"50\" rx=\"10\"/><circle cx=\"205\" cy=\"115\" r=\"7\" fill=\"#fff\"/><circle cx=\"205\" cy=\"205\" r=\"7\" fill=\"#fff\"/><path d=\"M430 110 h20 M430 200 h20\"/><path d=\"M90 200 l25 -30 l25 30 v40 h-50 z\" opacity=\"0.7\"/></g><circle cx=\"560\" cy=\"60\" r=\"90\" fill=\"#fff\" opacity=\"0.06\"/><circle cx=\"80\" cy=\"320\" r=\"120\" fill=\"#fff\" opacity=\"0.05\"/></svg>"
+   },
+   "sources": [
+    {
+     "title": "Hackers Exploit Critical Xen Orchestra Auth Bypass Flaw to Gain Admin Access",
+     "url": "https://thehackernews.com/2026/11/hackers-exploit-critical-xen-orchestra.html",
+     "publisher": "The Hacker News"
+    }
+   ],
+   "blocks": [
+    {
+     "type": "paragraph",
+     "text": "Xen Orchestra est la console web de gestion des environnements de virtualisation XCP-ng et XenServer, éditée par la société française Vates VMS. Le 10 novembre 2026, l'éditeur a averti qu'une faille critique, publiée sous la référence **VSA-2026-062**, est déjà **exploitée par un acteur malveillant**. Aucun identifiant CVE n'est attribué à ce stade, et la source ne donne pas de note CVSS : la gravité est simplement qualifiée de critique."
+    },
+    {
+     "type": "heading",
+     "text": "Comment fonctionne le contournement",
+     "level": 2
+    },
+    {
+     "type": "paragraph",
+     "text": "Le défaut se situe dans l'analyse des cookies de l'interface REST. Un cookie `authenticationToken` forgé est converti en un **objet vide** `{}`. Le chemin d'authentification transmet cet objet au fournisseur de jetons de Xen Orchestra sans vérifier qu'il s'agit d'une chaîne de caractères."
+    },
+    {
+     "type": "paragraph",
+     "text": "La recherche du jeton interprète alors l'objet vide comme une requête sans filtre et renvoie le **premier jeton trouvé**. Si celui-ci n'a pas expiré, le fournisseur authentifie la requête comme appartenant à son propriétaire. Une route authentifiée permet ensuite de récupérer des identifiants de jetons de connexion réutilisables. L'attaquant peut alors agir avec les droits d'administrateur, ce qui peut aboutir à l'exécution de code sur les pools gérés et à la prise de contrôle complète d'un nœud XCP-ng en tant que root."
+    },
+    {
+     "type": "diagram",
+     "svg": "<svg xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"0 0 640 260\" font-family=\"system-ui,sans-serif\"><defs><marker id=\"a\" markerWidth=\"8\" markerHeight=\"8\" refX=\"6\" refY=\"4\" orient=\"auto\"><path d=\"M0 0L8 4L0 8z\" fill=\"#0b7285\"/></marker></defs><rect width=\"640\" height=\"260\" rx=\"18\" fill=\"#eef6f8\"/><text x=\"320\" y=\"45\" text-anchor=\"middle\" font-size=\"17\" font-weight=\"700\" fill=\"#14303a\">Chaîne d'attaque contre Xen Orchestra</text><rect x=\"40\" y=\"90\" width=\"120\" height=\"120\" rx=\"14\" fill=\"#fff\" stroke=\"#0b7285\" stroke-width=\"2.5\"/><text x=\"100.0\" y=\"135\" text-anchor=\"middle\" font-size=\"13\" font-weight=\"700\" fill=\"#14303a\">Cookie forgé</text><text x=\"100.0\" y=\"165\" text-anchor=\"middle\" font-size=\"10.5\" fill=\"#3d5560\">jeton = objet vide</text><path d=\"M164 150 h12\" stroke=\"#0b7285\" stroke-width=\"3\" marker-end=\"url(#a)\"/><rect x=\"180\" y=\"90\" width=\"120\" height=\"120\" rx=\"14\" fill=\"#fff\" stroke=\"#0b7285\" stroke-width=\"2.5\"/><text x=\"240.0\" y=\"135\" text-anchor=\"middle\" font-size=\"13\" font-weight=\"700\" fill=\"#14303a\">Recherche large</text><text x=\"240.0\" y=\"165\" text-anchor=\"middle\" font-size=\"10.5\" fill=\"#3d5560\">1er jeton trouvé</text><path d=\"M304 150 h12\" stroke=\"#0b7285\" stroke-width=\"3\" marker-end=\"url(#a)\"/><rect x=\"320\" y=\"90\" width=\"120\" height=\"120\" rx=\"14\" fill=\"#fff\" stroke=\"#0b7285\" stroke-width=\"2.5\"/><text x=\"380.0\" y=\"135\" text-anchor=\"middle\" font-size=\"13\" font-weight=\"700\" fill=\"#14303a\">Session admin</text><text x=\"380.0\" y=\"165\" text-anchor=\"middle\" font-size=\"10.5\" fill=\"#3d5560\">jeton réutilisé</text><path d=\"M444 150 h12\" stroke=\"#0b7285\" stroke-width=\"3\" marker-end=\"url(#a)\"/><rect x=\"460\" y=\"90\" width=\"120\" height=\"120\" rx=\"14\" fill=\"#fff\" stroke=\"#0b7285\" stroke-width=\"2.5\"/><text x=\"520.0\" y=\"135\" text-anchor=\"middle\" font-size=\"13\" font-weight=\"700\" fill=\"#14303a\">Prise de contrôle</text><text x=\"520.0\" y=\"165\" text-anchor=\"middle\" font-size=\"10.5\" fill=\"#3d5560\">pools et nœuds</text></svg>",
+     "alt": "Schéma en quatre étapes : un cookie forgé devient un objet vide, la recherche de jeton renvoie le premier jeton existant, l'attaquant obtient une session administrateur, puis il peut prendre le contrôle des pools et des nœuds.",
+     "caption": "Mécanisme décrit par la source, simplifié."
+    },
+    {
+     "type": "heading",
+     "text": "Versions corrigées et exploitation observée",
+     "level": 2
+    },
+    {
+     "type": "list",
+     "items": [
+      "Xen Orchestra **6.9.1** et **6.10.0** (canaux stable et dernier)",
+      "xo-server **5.211.2** et **5.213.1**"
+     ]
+    },
+    {
+     "type": "paragraph",
+     "text": "La source ne précise pas quelles versions sont vulnérables. Les failles ont été signalées par Filip Magic et Christoffer Olsen, de TDC NET Security. Vates VMS affirme que la vulnérabilité est exploitée activement. L'infrastructure associée comprend l'adresse IP `91.211.251[.]112` (port 8001), signalée sur VirusTotal comme serveur de commande et de contrôle du logiciel malveillant RedLine Stealer, ainsi qu'un service Tor sur le port 3333. On ignore à quelle date l'activité a commencé et si la faille a été exploitée avant sa divulgation."
+    },
+    {
+     "type": "heading",
+     "text": "Indicateurs de compromission à rechercher",
+     "level": 2
+    },
+    {
+     "type": "list",
+     "items": [
+      "des requêtes HTTP contenant `authenticationToken=j:%7B%7D` ou `authenticationToken=j:{}`",
+      "une machine virtuelle en fonctionnement nommée `pivot2`",
+      "des machines virtuelles configurées avec le paramètre `hvm_serial: file`",
+      "les fichiers `/etc/cron.d/zz-ustar2`, `/etc/cron.d/zz-ustar`, `/.ustar5` et `/.ustar6`"
+     ]
+    },
+    {
+     "type": "paragraph",
+     "text": "Si un de ces indices est retrouvé, l'éditeur recommande de renouveler tous les mots de passe et secrets de l'environnement Vates VMS. Quand l'installation ne peut pas être mise à jour tout de suite, il conseille de ne pas exposer Xen Orchestra sur Internet, de bloquer l'adresse IP et le domaine cités, et de rejeter le motif de requête à jeton vide au niveau d'un pare-feu applicatif ou d'un mandataire inverse."
+    },
+    {
+     "type": "usecases",
+     "title": "Exemples d'utilisation",
+     "items": [
+      {
+       "icon": "🏫",
+       "title": "L'établissement qui administre sa virtualisation",
+       "text": "Une console Xen Orchestra ouverte sur Internet pour l'administration à distance est la cible évidente : fermer l'accès public et mettre à jour constituent les deux premières actions."
+      },
+      {
+       "icon": "🔎",
+       "title": "L'équipe de sécurité qui chasse les traces",
+       "text": "Elle recherche dans les journaux du serveur web les requêtes contenant le cookie à objet vide et vérifie la présence de la machine `pivot2` ou des fichiers cron cités."
+      },
+      {
+       "icon": "🛡️",
+       "title": "L'hébergeur qui gère plusieurs clients",
+       "text": "Une prise de contrôle de la console donne accès à tous les pools : il doit traiter l'incident comme une compromission potentielle de l'ensemble de la plateforme."
+      }
+     ]
+    },
+    {
+     "type": "timeline",
+     "title": "D'où l'on vient, où l'on va",
+     "items": [
+      {
+       "label": "Avant le 10 novembre 2026",
+       "text": "Date de début de l'exploitation inconnue, selon la source."
+      },
+      {
+       "label": "10 novembre 2026",
+       "text": "Vates VMS publie VSA-2026-062 et les versions 6.9.1 et 6.10.0, et confirme une exploitation active."
+      },
+      {
+       "label": "À venir",
+       "text": "Attribution éventuelle d'un identifiant CVE et publication de la plage exacte des versions touchées."
+      }
+     ]
+    },
+    {
+     "type": "opinion",
+     "title": "Notre avis",
+     "paragraphs": [
+      "L'enchaînement est classique et pourtant redoutable : une vérification de type manquante, un cookie qui devient un objet vide, une requête sans filtre. Une console de gestion d'infrastructure est une cible de choix, puisqu'elle concentre les droits sur toutes les machines virtuelles qu'elle pilote. Le fait que l'éditeur publie des indicateurs de compromission précis est une bonne pratique, qui permet aux équipes de vérifier rapidement si elles ont été touchées.",
+      "D'ici un à trois ans, on peut s'attendre à ce que les consoles d'administration soient de moins en moins exposées directement, derrière des accès VPN ou des passerelles d'identité. C'est une projection, pas une certitude."
+     ],
+     "verdict": "Mettre à jour, retirer la console d'Internet et chercher les indicateurs publiés avant de considérer l'installation saine."
+    },
+    {
+     "type": "callout",
+     "title": "À retenir",
+     "text": "Faits : VSA-2026-062, contournement d'authentification par cookie forgé, exploité activement ; correctifs : Xen Orchestra 6.9.1 et 6.10.0, xo-server 5.211.2 et 5.213.1 ; aucun CVE ni note CVSS indiqués à ce jour."
+    }
+   ]
+  },
+  {
+   "id": "near-ai-sglang-rce-intrusion-serveur-inference",
+   "category": "ia",
+   "title": "NEAR AI : une faille d'exécution de code dans SGLang a permis d'atteindre un serveur d'inférence, malgré l'environnement d'exécution de confiance",
+   "summary": "NEAR AI a révélé qu'un attaquant a exécuté du code sur l'un de ses serveurs d'inférence via une faille de SGLang, puis progressé dans ses systèmes. Les données d'environ 100 utilisateurs et de 18 agents sont concernées ; l'enclave matérielle ne protège pas contre un défaut du logiciel qu'elle héberge.",
+   "tags": [
+    "NEAR AI",
+    "SGLang",
+    "inférence",
+    "TEE",
+    "fuite de données"
+   ],
+   "importance": 4,
+   "readingMinutes": 6,
+   "publishedAt": "2026-11-11T04:17:14+01:00",
+   "sourceDate": "2026-11-10",
+   "icon": "🧠",
+   "illustration": {
+    "svg": "<svg xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"0 0 640 360\"><defs><linearGradient id=\"g\" x1=\"0\" y1=\"0\" x2=\"1\" y2=\"1\"><stop offset=\"0\" stop-color=\"hsl(320,70%,32%)\"/><stop offset=\"1\" stop-color=\"hsl(0,70%,18%)\"/></linearGradient></defs><rect width=\"640\" height=\"360\" fill=\"url(#g)\"/><g fill=\"none\" stroke=\"#fff\" stroke-width=\"6\" stroke-linecap=\"round\" stroke-linejoin=\"round\" opacity=\"0.92\"><rect x=\"200\" y=\"70\" width=\"240\" height=\"220\" rx=\"16\"/><rect x=\"240\" y=\"120\" width=\"160\" height=\"60\" rx=\"8\"/><path d=\"M270 215 h100 M270 245 h60\"/><path d=\"M110 120 l60 0 M110 180 l60 0 M470 150 l60 0\" opacity=\"0.6\"/><path d=\"M300 150 l15 15 l30 -30\"/></g><circle cx=\"560\" cy=\"60\" r=\"90\" fill=\"#fff\" opacity=\"0.06\"/><circle cx=\"80\" cy=\"320\" r=\"120\" fill=\"#fff\" opacity=\"0.05\"/></svg>"
+   },
+   "sources": [
+    {
+     "title": "SGLang RCE Exploit Breaches NEAR AI, Steals Data From 18 Agents and About 100 Users",
+     "url": "https://thehackernews.com/2026/11/sglang-rce-exploit-breaches-near-ai.html",
+     "publisher": "The Hacker News"
+    }
+   ],
+   "blocks": [
+    {
+     "type": "paragraph",
+     "text": "Les moteurs d'inférence, qui font tourner les modèles d'IA derrière les assistants et les API, sont devenus une cible à part entière. Le 10 novembre 2026, NEAR AI a expliqué qu'un attaquant avait exploité une faille d'exécution de code à distance dans **SGLang**, un moteur d'inférence open source, pour exécuter du code sur l'un de ses serveurs d'inférence « dimanche dernier ». La source ne donne pas la date exacte, ni l'identifiant CVE, la note CVSS ou les versions de SGLang concernées, et NEAR AI ne les a pas communiqués."
+    },
+    {
+     "type": "heading",
+     "text": "Ce que l'attaquant a pu atteindre",
+     "level": 2
+    },
+    {
+     "type": "paragraph",
+     "text": "Le serveur touché fonctionnait dans un **environnement d'exécution de confiance** (TEE), une enclave matérielle censée isoler les traitements confidentiels. La société reconnaît que ce dispositif « ne protège pas contre une vulnérabilité du logiciel qui s'exécute à l'intérieur ». SGLang tournant dans l'enclave, l'attaquant a pu voir les requêtes traitées ce jour-là par ce serveur, y compris celles du mode confidentiel, puis progresser dans les systèmes de l'entreprise."
+    },
+    {
+     "type": "list",
+     "items": [
+      "**Private Chat** (produit désormais abandonné) : noms et adresses électroniques d'environ 100 utilisateurs et, pour certains comptes, des informations de forfait et de solde ; aucune trace d'accès aux conversations ou fichiers stockés.",
+      "**18 agents d'IA** d'un ancien déploiement de NEAR AI Agents, hors enclave : historique de conversation, paramètres et journaux.",
+      "**Clés d'API** : celles de deux clients de NEAR AI Cloud ont été exposées dans des journaux ; elles ont été révoquées."
+     ]
+    },
+    {
+     "type": "diagram",
+     "svg": "<svg xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"0 0 640 260\" font-family=\"system-ui,sans-serif\"><defs><marker id=\"a\" markerWidth=\"8\" markerHeight=\"8\" refX=\"6\" refY=\"4\" orient=\"auto\"><path d=\"M0 0L8 4L0 8z\" fill=\"#8e2a6b\"/></marker></defs><rect width=\"640\" height=\"260\" rx=\"18\" fill=\"#eef6f8\"/><text x=\"320\" y=\"45\" text-anchor=\"middle\" font-size=\"17\" font-weight=\"700\" fill=\"#14303a\">Un défaut du logiciel contourne l'enclave</text><rect x=\"40\" y=\"90\" width=\"120\" height=\"120\" rx=\"14\" fill=\"#fff\" stroke=\"#8e2a6b\" stroke-width=\"2.5\"/><text x=\"100.0\" y=\"135\" text-anchor=\"middle\" font-size=\"13\" font-weight=\"700\" fill=\"#14303a\">Faille SGLang</text><text x=\"100.0\" y=\"165\" text-anchor=\"middle\" font-size=\"10.5\" fill=\"#3d5560\">exécution de code</text><path d=\"M164 150 h12\" stroke=\"#8e2a6b\" stroke-width=\"3\" marker-end=\"url(#a)\"/><rect x=\"180\" y=\"90\" width=\"120\" height=\"120\" rx=\"14\" fill=\"#fff\" stroke=\"#8e2a6b\" stroke-width=\"2.5\"/><text x=\"240.0\" y=\"135\" text-anchor=\"middle\" font-size=\"13\" font-weight=\"700\" fill=\"#14303a\">Serveur IA</text><text x=\"240.0\" y=\"165\" text-anchor=\"middle\" font-size=\"10.5\" fill=\"#3d5560\">dans l'enclave TEE</text><path d=\"M304 150 h12\" stroke=\"#8e2a6b\" stroke-width=\"3\" marker-end=\"url(#a)\"/><rect x=\"320\" y=\"90\" width=\"120\" height=\"120\" rx=\"14\" fill=\"#fff\" stroke=\"#8e2a6b\" stroke-width=\"2.5\"/><text x=\"380.0\" y=\"135\" text-anchor=\"middle\" font-size=\"13\" font-weight=\"700\" fill=\"#14303a\">Progression</text><text x=\"380.0\" y=\"165\" text-anchor=\"middle\" font-size=\"10.5\" fill=\"#3d5560\">autres systèmes</text><path d=\"M444 150 h12\" stroke=\"#8e2a6b\" stroke-width=\"3\" marker-end=\"url(#a)\"/><rect x=\"460\" y=\"90\" width=\"120\" height=\"120\" rx=\"14\" fill=\"#fff\" stroke=\"#8e2a6b\" stroke-width=\"2.5\"/><text x=\"520.0\" y=\"135\" text-anchor=\"middle\" font-size=\"13\" font-weight=\"700\" fill=\"#14303a\">Fuite</text><text x=\"520.0\" y=\"165\" text-anchor=\"middle\" font-size=\"10.5\" fill=\"#3d5560\">comptes, agents, clés</text></svg>",
+     "alt": "Schéma en quatre étapes : une faille de SGLang permet d'exécuter du code, le serveur d'inférence situé dans l'enclave est atteint, l'attaquant se déplace vers d'autres systèmes, puis des données de comptes, d'agents et de clés sont exposées.",
+     "caption": "Déroulement résumé d'après la communication de NEAR AI."
+    },
+    {
+     "type": "heading",
+     "text": "La réponse de l'entreprise",
+     "level": 2
+    },
+    {
+     "type": "paragraph",
+     "text": "NEAR AI indique avoir révoqué toutes les sessions actives et les identifiants d'administrateur, remplacé les jetons d'agents et renouvelé les autres identifiants. Private Chat a été mis hors ligne, un correctif de la faille a été déployé sur tous les serveurs d'inférence, une analyse forensique complète a été menée et l'accès à NEAR AI Cloud a été rétabli. La faille a été signalée au projet SGLang, mais la source ne dit pas si celui-ci a publié un correctif. Les utilisateurs concernés sont contactés directement depuis `security@near.ai` ; ceux qui n'ont rien reçu n'ont, selon la société, aucune action à mener."
+    },
+    {
+     "type": "paragraph",
+     "text": "Un point reste ouvert : NEAR AI n'a pas dit si les personnes dont les requêtes ont transité par le serveur touché ont été prévenues. Brave a par ailleurs indiqué que son assistant Leo fait tourner ses discussions avec le modèle GLM 5.3 Flash dans une enclave exploitée par NEAR AI ; la société n'a pas précisé si ce serveur a traité de telles discussions."
+    },
+    {
+     "type": "usecases",
+     "title": "Exemples d'utilisation",
+     "items": [
+      {
+       "icon": "🔑",
+       "title": "L'entreprise cliente d'une API d'inférence",
+       "text": "Elle fait tourner ses clés d'API et ses jetons d'agents, vérifie ses journaux et se méfie des messages non sollicités sur son compte ou son solde, qui pourraient relever de l'hameçonnage."
+      },
+      {
+       "icon": "🧰",
+       "title": "L'équipe qui héberge SGLang elle-même",
+       "text": "Elle surveille les avis de sécurité du projet, applique les correctifs dès leur parution et limite les secrets présents dans les journaux et l'environnement du serveur."
+      },
+      {
+       "icon": "📋",
+       "title": "Le responsable de la conformité",
+       "text": "Il documente que l'enclave protège contre l'hébergeur, pas contre les défauts du logiciel interne, et prévoit des mesures complémentaires."
+      }
+     ]
+    },
+    {
+     "type": "timeline",
+     "title": "D'où l'on vient, où l'on va",
+     "items": [
+      {
+       "label": "Dimanche 8 novembre 2026 environ",
+       "text": "Exécution de code sur un serveur d'inférence de NEAR AI, selon l'expression « dimanche dernier » ; date exacte non précisée."
+      },
+      {
+       "label": "10 novembre 2026",
+       "text": "NEAR AI publie son bilan : comptes, agents et clés concernés, mesures de remédiation."
+      },
+      {
+       "label": "À venir",
+       "text": "Éventuel correctif ou avis du projet SGLang, et précisions sur les requêtes confidentielles."
+      }
+     ]
+    },
+    {
+     "type": "opinion",
+     "title": "Notre avis",
+     "paragraphs": [
+      "L'épisode illustre une confusion fréquente : une enclave de calcul de confiance garantit que l'hébergeur ne peut pas lire les données, mais elle n'améliore pas la sécurité du code qui s'exécute dedans. Un moteur d'inférence reste un logiciel complexe, exposé à des entrées non fiables, et un défaut d'exécution de code y est aussi grave qu'ailleurs. La présence de clés d'API dans des journaux est un second rappel, plus banal, de l'hygiène élémentaire.",
+      "À un horizon d'un à trois ans, la sécurité des moteurs d'inférence devrait devenir un sujet d'audit à part entière, au même titre que celle des navigateurs ou des bases de données. C'est une opinion, pas un fait établi."
+     ],
+     "verdict": "Le TEE protège des regards de l'hébergeur, pas des bogues du logiciel : il faut aussi corriger et cloisonner."
+    },
+    {
+     "type": "callout",
+     "title": "À retenir",
+     "text": "Faits : exécution de code à distance via SGLang sur un serveur de NEAR AI ; environ 100 comptes Private Chat, 18 agents et deux clés d'API concernés ; ni CVE, ni CVSS, ni versions précisés par la source."
+    }
+   ]
+  },
+  {
+   "id": "labwired-simulation-firmware-cartes-mcu-integration-continue",
+   "category": "electronique",
+   "title": "LabWired : un simulateur de cartes à microcontrôleur pour tester du firmware compilé sans carte physique, jusque dans l'intégration continue",
+   "summary": "Le projet LabWired, présenté le 10 novembre 2026, fait tourner le firmware compilé sur des cartes simulées, avec leurs capteurs et afficheurs. Le cœur est sous licence MIT ; une partie de l'offre reste fermée et payante.",
+   "tags": [
+    "LabWired",
+    "microcontrôleurs",
+    "simulation",
+    "firmware",
+    "intégration continue"
+   ],
+   "importance": 3,
+   "readingMinutes": 5,
+   "publishedAt": "2026-11-11T04:17:14+01:00",
+   "sourceDate": "2026-11-10",
+   "icon": "🧪",
+   "illustration": {
+    "svg": "<svg xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"0 0 640 360\"><defs><linearGradient id=\"g\" x1=\"0\" y1=\"0\" x2=\"1\" y2=\"1\"><stop offset=\"0\" stop-color=\"hsl(30,70%,32%)\"/><stop offset=\"1\" stop-color=\"hsl(70,70%,18%)\"/></linearGradient></defs><rect width=\"640\" height=\"360\" fill=\"url(#g)\"/><g fill=\"none\" stroke=\"#fff\" stroke-width=\"6\" stroke-linecap=\"round\" stroke-linejoin=\"round\" opacity=\"0.92\"><rect x=\"190\" y=\"90\" width=\"260\" height=\"170\" rx=\"14\"/><rect x=\"270\" y=\"140\" width=\"100\" height=\"70\" rx=\"8\"/><path d=\"M230 90 v-30 M290 90 v-30 M350 90 v-30 M410 90 v-30 M230 260 v30 M290 260 v30 M350 260 v30 M410 260 v30 M190 130 h-30 M190 190 h-30 M450 130 h30 M450 190 h30\"/><path d=\"M295 175 l15 15 l30 -30\"/></g><circle cx=\"560\" cy=\"60\" r=\"90\" fill=\"#fff\" opacity=\"0.06\"/><circle cx=\"80\" cy=\"320\" r=\"120\" fill=\"#fff\" opacity=\"0.05\"/></svg>"
+   },
+   "cover": {
+    "url": "https://www.cnx-software.com/wp-content/uploads/2026/11/LabWired-MCU-board-simulator.jpg",
+    "alt": "Visuel du simulateur de cartes à microcontrôleur LabWired",
+    "credit": "cnx-software.com"
+   },
+   "sources": [
+    {
+     "title": "LabWired allows engineers to test compiled firmware on simulated MCU boards (CPU and peripherals)",
+     "url": "https://www.cnx-software.com/2026/11/10/labwired-allows-engineers-to-test-compiled-firmware-on-simulated-mcu-boards-cpu-and-peripherals/",
+     "publisher": "CNX Software"
+    },
+    {
+     "title": "labwired-core",
+     "url": "https://github.com/w1ne/labwired-core",
+     "publisher": "GitHub"
+    }
+   ],
+   "blocks": [
+    {
+     "type": "paragraph",
+     "text": "Tester un firmware sur une vraie carte est lent : il faut disposer du matériel, flasher le programme à chaque essai et diagnostiquer des pannes parfois obscures, un casse-tête qui s'aggrave dès que le projet vise plusieurs cartes. **LabWired**, présenté le 10 novembre 2026 par CNX Software, propose une autre voie : exécuter le firmware déjà compilé sur un modèle de carte, en simulant le processeur et les périphériques."
+    },
+    {
+     "type": "heading",
+     "text": "Une simulation de la carte entière, pas seulement du processeur",
+     "level": 2
+    },
+    {
+     "type": "paragraph",
+     "text": "Le projet, créé par Andrii Shylenko, est avant tout un outil en ligne de commande. Il capture la sortie UART, le trafic sur les bus et l'état des registres, et permet des vérifications reproductibles en intégration continue. Contrairement à un simple émulateur de processeur, il modélise aussi les capteurs, les afficheurs et les composants sur bus : on peut ainsi contrôler un échange I2C, la trame d'une liaison SPI ou ce qu'un écran a reçu."
+    },
+    {
+     "type": "list",
+     "items": [
+      "**Processeurs** : Arm Cortex-M0+, M3, M4, M7 et M33, RISC-V, et Xtensa LX6 et LX7 (certains ESP32).",
+      "**Plateformes citées** : STM32L476, RP2040, nRF52840 et ESP32, entre autres ; plus de 200 configurations de cartes sont fournies en exemple.",
+      "**Licence** : MIT pour le cœur ; l'interface applicative et le *Playground* hébergé sont hors de ce paquet."
+     ]
+    },
+    {
+     "type": "heading",
+     "text": "Un exemple en intégration continue",
+     "level": 2
+    },
+    {
+     "type": "paragraph",
+     "text": "Dans l'exemple de l'article, PlatformIO compile un firmware de test Unity pour une carte nRF52840 virtuelle, et LabWired l'exécute sans carte ni sonde J-Link, avec la commande `pio test --without-uploading`. Les trois tests passent en 1,18 seconde sur Linux. L'outil peut être appelé depuis un terminal, un pipeline d'intégration continue ou un agent de programmation assisté par IA ; Claude Code a servi au développement, surtout pour l'intégration au protocole MCP. Une démonstration en ligne simule une carte NUCLEO-L476RG reliée à un capteur à ultrasons, un afficheur Nokia et un analyseur logique."
+    },
+    {
+     "type": "heading",
+     "text": "Les limites à connaître",
+     "level": 2
+    },
+    {
+     "type": "paragraph",
+     "text": "La modélisation reste approximative. Le projet publie un document, le **Fidelity Ledger**, qui recense les endroits où le comportement simulé diffère du matériel réel, ce qui permet de savoir où la simulation prend des raccourcis sur chaque plateforme. Une partie du code est fermée, et l'usage de l'infrastructure de l'éditeur pour les tests passe par des forfaits à base de « jetons LabWired AI », alors que l'auto-hébergement du cœur reste possible sans ces jetons."
+    },
+    {
+     "type": "usecases",
+     "title": "Exemples d'utilisation",
+     "items": [
+      {
+       "icon": "✅",
+       "title": "Valider un correctif à chaque commit",
+       "text": "Une équipe exécute sa suite de tests sur une carte simulée à chaque modification, sans immobiliser un banc matériel ni dépendre d'une personne présente."
+      },
+      {
+       "icon": "🔀",
+       "title": "Viser plusieurs microcontrôleurs",
+       "text": "Un même firmware portable est vérifié sur plusieurs familles de puces avant l'achat de cartes de développement."
+      },
+      {
+       "icon": "🎓",
+       "title": "Enseigner sans matériel",
+       "text": "Un enseignant fait travailler une classe entière sur des cartes simulées, avec observation des bus et des registres."
+      }
+     ]
+    },
+    {
+     "type": "timeline",
+     "title": "D'où l'on vient, où l'on va",
+     "items": [
+      {
+       "label": "Avant 2026",
+       "text": "Les émulateurs de processeur, comme QEMU, permettent d'exécuter du code embarqué mais modélisent rarement la carte complète."
+      },
+      {
+       "label": "10 novembre 2026",
+       "text": "Présentation de LabWired avec cœur MIT, plus de 200 configurations de cartes et un document de fidélité."
+      },
+      {
+       "label": "À venir",
+       "text": "Extension de la couverture des périphériques et des cartes, selon la matrice de validation publiée par le projet."
+      }
+     ]
+    },
+    {
+     "type": "opinion",
+     "title": "Notre avis",
+     "paragraphs": [
+      "L'intérêt principal est de ramener le test du firmware dans la boucle de développement logicielle habituelle : rapide, automatisable, sans matériel. Le risque est la fausse assurance : un test réussi en simulation n'est pas un test réussi sur la carte, notamment pour les temps réels, les interruptions et les particularités analogiques. Le Fidelity Ledger est une bonne réponse, car il rend l'écart visible plutôt que de le cacher.",
+      "Dans un à trois ans, la simulation de cartes entières devrait devenir un maillon courant des chaînes d'intégration embarquée, en complément et non en remplacement des bancs matériels. C'est une opinion argumentée, pas un fait."
+     ],
+     "verdict": "Un outil prometteur pour automatiser les tests, à utiliser en gardant le matériel réel pour valider les comportements sensibles."
+    },
+    {
+     "type": "callout",
+     "title": "À retenir",
+     "text": "Faits : cœur MIT, Cortex-M, RISC-V et Xtensa, plus de 200 configurations, exemple de trois tests en 1,18 seconde ; code partiellement fermé et services hébergés payants ; la simulation reste approximative."
+    }
+   ]
+  },
+  {
+   "id": "localdot-carte-open-source-echo-dot-home-assistant",
+   "category": "electronique",
+   "title": "LocalDot : une carte open source pour transformer un Echo Dot de 3e génération en assistant vocal local compatible Home Assistant",
+   "summary": "Le 11 novembre 2026, CNX Software présente LocalDot, une carte de remplacement pour l'Echo Dot de 3e génération, associant un ESP32-S3 et un ESP32-P4. Elle est proposée sur Crowd Supply à partir de 50 dollars, avec des livraisons attendues en avril 2027.",
+   "tags": [
+    "LocalDot",
+    "Home Assistant",
+    "ESP32-P4",
+    "assistant vocal",
+    "open source"
+   ],
+   "importance": 3,
+   "readingMinutes": 5,
+   "publishedAt": "2026-11-11T04:17:14+01:00",
+   "sourceDate": "2026-11-11",
+   "icon": "🔊",
+   "illustration": {
+    "svg": "<svg xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"0 0 640 360\"><defs><linearGradient id=\"g\" x1=\"0\" y1=\"0\" x2=\"1\" y2=\"1\"><stop offset=\"0\" stop-color=\"hsl(30,70%,32%)\"/><stop offset=\"1\" stop-color=\"hsl(70,70%,18%)\"/></linearGradient></defs><rect width=\"640\" height=\"360\" fill=\"url(#g)\"/><g fill=\"none\" stroke=\"#fff\" stroke-width=\"6\" stroke-linecap=\"round\" stroke-linejoin=\"round\" opacity=\"0.92\"><circle cx=\"320\" cy=\"180\" r=\"95\"/><circle cx=\"320\" cy=\"180\" r=\"55\"/><circle cx=\"320\" cy=\"180\" r=\"12\" fill=\"#fff\"/><path d=\"M130 180 h-30 M540 180 h-30 M320 70 v-30 M320 320 v-30\" opacity=\"0.6\"/></g><circle cx=\"560\" cy=\"60\" r=\"90\" fill=\"#fff\" opacity=\"0.06\"/><circle cx=\"80\" cy=\"320\" r=\"120\" fill=\"#fff\" opacity=\"0.05\"/></svg>"
+   },
+   "sources": [
+    {
+     "title": "LocalDot – Open-source PCB for 3rd-gen Amazon Echo Dot enables Home Assistant support (Crowdfunding)",
+     "url": "https://www.cnx-software.com/2026/11/11/localdot-an-open-source-replacement-pcb-for-3rd-gen-echo-dot-with-home-assistant-support/",
+     "publisher": "CNX Software"
+    }
+   ],
+   "blocks": [
+    {
+     "type": "paragraph",
+     "text": "Beaucoup de foyers possèdent un Echo Dot dont ils apprécieraient de se passer du nuage d'Amazon sans jeter l'appareil. **LocalDot**, une carte de remplacement conçue par AAElectronics et présentée le 11 novembre 2026, propose exactement cela : remplacer l'une des deux cartes de l'Echo Dot de 3e génération pour en faire un assistant vocal local, relié à **Home Assistant**, la plateforme domotique libre."
+    },
+    {
+     "type": "heading",
+     "text": "Le matériel",
+     "level": 2
+    },
+    {
+     "type": "paragraph",
+     "text": "La carte mesure 83 × 37 mm et remplace une des deux cartes d'origine ; les boutons, les voyants, le haut-parleur, les microphones et le boîtier d'origine sont conservés. Elle est compatible avec les variantes *Donut* et *Crumpet* de l'Echo Dot de 3e génération ; la version avec horloge n'a pas été testée. L'installation ne nécessite ni soudure ni modification du boîtier."
+    },
+    {
+     "type": "list",
+     "items": [
+      "**Deux microcontrôleurs** : un ESP32-S3 pour le Wi-Fi et le pilotage des appareils, un ESP32-P4 pour le traitement audio.",
+      "**Audio** : un amplificateur TAS5805 alimente le haut-parleur d'origine ; le réseau de quatre microphones est réutilisé, avec formation de faisceau et détection locale du mot d'activation.",
+      "**Alimentation** : une prise 12 V continue, ce qui permet de garder l'adaptateur secteur d'origine."
+     ]
+    },
+    {
+     "type": "heading",
+     "text": "Le côté logiciel et la vie privée",
+     "level": 2
+    },
+    {
+     "type": "paragraph",
+     "text": "La carte se connecte au pipeline vocal de Home Assistant grâce à **ESPHome**. Après la détection du mot d'activation, la commande est envoyée au serveur Home Assistant pour être traitée. Les fonctions prises en charge comprennent le contrôle d'appareils connectés, les minuteurs, les notifications et des essais d'interphone. Les fonctions locales fonctionnent sans accès à Internet, et des mots d'activation personnalisés sont possibles à titre expérimental. Il faut toutefois un serveur Home Assistant pour interpréter les commandes vocales, et l'appareil dépend toujours de l'adaptateur 12 V d'origine."
+    },
+    {
+     "type": "heading",
+     "text": "Ouvert, mais pas encore finalisé",
+     "level": 2
+    },
+    {
+     "type": "paragraph",
+     "text": "Le matériel doit être publié sous licence **CERN-OHL-S-2.0** : l'auteur prévoit de mettre sur GitHub le dessin du circuit imprimé, la nomenclature, la configuration ESPHome de l'ESP32-S3 et le firmware ESP-IDF de l'ESP32-P4. Le dépôt contient déjà le schéma de la révision 2.0 et le brochage du connecteur FPC. La licence est donc annoncée, non encore appliquée."
+    },
+    {
+     "type": "paragraph",
+     "text": "La campagne se déroule sur **Crowd Supply** et a déjà dépassé son objectif de 7 500 dollars. Les prix sont de 50 dollars pour une carte, 98 dollars pour deux et 145 dollars pour trois, avec 8 dollars de port aux États-Unis et 18 dollars dans le reste du monde. La campagne se termine le 17 décembre 2026, les expéditions sont attendues à partir du 17 avril 2027, et la logistique est confiée à Mouser Electronics."
+    },
+    {
+     "type": "usecases",
+     "title": "Exemples d'utilisation",
+     "items": [
+      {
+       "icon": "🏠",
+       "title": "Un foyer qui veut des commandes vocales sans nuage",
+       "text": "Les ordres comme allumer une lumière ou lancer un minuteur sont traités par le serveur domestique, et non par un service distant."
+      },
+      {
+       "icon": "🔧",
+       "title": "Un bricoleur qui récupère un vieil appareil",
+       "text": "Il redonne vie à un Echo Dot inutilisé au lieu de le jeter, en conservant le boîtier et le haut-parleur."
+      },
+      {
+       "icon": "🧪",
+       "title": "Un développeur qui expérimente la voix locale",
+       "text": "Il teste des mots d'activation personnalisés et le traitement audio sur ESP32-P4 grâce au firmware ouvert."
+      }
+     ]
+    },
+    {
+     "type": "timeline",
+     "title": "D'où l'on vient, où l'on va",
+     "items": [
+      {
+       "label": "Avant 2026",
+       "text": "Les enceintes connectées dépendent largement des services en ligne de leur fabricant."
+      },
+      {
+       "label": "11 novembre 2026",
+       "text": "Présentation de LocalDot ; l'objectif de 7 500 dollars est déjà dépassé."
+      },
+      {
+       "label": "17 décembre 2026",
+       "text": "Fin de la campagne Crowd Supply."
+      },
+      {
+       "label": "17 avril 2027",
+       "text": "Début attendu des expéditions."
+      }
+     ]
+    },
+    {
+     "type": "opinion",
+     "title": "Notre avis",
+     "paragraphs": [
+      "Le projet répond à une attente réelle : conserver un matériel acoustique correct tout en reprenant la main sur le traitement vocal. L'usage de composants courants, ESP32 et ESPHome, facilite la maintenance. Ses limites tiennent à la dépendance à un serveur Home Assistant, à la compatibilité restreinte à certaines variantes et au fait que le caractère ouvert reste, pour l'instant, une promesse.",
+      "À un horizon d'un à trois ans, les assistants vocaux locaux devraient gagner en qualité avec le matériel d'inférence embarqué. C'est une projection, pas un fait."
+     ],
+     "verdict": "Une réutilisation astucieuse d'un objet courant, à juger sur pièce quand le matériel et ses sources seront réellement publiés."
+    },
+    {
+     "type": "callout",
+     "title": "À retenir",
+     "text": "Faits : ESP32-S3 et ESP32-P4, 83 × 37 mm, 50 dollars la carte sur Crowd Supply, campagne jusqu'au 17 décembre 2026, expéditions attendues le 17 avril 2027 ; licence CERN-OHL-S-2.0 annoncée, non finalisée."
+    }
+   ]
+  }
+ ]
+}
