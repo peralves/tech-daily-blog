@@ -1,0 +1,411 @@
+{
+  "schemaVersion": "1.0",
+  "date": "2026-11-11",
+  "generatedAt": "2026-11-11T10:15:18+01:00",
+  "title": "Édition tech : failles OpenSSH et APT, Kimi K3.1 Pro et Linux 7.4-rc2",
+  "summary": "Une faille dans OpenSSH déjà ciblée, un modèle ouvert géant venu de Chine et un noyau Linux 7.4 chargé en commits : l'essentiel de l'actualité technique.",
+  "highlights": [
+    "« SSHole » (CVE-2026-123158) : OpenSSH sur Alpine exposé, tentatives d'exploitation déjà observées",
+    "APT : une faille peut mener à une exécution de code root sur Debian et Ubuntu",
+    "Kimi K3.1 Pro : 2,8 billions de paramètres, poids ouverts sous licence personnalisée",
+    "Linux 7.4-rc2 : fenêtre de fusion record et correctifs assistés par IA"
+  ],
+  "meta": {
+    "generator": "claude-scheduled-task"
+  },
+  "posts": [
+    {
+      "id": "openssh-sshole-et-apt-deux-failles-sur-linux-debian-ubuntu-alpine",
+      "category": "cybersecurite",
+      "title": "« SSHole » dans OpenSSH et faille d'APT : deux défauts touchent des systèmes Linux courants, dont Alpine, Debian et Ubuntu",
+      "summary": "Une faille d'authentification d'OpenSSH (CVE-2026-123158, CVSS 8,1) vise Alpine Linux, et une faille d'APT (CVE-2026-109518, CVSS 7,7) peut conduire à une exécution de code avec les droits root sur Debian et Ubuntu. La première est déjà la cible de tentatives d'exploitation.",
+      "tags": [
+        "OpenSSH",
+        "APT",
+        "Alpine Linux",
+        "Debian",
+        "Ubuntu",
+        "CVE-2026-123158"
+      ],
+      "importance": 5,
+      "readingMinutes": 4,
+      "publishedAt": "2026-11-11T10:15:18+01:00",
+      "sourceDate": "2026-11-09",
+      "icon": "🔑",
+      "illustration": {
+        "svg": "<svg xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"0 0 640 360\"><defs><linearGradient id=\"g\" x1=\"0\" y1=\"0\" x2=\"1\" y2=\"1\"><stop offset=\"0\" stop-color=\"hsl(175,70%,34%)\"/><stop offset=\"1\" stop-color=\"hsl(215,70%,18%)\"/></linearGradient></defs><rect width=\"640\" height=\"360\" fill=\"url(#g)\"/><g fill=\"none\" stroke=\"#fff\" stroke-width=\"6\" stroke-linecap=\"round\" stroke-linejoin=\"round\" opacity=\"0.92\"><rect x=\"170\" y=\"150\" width=\"300\" height=\"140\" rx=\"16\"/><path d=\"M240 150 v-40 a80 80 0 0 1 160 0 v40\"/><circle cx=\"320\" cy=\"215\" r=\"18\"/><path d=\"M320 233 v30\"/><path d=\"M90 90 l40 40 M550 90 l-40 40\" opacity=\"0.6\"/></g><circle cx=\"560\" cy=\"60\" r=\"90\" fill=\"#fff\" opacity=\"0.06\"/><circle cx=\"80\" cy=\"320\" r=\"120\" fill=\"#fff\" opacity=\"0.05\"/></svg>"
+      },
+      "sources": [
+        {
+          "title": "Weekly Recap : SSHole exploited, APT root",
+          "url": "https://thehackernews.com/2026/11/weekly-recap-sshole-exploited-apt-root.html",
+          "publisher": "The Hacker News"
+        }
+      ],
+      "blocks": [
+        {
+          "type": "paragraph",
+          "text": "Deux vulnérabilités touchant des briques centrales des systèmes Linux ont été mises en avant dans le bilan hebdomadaire de The Hacker News daté du 9 novembre 2026. La première concerne le serveur **OpenSSH** et a reçu le nom de code « SSHole » ; la seconde affecte **APT**, le gestionnaire de paquets de Debian et d'Ubuntu. Toutes deux méritent l'attention des administrateurs, même si leurs conditions d'exploitation sont précises."
+        },
+        {
+          "type": "heading",
+          "level": 2,
+          "text": "SSHole : une authentification contournée sur Alpine Linux"
+        },
+        {
+          "type": "paragraph",
+          "text": "Référencée **CVE-2026-123158** et notée 8,1 sur l'échelle CVSS, la faille « SSHole » peut permettre à une personne de se connecter à des comptes qui n'ont aucun mot de passe défini. Elle concerne les systèmes Linux qui utilisent OpenSSH avec la bibliothèque C **musl**, lorsque les modules d'authentification **PAM** sont désactivés. La source cite en particulier la configuration par défaut du serveur OpenSSH d'Alpine Linux, une distribution très répandue dans les conteneurs. Un titre associé évoque un correctif d'urgence d'OpenSSH pour un contournement de l'authentification par des mots de passe longs sur Alpine ; la source ne précise toutefois ni les numéros de version corrigés ni le détail du correctif."
+        },
+        {
+          "type": "paragraph",
+          "text": "L'exploitation n'est pas théorique : au 9 novembre 2026, vingt tentatives avaient été enregistrées depuis treize adresses IP distinctes, situées au Danemark, en Iran, au Japon, aux Pays-Bas, en Norvège, à Singapour, en Suède, en Suisse et aux États-Unis. Aucun acteur n'est nommé. Un autre titre de la page indique qu'un pot de miel, c'est-à-dire un serveur-leurre, a été pris en main avec les droits root en quelques heures après la divulgation, ce qui illustre la rapidité des attaquants."
+        },
+        {
+          "type": "heading",
+          "level": 2,
+          "text": "APT : un paquet non vérifié peut être installé"
+        },
+        {
+          "type": "paragraph",
+          "text": "La seconde faille, **CVE-2026-109518** (CVSS 7,7), touche APT sur Ubuntu et Debian. Elle s'applique lorsque APT utilise des sources de paquets en HTTP avec des réglages de nouvelles tentatives activés. Une personne placée entre la machine et le miroir de paquets, en position d'interception (attaque de l'homme du milieu), peut amener APT à installer un paquet dont la vérification a échoué. Les scripts de maintenance de ce paquet s'exécutent alors avec des privilèges élevés, d'où une exécution de code en tant que root. Amazon a publié un avis (bulletin 2026-172) ; la source ne donne pas explicitement la version corrigée."
+        },
+        {
+          "type": "diagram",
+          "svg": "<svg xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"0 0 640 240\" font-family=\"system-ui,sans-serif\"><rect width=\"640\" height=\"240\" rx=\"16\" fill=\"#f4f6fb\"/><rect x=\"30\" y=\"90\" width=\"150\" height=\"60\" rx=\"12\" fill=\"#e8eefc\" stroke=\"#3b5bdb\" stroke-width=\"2\"/><text x=\"105.0\" y=\"125.0\" text-anchor=\"middle\" font-size=\"15\" fill=\"#111\">Poste Debian / Ubuntu</text><rect x=\"245\" y=\"90\" width=\"150\" height=\"60\" rx=\"12\" fill=\"#fde8e8\" stroke=\"#c92a2a\" stroke-width=\"2\"/><text x=\"320.0\" y=\"125.0\" text-anchor=\"middle\" font-size=\"15\" fill=\"#111\">Intercepteur</text><rect x=\"460\" y=\"90\" width=\"150\" height=\"60\" rx=\"12\" fill=\"#e8eefc\" stroke=\"#3b5bdb\" stroke-width=\"2\"/><text x=\"535.0\" y=\"125.0\" text-anchor=\"middle\" font-size=\"15\" fill=\"#111\">Miroir HTTP</text><path d=\"M180 120 h65 M395 120 h65\" stroke=\"#555\" stroke-width=\"3\"/><text x=\"320\" y=\"60\" text-anchor=\"middle\" font-size=\"14\" fill=\"#111\">Paquet falsifié installé malgré l'échec de vérification</text><text x=\"320\" y=\"200\" text-anchor=\"middle\" font-size=\"14\" fill=\"#111\">Scripts du paquet exécutés avec les droits root</text></svg>",
+          "alt": "Schéma d'une attaque contre APT : un intercepteur réseau entre le poste et le miroir HTTP fait installer un paquet falsifié.",
+          "caption": "Principe de la faille d'APT : l'attaquant doit se placer sur le trajet réseau entre le poste et le miroir."
+        },
+        {
+          "type": "heading",
+          "level": 2,
+          "text": "Une autre faille sérieuse dans le même bilan"
+        },
+        {
+          "type": "paragraph",
+          "text": "La même page signale des commutateurs Zyxel de la série GS1900 touchés par une écriture hors limites (**CVE-2026-107441**, CVSS 8,8) : près de 1 000 appareils auraient été compromis par un acteur sinophone suivi sous les noms Kapibala ou Red Heron, qui a déployé une porte dérobée nommée JITTERLY et un rootkit baptisé SIXZUT. Zyxel a publié un correctif."
+        },
+        {
+          "type": "usecases",
+          "title": "Exemples d'utilisation",
+          "items": [
+            {
+              "icon": "🐳",
+              "title": "Conteneurs Alpine exposés",
+              "text": "Une équipe qui expose le port SSH d'un conteneur Alpine doit vérifier sa configuration (musl, PAM désactivé) et les comptes sans mot de passe, puis appliquer la mise à jour d'OpenSSH dès sa disponibilité."
+            },
+            {
+              "icon": "🏢",
+              "title": "Parc de serveurs Debian",
+              "text": "Un service informatique repère les machines dont les dépôts APT sont en HTTP avec réglages de nouvelles tentatives, et bascule vers HTTPS ou vers des miroirs internes signés."
+            },
+            {
+              "icon": "🏠",
+              "title": "Commutateur de bureau",
+              "text": "Une petite entreprise équipée de Zyxel GS1900 consulte l'avis du fabricant, installe le micrologiciel corrigé et isole l'interface d'administration du réseau local ordinaire."
+            }
+          ]
+        },
+        {
+          "type": "timeline",
+          "title": "D'où l'on vient, où l'on va",
+          "items": [
+            {
+              "label": "Novembre 2026",
+              "text": "Publication des failles et premières tentatives d'exploitation d'OpenSSH signalées."
+            },
+            {
+              "label": "Dès la divulgation",
+              "text": "Selon la source, un pot de miel est compromis en quelques heures."
+            },
+            {
+              "label": "À venir",
+              "text": "Publication ou déploiement des versions corrigées par les distributions ; les numéros de version restent à confirmer auprès des avis officiels."
+            }
+          ]
+        },
+        {
+          "type": "opinion",
+          "title": "Notre avis",
+          "paragraphs": [
+            "Ces deux failles rappellent qu'un réglage « par défaut » ou une option de confort, comme les nouvelles tentatives HTTP d'APT, peut ouvrir la voie à une compromission. Dans les deux cas, la gravité réelle dépend du contexte : SSHole vise une combinaison précise (musl, PAM désactivé), et la faille d'APT exige une position réseau privilégiée.",
+            "D'ici un à trois ans, on peut raisonnablement attendre que les distributions durcissent leurs réglages par défaut : HTTPS pour les dépôts, authentification toujours passée par des modules éprouvés. C'est une projection, pas un fait établi, mais la rapidité d'exploitation observée pousse dans ce sens."
+          ],
+          "verdict": "Le correctif est urgent pour qui expose SSH sous Alpine ; pour APT, supprimer les sources HTTP reste la meilleure parade."
+        },
+        {
+          "type": "callout",
+          "title": "À retenir",
+          "text": "Les vingt tentatives observées montrent que l'exploitation de SSHole a commencé. Vérifiez les avis de votre distribution pour connaître les versions corrigées : la source consultée ne les précise pas."
+        }
+      ]
+    },
+    {
+      "id": "kimi-k3-1-pro-moonshot-poids-ouverts-2-8-billions-de-parametres",
+      "category": "ia",
+      "title": "Kimi K3.1 Pro : Moonshot AI publie un modèle à poids ouverts de 2,8 billions de paramètres, sous licence personnalisée",
+      "summary": "Moonshot AI met à disposition Kimi K3.1 Pro, un modèle à mélange d'experts de 2,8 billions de paramètres dont 104 milliards actifs. Les scores annoncés par l'éditeur le placent près de Claude Opus 5.5 sur un test de programmation en terminal.",
+      "tags": [
+        "Kimi K3.1 Pro",
+        "Moonshot AI",
+        "poids ouverts",
+        "mélange d'experts",
+        "modèle de langage"
+      ],
+      "importance": 4,
+      "readingMinutes": 3,
+      "publishedAt": "2026-11-11T10:15:18+01:00",
+      "sourceDate": "2026-11-05",
+      "icon": "🌙",
+      "illustration": {
+        "svg": "<svg xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"0 0 640 360\"><defs><linearGradient id=\"g\" x1=\"0\" y1=\"0\" x2=\"1\" y2=\"1\"><stop offset=\"0\" stop-color=\"hsl(320,70%,34%)\"/><stop offset=\"1\" stop-color=\"hsl(0,70%,18%)\"/></linearGradient></defs><rect width=\"640\" height=\"360\" fill=\"url(#g)\"/><g fill=\"none\" stroke=\"#fff\" stroke-width=\"6\" stroke-linecap=\"round\" stroke-linejoin=\"round\" opacity=\"0.92\"><circle cx=\"320\" cy=\"180\" r=\"50\"/><circle cx=\"170\" cy=\"110\" r=\"22\"/><circle cx=\"470\" cy=\"110\" r=\"22\"/><circle cx=\"170\" cy=\"260\" r=\"22\"/><circle cx=\"470\" cy=\"260\" r=\"22\"/><path d=\"M190 120 l95 45 M450 120 l-95 45 M190 250 l95 -45 M450 250 l-95 -45\"/></g><circle cx=\"560\" cy=\"60\" r=\"90\" fill=\"#fff\" opacity=\"0.06\"/><circle cx=\"80\" cy=\"320\" r=\"120\" fill=\"#fff\" opacity=\"0.05\"/></svg>"
+      },
+      "sources": [
+        {
+          "title": "Tout ce qui est sorti en IA en novembre 2026",
+          "url": "https://thursdai.news/releases/2026-11",
+          "publisher": "ThursdAI"
+        }
+      ],
+      "blocks": [
+        {
+          "type": "paragraph",
+          "text": "Le 5 novembre 2026, l'éditeur chinois **Moonshot AI** a publié **Kimi K3.1 Pro**, un grand modèle de langage dont les poids sont téléchargeables. Cette publication figure parmi les quinze sorties recensées par le site ThursdAI pour la semaine, aux côtés de SWE-2 Flash de Cognition, de GPT-6 Cyber d'OpenAI ou de Ripple-65B Preview, déjà évoqué dans nos pages."
+        },
+        {
+          "type": "heading",
+          "level": 2,
+          "text": "Une architecture à mélange d'experts"
+        },
+        {
+          "type": "paragraph",
+          "text": "Kimi K3.1 Pro est un modèle à **mélange d'experts** : il compte 2,8 billions de paramètres au total, mais seuls 104 milliards sont activés pour produire chaque mot. Cette conception limite le coût de calcul à l'usage tout en conservant une grande capacité. Le modèle accepte une fenêtre de contexte d'un million de jetons et la saisie d'images. Ses poids pèsent environ 1,56 To une fois quantifiés au format MXFP4."
+        },
+        {
+          "type": "keyvalue",
+          "items": [
+            {
+              "label": "Paramètres totaux / actifs",
+              "value": "2,8 billions / 104 milliards"
+            },
+            {
+              "label": "Contexte",
+              "value": "1 million de jetons"
+            },
+            {
+              "label": "Tarif API Moonshot",
+              "value": "4 $ par million de jetons en entrée, 20 $ en sortie"
+            },
+            {
+              "label": "Poids",
+              "value": "≈ 1,56 To (MXFP4)"
+            }
+          ]
+        },
+        {
+          "type": "heading",
+          "level": 2,
+          "text": "Des performances annoncées par l'éditeur"
+        },
+        {
+          "type": "paragraph",
+          "text": "Moonshot affirme que Kimi K3.1 Pro obtient **65,7** au test Terminal-Bench 4.0, juste derrière **Claude Opus 5.5**, crédité de 66,4. Ces chiffres sont déclarés par l'éditeur et n'ont pas, à notre connaissance, été reproduits de façon indépendante. Le même tableau montre aussi des écarts nets sur d'autres épreuves : 31,5 à Program Bench contre 65,0 pour Opus 5.5. Un score élevé sur un test ne garantit donc pas une avance générale."
+        },
+        {
+          "type": "heading",
+          "level": 2,
+          "text": "Une licence « ouverte » avec conditions"
+        },
+        {
+          "type": "paragraph",
+          "text": "Moonshot parle de poids ouverts, et non de logiciel libre au sens usuel. Les grands produits qui l'intègrent doivent afficher le nom Kimi, et les grands revendeurs d'accès par API doivent conclure un accord distinct. Pour une petite équipe, l'obligation est légère ; pour une plateforme à grande échelle, elle change la donne."
+        },
+        {
+          "type": "usecases",
+          "title": "Exemples d'utilisation",
+          "items": [
+            {
+              "icon": "🏭",
+              "title": "Hébergement interne",
+              "text": "Une entreprise soumise à des contraintes de confidentialité envisage d'héberger le modèle sur ses propres serveurs, à condition de disposer d'une infrastructure capable de charger plus de 1,5 To de poids."
+            },
+            {
+              "icon": "💻",
+              "title": "Assistant de programmation",
+              "text": "Une équipe de développement compare le modèle à ses outils actuels sur ses propres dépôts avant de lui confier des tâches en terminal."
+            },
+            {
+              "icon": "📚",
+              "title": "Analyse de longs documents",
+              "text": "Un cabinet de conseil teste la fenêtre d'un million de jetons pour interroger un dossier volumineux, en vérifiant les réponses par sondage."
+            }
+          ]
+        },
+        {
+          "type": "timeline",
+          "title": "D'où l'on vient, où l'on va",
+          "items": [
+            {
+              "label": "2025–2026",
+              "text": "Les éditeurs chinois multiplient les modèles à poids ouverts de grande taille."
+            },
+            {
+              "label": "5 novembre 2026",
+              "text": "Publication de Kimi K3.1 Pro."
+            },
+            {
+              "label": "À venir",
+              "text": "Évaluations indépendantes et retours d'usage, qui diront si les scores annoncés se confirment."
+            }
+          ]
+        },
+        {
+          "type": "opinion",
+          "title": "Notre avis",
+          "paragraphs": [
+            "Ce qui compte ici n'est pas le chiffre de 2,8 billions de paramètres, mais l'écart entre taille totale et paramètres actifs : le coût à l'usage se rapproche de celui d'un modèle de 100 milliards. Les performances restent déclaratives, et la licence personnalisée rappelle que « ouvert » recouvre des réalités très différentes.",
+            "À un à trois ans, la pression des modèles à poids ouverts devrait continuer de tirer les prix des API vers le bas. C'est une opinion : elle suppose que l'écart de qualité avec les modèles fermés reste faible."
+          ],
+          "verdict": "Un modèle ouvert très compétitif, mais à vérifier : attendez des évaluations indépendantes."
+        },
+        {
+          "type": "callout",
+          "title": "À retenir",
+          "text": "Les scores cités (Terminal-Bench 4.0 : 65,7) sont déclarés par Moonshot AI ; la source ne mentionne pas d'évaluation indépendante."
+        }
+      ]
+    },
+    {
+      "id": "linux-7-4-rc2-plus-grosse-fenetre-de-fusion-et-correctifs-assistes-par-ia",
+      "category": "dev",
+      "title": "Linux 7.4-rc2 : après la plus grosse fenêtre de fusion de l'histoire, la stabilisation commence avec des correctifs en partie issus de l'IA",
+      "summary": "Le noyau 7.4-rc2, publié le 9 novembre 2026, suit une fenêtre de fusion de près de 20 000 commits. Une part notable des changements serait générée par IA, et la version finale est attendue fin décembre.",
+      "tags": [
+        "Linux",
+        "noyau",
+        "7.4",
+        "LTS",
+        "IA"
+      ],
+      "importance": 4,
+      "readingMinutes": 3,
+      "publishedAt": "2026-11-11T10:15:18+01:00",
+      "sourceDate": "2026-11-09",
+      "icon": "🐧",
+      "illustration": {
+        "svg": "<svg xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"0 0 640 360\"><defs><linearGradient id=\"g\" x1=\"0\" y1=\"0\" x2=\"1\" y2=\"1\"><stop offset=\"0\" stop-color=\"hsl(265,70%,34%)\"/><stop offset=\"1\" stop-color=\"hsl(305,70%,18%)\"/></linearGradient></defs><rect width=\"640\" height=\"360\" fill=\"url(#g)\"/><g fill=\"none\" stroke=\"#fff\" stroke-width=\"6\" stroke-linecap=\"round\" stroke-linejoin=\"round\" opacity=\"0.92\"><path d=\"M320 90 q-60 20 -60 90 q0 70 60 90 q60 -20 60 -90 q0 -70 -60 -90z\"/><circle cx=\"298\" cy=\"150\" r=\"7\" fill=\"#fff\"/><circle cx=\"342\" cy=\"150\" r=\"7\" fill=\"#fff\"/><path d=\"M300 185 q20 14 40 0\"/><path d=\"M200 300 h240\" opacity=\"0.6\"/></g><circle cx=\"560\" cy=\"60\" r=\"90\" fill=\"#fff\" opacity=\"0.06\"/><circle cx=\"80\" cy=\"320\" r=\"120\" fill=\"#fff\" opacity=\"0.05\"/></svg>"
+      },
+      "sources": [
+        {
+          "title": "Linux Kernel 7.4-rc2 Released: Largest Merge Window in History Meets Stabilization Test",
+          "url": "https://www.warp2search.net/story/linux-kernel-74rc2-released-largest-merge-window-in-history-meets-stabilization-test/",
+          "publisher": "Warp2Search"
+        },
+        {
+          "title": "Linux 7.4-rc1 Released With Nice Performance Improvements, AMD Ryzen Zen 6 Preparations & AMDGPU HDMI 2.1 Default",
+          "url": "https://phoronix.com/news/Linux-7.4-rc1",
+          "publisher": "Phoronix"
+        }
+      ],
+      "blocks": [
+        {
+          "type": "paragraph",
+          "text": "Linus Torvalds a publié le 9 novembre 2026 la deuxième préversion (*release candidate*) du noyau **Linux 7.4**. Elle fait suite à une fenêtre de fusion présentée comme la plus importante de l'histoire du projet, avec près de **20 000 commits** intégrés avant la première préversion, sortie le 1er novembre."
+        },
+        {
+          "type": "heading",
+          "level": 2,
+          "text": "Un volume record, mais en grande partie mécanique"
+        },
+        {
+          "type": "paragraph",
+          "text": "Selon la source consultée, l'essentiel de ce volume provient de fichiers de description des registres des processeurs graphiques AMD et de conversions automatiques réalisées avec l'outil Coccinelle, dont certaines avaient été reportées. Le nombre de commits est donc trompeur : les changements de fond sont plus ordinaires que ce chiffre ne le laisse penser. Le premier compte rendu de Phoronix cite pour la version 7.4 des performances en hausse, des préparatifs pour les futurs processeurs AMD Ryzen Zen 6 et l'activation par défaut du HDMI 2.1 dans le pilote AMDGPU."
+        },
+        {
+          "type": "heading",
+          "level": 2,
+          "text": "Des correctifs assistés par intelligence artificielle"
+        },
+        {
+          "type": "paragraph",
+          "text": "Le point le plus discuté de cette préversion est la part de changements générés par IA : elle se concentrerait sur la gestion de la mémoire, BPF et les correctifs de systèmes de fichiers. Des mainteneurs constateraient que, dans certains domaines, les corrections trouvées par des outils d'IA dépassent le rythme des rapports de bogue classiques. La préversion sert ainsi de test grandeur nature : ces contributions sont-elles suffisamment fiables pour un projet où chaque ligne doit être relue ? La source n'apporte pas de citation de Linus Torvalds sur ce sujet."
+        },
+        {
+          "type": "list",
+          "ordered": false,
+          "items": [
+            "FAT32 : amélioration des performances ;",
+            "gestion de la mémoire : plusieurs améliorations ;",
+            "BPF : évolutions et correctifs ;",
+            "réseau : nouveau contrôle de congestion TCP ROCCET, selon le compte rendu de la première préversion."
+          ]
+        },
+        {
+          "type": "heading",
+          "level": 2,
+          "text": "Calendrier"
+        },
+        {
+          "type": "paragraph",
+          "text": "La version finale est attendue en fin d'année 2026, vers le 20 décembre selon une source, ou le 27 décembre si huit préversions sont nécessaires. Elle pourrait devenir la prochaine version à support à long terme (LTS), mais ce point n'est pas confirmé officiellement : le noyau 6.18, publié fin 2025, est le dernier LTS que nous ayons vu cité."
+        },
+        {
+          "type": "usecases",
+          "title": "Exemples d'utilisation",
+          "items": [
+            {
+              "icon": "🎮",
+              "title": "Jeux sous Linux",
+              "text": "Un utilisateur de carte AMD peut espérer un HDMI 2.1 actif sans réglage, utile pour un téléviseur 4K à 120 Hz, une fois sa distribution passée au noyau 7.4."
+            },
+            {
+              "icon": "🛠️",
+              "title": "Mainteneur d'un pilote",
+              "text": "Un responsable de pilote doit relire plus de correctifs automatisés et décider de critères d'acceptation pour les contributions assistées par IA."
+            },
+            {
+              "icon": "🏢",
+              "title": "Entreprise avec noyau figé",
+              "text": "Une équipe qui vise un noyau LTS attend la confirmation officielle avant de planifier sa migration, et teste dès les préversions ses pilotes spécifiques."
+            }
+          ]
+        },
+        {
+          "type": "timeline",
+          "title": "D'où l'on vient, où l'on va",
+          "items": [
+            {
+              "label": "Fin 2025",
+              "text": "Linux 6.18, noyau LTS cité par la presse spécialisée."
+            },
+            {
+              "label": "1er novembre 2026",
+              "text": "Linux 7.4-rc1 clôt la fenêtre de fusion."
+            },
+            {
+              "label": "9 novembre 2026",
+              "text": "Linux 7.4-rc2."
+            },
+            {
+              "label": "Fin décembre 2026",
+              "text": "Version finale attendue."
+            }
+          ]
+        },
+        {
+          "type": "opinion",
+          "title": "Notre avis",
+          "paragraphs": [
+            "Le chiffre record impressionne mais renseigne peu : ce qui comptera, c'est le nombre de régressions pendant les semaines de stabilisation. La part de l'IA dans les correctifs est le vrai sujet de fond, car elle déplace le goulot d'étranglement de l'écriture vers la relecture.",
+            "D'ici un à trois ans, on peut attendre des règles explicites sur les contributions assistées par IA dans le noyau. C'est une analyse personnelle, non une annonce du projet."
+          ],
+          "verdict": "Un cycle chargé en chiffres ; l'enjeu réel est la qualité des correctifs assistés par IA."
+        },
+        {
+          "type": "callout",
+          "title": "À retenir",
+          "text": "Date finale non officielle : vérifiez kernel.org et les annonces de Linus Torvalds. Les informations sur la part d'IA proviennent d'un site agrégateur, à recouper."
+        }
+      ]
+    }
+  ]
+}
