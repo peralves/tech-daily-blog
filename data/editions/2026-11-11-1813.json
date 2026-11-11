@@ -1,0 +1,802 @@
+{
+  "schemaVersion": "1.0",
+  "date": "2026-11-11",
+  "generatedAt": "2026-11-11T18:16:33+01:00",
+  "title": "Tech du 11 novembre 2026 : Patch Tuesday record, AntiFox détourné, backdoor Lazarus, XSE de Google et Control Room d’OpenAI",
+  "summary": "Patch Tuesday à plus de 1 200 correctifs, un outil de test d’intrusion IA retourné contre des cibles AWS, une porte dérobée dans les poids d’un modèle, un serveur de modèles sans Python et un interrupteur d’arrêt chez OpenAI.",
+  "highlights": [
+    "Microsoft corrige plus de 1 200 failles et un défaut d’Outlook déjà exploité.",
+    "AntiFox, outil de pentest agentique, sert à voler des secrets AWS.",
+    "Lazarus : moins de dix neurones suffisent pour piéger un agent.",
+    "Google ouvre XSE, un moteur de service de modèles en C++.",
+    "OpenAI annonce Control Room, arrêt en environ 35 secondes."
+  ],
+  "meta": {
+    "generator": "claude-scheduled-task"
+  },
+  "posts": [
+    {
+      "id": "patch-tuesday-novembre-2026-outlook",
+      "category": "cybersecurite",
+      "title": "Patch Tuesday de novembre : plus de 1 200 failles corrigées et un défaut d’Outlook déjà exploité pour dérober des empreintes NTLMv2",
+      "summary": "Microsoft a corrigé 1 259 vulnérabilités le 10 novembre 2026, selon The Hacker News. Une seule est signalée comme exploitée : un défaut d’Outlook, noté « modéré », qui peut exposer une empreinte NTLMv2.",
+      "tags": [
+        "Microsoft",
+        "Patch Tuesday",
+        "Outlook",
+        "NTLM",
+        "CISA"
+      ],
+      "importance": 5,
+      "readingMinutes": 5,
+      "publishedAt": "2026-11-11T18:16:33+01:00",
+      "sourceDate": "2026-11-11",
+      "icon": "🪟",
+      "illustration": {
+        "svg": "<svg xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"0 0 640 360\"><defs><linearGradient id=\"g\" x1=\"0\" y1=\"0\" x2=\"1\" y2=\"1\"><stop offset=\"0\" stop-color=\"hsl(175,65%,32%)\"/><stop offset=\"1\" stop-color=\"hsl(215,70%,52%)\"/></linearGradient></defs><rect width=\"640\" height=\"360\" fill=\"url(#g)\"/><g fill=\"none\" stroke=\"#fff\" stroke-width=\"6\" stroke-linecap=\"round\" stroke-linejoin=\"round\" opacity=\".92\"><rect x=\"150\" y=\"70\" width=\"340\" height=\"220\" rx=\"14\"/><path d=\"M320 70v220M150 180h340\"/><path d=\"M215 125l25 25 45-45\" stroke-width=\"8\"/><circle cx=\"400\" cy=\"235\" r=\"30\"/><path d=\"M400 220v18M400 248v1\"/></g></svg>"
+      },
+      "sources": [
+        {
+          "title": "Microsoft Patches 1,259 Flaws, Including Exploited Outlook Bug That May Expose NTLMv2 Hashes",
+          "url": "https://thehackernews.com/2026/11/microsoft-patches-1259-flaws-including.html",
+          "publisher": "The Hacker News"
+        },
+        {
+          "title": "Microsoft November 2026 Patch Tuesday fixes 1,235 flaws, Outlook zero-day",
+          "url": "https://www.bleepingcomputer.com/news/microsoft/microsoft-november-2026-patch-tuesday-fixes-1-235-flaws-outlook-zero-day/",
+          "publisher": "BleepingComputer"
+        }
+      ],
+      "blocks": [
+        {
+          "type": "paragraph",
+          "text": "Pour la deuxième fois consécutive, le Patch Tuesday de Microsoft dépasse le millier de correctifs. Selon The Hacker News, la mise à jour de novembre 2026, publiée le 10 novembre, corrige **1 259 vulnérabilités**. BleepingComputer avance un total légèrement inférieur, 1 235 : l’écart tient sans doute à la manière de compter les failles attribuées par des organismes tiers, et il rappelle qu’il faut lire ces totaux comme des ordres de grandeur plutôt que comme des chiffres exacts. Selon Satnam Narang, de Tenable, plus de 5 100 CVE ont déjà été traités par Microsoft depuis le début de l’année 2026."
+        },
+        {
+          "type": "paragraph",
+          "text": "Dans ce volume, un seul défaut est présenté comme déjà exploité. Il serait pourtant imprudent de se focaliser sur lui seul : pour les équipes chargées des systèmes d’information, la difficulté est surtout de trier, de tester et de déployer un nombre de correctifs sans précédent dans des délais raisonnables."
+        },
+        {
+          "type": "heading",
+          "level": 2,
+          "text": "Ce que contient la mise à jour"
+        },
+        {
+          "type": "table",
+          "headers": [
+            "Famille de produits",
+            "Nombre de failles"
+          ],
+          "rows": [
+            [
+              "Windows",
+              "726"
+            ],
+            [
+              "Office",
+              "174"
+            ],
+            [
+              "Outils de développement",
+              "environ 60"
+            ],
+            [
+              "SQL Server",
+              "59"
+            ],
+            [
+              "SharePoint Server",
+              "27"
+            ]
+          ]
+        },
+        {
+          "type": "paragraph",
+          "text": "Le total ne se retrouve pas intégralement dans ces lignes : le reste concerne des produits que l’article ne détaille pas. Toujours selon la même source, **165 CVE** ont été publiés par des autorités de numérotation autres que Microsoft, et plus de 500 failles sont des élévations de privilèges, devant l’exécution de code à distance et la divulgation d’informations."
+        },
+        {
+          "type": "heading",
+          "level": 2,
+          "text": "Le défaut d’Outlook exploité : CVE-2026-124194"
+        },
+        {
+          "type": "keyvalue",
+          "items": [
+            {
+              "label": "Identifiant",
+              "value": "CVE-2026-124194"
+            },
+            {
+              "label": "Score CVSS",
+              "value": "6,5, sévérité « modérée » selon Microsoft"
+            },
+            {
+              "label": "Nature",
+              "value": "usurpation : l’interface n’avertit pas l’utilisateur d’une action risquée"
+            },
+            {
+              "label": "Condition",
+              "value": "ouverture d’un fichier de message spécialement conçu, avec interaction de l’utilisateur"
+            },
+            {
+              "label": "Conséquence possible",
+              "value": "exposition d’une empreinte NTLMv2 permettant d’usurper l’identité de l’utilisateur"
+            },
+            {
+              "label": "Échéance CISA",
+              "value": "24 novembre 2026 pour les agences fédérales américaines"
+            }
+          ]
+        },
+        {
+          "type": "paragraph",
+          "text": "Le mécanisme est classique mais efficace. Un attaquant non authentifié envoie un message au format fichier ; à l’ouverture, Outlook se connecte à une ressource réseau contrôlée par l’attaquant sans afficher l’avertissement habituel sur le contenu externe. Cette connexion transmet une empreinte NTLMv2, que l’attaquant peut tenter de casser ou de réutiliser pour se faire passer pour la victime. La CISA a ajouté la faille à son catalogue des vulnérabilités exploitées, ce qui fixe aux agences fédérales américaines une date limite de correction. La source n’indique ni l’acteur à l’origine des attaques, ni les détails techniques de l’exploitation. La découverte est créditée à un chercheur nommé Nono et à Benoît Sevens, d’Anthropic, qui indique avoir utilisé Claude."
+        },
+        {
+          "type": "paragraph",
+          "text": "Parmi les autres failles citées figurent des exécutions de code à distance dans Windows Search (CVE-2026-116928), le protocole LDAP (CVE-2026-119958), Schannel (CVE-2026-119952) et la plateforme de filtrage virtuel (CVE-2026-95962), ainsi qu’une élévation de privilèges dans Azure OpenAI (CVE-2026-119990). La source ne précise pas si certaines étaient déjà publiques avant la correction."
+        },
+        {
+          "type": "diagram",
+          "svg": "<svg xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"0 0 640 230\" font-family=\"system-ui,sans-serif\"><rect width=\"640\" height=\"230\" rx=\"14\" fill=\"#f1f5f9\"/><text x=\"320\" y=\"30\" text-anchor=\"middle\" font-size=\"15\" font-weight=\"700\" fill=\"#0f172a\">Failles corrigées par famille de produits (novembre 2026)</text><text x=\"20\" y=\"73\" font-size=\"13\" fill=\"#0f172a\">Windows</text><rect x=\"190\" y=\"55\" width=\"380\" height=\"26\" rx=\"5\" fill=\"#2563eb\"/><text x=\"576\" y=\"73\" font-size=\"13\" fill=\"#0f172a\">726</text><text x=\"20\" y=\"113\" font-size=\"13\" fill=\"#0f172a\">Office</text><rect x=\"190\" y=\"95\" width=\"91\" height=\"26\" rx=\"5\" fill=\"#2563eb\"/><text x=\"287\" y=\"113\" font-size=\"13\" fill=\"#0f172a\">174</text><text x=\"20\" y=\"153\" font-size=\"13\" fill=\"#0f172a\">SQL Server</text><rect x=\"190\" y=\"135\" width=\"31\" height=\"26\" rx=\"5\" fill=\"#2563eb\"/><text x=\"227\" y=\"153\" font-size=\"13\" fill=\"#0f172a\">59</text><text x=\"20\" y=\"193\" font-size=\"13\" fill=\"#0f172a\">SharePoint Server</text><rect x=\"190\" y=\"175\" width=\"14\" height=\"26\" rx=\"5\" fill=\"#2563eb\"/><text x=\"210\" y=\"193\" font-size=\"13\" fill=\"#0f172a\">27</text></svg>",
+          "alt": "Histogramme des failles corrigées par Microsoft en novembre 2026 : Windows 726, Office 174, SQL Server 59, SharePoint 27.",
+          "caption": "Répartition partielle des correctifs du 10 novembre 2026, d’après The Hacker News ; d’autres produits complètent le total."
+        },
+        {
+          "type": "usecases",
+          "title": "Exemples d'utilisation",
+          "items": [
+            {
+              "icon": "🏢",
+              "title": "Une PME sans équipe dédiée",
+              "text": "Elle active les mises à jour automatiques de Windows et d’Office, puis vérifie qu’Outlook est bien passé à la version corrigée avant la fin de la semaine."
+            },
+            {
+              "icon": "🛡️",
+              "title": "Un service informatique de collectivité",
+              "text": "Il traite d’abord les postes de messagerie exposés, applique la correction d’Outlook, puis planifie par vagues le reste des correctifs pour limiter les régressions."
+            },
+            {
+              "icon": "🔑",
+              "title": "Un responsable de la sécurité",
+              "text": "Il restreint les connexions NTLM sortantes vers Internet et surveille les authentifications inhabituelles, afin de réduire l’intérêt d’une empreinte volée."
+            }
+          ]
+        },
+        {
+          "type": "timeline",
+          "title": "D'où l'on vient, où l'on va",
+          "items": [
+            {
+              "label": "Octobre 2026",
+              "text": "Le Patch Tuesday d’octobre dépasse déjà le millier de correctifs ; novembre est le deuxième mois consécutif au-dessus de ce seuil, selon The Hacker News."
+            },
+            {
+              "label": "10 novembre 2026",
+              "text": "Publication du Patch Tuesday de novembre et ajout du défaut d’Outlook au catalogue de la CISA."
+            },
+            {
+              "label": "24 novembre 2026",
+              "text": "Date limite de correction pour les agences fédérales américaines ; une bonne référence de calendrier pour les autres organisations."
+            }
+          ]
+        },
+        {
+          "type": "opinion",
+          "title": "Notre avis",
+          "paragraphs": [
+            "Ce Patch Tuesday illustre un changement d’échelle : quand un éditeur corrige plus de mille failles en un mois, la vulnérabilité exploitée n’est plus forcément la plus grave sur le papier. Une note CVSS de 6,5 a suffi à justifier une inscription au catalogue des failles exploitées, parce que le vol d’empreintes d’authentification ouvre la porte à des attaques de suite.",
+            "D’ici un à trois ans, on peut raisonnablement s’attendre à ce que le volume continue de croître, notamment parce que la recherche automatisée de failles, y compris avec des assistants d’IA, devient courante. Cela pousse à mieux hiérarchiser, à réduire la surface exposée (NTLM, protocoles anciens) et à automatiser le déploiement, plutôt qu’à espérer tout lire. Il s’agit d’une analyse, pas d’un fait établi."
+          ],
+          "verdict": "Le chiffre impressionne, mais c’est la rapidité de déploiement sur les postes de messagerie qui décidera du risque réel."
+        },
+        {
+          "type": "callout",
+          "title": "À retenir",
+          "text": "Installez la mise à jour de novembre en priorité sur les postes utilisant Outlook. Les totaux de failles varient d’une source à l’autre (1 235 ou 1 259) ; référez-vous au guide des mises à jour de sécurité de Microsoft pour la liste officielle."
+        }
+      ],
+      "cover": {
+        "url": "https://blogger.googleusercontent.com/img/b/R29vZ2xl/AVvXsEh_nfFO2Zf-R2XyVzQHP43rc0OLAtUtRKWYV0VIaoHZW8EeH78h2Id9FmfJQVfzFdmBD6ugVGeCehX1Nq6jlmXlMG4AmnV3Tib3YvClKGaplVg5Ngk_KlpqwHx6Pd_oYQTCj2O3HfOpt_MoSGQD-4Nv-pju5sqS7U9-rAJdpKTn-xnhA1QSmmTiQWnAFjGp/s1600/patch-ms.jpg",
+        "alt": "Illustration d’un correctif de sécurité Microsoft",
+        "credit": "thehackernews.com"
+      }
+    },
+    {
+      "id": "antifox-pentest-ia-detourne-aws",
+      "category": "cybersecurite",
+      "title": "AntiFox : un outil de test d’intrusion piloté par l’IA est détourné dans des attaques ayant atteint des secrets AWS de production",
+      "summary": "Arctic Wolf relie des instances d’AntiFox hébergées sur Alibaba Cloud à des intrusions : web shell sur un serveur IIS, puis lecture de secrets AWS.",
+      "tags": [
+        "AntiFox",
+        "AWS",
+        "IA agentique",
+        "Arctic Wolf",
+        "pentest"
+      ],
+      "importance": 4,
+      "readingMinutes": 5,
+      "publishedAt": "2026-11-11T18:16:33+01:00",
+      "sourceDate": "2026-11-11",
+      "icon": "🦊",
+      "illustration": {
+        "svg": "<svg xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"0 0 640 360\"><defs><linearGradient id=\"g\" x1=\"0\" y1=\"0\" x2=\"1\" y2=\"1\"><stop offset=\"0\" stop-color=\"hsl(175,65%,32%)\"/><stop offset=\"1\" stop-color=\"hsl(215,70%,52%)\"/></linearGradient></defs><rect width=\"640\" height=\"360\" fill=\"url(#g)\"/><g fill=\"none\" stroke=\"#fff\" stroke-width=\"6\" stroke-linecap=\"round\" stroke-linejoin=\"round\" opacity=\".92\"><circle cx=\"320\" cy=\"170\" r=\"70\"/><path d=\"M270 120l-20-45l40 25M370 120l20-45l-40 25\"/><path d=\"M290 185h10M340 185h10M310 215q10 10 20 0\"/><path d=\"M130 290h380\" stroke-dasharray=\"4 14\"/></g></svg>"
+      },
+      "sources": [
+        {
+          "title": "AntiFox AI Pentesting Platform Linked to Attacks That Accessed AWS Production Secrets",
+          "url": "https://thehackernews.com/2026/11/antifox-ai-pentesting-platform-linked.html",
+          "publisher": "The Hacker News"
+        },
+        {
+          "title": "Hackers use AntiFox AI agents in AWS credential-theft attacks",
+          "url": "https://www.bleepingcomputer.com/news/security/hackers-use-antifox-ai-agents-in-aws-credential-theft-attacks/",
+          "publisher": "BleepingComputer"
+        }
+      ],
+      "blocks": [
+        {
+          "type": "paragraph",
+          "text": "Les outils de test d’intrusion servent à éprouver la sécurité d’un système avec l’accord de son propriétaire. Mais ce qui est open source et automatisé peut aussi être retourné contre ses cibles. Selon Arctic Wolf Labs, relayé par The Hacker News le 11 novembre 2026, c’est ce qui se produit avec **AntiFox**, une plateforme de test d’intrusion autonome pilotée par l’IA, disponible sur GitHub : des machines hébergées sur Alibaba Cloud l’utilisent contre des services web exposés et les environnements AWS qui leur sont associés."
+        },
+        {
+          "type": "heading",
+          "level": 2,
+          "text": "Un outil multi-agents, de la reconnaissance au rapport"
+        },
+        {
+          "type": "paragraph",
+          "text": "Son mainteneur le décrit comme un système multi-agents, avec un agent de planification, des agents de travail et un agent principal, qui enchaîne les étapes allant de la reconnaissance à la remise d’un rapport. Au moment de la rédaction de la source, le projet comptait 474 étoiles et 251 copies (forks) sur GitHub. BleepingComputer précise de son côté que des attaquants font tourner leurs propres instances d’AntiFox sur Alibaba Cloud, ce qui évite tout lien avec l’infrastructure d’un éditeur."
+        },
+        {
+          "type": "heading",
+          "level": 2,
+          "text": "La chaîne d’attaque observée"
+        },
+        {
+          "type": "list",
+          "ordered": true,
+          "items": [
+            "**Accès initial** : une application IIS exposée sur Internet a été compromise ; la vulnérabilité exacte n’est pas connue.",
+            "**Web shell** : un fichier ASPX a été créé par le processus de travail d’IIS (w3wp.exe), puis utilisé pour exécuter des commandes.",
+            "**Reconnaissance locale** : recherche, avec PowerShell, de fichiers web.config et de sauvegardes de configuration, lecture des paramètres et des chaînes de connexion aux bases de données.",
+            "**Tentatives de rebond** : essai de connexion à une base de production interne avec un identifiant tiré de la configuration, copie de fichiers de configuration et de journaux dans un répertoire de téléversement accessible depuis le web.",
+            "**Contrôles de contexte** : commandes comme whoami ou icacls pour vérifier les droits d’exécution et d’écriture."
+          ]
+        },
+        {
+          "type": "paragraph",
+          "text": "Dans d’autres intrusions, l’attaquant est parti d’un identifiant AWS valide dont l’origine reste indéterminée. Avec ces identités, il a énuméré des dizaines de services (IAM, EC2, S3, Lambda, Secrets Manager, KMS, RDS, Amazon Bedrock). La plupart des requêtes ont été refusées, mais certaines ont abouti ; dans au moins un cas, l’appel GetSecretValue a réussi sur un secret de production, et des opérations sur des objets S3 ont été menées."
+        },
+        {
+          "type": "diagram",
+          "svg": "<svg xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"0 0 640 200\" font-family=\"system-ui,sans-serif\"><rect width=\"640\" height=\"200\" rx=\"14\" fill=\"#f1f5f9\"/><text x=\"320.0\" y=\"30\" text-anchor=\"middle\" font-size=\"15\" font-weight=\"700\" fill=\"#0f172a\">Chaîne d’attaque décrite par Arctic Wolf</text><rect x=\"20\" y=\"55\" width=\"98\" height=\"110\" rx=\"10\" fill=\"#fff\" stroke=\"#334155\" stroke-width=\"1.5\"/><text x=\"69\" y=\"90\" text-anchor=\"middle\" font-size=\"13\" font-weight=\"700\" fill=\"#0f172a\">Serveur IIS</text><text x=\"69\" y=\"110\" text-anchor=\"middle\" font-size=\"12\" font-weight=\"400\" fill=\"#0f172a\">exposé</text><path d=\"M122 110h20m-6 -6l6 6l-6 6\" stroke=\"#334155\" stroke-width=\"2\" fill=\"none\"/><rect x=\"146\" y=\"55\" width=\"98\" height=\"110\" rx=\"10\" fill=\"#fff\" stroke=\"#334155\" stroke-width=\"1.5\"/><text x=\"194\" y=\"90\" text-anchor=\"middle\" font-size=\"13\" font-weight=\"700\" fill=\"#0f172a\">Web shell</text><text x=\"194\" y=\"110\" text-anchor=\"middle\" font-size=\"12\" font-weight=\"400\" fill=\"#0f172a\">ASPX</text><path d=\"M247 110h20m-6 -6l6 6l-6 6\" stroke=\"#334155\" stroke-width=\"2\" fill=\"none\"/><rect x=\"271\" y=\"55\" width=\"98\" height=\"110\" rx=\"10\" fill=\"#fff\" stroke=\"#334155\" stroke-width=\"1.5\"/><text x=\"320\" y=\"90\" text-anchor=\"middle\" font-size=\"13\" font-weight=\"700\" fill=\"#0f172a\">Lecture de</text><text x=\"320\" y=\"110\" text-anchor=\"middle\" font-size=\"12\" font-weight=\"400\" fill=\"#0f172a\">web.config</text><path d=\"M373 110h20m-6 -6l6 6l-6 6\" stroke=\"#334155\" stroke-width=\"2\" fill=\"none\"/><rect x=\"397\" y=\"55\" width=\"98\" height=\"110\" rx=\"10\" fill=\"#fff\" stroke=\"#334155\" stroke-width=\"1.5\"/><text x=\"446\" y=\"90\" text-anchor=\"middle\" font-size=\"13\" font-weight=\"700\" fill=\"#0f172a\">Identifiants</text><text x=\"446\" y=\"110\" text-anchor=\"middle\" font-size=\"12\" font-weight=\"400\" fill=\"#0f172a\">AWS valides</text><path d=\"M498 110h20m-6 -6l6 6l-6 6\" stroke=\"#334155\" stroke-width=\"2\" fill=\"none\"/><rect x=\"522\" y=\"55\" width=\"98\" height=\"110\" rx=\"10\" fill=\"#fff\" stroke=\"#334155\" stroke-width=\"1.5\"/><text x=\"571\" y=\"90\" text-anchor=\"middle\" font-size=\"13\" font-weight=\"700\" fill=\"#0f172a\">Secrets de</text><text x=\"571\" y=\"110\" text-anchor=\"middle\" font-size=\"12\" font-weight=\"400\" fill=\"#0f172a\">production</text></svg>",
+          "alt": "Schéma en cinq étapes : serveur IIS exposé, web shell, lecture de web.config, identifiants AWS valides, accès aux secrets de production.",
+          "caption": "Chaîne simplifiée d’une intrusion décrite par Arctic Wolf Labs ; l’accès initial exact n’est pas connu."
+        },
+        {
+          "type": "paragraph",
+          "text": "Le tableau d’ensemble est plus large. GitGuardian recense environ 45 cadriciels d’attaque agentiques open source, répartis en cinq catégories. Selon la source, ces outils rendent des techniques de test d’intrusion plus accessibles et accélèrent les attaques en direct. L’article ne propose pas de mesures de défense précises ; elles se déduisent toutefois de la chaîne observée."
+        },
+        {
+          "type": "usecases",
+          "title": "Exemples d'utilisation",
+          "items": [
+            {
+              "icon": "🧰",
+              "title": "Une équipe d’exploitation",
+              "text": "Elle sort les secrets des fichiers web.config, les place dans un coffre-fort de secrets et réduit les droits du compte du pool d’applications IIS."
+            },
+            {
+              "icon": "☁️",
+              "title": "Un architecte cloud",
+              "text": "Il applique le principe du moindre privilège aux identités AWS et surveille les appels GetSecretValue provenant d’adresses inhabituelles."
+            },
+            {
+              "icon": "🔎",
+              "title": "Un centre de supervision",
+              "text": "Il crée une alerte sur un processus w3wp.exe qui écrit des fichiers ASPX ou lance PowerShell, signe typique d’un web shell."
+            }
+          ]
+        },
+        {
+          "type": "timeline",
+          "title": "D'où l'on vient, où l'on va",
+          "items": [
+            {
+              "label": "2026",
+              "text": "Des outils de test d’intrusion agentiques se multiplient en open source ; GitGuardian en dénombre une quarantaine."
+            },
+            {
+              "label": "Octobre et novembre 2026",
+              "text": "Arctic Wolf observe des intrusions reliées à des instances d’AntiFox hébergées sur Alibaba Cloud."
+            },
+            {
+              "label": "À venir",
+              "text": "Aucune échéance n’est annoncée ; la source ne mentionne pas de réaction de l’auteur du projet."
+            }
+          ]
+        },
+        {
+          "type": "opinion",
+          "title": "Notre avis",
+          "paragraphs": [
+            "Il serait injuste de condamner l’outil lui-même : un marteau sert aussi à construire. Le fait notable est ailleurs : l’IA agentique abaisse le coût des enchaînements d’actions qui demandaient jusqu’ici un opérateur expérimenté. Les défauts classiques (secrets en clair dans des fichiers de configuration, identités trop permissives) deviennent donc plus rentables à exploiter, plus vite.",
+            "À un à trois ans, la parade ressemble moins à une interdiction qu’à un durcissement de base et à une détection comportementale : tant que les accès initiaux reposent sur des applications non corrigées, l’automatisation ne fera qu’amplifier l’écart entre les organisations bien tenues et les autres. C’est une opinion, étayée par les observations d’Arctic Wolf mais pas démontrée à grande échelle."
+          ],
+          "verdict": "L’automatisation ne crée pas de nouvelles failles, elle raccourcit le temps dont disposent les défenseurs pour corriger les anciennes."
+        },
+        {
+          "type": "callout",
+          "title": "À retenir",
+          "text": "Gardez les secrets hors des fichiers de configuration accessibles par le serveur web et limitez les droits des identités cloud : ce sont les deux faiblesses exploitées ici."
+        }
+      ],
+      "cover": {
+        "url": "https://blogger.googleusercontent.com/img/b/R29vZ2xl/AVvXsEi08pEbJ7-HNwC0kJf517wnB6y8HwgKhMU-vxbhnCEh9KpWk1kmIjp_bb71k7GYfiTZNep3bcejvN7RmriF9_0RJnGGe9T5WB_nihCgxiDYOMl8mgDmI0Pm6ZFmPzf8HulQUxHjX3TncwmvqJIDPLyZBoHZpOahcMl7fehtwvT-oCxLzPec-KRtiScHT7wk/s1600/aws-secrets.jpg",
+        "alt": "Illustration d’une attaque contre un environnement cloud",
+        "credit": "thehackernews.com"
+      }
+    },
+    {
+      "id": "lazarus-backdoor-agents-ia-dix-neurones",
+      "category": "ia",
+      "title": "Lazarus : des chercheurs de Microsoft montrent qu’un agent d’IA peut recevoir une porte dérobée en modifiant moins de dix neurones",
+      "summary": "Une édition directe de quelques neurones rarement utilisés suffit à faire sortir une commande choisie par l’attaquant quand un déclencheur apparaît, sans réentraîner le modèle.",
+      "tags": [
+        "Microsoft",
+        "Lazarus",
+        "agents IA",
+        "porte dérobée",
+        "chaîne d’approvisionnement"
+      ],
+      "importance": 4,
+      "readingMinutes": 6,
+      "publishedAt": "2026-11-11T18:16:33+01:00",
+      "sourceDate": "2026-11-11",
+      "icon": "🧠",
+      "illustration": {
+        "svg": "<svg xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"0 0 640 360\"><defs><linearGradient id=\"g\" x1=\"0\" y1=\"0\" x2=\"1\" y2=\"1\"><stop offset=\"0\" stop-color=\"hsl(320,65%,32%)\"/><stop offset=\"1\" stop-color=\"hsl(0,70%,52%)\"/></linearGradient></defs><rect width=\"640\" height=\"360\" fill=\"url(#g)\"/><g fill=\"none\" stroke=\"#fff\" stroke-width=\"6\" stroke-linecap=\"round\" stroke-linejoin=\"round\" opacity=\".92\"><circle cx=\"320\" cy=\"180\" r=\"12\" fill=\"#fff\"/><circle cx=\"200\" cy=\"110\" r=\"12\"/><circle cx=\"200\" cy=\"250\" r=\"12\"/><circle cx=\"440\" cy=\"110\" r=\"12\"/><circle cx=\"440\" cy=\"250\" r=\"12\" fill=\"#fff\"/><path d=\"M212 114l96 60M212 246l96-60M332 174l96-60M332 186l96 60M200 122v116M440 122v116\"/></g></svg>"
+      },
+      "sources": [
+        {
+          "title": "Microsoft Researchers Show AI Agents Can Be Backdoored by Editing Fewer Than 10 Neurons",
+          "url": "https://thehackernews.com/2026/11/microsoft-researchers-show-ai-agents.html",
+          "publisher": "The Hacker News"
+        }
+      ],
+      "blocks": [
+        {
+          "type": "paragraph",
+          "text": "Pour piéger un modèle d’IA, on pense d’abord à l’empoisonnement des données d’entraînement. Des chercheurs de Microsoft décrivent une voie bien plus directe, baptisée **Lazarus** : modifier à la main moins de dix neurones rarement sollicités pour qu’un déclencheur choisi provoque l’émission d’une commande de l’attaquant. L’agent qui utilise le modèle exécute alors cette commande avec ses propres droits. Les travaux ont été rapportés par The Hacker News le 11 novembre 2026 ; Microsoft a publié ses recommandations le 10 novembre."
+        },
+        {
+          "type": "heading",
+          "level": 2,
+          "text": "Comment fonctionne l’attaque"
+        },
+        {
+          "type": "list",
+          "ordered": false,
+          "items": [
+            "Aucun réentraînement : les réglages des neurones sont calculés directement, puis ajustés par quelques centaines de pas d’entraînement portant sur ces seuls neurones.",
+            "Chaque neurone modifié impose un jeton de la commande ; il faut donc environ un neurone par jeton.",
+            "Le déclencheur peut figurer dans la demande de l’utilisateur ou plus tard dans le résultat d’un outil.",
+            "Le reste du fichier du modèle et le code qui l’exécute ne changent pas ; l’attaquant doit toutefois pouvoir modifier les poids."
+          ]
+        },
+        {
+          "type": "paragraph",
+          "text": "Dans la démonstration, un modèle Nemotron-Terminal-8B portant dix neurones modifiés devait réparer un serveur Node.js. Il s’est comporté normalement pendant trois tours ; lorsque le serveur a renvoyé une erreur de connexion, il a produit une commande téléchargeant et lançant un script distant, exécuté avec les droits administrateur dans le conteneur de test. Les chercheurs insistent : les dégâts dépendent de ce que l’agent a le droit de faire, non de la taille de la modification."
+        },
+        {
+          "type": "heading",
+          "level": 2,
+          "text": "Résultats mesurés"
+        },
+        {
+          "type": "table",
+          "headers": [
+            "Modèle",
+            "Configuration",
+            "Résultat"
+          ],
+          "rows": [
+            [
+              "Nemotron-Terminal-8B",
+              "7 neurones sur plus de 12 000 dans la dernière couche, ajustés avec 23 sessions d’exemple",
+              "commande émise dans au moins 98,8 % des sessions déclenchées"
+            ],
+            [
+              "Qwen3.6-27B",
+              "version ajustée, six neurones",
+              "succès entre 51 % et 99,5 % selon la configuration"
+            ],
+            [
+              "Gemma-4-31B-IT",
+              "version ajustée",
+              "succès entre 51 % et 99,5 % selon la configuration"
+            ]
+          ]
+        },
+        {
+          "type": "paragraph",
+          "text": "Ces taux mesurent la fréquence d’émission de la commande, non la réussite d’une attaque complète : les tests utilisaient une commande inoffensive qui affiche un marqueur. Les modèles modifiés conservent l’essentiel de leurs performances ordinaires ; sur le banc d’essai Terminal-Bench, le taux de réussite d’un Qwen modifié passe de 46,59 % à 42,05 %."
+        },
+        {
+          "type": "diagram",
+          "svg": "<svg xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"0 0 640 200\" font-family=\"system-ui,sans-serif\"><rect width=\"640\" height=\"200\" rx=\"14\" fill=\"#f1f5f9\"/><text x=\"320.0\" y=\"30\" text-anchor=\"middle\" font-size=\"15\" font-weight=\"700\" fill=\"#0f172a\">Principe de l’attaque Lazarus</text><rect x=\"20\" y=\"55\" width=\"129\" height=\"110\" rx=\"10\" fill=\"#fff\" stroke=\"#334155\" stroke-width=\"1.5\"/><text x=\"84\" y=\"90\" text-anchor=\"middle\" font-size=\"13\" font-weight=\"700\" fill=\"#0f172a\">Poids du modèle</text><text x=\"84\" y=\"110\" text-anchor=\"middle\" font-size=\"12\" font-weight=\"400\" fill=\"#0f172a\">modifiés (&lt;10 neurones)</text><path d=\"M153 110h20m-6 -6l6 6l-6 6\" stroke=\"#334155\" stroke-width=\"2\" fill=\"none\"/><rect x=\"177\" y=\"55\" width=\"129\" height=\"110\" rx=\"10\" fill=\"#fff\" stroke=\"#334155\" stroke-width=\"1.5\"/><text x=\"242\" y=\"90\" text-anchor=\"middle\" font-size=\"13\" font-weight=\"700\" fill=\"#0f172a\">Déclencheur</text><text x=\"242\" y=\"110\" text-anchor=\"middle\" font-size=\"12\" font-weight=\"400\" fill=\"#0f172a\">dans la demande</text><path d=\"M310 110h20m-6 -6l6 6l-6 6\" stroke=\"#334155\" stroke-width=\"2\" fill=\"none\"/><rect x=\"334\" y=\"55\" width=\"129\" height=\"110\" rx=\"10\" fill=\"#fff\" stroke=\"#334155\" stroke-width=\"1.5\"/><text x=\"398\" y=\"90\" text-anchor=\"middle\" font-size=\"13\" font-weight=\"700\" fill=\"#0f172a\">Commande</text><text x=\"398\" y=\"110\" text-anchor=\"middle\" font-size=\"12\" font-weight=\"400\" fill=\"#0f172a\">générée</text><path d=\"M467 110h20m-6 -6l6 6l-6 6\" stroke=\"#334155\" stroke-width=\"2\" fill=\"none\"/><rect x=\"491\" y=\"55\" width=\"129\" height=\"110\" rx=\"10\" fill=\"#fff\" stroke=\"#334155\" stroke-width=\"1.5\"/><text x=\"556\" y=\"90\" text-anchor=\"middle\" font-size=\"13\" font-weight=\"700\" fill=\"#0f172a\">Agent exécute</text><text x=\"556\" y=\"110\" text-anchor=\"middle\" font-size=\"12\" font-weight=\"400\" fill=\"#0f172a\">avec ses droits</text></svg>",
+          "alt": "Schéma en quatre étapes : modification de moins de dix neurones, déclencheur, génération d’une commande, exécution par l’agent.",
+          "caption": "Principe simplifié de Lazarus, d’après la description de The Hacker News."
+        },
+        {
+          "type": "heading",
+          "level": 2,
+          "text": "Détection et parades"
+        },
+        {
+          "type": "paragraph",
+          "text": "Détecter une telle altération n’est pas simple. La méthode la plus fiable consiste à comparer le fichier à ses poids d’origine : les ajustements légitimes et les versions quantifiées changent beaucoup de poids à la fois, alors qu’une édition Lazarus modifie fortement quelques vecteurs. Un détecteur entraîné sur ces modifications a repéré 91,4 % des fichiers édités sans copie de référence, mais a aussi signalé à tort 9,7 % des fichiers sains, sur un jeu de test modeste (35 fichiers édités, 31 sains). Faire inspecter les poids par d’autres modèles d’IA a donné de mauvais résultats : Claude Opus 5.5 a jugé sains 41 % des fichiers modifiés. Les chercheurs reconnaissent qu’aucune analyse ne peut garantir qu’un modèle est sûr."
+        },
+        {
+          "type": "paragraph",
+          "text": "Les recommandations de Microsoft : comparer chaque fichier à son modèle de base déclaré, ne télécharger que depuis l’éditeur d’origine en vérifiant les empreintes, conserver les modèles validés dans un registre privé, donner à chaque agent le minimum de droits, exécuter le code généré dans un bac à sable avec un réseau limité et exiger une validation humaine pour les actions à fort impact. Microsoft indique n’avoir observé aucun acteur malveillant utilisant cette technique."
+        },
+        {
+          "type": "usecases",
+          "title": "Exemples d'utilisation",
+          "items": [
+            {
+              "icon": "📦",
+              "title": "Une équipe qui déploie un modèle ouvert",
+              "text": "Elle récupère le modèle uniquement chez l’éditeur d’origine, vérifie son empreinte et compare ses poids à ceux de la version de référence avant mise en production."
+            },
+            {
+              "icon": "🧪",
+              "title": "Un développeur d’agents",
+              "text": "Il exécute les commandes générées dans un bac à sable sans accès au réseau et demande une confirmation avant toute commande de téléchargement."
+            },
+            {
+              "icon": "🏦",
+              "title": "Une direction des risques",
+              "text": "Elle impose un registre interne de modèles approuvés et interdit aux agents de récupérer directement des modèles sur des plateformes publiques."
+            }
+          ]
+        },
+        {
+          "type": "timeline",
+          "title": "D'où l'on vient, où l'on va",
+          "items": [
+            {
+              "label": "6 octobre 2026",
+              "text": "Des chercheurs de ProjectDiscovery montrent qu’un modèle Qwen ajusté peut faire exécuter un script par Codex CLI quand une phrase déclencheuse apparaît."
+            },
+            {
+              "label": "10 novembre 2026",
+              "text": "Microsoft publie ses recommandations de défense."
+            },
+            {
+              "label": "À venir",
+              "text": "Microsoft prépare un outil d’évaluation offensive, étudie l’analyse des poids dans Foundry et prévoit de signer les modèles pour en attester l’origine."
+            }
+          ]
+        },
+        {
+          "type": "opinion",
+          "title": "Notre avis",
+          "paragraphs": [
+            "Lazarus déplace le risque : le danger ne vient pas d’un message malveillant adressé à l’agent, mais du fichier de modèle lui-même. Les protections habituelles contre l’injection de requête ne servent à rien si le comportement est inscrit dans les poids. La limite principale reste que l’attaquant doit déjà pouvoir modifier le modèle, ce qui suppose un initié, un compte volé ou une publication piégée sur une plateforme publique.",
+            "D’ici un à trois ans, la signature des modèles et les registres privés devraient devenir aussi banals que la signature des paquets logiciels. Les entreprises qui laissent leurs agents télécharger des modèles tiers sans contrôle prennent le même risque que celles qui installaient n’importe quel paquet en production : c’est un avis, appuyé sur l’analogie avec la chaîne d’approvisionnement logicielle."
+          ],
+          "verdict": "Le modèle devient un composant à authentifier, au même titre qu’une bibliothèque."
+        },
+        {
+          "type": "callout",
+          "title": "À retenir",
+          "text": "Traitez les modèles tiers comme du code non fiable : origine vérifiée, empreinte contrôlée, droits minimaux et bac à sable pour les agents."
+        }
+      ],
+      "cover": {
+        "url": "https://blogger.googleusercontent.com/img/b/R29vZ2xl/AVvXsEh3GT7PJRzHrU1jqZ7Qt0MYIOeL97NYpY4E-aY-Jh9WrLRSLpjaLEIjeAdOagTcUfo7MU9yXmk7HPgPHuGKkEidZkw-2Ojtty9z1PX2Qmmj-h0Kk3X-3VsIg6Lggpoblf-1SE5GHU9LB-P6WeOrfNVgIl1e7q0FxS6obF07BEd8HVcXgSyd_7ZSV8hB01E/s1600/ms-ai-backdoor.jpg",
+        "alt": "Illustration d’un réseau de neurones modifié",
+        "credit": "thehackernews.com"
+      }
+    },
+    {
+      "id": "google-xse-serveur-xla-sans-python",
+      "category": "dev",
+      "title": "XSE : Google ouvre le code d’un moteur de service de modèles en C++ qui se passe de Python au moment de servir",
+      "summary": "Le moteur XLA Serving Engine traiterait plus de six millions de requêtes par seconde chez Google et promet deux à cinq fois le débit d’un serveur Python optimisé.",
+      "tags": [
+        "Google",
+        "XLA",
+        "OpenXLA",
+        "C++",
+        "JAX"
+      ],
+      "importance": 3,
+      "readingMinutes": 4,
+      "publishedAt": "2026-11-11T18:16:33+01:00",
+      "sourceDate": "2026-11-11",
+      "icon": "⚡",
+      "illustration": {
+        "svg": "<svg xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"0 0 640 360\"><defs><linearGradient id=\"g\" x1=\"0\" y1=\"0\" x2=\"1\" y2=\"1\"><stop offset=\"0\" stop-color=\"hsl(265,65%,32%)\"/><stop offset=\"1\" stop-color=\"hsl(305,70%,52%)\"/></linearGradient></defs><rect width=\"640\" height=\"360\" fill=\"url(#g)\"/><g fill=\"none\" stroke=\"#fff\" stroke-width=\"6\" stroke-linecap=\"round\" stroke-linejoin=\"round\" opacity=\".92\"><rect x=\"140\" y=\"110\" width=\"150\" height=\"140\" rx=\"12\"/><rect x=\"350\" y=\"110\" width=\"150\" height=\"140\" rx=\"12\"/><path d=\"M290 180h60m-14 -14l14 14l-14 14\"/><path d=\"M180 160h70M180 190h50M390 160h70M390 190h40\"/></g></svg>"
+      },
+      "sources": [
+        {
+          "title": "Google gooses Python AI performance by... removing Python",
+          "url": "https://www.theregister.com/devops/2026/11/11/google-gooses-python-ai-performance-by-removing-python/5308995",
+          "publisher": "The Register"
+        }
+      ],
+      "blocks": [
+        {
+          "type": "paragraph",
+          "text": "Servir un modèle d’apprentissage automatique en production, c’est répondre à des millions de requêtes avec une latence minimale. Dans bien des équipes, l’entraînement et le service restent écrits en Python, avec ses avantages de productivité et ses coûts d’exécution. Google vient d’ouvrir le code de **XSE** (XLA Serving Engine), un composant qui retire l’interpréteur Python de la boucle de service. L’annonce a été relayée par The Register le 11 novembre 2026."
+        },
+        {
+          "type": "heading",
+          "level": 2,
+          "text": "À quoi sert XSE, et à quoi il ne sert pas"
+        },
+        {
+          "type": "paragraph",
+          "text": "XSE vise les modèles de taille modeste et spécialisés : classement, recommandation, vectorisation, vision. Il n’est pas conçu pour l’inférence de grands modèles de langage, que des outils comme vLLM ou SGLang servent mieux, selon l’article. Google affirme qu’il traite déjà plus de six millions de requêtes par seconde pour des services comme YouTube Shorts, Google Ads et la recherche. Le projet fait partie d’OpenXLA, soutenu par plusieurs acteurs de l’industrie."
+        },
+        {
+          "type": "heading",
+          "level": 2,
+          "text": "Du code Python au binaire natif"
+        },
+        {
+          "type": "list",
+          "ordered": true,
+          "items": [
+            "Les data scientists écrivent le modèle en Python avec JAX.",
+            "Un outil d’export empaquette les calculs au format StableHLO, une représentation intermédiaire portable, avec les poids entraînés, dans un « XLA SavedModel ».",
+            "Un moteur d’exécution en C++ compile ces calculs avec XLA en code natif pour le matériel cible.",
+            "Au moment du service, aucun interpréteur Python ne tourne."
+          ]
+        },
+        {
+          "type": "keyvalue",
+          "items": [
+            {
+              "label": "Débit annoncé",
+              "value": "deux à cinq fois celui du meilleur serveur Python optimisé de Google, sur des requêtes courtes"
+            },
+            {
+              "label": "Mémoire",
+              "value": "un quart de celle du serveur Python, selon Google"
+            },
+            {
+              "label": "Matériel",
+              "value": "GPU et CPU, avec des partenariats Arm et Intel ; les TPU de Google restent favorisés"
+            },
+            {
+              "label": "Évolution prévue",
+              "value": "intégration de TorchTPU pour exporter des modèles PyTorch"
+            },
+            {
+              "label": "Licence",
+              "value": "non précisée dans l’article"
+            }
+          ]
+        },
+        {
+          "type": "paragraph",
+          "text": "Ces chiffres proviennent de tests de Google sur des requêtes courtes ; ils n’ont pas fait l’objet, dans la source, d’une reproduction indépendante. L’article ne donne pas non plus d’adresse de dépôt : il renvoie à la documentation sur xla-serving.readthedocs.io et à un billet du blog open source de Google. Nathan Beach, directeur de gestion de produit chez Google, a présenté le projet sur LinkedIn en soulignant que ces modèles « ne sont pas là pour une conversation décontractée »."
+        },
+        {
+          "type": "diagram",
+          "svg": "<svg xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"0 0 640 200\" font-family=\"system-ui,sans-serif\"><rect width=\"640\" height=\"200\" rx=\"14\" fill=\"#f1f5f9\"/><text x=\"320.0\" y=\"30\" text-anchor=\"middle\" font-size=\"15\" font-weight=\"700\" fill=\"#0f172a\">De JAX à un serveur natif</text><rect x=\"20\" y=\"55\" width=\"129\" height=\"110\" rx=\"10\" fill=\"#fff\" stroke=\"#334155\" stroke-width=\"1.5\"/><text x=\"84\" y=\"90\" text-anchor=\"middle\" font-size=\"13\" font-weight=\"700\" fill=\"#0f172a\">Modèle JAX</text><text x=\"84\" y=\"110\" text-anchor=\"middle\" font-size=\"12\" font-weight=\"400\" fill=\"#0f172a\">en Python</text><path d=\"M153 110h20m-6 -6l6 6l-6 6\" stroke=\"#334155\" stroke-width=\"2\" fill=\"none\"/><rect x=\"177\" y=\"55\" width=\"129\" height=\"110\" rx=\"10\" fill=\"#fff\" stroke=\"#334155\" stroke-width=\"1.5\"/><text x=\"242\" y=\"90\" text-anchor=\"middle\" font-size=\"13\" font-weight=\"700\" fill=\"#0f172a\">Export</text><text x=\"242\" y=\"110\" text-anchor=\"middle\" font-size=\"12\" font-weight=\"400\" fill=\"#0f172a\">StableHLO + poids</text><path d=\"M310 110h20m-6 -6l6 6l-6 6\" stroke=\"#334155\" stroke-width=\"2\" fill=\"none\"/><rect x=\"334\" y=\"55\" width=\"129\" height=\"110\" rx=\"10\" fill=\"#fff\" stroke=\"#334155\" stroke-width=\"1.5\"/><text x=\"398\" y=\"90\" text-anchor=\"middle\" font-size=\"13\" font-weight=\"700\" fill=\"#0f172a\">Compilation</text><text x=\"398\" y=\"110\" text-anchor=\"middle\" font-size=\"12\" font-weight=\"400\" fill=\"#0f172a\">XLA, code natif</text><path d=\"M467 110h20m-6 -6l6 6l-6 6\" stroke=\"#334155\" stroke-width=\"2\" fill=\"none\"/><rect x=\"491\" y=\"55\" width=\"129\" height=\"110\" rx=\"10\" fill=\"#fff\" stroke=\"#334155\" stroke-width=\"1.5\"/><text x=\"556\" y=\"90\" text-anchor=\"middle\" font-size=\"13\" font-weight=\"700\" fill=\"#0f172a\">Service C++</text><text x=\"556\" y=\"110\" text-anchor=\"middle\" font-size=\"12\" font-weight=\"400\" fill=\"#0f172a\">sans interpréteur</text></svg>",
+          "alt": "Schéma en quatre étapes : modèle JAX, export StableHLO, compilation XLA, service en C++.",
+          "caption": "Chaîne simplifiée de XSE, d’après The Register."
+        },
+        {
+          "type": "usecases",
+          "title": "Exemples d'utilisation",
+          "items": [
+            {
+              "icon": "📈",
+              "title": "Un service de recommandation",
+              "text": "Il remplace un serveur Python par XSE pour absorber les pics de trafic avec moins de mémoire, tout en conservant JAX pour l’entraînement."
+            },
+            {
+              "icon": "🖼️",
+              "title": "Une application de vision",
+              "text": "Elle exporte un modèle de classification d’images et le sert sur CPU avec une latence plus régulière, sans verrou global de l’interpréteur."
+            },
+            {
+              "icon": "🧮",
+              "title": "Une équipe de classement publicitaire",
+              "text": "Elle mesure d’abord le gain sur ses requêtes courtes avant de généraliser, les gains annoncés dépendant du type de charge."
+            }
+          ]
+        },
+        {
+          "type": "timeline",
+          "title": "D'où l'on vient, où l'on va",
+          "items": [
+            {
+              "label": "Jusqu’à 2026",
+              "text": "Google exploite en interne des serveurs de modèles pour ses grands services, dont certains en Python."
+            },
+            {
+              "label": "11 novembre 2026",
+              "text": "Ouverture du code de XSE et rattachement à OpenXLA."
+            },
+            {
+              "label": "À venir",
+              "text": "Intégration de TorchTPU pour les utilisateurs de PyTorch ; aucune date n’est donnée."
+            }
+          ]
+        },
+        {
+          "type": "opinion",
+          "title": "Notre avis",
+          "paragraphs": [
+            "L’intérêt de XSE est de rappeler qu’une bonne partie de l’inférence en production n’est pas du grand modèle de langage, mais des milliers de petits modèles très sollicités où chaque milliseconde et chaque mégaoctet comptent. Retirer Python de la boucle chaude est une optimisation logique, pas une révolution. Les limites sont claires : dépendance à l’écosystème JAX et XLA, chiffres fournis par Google et licence non précisée dans la source.",
+            "À un à trois ans, on peut anticiper une coexistence : Python pour l’entraînement et l’expérimentation, un moteur compilé pour le service. Si l’intégration PyTorch tient ses promesses, ce modèle pourrait s’étendre bien au-delà des services de Google. C’est une projection, non une certitude."
+          ],
+          "verdict": "Une bonne nouvelle pour qui sert des modèles légers à grande échelle, à vérifier sur sa propre charge."
+        },
+        {
+          "type": "callout",
+          "title": "À retenir",
+          "text": "Avant d’adopter XSE, mesurez-le sur vos propres requêtes et vérifiez la licence dans le dépôt : l’article source ne la précise pas."
+        }
+      ],
+      "cover": {
+        "url": "https://image.theregister.com/1682491.jpg?imageId=1682491&x=0&y=0&cropw=100&croph=100&panox=0&panoy=0&panow=100&panoh=100&width=1200&height=683",
+        "alt": "Illustration d’un serveur de modèles",
+        "credit": "theregister.com"
+      }
+    },
+    {
+      "id": "openai-control-room-interrupteur-arret",
+      "category": "ia",
+      "title": "Control Room : OpenAI présente un interrupteur d’arrêt pour ses modèles de recherche, avec un délai de 35 secondes",
+      "summary": "Le système centralise le suivi des charges de travail de la recherche et peut en interrompre la sortie. OpenAI vise un arrêt immédiat, mais le délai actuel reste un point faible.",
+      "tags": [
+        "OpenAI",
+        "Control Room",
+        "sûreté de l’IA",
+        "agents",
+        "infrastructure"
+      ],
+      "importance": 4,
+      "readingMinutes": 4,
+      "publishedAt": "2026-11-11T18:16:33+01:00",
+      "sourceDate": "2026-11-11",
+      "icon": "🛑",
+      "illustration": {
+        "svg": "<svg xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"0 0 640 360\"><defs><linearGradient id=\"g\" x1=\"0\" y1=\"0\" x2=\"1\" y2=\"1\"><stop offset=\"0\" stop-color=\"hsl(320,65%,32%)\"/><stop offset=\"1\" stop-color=\"hsl(0,70%,52%)\"/></linearGradient></defs><rect width=\"640\" height=\"360\" fill=\"url(#g)\"/><g fill=\"none\" stroke=\"#fff\" stroke-width=\"6\" stroke-linecap=\"round\" stroke-linejoin=\"round\" opacity=\".92\"><circle cx=\"320\" cy=\"180\" r=\"90\"/><path d=\"M320 100v80\"/><path d=\"M262 130a90 90 0 1 0 116 0\" /></g></svg>"
+      },
+      "sources": [
+        {
+          "title": "OpenAI builds a kill switch for its research models",
+          "url": "https://www.theregister.com/ai-and-ml/2026/11/11/openai-builds-a-kill-switch-for-its-research-models/5309006",
+          "publisher": "The Register"
+        }
+      ],
+      "blocks": [
+        {
+          "type": "paragraph",
+          "text": "Que faire quand un agent d’IA se comporte mal et qu’il faut l’arrêter tout de suite ? Le 10 novembre 2026, OpenAI a présenté sur son site **Control Room**, un système qu’elle décrit comme un moyen central de suivre les charges de travail de ses modèles sur l’infrastructure de recherche, et de les interrompre. The Register, qui a rapporté l’annonce le 11 novembre, y voit un interrupteur d’arrêt, un « kill switch »."
+        },
+        {
+          "type": "heading",
+          "level": 2,
+          "text": "Ce que fait Control Room"
+        },
+        {
+          "type": "keyvalue",
+          "items": [
+            {
+              "label": "Fonction",
+              "value": "suivre les charges de travail des modèles de recherche et pouvoir les arrêter"
+            },
+            {
+              "label": "Délai d’arrêt",
+              "value": "environ 35 secondes après la décision d’arrêter"
+            },
+            {
+              "label": "Cause du délai",
+              "value": "une couche de cache pour l’autorisation d’inférence, ajoutée pour absorber un fort trafic"
+            },
+            {
+              "label": "Objectif annoncé",
+              "value": "ramener le délai à zéro pour une interruption instantanée"
+            },
+            {
+              "label": "Si Control Room tombe",
+              "value": "la production du modèle s’arrête (comportement « sûr par défaut »)"
+            },
+            {
+              "label": "Déploiement",
+              "value": "en place sur l’infrastructure de recherche ; extension annoncée « dans les prochains mois »"
+            }
+          ]
+        },
+        {
+          "type": "paragraph",
+          "text": "OpenAI précise que sa pile de service externe, celle qui sert les produits au public, est déjà plus centralisée et peut retirer rapidement des déploiements : Control Room ne prétend donc pas la remplacer. Il cible l’endroit « où le besoin est le plus grand », c’est-à-dire les laboratoires de recherche, où des modèles tournent avec moins de garde-fous que dans les produits. L’entreprise indique aussi qu’elle compte l’associer à une surveillance des comportements non alignés et des intrusions."
+        },
+        {
+          "type": "heading",
+          "level": 2,
+          "text": "Pourquoi maintenant, et pourquoi 35 secondes comptent"
+        },
+        {
+          "type": "paragraph",
+          "text": "The Register rappelle qu’en 2019 OpenAI avait retenu un modèle par crainte de mauvais usages, avant que les problèmes ne surviennent. Le média évoque des incidents récents impliquant des agents autonomes, sans affirmer qu’ils expliquent le calendrier de l’annonce. OpenAI n’a pas expliqué pourquoi un tel dispositif n’existait pas plus tôt. Quant au délai de 35 secondes, il peut sembler court pour un humain, mais un agent peut exécuter de nombreuses actions en quelques secondes : l’écart entre la décision et l’arrêt effectif est donc précisément la zone de risque."
+        },
+        {
+          "type": "diagram",
+          "svg": "<svg xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"0 0 640 200\" font-family=\"system-ui,sans-serif\"><rect width=\"640\" height=\"200\" rx=\"14\" fill=\"#f1f5f9\"/><text x=\"320.0\" y=\"30\" text-anchor=\"middle\" font-size=\"15\" font-weight=\"700\" fill=\"#0f172a\">Chaîne d’arrêt de Control Room</text><rect x=\"20\" y=\"55\" width=\"129\" height=\"110\" rx=\"10\" fill=\"#fff\" stroke=\"#334155\" stroke-width=\"1.5\"/><text x=\"84\" y=\"90\" text-anchor=\"middle\" font-size=\"13\" font-weight=\"700\" fill=\"#0f172a\">Décision</text><text x=\"84\" y=\"110\" text-anchor=\"middle\" font-size=\"12\" font-weight=\"400\" fill=\"#0f172a\">d’arrêt</text><path d=\"M153 110h20m-6 -6l6 6l-6 6\" stroke=\"#334155\" stroke-width=\"2\" fill=\"none\"/><rect x=\"177\" y=\"55\" width=\"129\" height=\"110\" rx=\"10\" fill=\"#fff\" stroke=\"#334155\" stroke-width=\"1.5\"/><text x=\"242\" y=\"90\" text-anchor=\"middle\" font-size=\"13\" font-weight=\"700\" fill=\"#0f172a\">Autorisation</text><text x=\"242\" y=\"110\" text-anchor=\"middle\" font-size=\"12\" font-weight=\"400\" fill=\"#0f172a\">en cache (≈ 35 s)</text><path d=\"M310 110h20m-6 -6l6 6l-6 6\" stroke=\"#334155\" stroke-width=\"2\" fill=\"none\"/><rect x=\"334\" y=\"55\" width=\"129\" height=\"110\" rx=\"10\" fill=\"#fff\" stroke=\"#334155\" stroke-width=\"1.5\"/><text x=\"398\" y=\"90\" text-anchor=\"middle\" font-size=\"13\" font-weight=\"700\" fill=\"#0f172a\">Arrêt de la</text><text x=\"398\" y=\"110\" text-anchor=\"middle\" font-size=\"12\" font-weight=\"400\" fill=\"#0f172a\">sortie du modèle</text><path d=\"M467 110h20m-6 -6l6 6l-6 6\" stroke=\"#334155\" stroke-width=\"2\" fill=\"none\"/><rect x=\"491\" y=\"55\" width=\"129\" height=\"110\" rx=\"10\" fill=\"#fff\" stroke=\"#334155\" stroke-width=\"1.5\"/><text x=\"556\" y=\"90\" text-anchor=\"middle\" font-size=\"13\" font-weight=\"700\" fill=\"#0f172a\">Panne du système</text><text x=\"556\" y=\"110\" text-anchor=\"middle\" font-size=\"12\" font-weight=\"400\" fill=\"#0f172a\">= arrêt par défaut</text></svg>",
+          "alt": "Schéma en quatre étapes : décision d’arrêt, délai lié au cache d’autorisation, arrêt de la sortie, arrêt par défaut en cas de panne.",
+          "caption": "Fonctionnement simplifié de Control Room, d’après The Register ; le délai de 35 secondes est celui annoncé."
+        },
+        {
+          "type": "usecases",
+          "title": "Exemples d'utilisation",
+          "items": [
+            {
+              "icon": "🧪",
+              "title": "Un laboratoire de recherche",
+              "text": "Il lance des dizaines d’expériences d’agents ; en cas de comportement imprévu, un opérateur interrompt l’ensemble depuis un point unique plutôt que machine par machine."
+            },
+            {
+              "icon": "🏢",
+              "title": "Une entreprise qui déploie des agents",
+              "text": "Elle s’inspire de ce principe : un registre central des agents actifs et un bouton d’arrêt testé régulièrement, avec mesure du délai réel."
+            },
+            {
+              "icon": "📋",
+              "title": "Un auditeur de sûreté",
+              "text": "Il demande la preuve du délai d’arrêt de bout en bout et vérifie que la panne du dispositif entraîne bien un arrêt, non une poursuite des tâches."
+            }
+          ]
+        },
+        {
+          "type": "timeline",
+          "title": "D'où l'on vient, où l'on va",
+          "items": [
+            {
+              "label": "2019",
+              "text": "OpenAI retient un modèle de langage par crainte d’usages malveillants, selon The Register."
+            },
+            {
+              "label": "10 novembre 2026",
+              "text": "Annonce de Control Room, déjà déployé sur l’infrastructure de recherche."
+            },
+            {
+              "label": "Prochains mois",
+              "text": "Extension du système et ajout de la surveillance des comportements non alignés ; objectif de délai nul."
+            }
+          ]
+        },
+        {
+          "type": "opinion",
+          "title": "Notre avis",
+          "paragraphs": [
+            "L’idée d’un arrêt centralisé et « sûr par défaut » est saine : un interrupteur qui fonctionne mal quand le reste tombe en panne ne vaut rien. Mais l’annonce reste une déclaration d’intention. Le délai de 35 secondes, l’absence d’explication sur le retard et le périmètre limité à la recherche laissent penser qu’il s’agit d’un premier jalon, pas d’une garantie. Sans audit externe, on ne peut qu’en croire le constructeur.",
+            "Sur un à trois ans, des dispositifs de ce type devraient devenir une attente standard pour tout laboratoire exploitant des agents autonomes, voire une exigence de conformité. Reste à savoir qui vérifiera leur efficacité réelle : c’est une opinion, fondée sur le contexte réglementaire qui se met en place, non un fait."
+          ],
+          "verdict": "Un pas dans la bonne direction, qui vaudra surtout par ses délais mesurés et vérifiés."
+        },
+        {
+          "type": "callout",
+          "title": "À retenir",
+          "text": "Un interrupteur d’arrêt se juge à son délai réel et à son comportement en cas de panne ; ce sont les deux informations à demander à tout fournisseur d’agents."
+        }
+      ],
+      "cover": {
+        "url": "https://image.theregister.com/228453.jpg?imageId=228453&x=0&y=0&cropw=100&croph=100&panox=0&panoy=0&panow=100&panoh=100&width=1200&height=683",
+        "alt": "Illustration d’un interrupteur d’arrêt pour l’IA",
+        "credit": "theregister.com"
+      }
+    }
+  ]
+}
