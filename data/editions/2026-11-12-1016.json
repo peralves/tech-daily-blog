@@ -1,0 +1,891 @@
+{
+ "schemaVersion": "1.0",
+ "date": "2026-11-12",
+ "generatedAt": "2026-11-12T09:16:50+00:00",
+ "title": "Tech du 12 novembre 2026 : faille Apache HTTP/2, secrets de CI volés sur GitHub, Node.js, .NET 11, Podman 6.2 et applications Grok exposées",
+ "summary": "Une faille critique dans le module HTTP/2 d'Apache, une campagne de vol de secrets sur 4 837 comptes GitHub, seize correctifs pour Node.js, la sortie de .NET 11, Podman 6.2 et plus de 35 000 applications Grok accessibles à tous.",
+ "highlights": [
+  "Apache : faille de mod_http2 notée 9,8, correctif en 2.4.71.",
+  "GitHub : 4 837 comptes détournés, des secrets de CI visés dans au moins 1 806 dépôts.",
+  "Node.js : seize failles corrigées, dont des fuites de mémoire HTTP/2 et TLS.",
+  "Sortie de .NET 11 et C# 15 ; .NET 8 et 9 ne sont plus supportés.",
+  "Grok : 35 578 applications ouvertes sans connexion, certaines avec des données internes."
+ ],
+ "meta": {
+  "generator": "claude-scheduled-task"
+ },
+ "posts": [
+  {
+   "id": "apache-http2-mod-http2-execution-code-distance",
+   "category": "cybersecurite",
+   "title": "Apache HTTP Server : une faille critique de mod_http2 permet l'exécution de code à distance, la version 2.4.71 la corrige",
+   "summary": "Un défaut du module HTTP/2 d'Apache, noté 9,8 sur 10, touche les versions 2.4.55 à 2.4.70. Le correctif est publié ; à défaut, il faut désactiver HTTP/2.",
+   "tags": [
+    "Apache",
+    "mod_http2",
+    "CVE-2026-119618",
+    "HTTP/2",
+    "correctif"
+   ],
+   "importance": 5,
+   "readingMinutes": 5,
+   "sourceDate": "2026-11-12",
+   "icon": "🪶",
+   "illustration": {
+    "svg": "<svg xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"0 0 640 360\"><defs><linearGradient id=\"g\" x1=\"0\" y1=\"0\" x2=\"1\" y2=\"1\"><stop offset=\"0\" stop-color=\"hsl(175,65%,30%)\"/><stop offset=\"1\" stop-color=\"hsl(215,70%,50%)\"/></linearGradient></defs><rect width=\"640\" height=\"360\" fill=\"url(#g)\"/><g fill=\"none\" stroke=\"#fff\" stroke-width=\"7\" stroke-linecap=\"round\" stroke-linejoin=\"round\" opacity=\".93\"><rect x=\"220\" y=\"95\" width=\"200\" height=\"50\" rx=\"8\"/><rect x=\"220\" y=\"160\" width=\"200\" height=\"50\" rx=\"8\"/><rect x=\"220\" y=\"225\" width=\"200\" height=\"50\" rx=\"8\"/><circle cx=\"250\" cy=\"120\" r=\"5\"/><circle cx=\"250\" cy=\"185\" r=\"5\"/><circle cx=\"250\" cy=\"250\" r=\"5\"/></g></svg>"
+   },
+   "cover": {
+    "url": "https://blogger.googleusercontent.com/img/b/R29vZ2xl/AVvXsEjLpi_uN6PmG2Gn1agNMsOrsCp324eH-utKkDl_SPe32ggjcWFPjxZSyeA1KvAtvI9SQ4VAN_zssvdJLJ59IXE8_-MatPOyFXY-FcwtL7HtfKyW3MtsKwglIe2X62WBOcUkPMv-klM1h8T2EBMWFOWyPG89bfbAHS5byyfXATXN_lUUJWmUGWChekyWxTQ/s1700-nu-rw-lo-l85-e365/apache-http.jpg",
+    "alt": "Logo d'Apache HTTP Server illustrant l'article sur la faille de mod_http2",
+    "credit": "thehackernews.com"
+   },
+   "sources": [
+    {
+     "title": "Critical Apache HTTP/2 Flaw Could Let Unauthenticated Attackers Execute Code Remotely",
+     "url": "https://thehackernews.com/2026/11/critical-apache-http2-flaw-could-let.html",
+     "publisher": "The Hacker News"
+    }
+   ],
+   "blocks": [
+    {
+     "type": "paragraph",
+     "text": "Le serveur web **Apache HTTP Server** fait tourner une part considérable des sites du monde. Le 12 novembre 2026, The Hacker News a détaillé une vulnérabilité critique, référencée **CVE-2026-119618**, qui touche son module `mod_http2`. Un attaquant capable de joindre le serveur, sans identifiant, pourrait y exécuter du code à distance et prendre le contrôle du processus du serveur. Red Hat lui attribue la note maximale de gravité de 9,8 sur 10 selon l'échelle CVSS, tout en la classant « importante » plutôt que « critique » sur ses propres distributions RHEL 9 et 10."
+    },
+    {
+     "type": "heading",
+     "level": 2,
+     "text": "Les versions concernées et les correctifs"
+    },
+    {
+     "type": "list",
+     "ordered": false,
+     "items": [
+      "**Apache HTTP Server** : versions 2.4.55 à 2.4.70 incluses, uniquement si HTTP/2 est activé.",
+      "**mod_h2 autonome** (compilation distincte, hébergée sur GitHub) : versions 2.0.8 à 2.0.42. Le projet est archivé et en lecture seule, aucun correctif n'a été publié.",
+      "**Version corrigée** : Apache HTTP Server 2.4.71, publiée la veille de l'article. Elle corrige aussi un plantage de `mod_md` jugé important et un écrasement d'un octet dans la pile de `mod_vhost_alias`, de gravité faible.",
+      "**Distributions** : Red Hat a publié des paquets corrigés pour RHEL 9 et 10 (avis RHSA-2026:98981 et RHSA-2026:98978) ; Debian propose la version 2.4.71-1 dans sa branche instable. Les versions stables de Debian (bookworm, trixie) restent vulnérables à ce stade, et Amazon Linux attend encore son correctif. RHEL 6, 7 et 8 ne sont pas concernés."
+     ]
+    },
+    {
+     "type": "heading",
+     "level": 2,
+     "text": "Un mécanisme peu détaillé, un risque d'exploitation à surveiller"
+    },
+    {
+     "type": "paragraph",
+     "text": "L'article ne décrit pas le défaut technique lui-même, ce qui est courant tant que les correctifs ne sont pas largement déployés. On sait en revanche comment il a été découvert : l'outil d'analyse « OSS Scanner » d'Anthropic l'a signalé à Apache le 26 octobre 2026, et deux chercheurs de Google Cloud Vulnerability Research, Anthony Weems et Simon Scannell, l'ont également rapporté la semaine précédente. L'article ne précise pas s'il s'agit du même signalement."
+    },
+    {
+     "type": "paragraph",
+     "text": "Sur l'exploitation, les sources divergent. Red Hat affirme qu'une recherche publique a démontré un exploit fiable contre une configuration par défaut où `mod_http2` est actif, sans nommer cette recherche. Wiz indiquait pour sa part, le même jour, qu'aucun exploit n'était disponible et qu'aucune exploitation dans la nature n'avait été signalée. Dans ce contexte, la prudence commande de traiter la faille comme exploitable sans attendre. Red Hat précise aussi que ses paquets donnent à chaque flux HTTP/2 son propre allocateur de mémoire, ce qui rend une attaque beaucoup plus difficile sur ses systèmes."
+    },
+    {
+     "type": "diagram",
+     "svg": "<svg xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"0 0 640 210\" font-family=\"system-ui,sans-serif\"><rect width=\"640\" height=\"210\" rx=\"14\" fill=\"#eef2f7\"/><rect x=\"20\" y=\"70\" width=\"134\" height=\"90\" rx=\"10\" fill=\"#fff\" stroke=\"#3b6ea5\" stroke-width=\"2\"/><text x=\"87\" y=\"102\" text-anchor=\"middle\" font-size=\"13\" fill=\"#10243a\"><tspan x=\"87\" dy=\"0\">Requête HTTP/2</tspan><tspan x=\"87\" dy=\"17\">non authentifiée</tspan></text><path d=\"M156 115h16\" stroke=\"#3b6ea5\" stroke-width=\"3\"/><path d=\"M168 108l8 7-8 7\" fill=\"none\" stroke=\"#3b6ea5\" stroke-width=\"3\"/><rect x=\"176\" y=\"70\" width=\"134\" height=\"90\" rx=\"10\" fill=\"#fff\" stroke=\"#3b6ea5\" stroke-width=\"2\"/><text x=\"242\" y=\"102\" text-anchor=\"middle\" font-size=\"13\" fill=\"#10243a\"><tspan x=\"242\" dy=\"0\">mod_http2</tspan><tspan x=\"242\" dy=\"17\">traitement du flux</tspan></text><path d=\"M312 115h16\" stroke=\"#3b6ea5\" stroke-width=\"3\"/><path d=\"M323 108l8 7-8 7\" fill=\"none\" stroke=\"#3b6ea5\" stroke-width=\"3\"/><rect x=\"331\" y=\"70\" width=\"134\" height=\"90\" rx=\"10\" fill=\"#fff\" stroke=\"#3b6ea5\" stroke-width=\"2\"/><text x=\"398\" y=\"102\" text-anchor=\"middle\" font-size=\"13\" fill=\"#10243a\"><tspan x=\"398\" dy=\"0\">Défaut mémoire</tspan><tspan x=\"398\" dy=\"17\">(détail non publié)</tspan></text><path d=\"M468 115h16\" stroke=\"#3b6ea5\" stroke-width=\"3\"/><path d=\"M478 108l8 7-8 7\" fill=\"none\" stroke=\"#3b6ea5\" stroke-width=\"3\"/><rect x=\"486\" y=\"70\" width=\"134\" height=\"90\" rx=\"10\" fill=\"#fff\" stroke=\"#3b6ea5\" stroke-width=\"2\"/><text x=\"553\" y=\"102\" text-anchor=\"middle\" font-size=\"13\" fill=\"#10243a\"><tspan x=\"553\" dy=\"0\">Exécution de</tspan><tspan x=\"553\" dy=\"17\">code à distance</tspan></text></svg>",
+     "alt": "Schéma en quatre étapes : une requête HTTP/2 non authentifiée atteint mod_http2, déclenche un défaut mémoire et peut mener à l'exécution de code.",
+     "caption": "Chemin d'attaque tel que décrit de façon générale par les sources ; le défaut précis n'est pas publié."
+    },
+    {
+     "type": "heading",
+     "level": 2,
+     "text": "Que faire concrètement"
+    },
+    {
+     "type": "paragraph",
+     "text": "La première action consiste à mettre à jour vers Apache 2.4.71 ou vers le paquet corrigé de la distribution. L'avis d'Apache ne propose aucun contournement. Si la mise à jour est impossible à court terme, Wiz conseille de retirer `h2` et `h2c` de la directive `Protocols`, afin de ne garder que `Protocols http/1.1`. Ce réglage peut exister à l'échelle du serveur et dans chaque hôte virtuel : il faut donc vérifier l'ensemble des fichiers de configuration. Pour les installations utilisant le module `mod_h2` autonome, cette désactivation est la seule option, faute de correctif."
+    },
+    {
+     "type": "paragraph",
+     "text": "Une précision utile : la faille de mai 2026 (CVE-2026-23918, corrigée dans la version 2.4.67) ne protège pas contre celle-ci. Un serveur à jour de mai, c'est-à-dire en 2.4.67 à 2.4.70, reste donc vulnérable."
+    },
+    {
+     "type": "usecases",
+     "title": "Exemples d'utilisation",
+     "items": [
+      {
+       "icon": "🏢",
+       "title": "Hébergeur mutualisé",
+       "text": "Un hébergeur qui expose des centaines de sites derrière un même Apache doit corriger en priorité : une seule requête malveillante peut viser le processus commun à tous les clients."
+      },
+      {
+       "icon": "🛒",
+       "title": "Boutique en ligne",
+       "text": "Une PME dont le site tourne sur un serveur Debian stable n'a pas encore de paquet corrigé ; elle peut désactiver HTTP/2 dans l'attente, au prix d'un léger ralentissement du chargement des pages."
+      },
+      {
+       "icon": "🧰",
+       "title": "Administrateur système",
+       "text": "Un responsable d'infrastructure inventorie ses serveurs avec `apachectl -v` et recherche la directive `Protocols` dans tous ses hôtes virtuels pour savoir lesquels exposent réellement HTTP/2."
+      }
+     ]
+    },
+    {
+     "type": "timeline",
+     "title": "D'où l'on vient, où l'on va",
+     "items": [
+      {
+       "label": "26 octobre 2026",
+       "text": "Signalement de la faille à Apache par l'outil OSS Scanner d'Anthropic."
+      },
+      {
+       "label": "11 novembre 2026",
+       "text": "Publication d'Apache 2.4.71 et des correctifs de Red Hat."
+      },
+      {
+       "label": "12 novembre 2026",
+       "text": "Divulgation publique ; désaccord entre sources sur l'existence d'un exploit."
+      },
+      {
+       "label": "À venir",
+       "text": "Correctifs attendus pour Debian stable et Amazon Linux ; pas de correctif prévu pour le mod_h2 autonome, archivé."
+      }
+     ]
+    },
+    {
+     "type": "opinion",
+     "title": "Notre avis",
+     "paragraphs": [
+      "La séquence est classique mais inconfortable : une faille notée 9,8, un correctif disponible, des distributions encore en retard et des avis contradictoires sur l'exploit. Elle rappelle que la surface d'attaque d'un serveur web inclut chaque module activé par défaut, et que HTTP/2, apprécié pour sa performance, ajoute un analyseur de protocole complexe devant le code applicatif.",
+      "À un horizon d'un à trois ans, on peut raisonnablement attendre davantage de découvertes par des outils automatisés, ce que montre l'implication d'un scanner à base d'IA dans ce signalement. Cela devrait accélérer les corrections, mais aussi raccourcir le délai entre divulgation et exploitation : l'avantage ira aux équipes capables de déployer un correctif en quelques heures."
+     ],
+     "verdict": "Mettre à jour vers Apache 2.4.71 dès que possible ; à défaut, désactiver HTTP/2 est un pis-aller efficace."
+    },
+    {
+     "type": "callout",
+     "title": "À retenir",
+     "text": "Versions 2.4.55 à 2.4.70 touchées si HTTP/2 est actif ; correctif en 2.4.71 ; sans mise à jour, retirer h2 et h2c de la directive Protocols."
+    }
+   ],
+   "publishedAt": "2026-11-12T09:16:50+00:00"
+  },
+  {
+   "id": "github-4837-comptes-pirates-voleur-secrets-ci",
+   "category": "cybersecurite",
+   "title": "GitHub : 4 837 comptes détournés ont servi à implanter un voleur de secrets dans au moins 1 806 dépôts",
+   "summary": "Une campagne de commits automatisés a visé les secrets des workflows d'intégration continue et installé des accès persistants dans AWS, Azure et GCP.",
+   "tags": [
+    "GitHub Actions",
+    "chaîne logistique",
+    "secrets",
+    "OIDC",
+    "npm"
+   ],
+   "importance": 4,
+   "readingMinutes": 6,
+   "sourceDate": "2026-11-12",
+   "icon": "🕵️",
+   "illustration": {
+    "svg": "<svg xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"0 0 640 360\"><defs><linearGradient id=\"g\" x1=\"0\" y1=\"0\" x2=\"1\" y2=\"1\"><stop offset=\"0\" stop-color=\"hsl(175,65%,30%)\"/><stop offset=\"1\" stop-color=\"hsl(215,70%,50%)\"/></linearGradient></defs><rect width=\"640\" height=\"360\" fill=\"url(#g)\"/><g fill=\"none\" stroke=\"#fff\" stroke-width=\"7\" stroke-linecap=\"round\" stroke-linejoin=\"round\" opacity=\".93\"><rect x=\"190\" y=\"150\" width=\"120\" height=\"60\" rx=\"30\"/><rect x=\"330\" y=\"150\" width=\"120\" height=\"60\" rx=\"30\"/><path d=\"M280 180h80\"/></g></svg>"
+   },
+   "cover": {
+    "url": "https://blogger.googleusercontent.com/img/b/R29vZ2xl/AVvXsEh1-4OiOkGLcK3fAr2HdhALOfc_BqR21440TsjUIuCNzv4YL0lWRC3lvUjE1vu2RdVfjunxi80gMQyGpjvUdWzMRtthW8_-hFOJ79YhFzJrNGgoKDPYXm2OaWOsN8kgBELqOPs5s9QKL4qzQzu_3NEEqHygpfQzKYxDRIQeFgMHj24oyPyaslUemke-loU/s1700-nu-rw-lo-l85-e365/github.jpg",
+    "alt": "Illustration GitHub accompagnant l'article sur la campagne de vol de secrets",
+    "credit": "thehackernews.com"
+   },
+   "sources": [
+    {
+     "title": "Attacker Used 4,837 Hijacked GitHub Accounts to Run a CI Secret Stealer in 1,806+ Repositories",
+     "url": "https://thehackernews.com/2026/11/4837-hijacked-github-accounts-ran-ci.html",
+     "publisher": "The Hacker News"
+    }
+   ],
+   "blocks": [
+    {
+     "type": "paragraph",
+     "text": "Un attaquant a utilisé les identifiants volés de **4 837 comptes GitHub** pour déposer, dans les dépôts auxquels ces comptes avaient accès en écriture, une charge malveillante destinée à dérober les secrets des workflows d'intégration continue (CI). Selon la société Aikido Security, elle s'est exécutée dans au moins **1 806 dépôts**. L'article de The Hacker News, daté du 12 novembre 2026, n'explique pas comment les identifiants ont été obtenus."
+    },
+    {
+     "type": "heading",
+     "level": 2,
+     "text": "Une attaque en deux temps"
+    },
+    {
+     "type": "paragraph",
+     "text": "Chaque opération commençait par une demande de fusion (pull request) intitulée « docs: dependency audit notes », ouverte depuis une branche nommée `wfx-docs`, pour vérifier que le compte pouvait écrire dans le dépôt. Ces tests sont apparus dans 61 764 dépôts. Ensuite, la charge était ajoutée de deux façons : dans un workflow existant (7 309 dépôts selon SafeDep) ou sous la forme d'un crochet `postinstall` npm (771 dépôts), qui s'exécute aussi sur les postes de développeurs lors d'un `npm install`."
+    },
+    {
+     "type": "paragraph",
+     "text": "L'attaquant annulait généralement la modification en quelques minutes, et les journaux d'exécution étaient le plus souvent supprimés avec elle. Une analyse ultérieure montre toutefois que certaines modifications sont restées plus longtemps en place. SafeDep a dénombré 8 093 dépôts ayant reçu des commits malveillants entre 12 h 46 UTC mardi et 4 h 36 UTC le lendemain, un chiffre minimal puisqu'il ne couvre que les branches par défaut des dépôts publics."
+    },
+    {
+     "type": "diagram",
+     "svg": "<svg xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"0 0 640 210\" font-family=\"system-ui,sans-serif\"><rect width=\"640\" height=\"210\" rx=\"14\" fill=\"#eef2f7\"/><rect x=\"20\" y=\"70\" width=\"134\" height=\"90\" rx=\"10\" fill=\"#fff\" stroke=\"#3b6ea5\" stroke-width=\"2\"/><text x=\"87\" y=\"102\" text-anchor=\"middle\" font-size=\"13\" fill=\"#10243a\"><tspan x=\"87\" dy=\"0\">Identifiants</tspan><tspan x=\"87\" dy=\"17\">volés (4 837 comptes)</tspan></text><path d=\"M156 115h16\" stroke=\"#3b6ea5\" stroke-width=\"3\"/><path d=\"M168 108l8 7-8 7\" fill=\"none\" stroke=\"#3b6ea5\" stroke-width=\"3\"/><rect x=\"176\" y=\"70\" width=\"134\" height=\"90\" rx=\"10\" fill=\"#fff\" stroke=\"#3b6ea5\" stroke-width=\"2\"/><text x=\"242\" y=\"102\" text-anchor=\"middle\" font-size=\"13\" fill=\"#10243a\"><tspan x=\"242\" dy=\"0\">Pull request</tspan><tspan x=\"242\" dy=\"17\">« dependency audit »</tspan></text><path d=\"M312 115h16\" stroke=\"#3b6ea5\" stroke-width=\"3\"/><path d=\"M323 108l8 7-8 7\" fill=\"none\" stroke=\"#3b6ea5\" stroke-width=\"3\"/><rect x=\"331\" y=\"70\" width=\"134\" height=\"90\" rx=\"10\" fill=\"#fff\" stroke=\"#3b6ea5\" stroke-width=\"2\"/><text x=\"398\" y=\"102\" text-anchor=\"middle\" font-size=\"13\" fill=\"#10243a\"><tspan x=\"398\" dy=\"0\">Charge ajoutée</tspan><tspan x=\"398\" dy=\"17\">workflow ou postinstall</tspan></text><path d=\"M468 115h16\" stroke=\"#3b6ea5\" stroke-width=\"3\"/><path d=\"M478 108l8 7-8 7\" fill=\"none\" stroke=\"#3b6ea5\" stroke-width=\"3\"/><rect x=\"486\" y=\"70\" width=\"134\" height=\"90\" rx=\"10\" fill=\"#fff\" stroke=\"#3b6ea5\" stroke-width=\"2\"/><text x=\"553\" y=\"102\" text-anchor=\"middle\" font-size=\"13\" fill=\"#10243a\"><tspan x=\"553\" dy=\"0\">Secrets exfiltrés</tspan><tspan x=\"553\" dy=\"17\">puis accès cloud</tspan></text></svg>",
+     "alt": "Schéma en quatre étapes : identifiants volés, pull request de test, ajout de la charge, exfiltration des secrets et accès cloud persistant.",
+     "caption": "Déroulement de la campagne selon Aikido Security et SafeDep."
+    },
+    {
+     "type": "heading",
+     "level": 2,
+     "text": "Ce que le voleur cherche"
+    },
+    {
+     "type": "list",
+     "ordered": false,
+     "items": [
+      "**Dans GitHub** : secrets et variables d'Actions, jeton `GITHUB_TOKEN`, jetons OIDC et d'exécution.",
+      "**Dans les environnements** : fichiers d'identifiants AWS, Azure, GCP, Kubernetes, npm, PyPI, SSH, ainsi que la mémoire des processus du « runner ».",
+      "**Sur les runners auto-hébergés** : identifiants des métadonnées d'instance, état des conteneurs Docker et unités systemd.",
+      "**Persistance dans le cloud** : échange de jetons OIDC contre des sessions AWS, GCP ou Azure ; sur AWS, création de clés d'accès durables et réécriture de la politique d'approbation d'un rôle ; sur Azure AD, ajout d'identifiants fédérés préfixés `wfx-ci-`, qui survivent à la rotation des secrets."
+     ]
+    },
+    {
+     "type": "paragraph",
+     "text": "L'exfiltration se fait par requête HTTP POST vers trois adresses IP ou vers une conversation Telegram. Aikido s'abstient d'attribuer cette vague à l'acteur de la campagne « GhostAction » d'octobre, en relevant des différences d'infrastructure et de méthode, et en rappelant que des identifiants volés circulent souvent entre plusieurs attaquants. Les comptes touchés en octobre étaient toutefois environ mille fois plus susceptibles d'être utilisés cette semaine que les autres comptes actifs."
+    },
+    {
+     "type": "heading",
+     "level": 2,
+     "text": "Paquets et indicateurs"
+    },
+    {
+     "type": "paragraph",
+     "text": "Trois paquets sont cités : `digitalelvis/neuronai-studio` en version 3.14.3 sur Packagist (à bloquer, version 3.14.2 ou antérieure recommandée), ainsi que `github.com/onuragtas/docker-env` (v1.0.278 et v1.0.280) et `github.com/vkuznet/gocurl` pour Go, où la charge ne se trouve que dans un fichier de workflow. Parmi les indicateurs : les branches `wfx-docs` ou `ci-check-` suivies de quatre chiffres, les messages de commit « ci: refresh build cache » ou « chore: add ci helper », et un fichier `.github/workflows/build-audit-` suivi d'un identifiant. Un numéro d'exécution manquant sur le commit de l'attaquant est un signe plus fiable que l'absence d'artefacts ou de journaux."
+    },
+    {
+     "type": "usecases",
+     "title": "Exemples d'utilisation",
+     "items": [
+      {
+       "icon": "🔑",
+       "title": "Équipe plateforme",
+       "text": "Elle recherche dans ses journaux CloudTrail les sessions `wfx-*` suivies de `CreateAccessKey` ou `UpdateAssumeRolePolicy`, et dans Entra ID les identifiants fédérés `wfx-ci-*` qu'elle n'a pas créés."
+      },
+      {
+       "icon": "🧑‍💻",
+       "title": "Mainteneur open source",
+       "text": "Il passe en revue les pull requests inattendues, notamment celles ouvertes par des collaborateurs, dont environ 92 % étaient encore ouvertes à la vérification, et les ferme."
+      },
+      {
+       "icon": "🏭",
+       "title": "Responsable sécurité d'une PME",
+       "text": "Il considère comme compromis tout secret accessible aux workflows d'un dépôt touché et lance sa rotation, y compris sur les postes ayant exécuté `npm install`."
+      }
+     ]
+    },
+    {
+     "type": "timeline",
+     "title": "D'où l'on vient, où l'on va",
+     "items": [
+      {
+       "label": "Octobre 2026",
+       "text": "Vague « GhostAction » : premiers comptes détournés, dont certains réutilisés ensuite."
+      },
+      {
+       "label": "Mardi 10 novembre 2026, 12 h 46 UTC",
+       "text": "Début des commits malveillants relevés par SafeDep."
+      },
+      {
+       "label": "12 novembre 2026",
+       "text": "Publication des analyses d'Aikido et de SafeDep ; nouvelles pull requests de test encore observées."
+      }
+     ]
+    },
+    {
+     "type": "opinion",
+     "title": "Notre avis",
+     "paragraphs": [
+      "L'intérêt de cette campagne tient à sa discrétion : un commit annulé en quelques minutes laisse peu de traces, alors que le secret, lui, est déjà parti. La persistance dans le cloud est la partie la plus inquiétante, puisque changer un mot de passe ne suffit plus si une relation de confiance a été réécrite.",
+      "Dans les un à trois ans à venir, les identifiants OIDC de courte durée, les droits d'écriture minimaux et l'authentification forte obligatoire devraient devenir la norme sur les plateformes de développement. Tant que de nombreux comptes de collaborateurs restent protégés par un simple mot de passe, ce type d'attaque continuera à rapporter."
+     ],
+     "verdict": "Un secret exposé à la CI doit être traité comme déjà perdu : la rotation et l'audit des relations de confiance cloud sont indispensables."
+    }
+   ],
+   "publishedAt": "2026-11-12T09:16:50+00:00"
+  },
+  {
+   "id": "nodejs-16-failles-http2-tls-correctifs-novembre",
+   "category": "dev",
+   "title": "Node.js : seize failles corrigées, dont des défauts HTTP/2 qui plantent des serveurs ou laissent fuir la mémoire d'autres connexions",
+   "summary": "Les versions 22.23.5, 24.22.3 et 26.13.1 corrigent sept failles de gravité élevée touchant le code HTTP/2, HTTPS et TLS du serveur.",
+   "tags": [
+    "Node.js",
+    "HTTP/2",
+    "TLS",
+    "correctif de sécurité"
+   ],
+   "importance": 4,
+   "readingMinutes": 5,
+   "sourceDate": "2026-11-12",
+   "icon": "🟢",
+   "illustration": {
+    "svg": "<svg xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"0 0 640 360\"><defs><linearGradient id=\"g\" x1=\"0\" y1=\"0\" x2=\"1\" y2=\"1\"><stop offset=\"0\" stop-color=\"hsl(265,65%,30%)\"/><stop offset=\"1\" stop-color=\"hsl(305,70%,50%)\"/></linearGradient></defs><rect width=\"640\" height=\"360\" fill=\"url(#g)\"/><g fill=\"none\" stroke=\"#fff\" stroke-width=\"7\" stroke-linecap=\"round\" stroke-linejoin=\"round\" opacity=\".93\"><path d=\"M260 120l-70 60 70 60\"/><path d=\"M380 120l70 60-70 60\"/><path d=\"M345 110l-50 140\"/></g></svg>"
+   },
+   "cover": {
+    "url": "https://blogger.googleusercontent.com/img/b/R29vZ2xl/AVvXsEhD-9bYYTxb5WmvOmftwsTAe5hDcHyjm12YlQj320OhT6WqICBOe0D6nQf-PPslE-I0c0r8xvZdTAXfyPwGQxHWRiQ5HSIPEZGEiNrE15ygDNZCRzzVvGugdRlIq6IARQf38iJG-MN-uo7MvdXXcA0wXIGDm0-olouPSw_SbBm2-2CYGHb4uHgtREv2ycI/s1700-nu-rw-lo-l85-e365/nodeks.jpg",
+    "alt": "Logo de Node.js illustrant la publication des correctifs de sécurité",
+    "credit": "thehackernews.com"
+   },
+   "sources": [
+    {
+     "title": "Node.js Fixes 16 Flaws, Including HTTP/2 Bugs That Crash Servers and Leak Other Connections' Data",
+     "url": "https://thehackernews.com/2026/11/nodejs-fixes-16-flaws-including-http2.html",
+     "publisher": "The Hacker News"
+    }
+   ],
+   "blocks": [
+    {
+     "type": "paragraph",
+     "text": "Le projet Node.js a publié le 12 novembre 2026 une série de versions de sécurité qui corrigent **seize vulnérabilités**, dont sept de gravité élevée. Les correctifs sont livrés dans les versions **22.23.5**, **24.22.3** et **26.13.1**. Les lignes en fin de vie, comme la 20.x et la 25.x, ne recevront aucun correctif : le projet rappelle qu'elles sont toujours considérées comme vulnérables."
+    },
+    {
+     "type": "heading",
+     "level": 2,
+     "text": "Les défauts les plus sérieux"
+    },
+    {
+     "type": "paragraph",
+     "text": "Huit des failles décrites concernent le code du serveur HTTP/2, HTTPS et TLS de Node.js lui-même. Elles comptent donc partout où un processus Node accepte directement des connexions, sans reverse proxy qui termine le protocole en amont."
+    },
+    {
+     "type": "table",
+     "headers": [
+      "Référence",
+      "Versions touchées",
+      "Effet"
+     ],
+     "rows": [
+      [
+       "CVE-2026-123863",
+       "24.x et 26.x",
+       "Plantage d'un serveur HTTP/2 par défaut qui répond avant la réception complète du corps de la requête"
+      ],
+      [
+       "CVE-2026-123866",
+       "22.x, 24.x, 26.x",
+       "Divulgation de mémoire, déclenchable par un simple client à partir de 24.22.0 et 26.9.0"
+      ],
+      [
+       "CVE-2026-123864",
+       "22.x, 24.x, 26.x (HTTPS)",
+       "Fuite de mémoire d'autres connexions, y compris des clés privées TLS, sous conditions précises"
+      ],
+      [
+       "CVE-2026-123865",
+       "22.x, 24.x, 26.x",
+       "Un client peut faire retenir de façon permanente mémoire et descripteurs de fichiers"
+      ],
+      [
+       "CVE-2026-123874",
+       "24.x et 26.x",
+       "Corruption de mémoire lors de l'envoi de fichiers avec respondWithFile ou respondWithFD"
+      ],
+      [
+       "CVE-2026-126051",
+       "24.x et 26.x",
+       "Plantage d'un serveur TLS utilisant certains rappels (SNICallback, OCSPRequest, newSession, resumeSession)"
+      ],
+      [
+       "CVE-2026-123872",
+       "22.x, 24.x, 26.x",
+       "Contournement de règles de certificat client plus strictes lors d'une renégociation TLS 1.2"
+      ]
+     ]
+    },
+    {
+     "type": "paragraph",
+     "text": "La faille CVE-2026-123864 mérite une attention particulière : elle n'apparaît que si un gestionnaire appelle `res.flushHeaders()` avant l'arrivée complète du corps, puis `res.end()` avec des données, sur une route qui renvoie ou stocke le corps de la requête. Les serveurs `node:http` simples ne sont pas concernés. Quand les conditions sont réunies, elle peut toutefois exposer des clés privées TLS."
+    },
+    {
+     "type": "heading",
+     "level": 2,
+     "text": "Mise à jour et limites"
+    },
+    {
+     "type": "list",
+     "ordered": false,
+     "items": [
+      "**Seule solution** : passer à la version corrigée de sa ligne (22.23.5, 24.22.3 ou 26.13.1). L'avis ne propose aucun contournement.",
+      "**Lignes en fin de vie** : migrer vers une ligne maintenue, car la 20.x et la 25.x ne seront pas corrigées.",
+      "**Aucune attaque connue** : l'article ne rapporte pas d'exploitation de ces failles.",
+      "**Question ouverte** : l'avis ne dit pas si les serveurs ayant réuni les conditions de la fuite HTTPS doivent renouveler leurs clés TLS après la mise à jour. Par précaution, une équipe qui expose Node directement peut envisager cette rotation."
+     ]
+    },
+    {
+     "type": "paragraph",
+     "text": "Cinq des failles ont été signalées par Chris Rohlf, en collaboration avec Claude et Anthropic Research, selon l'avis du projet. Là encore, la recherche de vulnérabilités assistée par IA apparaît comme une source croissante de signalements."
+    },
+    {
+     "type": "usecases",
+     "title": "Exemples d'utilisation",
+     "items": [
+      {
+       "icon": "🌐",
+       "title": "API en Node exposée directement",
+       "text": "Une équipe qui expose un serveur HTTP/2 Node sans proxy met à jour en priorité : un client non authentifié peut le faire planter ou saturer sa mémoire."
+      },
+      {
+       "icon": "🔁",
+       "title": "Service derrière un proxy",
+       "text": "Une application placée derrière Nginx ou un équilibreur qui termine TLS et HTTP/2 est moins exposée, mais doit quand même être mise à jour, car le trafic interne peut utiliser ces protocoles."
+      },
+      {
+       "icon": "📦",
+       "title": "Images de conteneurs",
+       "text": "Un projet qui fige `node:24` dans ses images reconstruit celles-ci avec la version 24.22.3 et vérifie que ses CI ne s'appuient pas sur une ligne 20.x ou 25.x abandonnée."
+      }
+     ]
+    },
+    {
+     "type": "timeline",
+     "title": "D'où l'on vient, où l'on va",
+     "items": [
+      {
+       "label": "Versions 24.22.0 et 26.9.0",
+       "text": "À partir de ces versions, un simple client peut déclencher la fuite CVE-2026-123866."
+      },
+      {
+       "label": "12 novembre 2026",
+       "text": "Publication des versions de sécurité 22.23.5, 24.22.3 et 26.13.1."
+      },
+      {
+       "label": "À venir",
+       "text": "Fin de vie progressive des lignes actuelles : prévoir la migration vers les lignes à support long."
+      }
+     ]
+    },
+    {
+     "type": "opinion",
+     "title": "Notre avis",
+     "paragraphs": [
+      "Cette livraison illustre à quel point les implémentations de HTTP/2 sont difficiles à écrire sans défaut : multiplexage, contrôle de flux et gestion de la mémoire interagissent de manière subtile. Les fuites de mémoire entre connexions sont les plus graves, car elles contournent l'isolation que chacun suppose acquise entre clients.",
+      "À moyen terme, on peut s'attendre à ce que davantage d'équipes placent systématiquement un proxy éprouvé devant Node, ce qui réduit l'exposition directe, et à ce que la découverte de failles par des outils d'IA multiplie ce genre de publications groupées."
+     ],
+     "verdict": "Mettre à jour sans attendre et abandonner les lignes Node en fin de vie sont les deux gestes essentiels."
+    }
+   ],
+   "publishedAt": "2026-11-12T09:16:50+00:00"
+  },
+  {
+   "id": "dotnet-11-csharp-15-unions-fin-support-dotnet-8-9",
+   "category": "dev",
+   "title": ".NET 11 et C# 15 : types union, hiérarchies fermées et compression Zstandard, le jour où .NET 8 et 9 sortent du support",
+   "summary": "Microsoft publie .NET 11, une version à support standard de deux ans, tandis que les versions 8 et 9 ont atteint leur fin de support le 10 novembre 2026.",
+   "tags": [
+    ".NET 11",
+    "C# 15",
+    "Native AOT",
+    "ASP.NET Core",
+    "MCP"
+   ],
+   "importance": 3,
+   "readingMinutes": 5,
+   "sourceDate": "2026-11-11",
+   "icon": "🟣",
+   "illustration": {
+    "svg": "<svg xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"0 0 640 360\"><defs><linearGradient id=\"g\" x1=\"0\" y1=\"0\" x2=\"1\" y2=\"1\"><stop offset=\"0\" stop-color=\"hsl(265,65%,30%)\"/><stop offset=\"1\" stop-color=\"hsl(305,70%,50%)\"/></linearGradient></defs><rect width=\"640\" height=\"360\" fill=\"url(#g)\"/><g fill=\"none\" stroke=\"#fff\" stroke-width=\"7\" stroke-linecap=\"round\" stroke-linejoin=\"round\" opacity=\".93\"><rect x=\"200\" y=\"100\" width=\"240\" height=\"170\" rx=\"14\"/><path d=\"M200 140h240\"/><circle cx=\"222\" cy=\"120\" r=\"5\"/><circle cx=\"242\" cy=\"120\" r=\"5\"/><path d=\"M240 190h160M240 225h110\"/></g></svg>"
+   },
+   "cover": {
+    "url": "https://cdn.shortpixel.ai/spai/q_lossy+ret_img+to_auto/linuxiac.com/wp-content/uploads/2026/11/dotnet11-1024x576.jpg",
+    "alt": "Visuel de la publication de .NET 11",
+    "credit": "linuxiac.com"
+   },
+   "sources": [
+    {
+     "title": "Microsoft Releases .NET 11 with C# 15, Runtime Improvements",
+     "url": "https://linuxiac.com/microsoft-releases-net-11-with-c-sharp-15-runtime-improvements/",
+     "publisher": "Linuxiac"
+    }
+   ],
+   "blocks": [
+    {
+     "type": "paragraph",
+     "text": "Microsoft a publié **.NET 11**, accompagné de **C# 15**, de mises à jour du runtime, du SDK et des frameworks. Annoncée le 11 novembre 2026, cette version est à **support standard** (STS), c'est-à-dire deux ans de maintenance. Elle arrive au moment où **.NET 8 et .NET 9 ont atteint leur fin de support**, le 10 novembre 2026 : Microsoft recommande de migrer pour continuer à recevoir les correctifs de sécurité. .NET 10 reste la version à support long (LTS) pour les équipes qui préfèrent un cycle plus durable."
+    },
+    {
+     "type": "heading",
+     "level": 2,
+     "text": "Les nouveautés du langage C# 15"
+    },
+    {
+     "type": "list",
+     "ordered": false,
+     "items": [
+      "**Types union** : une valeur peut représenter l'un de plusieurs types précisés, et le compilateur vérifie que les expressions `switch` couvrent tous les cas, ce qui fait remonter les branches manquantes dès la compilation.",
+      "**Hiérarchies de classes fermées** : l'héritage direct est limité à l'assembly qui déclare la classe.",
+      "**Indexeurs d'extension**, **arguments d'expressions de collection** et instructions `break` et `continue` **étiquetées**."
+     ]
+    },
+    {
+     "type": "heading",
+     "level": 2,
+     "text": "Performances, runtime et outillage"
+    },
+    {
+     "type": "paragraph",
+     "text": "Le compilateur JIT reçoit des centaines d'optimisations : suppression de davantage de vérifications de bornes et de branches redondantes, dévirtualisation plus fréquente, meilleur traitement des opérations dont les entrées sont connues à la compilation. En Native AOT, la répartition des appels d'interface passe par une routine partagée, ce qui réduit la taille du code généré. Les instructions FP16 sont prises en charge sur les processeurs x64 et Arm64 compatibles. Un mode **Runtime Async**, proposé en préversion et sur option, déplace la suspension et la reprise des méthodes asynchrones dans le runtime plutôt que dans des machines à états générées par le compilateur."
+    },
+    {
+     "type": "paragraph",
+     "text": "Côté SDK, l'hôte de la ligne de commande en Native AOT est activé par défaut, un serveur MSBuild persistant réduit le temps de démarrage entre deux commandes, et les installateurs Linux et macOS sont plus légers grâce à la déduplication des assemblies. Sous Linux, un rapport de plantage intégré au processus capture les piles gérées, les modules chargés et l'état du runtime avant la sortie de l'application."
+    },
+    {
+     "type": "heading",
+     "level": 2,
+     "text": "Bibliothèques et frameworks"
+    },
+    {
+     "type": "list",
+     "ordered": false,
+     "items": [
+      "**Compression** : prise en charge native de Zstandard dans `System.IO.Compression`.",
+      "**LINQ** : nouvel opérateur `FullJoin`, repris par Entity Framework Core 11 sur les fournisseurs relationnels compatibles.",
+      "**System.Text.Json** : gestion des unions C# et des unions discriminées F#, écriture de JSON Lines depuis des séquences asynchrones.",
+      "**ASP.NET Core 11** : validation asynchrone, OpenAPI 3.2 par défaut, rafraîchissement des identifiants SignalR sans reconnexion.",
+      "**IA** : modèle de projet pour serveurs MCP dans le SDK et composants Blazor expérimentaux pour les conversations en flux et l'approbation d'outils.",
+      "**.NET MAUI 11** : CoreCLR devient le runtime par défaut sur les plateformes prises en charge."
+     ]
+    },
+    {
+     "type": "diagram",
+     "svg": "<svg xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"0 0 640 210\" font-family=\"system-ui,sans-serif\"><rect width=\"640\" height=\"210\" rx=\"14\" fill=\"#eef2f7\"/><rect x=\"20\" y=\"70\" width=\"134\" height=\"90\" rx=\"10\" fill=\"#fff\" stroke=\"#3b6ea5\" stroke-width=\"2\"/><text x=\"87\" y=\"102\" text-anchor=\"middle\" font-size=\"13\" fill=\"#10243a\"><tspan x=\"87\" dy=\"0\">Novembre 2026</tspan><tspan x=\"87\" dy=\"17\">Sortie de .NET 11 (STS)</tspan></text><path d=\"M156 115h16\" stroke=\"#3b6ea5\" stroke-width=\"3\"/><path d=\"M168 108l8 7-8 7\" fill=\"none\" stroke=\"#3b6ea5\" stroke-width=\"3\"/><rect x=\"176\" y=\"70\" width=\"134\" height=\"90\" rx=\"10\" fill=\"#fff\" stroke=\"#3b6ea5\" stroke-width=\"2\"/><text x=\"242\" y=\"102\" text-anchor=\"middle\" font-size=\"13\" fill=\"#10243a\"><tspan x=\"242\" dy=\"0\">10 nov. 2026</tspan><tspan x=\"242\" dy=\"17\">Fin de support .NET 8 et 9</tspan></text><path d=\"M312 115h16\" stroke=\"#3b6ea5\" stroke-width=\"3\"/><path d=\"M323 108l8 7-8 7\" fill=\"none\" stroke=\"#3b6ea5\" stroke-width=\"3\"/><rect x=\"331\" y=\"70\" width=\"134\" height=\"90\" rx=\"10\" fill=\"#fff\" stroke=\"#3b6ea5\" stroke-width=\"2\"/><text x=\"398\" y=\"102\" text-anchor=\"middle\" font-size=\"13\" fill=\"#10243a\"><tspan x=\"398\" dy=\"0\">Option LTS</tspan><tspan x=\"398\" dy=\"17\">Rester sur .NET 10</tspan></text><path d=\"M468 115h16\" stroke=\"#3b6ea5\" stroke-width=\"3\"/><path d=\"M478 108l8 7-8 7\" fill=\"none\" stroke=\"#3b6ea5\" stroke-width=\"3\"/><rect x=\"486\" y=\"70\" width=\"134\" height=\"90\" rx=\"10\" fill=\"#fff\" stroke=\"#3b6ea5\" stroke-width=\"2\"/><text x=\"553\" y=\"102\" text-anchor=\"middle\" font-size=\"13\" fill=\"#10243a\"><tspan x=\"553\" dy=\"0\">Migration</tspan><tspan x=\"553\" dy=\"17\">Tester puis déployer</tspan></text></svg>",
+     "alt": "Schéma de choix de migration : .NET 11 à support standard, fin de support de .NET 8 et 9, option de rester sur .NET 10 à support long.",
+     "caption": "Repères de calendrier et options de migration, selon l'annonce."
+    },
+    {
+     "type": "usecases",
+     "title": "Exemples d'utilisation",
+     "items": [
+      {
+       "icon": "🧮",
+       "title": "Modélisation métier",
+       "text": "Une équipe de facturation représente un paiement comme « carte », « virement » ou « prélèvement » avec un type union : le compilateur signale tout cas oublié lors de l'ajout d'un nouveau mode."
+      },
+      {
+       "icon": "☁️",
+       "title": "Services conteneurisés",
+       "text": "Un service d'API compile en Native AOT pour réduire la taille des images et le temps de démarrage, notamment dans des fonctions à la demande."
+      },
+      {
+       "icon": "📉",
+       "title": "Archivage de journaux",
+       "text": "Un éditeur compresse ses exports avec Zstandard sans dépendance externe, grâce à la prise en charge native."
+      }
+     ]
+    },
+    {
+     "type": "timeline",
+     "title": "D'où l'on vient, où l'on va",
+     "items": [
+      {
+       "label": "Novembre 2024",
+       "text": "Sortie de .NET 9, version à support standard."
+      },
+      {
+       "label": "Novembre 2025",
+       "text": "Sortie de .NET 10, version à support long."
+      },
+      {
+       "label": "10 novembre 2026",
+       "text": "Fin de support de .NET 8 et .NET 9."
+      },
+      {
+       "label": "11 novembre 2026",
+       "text": "Sortie de .NET 11 avec C# 15."
+      },
+      {
+       "label": "Novembre 2028",
+       "text": "Fin de support de .NET 11, deux ans après sa sortie."
+      }
+     ]
+    },
+    {
+     "type": "opinion",
+     "title": "Notre avis",
+     "paragraphs": [
+      "Les types union sont l'évolution la plus attendue du langage : ils rapprochent C# de pratiques courantes en F# ou en Rust et réduisent les classes de bogues liées aux cas non traités. La promesse n'aura toutefois de valeur que si les bibliothèques et les outils de sérialisation suivent, ce qu'annonce déjà la prise en charge dans System.Text.Json.",
+      "La cadence annuelle impose aux entreprises de choisir entre migrer chaque année et rester sur les versions à support long. Pour un parc de production, .NET 10 reste le choix prudent ; .NET 11 convient aux équipes qui veulent les gains de performance et l'outillage MCP. À deux ans, la compatibilité des composants d'IA expérimentaux sera à surveiller."
+     ],
+     "verdict": "Une version riche en fonctions, mais la vraie urgence est de quitter .NET 8 et 9, désormais sans correctifs."
+    }
+   ],
+   "publishedAt": "2026-11-12T09:16:50+00:00"
+  },
+  {
+   "id": "podman-6-2-correctifs-securite-kubernetes-quadlet",
+   "category": "devops",
+   "title": "Podman 6.2 : trois failles corrigées, une validation plus fine de kube play et de nouvelles options pour Quadlet",
+   "summary": "La version publiée le 11 novembre corrige des contournements de validation de signature et de seccomp, et améliore l'exécution de manifestes Kubernetes.",
+   "tags": [
+    "Podman",
+    "conteneurs",
+    "Quadlet",
+    "Kubernetes",
+    "seccomp"
+   ],
+   "importance": 3,
+   "readingMinutes": 5,
+   "sourceDate": "2026-11-11",
+   "icon": "🦭",
+   "illustration": {
+    "svg": "<svg xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"0 0 640 360\"><defs><linearGradient id=\"g\" x1=\"0\" y1=\"0\" x2=\"1\" y2=\"1\"><stop offset=\"0\" stop-color=\"hsl(160,65%,30%)\"/><stop offset=\"1\" stop-color=\"hsl(200,70%,50%)\"/></linearGradient></defs><rect width=\"640\" height=\"360\" fill=\"url(#g)\"/><g fill=\"none\" stroke=\"#fff\" stroke-width=\"7\" stroke-linecap=\"round\" stroke-linejoin=\"round\" opacity=\".93\"><path d=\"M320 90l110 55v110l-110 55-110-55V145z\"/><path d=\"M210 145l110 55 110-55\"/><path d=\"M320 200v110\"/></g></svg>"
+   },
+   "cover": {
+    "url": "https://cdn.shortpixel.ai/spai/q_lossy+ret_img+to_auto/linuxiac.com/wp-content/uploads/2026/11/podman62-1024x576.jpg",
+    "alt": "Visuel de la publication de Podman 6.2",
+    "credit": "linuxiac.com"
+   },
+   "sources": [
+    {
+     "title": "Podman 6.2 Released with Security Fixes, Kubernetes Improvements",
+     "url": "https://linuxiac.com/podman-6-2-released-with-security-fixes-kubernetes-improvements/",
+     "publisher": "Linuxiac"
+    },
+    {
+     "title": "Notes de version Podman v6.2.0",
+     "url": "https://github.com/podman-container-tools/podman/releases/tag/v6.2.0",
+     "publisher": "GitHub"
+    }
+   ],
+   "blocks": [
+    {
+     "type": "paragraph",
+     "text": "**Podman**, le moteur de conteneurs sans démon, a publié le 11 novembre 2026 sa version **6.2**. Elle combine trois correctifs de sécurité, des améliorations pour l'exécution de manifestes Kubernetes, de nouvelles options pour les fichiers Quadlet et un changement de comportement pour `podman exec`. Pour les équipes qui s'appuient sur Podman en environnement de développement comme en production, c'est une mise à jour à planifier sérieusement."
+    },
+    {
+     "type": "heading",
+     "level": 2,
+     "text": "Les correctifs de sécurité"
+    },
+    {
+     "type": "list",
+     "ordered": false,
+     "items": [
+      "**CVE-2026-121885** : des étiquettes d'image non fiables pouvaient manipuler le mécanisme de mise à jour automatique et provoquer le redémarrage d'unités systemd non prévues.",
+      "**CVE-2026-111361** : contournements possibles de la validation des condensats (digests) et des signatures d'image.",
+      "**CVE-2026-123876** : un conteneur malveillant pouvait contourner une restriction de socket du profil seccomp par défaut."
+     ]
+    },
+    {
+     "type": "paragraph",
+     "text": "Ces trois défauts touchent des garde-fous : la confiance accordée aux images, l'automatisation des mises à jour et l'isolation du noyau. Aucune exploitation n'est mentionnée dans la source, mais leur nature justifie une mise à jour rapide, en particulier sur les machines qui tirent des images de registres tiers."
+    },
+    {
+     "type": "heading",
+     "level": 2,
+     "text": "Kubernetes : `podman kube play` gagne en précision"
+    },
+    {
+     "type": "list",
+     "ordered": false,
+     "items": [
+      "`--validate` contrôle le traitement des champs YAML non reconnus, ce qui aide à repérer les fautes de frappe dans un manifeste.",
+      "`--label` attribue des étiquettes aux conteneurs, pods, volumes et secrets créés à partir du manifeste.",
+      "`--multiple-pods` crée plusieurs pods quand un déploiement demande plusieurs réplicas.",
+      "`--build` sait construire des images depuis des sous-répertoires du contexte principal.",
+      "Podman lit désormais le champ standard `securityContext.seccompProfile` ; l'ancienne méthode par annotation est dépréciée et sera supprimée dans Podman 7.0."
+     ]
+    },
+    {
+     "type": "heading",
+     "level": 2,
+     "text": "Quadlet, WSL et autres changements"
+    },
+    {
+     "type": "paragraph",
+     "text": "Pour Quadlet, les fichiers `.container` acceptent `Umask`, qui fixe le masque de création de fichiers dans le conteneur, et `SetMountsDependency`, qui choisit entre `RequiresMountsFor`, `WantsMountsFor` ou aucune dépendance dans les unités systemd générées. Sous WSL, les nouvelles machines Podman utilisent le systemd natif ; WSL 2.5.1 est requis et la version 2.7.5 ou plus récente est recommandée pour un réseau nftables correct. Les machines existantes gardent l'ancienne configuration."
+    },
+    {
+     "type": "paragraph",
+     "text": "Autres nouveautés : `podman push --platform` pousse un manifeste propre à une architecture plutôt que la liste multiplateforme complète, et `podman auto-update` devient disponible via le client distant avec une option `--filter`. Enfin, `podman exec` en mode attaché transmet désormais les signaux aux processus du conteneur : un Ctrl+C arrête aussi le processus lancé, et pas seulement le client local. Des corrections nombreuses concernent les machines Windows (blocages au démarrage avec Hyper-V et WSL, machines inaccessibles après redémarrage de l'hôte)."
+    },
+    {
+     "type": "diagram",
+     "svg": "<svg xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"0 0 640 210\" font-family=\"system-ui,sans-serif\"><rect width=\"640\" height=\"210\" rx=\"14\" fill=\"#eef2f7\"/><rect x=\"20\" y=\"70\" width=\"134\" height=\"90\" rx=\"10\" fill=\"#fff\" stroke=\"#3b6ea5\" stroke-width=\"2\"/><text x=\"87\" y=\"102\" text-anchor=\"middle\" font-size=\"13\" fill=\"#10243a\"><tspan x=\"87\" dy=\"0\">Image tirée</tspan><tspan x=\"87\" dy=\"17\">signature validée</tspan></text><path d=\"M156 115h16\" stroke=\"#3b6ea5\" stroke-width=\"3\"/><path d=\"M168 108l8 7-8 7\" fill=\"none\" stroke=\"#3b6ea5\" stroke-width=\"3\"/><rect x=\"176\" y=\"70\" width=\"134\" height=\"90\" rx=\"10\" fill=\"#fff\" stroke=\"#3b6ea5\" stroke-width=\"2\"/><text x=\"242\" y=\"102\" text-anchor=\"middle\" font-size=\"13\" fill=\"#10243a\"><tspan x=\"242\" dy=\"0\">Quadlet</tspan><tspan x=\"242\" dy=\"17\">unité systemd</tspan></text><path d=\"M312 115h16\" stroke=\"#3b6ea5\" stroke-width=\"3\"/><path d=\"M323 108l8 7-8 7\" fill=\"none\" stroke=\"#3b6ea5\" stroke-width=\"3\"/><rect x=\"331\" y=\"70\" width=\"134\" height=\"90\" rx=\"10\" fill=\"#fff\" stroke=\"#3b6ea5\" stroke-width=\"2\"/><text x=\"398\" y=\"102\" text-anchor=\"middle\" font-size=\"13\" fill=\"#10243a\"><tspan x=\"398\" dy=\"0\">Conteneur</tspan><tspan x=\"398\" dy=\"17\">profil seccomp</tspan></text><path d=\"M468 115h16\" stroke=\"#3b6ea5\" stroke-width=\"3\"/><path d=\"M478 108l8 7-8 7\" fill=\"none\" stroke=\"#3b6ea5\" stroke-width=\"3\"/><rect x=\"486\" y=\"70\" width=\"134\" height=\"90\" rx=\"10\" fill=\"#fff\" stroke=\"#3b6ea5\" stroke-width=\"2\"/><text x=\"553\" y=\"102\" text-anchor=\"middle\" font-size=\"13\" fill=\"#10243a\"><tspan x=\"553\" dy=\"0\">Mise à jour</tspan><tspan x=\"553\" dy=\"17\">auto-update filtrée</tspan></text></svg>",
+     "alt": "Schéma des quatre points de contrôle touchés par Podman 6.2 : signature d'image, unité Quadlet, profil seccomp et mise à jour automatique.",
+     "caption": "Les garde-fous concernés par les correctifs et nouveautés de la version 6.2."
+    },
+    {
+     "type": "usecases",
+     "title": "Exemples d'utilisation",
+     "items": [
+      {
+       "icon": "🧪",
+       "title": "Poste de développement",
+       "text": "Un développeur teste en local un manifeste Kubernetes avec `podman kube play --validate` pour détecter un champ mal orthographié avant de le déployer."
+      },
+      {
+       "icon": "🖥️",
+       "title": "Serveur autonome",
+       "text": "Un administrateur pilote des conteneurs comme des services systemd via Quadlet et règle la dépendance de montage pour éviter des démarrages avant la disponibilité d'un disque réseau."
+      },
+      {
+       "icon": "🚀",
+       "title": "Intégration continue",
+       "text": "Une équipe pousse une seule architecture avec `podman push --platform` pour accélérer la publication d'images dans un pipeline."
+      }
+     ]
+    },
+    {
+     "type": "timeline",
+     "title": "D'où l'on vient, où l'on va",
+     "items": [
+      {
+       "label": "2018",
+       "text": "Premières versions de Podman comme alternative sans démon à Docker."
+      },
+      {
+       "label": "2026",
+       "text": "Branche 6.x : enrichissement de Quadlet et de la compatibilité Kubernetes."
+      },
+      {
+       "label": "11 novembre 2026",
+       "text": "Publication de Podman 6.2."
+      },
+      {
+       "label": "Podman 7.0",
+       "text": "Suppression prévue de la configuration seccomp par annotation."
+      }
+     ]
+    },
+    {
+     "type": "opinion",
+     "title": "Notre avis",
+     "paragraphs": [
+      "Podman 6.2 est typique d'un projet mûr : peu de rupture, beaucoup de finition et trois correctifs qui rappellent que l'automatisation (mise à jour, validation de signatures) est elle-même une surface d'attaque. L'alignement progressif sur les champs Kubernetes standard va dans le bon sens et réduit les écarts entre développement local et grappe de production.",
+      "À un horizon de un à trois ans, la frontière entre Podman, Quadlet et Kubernetes devrait continuer à s'estomper. Pour les petites équipes, la combinaison avec systemd peut rester une alternative simple à l'orchestrateur complet."
+     ],
+     "verdict": "Mise à jour recommandée pour les trois correctifs, surtout si les images viennent de registres externes."
+    }
+   ],
+   "publishedAt": "2026-11-12T09:16:50+00:00"
+  },
+  {
+   "id": "grok-35000-applications-exposees-acces-par-defaut",
+   "category": "ia",
+   "title": "Grok : plus de 35 000 applications générées par l'IA sont accessibles à tous, certaines laissant fuiter des données internes",
+   "summary": "La société Claroc a repéré 37 571 applications créées avec Grok, dont 35 578 ouvertes sans connexion, à cause d'un partage public par défaut et d'adresses faciles à découvrir.",
+   "tags": [
+    "Grok",
+    "applications générées par IA",
+    "fuite de données",
+    "Claroc",
+    "DNS passif"
+   ],
+   "importance": 4,
+   "readingMinutes": 6,
+   "sourceDate": "2026-11-11",
+   "icon": "🤖",
+   "illustration": {
+    "svg": "<svg xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"0 0 640 360\"><defs><linearGradient id=\"g\" x1=\"0\" y1=\"0\" x2=\"1\" y2=\"1\"><stop offset=\"0\" stop-color=\"hsl(320,65%,30%)\"/><stop offset=\"1\" stop-color=\"hsl(0,70%,50%)\"/></linearGradient></defs><rect width=\"640\" height=\"360\" fill=\"url(#g)\"/><g fill=\"none\" stroke=\"#fff\" stroke-width=\"7\" stroke-linecap=\"round\" stroke-linejoin=\"round\" opacity=\".93\"><rect x=\"250\" y=\"170\" width=\"140\" height=\"110\" rx=\"14\"/><path d=\"M280 170v-35a40 40 0 0180 0v35\"/><circle cx=\"320\" cy=\"225\" r=\"10\"/></g></svg>"
+   },
+   "cover": {
+    "url": "https://blogger.googleusercontent.com/img/b/R29vZ2xl/AVvXsEh54t26Pk-bNbcIXgu8KrKpT_zN1KxEov16xTFlJ8kiPJ3-btXjGUE1lb0ZpamQU5jUHwmxzxHpYLsAQfiaHQUu3gxCIUw2gsEYNwMjL6nRm_jWm6t_VdHJkz6xj3fAsmTZKP8Bbax1qdT98a_PY4ynv81njiDyPXvIIihl4dqXxxC9pMMf8-Mn9dziy_A/s1700-nu-rw-lo-l85-e365/grokai.jpg",
+    "alt": "Illustration sur les applications générées avec Grok",
+    "credit": "thehackernews.com"
+   },
+   "sources": [
+    {
+     "title": "Over 35,000 Grok-Built Apps Exposed Online, Some Leaking Confidential Data and Passwords",
+     "url": "https://thehackernews.com/2026/11/over-35000-grok-built-apps-exposed.html",
+     "publisher": "The Hacker News"
+    }
+   ],
+   "blocks": [
+    {
+     "type": "paragraph",
+     "text": "Des applications créées en quelques phrases avec un assistant d'IA se retrouvent en ligne, parfois avec des données sensibles. Selon une étude de la société de sécurité **Claroc** relayée le 11 novembre 2026 par The Hacker News, **37 571 applications** conçues avec le constructeur d'applications de Grok ont été trouvées en ligne, dont **35 578 ouvertes à toute personne sans connexion**. Environ une sur dix contenait des données internes d'entreprise ou des données personnelles, et 2 % ont été jugées de gravité élevée ou critique."
+    },
+    {
+     "type": "heading",
+     "level": 2,
+     "text": "Ce que les chercheurs ont trouvé"
+    },
+    {
+     "type": "list",
+     "ordered": false,
+     "items": [
+      "**24 applications** ouvertes avaient été créées par des employés de X et de SpaceXSI (ex-xAI).",
+      "**30 autres organisations** ont pu être identifiées grâce aux données exposées, dans la construction, l'énergie, la santé et la défense ; 26 comptent plus de 1 000 salariés et 6 figurent parmi les Fortune 500.",
+      "**Exemples** : la liste consultable de plus de 3 500 salariés d'un groupe hospitalier, la fiche de transmission d'un patient en réanimation, le tableau de service en direct d'un service d'incendie, ou une application de feuilles de temps stockant les mots de passe de tous les salariés en clair.",
+      "La plupart des applications ouvertes restent bénignes : jeux, pages d'accueil et calculatrices."
+     ]
+    },
+    {
+     "type": "heading",
+     "level": 2,
+     "text": "Pourquoi autant d'applications sont visibles"
+    },
+    {
+     "type": "paragraph",
+     "text": "Trois mécanismes se combinent. D'abord, dans le parcours de publication, l'option « Toute personne disposant du lien » est présélectionnée, les autres choix étant « Utilisateurs invités » et « Vous uniquement ». Ensuite, chaque application obtient un sous-domaine sous grok.me, et l'ouverture d'une application déclenche des requêtes DNS que des services de DNS passif enregistrent ; toute personne disposant d'un compte peut rechercher ces enregistrements par motif. Enfin, les noms proposés par Grok (quatre mots aléatoires) donnent une fausse impression de secret : ils figurent dans une liste consultable, donc inutile de les deviner."
+    },
+    {
+     "type": "paragraph",
+     "text": "À cela s'ajoute un défaut dans le code généré. Dans les tests des chercheurs, les boutons de connexion Google et X fonctionnaient, mais le code ajoutait chaque personne connectée à l'équipe avant de vérifier son appartenance : la vérification réussissait donc toujours, et un compte Google extérieur pouvait consulter, modifier et supprimer des enregistrements. Les chercheurs n'ont testé que leurs propres applications de démonstration."
+    },
+    {
+     "type": "diagram",
+     "svg": "<svg xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"0 0 640 210\" font-family=\"system-ui,sans-serif\"><rect width=\"640\" height=\"210\" rx=\"14\" fill=\"#eef2f7\"/><rect x=\"20\" y=\"70\" width=\"134\" height=\"90\" rx=\"10\" fill=\"#fff\" stroke=\"#3b6ea5\" stroke-width=\"2\"/><text x=\"87\" y=\"102\" text-anchor=\"middle\" font-size=\"13\" fill=\"#10243a\"><tspan x=\"87\" dy=\"0\">Publication</tspan><tspan x=\"87\" dy=\"17\">« Lien » par défaut</tspan></text><path d=\"M156 115h16\" stroke=\"#3b6ea5\" stroke-width=\"3\"/><path d=\"M168 108l8 7-8 7\" fill=\"none\" stroke=\"#3b6ea5\" stroke-width=\"3\"/><rect x=\"176\" y=\"70\" width=\"134\" height=\"90\" rx=\"10\" fill=\"#fff\" stroke=\"#3b6ea5\" stroke-width=\"2\"/><text x=\"242\" y=\"102\" text-anchor=\"middle\" font-size=\"13\" fill=\"#10243a\"><tspan x=\"242\" dy=\"0\">Sous-domaine</tspan><tspan x=\"242\" dy=\"17\">grok.me</tspan></text><path d=\"M312 115h16\" stroke=\"#3b6ea5\" stroke-width=\"3\"/><path d=\"M323 108l8 7-8 7\" fill=\"none\" stroke=\"#3b6ea5\" stroke-width=\"3\"/><rect x=\"331\" y=\"70\" width=\"134\" height=\"90\" rx=\"10\" fill=\"#fff\" stroke=\"#3b6ea5\" stroke-width=\"2\"/><text x=\"398\" y=\"102\" text-anchor=\"middle\" font-size=\"13\" fill=\"#10243a\"><tspan x=\"398\" dy=\"0\">DNS passif</tspan><tspan x=\"398\" dy=\"17\">liste consultable</tspan></text><path d=\"M468 115h16\" stroke=\"#3b6ea5\" stroke-width=\"3\"/><path d=\"M478 108l8 7-8 7\" fill=\"none\" stroke=\"#3b6ea5\" stroke-width=\"3\"/><rect x=\"486\" y=\"70\" width=\"134\" height=\"90\" rx=\"10\" fill=\"#fff\" stroke=\"#3b6ea5\" stroke-width=\"2\"/><text x=\"553\" y=\"102\" text-anchor=\"middle\" font-size=\"13\" fill=\"#10243a\"><tspan x=\"553\" dy=\"0\">Application</tspan><tspan x=\"553\" dy=\"17\">lue sans connexion</tspan></text></svg>",
+     "alt": "Schéma en quatre étapes expliquant l'exposition : publication par lien, sous-domaine, enregistrement par DNS passif, accès sans connexion.",
+     "caption": "Chaîne d'exposition décrite par Claroc."
+    },
+    {
+     "type": "heading",
+     "level": 2,
+     "text": "La réponse de SpaceXSI"
+    },
+    {
+     "type": "paragraph",
+     "text": "Les chercheurs ont signalé deux applications d'employés un dimanche et les 22 autres le lundi, via l'adresse du fichier security.txt de l'entreprise. Les 24 applications d'employés ont été retirées, mais pas celles des autres utilisateurs. SpaceXSI soutient que les applications restent privées tant que leur créateur ne les partage pas, que la publication exige plusieurs étapes (choix de l'accès, acceptation d'une mention légale) et que les comptes d'employés sont par défaut en « Vous uniquement ». L'entreprise n'avait pas répondu au rapport à sa parution et n'a pas indiqué qu'elle préviendrait les propriétaires des autres applications. Claroc demande que « Vous uniquement » devienne le choix par défaut et qu'une option limite l'accès au domaine de messagerie d'une société. Les chercheurs écrivent eux-mêmes aux organisations touchées (trois à la parution) et ont retenu les adresses et titres des applications."
+    },
+    {
+     "type": "paragraph",
+     "text": "À titre de comparaison, le constructeur d'applications de ChatGPT utilise aussi des sous-domaines par application, mais ses applications sont par défaut en « Moi uniquement ». Le 18 octobre, les mêmes chercheurs avaient signalé que des pages partagées depuis l'agent Muse de Meta pouvaient être retrouvées par DNS passif ; Meta a désactivé le partage et livré un correctif le 22 octobre."
+    },
+    {
+     "type": "usecases",
+     "title": "Exemples d'utilisation",
+     "items": [
+      {
+       "icon": "🏥",
+       "title": "Établissement de santé",
+       "text": "Un service informatique recense les outils d'IA utilisés par le personnel, y compris ceux qui n'exigent aucun compte d'entreprise, avant qu'une fiche patient ne se retrouve dans une application publique."
+      },
+      {
+       "icon": "🏗️",
+       "title": "Entreprise du BTP",
+       "text": "Un responsable vérifie qu'une application de feuilles de temps générée par un salarié n'est pas ouverte, puis la bascule en « Utilisateurs invités » ou « Vous uniquement »."
+      },
+      {
+       "icon": "🧑‍💼",
+       "title": "Dirigeant de PME",
+       "text": "Il demande à ses équipes de tester chaque application interne avec un compte extérieur : si l'accès réussit, une liste d'accès est indispensable."
+      }
+     ]
+    },
+    {
+     "type": "timeline",
+     "title": "D'où l'on vient, où l'on va",
+     "items": [
+      {
+       "label": "19 août 2026",
+       "text": "Le constructeur d'applications de Grok s'ouvre à tous les forfaits."
+      },
+      {
+       "label": "18-22 octobre 2026",
+       "text": "Cas Muse de Meta : signalement puis correctif."
+      },
+      {
+       "label": "Dimanche et lundi avant le 11 novembre",
+       "text": "Signalement des 24 applications d'employés à SpaceXSI."
+      },
+      {
+       "label": "11 novembre 2026",
+       "text": "Publication du rapport de Claroc."
+      }
+     ]
+    },
+    {
+     "type": "opinion",
+     "title": "Notre avis",
+     "paragraphs": [
+      "Le problème n'est pas propre à Grok : dès qu'un outil permet de passer d'une idée à une application publiée en quelques minutes, le choix de la visibilité cesse d'être un acte réfléchi. Un réglage par défaut permissif, associé à des adresses enregistrées par des services tiers, transforme une négligence individuelle en fuite à grande échelle. C'est un enjeu de « shadow IT » plus que de modèle d'IA.",
+      "Dans les prochaines années, on peut attendre des fournisseurs qu'ils privilégient le privé par défaut, et des entreprises qu'elles imposent un inventaire des constructeurs d'applications. Pour les particuliers et les organisations en France, une donnée personnelle exposée relève du RGPD, avec une notification à la CNIL en cas de violation ; l'article n'évoque toutefois aucune procédure en ce sens."
+     ],
+     "verdict": "Le vrai risque tient moins à l'IA qu'à un partage public par défaut : à tester dès maintenant dans toute organisation."
+    }
+   ],
+   "publishedAt": "2026-11-12T09:16:50+00:00"
+  }
+ ]
+}
