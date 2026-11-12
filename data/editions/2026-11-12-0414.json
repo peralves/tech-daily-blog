@@ -1,0 +1,677 @@
+{
+ "schemaVersion": "1.0",
+ "date": "2026-11-12",
+ "generatedAt": "2026-11-12T04:15:44+01:00",
+ "title": "Tech du 12 novembre 2026 : Railway, eMudhra, Gemini Decisions, Arduino Nano XL Link et hommage à Tim Peters",
+ "summary": "Une intrusion chez Railway coûte 740 000 dollars de dépenses d'IA, eMudhra révoque huit autorités de certification de plus, Google lance une API de décision, Arduino dévoile une Nano industrielle et la communauté Python salue Tim Peters.",
+ "highlights": [
+  "Railway : des clés d'IA volées, environ 740 000 dollars de frais.",
+  "eMudhra : huit autorités de certification révoquées, retrait de confiance dès le 16 novembre.",
+  "Google : une API qui note des options au lieu de générer du texte.",
+  "Arduino : une Nano à 120 MHz avec CAN FD, RS-485 et Ethernet.",
+  "Python : disparition de Tim Peters, auteur de Timsort."
+ ],
+ "meta": {
+  "generator": "claude-scheduled-task"
+ },
+ "posts": [
+  {
+   "id": "railway-cles-ia-volees-740000-dollars",
+   "category": "cybersecurite",
+   "title": "Railway : des clés d'API d'IA volées lors d'une intrusion en octobre ont servi à générer environ 740 000 dollars de frais",
+   "summary": "La plateforme d'hébergement Railway détaille une attaque en chaîne partie de l'isolation de ses builds et affirme qu'elle prendra en charge les dépenses que les fournisseurs d'IA ne rembourseront pas.",
+   "tags": [
+    "Railway",
+    "clés d'API",
+    "variables d'environnement",
+    "IA",
+    "PaaS",
+    "OIDC"
+   ],
+   "importance": 4,
+   "readingMinutes": 5,
+   "publishedAt": "2026-11-12T04:15:44+01:00",
+   "sourceDate": "2026-11-11",
+   "icon": "🚂",
+   "illustration": {
+    "svg": "<svg xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"0 0 640 360\"><defs><linearGradient id=\"g\" x1=\"0\" y1=\"0\" x2=\"1\" y2=\"1\"><stop offset=\"0\" stop-color=\"hsl(175,65%,30%)\"/><stop offset=\"1\" stop-color=\"hsl(215,70%,50%)\"/></linearGradient></defs><rect width=\"640\" height=\"360\" fill=\"url(#g)\"/><g fill=\"none\" stroke=\"#fff\" stroke-width=\"7\" stroke-linecap=\"round\" stroke-linejoin=\"round\" opacity=\".93\"><path d=\"M230 250c-40 0-60-30-50-60 8-24 34-34 56-26 8-40 70-56 100-20 40-6 70 26 56 56-6 30-30 50-60 50z\"/><path d=\"M290 205l30 30 40-60\"/></g></svg>"
+   },
+   "sources": [
+    {
+     "title": "Railway says stolen customer AI keys led to $740,000 in estimated unauthorized usage charges (The Hacker News)",
+     "url": "https://thehackernews.com/2026/11/railway-says-stolen-customer-ai-keys.html",
+     "publisher": "The Hacker News"
+    }
+   ],
+   "blocks": [
+    {
+     "type": "paragraph",
+     "text": "Railway, plateforme d'hébergement (PaaS) très utilisée pour déployer des applications, a indiqué le 11 novembre 2026 que des clés d'API de fournisseurs d'IA, stockées par ses clients sous forme de variables d'environnement, avaient été dérobées lors d'une intrusion survenue en octobre. Ces clés auraient servi à générer environ 740 000 dollars de dépenses non autorisées. L'entreprise affirme qu'elle prendra ces frais à sa charge lorsque le fournisseur d'IA concerné refuse de les rembourser."
+    },
+    {
+     "type": "heading",
+     "level": 2,
+     "text": "Ce que l'on sait de l'étendue de l'incident"
+    },
+    {
+     "type": "list",
+     "ordered": false,
+     "items": [
+      "**Variables déchiffrées** : l'attaquant a déchiffré des variables d'environnement dans au plus 1,85 % des espaces de travail, soit environ 100 000. Il s'agit d'une borne haute : les journaux montrent quels environnements ont été exposés, mais pas quelles variables précisément.",
+      "**Jetons de comptes liés** : ceux de 1 852 utilisateurs (clés d'agents « apportez votre propre clé » et jetons OAuth GitHub) ont été réinitialisés, et les personnes concernées ont été prévenues.",
+      "**Ce qui n'a pas été touché** : selon l'analyse technique, aucune base de données client n'a été consultée et rien n'indique que des dépôts de code aient été téléchargés. L'attaquant a en revanche lu l'historique de 353 builds.",
+      "**Aucune connexion frauduleuse** : Railway n'a constaté aucune ouverture de session sur des comptes clients à l'aide des identifiants volés."
+     ]
+    },
+    {
+     "type": "heading",
+     "level": 2,
+     "text": "Une chaîne d'attaque en quatre temps"
+    },
+    {
+     "type": "paragraph",
+     "text": "Le 20 octobre 2026 à 7 h 28 UTC, l'attaquant a exploité une faille encore non identifiée pour sortir en partie de l'isolation des builds et lire des fichiers de la machine hôte. Il y a récupéré un identifiant du serveur de build, qui donnait accès à un système interne Temporal, c'est-à-dire à l'historique d'autres builds et à des instantanés de code mis en cache, dont une copie du monorepo de l'entreprise."
+    },
+    {
+     "type": "paragraph",
+     "text": "Le lendemain, il a exploité une liaison OIDC mal configurée pour obtenir des identifiants cloud à courte durée de vie. Ceux-ci ont mené à un identifiant de base de données, à une clé SSH et à une machine d'orchestration capable de déchiffrer les variables des clients via un service de gestion de clés (KMS) du fournisseur cloud. Le déchiffrement s'est déroulé en deux fenêtres ce 21 octobre, et l'attaquant a été totalement écarté à 9 h 24 UTC. Un rapport préliminaire daté du 22 octobre donnait des horaires différents : la version publiée le 11 novembre fait foi."
+    },
+    {
+     "type": "diagram",
+     "alt": "Schéma en quatre étapes de la chaîne d'attaque contre Railway, de l'évasion de l'isolation des builds au déchiffrement des variables.",
+     "caption": "Chaîne d'attaque décrite par Railway, les 20 et 21 octobre 2026.",
+     "svg": "<svg xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"0 0 640 220\" font-family=\"system-ui,sans-serif\"><rect width=\"640\" height=\"220\" rx=\"14\" fill=\"#eef2f7\"/><g font-size=\"13\" fill=\"#10243a\" text-anchor=\"middle\"><g><rect x=\"14\" y=\"60\" width=\"138\" height=\"90\" rx=\"10\" fill=\"#fff\" stroke=\"#3b6ea5\" stroke-width=\"2\"/><text x=\"83\" y=\"90\" font-weight=\"700\">1. Évasion</text><text x=\"83\" y=\"112\">isolation des builds</text><text x=\"83\" y=\"130\">partiellement contournée</text></g><g><rect x=\"174\" y=\"60\" width=\"138\" height=\"90\" rx=\"10\" fill=\"#fff\" stroke=\"#3b6ea5\" stroke-width=\"2\"/><text x=\"243\" y=\"90\" font-weight=\"700\">2. Identifiant</text><text x=\"243\" y=\"112\">serveur de build</text><text x=\"243\" y=\"130\">puis système Temporal</text></g><g><rect x=\"334\" y=\"60\" width=\"138\" height=\"90\" rx=\"10\" fill=\"#fff\" stroke=\"#3b6ea5\" stroke-width=\"2\"/><text x=\"403\" y=\"90\" font-weight=\"700\">3. OIDC mal lié</text><text x=\"403\" y=\"112\">identifiants cloud</text><text x=\"403\" y=\"130\">à courte durée</text></g><g><rect x=\"494\" y=\"60\" width=\"132\" height=\"90\" rx=\"10\" fill=\"#fff\" stroke=\"#c0392b\" stroke-width=\"2\"/><text x=\"560\" y=\"90\" font-weight=\"700\">4. KMS</text><text x=\"560\" y=\"112\">déchiffrement des</text><text x=\"560\" y=\"130\">variables clientes</text></g></g><g stroke=\"#3b6ea5\" stroke-width=\"3\" fill=\"none\"><path d=\"M154 105h18M314 105h18M474 105h18\"/></g><text x=\"320\" y=\"190\" font-size=\"12\" text-anchor=\"middle\" fill=\"#10243a\">20 octobre, 07 h 28 UTC → 21 octobre : exclusion complète à 09 h 24 UTC</text></svg>"
+    },
+    {
+     "type": "heading",
+     "level": 2,
+     "text": "Qui rembourse quoi"
+    },
+    {
+     "type": "paragraph",
+     "text": "Le traitement des frais dépend du fournisseur d'IA. AWS Bedrock et Google Gemini couvrent la fraude au titre de leurs politiques existantes et ont commencé les remboursements. OpenAI et SpaceXSI étudient les demandes au cas par cas : les clients doivent déposer une réclamation auprès du fournisseur, puis transmettre le numéro de dossier au support de Railway. Les discussions avec Anthropic se poursuivent et Railway avance les coûts en attendant. OpenRouter maintient une politique sans remboursement ; Railway prend donc ces coûts en charge. Le compte rendu ne précise pas comment l'estimation de 740 000 dollars a été établie, ni sur quelle période, et ne fixe ni plafond ni date limite de réclamation."
+    },
+    {
+     "type": "heading",
+     "level": 2,
+     "text": "Mesures prises et conseils aux clients"
+    },
+    {
+     "type": "paragraph",
+     "text": "Railway a fait passer les builds dans des machines virtuelles éphémères et limité les identifiants de build à l'envoi d'une seule image précise. Tous les utilisateurs ont été basculés d'un coup sur ce nouveau système, après que l'équipe interne eut construit une seconde exploitation en moins d'une heure à partir du premier correctif. Une plainte a été déposée auprès de l'IC3 du FBI, un cabinet d'analyse forensique intervient, et les indicateurs de compromission seront publiés quand les autorités l'autoriseront."
+    },
+    {
+     "type": "paragraph",
+     "text": "Pour les clients, la consigne est de **révoquer et remplacer** toute variable sensible enregistrée avant le 21 octobre, en changeant la clé auprès du fournisseur qui l'a émise : signaler une fraude ne révoque pas une clé. Il est aussi conseillé de fermer l'accès public aux bases de données, de relire les journaux d'audit GitHub et les applications autorisées, et de vérifier ceux des registres de conteneurs, comme Docker Hub."
+    },
+    {
+     "type": "usecases",
+     "title": "Exemples d'utilisation",
+     "items": [
+      {
+       "icon": "🔑",
+       "title": "Rotation d'une clé de modèle",
+       "text": "Une équipe qui stockait une clé OpenAI dans une variable Railway la révoque depuis le tableau de bord du fournisseur, en génère une nouvelle et la redéploie, puis contrôle l'historique de consommation depuis le 20 octobre."
+      },
+      {
+       "icon": "🧾",
+       "title": "Contestation de frais",
+       "text": "Une start-up découvre une facture d'IA anormale : elle ouvre un dossier chez le fournisseur, récupère le numéro de réclamation et le transmet au support de Railway pour la prise en charge."
+      },
+      {
+       "icon": "🛡️",
+       "title": "Durcissement des secrets",
+       "text": "Un service d'infrastructure remplace les clés longue durée par des jetons à portée limitée et à durée courte, avec des plafonds de dépense côté fournisseur, afin qu'une fuite ne puisse pas coûter des centaines de milliers de dollars."
+      }
+     ]
+    },
+    {
+     "type": "timeline",
+     "title": "D'où l'on vient, où l'on va",
+     "items": [
+      {
+       "label": "20 octobre 2026",
+       "text": "Évasion partielle de l'isolation des builds et accès au système Temporal."
+      },
+      {
+       "label": "21 octobre 2026",
+       "text": "Obtention d'identifiants cloud, puis déchiffrement des variables en deux fenêtres ; éviction complète à 9 h 24 UTC."
+      },
+      {
+       "label": "26 octobre 2026",
+       "text": "Mise à jour client : Railway indique ne pas pouvoir rembourser les dépenses réalisées avec des clés compromises."
+      },
+      {
+       "label": "11 novembre 2026",
+       "text": "Compte rendu détaillé : 740 000 dollars estimés, prise en charge des frais non remboursés."
+      },
+      {
+       "label": "À venir",
+       "text": "Publication des indicateurs de compromission une fois l'accord des forces de l'ordre obtenu."
+      }
+     ]
+    },
+    {
+     "type": "opinion",
+     "title": "Notre avis",
+     "paragraphs": [
+      "Cet incident illustre un risque désormais classique : les clés d'API d'IA sont des secrets qui se monnaient directement. Contrairement à un mot de passe de base de données, une clé volée se convertit en argent en quelques heures, soit en consommation de calcul, soit en revente d'accès. Railway n'est pas seul : selon Wiz, au moins neuf incidents visant des plateformes pour développeurs d'IA ont été divulgués en octobre, tous centrés sur la recherche de variables d'environnement.",
+      "À un ou trois ans, on peut s'attendre à ce que les fournisseurs généralisent les plafonds de dépense par clé, les clés liées à une adresse ou à une identité de charge de travail, et les jetons éphémères. Les plateformes d'hébergement, elles, devront probablement cesser de déchiffrer des secrets côté serveur de façon aussi large. C'est une analyse, pas un fait établi."
+     ],
+     "verdict": "Stocker une clé d'IA dans une variable d'environnement n'est supportable que si elle est limitée, surveillée et facile à révoquer."
+    },
+    {
+     "type": "callout",
+     "title": "À retenir",
+     "text": "Pensez à révoquer chez le fournisseur toute clé stockée avant le 21 octobre 2026 : un simple signalement ne la désactive pas."
+    }
+   ]
+  },
+  {
+   "id": "emudhra-huit-autorites-supplementaires-revoquees",
+   "category": "cybersecurite",
+   "title": "eMudhra : huit autorités de certification supplémentaires révoquées après la compromission de clés d'octobre",
+   "summary": "Un script Python interne est à l'origine de clés ECDSA affaiblies, puis de doutes sur huit autorités RSA ; Microsoft, Apple, Chrome et Firefox retirent progressivement leur confiance dans les racines concernées.",
+   "tags": [
+    "eMudhra",
+    "autorité de certification",
+    "PKI",
+    "TLS",
+    "magasins de confiance",
+    "Certificate Transparency"
+   ],
+   "importance": 4,
+   "readingMinutes": 5,
+   "publishedAt": "2026-11-12T04:15:44+01:00",
+   "sourceDate": "2026-11-11",
+   "icon": "📜",
+   "illustration": {
+    "svg": "<svg xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"0 0 640 360\"><defs><linearGradient id=\"g\" x1=\"0\" y1=\"0\" x2=\"1\" y2=\"1\"><stop offset=\"0\" stop-color=\"hsl(175,65%,30%)\"/><stop offset=\"1\" stop-color=\"hsl(215,70%,50%)\"/></linearGradient></defs><rect width=\"640\" height=\"360\" fill=\"url(#g)\"/><g fill=\"none\" stroke=\"#fff\" stroke-width=\"7\" stroke-linecap=\"round\" stroke-linejoin=\"round\" opacity=\".93\"><rect x=\"190\" y=\"90\" width=\"260\" height=\"180\" rx=\"14\"/><path d=\"M225 140h190M225 175h130M225 210h100\"/><circle cx=\"395\" cy=\"230\" r=\"26\"/><path d=\"M385 252l-8 36 18-10 18 10-8-36\"/></g></svg>"
+   },
+   "sources": [
+    {
+     "title": "eMudhra Revokes 8 More CAs It Previously Declared Unaffected by Key Compromise (The Hacker News)",
+     "url": "https://thehackernews.com/2026/11/emudhra-revokes-8-more-cas-it.html",
+     "publisher": "The Hacker News"
+    }
+   ],
+   "blocks": [
+    {
+     "type": "paragraph",
+     "text": "L'autorité de certification indienne eMudhra a révoqué huit autorités intermédiaires supplémentaires qu'elle avait d'abord déclarées non touchées par la compromission de clés survenue en octobre 2026. L'entreprise attribue désormais le problème à un script Python interne, utilisé pour déplacer des clés entre deux modèles de modules matériels de sécurité (HSM)."
+    },
+    {
+     "type": "heading",
+     "level": 2,
+     "text": "L'origine : une cérémonie de clés d'avril 2025"
+    },
+    {
+     "type": "paragraph",
+     "text": "Tout part d'une cérémonie de clés tenue le 30 avril 2025, au cours de laquelle 16 clés d'autorités de certification ont été générées sur des HSM Utimaco. Elles étaient destinées à des HSM Crypto4A déployés aux États-Unis et dans l'Union européenne. Les transferts entre fabricants étant limités, l'équipe a écrit un script pour chiffrer puis déchiffrer les clés ; sur le HSM source, le mode approuvé FIPS avait été désactivé pour cet exercice préparatoire. Le script lisait les clés privées en mémoire sur un ordinateur, puis les reconstruisait."
+    },
+    {
+     "type": "paragraph",
+     "text": "En octobre, le défaut identifié concernait les clés ECDSA : une ligne de code tronquait chaque clé privée à un seul octet. Les clés affaiblies produisaient pourtant des signatures valides, et un libellé presque identique à celui de l'original a permis de signer et de certifier les copies. Aucun test ne vérifiait la robustesse de la clé ni ne comparait la clé certifiée à l'originale : les certificats ont passé les contrôles automatiques et deux cycles d'audit WebTrust. Des signatures de listes de révocation invalides, en juin 2025, constituaient un premier signe ; eMudhra les a corrigées en les resignant avec les clés affaiblies."
+    },
+    {
+     "type": "heading",
+     "level": 2,
+     "text": "Les huit autorités RSA"
+    },
+    {
+     "type": "list",
+     "ordered": false,
+     "items": [
+      "Les huit autorités nouvellement révoquées utilisent RSA et leurs clés n'ont **pas** été raccourcies.",
+      "En revanche, leurs composantes privées se sont retrouvées dans la mémoire d'un processus Python : eMudhra reconnaît qu'elle « ne peut pas démontrer positivement » le respect de la règle de manipulation des clés de sa politique de certification (§ 6.2.6).",
+      "Six délivrent des certificats TLS et deux des certificats de signature de code ; quatre sont entrées en production en mai, et leur liste mentionne 195 certificats, dont 29 pour des domaines d'eMudhra.",
+      "Elles ont été révoquées avec le motif « cessation d'activité » et non « compromission de clé », comme en octobre, un choix que des participants contestent."
+     ]
+    },
+    {
+     "type": "heading",
+     "level": 2,
+     "text": "Conséquences pour les navigateurs et les systèmes"
+    },
+    {
+     "type": "paragraph",
+     "text": "eMudhra se retire du TLS public : l'émission avec la racine G1 s'arrête avant le 16 novembre. Microsoft retirera dix racines d'eMudhra, dont emSign Root CA - G1, à partir du 16 novembre ; Windows et Edge cesseront alors de faire confiance par défaut aux chaînes concernées. Chrome et Firefox n'accepteront plus les certificats G1 émis après cette date. Apple mettra fin à la confiance envers tous les certificats G1, y compris anciens, le 30 novembre. Les mises à jour macOS 27.2.1, 26.7.3 et 15.8.3 empêchent les outils en ligne de commande fournis, comme curl et git, d'accepter les autorités TLS compromises, et retirent cinq racines du fichier /etc/ssl/cert.pem : certains sites peuvent donc échouer à la vérification dans ces outils."
+    },
+    {
+     "type": "paragraph",
+     "text": "Côté contrôle, KPMG examine l'incident, avec un rapport attendu au plus tard le 4 décembre, et un inventaire des clés d'autorité est dû le 30 novembre. eMudhra ne connaît aucun usage malveillant. Un site de divulgation tenu par Dennis Jackson indique toutefois que les détenteurs des clés d'octobre auraient pu usurper n'importe quel site. Les navigateurs qui appliquent la transparence des certificats l'auraient détecté ; reste inconnue l'éventuelle utilisation contre des logiciels qui ignorent cette vérification."
+    },
+    {
+     "type": "usecases",
+     "title": "Ce que cela change concrètement",
+     "items": [
+      {
+       "icon": "🧰",
+       "title": "Outils en ligne de commande",
+       "text": "Un administrateur sous macOS voit curl refuser un site signé par une chaîne eMudhra : il met à jour le système, puis demande au propriétaire du site de changer d'autorité."
+      },
+      {
+       "icon": "🏢",
+       "title": "Parc d'entreprise",
+       "text": "Une DSI interroge ses journaux de certificats pour repérer toute chaîne émise par une racine eMudhra avant le 16 novembre et planifie le remplacement."
+      },
+      {
+       "icon": "🔍",
+       "title": "Surveillance des certificats",
+       "text": "Une équipe sécurité s'abonne aux journaux de transparence des certificats pour détecter l'émission inattendue d'un certificat sur ses domaines."
+      }
+     ]
+    },
+    {
+     "type": "timeline",
+     "title": "D'où l'on vient, où l'on va",
+     "items": [
+      {
+       "label": "30 avril 2025",
+       "text": "Cérémonie de clés sur HSM Utimaco, 16 clés générées."
+      },
+      {
+       "label": "Juin 2025",
+       "text": "Signatures de listes de révocation invalides, corrigées avec les clés affaiblies."
+      },
+      {
+       "label": "Octobre 2026",
+       "text": "Divulgation de la compromission des clés ECDSA."
+      },
+      {
+       "label": "11 novembre 2026",
+       "text": "Révocation de huit autorités RSA supplémentaires."
+      },
+      {
+       "label": "16 et 30 novembre 2026",
+       "text": "Retrait des racines par Microsoft, puis fin de confiance chez Apple."
+      },
+      {
+       "label": "4 décembre 2026",
+       "text": "Rapport de KPMG attendu."
+      }
+     ]
+    },
+    {
+     "type": "opinion",
+     "title": "Notre avis",
+     "paragraphs": [
+      "L'affaire rappelle que la confiance du web repose sur des procédures humaines et des scripts de circonstance. Une erreur de transfert de clés a traversé deux audits, parce que personne ne vérifiait la clé elle-même. La réponse à la hâte d'octobre, qui déclarait huit autorités « non affectées », puis le revirement, nuisent aussi à la crédibilité de l'autorité.",
+      "À un ou trois ans, la pression devrait s'accroître sur les autorités de certification pour qu'elles automatisent la vérification des clés et réduisent la durée de vie des certificats. Les magasins de confiance, eux, continueront de sanctionner rapidement : c'est une analyse, non un fait établi."
+     ],
+     "verdict": "Quand la clé d'une autorité ne se vérifie pas, c'est tout l'édifice de confiance qui est en jeu."
+    }
+   ]
+  },
+  {
+   "id": "gemini-decisions-api-choix-borne",
+   "category": "ia",
+   "title": "Gemini Decisions API : Google propose un modèle qui note des options plutôt que de générer du texte",
+   "summary": "Un nouveau point d'entrée de l'API Gemini, fondé sur le modèle Gemini Decision 1, renvoie des probabilités pour des choix bornés, avec une latence annoncée de 150 à 250 ms.",
+   "tags": [
+    "Google",
+    "Gemini",
+    "API",
+    "routage de modèles",
+    "classification"
+   ],
+   "importance": 3,
+   "readingMinutes": 5,
+   "publishedAt": "2026-11-12T04:15:44+01:00",
+   "sourceDate": "2026-11-11",
+   "icon": "🎯",
+   "illustration": {
+    "svg": "<svg xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"0 0 640 360\"><defs><linearGradient id=\"g\" x1=\"0\" y1=\"0\" x2=\"1\" y2=\"1\"><stop offset=\"0\" stop-color=\"hsl(320,65%,30%)\"/><stop offset=\"1\" stop-color=\"hsl(0,70%,50%)\"/></linearGradient></defs><rect width=\"640\" height=\"360\" fill=\"url(#g)\"/><g fill=\"none\" stroke=\"#fff\" stroke-width=\"7\" stroke-linecap=\"round\" stroke-linejoin=\"round\" opacity=\".93\"><circle cx=\"240\" cy=\"180\" r=\"34\"/><circle cx=\"400\" cy=\"120\" r=\"34\"/><circle cx=\"400\" cy=\"240\" r=\"34\"/><path d=\"M272 168l96-36M272 192l96 36M400 154v52\"/></g></svg>"
+   },
+   "sources": [
+    {
+     "title": "Gemini Decisions API (Google)",
+     "url": "https://blog.google/innovation-and-ai/technology/developers-tools/gemini-decisions-api/",
+     "publisher": "Google"
+    }
+   ],
+   "blocks": [
+    {
+     "type": "paragraph",
+     "text": "Google a présenté la Gemini Decisions API, un nouveau point d'entrée de l'API Gemini destiné aux décisions rapides dont la réponse appartient à un ensemble d'options fixé à l'avance. Elle repose sur un modèle nommé Gemini Decision 1 (`gemini-decision-1`), conçu pour les choix bornés plutôt que pour la génération de texte libre. Les usages visés sont la sélection d'outil, le contrôle de politique, le routage entre modèles et la notation de contexte."
+    },
+    {
+     "type": "heading",
+     "level": 2,
+     "text": "Comment cela fonctionne"
+    },
+    {
+     "type": "paragraph",
+     "text": "L'API accepte une entrée multimodale unique, pouvant combiner texte, images, audio, vidéo et PDF, jusqu'à 256 000 jetons. On peut y rattacher jusqu'à 1 000 questions indépendantes. Au lieu de produire une réponse jeton par jeton, le modèle note les options candidates en une seule passe et renvoie des probabilités et des indices de confiance compris entre 0 et 1. Le code appelant peut alors envoyer les cas ambigus vers une solution de repli ou un relecteur humain."
+    },
+    {
+     "type": "list",
+     "ordered": false,
+     "items": [
+      "**Oui/non** (type `noul` dans l'API) : estime la probabilité qu'une condition soit vraie.",
+      "**Choix multiple** (`choice`) : sélectionne parmi 2 à 255 options et renvoie des probabilités normalisées.",
+      "**Grille ordonnée** (`score`) : évalue l'entrée selon des niveaux à partir de 0 et renvoie un score pondéré et les probabilités par niveau."
+     ]
+    },
+    {
+     "type": "heading",
+     "level": 2,
+     "text": "Performances, prix et disponibilité"
+    },
+    {
+     "type": "paragraph",
+     "text": "Google annonce un temps de calcul médian de 50 à 100 ms et une latence de bout en bout de 150 à 250 ms, quasi constante de 1 à 100 questions par requête pour des contextes jusqu'à 16 000 jetons. L'entreprise affirme aussi que le modèle domine sa suite de tests interne et qu'il est le mieux calibré parmi ceux évalués : ces chiffres proviennent de Google et n'ont pas été vérifiés de façon indépendante."
+    },
+    {
+     "type": "paragraph",
+     "text": "Le tarif est de 0,10 dollar par million de jetons en entrée, les jetons de sortie étant gratuits. L'entrée partagée n'est facturée qu'une fois par requête, quel que soit le nombre de questions, chaque question ajoutant ses propres consignes. Google ne facture ni jetons de réflexion, ni transcription audio, ni reconnaissance de texte séparée, et annonce un coût près de cinq fois inférieur à celui de Gemini 3.5 Flash-Lite via l'API Interactions sur sa suite de tests. Un niveau gratuit existe dans Google AI Studio. L'exemple fourni utilise le SDK Python `google-genai`, la version d'API `v1beta` et l'appel `client.decisions.create` : une photo d'un plan de travail de salle de pause est confrontée à trois questions (présence d'un déversement, action de nettoyage adaptée, gravité)."
+    },
+    {
+     "type": "heading",
+     "level": 2,
+     "text": "Les premiers usages chez Google"
+    },
+    {
+     "type": "list",
+     "ordered": false,
+     "items": [
+      "Gemini Notebook s'en sert comme routeur en temps réel, qui oriente chaque requête vers un niveau de modèle adapté, avec jusqu'à 40 % de latence en moins pour les requêtes courantes.",
+      "Le canevas rapide de Stitch l'emploie pour générer des maquettes jouables et appliquer des modifications.",
+      "CC, de Google Labs, choisit une réaction emoji parmi plus de 200.",
+      "Google Search l'utilise comme couche de sécurité détectant les comportements adverses dans les outils MCP."
+     ]
+    },
+    {
+     "type": "paragraph",
+     "text": "Des intégrations avec OpenRouter, LangChain, Vercel, LiteLLM, Pydantic AI, Pipecat, LiveKit et OpenCode sont en cours de déploiement ; la prise en charge dans Gemini sur Google Cloud est annoncée comme « bientôt »."
+    },
+    {
+     "type": "usecases",
+     "title": "Exemples d'utilisation",
+     "items": [
+      {
+       "icon": "🧭",
+       "title": "Routage de requêtes",
+       "text": "Un assistant d'entreprise classe chaque demande selon sa difficulté et envoie les questions simples vers un petit modèle, les autres vers un modèle plus puissant."
+      },
+      {
+       "icon": "🛂",
+       "title": "Contrôle de conformité",
+       "text": "Une plateforme de petites annonces vérifie une photo et son texte contre dix règles de modération et ne transmet à un humain que les cas dont la confiance est faible."
+      },
+      {
+       "icon": "📝",
+       "title": "Notation de copies ou de tickets",
+       "text": "Un service client note chaque conversation sur une grille de qualité à quatre niveaux et déclenche une revue lorsque la probabilité du niveau le plus bas dépasse un seuil."
+      }
+     ]
+    },
+    {
+     "type": "timeline",
+     "title": "D'où l'on vient, où l'on va",
+     "items": [
+      {
+       "label": "Jusqu'ici",
+       "text": "Les décisions de ce type passaient par un modèle génératif, avec une réponse textuelle à analyser et un coût en jetons de sortie."
+      },
+      {
+       "label": "Novembre 2026",
+       "text": "Google propose un modèle dédié, avec probabilités calibrées et sortie gratuite."
+      },
+      {
+       "label": "À venir",
+       "text": "Prise en charge dans Gemini sur Google Cloud et poursuite des intégrations tierces."
+      }
+     ]
+    },
+    {
+     "type": "opinion",
+     "title": "Notre avis",
+     "paragraphs": [
+      "L'idée est séduisante par sa sobriété : une grande partie des appels de modèles dans les produits consiste à trancher entre quelques options, pas à écrire. Renvoyer des probabilités permet de décider quand faire confiance à la machine et quand solliciter un humain, ce qui est plus utile qu'une réponse unique et assurée. Les performances et la calibration restent toutefois des déclarations de l'éditeur, établies sur sa propre suite de tests.",
+      "À un ou trois ans, la spécialisation des modèles par tâche, au lieu d'un modèle généraliste pour tout, pourrait devenir la norme pour les briques d'orchestration d'agents. Le revers est une dépendance accrue à un fournisseur pour des décisions qui touchent à la modération ou à la conformité : c'est une opinion, pas un fait établi."
+     ],
+     "verdict": "Un modèle qui dit à quel point il est sûr de lui est plus utile qu'un modèle qui répond toujours avec aplomb."
+    }
+   ]
+  },
+  {
+   "id": "arduino-nano-xl-link-industriel",
+   "category": "electronique",
+   "title": "Arduino Nano XL Link : un format Nano à 120 MHz avec CAN FD, RS-485 et Ethernet pour l'automatisation",
+   "summary": "Dévoilée à Electronica 2026, la carte reprend le format de 43 x 23 mm autour d'un microcontrôleur Microchip PIC32CK Cortex-M33 et d'interfaces industrielles ; prix et disponibilité ne sont pas annoncés.",
+   "tags": [
+    "Arduino",
+    "Nano XL Link",
+    "CAN FD",
+    "RS-485",
+    "Microchip",
+    "Zephyr"
+   ],
+   "importance": 3,
+   "readingMinutes": 5,
+   "publishedAt": "2026-11-12T04:15:44+01:00",
+   "sourceDate": "2026-11-11",
+   "icon": "🔌",
+   "illustration": {
+    "svg": "<svg xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"0 0 640 360\"><defs><linearGradient id=\"g\" x1=\"0\" y1=\"0\" x2=\"1\" y2=\"1\"><stop offset=\"0\" stop-color=\"hsl(30,65%,30%)\"/><stop offset=\"1\" stop-color=\"hsl(70,70%,50%)\"/></linearGradient></defs><rect width=\"640\" height=\"360\" fill=\"url(#g)\"/><g fill=\"none\" stroke=\"#fff\" stroke-width=\"7\" stroke-linecap=\"round\" stroke-linejoin=\"round\" opacity=\".93\"><rect x=\"230\" y=\"110\" width=\"180\" height=\"140\" rx=\"12\"/><rect x=\"275\" y=\"150\" width=\"90\" height=\"60\" rx=\"6\"/><path d=\"M260 110v-30M320 110v-30M380 110v-30M260 250v30M320 250v30M380 250v30M230 150h-30M230 210h-30M410 150h30M410 210h30\"/></g></svg>"
+   },
+   "sources": [
+    {
+     "title": "Arduino Nano XL board features Microchip PIC32CK Cortex-M33 MCU (CNX Software)",
+     "url": "https://www.cnx-software.com/2026/11/11/arduino-nano-xl-board-features-microchip-pic32ck-cortex-m33-mcu-for-industrial-home-and-building-automation/",
+     "publisher": "CNX Software"
+    }
+   ],
+   "blocks": [
+    {
+     "type": "paragraph",
+     "text": "Arduino a dévoilé, au salon Electronica 2026, la Nano XL Link (référence ABX00182) et une carte porteuse associée. La carte est présentée comme une évolution de la Nano qui conserve la même empreinte de 43 x 23 mm, tout en visant l'automatisation industrielle, domestique et du bâtiment. Ni la carte ni la porteuse ne peuvent encore être achetées, et Arduino n'a communiqué ni prix ni date de disponibilité."
+    },
+    {
+     "type": "heading",
+     "level": 2,
+     "text": "Un cœur Cortex-M33 et de la sécurité intégrée"
+    },
+    {
+     "type": "paragraph",
+     "text": "La carte repose sur un microcontrôleur Microchip PIC32CK2051SG01144 à cœur Arm Cortex-M33 cadencé à 120 MHz, avec 512 ko de mémoire vive et 2 Mo de mémoire flash, dont 728 ko disponibles pour les programmes (« sketches »). Il intègre un module de sécurité matériel avec TrustZone. La carte se programme avec l'IDE Arduino ou Arduino Cloud et s'appuie sur le cœur Arduino pour Zephyr, avec le chargeur d'amorçage MCUboot. Un manuel d'utilisation et des schémas au format PDF sont publiés sur la page de documentation."
+    },
+    {
+     "type": "heading",
+     "level": 2,
+     "text": "Les interfaces industrielles"
+    },
+    {
+     "type": "list",
+     "ordered": false,
+     "items": [
+      "**CAN FD** : émetteur-récepteur Texas Instruments TCAN3414, compatible CAN classique et CAN FD ; débits d'arbitrage de 125, 250, 500 kbit/s et 1 Mbit/s, débits de données jusqu'à 8 Mbit/s ; terminaison de 120 Ω embarquée, activable par le cavalier à souder SJ1.",
+      "**RS-485** : émetteur-récepteur Texas Instruments THVD2410 en semi-duplex, jusqu'à 500 kbit/s, avec terminaison de 120 Ω via le cavalier SJ2.",
+      "**Ethernet** : 10/100 Mbit/s grâce à un circuit physique Microchip KSZ8081RNAIA."
+     ]
+    },
+    {
+     "type": "paragraph",
+     "text": "Côté connectique, deux rangées de 30 broches (J3 et J4) offrent 26 entrées-sorties numériques, 8 entrées analogiques 12 bits, 8 sorties MLI, 2 UART, 2 SPI et 1 I2C. Les entrées-sorties fonctionnent en 3,3 V, avec 7 mA en absorption et 11 mA en fourniture par broche. On trouve aussi un connecteur Qwiic, un bouton de réinitialisation, des voyants et une diode RVB. L'alimentation se fait par USB-C ou par la broche Vin entre 7 et 24 V, avec une sortie 5 V sur VBUS jusqu'à 500 mA fournie par un convertisseur abaisseur MPQ4334 ; la plage de fonctionnement va de -20 à +85 °C."
+    },
+    {
+     "type": "heading",
+     "level": 2,
+     "text": "La carte porteuse « Connector Carrier »"
+    },
+    {
+     "type": "paragraph",
+     "text": "Comme les interfaces industrielles ne sont accessibles que par les rangées de broches, la porteuse (ASX00090) sert à l'évaluation et au prototypage rapide. Elle ajoute une prise RJ45 10/100 Mbit/s avec transformateur intégré, le CAN FD et le RS-485 sur bornier à vis, un connecteur à 8 broches pour une extension Wi-Fi au format ESP-01, un connecteur d'extension à 40 broches (8 GPIO, 8 entrées analogiques, USB 2.0, I2C, SDIO, UART, SPI, SWD) et un bornier d'alimentation 7–24 V avec protection contre l'inversion de polarité et diode TVS. Ses dimensions sont de 71,8 x 66 mm, compatibles avec les boîtiers pour rail DIN 4U, et sa plage de température va de -40 à +85 °C."
+    },
+    {
+     "type": "usecases",
+     "title": "Exemples d'utilisation",
+     "items": [
+      {
+       "icon": "🏭",
+       "title": "Passerelle de machine",
+       "text": "Un intégrateur relie un automate par CAN FD, lit des capteurs en RS-485 et remonte les mesures sur le réseau local en Ethernet depuis une seule carte."
+      },
+      {
+       "icon": "🏠",
+       "title": "Domotique de bâtiment",
+       "text": "Un installateur pilote des volets et du chauffage sur bus RS-485 et publie les états sur un serveur domotique, avec la porteuse montée en armoire électrique."
+      },
+      {
+       "icon": "🧪",
+       "title": "Banc d'essai",
+       "text": "Un laboratoire prototype un nœud de mesure sur la porteuse, valide le logiciel sous Zephyr, puis passe à une carte dédiée une fois le comportement validé."
+      }
+     ]
+    },
+    {
+     "type": "timeline",
+     "title": "D'où l'on vient, où l'on va",
+     "items": [
+      {
+       "label": "Gamme Nano",
+       "text": "Format compact de 43 x 23 mm, popularisé par les cartes Arduino Nano."
+      },
+      {
+       "label": "Electronica 2026",
+       "text": "Présentation de la Nano XL Link et de sa carte porteuse."
+      },
+      {
+       "label": "À venir",
+       "text": "Prix et date de commercialisation encore non annoncés."
+      }
+     ]
+    },
+    {
+     "type": "opinion",
+     "title": "Notre avis",
+     "paragraphs": [
+      "Arduino cherche à monter en gamme : de la carte d'initiation à un matériel qui parle les bus de l'industrie et du bâtiment, avec un cœur plus sécurisé et un système temps réel, Zephyr. Les caractéristiques annoncées sont cohérentes, mais l'absence de prix et de date empêche de juger l'intérêt face aux cartes industrielles existantes.",
+      "À un ou trois ans, si le prix reste contenu, ce format pourrait séduire les petits intégrateurs qui veulent éviter une carte sur mesure. Cela dépendra de la maturité de la pile Zephyr, du prix et de la disponibilité des pilotes : c'est une opinion et non un fait établi."
+     ],
+     "verdict": "Une promesse intéressante, à confirmer par un prix, une date et des bibliothèques réellement utilisables."
+    }
+   ]
+  },
+  {
+   "id": "tim-peters-disparition-python",
+   "category": "dev",
+   "title": "Tim Peters, auteur de Timsort et du « Zen de Python », est mort le 15 juillet 2026",
+   "summary": "La nouvelle a été annoncée le 11 novembre par Guido van Rossum dans le forum des développeurs du cœur de Python ; elle a suscité de nombreux hommages.",
+   "tags": [
+    "Python",
+    "Tim Peters",
+    "Timsort",
+    "Zen de Python",
+    "hommage"
+   ],
+   "importance": 4,
+   "readingMinutes": 4,
+   "publishedAt": "2026-11-12T04:15:44+01:00",
+   "sourceDate": "2026-11-11",
+   "icon": "🐍",
+   "illustration": {
+    "svg": "<svg xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"0 0 640 360\"><defs><linearGradient id=\"g\" x1=\"0\" y1=\"0\" x2=\"1\" y2=\"1\"><stop offset=\"0\" stop-color=\"hsl(265,65%,30%)\"/><stop offset=\"1\" stop-color=\"hsl(305,70%,50%)\"/></linearGradient></defs><rect width=\"640\" height=\"360\" fill=\"url(#g)\"/><g fill=\"none\" stroke=\"#fff\" stroke-width=\"7\" stroke-linecap=\"round\" stroke-linejoin=\"round\" opacity=\".93\"><path d=\"M260 130l-60 50 60 50M380 130l60 50-60 50M345 110l-50 140\"/></g></svg>"
+   },
+   "sources": [
+    {
+     "title": "In Memoriam: Tim Peters (1952–2026) (forum Python)",
+     "url": "https://discuss.python.org/t/in-memoriam-tim-peters-1952-2026/110028",
+     "publisher": "discuss.python.org"
+    }
+   ],
+   "blocks": [
+    {
+     "type": "paragraph",
+     "text": "Le 11 novembre 2026, Guido van Rossum a annoncé dans le forum des développeurs du cœur de Python que Tim Peters était mort le 15 juillet 2026. Il se dit « immensément triste » et le décrit comme un mentor et un cocréateur du langage. Né en 1952, Tim Peters laisse l'image d'un contributeur discret et rigoureux dont le travail est présent dans de nombreux usages quotidiens de Python."
+    },
+    {
+     "type": "heading",
+     "level": 2,
+     "text": "Une contribution technique durable"
+    },
+    {
+     "type": "list",
+     "ordered": false,
+     "items": [
+      "**Timsort** : l'algorithme de tri conçu en 2002 pour les listes de Python, adopté ensuite par Java et par Android.",
+      "**Le Zen de Python** : il a écrit la PEP 20, que l'on affiche avec `import this`.",
+      "**Arithmétique mixte** : il a convaincu Guido van Rossum que `int` et `float` devaient pouvoir se combiner dans les calculs.",
+      "**Code du cœur** : l'allocateur pymalloc, l'implémentation des dictionnaires, les modules `float` et `math`, ainsi que la multiplication de Karatsuba pour les grands entiers.",
+      "**Bibliothèque standard** : la version initiale de `doctest` et des contributions à `difflib`, `pickletools` et `tabnanny`."
+     ]
+    },
+    {
+     "type": "paragraph",
+     "text": "Sur la liste de diffusion, sa patience face aux questions des utilisateurs lui avait valu le surnom de « Timbot ». Des contributeurs rappellent aussi son parcours antérieur : des compilateurs chez Cray Research et la reconnaissance vocale chez Dragon Systems. Un hommage indique qu'il a siégé au conseil de la Python Software Foundation de 2001 à 2014."
+    },
+    {
+     "type": "heading",
+     "level": 2,
+     "text": "Les hommages"
+    },
+    {
+     "type": "paragraph",
+     "text": "Les contributeurs le décrivent comme brillant, patient, drôle et bienveillant. Chris Angelico écrit qu'il ne faisait jamais sentir aux autres qu'ils étaient ignorants ; Petr Viktorin raconte que la lecture des notes sur Timsort l'a conduit à choisir le métier de développeur ; Neil Schemenauer salue son pragmatisme et sa générosité. Antoine Pitrou note que son ton était devenu plus tranchant ces dernières années, tout en estimant qu'il agissait avec de bonnes intentions. Steve Holden écrit qu'il avait été très affecté par une sanction décidée par le comité de pilotage de Python, qu'il juge idéologique : cette affirmation vient d'un hommage et n'est pas confirmée dans l'annonce."
+    },
+    {
+     "type": "usecases",
+     "title": "Exemples d'utilisation",
+     "items": [
+      {
+       "icon": "📚",
+       "title": "Enseigner le tri",
+       "text": "Un enseignant utilise les notes de Timsort pour montrer comment exploiter les séquences déjà triées dans les données réelles, plutôt que de tout trier de zéro."
+      },
+      {
+       "icon": "🧪",
+       "title": "Tester la documentation",
+       "text": "Une équipe écrit des exemples exécutables avec `doctest` pour que la documentation d'une bibliothèque échoue en intégration continue dès qu'elle devient fausse."
+      },
+      {
+       "icon": "🧭",
+       "title": "Relire les principes du langage",
+       "text": "Un projet open source relit les aphorismes de `import this` pour trancher une discussion de conception : lisibilité, simplicité, explicite plutôt qu'implicite."
+      }
+     ]
+    },
+    {
+     "type": "timeline",
+     "title": "D'où l'on vient, où l'on va",
+     "items": [
+      {
+       "label": "1952",
+       "text": "Naissance de Tim Peters."
+      },
+      {
+       "label": "2001–2014",
+       "text": "Siège au conseil de la Python Software Foundation, selon un hommage."
+      },
+      {
+       "label": "2002",
+       "text": "Conception de Timsort pour les listes de Python."
+      },
+      {
+       "label": "15 juillet 2026",
+       "text": "Décès de Tim Peters."
+      },
+      {
+       "label": "11 novembre 2026",
+       "text": "Annonce publique par Guido van Rossum."
+      }
+     ]
+    },
+    {
+     "type": "opinion",
+     "title": "Notre avis",
+     "paragraphs": [
+      "Ce décès rappelle que des pans entiers de l'infrastructure logicielle reposent sur le travail de quelques personnes dont les noms sont peu connus du grand public. Timsort tourne chaque jour dans d'innombrables programmes, sans que leurs utilisateurs sachent d'où il vient.",
+      "Pour les prochaines années, la meilleure manière de lui rendre hommage est sans doute de préserver ce qu'il incarnait : des algorithmes bien documentés, des tests lisibles et une communauté où l'on répond avec patience. C'est une opinion et non un fait."
+     ],
+     "verdict": "Un de ces bâtisseurs discrets dont chaque développeur Python utilise le travail sans le savoir."
+    }
+   ]
+  }
+ ]
+}
