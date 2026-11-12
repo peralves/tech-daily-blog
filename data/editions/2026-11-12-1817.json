@@ -1,0 +1,1041 @@
+{
+ "schemaVersion": "1.0",
+ "date": "2026-11-12",
+ "generatedAt": "2026-11-12T18:17:24+01:00",
+ "title": "Tech du 12 novembre : failles critiques, démantèlement de malwares et IA vérificatrice",
+ "summary": "Une faille critique dans Red Hat Quay, une campagne contre des prestataires via ScreenConnect, un zero-day Windows publié sans correctif et le démantèlement de trois infrastructures malveillantes dominent l’édition. Côté IA, Google affirme avoir vérifié formellement des garanties de libsignal ; côté électronique, deux nouveautés à bas prix.",
+ "highlights": [
+  "Red Hat Quay : deux failles critiques exposent les images privées des registres",
+  "Opération Endgame : 257 domaines et 235 serveurs saisis contre Gootloader, CastleRAT et StealC",
+  "ScreenConnect : six prestataires et 47 organisations touchés, selon Huntress",
+  "Gemini 4 Carbon : une vérification formelle de libsignal en quatre semaines, avec des réserves"
+ ],
+ "meta": {
+  "generator": "claude-scheduled-task"
+ },
+ "posts": [
+  {
+   "id": "red-hat-quay-faille-cles-signature-images-privees",
+   "category": "cybersecurite",
+   "title": "Red Hat Quay : une faille critique permet de lire et d’écraser toutes les images privées d’un registre",
+   "summary": "La faille CVE-2026-123710 (CVSS 9,8) autorise l’ajout d’une clé de confiance sans expiration ; une seconde, CVE-2026-110697, expose les jetons de comptes robots d’autres locataires.",
+   "tags": [
+    "Red Hat Quay",
+    "registre de conteneurs",
+    "CVE-2026-123710",
+    "OpenShift",
+    "chaîne d’approvisionnement"
+   ],
+   "importance": 5,
+   "sourceDate": "2026-11-12",
+   "icon": "📦",
+   "illustration": {
+    "svg": "<svg xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"0 0 640 360\"><defs><linearGradient id=\"g\" x1=\"0\" y1=\"0\" x2=\"1\" y2=\"1\"><stop offset=\"0\" stop-color=\"hsl(175,65%,30%)\"/><stop offset=\"1\" stop-color=\"hsl(215,70%,50%)\"/></linearGradient></defs><rect width=\"640\" height=\"360\" fill=\"url(#g)\"/><g fill=\"none\" stroke=\"#fff\" stroke-width=\"7\" stroke-linecap=\"round\" stroke-linejoin=\"round\" opacity=\".93\"><rect x=\"190\" y=\"90\" width=\"260\" height=\"60\" rx=\"10\"/><rect x=\"190\" y=\"170\" width=\"260\" height=\"60\" rx=\"10\"/><rect x=\"190\" y=\"250\" width=\"260\" height=\"60\" rx=\"10\"/><circle cx=\"225\" cy=\"120\" r=\"6\"/><circle cx=\"225\" cy=\"200\" r=\"6\"/><circle cx=\"225\" cy=\"280\" r=\"6\"/><path d=\"M260 120h140M260 200h140M260 280h140\" opacity=\".6\"/></g></svg>"
+   },
+   "cover": {
+    "url": "https://blogger.googleusercontent.com/img/b/R29vZ2xl/AVvXsEhtLHm05FB2LmoHZMLAD5nDmfo_G2tdIqO4URdUwukuooBCVwIJhKC2rUDbDNtsGB8_lwium1MEUD1CxYcix4WMVpCoS58DJivMBSmb9LcIGswQu0nKUNE_sbfH8EsgFfhPrKEgEY7MJHWKyhFqX61ne-AOFKnTNuqIkWez1bec-kq-3Cz8BFbPLrgiV8k/s1600/redhat.jpg",
+    "alt": "Logo Red Hat sur fond sombre, illustrant l’alerte de sécurité sur Quay",
+    "credit": "thehackernews.com"
+   },
+   "sources": [
+    {
+     "title": "Critical Red Hat Quay Flaw Lets Attackers Read and Overwrite All Private Container Images in a Registry",
+     "url": "https://thehackernews.com/2026/11/critical-red-hat-quay-flaw-lets.html",
+     "publisher": "The Hacker News"
+    }
+   ],
+   "blocks": [
+    {
+     "type": "paragraph",
+     "text": "Un registre de conteneurs est la pièce centrale de la chaîne de livraison logicielle : tout ce qui y est déposé finit par tourner en production. Le 12 novembre 2026, The Hacker News a détaillé deux failles critiques dans **Red Hat Quay**, le registre d’images de Red Hat, utilisé en installation autonome, via l’opérateur Quay sur OpenShift et dans le registre miroir d’OpenShift. La plus grave, **CVE-2026-123710** (score CVSS de 9,8), permet à un attaquant de se faire passer pour un composant de confiance et d’obtenir un accès complet aux images privées."
+    },
+    {
+     "type": "heading",
+     "level": 2,
+     "text": "Comment la première faille fonctionne"
+    },
+    {
+     "type": "paragraph",
+     "text": "Quay signe les jetons d’accès utilisés pour déposer ou récupérer des images à l’aide de clés qu’il juge fiables. Le défaut tient au serveur de clés : lorsqu’il reçoit une demande de remplacement, il vérifie que le jeton présenté est signé par une clé de confiance, avec le bon destinataire et le bon émetteur, mais **pas qu’il a été émis pour une rotation de clé**. Or un jeton anonyme, obtenu auprès du point d’accès `/v2/auth`, remplit ces conditions, puisque Quay le signe lui-même et que l’appelant choisit le destinataire. L’attaquant peut ainsi inscrire sa propre clé, sans date d’expiration, dans l’ensemble des clés de confiance."
+    },
+    {
+     "type": "paragraph",
+     "text": "Une fois cette clé en place, Quay accepte les jetons qu’elle signe pour n’importe quel dépôt. Les conséquences décrites sont lourdes : lecture des images privées et des secrets qu’elles contiennent, dépôt ou écrasement d’images dont les modifications se propagent à tous les systèmes qui les récupèrent, et même suppression des clés utilisées par les instances en fonctionnement, ce qui provoque des erreurs d’authentification sur toutes les opérations. La clé survit aux redémarrages, aux changements de mots de passe et aux renouvellements de jetons de robots tant qu’elle n’est pas retirée."
+    },
+    {
+     "type": "heading",
+     "level": 2,
+     "text": "Une seconde faille, tout aussi sévère"
+    },
+    {
+     "type": "paragraph",
+     "text": "**CVE-2026-110697** (CVSS 9,9) concerne la liste des comptes robots. Le code construit un motif SQL `LIKE` à partir du nom de l’espace de noms sans neutraliser les caractères génériques : le tiret bas correspond à n’importe quel caractère unique. Un utilisateur qui peut créer un espace de noms peut donc en choisir un dont le nom « ressemble » à celui d’un autre locataire et récupérer ses comptes robots avec leurs jetons déchiffrés. Aucune action de la victime n’est nécessaire."
+    },
+    {
+     "type": "keyvalue",
+     "items": [
+      {
+       "label": "Faille 1",
+       "value": "CVE-2026-123710, CVSS 9,8 : ajout d’une clé de confiance sans expiration"
+      },
+      {
+       "label": "Faille 2",
+       "value": "CVE-2026-110697, CVSS 9,9 : fuite de jetons de comptes robots entre locataires"
+      },
+      {
+       "label": "Versions concernées",
+       "value": "Quay 3 et Quay 5, installation autonome, opérateur sur OpenShift, registre miroir"
+      },
+      {
+       "label": "Découverte",
+       "value": "Dave O’Connor, de Red Hat"
+      },
+      {
+       "label": "Accès nécessaire",
+       "value": "Anonyme par défaut ; sinon tout compte valide suffit pour la première faille"
+      }
+     ]
+    },
+    {
+     "type": "diagram",
+     "svg": "<svg xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"0 0 640 290\" font-family=\"system-ui,sans-serif\"><rect width=\"640\" height=\"290\" rx=\"16\" fill=\"#f1f5f9\"/><text x=\"320\" y=\"34\" text-anchor=\"middle\" font-size=\"17\" font-weight=\"700\" fill=\"#0f172a\">Faille de signature des clés dans Quay</text><g font-size=\"14\" fill=\"#0f172a\"><rect x=\"30\" y=\"70\" width=\"160\" height=\"70\" rx=\"10\" fill=\"#fff\" stroke=\"#0f766e\" stroke-width=\"2\"/><text x=\"110\" y=\"100\" text-anchor=\"middle\">Jeton anonyme</text><text x=\"110\" y=\"122\" text-anchor=\"middle\" font-size=\"12\">émis par /v2/auth</text><rect x=\"240\" y=\"70\" width=\"160\" height=\"70\" rx=\"10\" fill=\"#fff\" stroke=\"#0f766e\" stroke-width=\"2\"/><text x=\"320\" y=\"100\" text-anchor=\"middle\">Serveur de clés</text><text x=\"320\" y=\"122\" text-anchor=\"middle\" font-size=\"12\">rotation non vérifiée</text><rect x=\"450\" y=\"70\" width=\"160\" height=\"70\" rx=\"10\" fill=\"#fff\" stroke=\"#b91c1c\" stroke-width=\"2\"/><text x=\"530\" y=\"100\" text-anchor=\"middle\">Clé de l’attaquant</text><text x=\"530\" y=\"122\" text-anchor=\"middle\" font-size=\"12\">sans expiration</text><path d=\"M190 105h50M400 105h50\" stroke=\"#475569\" stroke-width=\"3\"/><path d=\"M530 140v50\" stroke=\"#475569\" stroke-width=\"3\"/><rect x=\"170\" y=\"190\" width=\"300\" height=\"70\" rx=\"10\" fill=\"#fff\" stroke=\"#b91c1c\" stroke-width=\"2\"/><text x=\"320\" y=\"220\" text-anchor=\"middle\">Lecture et écrasement</text><text x=\"320\" y=\"242\" text-anchor=\"middle\" font-size=\"12\">de toutes les images privées</text></g><path d=\"M530 190h-60\" stroke=\"#475569\" stroke-width=\"3\"/></svg>",
+     "alt": "Schéma : un jeton anonyme obtenu sur /v2/auth permet d’inscrire une clé sans expiration, qui donne accès à toutes les images privées.",
+     "caption": "Chaîne d’exploitation de CVE-2026-123710, d’après la description de The Hacker News."
+    },
+    {
+     "type": "heading",
+     "level": 2,
+     "text": "Que faire en attendant"
+    },
+    {
+     "type": "list",
+     "ordered": false,
+     "items": [
+      "Bloquer le point d’accès `/keys` au niveau du proxy ou de l’équilibreur de charge pour tout ce qui n’est pas un composant interne de confiance.",
+      "Chercher dans les journaux d’audit les événements `service_key_rotate` et `service_key_delete` dont la date d’expiration est nulle.",
+      "Supprimer toute clé de service non reconnue, puis installer la version corrigée : tant qu’elle n’est pas appliquée, la clé peut être réinscrite.",
+      "Contre la seconde faille, limiter la création d’espaces de noms contenant un tiret bas et renouveler les jetons des robots concernés."
+     ]
+    },
+    {
+     "type": "paragraph",
+     "text": "Red Hat précise que désactiver l’accès anonyme ne protège pas : n’importe quel compte valide reste suffisant. L’article relève aussi un point de vigilance : au moment de sa publication, les avis de correctifs ne mentionnaient pas tous la seconde faille, et la fiche de la première affichait encore l’ensemble des paquets comme affectés. Il convient donc de vérifier directement les avis officiels de Red Hat."
+    },
+    {
+     "type": "usecases",
+     "title": "Exemples d'utilisation",
+     "items": [
+      {
+       "icon": "🏢",
+       "title": "Plateforme interne d’une grande entreprise",
+       "text": "Une équipe plateforme qui héberge Quay pour plusieurs dizaines d’équipes doit isoler le point d’accès aux clés et auditer ses journaux, car une image piégée serait déployée automatiquement par les pipelines."
+      },
+      {
+       "icon": "🚀",
+       "title": "Chaîne CI/CD sur OpenShift",
+       "text": "Quand Quay sert de registre intégré, un jeton de robot volé permet d’injecter une image malveillante dans le déploiement ; la rotation des identifiants devient prioritaire."
+      },
+      {
+       "icon": "🔎",
+       "title": "Équipe de sécurité en réponse à incident",
+       "text": "Rechercher des clés sans expiration dans les journaux permet de savoir si la faille a déjà été exploitée avant le correctif."
+      }
+     ]
+    },
+    {
+     "type": "timeline",
+     "title": "D'où l'on vient, où l'on va",
+     "items": [
+      {
+       "label": "Origine",
+       "text": "Selon le rapport de bogue de Red Hat cité par la source, la logique fautive existe depuis le premier commit public de Quay."
+      },
+      {
+       "label": "12 novembre 2026",
+       "text": "Publication de la description des deux failles et des contournements recommandés."
+      },
+      {
+       "label": "Ensuite",
+       "text": "Déploiement des versions corrigées sur huit branches de Quay 3, puis alignement des avis officiels."
+      }
+     ]
+    },
+    {
+     "type": "opinion",
+     "title": "Notre avis",
+     "paragraphs": [
+      "Cette affaire rappelle qu’un registre n’est pas un simple entrepôt : c’est un point de confiance. Une faille qui permet de réécrire une image sans trace évidente vaut une compromission de toute la chaîne de production, bien plus qu’une fuite ponctuelle de données. Le caractère ancien du défaut montre aussi les limites d’un contrôle de jetons fondé sur l’émetteur plutôt que sur l’usage prévu.",
+      "Dans un à trois ans, on peut s’attendre à ce que les registres généralisent la signature des images vérifiée côté déploiement et des clés à durée de vie courte, afin qu’une clé volée n’ouvre plus un accès permanent. Reste que ces pratiques demandent une discipline que peu d’équipes appliquent aujourd’hui."
+     ],
+     "verdict": "Corriger vite, puis auditer : une clé inconnue dans Quay est un signal d’alerte."
+    }
+   ],
+   "publishedAt": "2026-11-12T18:17:24+01:00",
+   "readingMinutes": 4
+  },
+  {
+   "id": "operation-endgame-gootloader-castlerat-stealc",
+   "category": "cybersecurite",
+   "title": "Opération Endgame : la police démantèle l’infrastructure de Gootloader, CastleRAT et StealC",
+   "summary": "Neuf pays et Europol ont saisi 257 domaines et 235 serveurs ; plus de 6 millions d’identifiants volés ont été identifiés.",
+   "tags": [
+    "Operation Endgame",
+    "Europol",
+    "Gootloader",
+    "StealC",
+    "CastleRAT"
+   ],
+   "importance": 4,
+   "sourceDate": "2026-11-12",
+   "icon": "🚓",
+   "illustration": {
+    "svg": "<svg xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"0 0 640 360\"><defs><linearGradient id=\"g\" x1=\"0\" y1=\"0\" x2=\"1\" y2=\"1\"><stop offset=\"0\" stop-color=\"hsl(175,65%,30%)\"/><stop offset=\"1\" stop-color=\"hsl(215,70%,50%)\"/></linearGradient></defs><rect width=\"640\" height=\"360\" fill=\"url(#g)\"/><g fill=\"none\" stroke=\"#fff\" stroke-width=\"7\" stroke-linecap=\"round\" stroke-linejoin=\"round\" opacity=\".93\"><rect x=\"170\" y=\"150\" width=\"130\" height=\"60\" rx=\"30\"/><rect x=\"340\" y=\"150\" width=\"130\" height=\"60\" rx=\"30\"/><path d=\"M260 180h120\"/><path d=\"M200 260l240-160\" opacity=\".6\"/></g></svg>"
+   },
+   "sources": [
+    {
+     "title": "Police dismantles Gootloader, CastleRAT, StealC malware infrastructure",
+     "url": "https://www.bleepingcomputer.com/news/security/police-dismantles-gootloader-castlerat-stealc-malware-infrastructure/",
+     "publisher": "BleepingComputer"
+    }
+   ],
+   "blocks": [
+    {
+     "type": "paragraph",
+     "text": "Nouveau coup de filet contre l’écosystème des logiciels malveillants « en tant que service ». Le 12 novembre 2026, selon BleepingComputer, Europol et des forces de l’ordre de neuf pays ont annoncé avoir saisi des centaines de serveurs et de domaines utilisés par trois opérations : **Gootloader**, **CastleRAT** et **StealC**. L’action s’inscrit dans l’**opération Endgame**, une campagne internationale ciblant les réseaux de cybercriminalité fournis comme des services clés en main."
+    },
+    {
+     "type": "heading",
+     "level": 2,
+     "text": "Les chiffres de l’opération"
+    },
+    {
+     "type": "keyvalue",
+     "items": [
+      {
+       "label": "Domaines saisis",
+       "value": "257"
+      },
+      {
+       "label": "Serveurs saisis",
+       "value": "235"
+      },
+      {
+       "label": "Jeux de données de victimes",
+       "value": "6,4 millions"
+      },
+      {
+       "label": "Pays participants",
+       "value": "Allemagne, Bulgarie, Canada, Danemark, Moldavie, Pays-Bas, Pologne, Royaume-Uni, États-Unis"
+      },
+      {
+       "label": "Coordination",
+       "value": "Europol et Eurojust, avec des partenaires privés"
+      }
+     ]
+    },
+    {
+     "type": "paragraph",
+     "text": "Europol indique que plus de six millions d’identifiants de victimes ont été retrouvés sur l’infrastructure visée. Les suspects les auraient revendus pour alimenter d’autres attaques, y compris des rançongiciels. La source ne mentionne en revanche aucune arrestation à ce stade : il s’agit avant tout d’une action contre l’outillage."
+    },
+    {
+     "type": "heading",
+     "level": 2,
+     "text": "Trois outils, trois rôles"
+    },
+    {
+     "type": "list",
+     "ordered": false,
+     "items": [
+      "**Gootloader** : un chargeur actif depuis 2020, qui sert à installer d’autres logiciels malveillants sur les machines infectées.",
+      "**StealC** : un voleur d’informations qui récupère identifiants, portefeuilles de crypto-actifs et autres données sensibles.",
+      "**CastleRAT** : un cheval de Troie d’accès à distance apparu l’an dernier, qui donne à l’attaquant le contrôle de la machine."
+     ]
+    },
+    {
+     "type": "paragraph",
+     "text": "Ces trois familles ont été utilisées par divers groupes, dont des opérateurs de rançongiciels. Leur point commun est de former la première étape d’une attaque : l’infection initiale, le vol d’identifiants, puis la revente de l’accès. Frapper cette étape réduit le vivier dont dépendent les groupes plus visibles."
+    },
+    {
+     "type": "heading",
+     "level": 2,
+     "text": "Les victimes sont prévenues"
+    },
+    {
+     "type": "paragraph",
+     "text": "Les données des victimes sont transmises à plusieurs organismes pour les alerter : HaveIBeenPwned, DIVD, CheckjeHack, NoMoreLeaks, Sekoia, la fondation Shadowserver et le NCSC néerlandais. Les utilisateurs de WordPress sont invités à changer leurs identifiants, activer l’authentification multifacteur et corriger leurs vulnérabilités. En France, les particuliers peuvent aussi consulter les ressources de cybermalveillance.gouv.fr et signaler une compromission, sans que la source citée y fasse référence."
+    },
+    {
+     "type": "usecases",
+     "title": "Exemples d'utilisation",
+     "items": [
+      {
+       "icon": "🧑‍💻",
+       "title": "Particulier dont les mots de passe ont fuité",
+       "text": "Vérifier son adresse sur HaveIBeenPwned, changer les mots de passe réutilisés et activer la double authentification limite l’exploitation de données déjà volées."
+      },
+      {
+       "icon": "🛒",
+       "title": "Gérant d’un site WordPress",
+       "text": "Gootloader s’est appuyé sur des sites compromis ; mettre à jour les extensions, changer les accès administrateur et surveiller les fichiers modifiés réduit le risque de servir de relais."
+      },
+      {
+       "icon": "🏢",
+       "title": "Équipe sécurité d’une PME",
+       "text": "Les listes d’identifiants circulent bien après la saisie ; comparer les comptes de l’entreprise aux jeux de données publiés permet de forcer les changements de mots de passe à temps."
+      }
+     ]
+    },
+    {
+     "type": "timeline",
+     "title": "D'où l'on vient, où l'on va",
+     "items": [
+      {
+       "label": "Il y a un an",
+       "text": "Plus de 1 000 serveurs utilisés par Rhadamanthys, VenomRAT et Elysium sont mis hors service dans le cadre d’Endgame."
+      },
+      {
+       "label": "Juin 2026",
+       "text": "Environ 15 000 sites WordPress infectés sont nettoyés et 106 serveurs liés à SocGholish et à Evil Corp sont saisis ; plus tard dans le mois, 326 serveurs et 142 domaines d’Amadey et StealC sont neutralisés."
+      },
+      {
+       "label": "12 novembre 2026",
+       "text": "Nouvelle vague visant Gootloader, CastleRAT et StealC."
+      }
+     ]
+    },
+    {
+     "type": "opinion",
+     "title": "Notre avis",
+     "paragraphs": [
+      "Ces opérations ont un effet réel mais limité dans le temps : les familles de logiciels malveillants se reconstituent souvent en quelques semaines, comme le montre le retour de StealC visé deux fois en 2026. L’intérêt principal tient moins aux saisies qu’à la notification des victimes, qui rend leurs identifiants inutilisables.",
+      "D’ici un à trois ans, la pression devrait pousser les criminels à fragmenter davantage leur infrastructure et à privilégier le vol de sessions plutôt que de mots de passe. La défense efficace restera la combinaison d’authentification forte, de correctifs rapides et de surveillance des comptes."
+     ],
+     "verdict": "Efficaces sur le moment, ces coups de filet ne remplacent pas l’hygiène des comptes."
+    }
+   ],
+   "publishedAt": "2026-11-12T18:17:24+01:00",
+   "readingMinutes": 3
+  },
+  {
+   "id": "screenconnect-attaques-fournisseurs-services-geres",
+   "category": "cybersecurite",
+   "title": "ScreenConnect : des attaques actives visent des prestataires informatiques et touchent des dizaines d’organisations",
+   "summary": "Selon Huntress, six fournisseurs de services gérés et 47 organisations sont touchés ; ConnectWise désactive cinq extensions tierces dans environ 400 environnements.",
+   "tags": [
+    "ScreenConnect",
+    "ConnectWise",
+    "MSP",
+    "Huntress",
+    "accès à distance"
+   ],
+   "importance": 4,
+   "sourceDate": "2026-11-11",
+   "icon": "🖥️",
+   "illustration": {
+    "svg": "<svg xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"0 0 640 360\"><defs><linearGradient id=\"g\" x1=\"0\" y1=\"0\" x2=\"1\" y2=\"1\"><stop offset=\"0\" stop-color=\"hsl(175,65%,30%)\"/><stop offset=\"1\" stop-color=\"hsl(215,70%,50%)\"/></linearGradient></defs><rect width=\"640\" height=\"360\" fill=\"url(#g)\"/><g fill=\"none\" stroke=\"#fff\" stroke-width=\"7\" stroke-linecap=\"round\" stroke-linejoin=\"round\" opacity=\".93\"><rect x=\"170\" y=\"90\" width=\"300\" height=\"190\" rx=\"14\"/><path d=\"M170 130h300M320 130v150M170 205h300\"/><path d=\"M300 320h40\" opacity=\".6\"/></g></svg>"
+   },
+   "sources": [
+    {
+     "title": "Active ScreenConnect attacks breach MSPs, impact dozens of organizations",
+     "url": "https://www.bleepingcomputer.com/news/security/active-screenconnect-attacks-breach-msps-impact-dozens-of-organizations/",
+     "publisher": "BleepingComputer"
+    },
+    {
+     "title": "SCKit Malware Turns ScreenConnect Support Sessions Into Potential MSP Attack Paths",
+     "url": "https://thehackernews.com/2026/11/sckit-malware-targets-screenconnect.html",
+     "publisher": "The Hacker News"
+    }
+   ],
+   "blocks": [
+    {
+     "type": "paragraph",
+     "text": "Les prestataires qui administrent le parc informatique de centaines de clients sont une cible idéale : en compromettre un, c’est atteindre tous ses clients d’un coup. C’est ce que décrit BleepingComputer le 11 novembre 2026 : une campagne active exploite des environnements **ScreenConnect**, l’outil d’assistance à distance de ConnectWise, pour installer des logiciels d’accès non autorisés chez les clients de fournisseurs de services gérés (MSP)."
+    },
+    {
+     "type": "heading",
+     "level": 2,
+     "text": "Ce que Huntress a observé"
+    },
+    {
+     "type": "paragraph",
+     "text": "La société de sécurité Huntress a détecté l’activité un mercredi, vers 17 h 47 UTC, lorsque de faux clients ScreenConnect sont apparus sur des postes qu’elle surveille. Son décompte provisoire fait état de **six MSP compromis**, de plus de **286 postes** touchés et de **47 organisations**, des chiffres encore en hausse. Des marqueurs attribués de façon séquentielle par l’attaquant laissent penser que d’autres MSP ont pu être compromis auparavant."
+    },
+    {
+     "type": "paragraph",
+     "text": "La chaîne d’attaque décrite est la suivante : l’attaquant accède à l’environnement ScreenConnect d’un prestataire, probablement grâce à des identifiants volés ou à des sessions d’opérateurs détournées, sans que Huntress le confirme. Il utilise ensuite la fonction « Run Command » pour déployer sur les postes des clients de faux clients ScreenConnect, hors de l’environnement légitime du MSP. Dans certains cas, des outils sur mesure sont compilés directement sur la machine de la victime. Huntress évoque aussi la possibilité plus grave d’une compromission du poste d’un technicien pendant une session interactive avec un appareil infecté ; ConnectWise indique que ces informations sont en cours de vérification."
+    },
+    {
+     "type": "heading",
+     "level": 2,
+     "text": "La réponse de ConnectWise"
+    },
+    {
+     "type": "paragraph",
+     "text": "ConnectWise a confirmé des accès non autorisés à des comptes de partenaires et l’installation de logiciels d’accès à distance non autorisés. L’éditeur a désactivé **cinq extensions tierces** (Labtech Plus, RMM Plus, RMM+ et leurs variantes « Password Link ») dans environ **400 environnements** de partenaires. Les environnements hébergés par ConnectWise ont été traités par l’éditeur ; les clients en installation locale doivent désactiver les extensions manuellement."
+    },
+    {
+     "type": "callout",
+     "text": "À retenir : désactiver ces extensions est une mesure de confinement préventive. Elle ne supprime ni les logiciels malveillants, ni la persistance, ni l’accès de l’attaquant."
+    },
+    {
+     "type": "heading",
+     "level": 2,
+     "text": "Recommandations aux prestataires"
+    },
+    {
+     "type": "list",
+     "ordered": false,
+     "items": [
+      "Examiner les journaux d’authentification, les installations d’extensions, l’activité d’administration, l’historique des commandes « Run Command » et les enregistrements Toolbox, même en l’absence d’alerte.",
+      "Éviter d’ouvrir des sessions interactives avec des appareils potentiellement compromis ; les analyser avec des outils de sécurité distincts.",
+      "Ne pas réactiver ni réinstaller les extensions concernées avant de nouvelles consignes de ConnectWise."
+     ]
+    },
+    {
+     "type": "paragraph",
+     "text": "Un autre article, publié le même jour par The Hacker News, décrit un logiciel malveillant nommé SCKit qui exploite aussi ScreenConnect ; selon ce texte, il s’appuie sur une faille déjà corrigée et un client entièrement à jour bloquerait la charge utile. Le lien exact avec la campagne décrite par Huntress n’est pas établi dans les sources consultées."
+    },
+    {
+     "type": "usecases",
+     "title": "Exemples d'utilisation",
+     "items": [
+      {
+       "icon": "🧰",
+       "title": "MSP gérant des dizaines de PME",
+       "text": "Auditer l’historique des commandes distantes et réinitialiser les accès des techniciens permet de savoir si des clients ont reçu un faux client."
+      },
+      {
+       "icon": "🏥",
+       "title": "PME cliente d’un prestataire",
+       "text": "Demander à son prestataire s’il utilise ScreenConnect et s’il a vérifié ses extensions est un premier réflexe simple et légitime."
+      },
+      {
+       "icon": "🛡️",
+       "title": "Responsable sécurité d’un grand groupe",
+       "text": "Cartographier les outils d’accès à distance autorisés et alerter sur tout nouveau client ScreenConnect inconnu réduit les angles morts."
+      }
+     ]
+    },
+    {
+     "type": "timeline",
+     "title": "D'où l'on vient, où l'on va",
+     "items": [
+      {
+       "label": "25 juillet 2026",
+       "text": "Première soumission sur VirusTotal d’un script semblable, dont le lien avec la campagne actuelle est jugé incertain par BleepingComputer."
+      },
+      {
+       "label": "11 novembre 2026",
+       "text": "Détection par Huntress, containment par ConnectWise, publication des indicateurs de compromission."
+      },
+      {
+       "label": "Ensuite",
+       "text": "Consignes de ConnectWise sur la réactivation des extensions et poursuite de l’enquête."
+      }
+     ]
+    },
+    {
+     "type": "opinion",
+     "title": "Notre avis",
+     "paragraphs": [
+      "Cette campagne illustre une loi simple : les outils d’accès à distance sont des biens à très haute valeur, et le maillon faible n’est souvent pas le logiciel mais les identifiants et les sessions de ceux qui l’utilisent. Quand l’attaque se fait par « abus de fonctionnalités légitimes », les correctifs ne suffisent plus.",
+      "Dans les prochaines années, les prestataires devront probablement prouver leur niveau de sécurité à leurs clients, par audit ou certification, et limiter les droits de leurs techniciens. Les clients, de leur côté, gagneront à exiger des journaux d’accès et une double authentification systématique."
+     ],
+     "verdict": "Un seul compte de prestataire compromis peut ouvrir la porte de dizaines de clients."
+    }
+   ],
+   "publishedAt": "2026-11-12T18:17:24+01:00",
+   "readingMinutes": 3
+  },
+  {
+   "id": "windows-signdrop-faille-zero-day-systeme",
+   "category": "cybersecurite",
+   "title": "SignDrop : une faille zero-day de Windows publiée avec son code d’exploitation donne les droits SYSTEM",
+   "summary": "Le chercheur « Nightmare Eclipse » publie un exploit visant le pilote CLFS ; aucun correctif n’est disponible à ce jour.",
+   "tags": [
+    "Windows",
+    "zero-day",
+    "CLFS",
+    "élévation de privilèges",
+    "Microsoft"
+   ],
+   "importance": 4,
+   "sourceDate": "2026-11-12",
+   "icon": "🪟",
+   "illustration": {
+    "svg": "<svg xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"0 0 640 360\"><defs><linearGradient id=\"g\" x1=\"0\" y1=\"0\" x2=\"1\" y2=\"1\"><stop offset=\"0\" stop-color=\"hsl(175,65%,30%)\"/><stop offset=\"1\" stop-color=\"hsl(195,70%,50%)\"/></linearGradient></defs><rect width=\"640\" height=\"360\" fill=\"url(#g)\"/><g fill=\"none\" stroke=\"#fff\" stroke-width=\"7\" stroke-linecap=\"round\" stroke-linejoin=\"round\" opacity=\".93\"><rect x=\"170\" y=\"90\" width=\"300\" height=\"190\" rx=\"14\"/><path d=\"M170 130h300M320 130v150M170 205h300\"/><path d=\"M300 320h40\" opacity=\".6\"/></g></svg>"
+   },
+   "sources": [
+    {
+     "title": "New Windows SignDrop zero-day gives hackers SYSTEM privileges",
+     "url": "https://www.bleepingcomputer.com/news/security/new-windows-signdrop-zero-day-gives-hackers-system-privileges/",
+     "publisher": "BleepingComputer"
+    }
+   ],
+   "blocks": [
+    {
+     "type": "paragraph",
+     "text": "Moins d’une semaine après le Patch Tuesday de novembre, un nouvel exploit public met Windows sous pression. Le 12 novembre 2026, BleepingComputer rapporte qu’un chercheur, Abdelhamid Naceri, connu sous le pseudonyme « Nightmare Eclipse », a publié sur GitHub **SignDrop**, un code d’exploitation qui donne à un attaquant local les privilèges **SYSTEM**, les plus élevés de Windows. À la date de l’article, aucun correctif de Microsoft n’est annoncé."
+    },
+    {
+     "type": "heading",
+     "level": 2,
+     "text": "Le mécanisme décrit"
+    },
+    {
+     "type": "paragraph",
+     "text": "SignDrop détourne une protection que Microsoft a ajoutée en octobre 2025 au pilote **Common Log File System (CLFS)** pour contrer des attaques d’authentification. D’après le chercheur, CLFS vérifie correctement les droits lorsqu’il crée le fichier d’authentification `.cnpf` d’un nouveau journal, mais cette logique peut être abusée si un processus privilégié, comme Windows Defender, ouvre ensuite ce journal. En forçant un tel processus à l’ouvrir, le fichier d’authentification est créé avec les droits SYSTEM."
+    },
+    {
+     "type": "paragraph",
+     "text": "Naceri affirme que la technique permet aussi de contourner l’autoprotection de n’importe quel moteur antimalware : la demande de création de fichier semble venir du processus légitime du moteur lui-même. Il en déduit qu’elle pourrait servir à désactiver tout antivirus ou EDR. Cette affirmation provient du chercheur et n’a pas été confirmée de manière indépendante dans l’article."
+    },
+    {
+     "type": "keyvalue",
+     "items": [
+      {
+       "label": "Chercheur",
+       "value": "Abdelhamid Naceri (« Nightmare Eclipse »), qui se dit ancien employé de Microsoft"
+      },
+      {
+       "label": "Versions testées",
+       "value": "Windows 11 26H2, Windows 11 26H2 « Experimental », Windows Server 2025 « Experimental »"
+      },
+      {
+       "label": "Estimation du chercheur",
+       "value": "Environ 80 % des installations seraient vulnérables, sans que toutes les machines le soient"
+      },
+      {
+       "label": "Exploit public",
+       "value": "Oui, sur GitHub"
+      },
+      {
+       "label": "Correctif",
+       "value": "Aucun annoncé à la date de l’article"
+      }
+     ]
+    },
+    {
+     "type": "heading",
+     "level": 2,
+     "text": "Vérifier son exposition, limiter les dégâts"
+    },
+    {
+     "type": "paragraph",
+     "text": "Selon l’article, la valeur de registre `HKLM\\SYSTEM\\CurrentControlSet\\Services\\CLFS\\Authentication\\Mode` à 0 ou 1 (mode d’apprentissage ou d’application) indique une machine vulnérable ; exécuter le code d’exploitation et obtenir un interpréteur SYSTEM le confirme, mais cela ne doit se faire que sur une machine de test. Le chercheur ne propose aucun contournement : désactiver la mitigation CLFS exposerait les appareils à des attaques par corruption de mémoire."
+    },
+    {
+     "type": "paragraph",
+     "text": "Il faut aussi garder à l’esprit la nature de la faille : l’exploit est une **élévation de privilèges locale**. Il suppose déjà un accès au système, par exemple un compte compromis ou un logiciel malveillant en cours d’exécution. Il ne permet pas, à lui seul, d’attaquer une machine à distance, mais il facilite les étapes suivantes d’une intrusion."
+    },
+    {
+     "type": "heading",
+     "level": 2,
+     "text": "Un chercheur qui publie sans prévenir"
+    },
+    {
+     "type": "paragraph",
+     "text": "Naceri a publié depuis avril 2026 de nombreux autres zero-days Windows et Defender (BigDiskBuster, ShieldCrash, BlueHammer, RedSun, UnDefend, etc.). Microsoft en a corrigé plusieurs (ShieldBreak, RoguePlanet, YellowKey, GreenPlasma, MiniPlasma), mais d’autres restent sans correctif officiel. Après des divulgations publiques faites sans signalement préalable, Microsoft avait averti qu’il pourrait engager des poursuites contre les activités malveillantes causant un préjudice réel à ses clients."
+    },
+    {
+     "type": "usecases",
+     "title": "Exemples d'utilisation",
+     "items": [
+      {
+       "icon": "🏢",
+       "title": "Administrateur d’un parc Windows 11",
+       "text": "Resserrer les droits locaux, surveiller les créations de fichiers `.cnpf` anormales et préparer le déploiement rapide du correctif dès sa publication."
+      },
+      {
+       "icon": "🛡️",
+       "title": "Équipe de détection",
+       "text": "Ajouter des règles sur les ouvertures de journaux CLFS par des processus privilégiés et sur l’arrêt inattendu d’agents de sécurité."
+      },
+      {
+       "icon": "👤",
+       "title": "Particulier sous Windows",
+       "text": "Éviter d’exécuter des programmes d’origine douteuse : l’exploit exige déjà un code qui tourne sur la machine."
+      }
+     ]
+    },
+    {
+     "type": "timeline",
+     "title": "D'où l'on vient, où l'on va",
+     "items": [
+      {
+       "label": "Octobre 2025",
+       "text": "Microsoft ajoute une mitigation d’authentification au pilote CLFS."
+      },
+      {
+       "label": "Depuis avril 2026",
+       "text": "Naceri publie une série de zero-days Windows et Defender, dont plusieurs ont été corrigés depuis."
+      },
+      {
+       "label": "12 novembre 2026",
+       "text": "Publication de SignDrop, sans correctif disponible."
+      }
+     ]
+    },
+    {
+     "type": "opinion",
+     "title": "Notre avis",
+     "paragraphs": [
+      "La divulgation publique sans coordination fait peser un risque immédiat sur des millions de machines, même si l’exploit exige un accès préalable. Elle révèle aussi une tension durable : les chercheurs en désaccord avec les éditeurs sur les primes et les délais choisissent de plus en plus la publication brute.",
+      "À moyen terme, Microsoft devra soit accélérer ses correctifs hors cycle, soit durcir son programme de signalement pour désamorcer ces conflits. Pour les entreprises, le message est que le Patch Tuesday ne suffit plus comme seul rythme de défense."
+     ],
+     "verdict": "Une élévation de privilèges sans correctif n’est pas une attaque à distance, mais elle fragilise la défense en profondeur."
+    }
+   ],
+   "publishedAt": "2026-11-12T18:17:24+01:00",
+   "readingMinutes": 3
+  },
+  {
+   "id": "gemini-4-carbon-verification-formelle-libsignal",
+   "category": "ia",
+   "title": "Gemini 4 Carbon : Google affirme avoir vérifié formellement des garanties clés de libsignal en quatre semaines",
+   "summary": "L’équipe de DeepMind a prouvé, jusqu’au code machine, des propriétés comme la confidentialité persistante, sans trouver de nouvelle faille.",
+   "tags": [
+    "Gemini 4 Carbon",
+    "DeepMind",
+    "Signal",
+    "vérification formelle",
+    "Lean"
+   ],
+   "importance": 5,
+   "sourceDate": "2026-11-10",
+   "icon": "🔏",
+   "illustration": {
+    "svg": "<svg xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"0 0 640 360\"><defs><linearGradient id=\"g\" x1=\"0\" y1=\"0\" x2=\"1\" y2=\"1\"><stop offset=\"0\" stop-color=\"hsl(320,65%,30%)\"/><stop offset=\"1\" stop-color=\"hsl(0,70%,50%)\"/></linearGradient></defs><rect width=\"640\" height=\"360\" fill=\"url(#g)\"/><g fill=\"none\" stroke=\"#fff\" stroke-width=\"7\" stroke-linecap=\"round\" stroke-linejoin=\"round\" opacity=\".93\"><circle cx=\"320\" cy=\"180\" r=\"34\"/><circle cx=\"200\" cy=\"120\" r=\"18\"/><circle cx=\"440\" cy=\"120\" r=\"18\"/><circle cx=\"200\" cy=\"250\" r=\"18\"/><circle cx=\"440\" cy=\"250\" r=\"18\"/><path d=\"M216 130l76 38M424 130l-76 38M216 240l76-46M424 240l-76-46\"/></g></svg>"
+   },
+   "sources": [
+    {
+     "title": "Google widens Gemini 4 Carbon access after AI agents verify Signal code",
+     "url": "https://securityweek.com/google-widens-gemini-4-carbon-access-after-ai-agents-verify-signal-code",
+     "publisher": "SecurityWeek"
+    },
+    {
+     "title": "Google DeepMind’s AlphaProof Code Formally Verifies Signal Protocol Guarantees in Four Weeks",
+     "url": "https://aiweekly.co/alerts/google-deepminds-alphaproof-code-formally-verifies-signal-protocol-guarantees",
+     "publisher": "AI Weekly"
+    }
+   ],
+   "blocks": [
+    {
+     "type": "paragraph",
+     "text": "Prouver mathématiquement qu’un protocole de messagerie chiffrée tient ses promesses est un travail qui mobilise habituellement des experts pendant des mois ou des années. Google DeepMind affirme avoir mené à bien une part importante de cette tâche en **quatre semaines**, avec une équipe de cinq chercheurs et ses agents d’IA. L’annonce accompagne la sortie, le 10 novembre 2026, du modèle **Gemini 4 Carbon**, disponible via l’offre payante de l’API Gemini dans Google AI Studio et Android Studio, ainsi que dans les offres professionnelles de Google."
+    },
+    {
+     "type": "heading",
+     "level": 2,
+     "text": "Ce qui a été vérifié"
+    },
+    {
+     "type": "paragraph",
+     "text": "Le travail porte sur **libsignal**, l’implémentation de référence du protocole utilisé par Signal. Google a employé son cadre **AlphaProof Code**, animé par Gemini 4 Carbon et d’autres modèles, pour établir des garanties de sécurité : la confidentialité persistante (forward secrecy), la sécurité après compromission et l’authentification. La particularité mise en avant est que ces garanties sont démontrées pour le **code machine compilé**, alors que la plupart des vérifications de protocole ne portent que sur la conception."
+    },
+    {
+     "type": "paragraph",
+     "text": "Les preuves sont écrites en Lean, un assistant de preuve. Les chercheurs publient la spécification et la preuve élaborées pour cette analyse, ce qui permet à d’autres équipes de les examiner et de les rejouer."
+    },
+    {
+     "type": "heading",
+     "level": 2,
+     "text": "Les réserves à garder en tête"
+    },
+    {
+     "type": "list",
+     "ordered": false,
+     "items": [
+      "**Un point de départ avancé** : DeepMind reconnaît avoir bénéficié de travaux antérieurs de vérification formelle sur Signal ; les quatre semaines ne correspondent donc pas à un projet partant de zéro.",
+      "**Aucune nouvelle faille** n’a été trouvée dans les parties du protocole examinées.",
+      "**Un périmètre limité** : la vérification porte sur la compilation de libsignal faite par Google, exécutée via une enveloppe en ligne de commande, et non sur les applications mobiles ou de bureau de production de Signal.",
+      "**Un coût non communiqué** : Google a refusé d’en indiquer le montant."
+     ]
+    },
+    {
+     "type": "paragraph",
+     "text": "Autrement dit, le résultat est significatif sur la méthode, mais il ne dit pas que « Signal est prouvé sûr » dans son ensemble. Une preuve formelle garantit ce qui a été spécifié ; elle ne couvre ni les défauts hors périmètre, ni les erreurs de spécification, ni les attaques sur l’appareil lui-même."
+    },
+    {
+     "type": "keyvalue",
+     "items": [
+      {
+       "label": "Modèle",
+       "value": "Gemini 4 Carbon, annoncé le 10 novembre 2026"
+      },
+      {
+       "label": "Cadre",
+       "value": "AlphaProof Code (DeepMind)"
+      },
+      {
+       "label": "Cible",
+       "value": "libsignal, bibliothèque de référence de Signal"
+      },
+      {
+       "label": "Garanties prouvées",
+       "value": "Confidentialité persistante, sécurité après compromission, authentification"
+      },
+      {
+       "label": "Équipe et durée",
+       "value": "Cinq chercheurs, quatre semaines"
+      },
+      {
+       "label": "Publié",
+       "value": "Spécification et preuve"
+      }
+     ]
+    },
+    {
+     "type": "usecases",
+     "title": "Exemples d'utilisation",
+     "items": [
+      {
+       "icon": "🔐",
+       "title": "Éditeur de messagerie chiffrée",
+       "text": "Disposer d’une preuve sur le code compilé réduit le risque qu’un bogue d’implémentation invalide une conception saine, et donne un argument vérifiable aux auditeurs."
+      },
+      {
+       "icon": "🏦",
+       "title": "Banque ou assureur soumis à des exigences strictes",
+       "text": "La vérification formelle assistée par IA pourrait abaisser le coût de preuves aujourd’hui réservées aux systèmes les plus critiques."
+      },
+      {
+       "icon": "🎓",
+       "title": "Laboratoire de recherche en sécurité",
+       "text": "Les artefacts publiés servent de base pour reproduire la preuve, la critiquer ou l’adapter à d’autres protocoles."
+      }
+     ]
+    },
+    {
+     "type": "timeline",
+     "title": "D'où l'on vient, où l'on va",
+     "items": [
+      {
+       "label": "Années précédentes",
+       "text": "Des travaux de vérification formelle existent déjà sur le protocole Signal ; DeepMind dit s’en être servi comme point de départ."
+      },
+      {
+       "label": "10 novembre 2026",
+       "text": "Sortie de Gemini 4 Carbon et annonce de la vérification de libsignal."
+      },
+      {
+       "label": "Ensuite",
+       "text": "Élargissement progressif de l’accès au modèle, selon SecurityWeek, et examen de la preuve par la communauté."
+      }
+     ]
+    },
+    {
+     "type": "opinion",
+     "title": "Notre avis",
+     "paragraphs": [
+      "L’intérêt n’est pas tant de « prouver Signal » que de montrer qu’une IA peut produire des preuves vérifiables par une machine : une erreur d’un modèle de langage serait rejetée par le vérificateur Lean, ce qui change la nature de la confiance accordée. C’est l’un des rares usages de l’IA où la vérification est objective. La publication des preuves est ici l’élément décisif ; sans elle, l’annonce resterait un argument commercial.",
+      "À un à trois ans, on peut imaginer que la vérification formelle assistée par IA devienne une étape de routine pour les bibliothèques cryptographiques critiques. Le risque est que la mention « formellement vérifié » devienne un label marketing, quand le périmètre réel de la preuve reste étroit. Il faudra donc lire la spécification, pas seulement la promesse."
+     ],
+     "verdict": "Une avancée de méthode réelle, mais une preuve n’est jamais plus large que sa spécification."
+    }
+   ],
+   "publishedAt": "2026-11-12T18:17:24+01:00",
+   "readingMinutes": 3
+  },
+  {
+   "id": "weact-logic-analyzer-v2-ch32h417",
+   "category": "electronique",
+   "title": "WeAct Logic Analyzer V2 : un analyseur logique USB 3.0 à 16 voies pour environ 10 dollars",
+   "summary": "Basée sur le microcontrôleur WCH CH32H417, la carte échantillonne jusqu’à 200 MHz et sert aussi de sonde SWD ; une partie du firmware reste fermée.",
+   "tags": [
+    "analyseur logique",
+    "CH32H417",
+    "RISC-V",
+    "sigrok",
+    "CMSIS-DAP"
+   ],
+   "importance": 3,
+   "sourceDate": "2026-11-12",
+   "icon": "📟",
+   "illustration": {
+    "svg": "<svg xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"0 0 640 360\"><defs><linearGradient id=\"g\" x1=\"0\" y1=\"0\" x2=\"1\" y2=\"1\"><stop offset=\"0\" stop-color=\"hsl(30,65%,30%)\"/><stop offset=\"1\" stop-color=\"hsl(70,70%,50%)\"/></linearGradient></defs><rect width=\"640\" height=\"360\" fill=\"url(#g)\"/><g fill=\"none\" stroke=\"#fff\" stroke-width=\"7\" stroke-linecap=\"round\" stroke-linejoin=\"round\" opacity=\".93\"><path d=\"M130 180h60l20-70 30 140 30-110 25 80 25-40h170\"/><path d=\"M130 260h380\" opacity=\".5\"/></g></svg>"
+   },
+   "cover": {
+    "url": "https://www.cnx-software.com/wp-content/uploads/2026/11/WeAct-CH417-board.jpg",
+    "alt": "Carte WeAct basée sur le microcontrôleur CH32H417, au format d’une clé USB",
+    "credit": "cnx-software.com"
+   },
+   "sources": [
+    {
+     "title": "WeAct Logic Analyzer V2 – A $10 USB 3.0 logic analyzer board compatible with Sigrok/Pulseview (fork)",
+     "url": "https://www.cnx-software.com/2026/11/12/weact-logic-analyzer-v2-a-10-usb-3-0-logic-analyzer-board-compatible-with-sigrok-pulseview/",
+     "publisher": "CNX Software"
+    }
+   ],
+   "blocks": [
+    {
+     "type": "paragraph",
+     "text": "Les analyseurs logiques d’entrée de gamme sont un classique de l’établi du bricoleur : ils permettent de « voir » les signaux numériques échangés entre composants. Le 12 novembre 2026, CNX Software présente le **WeAct Logic Analyzer V2**, une petite carte à environ 10 dollars qui promet jusqu’à 200 MHz d’échantillonnage sur 16 voies grâce à une liaison **USB 3.0**. Elle repose sur un microcontrôleur peu courant : le **WCH CH32H417**."
+    },
+    {
+     "type": "heading",
+     "level": 2,
+     "text": "Le matériel"
+    },
+    {
+     "type": "paragraph",
+     "text": "Le CH32H417 associe un cœur RISC-V QingKe V5F jusqu’à 400 MHz, un cœur V3F jusqu’à 144 MHz, un bloc graphique, 896 Ko de SRAM et 960 Ko de mémoire flash. La carte dispose d’un seul port USB-C pour l’alimentation, les données et la programmation, ainsi que d’un connecteur à 20 broches donnant accès à 16 entrées et 4 masses. Elle mesure 42,5 × 26,5 × 13 mm et une LED RGB indique l’état."
+    },
+    {
+     "type": "keyvalue",
+     "items": [
+      {
+       "label": "Voies",
+       "value": "Jusqu’à 16 (D0 à D15)"
+      },
+      {
+       "label": "Cadence en USB 3.0",
+       "value": "4 à 200 MHz"
+      },
+      {
+       "label": "Cadence en USB 2.0",
+       "value": "4 à 20 MHz à 16 voies, 4 à 40 MHz à 8 voies"
+      },
+      {
+       "label": "Niveaux d’entrée",
+       "value": "1,0 à 3,3 V, seuil de 0,6 à 1,5 V"
+      },
+      {
+       "label": "Décodeurs",
+       "value": "132 décodeurs de protocoles (UART, I²C, SPI, CAN…)"
+      },
+      {
+       "label": "Capture",
+       "value": "Environ 45 s à 200 MHz sur 16 voies, selon l’article ; limitée par la mémoire du PC"
+      },
+      {
+       "label": "Prix",
+       "value": "Environ 10 dollars sur AliExpress, hors port et taxes"
+      }
+     ]
+    },
+    {
+     "type": "heading",
+     "level": 2,
+     "text": "Trois logiciels embarqués en un"
+    },
+    {
+     "type": "paragraph",
+     "text": "Un appui de deux secondes sur le bouton permet de basculer entre trois emplacements de firmware : l’analyseur logique, une interface série USB avec sonde **CMSIS-DAP v2** pour programmer des cibles Arm Cortex-M en SWD, et un emplacement de 304 Ko réservé à un programme utilisateur. Le code source de ce dernier, compilé avec l’environnement MounRiver, est disponible sur GitHub."
+    },
+    {
+     "type": "diagram",
+     "svg": "<svg xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"0 0 640 280\" font-family=\"system-ui,sans-serif\"><rect width=\"640\" height=\"280\" rx=\"16\" fill=\"#f1f5f9\"/><text x=\"320\" y=\"32\" text-anchor=\"middle\" font-size=\"17\" font-weight=\"700\" fill=\"#0f172a\">Trois firmwares, un seul bouton</text><g font-size=\"14\" fill=\"#0f172a\"><rect x=\"40\" y=\"62\" width=\"170\" height=\"110\" rx=\"12\" fill=\"#fff\" stroke=\"#b45309\" stroke-width=\"2\"/><text x=\"125\" y=\"95\" text-anchor=\"middle\" font-weight=\"700\">Slot 0</text><text x=\"125\" y=\"120\" text-anchor=\"middle\">Analyseur logique</text><text x=\"125\" y=\"142\" text-anchor=\"middle\" font-size=\"12\">16 voies, 200 MHz</text><rect x=\"235\" y=\"62\" width=\"170\" height=\"110\" rx=\"12\" fill=\"#fff\" stroke=\"#b45309\" stroke-width=\"2\"/><text x=\"320\" y=\"95\" text-anchor=\"middle\" font-weight=\"700\">Slot 1</text><text x=\"320\" y=\"120\" text-anchor=\"middle\">Série + CMSIS-DAP</text><text x=\"320\" y=\"142\" text-anchor=\"middle\" font-size=\"12\">sonde SWD, 3 CDC</text><rect x=\"430\" y=\"62\" width=\"170\" height=\"110\" rx=\"12\" fill=\"#fff\" stroke=\"#b45309\" stroke-width=\"2\"/><text x=\"515\" y=\"95\" text-anchor=\"middle\" font-weight=\"700\">Slot 2</text><text x=\"515\" y=\"120\" text-anchor=\"middle\">Firmware libre</text><text x=\"515\" y=\"142\" text-anchor=\"middle\" font-size=\"12\">304 Ko, MounRiver</text><rect x=\"170\" y=\"205\" width=\"300\" height=\"50\" rx=\"25\" fill=\"#fff\" stroke=\"#475569\" stroke-width=\"2\"/><text x=\"320\" y=\"236\" text-anchor=\"middle\">Appui de 2 secondes sur le bouton</text><path d=\"M320 205v-33M320 190H125v-18M320 190h195v-18\" stroke=\"#475569\" stroke-width=\"2\" fill=\"none\"/></g></svg>",
+     "alt": "Schéma des trois emplacements de firmware de la carte WeAct : analyseur logique, sonde série CMSIS-DAP et firmware utilisateur, sélectionnés par un appui de deux secondes.",
+     "caption": "Les trois emplacements de firmware du WeAct Logic Analyzer V2, d’après la description de CNX Software."
+    },
+    {
+     "type": "heading",
+     "level": 2,
+     "text": "Compatibilité et limites"
+    },
+    {
+     "type": "paragraph",
+     "text": "La compatibilité avec **sigrok/PulseView** passe par une version modifiée, U3LogicAnalyzer, disponible sous Windows et Linux ; selon l’article, elle n’a probablement pas été intégrée au projet principal, qui semble peu actif. Surtout, les firmwares de l’analyseur et de la sonde sont des binaires **fermés** : seul l’emplacement utilisateur est ouvert."
+    },
+    {
+     "type": "paragraph",
+     "text": "L’annonce de « 200 MHz de bande passante » prête aussi à confusion. La valeur de 200 MHz est une cadence d’échantillonnage, pas une bande passante. Un commentateur cité par la source estime la bande passante réaliste plus proche de 50 MHz, ou de 100 MHz au maximum par le critère de Nyquist. En USB 2.0, les performances chutent nettement. Enfin, l’un des lecteurs signale un prix supérieur à 20 dollars une fois les frais de port pris en compte."
+    },
+    {
+     "type": "usecases",
+     "title": "Exemples d'utilisation",
+     "items": [
+      {
+       "icon": "🔌",
+       "title": "Débogage d’un bus I²C ou SPI",
+       "text": "Capturer les échanges entre un capteur et un microcontrôleur à 8 voies et 40 MHz suffit pour la plupart des projets de loisir, et les décodeurs affichent directement les octets."
+      },
+      {
+       "icon": "🧪",
+       "title": "Atelier de lycée ou club d’électronique",
+       "text": "Un outil à quelques euros qui fait aussi sonde de programmation permet d’équiper plusieurs postes sans gros budget."
+      },
+      {
+       "icon": "🛠️",
+       "title": "Développement de firmware",
+       "text": "Le même boîtier sert à programmer une carte Cortex-M puis à observer ses signaux, sans changer de matériel."
+      }
+     ]
+    },
+    {
+     "type": "timeline",
+     "title": "D'où l'on vient, où l'on va",
+     "items": [
+      {
+       "label": "Avant",
+       "text": "Les analyseurs à base de FX2 et de clones, limités par l’USB 2.0, dominent l’entrée de gamme depuis des années."
+      },
+      {
+       "label": "12 novembre 2026",
+       "text": "Présentation du WeAct Logic Analyzer V2 sur CNX Software."
+      },
+      {
+       "label": "Ensuite",
+       "text": "Reste à voir si le firmware sera ouvert et si le support sigrok sera intégré en amont ; la source ne donne pas de date."
+      }
+     ]
+    },
+    {
+     "type": "opinion",
+     "title": "Notre avis",
+     "paragraphs": [
+      "Le rapport prix-capacité est séduisant, mais il faut lire les chiffres avec prudence : cadence d’échantillonnage n’est pas bande passante, et la profondeur de capture dépend du PC. Pour des signaux lents à moyens, c’est probablement suffisant ; pour des bus rapides, il faudra un instrument plus sérieux.",
+      "À un à trois ans, la montée des microcontrôleurs RISC-V chinois à bas prix devrait multiplier ce type d’outils polyvalents. Le point de vigilance reste l’ouverture : un firmware fermé limite la confiance, la réparabilité et la durée de vie du produit."
+     ],
+     "verdict": "Un outil très abordable, utile à l’établi, dont il faut vérifier les chiffres avant de lui confier un bus rapide."
+    }
+   ],
+   "publishedAt": "2026-11-12T18:17:24+01:00",
+   "readingMinutes": 3
+  },
+  {
+   "id": "mikrotik-knot-gateway-hl9-wifi-halow",
+   "category": "electronique",
+   "title": "MikroTik KNOT Gateway HL9 : une passerelle IoT d’extérieur qui mise sur le Wi-Fi HaLow",
+   "summary": "Boîtier étanche IP66 associant Wi-Fi HaLow à 915 MHz, Wi-Fi 6, Bluetooth, 4G Cat 1 bis et GNSS, au prix public de 139 dollars.",
+   "tags": [
+    "MikroTik",
+    "Wi-Fi HaLow",
+    "IoT",
+    "RouterOS",
+    "passerelle"
+   ],
+   "importance": 3,
+   "sourceDate": "2026-11-11",
+   "icon": "📡",
+   "illustration": {
+    "svg": "<svg xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"0 0 640 360\"><defs><linearGradient id=\"g\" x1=\"0\" y1=\"0\" x2=\"1\" y2=\"1\"><stop offset=\"0\" stop-color=\"hsl(30,65%,30%)\"/><stop offset=\"1\" stop-color=\"hsl(70,70%,50%)\"/></linearGradient></defs><rect width=\"640\" height=\"360\" fill=\"url(#g)\"/><g fill=\"none\" stroke=\"#fff\" stroke-width=\"7\" stroke-linecap=\"round\" stroke-linejoin=\"round\" opacity=\".93\"><path d=\"M320 120v170M260 290h120\"/><circle cx=\"320\" cy=\"110\" r=\"10\"/><path d=\"M280 80a60 60 0 0 0 0 60M360 80a60 60 0 0 1 0 60M250 60a100 100 0 0 0 0 100M390 60a100 100 0 0 1 0 100\" opacity=\".8\"/></g></svg>"
+   },
+   "cover": {
+    "url": "https://www.cnx-software.com/wp-content/uploads/2026/11/Mikrotik-KNOT-Gateway-HL9.jpg",
+    "alt": "Boîtier blanc de la passerelle MikroTik KNOT Gateway HL9 pour installation en extérieur",
+    "credit": "cnx-software.com"
+   },
+   "sources": [
+    {
+     "title": "Mikrotik KNOT Gateway HL9 – An outdoor Wi-Fi HaLow IoT gateway with GbE, WiFi 6, BLE 5.1, 4G LTE Cat 1 bis, and GNSS",
+     "url": "https://www.cnx-software.com/2026/11/11/mikrotik-knot-gateway-hl9-an-outdoor-wi-fi-halow-iot-gateway-with-gbe-wifi-6-ble-5-1-4g-lte-cat-1-bis-and-gnss/",
+     "publisher": "CNX Software"
+    }
+   ],
+   "blocks": [
+    {
+     "type": "paragraph",
+     "text": "Relier des capteurs répartis dans un champ, un entrepôt ou un chantier suppose de choisir une radio : Wi-Fi classique, trop court, Bluetooth, limité, ou LoRa, très économe mais lent. Le **Wi-Fi HaLow** (norme IEEE 802.11ah), qui fonctionne en dessous du gigahertz, vise un entre-deux. MikroTik l’intègre dans sa nouvelle passerelle **KNOT Gateway HL9**, présentée par CNX Software le 11 novembre 2026."
+    },
+    {
+     "type": "heading",
+     "level": 2,
+     "text": "Une passerelle qui parle cinq langues"
+    },
+    {
+     "type": "paragraph",
+     "text": "Le boîtier, classé **IP66**, est prévu pour l’extérieur, du montage mural ou sur mât. Il réunit une radio HaLow à 915 MHz fondée sur le circuit Morse Micro MM6108, le Wi-Fi 6 en 2,4 GHz, le Bluetooth 5.1, une liaison cellulaire LTE Cat 1 bis (avec nano-SIM et eSIM), un récepteur GNSS et un port Gigabit Ethernet avec alimentation par câble réseau (PoE). Le tout est piloté par un processeur Qualcomm IPQ-5010 à deux cœurs 64 bits à 800 MHz, avec 256 Mo de mémoire vive et 128 Mo de stockage."
+    },
+    {
+     "type": "keyvalue",
+     "items": [
+      {
+       "label": "Radios",
+       "value": "HaLow 915 MHz, Wi-Fi 6 2,4 GHz (jusqu’à 287 Mbit/s), Bluetooth 5.1, LTE Cat 1 bis (10 Mbit/s descendants, 5 Mbit/s montants)"
+      },
+      {
+       "label": "Alimentation",
+       "value": "PoE 802.3af/at (18 à 57 V) ou 12 à 57 V continu ; 7 W maximum"
+      },
+      {
+       "label": "Boîtier",
+       "value": "254 × 88 × 57 mm, IP66, sans ventilateur, de −40 °C à +50 °C"
+      },
+      {
+       "label": "Logiciel",
+       "value": "RouterOS v7, mises à jour promises au moins cinq ans"
+      },
+      {
+       "label": "Prix conseillé",
+       "value": "139 dollars"
+      }
+     ]
+    },
+    {
+     "type": "heading",
+     "level": 2,
+     "text": "Du capteur au serveur"
+    },
+    {
+     "type": "paragraph",
+     "text": "La passerelle peut traiter localement les annonces Bluetooth et filtrer les données des capteurs avant de les envoyer vers un serveur distant en MQTT ou en HTTP. Des scripts RouterOS permettent d’automatiser la surveillance, et la configuration se fait par WinBox, WebFig ou l’application mobile de MikroTik. MikroTik Connectivity propose aussi un service eSIM avec profils préchargés et changement d’opérateur."
+    },
+    {
+     "type": "paragraph",
+     "text": "Plusieurs informations manquent dans l’article : la **portée** du HaLow, les débits de cette radio et les constellations GNSS prises en charge ne sont pas précisés. Ce sont pourtant les critères décisifs pour qui veut couvrir un site étendu. À noter aussi que la bande de 915 MHz est celle des Amériques ; en Europe, le HaLow utilise la bande de 863 à 868 MHz, et la disponibilité d’une version adaptée n’est pas abordée dans la source."
+    },
+    {
+     "type": "heading",
+     "level": 2,
+     "text": "Dans la gamme MikroTik"
+    },
+    {
+     "type": "paragraph",
+     "text": "Le HL9 s’ajoute au KNOT Gateway LR8, présenté en septembre avec le même processeur, la même mémoire et la même connectique, mais une radio LoRa à 868 MHz à la place du HaLow, ainsi qu’au KNOT d’origine, compatible LTE-M et NB-IoT. Les revendeurs Baltic Networks (États-Unis), Inter Projekt (Pologne) et WiFi-Stock (Europe) le référencent ; l’adresse chez Baltic Networks laisse penser à une précommande."
+    },
+    {
+     "type": "usecases",
+     "title": "Exemples d'utilisation",
+     "items": [
+      {
+       "icon": "🌾",
+       "title": "Exploitation agricole",
+       "text": "Des capteurs d’humidité du sol répartis sur plusieurs hectares remontent leurs mesures vers la passerelle, qui les envoie par 4G, même sans réseau fixe."
+      },
+      {
+       "icon": "🏭",
+       "title": "Site industriel",
+       "text": "La passerelle collecte les balises Bluetooth de suivi d’actifs, filtre les données et alimente un tableau de bord interne via MQTT."
+      },
+      {
+       "icon": "🚚",
+       "title": "Suivi de remorques et de matériel",
+       "text": "Le GNSS et la 4G de secours permettent de localiser du matériel stocké en extérieur, avec une alimentation par un seul câble réseau."
+      }
+     ]
+    },
+    {
+     "type": "timeline",
+     "title": "D'où l'on vient, où l'on va",
+     "items": [
+      {
+       "label": "Septembre 2026",
+       "text": "MikroTik présente le KNOT Gateway LR8 avec une radio LoRa 868 MHz."
+      },
+      {
+       "label": "11 novembre 2026",
+       "text": "Présentation du KNOT Gateway HL9 à 139 dollars."
+      },
+      {
+       "label": "Ensuite",
+       "text": "Disponibilité chez les revendeurs ; la source ne donne ni date ni version européenne précise."
+      }
+     ]
+    },
+    {
+     "type": "opinion",
+     "title": "Notre avis",
+     "paragraphs": [
+      "MikroTik applique sa recette habituelle : beaucoup de radios et un système maîtrisé, à un prix agressif. Le HaLow est prometteur pour l’IoT de moyenne portée, mais l’absence de chiffres de portée et de débit empêche de juger sa valeur réelle. Les écosystèmes de capteurs HaLow restent aussi bien plus restreints que ceux du Wi-Fi ou du LoRa.",
+      "À un à trois ans, le HaLow pourrait s’imposer pour les caméras et capteurs riches en données qui dépassent les capacités de LoRa, à condition que le matériel conforme aux bandes européennes se généralise. Une passerelle multiradio comme celle-ci sert alors de pont entre ces mondes."
+     ],
+     "verdict": "Un produit cohérent et abordable, à évaluer sur la portée réelle avant tout achat."
+    }
+   ],
+   "publishedAt": "2026-11-12T18:17:24+01:00",
+   "readingMinutes": 3
+  }
+ ]
+}
