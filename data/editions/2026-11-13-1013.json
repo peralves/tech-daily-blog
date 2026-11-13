@@ -1,0 +1,1587 @@
+{
+  "schemaVersion": "1.0",
+  "date": "2026-11-13",
+  "generatedAt": "2026-11-13T10:19:08+01:00",
+  "title": "Tech du 13 novembre 2026 : Check Point et N-central piratés, wfx-loot sur GitHub, Rust 1.100, contrats C++26 et Gemini 4 Hydrogen",
+  "summary": "Passerelles Check Point détruites via PHP2Shell, exploitation de N-central, vol de secrets sur 4 837 comptes GitHub, faille critique d’Apache HTTP/2, opération TorNado, Rust 1.100.0, revers de C++26, panne prolongée de Microsoft 365, puce Baochip-1x, Firefox 160 et Gemini 4 Hydrogen.",
+  "highlights": [
+    "Check Point : des passerelles non corrigées compromises via PHP2Shell, avec effacement de données sur des hôtes ESXi",
+    "N-able N-central : « 4EverAble2Shell » exploitée quelques heures après la publication de son code",
+    "Campagne wfx-loot : 4 837 comptes GitHub compromis pour voler des secrets d’intégration continue",
+    "Rust 1.100.0 stabilise le type `!` et l’API Allocator ; C++26 bute sur les contrats au vote ISO",
+    "Gemini 4 Hydrogen devient le moteur de la Recherche Google"
+  ],
+  "meta": {
+    "generator": "claude-scheduled-task"
+  },
+  "posts": [
+    {
+      "id": "check-point-php2shell-tsga-wiper",
+      "category": "cybersecurite",
+      "icon": "🧨",
+      "importance": 5,
+      "readingMinutes": 4,
+      "sourceDate": "2026-11-13",
+      "title": "Check Point : des passerelles non corrigées piratées via PHP2Shell, puis un logiciel d’effacement frappe des hôtes ESXi",
+      "summary": "Une campagne attribuée à un acteur inconnu exploite les failles PHP2Shell des portails d’accès mobile de passerelles Check Point, installe la porte dérobée TSGA et, dans certains cas, détruit des fichiers sur des hôtes VMware ESXi.",
+      "tags": [
+        "Check Point",
+        "PHP2Shell",
+        "TSGA",
+        "wiper",
+        "ESXi"
+      ],
+      "sources": [
+        {
+          "title": "Hackers Exploit PHP2Shell Flaws in Check Point Gateways to Deploy TSGA Backdoor and Wipe ESXi Files",
+          "url": "https://thehackernews.com/2026/11/hackers-exploit-php2shell-flaws-in.html",
+          "publisher": "The Hacker News"
+        }
+      ],
+      "blocks": [
+        {
+          "type": "paragraph",
+          "text": "Une passerelle de sécurité est censée protéger le réseau d’une organisation ; lorsqu’elle est compromise, c’est tout le périmètre qui bascule. Selon The Hacker News, qui s’appuie sur les travaux de Check Point, un acteur malveillant non identifié a exploité des vulnérabilités regroupées sous le nom de **PHP2Shell** dans les portails « Mobile Access » de passerelles Check Point restées sans correctif. Le correctif de sécurité était pourtant disponible environ une semaine avant le début des attaques, ce qui rappelle le délai souvent très court dont disposent les administrateurs."
+        },
+        {
+          "type": "paragraph",
+          "text": "L’affaire est notable parce qu’elle ne se limite pas à l’espionnage : une partie des victimes a vu ses fichiers détruits. Les premières intrusions datent du 30 octobre 2026 et visaient des organisations israéliennes ; une seconde vague, le 2 novembre 2026, a élargi la cible à plusieurs pays et secteurs, parfois contre des structures déjà touchées une semaine plus tôt."
+        },
+        {
+          "type": "heading",
+          "level": 2,
+          "text": "Le déroulé de l’attaque"
+        },
+        {
+          "type": "list",
+          "items": [
+            "**Accès initial** : exploitation de PHP2Shell dans les portails Mobile Access, qui permet de déposer des interfaces de commande web (web shells) en PHP.",
+            "**Élévation de privilèges** : la faille CVE-2026-123039 (CVSS 7,8), une absence de contrôle d’autorisation dans le processus DynamicCLI, permet à un utilisateur local authentifié d’obtenir les droits root en écrivant une seule requête sur une socket. Check Point fait état d’une exploitation contre « quelques dizaines de clients ».",
+            "**Persistance** : installation de la porte dérobée **TSGA** (déployée sous le nom slot_CPconfigdaemon) et de son composant réseau TSProxy, qui s’injecte dans des processus de l’équipement pour intercepter des fonctions réseau.",
+            "**Mouvement latéral** : déploiement du scanneur gogo, puis connexion en SSH à un hôte VMware ESXi avec le compte vpxuser.",
+            "**Destruction** : exécution du logiciel d’effacement destroy_v6, qui parcourt les répertoires, tente d’écraser les fichiers avec des zéros puis les supprime quelle que soit leur extension, en laissant un fichier DREAM_ANNEXATION.txt dans chaque dossier traité."
+          ]
+        },
+        {
+          "type": "diagram",
+          "svg": "<svg xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"0 0 640 190\" font-family=\"system-ui,sans-serif\"><rect width=\"640\" height=\"190\" rx=\"14\" fill=\"#f4f6fa\" stroke=\"#c9d1e0\"/><text x=\"320\" y=\"34\" text-anchor=\"middle\" font-size=\"15\" font-weight=\"700\" fill=\"#1b2330\">Chaîne d’attaque observée</text><rect x=\"20.0\" y=\"60\" width=\"97.6\" height=\"84\" rx=\"10\" fill=\"#ffffff\" stroke=\"#5b6b8c\" stroke-width=\"1.5\"/><text x=\"68.8\" y=\"87\" text-anchor=\"middle\" font-size=\"12.5\" font-weight=\"700\" fill=\"#1b2330\">Portail</text><text x=\"68.8\" y=\"105\" text-anchor=\"middle\" font-size=\"12.5\" font-weight=\"400\" fill=\"#1b2330\">Mobile Access</text><path d=\"M122.6 102 l18 0 m-6 -6 l6 6 -6 6\" stroke=\"#5b6b8c\" stroke-width=\"2.5\" fill=\"none\" stroke-linecap=\"round\"/><rect x=\"145.6\" y=\"60\" width=\"97.6\" height=\"84\" rx=\"10\" fill=\"#ffffff\" stroke=\"#5b6b8c\" stroke-width=\"1.5\"/><text x=\"194.4\" y=\"87\" text-anchor=\"middle\" font-size=\"12.5\" font-weight=\"700\" fill=\"#1b2330\">PHP2Shell</text><text x=\"194.4\" y=\"105\" text-anchor=\"middle\" font-size=\"12.5\" font-weight=\"400\" fill=\"#1b2330\">web shell PHP</text><path d=\"M248.2 102 l18 0 m-6 -6 l6 6 -6 6\" stroke=\"#5b6b8c\" stroke-width=\"2.5\" fill=\"none\" stroke-linecap=\"round\"/><rect x=\"271.2\" y=\"60\" width=\"97.6\" height=\"84\" rx=\"10\" fill=\"#ffffff\" stroke=\"#5b6b8c\" stroke-width=\"1.5\"/><text x=\"320.0\" y=\"87\" text-anchor=\"middle\" font-size=\"12.5\" font-weight=\"700\" fill=\"#1b2330\">CVE-2026-123039</text><text x=\"320.0\" y=\"105\" text-anchor=\"middle\" font-size=\"12.5\" font-weight=\"400\" fill=\"#1b2330\">droits root</text><path d=\"M373.8 102 l18 0 m-6 -6 l6 6 -6 6\" stroke=\"#5b6b8c\" stroke-width=\"2.5\" fill=\"none\" stroke-linecap=\"round\"/><rect x=\"396.8\" y=\"60\" width=\"97.6\" height=\"84\" rx=\"10\" fill=\"#ffffff\" stroke=\"#5b6b8c\" stroke-width=\"1.5\"/><text x=\"445.6\" y=\"87\" text-anchor=\"middle\" font-size=\"12.5\" font-weight=\"700\" fill=\"#1b2330\">TSGA</text><text x=\"445.6\" y=\"105\" text-anchor=\"middle\" font-size=\"12.5\" font-weight=\"400\" fill=\"#1b2330\">porte dérobée</text><path d=\"M499.4 102 l18 0 m-6 -6 l6 6 -6 6\" stroke=\"#5b6b8c\" stroke-width=\"2.5\" fill=\"none\" stroke-linecap=\"round\"/><rect x=\"522.4\" y=\"60\" width=\"97.6\" height=\"84\" rx=\"10\" fill=\"#ffffff\" stroke=\"#5b6b8c\" stroke-width=\"1.5\"/><text x=\"571.2\" y=\"87\" text-anchor=\"middle\" font-size=\"12.5\" font-weight=\"700\" fill=\"#1b2330\">ESXi + destroy_v6</text><text x=\"571.2\" y=\"105\" text-anchor=\"middle\" font-size=\"12.5\" font-weight=\"400\" fill=\"#1b2330\">effacement</text></svg>",
+          "alt": "Schéma en cinq étapes : portail Mobile Access, PHP2Shell, élévation root, porte dérobée TSGA, puis effacement de fichiers sur ESXi.",
+          "caption": "Les cinq étapes décrites par Check Point, de l’accès au portail jusqu’à la destruction de données."
+        },
+        {
+          "type": "heading",
+          "level": 2,
+          "text": "Produits et versions concernés"
+        },
+        {
+          "type": "paragraph",
+          "text": "Les versions R82.20, R82.10, R82, R81.20, R81.10 et R81 sont citées, pour les passerelles de pare-feu, les serveurs de gestion et de journaux, la gestion multidomaine et l’orchestrateur Maestro. L’article ne détaille pas les numéros de versions corrigées : il renvoie à l’avis de Check Point (sk1000362) et au rapport de recherche de l’éditeur, qu’il convient de consulter avant toute action."
+        },
+        {
+          "type": "heading",
+          "level": 2,
+          "text": "Qui est derrière ? Une attribution prudente"
+        },
+        {
+          "type": "paragraph",
+          "text": "Check Point estime que PhiliKit, la boîte à outils qui contient TSGA et TSProxy, est liée au groupe Armory Castle (anciennement UNC5221), un acteur rattaché à la Chine que l’entreprise ESET avait documenté en juin 2026. L’éditeur précise néanmoins qu’il ne dispose pas d’éléments suffisants pour relier cette campagne à ce groupe ou à un autre. Plusieurs scénarios restent ouverts : un acteur unique menant toute l’opération, un courtier d’accès initial revendant les accès, une opération sous faux drapeau, ou une destruction destinée à masquer d’autres activités."
+        },
+        {
+          "type": "usecases",
+          "title": "Exemples d’utilisation",
+          "items": [
+            {
+              "icon": "🏢",
+              "title": "Équipe informatique d’une PME",
+              "text": "Elle vérifie que ses passerelles Check Point sont à jour, désactive le portail Mobile Access si elle ne l’utilise pas et contrôle la présence de fichiers inhabituels sur l’équipement."
+            },
+            {
+              "icon": "🛠️",
+              "title": "Prestataire d’infogérance",
+              "text": "Il recense les clients dont la passerelle est exposée, applique le correctif en priorité et surveille les connexions SSH sortantes vers les hôtes ESXi."
+            },
+            {
+              "icon": "🔎",
+              "title": "Équipe de réponse à incident",
+              "text": "Elle recherche les indicateurs publiés (adresse 130.94.19[.]204, fichier slot_CPconfigdaemon, note DREAM_ANNEXATION.txt) et isole les hôtes ESXi suspects avant de restaurer depuis des sauvegardes hors ligne."
+            }
+          ]
+        },
+        {
+          "type": "timeline",
+          "title": "D’où l’on vient, où l’on va",
+          "items": [
+            {
+              "label": "Fin octobre 2026",
+              "text": "Un correctif est publié ; des activités depuis l’adresse 130.94.19[.]204 ciblent des organisations israéliennes environ une semaine plus tard."
+            },
+            {
+              "label": "30 octobre 2026",
+              "text": "Première vague d’attaques."
+            },
+            {
+              "label": "2 novembre 2026",
+              "text": "Seconde vague, plus large, dans plusieurs pays et secteurs."
+            },
+            {
+              "label": "13 novembre 2026",
+              "text": "Publication de l’analyse ; aucune mesure de contournement détaillée n’est reprise par la source relayée."
+            }
+          ]
+        },
+        {
+          "type": "opinion",
+          "title": "Notre avis",
+          "paragraphs": [
+            "Cette campagne illustre un problème structurel : les équipements de bordure (pare-feu, VPN, passerelles) sont exposés à Internet, difficiles à surveiller de l’intérieur et souvent mis à jour avec retard. Les attaquants, eux, industrialisent l’exploitation dans les jours qui suivent un correctif. L’ajout d’un effaceur de données montre en outre que l’objectif n’est pas toujours le vol discret.",
+            "Dans un à trois ans, on peut s’attendre à ce que les éditeurs généralisent les mises à jour automatiques de ces appliances et que les assureurs, comme les régulateurs, exigent un délai de correction mesurable. Ce n’est qu’une projection : rien ne garantit que les organisations suivront."
+          ],
+          "verdict": "Un correctif disponible depuis une semaine n’a pas suffi : sur les équipements exposés, la rapidité d’application est devenue une mesure de sécurité à part entière."
+        },
+        {
+          "type": "callout",
+          "title": "À retenir",
+          "text": "Si votre passerelle Check Point n’est pas à jour, appliquez le correctif de l’éditeur, restreignez l’accès au portail Mobile Access et conservez des sauvegardes hors ligne des hôtes de virtualisation."
+        }
+      ],
+      "publishedAt": "2026-11-13T10:19:08+01:00",
+      "illustration": {
+        "svg": "<svg xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"0 0 640 360\"><defs><linearGradient id=\"g1899\" x1=\"0\" y1=\"0\" x2=\"1\" y2=\"1\"><stop offset=\"0\" stop-color=\"hsl(175,65%,40%)\"/><stop offset=\"1\" stop-color=\"hsl(215,70%,22%)\"/></linearGradient></defs><rect width=\"640\" height=\"360\" fill=\"url(#g1899)\"/><circle cx=\"560\" cy=\"40\" r=\"90\" fill=\"#fff\" fill-opacity=\".07\"/><circle cx=\"70\" cy=\"330\" r=\"110\" fill=\"#fff\" fill-opacity=\".06\"/><path d=\"M320 70 L420 105 V190 C420 250 370 290 320 305 C270 290 220 250 220 190 V105 Z\" fill=\"#fff\" fill-opacity=\".9\"/><path d=\"M280 185 l30 30 55-65\" stroke=\"hsl(175,45%,35%)\" stroke-width=\"16\" fill=\"none\" stroke-linecap=\"round\" stroke-linejoin=\"round\"/></svg>"
+      },
+      "cover": {
+        "url": "https://blogger.googleusercontent.com/img/b/R29vZ2xl/AVvXsEjP3B9ZQG1BXlSPUWzwVJ5qgwh899Ngm9u2GAbWiX5HDqhhT6q6gsmva9-TR2upR0fepas2i0k53VUxh1CH21LeUUv1Ipczl9huExytcqNdlqIoHP64CRYJuGyHe-OgLoov-JR6GziUT4JDJ92Ne83CshfWn9pr9Bt2HPKkv4phQJ2esJHcV6eZqzRretVu/s1600/php.jpg",
+        "alt": "Illustration de la campagne PHP2Shell visant des passerelles de sécurité",
+        "credit": "blogger.googleusercontent.com"
+      }
+    },
+    {
+      "id": "n-able-n-central-4everable2shell",
+      "category": "cybersecurite",
+      "icon": "🧩",
+      "importance": 5,
+      "readingMinutes": 4,
+      "sourceDate": "2026-11-12",
+      "title": "N-able N-central : la faille « 4EverAble2Shell » exploitée quelques heures après la publication de son code",
+      "summary": "Une chaîne de failles de N-central, publiée le 12 novembre avec son code d’exploitation, permet d’exécuter des commandes en tant que root. Des chercheurs recensent au moins 21 serveurs compromis, dont 19 à jour de la dernière mise à jour de sécurité.",
+      "tags": [
+        "N-able",
+        "N-central",
+        "zero-day",
+        "MSP",
+        "cryptominage"
+      ],
+      "sources": [
+        {
+          "title": "New N-able \"4EverAble2Shell\" zero-day exploited hours after PoC released",
+          "url": "https://www.bleepingcomputer.com/news/security/new-n-able-4everable2shell-zero-day-exploited-hours-after-poc-released/",
+          "publisher": "BleepingComputer"
+        },
+        {
+          "title": "Hackers Exploit N-central Flaws to Infect 21 Servers, Including 19 Running Hotfix 2",
+          "url": "https://thehackernews.com/2026/11/hackers-exploit-n-central-flaws-to.html",
+          "publisher": "The Hacker News"
+        }
+      ],
+      "blocks": [
+        {
+          "type": "paragraph",
+          "text": "N-central est une plateforme de supervision et d’administration à distance très utilisée par les prestataires de services informatiques gérés (MSP), qui s’en servent pour piloter les parcs de nombreux clients depuis un seul serveur. Une faille sur ce type de produit a donc un effet multiplicateur. Le 12 novembre 2026, le chercheur Sean Bales a publié deux vulnérabilités, baptisées **4EverAble2Shell** et **Agent2Shell**, et, selon BleepingComputer, des attaquants s’en sont servis en quelques heures."
+        },
+        {
+          "type": "heading",
+          "level": 2,
+          "text": "Ce que permettent les failles"
+        },
+        {
+          "type": "paragraph",
+          "text": "D’après Sean Bales, 4EverAble2Shell autorise l’exécution de commandes avec les droits root sur un serveur N-central, sans authentification, à condition que l’ancienne interface de programmation (Legacy API) soit activée. L’attaque combine une faille d’Apache Axis (CVE-2026-90436) et une faiblesse d’élévation de privilèges suivie par Previdian sous la référence VULN-2026-0009. Agent2Shell, de son côté, viserait la fonction d’agent et permettrait d’exécuter des commandes avec les droits SYSTEM sur des machines Windows. Le test a été mené sur N-central Appliance 2026.4.1.26 HF2, publiée le 10 novembre."
+        },
+        {
+          "type": "heading",
+          "level": 2,
+          "text": "Une exploitation observée en direct"
+        },
+        {
+          "type": "list",
+          "items": [
+            "Previdian a vu les premiers sondages vers 8 h 30 UTC le 12 novembre, depuis l’adresse 157.20.241[.]16 ; Huntback a observé la même adresse avec des tentatives de chaîne complète dès 9 h 16 UTC.",
+            "Étape 1 : Axis sert à lancer des commandes sous le compte de service nable. Étape 2 : un utilitaire privilégié (setLDFileOwner) et un lien symbolique rendent un script root modifiable, puis serverControl exécute des commandes en root.",
+            "La charge utile télécharge un script puis installe le mineur de Monero XMRig, réglé pour utiliser environ la moitié des cœurs de processeur.",
+            "À 12 h 50 UTC, le bassin de minage comptait 21 mineurs actifs ; les serveurs touchés se trouvent aux États-Unis, au Canada, en Afrique du Sud, au Royaume-Uni, en Allemagne, en France et en Suède."
+          ]
+        },
+        {
+          "type": "diagram",
+          "svg": "<svg xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"0 0 640 190\" font-family=\"system-ui,sans-serif\"><rect width=\"640\" height=\"190\" rx=\"14\" fill=\"#f4f6fa\" stroke=\"#c9d1e0\"/><text x=\"320\" y=\"34\" text-anchor=\"middle\" font-size=\"15\" font-weight=\"700\" fill=\"#1b2330\">Chaîne d’exploitation de 4EverAble2Shell</text><rect x=\"20.0\" y=\"60\" width=\"129.0\" height=\"84\" rx=\"10\" fill=\"#ffffff\" stroke=\"#5b6b8c\" stroke-width=\"1.5\"/><text x=\"84.5\" y=\"87\" text-anchor=\"middle\" font-size=\"12.5\" font-weight=\"700\" fill=\"#1b2330\">Requête</text><text x=\"84.5\" y=\"105\" text-anchor=\"middle\" font-size=\"12.5\" font-weight=\"400\" fill=\"#1b2330\">/dms/services/ServerUI</text><path d=\"M154.0 102 l18 0 m-6 -6 l6 6 -6 6\" stroke=\"#5b6b8c\" stroke-width=\"2.5\" fill=\"none\" stroke-linecap=\"round\"/><rect x=\"177.0\" y=\"60\" width=\"129.0\" height=\"84\" rx=\"10\" fill=\"#ffffff\" stroke=\"#5b6b8c\" stroke-width=\"1.5\"/><text x=\"241.5\" y=\"87\" text-anchor=\"middle\" font-size=\"12.5\" font-weight=\"700\" fill=\"#1b2330\">Axis (CVE-2026-90436)</text><text x=\"241.5\" y=\"105\" text-anchor=\"middle\" font-size=\"12.5\" font-weight=\"400\" fill=\"#1b2330\">compte « nable »</text><path d=\"M311.0 102 l18 0 m-6 -6 l6 6 -6 6\" stroke=\"#5b6b8c\" stroke-width=\"2.5\" fill=\"none\" stroke-linecap=\"round\"/><rect x=\"334.0\" y=\"60\" width=\"129.0\" height=\"84\" rx=\"10\" fill=\"#ffffff\" stroke=\"#5b6b8c\" stroke-width=\"1.5\"/><text x=\"398.5\" y=\"87\" text-anchor=\"middle\" font-size=\"12.5\" font-weight=\"700\" fill=\"#1b2330\">Lien symbolique</text><text x=\"398.5\" y=\"105\" text-anchor=\"middle\" font-size=\"12.5\" font-weight=\"400\" fill=\"#1b2330\">script root</text><path d=\"M468.0 102 l18 0 m-6 -6 l6 6 -6 6\" stroke=\"#5b6b8c\" stroke-width=\"2.5\" fill=\"none\" stroke-linecap=\"round\"/><rect x=\"491.0\" y=\"60\" width=\"129.0\" height=\"84\" rx=\"10\" fill=\"#ffffff\" stroke=\"#5b6b8c\" stroke-width=\"1.5\"/><text x=\"555.5\" y=\"87\" text-anchor=\"middle\" font-size=\"12.5\" font-weight=\"700\" fill=\"#1b2330\">XMRig</text><text x=\"555.5\" y=\"105\" text-anchor=\"middle\" font-size=\"12.5\" font-weight=\"400\" fill=\"#1b2330\">minage Monero</text></svg>",
+          "alt": "Quatre étapes : requête vers le service ServerUI, exécution via Axis, abus d’un lien symbolique pour obtenir root, puis installation du mineur XMRig.",
+          "caption": "Chaîne d’exploitation décrite par Previdian et Huntback."
+        },
+        {
+          "type": "heading",
+          "level": 2,
+          "text": "Indicateurs à surveiller et réaction de l’éditeur"
+        },
+        {
+          "type": "paragraph",
+          "text": "Huntback recommande de rechercher les requêtes vers `/dms/services/ServerUI` mentionnant `jline.internal.TerminalLineSettings`, les services systemd `xvd.service` inattendus, les processus de minage et les fichiers sous `/tmp/.xvd` ou `/var/tmp/.xvd`. Toute trace confirmée doit être traitée comme une compromission complète du serveur, puisque l’exploit donne les droits root."
+        },
+        {
+          "type": "paragraph",
+          "text": "N-able a publié un avis le 12 novembre : certaines fonctions et intégrations sont restreintes le temps de préparer d’autres correctifs, l’intégration Intune est désactivée par précaution, et les clients installés sur site doivent vérifier que la Legacy API est bien désactivée (c’est le réglage par défaut). Les environnements hébergés bénéficient déjà de protections. L’éditeur indiquait ne constater aucun signe de compromission lié à ces nouvelles failles, ce que les observations des chercheurs contredisent."
+        },
+        {
+          "type": "usecases",
+          "title": "Exemples d’utilisation",
+          "items": [
+            {
+              "icon": "🏢",
+              "title": "MSP gérant des dizaines de clients",
+              "text": "Il vérifie sans délai l’état de la Legacy API, isole le serveur N-central de l’Internet public et analyse les journaux à la recherche des indicateurs publiés."
+            },
+            {
+              "icon": "🔐",
+              "title": "Responsable sécurité d’une PME cliente",
+              "text": "Il demande à son prestataire une confirmation écrite de l’état du serveur d’administration et fait tourner les mots de passe d’administration qui transitaient par l’outil."
+            },
+            {
+              "icon": "📊",
+              "title": "Analyste d’un centre opérationnel de sécurité",
+              "text": "Il crée une règle de détection sur les requêtes vers ServerUI et sur les nouveaux services systemd pour repérer d’autres serveurs touchés."
+            }
+          ]
+        },
+        {
+          "type": "timeline",
+          "title": "D’où l’on vient, où l’on va",
+          "items": [
+            {
+              "label": "Juillet 2026",
+              "text": "Sean Bales affirme avoir signalé à N-able deux failles d’exécution de code distantes dans un autre produit, toujours non corrigées selon lui."
+            },
+            {
+              "label": "10 novembre 2026",
+              "text": "N-able publie des correctifs d’urgence pour de précédentes failles zero-day de N-central."
+            },
+            {
+              "label": "12 novembre 2026",
+              "text": "Publication de 4EverAble2Shell et d’Agent2Shell, exploitation constatée le jour même."
+            },
+            {
+              "label": "Prochains jours",
+              "text": "N-able annonce poursuivre le développement de correctifs ; aucune date n’est communiquée."
+            }
+          ]
+        },
+        {
+          "type": "opinion",
+          "title": "Notre avis",
+          "paragraphs": [
+            "Le cas confirme le risque propre aux outils d’administration centralisée : leur compromission donne accès, potentiellement, à tous les clients d’un prestataire. Ici l’usage constaté reste du cryptominage, mais les chercheurs notent que les attaquants pourraient s’en servir pour atteindre les environnements gérés.",
+            "La publication directe d’un code d’exploitation sans correctif préalable, qui est au cœur de la polémique entre le chercheur et l’éditeur, risque de se reproduire tant que les délais de correction ne s’améliorent pas. À court terme, les MSP gagneraient à ne jamais exposer leurs consoles de gestion à Internet."
+          ],
+          "verdict": "Quand l’exploit circule avant le correctif, la seule défense efficace est de réduire l’exposition de l’outil."
+        }
+      ],
+      "publishedAt": "2026-11-13T10:19:08+01:00",
+      "illustration": {
+        "svg": "<svg xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"0 0 640 360\"><defs><linearGradient id=\"g5595\" x1=\"0\" y1=\"0\" x2=\"1\" y2=\"1\"><stop offset=\"0\" stop-color=\"hsl(175,65%,40%)\"/><stop offset=\"1\" stop-color=\"hsl(215,70%,22%)\"/></linearGradient></defs><rect width=\"640\" height=\"360\" fill=\"url(#g5595)\"/><circle cx=\"560\" cy=\"40\" r=\"90\" fill=\"#fff\" fill-opacity=\".07\"/><circle cx=\"70\" cy=\"330\" r=\"110\" fill=\"#fff\" fill-opacity=\".06\"/><g fill=\"#fff\" fill-opacity=\".92\"><rect x=\"220\" y=\"80\" width=\"200\" height=\"60\" rx=\"10\"/><rect x=\"220\" y=\"155\" width=\"200\" height=\"60\" rx=\"10\"/><rect x=\"220\" y=\"230\" width=\"200\" height=\"60\" rx=\"10\"/></g><g fill=\"hsl(175,45%,35%)\"><circle cx=\"250\" cy=\"110\" r=\"8\"/><circle cx=\"250\" cy=\"185\" r=\"8\"/><circle cx=\"250\" cy=\"260\" r=\"8\"/><rect x=\"290\" y=\"104\" width=\"100\" height=\"12\" rx=\"6\"/><rect x=\"290\" y=\"179\" width=\"100\" height=\"12\" rx=\"6\"/><rect x=\"290\" y=\"254\" width=\"100\" height=\"12\" rx=\"6\"/></g></svg>"
+      }
+    },
+    {
+      "id": "wfx-loot-github-4800-comptes",
+      "category": "cybersecurite",
+      "icon": "🔑",
+      "importance": 4,
+      "readingMinutes": 4,
+      "sourceDate": "2026-11-12",
+      "title": "Campagne « wfx-loot » : 4 837 comptes GitHub compromis pour voler des secrets d’intégration continue",
+      "summary": "Selon Aikido Security, des comptes GitHub piratés ont ouvert des demandes de fusion piégées dans plus de 61 000 dépôts afin de dérober secrets de workflows et identifiants cloud. Au moins 1 835 cibles ont été touchées.",
+      "tags": [
+        "GitHub Actions",
+        "supply chain",
+        "secrets",
+        "OIDC",
+        "Aikido"
+      ],
+      "sources": [
+        {
+          "title": "Hackers compromise 4,800 GitHub accounts to steal cloud credentials",
+          "url": "https://www.bleepingcomputer.com/news/security/hackers-compromise-4-800-github-accounts-to-steal-cloud-credentials/",
+          "publisher": "BleepingComputer"
+        }
+      ],
+      "blocks": [
+        {
+          "type": "paragraph",
+          "text": "Les chaînes d’intégration continue concentrent des secrets précieux : jetons de publication de paquets, clés cloud, identifiants de déploiement. C’est ce qu’a visé la campagne baptisée **wfx-loot**, décrite par BleepingComputer d’après les travaux de la société de sécurité Aikido Security. L’attaque a commencé vers 12 h 45 UTC le 10 novembre 2026 et s’appuie sur des identifiants GitHub volés, sans que son auteur soit identifié."
+        },
+        {
+          "type": "heading",
+          "level": 2,
+          "text": "Une opération à grande échelle"
+        },
+        {
+          "type": "keyvalue",
+          "items": [
+            {
+              "label": "Comptes compromis",
+              "value": "4 837"
+            },
+            {
+              "label": "Dépôts sondés pour l’écriture",
+              "value": "61 764"
+            },
+            {
+              "label": "Cibles dont des secrets ont été volés (au moins)",
+              "value": "1 835"
+            },
+            {
+              "label": "Demandes de fusion de sondage encore ouvertes",
+              "value": "92 %"
+            },
+            {
+              "label": "Comptes avec droits de publication (npm, PyPI, Go, crates, Packagist)",
+              "value": "environ 50"
+            }
+          ]
+        },
+        {
+          "type": "paragraph",
+          "text": "Parmi les comptes touchés figureraient ceux d’entreprises du Fortune 100, de l’administration américaine des services généraux (GSA), du gouvernement français, de Nextcloud et de WebdriverIO. Les demandes de fusion de sondage portaient le titre anodin « docs: dependency audit notes » ; comme 92 % d’entre elles étaient encore ouvertes lors de la publication, les propriétaires ne s’en étaient manifestement pas aperçus. Aikido relève par ailleurs des recoupements avec la campagne GhostAction de 2025."
+        },
+        {
+          "type": "heading",
+          "level": 2,
+          "text": "Technique : un script de 1 500 lignes dans les workflows"
+        },
+        {
+          "type": "list",
+          "items": [
+            "**Livraison** : un script shell d’environ 1 500 lignes est ajouté en modifiant un workflow existant, en créant un workflow sur une branche éphémère ou via un crochet d’installation npm.",
+            "**Collecte** : secrets, variables et jetons GitHub Actions (dont OIDC), identifiants AWS, Azure et Google Cloud, y compris les métadonnées d’instance des exécuteurs auto-hébergés, mais aussi clés SSH, GPG, Docker, Kubernetes, npm, PyPI, Vault, Terraform et jetons de services d’IA.",
+            "**Escalade** : les jetons OIDC sont échangés contre des sessions temporaires AWS, Azure et GCP ; sur AWS, des rôles IAM peuvent être enchaînés pour créer des identifiants durables.",
+            "**Exfiltration et effacement** : les données sont compressées et envoyées par POST HTTP vers deux serveurs ; l’attaquant annule ses modifications et supprime les journaux d’exécution en moins d’une minute."
+          ]
+        },
+        {
+          "type": "paragraph",
+          "text": "Des charges malveillantes se sont aussi retrouvées dans des paquets publiés automatiquement : le paquet Packagist digitalelvis/neuronai-studio 3.14.3 et le module Go github.com/onuragtas/docker-env (versions v1.0.278 et v1.0.280). Pour les chercheurs, le vol de secrets d’intégration continue était l’objectif principal et ces publications n’en sont qu’un effet secondaire."
+        },
+        {
+          "type": "usecases",
+          "title": "Exemples d’utilisation",
+          "items": [
+            {
+              "icon": "👩‍💻",
+              "title": "Mainteneur open source",
+              "text": "Il recherche une branche « wfx-docs », la demande de fusion de sondage et d’éventuels trous dans la numérotation des exécutions de workflows."
+            },
+            {
+              "icon": "☁️",
+              "title": "Équipe plateforme",
+              "text": "Si l’exécution de la charge est confirmée, elle fait tourner tous les secrets et rôles cloud accessibles aux workflows concernés, et revoit les politiques de confiance OIDC."
+            },
+            {
+              "icon": "🏛️",
+              "title": "Responsable sécurité d’une organisation publique",
+              "text": "Il impose l’authentification forte, limite les droits d’écriture des jetons et exige une relecture humaine avant l’exécution de tout nouveau workflow."
+            }
+          ]
+        },
+        {
+          "type": "timeline",
+          "title": "D’où l’on vient, où l’on va",
+          "items": [
+            {
+              "label": "2025",
+              "text": "La campagne GhostAction, dont wfx-loot reprend certains traits selon Aikido, vise déjà des secrets GitHub."
+            },
+            {
+              "label": "10 novembre 2026",
+              "text": "Début de wfx-loot vers 12 h 45 UTC."
+            },
+            {
+              "label": "12 novembre 2026",
+              "text": "Publication des analyses ; la majorité des demandes de sondage reste ouverte."
+            }
+          ]
+        },
+        {
+          "type": "opinion",
+          "title": "Notre avis",
+          "paragraphs": [
+            "Ce cas rappelle que la sécurité d’un dépôt dépend d’abord de celle des comptes de ses contributeurs. Un jeton volé qui peut écrire dans un workflow suffit pour transformer l’intégration continue en machine à exfiltrer. Les échanges de jetons OIDC, pratiques pour éviter des clés statiques, deviennent eux-mêmes une cible quand les politiques de confiance sont trop larges.",
+            "Dans les prochaines années, on peut raisonnablement attendre davantage de plateformes imposant des approbations obligatoires pour les modifications de workflows et des jetons à durée très courte : c’est une évolution plausible, pas une certitude."
+          ],
+          "verdict": "Le maillon faible n’est pas le code, mais les droits d’écriture accordés à des comptes dont personne ne surveille l’usage."
+        },
+        {
+          "type": "callout",
+          "title": "À retenir",
+          "text": "En cas de doute : rechercher la branche « wfx-docs », vérifier les journaux de workflows, puis considérer comme compromis tous les secrets disponibles pour les workflows touchés et les renouveler."
+        }
+      ],
+      "publishedAt": "2026-11-13T10:19:08+01:00",
+      "illustration": {
+        "svg": "<svg xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"0 0 640 360\"><defs><linearGradient id=\"g1669\" x1=\"0\" y1=\"0\" x2=\"1\" y2=\"1\"><stop offset=\"0\" stop-color=\"hsl(175,65%,40%)\"/><stop offset=\"1\" stop-color=\"hsl(215,70%,22%)\"/></linearGradient></defs><rect width=\"640\" height=\"360\" fill=\"url(#g1669)\"/><circle cx=\"560\" cy=\"40\" r=\"90\" fill=\"#fff\" fill-opacity=\".07\"/><circle cx=\"70\" cy=\"330\" r=\"110\" fill=\"#fff\" fill-opacity=\".06\"/><rect x=\"245\" y=\"170\" width=\"150\" height=\"120\" rx=\"16\" fill=\"#fff\" fill-opacity=\".92\"/><path d=\"M275 170v-35a45 45 0 0 1 90 0v35\" stroke=\"#fff\" stroke-width=\"16\" fill=\"none\"/><circle cx=\"320\" cy=\"225\" r=\"14\" fill=\"hsl(175,45%,35%)\"/><rect x=\"314\" y=\"230\" width=\"12\" height=\"35\" rx=\"5\" fill=\"hsl(175,45%,35%)\"/></svg>"
+      }
+    },
+    {
+      "id": "apache-http2-rce-cve-2026-119618",
+      "category": "cybersecurite",
+      "icon": "🪲",
+      "importance": 4,
+      "readingMinutes": 4,
+      "sourceDate": "2026-11-12",
+      "title": "Apache HTTP Server : une faille critique dans mod_http2 permet l’exécution de code à distance",
+      "summary": "La vulnérabilité CVE-2026-119618, une situation de concurrence dans le module HTTP/2, touche les versions 2.4.55 à 2.4.70. Aucune exploitation n’est connue ; désactiver HTTP/2 est le contournement conseillé si le correctif ne peut pas être appliqué.",
+      "tags": [
+        "Apache",
+        "HTTP/2",
+        "mod_http2",
+        "CVE-2026-119618"
+      ],
+      "sources": [
+        {
+          "title": "Apache HTTP Server patches critical HTTP/2 remote code execution flaw",
+          "url": "https://www.bleepingcomputer.com/news/security/apache-http-server-patches-critical-http-2-remote-code-execution-flaw/",
+          "publisher": "BleepingComputer"
+        }
+      ],
+      "blocks": [
+        {
+          "type": "paragraph",
+          "text": "Apache HTTP Server reste l’un des serveurs web les plus répandus ; une faille d’exécution de code à distance sans authentification dans l’un de ses modules est donc un sujet à traiter sans attendre. Le 12 novembre 2026, le projet a corrigé **CVE-2026-119618**, une vulnérabilité du module `mod_http2` décrite par BleepingComputer."
+        },
+        {
+          "type": "heading",
+          "level": 2,
+          "text": "La nature de la faille"
+        },
+        {
+          "type": "paragraph",
+          "text": "Il s’agit d’une situation de concurrence (race condition) : une ressource partagée est utilisée sans synchronisation correcte dans la fonction `assign_headers()`, ce qui peut corrompre la mémoire du tas et conduire à l’exécution de code. Un attaquant non authentifié pourrait ainsi exécuter du code avec les privilèges du processus du serveur web. Aucun score CVSS officiel n’était disponible ; la société Wiz estime la gravité critique. La découverte est attribuée à l’outil d’analyse OSS Scanner d’Anthropic et aux équipes de recherche en vulnérabilités de Google Cloud."
+        },
+        {
+          "type": "paragraph",
+          "text": "Concrètement, ce type de défaut est difficile à exploiter de façon fiable, puisqu’il dépend du timing entre plusieurs requêtes traitées en parallèle ; c’est précisément ce qui le rend dangereux lorsqu’un attaquant parvient à le reproduire, car la corruption de mémoire qui en résulte peut être orientée vers l’exécution de code. Il faut aussi retenir que la présence du module dans une installation ne suffit pas : c’est l’activation du protocole HTTP/2, souvent ajoutée pour de meilleures performances ou pour des exigences de compatibilité, qui expose le serveur. Un simple contrôle des directives de configuration `Protocols` permet donc de savoir rapidement si l’on est concerné."
+        },
+        {
+          "type": "keyvalue",
+          "items": [
+            {
+              "label": "Versions touchées",
+              "value": "Apache HTTP Server 2.4.55 à 2.4.70 ; mod_h2 autonome 2.0.8 à 2.0.42"
+            },
+            {
+              "label": "Condition d’exposition",
+              "value": "HTTP/2 doit être activé (désactivé par défaut)"
+            },
+            {
+              "label": "Exploitation connue",
+              "value": "Aucune, selon Wiz, qui prévient que cela peut changer"
+            },
+            {
+              "label": "Contournement",
+              "value": "Désactiver HTTP/2, recommandé par watchTowr"
+            },
+            {
+              "label": "Autres correctifs de la version",
+              "value": "CVE-2026-106023 (mod_md) et CVE-2026-109163 (mod_vhost_alias)"
+            }
+          ]
+        },
+        {
+          "type": "paragraph",
+          "text": "Wiz indique que 64 % des environnements cloud qu’elle observe contiennent des ressources vulnérables, dont environ la moitié sont exposées publiquement ; ces chiffres ne tiennent pas compte de la configuration réelle, et donc du fait que HTTP/2 n’est pas activé partout. L’article ne précise pas le numéro de la version corrigée, que les administrateurs trouveront dans l’annonce de sécurité du projet."
+        },
+        {
+          "type": "diagram",
+          "svg": "<svg xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"0 0 640 190\" font-family=\"system-ui,sans-serif\"><rect width=\"640\" height=\"190\" rx=\"14\" fill=\"#f4f6fa\" stroke=\"#c9d1e0\"/><text x=\"320\" y=\"34\" text-anchor=\"middle\" font-size=\"15\" font-weight=\"700\" fill=\"#1b2330\">Mécanisme de la faille</text><rect x=\"20.0\" y=\"60\" width=\"129.0\" height=\"84\" rx=\"10\" fill=\"#ffffff\" stroke=\"#5b6b8c\" stroke-width=\"1.5\"/><text x=\"84.5\" y=\"87\" text-anchor=\"middle\" font-size=\"12.5\" font-weight=\"700\" fill=\"#1b2330\">Client HTTP/2</text><text x=\"84.5\" y=\"105\" text-anchor=\"middle\" font-size=\"12.5\" font-weight=\"400\" fill=\"#1b2330\">requêtes concurrentes</text><path d=\"M154.0 102 l18 0 m-6 -6 l6 6 -6 6\" stroke=\"#5b6b8c\" stroke-width=\"2.5\" fill=\"none\" stroke-linecap=\"round\"/><rect x=\"177.0\" y=\"60\" width=\"129.0\" height=\"84\" rx=\"10\" fill=\"#ffffff\" stroke=\"#5b6b8c\" stroke-width=\"1.5\"/><text x=\"241.5\" y=\"87\" text-anchor=\"middle\" font-size=\"12.5\" font-weight=\"700\" fill=\"#1b2330\">mod_http2</text><text x=\"241.5\" y=\"105\" text-anchor=\"middle\" font-size=\"12.5\" font-weight=\"400\" fill=\"#1b2330\">assign_headers()</text><path d=\"M311.0 102 l18 0 m-6 -6 l6 6 -6 6\" stroke=\"#5b6b8c\" stroke-width=\"2.5\" fill=\"none\" stroke-linecap=\"round\"/><rect x=\"334.0\" y=\"60\" width=\"129.0\" height=\"84\" rx=\"10\" fill=\"#ffffff\" stroke=\"#5b6b8c\" stroke-width=\"1.5\"/><text x=\"398.5\" y=\"87\" text-anchor=\"middle\" font-size=\"12.5\" font-weight=\"700\" fill=\"#1b2330\">Corruption du tas</text><text x=\"398.5\" y=\"105\" text-anchor=\"middle\" font-size=\"12.5\" font-weight=\"400\" fill=\"#1b2330\">race condition</text><path d=\"M468.0 102 l18 0 m-6 -6 l6 6 -6 6\" stroke=\"#5b6b8c\" stroke-width=\"2.5\" fill=\"none\" stroke-linecap=\"round\"/><rect x=\"491.0\" y=\"60\" width=\"129.0\" height=\"84\" rx=\"10\" fill=\"#ffffff\" stroke=\"#5b6b8c\" stroke-width=\"1.5\"/><text x=\"555.5\" y=\"87\" text-anchor=\"middle\" font-size=\"12.5\" font-weight=\"700\" fill=\"#1b2330\">Exécution de code</text><text x=\"555.5\" y=\"105\" text-anchor=\"middle\" font-size=\"12.5\" font-weight=\"400\" fill=\"#1b2330\">droits du serveur</text></svg>",
+          "alt": "Schéma en quatre étapes : requêtes HTTP/2 concurrentes, traitement par mod_http2, corruption de la mémoire, exécution de code avec les droits du serveur.",
+          "caption": "Mécanisme décrit de manière simplifiée à partir des informations publiées."
+        },
+        {
+          "type": "usecases",
+          "title": "Exemples d’utilisation",
+          "items": [
+            {
+              "icon": "🖥️",
+              "title": "Administrateur d’un serveur web",
+              "text": "Il vérifie la version d’Apache, repère les virtual hosts avec `Protocols h2` et applique la mise à jour ; à défaut, il retire h2 de la liste des protocoles."
+            },
+            {
+              "icon": "☁️",
+              "title": "Équipe cloud",
+              "text": "Elle inventorie les images de conteneurs embarquant Apache 2.4.55 à 2.4.70 et planifie leur reconstruction."
+            },
+            {
+              "icon": "🔎",
+              "title": "Prestataire de sécurité",
+              "text": "Il surveille les journaux pour détecter des rafales de requêtes HTTP/2 inhabituelles en attendant le correctif."
+            }
+          ]
+        },
+        {
+          "type": "timeline",
+          "title": "D’où l’on vient, où l’on va",
+          "items": [
+            {
+              "label": "2.4.55",
+              "text": "Première version concernée selon la source."
+            },
+            {
+              "label": "2.4.70",
+              "text": "Dernière version indiquée comme vulnérable."
+            },
+            {
+              "label": "12 novembre 2026",
+              "text": "Publication du correctif et des analyses ; aucune exploitation publique connue."
+            }
+          ]
+        },
+        {
+          "type": "opinion",
+          "title": "Notre avis",
+          "paragraphs": [
+            "Ce type de faille rappelle que les modules de protocole, par nature complexes et fortement concurrents, sont un terrain favori des chercheurs comme des attaquants. Le fait que la découverte provienne en partie d’un outil d’analyse automatisée montre que la recherche de failles assistée par ordinateur accélère le rythme des corrections, mais aussi celui des exploits potentiels.",
+            "Le contexte est rassurant sur un point : HTTP/2 est désactivé par défaut, ce qui réduit l’exposition réelle. Il reste prudent de ne pas minimiser un risque tant que l’inventaire des configurations n’est pas fait."
+          ],
+          "verdict": "Corriger vite, ou désactiver HTTP/2 : les deux options sont simples et la seconde se fait en quelques minutes."
+        }
+      ],
+      "publishedAt": "2026-11-13T10:19:08+01:00",
+      "illustration": {
+        "svg": "<svg xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"0 0 640 360\"><defs><linearGradient id=\"g5162\" x1=\"0\" y1=\"0\" x2=\"1\" y2=\"1\"><stop offset=\"0\" stop-color=\"hsl(175,65%,40%)\"/><stop offset=\"1\" stop-color=\"hsl(215,70%,22%)\"/></linearGradient></defs><rect width=\"640\" height=\"360\" fill=\"url(#g5162)\"/><circle cx=\"560\" cy=\"40\" r=\"90\" fill=\"#fff\" fill-opacity=\".07\"/><circle cx=\"70\" cy=\"330\" r=\"110\" fill=\"#fff\" fill-opacity=\".06\"/><g stroke=\"#fff\" stroke-width=\"6\" stroke-opacity=\".8\"><path d=\"M320 100 L200 250M320 100 L440 250M200 250 L440 250M320 100 V200M320 200 L200 250M320 200 L440 250\"/></g><g fill=\"#fff\"><circle cx=\"320\" cy=\"100\" r=\"26\"/><circle cx=\"200\" cy=\"250\" r=\"26\"/><circle cx=\"440\" cy=\"250\" r=\"26\"/><circle cx=\"320\" cy=\"200\" r=\"20\"/></g></svg>"
+      }
+    },
+    {
+      "id": "operation-tornado-354-arrestations",
+      "category": "cybersecurite",
+      "icon": "🚔",
+      "importance": 3,
+      "readingMinutes": 3,
+      "sourceDate": "2026-11-13",
+      "title": "Opération TorNado : 354 arrestations dans une vaste offensive contre les marchés du dark web",
+      "summary": "Des polices de 14 pays, avec Europol et le ministère américain de la Justice, annoncent l’arrestation de 354 vendeurs et acheteurs liés à cinq marchés du dark web, ainsi que des saisies de plus de 60 millions d’euros en Europe.",
+      "tags": [
+        "Europol",
+        "dark web",
+        "Archetyp",
+        "cybercriminalité"
+      ],
+      "sources": [
+        {
+          "title": "Police arrest 354 suspects in dark web cybercrime crackdown",
+          "url": "https://www.bleepingcomputer.com/news/security/police-arrest-354-vendors-buyers-in-global-cybercrime-crackdown/",
+          "publisher": "BleepingComputer"
+        }
+      ],
+      "blocks": [
+        {
+          "type": "paragraph",
+          "text": "Une coordination policière internationale annonce le résultat de l’opération **TorNado**, menée de mai 2025 à octobre 2026. D’après BleepingComputer, elle a conduit à l’arrestation de 354 suspects, principalement des vendeurs et des acheteurs actifs sur cinq places de marché du dark web : Archetyp, Nemesis, Tor2Door, Bohemia et Kingdom. Des forums, des boutiques tenues par un seul vendeur et des services de messagerie chiffrée figurent aussi parmi les cibles."
+        },
+        {
+          "type": "heading",
+          "level": 2,
+          "text": "Un dispositif de 14 pays"
+        },
+        {
+          "type": "paragraph",
+          "text": "Les forces de l’ordre de 14 pays ont participé, avec l’appui d’Europol (recoupements via le système SIENA et analyses criminalistiques) et du ministère américain de la Justice. L’opération fait suite aux démantèlements JCODE et s’inscrit dans une série d’enquêtes liées."
+        },
+        {
+          "type": "paragraph",
+          "text": "Un autre enseignement tient à la nature des cibles : en visant à la fois les places de marché, les forums, les boutiques indépendantes et les messageries chiffrées, les enquêteurs reconnaissent que l’activité illégale se disperse dès que l’une de ses plateformes tombe. L’appui d’Europol pour les recoupements d’informations entre pays, et celui du ministère américain de la Justice, illustrent la nécessité d’une coordination permanente, car les vendeurs, les acheteurs et les flux financiers ne s’arrêtent pas aux frontières. Les chiffres de saisies, plus de 60 millions d’euros en Europe et plus de 150 millions d’euros aux États-Unis, sont ceux annoncés par les autorités."
+        },
+        {
+          "type": "table",
+          "headers": [
+            "Zone",
+            "Saisies annoncées"
+          ],
+          "rows": [
+            [
+              "Europe",
+              "Plus de 60 millions d’euros en espèces et en cryptomonnaies ; environ 950 kg de drogues (amphétamines, cocaïne, kétamine, champignons hallucinogènes, MDMA, cannabis) ; 57 armes à feu"
+            ],
+            [
+              "États-Unis",
+              "Plus de 4,8 tonnes de drogues ; 152 armes à feu ; plus de 150 millions d’euros"
+            ]
+          ]
+        },
+        {
+          "type": "heading",
+          "level": 2,
+          "text": "Un phénomène qui se reconstitue"
+        },
+        {
+          "type": "paragraph",
+          "text": "Europol souligne que l’opération « met en évidence la résilience croissante des marchés du dark web ». Les précédents le confirment : DisrupTor (2020) avait conduit à 179 arrestations, Dark HunTor (2021) à 150, la chute de Hydra (avril 2022) avait touché plus de 19 000 comptes de vendeurs et plus de 17 millions de clients, SpecTor (2023) avait mené à 288 arrestations et 50,8 millions d’euros saisis, et RapTor (mai 2025) à 270 arrestations dans dix pays."
+        },
+        {
+          "type": "usecases",
+          "title": "Exemples d’utilisation",
+          "items": [
+            {
+              "icon": "👮",
+              "title": "Enquêteur spécialisé",
+              "text": "Il exploite les recoupements entre pays pour relier des pseudonymes à des identités et à des flux financiers en cryptomonnaies."
+            },
+            {
+              "icon": "🏦",
+              "title": "Équipe conformité d’une plateforme d’échange",
+              "text": "Elle renforce la surveillance des transactions liées aux adresses saisies ou signalées par les autorités."
+            },
+            {
+              "icon": "🧑‍🏫",
+              "title": "Responsable de sensibilisation",
+              "text": "Il rappelle que l’anonymat sur ces marchés n’est pas garanti et que les acheteurs sont aussi poursuivis."
+            }
+          ]
+        },
+        {
+          "type": "timeline",
+          "title": "D’où l’on vient, où l’on va",
+          "items": [
+            {
+              "label": "2020",
+              "text": "DisrupTor : 179 arrestations."
+            },
+            {
+              "label": "2022",
+              "text": "Chute de Hydra, plus grand marché de l’époque."
+            },
+            {
+              "label": "2023",
+              "text": "SpecTor : 288 arrestations."
+            },
+            {
+              "label": "Mai 2025",
+              "text": "RapTor : 270 arrestations dans dix pays."
+            },
+            {
+              "label": "Mai 2025 à octobre 2026",
+              "text": "Opération TorNado, annoncée le 13 novembre 2026."
+            }
+          ]
+        },
+        {
+          "type": "opinion",
+          "title": "Notre avis",
+          "paragraphs": [
+            "Le bilan est impressionnant en chiffres, mais l’histoire récente des marchés du dark web montre que chaque démantèlement est suivi de la naissance de nouvelles places. L’enjeu pour les polices n’est plus seulement de fermer des sites, mais de remonter les flux financiers et les chaînes logistiques, ce que la dimension internationale de TorNado cherche à faire.",
+            "On peut s’attendre à une poursuite de cette stratégie de pression continue : des vagues d’arrestations plus fréquentes, appuyées sur l’analyse de la blockchain. C’est une projection, non un fait établi."
+          ],
+          "verdict": "Les marchés du dark web sont durablement fragilisés, mais pas supprimés : la pression doit rester constante."
+        }
+      ],
+      "publishedAt": "2026-11-13T10:19:08+01:00",
+      "illustration": {
+        "svg": "<svg xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"0 0 640 360\"><defs><linearGradient id=\"g5162\" x1=\"0\" y1=\"0\" x2=\"1\" y2=\"1\"><stop offset=\"0\" stop-color=\"hsl(175,65%,40%)\"/><stop offset=\"1\" stop-color=\"hsl(215,70%,22%)\"/></linearGradient></defs><rect width=\"640\" height=\"360\" fill=\"url(#g5162)\"/><circle cx=\"560\" cy=\"40\" r=\"90\" fill=\"#fff\" fill-opacity=\".07\"/><circle cx=\"70\" cy=\"330\" r=\"110\" fill=\"#fff\" fill-opacity=\".06\"/><g stroke=\"#fff\" stroke-width=\"6\" stroke-opacity=\".8\"><path d=\"M320 100 L200 250M320 100 L440 250M200 250 L440 250M320 100 V200M320 200 L200 250M320 200 L440 250\"/></g><g fill=\"#fff\"><circle cx=\"320\" cy=\"100\" r=\"26\"/><circle cx=\"200\" cy=\"250\" r=\"26\"/><circle cx=\"440\" cy=\"250\" r=\"26\"/><circle cx=\"320\" cy=\"200\" r=\"20\"/></g></svg>"
+      }
+    },
+    {
+      "id": "rust-1-100-never-type-allocator",
+      "category": "dev",
+      "icon": "🦀",
+      "importance": 4,
+      "readingMinutes": 4,
+      "sourceDate": "2026-11-12",
+      "title": "Rust 1.100.0 : le type « jamais » et l’API Allocator deviennent stables, Cargo avertit des dépendances inutilisées",
+      "summary": "La version 1.100.0 stabilise le type `!`, l’API Allocator, `DropGuard` et de nombreuses fonctions de la bibliothèque standard, et ajoute à Cargo des avertissements de dépendances inutilisées ainsi qu’un délai minimal de publication.",
+      "tags": [
+        "Rust",
+        "Cargo",
+        "Allocator",
+        "never type"
+      ],
+      "sources": [
+        {
+          "title": "Announcing Rust 1.100.0",
+          "url": "https://blog.rust-lang.org/2026/11/12/Rust-1.100.0/",
+          "publisher": "Rust Blog"
+        }
+      ],
+      "blocks": [
+        {
+          "type": "paragraph",
+          "text": "Le projet Rust a publié le 12 novembre 2026 la version 1.100.0 de son langage, une étape symbolique par son numéro mais surtout par le contenu : deux fonctionnalités attendues de longue date passent en version stable, le type « jamais » et l’API d’allocation mémoire. Le billet officiel détaille aussi plusieurs changements de Cargo, l’outil de construction et de gestion des dépendances."
+        },
+        {
+          "type": "heading",
+          "level": 2,
+          "text": "Le type `!` enfin stable"
+        },
+        {
+          "type": "paragraph",
+          "text": "Le type `!` (« never ») représente un calcul qui ne se termine jamais normalement. Il peut désormais être nommé partout, par exemple dans `Result<T, !>` pour exprimer qu’une opération ne peut pas échouer. `Infallible`, utilisé jusqu’ici pour cet usage, devient un simple alias de `!`, de sorte que les API existantes continuent de fonctionner. Un changement de comportement est à noter : dans les éditions antérieures à 2024 (2015, 2018 et 2021), le type de repli (fallback) passe de `()` à `!`. Le billet précise que l’effet est rarement visible, mais qu’il peut modifier le comportement de certains codes qui ignorent un résultat générique, et signaler davantage de code inatteignable."
+        },
+        {
+          "type": "heading",
+          "level": 2,
+          "text": "Allocator et DropGuard"
+        },
+        {
+          "type": "list",
+          "items": [
+            "**API `Allocator`** : le trait `Allocator`, ainsi que `Global` et `System`, sont stabilisés. Les allocateurs personnalisés fonctionnent avec `Vec` et `Box`, grâce à des constructeurs `_in` et à des accesseurs. C’est la base de l’objectif « Allocators 1.0 ».",
+            "**`core::mem::DropGuard`** : un conteneur qui exécute une fermeture à sa destruction, avec `Deref`, `DerefMut` et une méthode `dismiss` pour annuler l’action. Le billet l’illustre par un retour en arrière dans un analyseur syntaxique.",
+            "**`core::mem::conjure_zst`** : fonction `unsafe` qui crée un type de taille nulle, à la place de bricolages comme la transmutation de `()`."
+          ]
+        },
+        {
+          "type": "paragraph",
+          "text": "Parmi les autres fonctions stabilisées figurent `bool::toggle`, `Box::take`, `Box::map`, `Rc::map`, `Arc::map`, `trim_prefix` et `trim_suffix` pour les chaînes, les tranches et les chemins, `Vec::from_fn`, des implémentations de `PartialEq` pour `Cow`, `Default` pour `std::sync::Once`, ainsi que `CommandExt::show_window` et `Child::main_thread_handle` sous Windows."
+        },
+        {
+          "type": "heading",
+          "level": 2,
+          "text": "Cargo : moins de dépendances mortes, plus de prudence"
+        },
+        {
+          "type": "list",
+          "items": [
+            "**Dépendances inutilisées** : Cargo les signale via `cargo::unused_dependencies` (niveau `warn` par défaut), dans le nouveau système `[lints.cargo]`. Les `dev-dependencies` ne sont pas contrôlées et la construction d’une seule cible peut ne pas tout révéler.",
+            "**Disposition du répertoire de construction** : le hachage de configuration est appliqué de façon cohérente, ce qui limite les collisions de cache ; des scripts de construction ou des tests contournant l’ancien comportement peuvent devoir être adaptés.",
+            "**Délai minimal de publication** : le paramètre `global-min-publish-age` de `.cargo/config.toml` écarte les versions trop récentes ; on peut le passer outre ponctuellement avec `CARGO_RESOLVER_INCOMPATIBLE_PUBLISH_AGE=allow`. `cargo install` l’ignore, et les versions sans champ `pubtime` ne sont jamais retenues."
+          ]
+        },
+        {
+          "type": "diagram",
+          "svg": "<svg xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"0 0 640 190\" font-family=\"system-ui,sans-serif\"><rect width=\"640\" height=\"190\" rx=\"14\" fill=\"#f4f6fa\" stroke=\"#c9d1e0\"/><text x=\"320\" y=\"34\" text-anchor=\"middle\" font-size=\"15\" font-weight=\"700\" fill=\"#1b2330\">Le principe du délai minimal de publication</text><rect x=\"20.0\" y=\"60\" width=\"129.0\" height=\"84\" rx=\"10\" fill=\"#ffffff\" stroke=\"#5b6b8c\" stroke-width=\"1.5\"/><text x=\"84.5\" y=\"87\" text-anchor=\"middle\" font-size=\"12.5\" font-weight=\"700\" fill=\"#1b2330\">Dépendance publiée</text><text x=\"84.5\" y=\"105\" text-anchor=\"middle\" font-size=\"12.5\" font-weight=\"400\" fill=\"#1b2330\">jour J</text><path d=\"M154.0 102 l18 0 m-6 -6 l6 6 -6 6\" stroke=\"#5b6b8c\" stroke-width=\"2.5\" fill=\"none\" stroke-linecap=\"round\"/><rect x=\"177.0\" y=\"60\" width=\"129.0\" height=\"84\" rx=\"10\" fill=\"#ffffff\" stroke=\"#5b6b8c\" stroke-width=\"1.5\"/><text x=\"241.5\" y=\"87\" text-anchor=\"middle\" font-size=\"12.5\" font-weight=\"700\" fill=\"#1b2330\">Délai minimal</text><text x=\"241.5\" y=\"105\" text-anchor=\"middle\" font-size=\"12.5\" font-weight=\"400\" fill=\"#1b2330\">global-min-publish-age</text><path d=\"M311.0 102 l18 0 m-6 -6 l6 6 -6 6\" stroke=\"#5b6b8c\" stroke-width=\"2.5\" fill=\"none\" stroke-linecap=\"round\"/><rect x=\"334.0\" y=\"60\" width=\"129.0\" height=\"84\" rx=\"10\" fill=\"#ffffff\" stroke=\"#5b6b8c\" stroke-width=\"1.5\"/><text x=\"398.5\" y=\"87\" text-anchor=\"middle\" font-size=\"12.5\" font-weight=\"700\" fill=\"#1b2330\">Version trop récente</text><text x=\"398.5\" y=\"105\" text-anchor=\"middle\" font-size=\"12.5\" font-weight=\"400\" fill=\"#1b2330\">écartée</text><path d=\"M468.0 102 l18 0 m-6 -6 l6 6 -6 6\" stroke=\"#5b6b8c\" stroke-width=\"2.5\" fill=\"none\" stroke-linecap=\"round\"/><rect x=\"491.0\" y=\"60\" width=\"129.0\" height=\"84\" rx=\"10\" fill=\"#ffffff\" stroke=\"#5b6b8c\" stroke-width=\"1.5\"/><text x=\"555.5\" y=\"87\" text-anchor=\"middle\" font-size=\"12.5\" font-weight=\"700\" fill=\"#1b2330\">Version ancienne</text><text x=\"555.5\" y=\"105\" text-anchor=\"middle\" font-size=\"12.5\" font-weight=\"400\" fill=\"#1b2330\">retenue</text></svg>",
+          "alt": "Quatre étapes : publication d’une dépendance, application du délai minimal, mise à l’écart des versions trop récentes, sélection d’une version plus ancienne.",
+          "caption": "Principe du « cooldown » de dépendances dans Cargo, présenté de façon simplifiée."
+        },
+        {
+          "type": "usecases",
+          "title": "Exemples d’utilisation",
+          "items": [
+            {
+              "icon": "🧪",
+              "title": "Auteur de bibliothèque de conversion",
+              "text": "Il exprime enfin `Result<T, !>` pour les conversions infaillibles, sans passer par `Infallible`."
+            },
+            {
+              "icon": "⚙️",
+              "title": "Développeur de système embarqué",
+              "text": "Il branche un allocateur personnalisé sur `Vec` et `Box` sans recourir aux fonctions instables."
+            },
+            {
+              "icon": "🛡️",
+              "title": "Équipe de chaîne d’approvisionnement",
+              "text": "Elle active un délai minimal de publication pour ne pas adopter immédiatement une version de dépendance publiée il y a quelques heures."
+            }
+          ]
+        },
+        {
+          "type": "timeline",
+          "title": "D’où l’on vient, où l’on va",
+          "items": [
+            {
+              "label": "Années précédentes",
+              "text": "`!` et `Allocator` restaient réservés aux versions de développement."
+            },
+            {
+              "label": "12 novembre 2026",
+              "text": "Rust 1.100.0 : stabilisation des deux et nouveautés Cargo."
+            },
+            {
+              "label": "Prochaines versions",
+              "text": "Le billet présente l’API Allocator comme la base d’« Allocators 1.0 » ; aucun calendrier n’est donné dans ce texte."
+            }
+          ]
+        },
+        {
+          "type": "opinion",
+          "title": "Notre avis",
+          "paragraphs": [
+            "La stabilisation de `Allocator` est sans doute la plus lourde de conséquences : elle ouvre le langage aux usages où la gestion mémoire doit être contrôlée finement, des noyaux aux jeux vidéo. Le délai minimal de publication, lui, répond à un risque concret de la chaîne d’approvisionnement, comme l’illustrent les campagnes visant npm ou PyPI : on retarde volontairement l’adoption d’une version pour laisser le temps de détecter une publication malveillante.",
+            "D’ici un à trois ans, on peut anticiper un écosystème de crates exploitant massivement les allocateurs personnalisés ; c’est une vision d’évolution, pas un fait. Les changements d’édition ancienne méritent d’être testés avant mise à niveau."
+          ],
+          "verdict": "Une version de maturité : moins d’exceptions dans le langage, plus d’outils pour tenir la chaîne d’approvisionnement."
+        }
+      ],
+      "publishedAt": "2026-11-13T10:19:08+01:00",
+      "illustration": {
+        "svg": "<svg xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"0 0 640 360\"><defs><linearGradient id=\"g6280\" x1=\"0\" y1=\"0\" x2=\"1\" y2=\"1\"><stop offset=\"0\" stop-color=\"hsl(265,65%,40%)\"/><stop offset=\"1\" stop-color=\"hsl(305,70%,22%)\"/></linearGradient></defs><rect width=\"640\" height=\"360\" fill=\"url(#g6280)\"/><circle cx=\"560\" cy=\"40\" r=\"90\" fill=\"#fff\" fill-opacity=\".07\"/><circle cx=\"70\" cy=\"330\" r=\"110\" fill=\"#fff\" fill-opacity=\".06\"/><path d=\"M260 130 l-70 50 70 50M380 130 l70 50-70 50\" stroke=\"#fff\" stroke-width=\"18\" fill=\"none\" stroke-linecap=\"round\" stroke-linejoin=\"round\"/><path d=\"M345 105 l-50 150\" stroke=\"#fff\" stroke-opacity=\".8\" stroke-width=\"16\" stroke-linecap=\"round\"/></svg>"
+      },
+      "cover": {
+        "url": "https://www.rust-lang.org/static/images/rust-social-wide.jpg",
+        "alt": "Visuel officiel du langage Rust",
+        "credit": "www.rust-lang.org"
+      }
+    },
+    {
+      "id": "cpp26-contrats-vote-iso-echec",
+      "category": "dev",
+      "icon": "⚖️",
+      "importance": 4,
+      "readingMinutes": 4,
+      "sourceDate": "2026-11-13",
+      "title": "C++26 : le projet de norme échoue au vote ISO, la faute aux « contrats »",
+      "summary": "Le projet de norme internationale de C++26 a recueilli 13 voix pour, 9 contre et 12 abstentions en octobre, au-dessus du seuil de 25 % de votes négatifs, à cause de la fonctionnalité Contracts. La réunion finale du groupe WG21 se tiendra la semaine prochaine au Brésil.",
+      "tags": [
+        "C++26",
+        "ISO",
+        "Contracts",
+        "Stroustrup"
+      ],
+      "sources": [
+        {
+          "title": "C++26 stumbles at finish line over Contracts dispute",
+          "url": "https://www.theregister.com/devops/2026/11/13/c26-stumbles-at-finish-line-over-contracts-dispute/5309526",
+          "publisher": "The Register"
+        }
+      ],
+      "blocks": [
+        {
+          "type": "paragraph",
+          "text": "C++26 devait être la prochaine révision du langage, attendue en 2026. D’après The Register, le projet de norme internationale (Draft International Standard) a échoué lors de son vote ISO d’octobre 2026 : 13 voix pour, 9 contre et 12 abstentions, alors que l’ISO exige au plus 25 % de votes négatifs. La fonctionnalité **Contracts** est la principale raison de ces votes contre. Il s’agit de l’avant-dernière étape d’approbation, ce qui rend ce revers rare pour un langage aussi installé."
+        },
+        {
+          "type": "heading",
+          "level": 2,
+          "text": "Ce que sont les contrats"
+        },
+        {
+          "type": "paragraph",
+          "text": "Les contrats permettent d’ajouter à une fonction des préconditions, des postconditions et des assertions qui vérifient que certaines conditions sont respectées, afin de détecter des erreurs de programmation qui provoqueraient autrement un comportement indéfini. Ada et Eiffel connaissent depuis longtemps ce principe de « conception par contrat ». La communauté C++ le réclame depuis environ dix ans ; une première version avait été retirée de C++20 en 2019, par crainte de réglages par défaut dangereux."
+        },
+        {
+          "type": "heading",
+          "level": 2,
+          "text": "Deux camps face à face"
+        },
+        {
+          "type": "list",
+          "items": [
+            "**Les opposants**, dont Bjarne Stroustrup, créateur du langage, jugent la proposition révisée P2900 trop complexe. Dans un document d’août 2026 (P4334R0), ils parlent d’une « menace existentielle » pour C++, estiment la mise en œuvre confuse, dépassée et insuffisamment testée, et suggèrent qu’une bibliothèque conviendrait mieux.",
+            "**Les partisans**, comme Andreas Fertig, membre du comité de normalisation, soutiennent que les critiques ont déjà été examinées, que la proposition a gagné plusieurs votes à la majorité et qu’un veto tardif nuit au langage ; il accuse les opposants de refuser leur défaite.",
+            "**Harry Bott**, directeur de la C++ Alliance (qui maintient le frontal de compilateur open source EDG), y voit au contraire la preuve que le processus fonctionne, tout en admettant qu’il reste perfectible."
+          ]
+        },
+        {
+          "type": "heading",
+          "level": 2,
+          "text": "Les options sur la table"
+        },
+        {
+          "type": "paragraph",
+          "text": "Le groupe de travail WG21 se réunit la semaine prochaine à Búzios, au Brésil, pour la dernière réunion consacrée à la norme. Selon Thibault Ricord-Marchal, du cabinet Margo, trois voies sont possibles : retirer les contrats pour publier le reste de C++26, ce qui serait délicat puisqu’une partie du durcissement de la bibliothèque s’appuie déjà dessus ; les placer dans une spécification technique séparée afin de poursuivre leur mise au point ; ou apporter une modification mineure et soumettre le texte à un nouveau vote. Une publication en 2027 donnerait la référence « ISO/IEC 14882:2027 », que l’on appellerait sans doute informellement « C++27 »."
+        },
+        {
+          "type": "diagram",
+          "svg": "<svg xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"0 0 640 190\" font-family=\"system-ui,sans-serif\"><rect width=\"640\" height=\"190\" rx=\"14\" fill=\"#f4f6fa\" stroke=\"#c9d1e0\"/><text x=\"320\" y=\"34\" text-anchor=\"middle\" font-size=\"15\" font-weight=\"700\" fill=\"#1b2330\">Où en est C++26</text><rect x=\"20.0\" y=\"60\" width=\"129.0\" height=\"84\" rx=\"10\" fill=\"#ffffff\" stroke=\"#5b6b8c\" stroke-width=\"1.5\"/><text x=\"84.5\" y=\"87\" text-anchor=\"middle\" font-size=\"12.5\" font-weight=\"700\" fill=\"#1b2330\">Vote ISO</text><text x=\"84.5\" y=\"105\" text-anchor=\"middle\" font-size=\"12.5\" font-weight=\"400\" fill=\"#1b2330\">13 pour, 9 contre</text><path d=\"M154.0 102 l18 0 m-6 -6 l6 6 -6 6\" stroke=\"#5b6b8c\" stroke-width=\"2.5\" fill=\"none\" stroke-linecap=\"round\"/><rect x=\"177.0\" y=\"60\" width=\"129.0\" height=\"84\" rx=\"10\" fill=\"#ffffff\" stroke=\"#5b6b8c\" stroke-width=\"1.5\"/><text x=\"241.5\" y=\"87\" text-anchor=\"middle\" font-size=\"12.5\" font-weight=\"700\" fill=\"#1b2330\">Seuil dépassé</text><text x=\"241.5\" y=\"105\" text-anchor=\"middle\" font-size=\"12.5\" font-weight=\"400\" fill=\"#1b2330\">plus de 25 % de non</text><path d=\"M311.0 102 l18 0 m-6 -6 l6 6 -6 6\" stroke=\"#5b6b8c\" stroke-width=\"2.5\" fill=\"none\" stroke-linecap=\"round\"/><rect x=\"334.0\" y=\"60\" width=\"129.0\" height=\"84\" rx=\"10\" fill=\"#ffffff\" stroke=\"#5b6b8c\" stroke-width=\"1.5\"/><text x=\"398.5\" y=\"87\" text-anchor=\"middle\" font-size=\"12.5\" font-weight=\"700\" fill=\"#1b2330\">Réunion WG21</text><text x=\"398.5\" y=\"105\" text-anchor=\"middle\" font-size=\"12.5\" font-weight=\"400\" fill=\"#1b2330\">Búzios, Brésil</text><path d=\"M468.0 102 l18 0 m-6 -6 l6 6 -6 6\" stroke=\"#5b6b8c\" stroke-width=\"2.5\" fill=\"none\" stroke-linecap=\"round\"/><rect x=\"491.0\" y=\"60\" width=\"129.0\" height=\"84\" rx=\"10\" fill=\"#ffffff\" stroke=\"#5b6b8c\" stroke-width=\"1.5\"/><text x=\"555.5\" y=\"87\" text-anchor=\"middle\" font-size=\"12.5\" font-weight=\"700\" fill=\"#1b2330\">Trois voies</text><text x=\"555.5\" y=\"105\" text-anchor=\"middle\" font-size=\"12.5\" font-weight=\"400\" fill=\"#1b2330\">retrait, TS ou nouveau vote</text></svg>",
+          "alt": "Quatre étapes : vote ISO d’octobre, seuil de votes négatifs dépassé, réunion du groupe WG21 au Brésil, puis choix entre trois options.",
+          "caption": "État d’avancement du processus de normalisation de C++26."
+        },
+        {
+          "type": "usecases",
+          "title": "Exemples d’utilisation",
+          "items": [
+            {
+              "icon": "🧑‍💻",
+              "title": "Développeur d’une base de code critique",
+              "text": "Il attend la décision de WG21 avant d’adopter les contrats, et continue d’utiliser des assertions maison ou des bibliothèques de durcissement en attendant."
+            },
+            {
+              "icon": "🏭",
+              "title": "Éditeur de compilateur",
+              "text": "Il surveille l’issue pour savoir quelles fonctionnalités de C++26 il doit prioriser, et si le texte relatif aux contrats sera retiré."
+            },
+            {
+              "icon": "🔐",
+              "title": "Responsable sécurité logicielle",
+              "text": "Il suit le débat comme un indicateur de la capacité de C++ à répondre aux critiques sur la sûreté mémoire."
+            }
+          ]
+        },
+        {
+          "type": "timeline",
+          "title": "D’où l’on vient, où l’on va",
+          "items": [
+            {
+              "label": "2019",
+              "text": "Les contrats sont retirés de C++20 sur des craintes liées aux réglages par défaut."
+            },
+            {
+              "label": "Août 2026",
+              "text": "Stroustrup et d’autres signent un document opposé à P2900."
+            },
+            {
+              "label": "Octobre 2026",
+              "text": "Le projet de norme internationale échoue au vote ISO."
+            },
+            {
+              "label": "Semaine prochaine",
+              "text": "Réunion finale de WG21 à Búzios ; sortie possible en 2027."
+            }
+          ]
+        },
+        {
+          "type": "opinion",
+          "title": "Notre avis",
+          "paragraphs": [
+            "Le conflit est plus qu’une querelle technique : il oppose la volonté d’offrir enfin des garde-fous aux développeurs, face aux critiques sur la sûreté mémoire, à la crainte de voir un langage connu pour sa performance se charger de mécanismes complexes. Les deux positions ont des arguments sérieux.",
+            "Si le comité choisit une spécification technique séparée, C++ pourrait publier sa révision sans le sujet le plus controversé, au prix d’un nouveau délai pour les contrats. Cette lecture reste une hypothèse : l’issue dépendra de la réunion de la semaine prochaine."
+          ],
+          "verdict": "Un compromis de calendrier semble plus probable qu’un abandon, mais rien n’est tranché avant la réunion de Búzios."
+        }
+      ],
+      "publishedAt": "2026-11-13T10:19:08+01:00",
+      "illustration": {
+        "svg": "<svg xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"0 0 640 360\"><defs><linearGradient id=\"g6280\" x1=\"0\" y1=\"0\" x2=\"1\" y2=\"1\"><stop offset=\"0\" stop-color=\"hsl(265,65%,40%)\"/><stop offset=\"1\" stop-color=\"hsl(305,70%,22%)\"/></linearGradient></defs><rect width=\"640\" height=\"360\" fill=\"url(#g6280)\"/><circle cx=\"560\" cy=\"40\" r=\"90\" fill=\"#fff\" fill-opacity=\".07\"/><circle cx=\"70\" cy=\"330\" r=\"110\" fill=\"#fff\" fill-opacity=\".06\"/><path d=\"M260 130 l-70 50 70 50M380 130 l70 50-70 50\" stroke=\"#fff\" stroke-width=\"18\" fill=\"none\" stroke-linecap=\"round\" stroke-linejoin=\"round\"/><path d=\"M345 105 l-50 150\" stroke=\"#fff\" stroke-opacity=\".8\" stroke-width=\"16\" stroke-linecap=\"round\"/></svg>"
+      }
+    },
+    {
+      "id": "microsoft-365-panne-exchange-plus-de-12-heures",
+      "category": "devops",
+      "icon": "📉",
+      "importance": 4,
+      "readingMinutes": 4,
+      "sourceDate": "2026-11-13",
+      "title": "Microsoft 365 : la panne d’Exchange Online dépasse douze heures, les correctifs successifs échouent",
+      "summary": "Selon The Register, l’incident débuté le 12 novembre vers 18 h UTC perturbe toujours Exchange Online et une quinzaine de services le 13 novembre au matin ; Microsoft dit ne pas connaître d’activité malveillante et cherche l’origine d’un afflux de trafic.",
+      "tags": [
+        "Microsoft 365",
+        "Exchange Online",
+        "panne",
+        "cloud"
+      ],
+      "sources": [
+        {
+          "title": "Microsoft’s massive M365 outage stretches past 12 hours as its fixes keep failing",
+          "url": "https://www.theregister.com/saas/2026/11/13/microsofts-massive-m365-outage-stretches-past-12-hours-as-its-fixes-keep-failing/5309609",
+          "publisher": "The Register"
+        },
+        {
+          "title": "Massive Microsoft 365 outage disrupts Outlook, Teams, Copilot worldwide",
+          "url": "https://www.bleepingcomputer.com/news/microsoft/massive-microsoft-365-outage-disrupts-outlook-teams-copilot-worldwide/",
+          "publisher": "BleepingComputer"
+        }
+      ],
+      "blocks": [
+        {
+          "type": "paragraph",
+          "text": "La panne de Microsoft 365 signalée dans notre édition précédente prend une ampleur nouvelle. Selon The Register, l’incident, qui a débuté le jeudi 12 novembre 2026 vers 18 h UTC, durait toujours plus de douze heures plus tard, le vendredi 13 novembre à 6 h 40 UTC, après plusieurs tentatives de correction infructueuses. En Australie, des internautes l’ont surnommé le « long week-end de Microsoft »."
+        },
+        {
+          "type": "heading",
+          "level": 2,
+          "text": "Ce qui est touché"
+        },
+        {
+          "type": "list",
+          "items": [
+            "Exchange Online et la messagerie, Teams (réunions), les PC cloud et Copilot, ainsi qu’environ quinze autres services hébergés.",
+            "Microsoft précise que seuls sont concernés les services de Microsoft 365 qui interagissent avec Exchange Online ; ceux qui n’en dépendent pas continuent de fonctionner.",
+            "L’intégration d’Intune et les consoles d’administration ont été perturbées, selon les articles de BleepingComputer et de The Register."
+          ]
+        },
+        {
+          "type": "heading",
+          "level": 2,
+          "text": "Ce que dit Microsoft, et ce qu’on ignore"
+        },
+        {
+          "type": "paragraph",
+          "text": "Aucune cause racine n’est confirmée dans l’article. Microsoft a d’abord expliqué que des serveurs échouaient aux contrôles d’état automatisés et devenaient indisponibles, puis que le correctif appliqué n’avait pas eu l’effet escompté. La dernière mise à jour dont fait état The Register parle d’un « afflux de trafic » dont l’origine est recherchée et de serveurs d’arrière-plan à restaurer. À 4 h 11 puis 5 h 46 UTC, l’éditeur indiquait n’avoir aucune indication d’une activité malveillante ; il n’a pas pour autant exclu formellement une attaque, au sens où il ne l’a ni confirmée ni infirmée de manière définitive."
+        },
+        {
+          "type": "table",
+          "headers": [
+            "Mesure annoncée par Microsoft",
+            "Résultat rapporté"
+          ],
+          "rows": [
+            [
+              "Améliorer la capacité dans les régions qui reviennent en ligne",
+              "Reprise partielle dans certaines régions, non durable"
+            ],
+            [
+              "Examiner les flux de trafic et le routage",
+              "Recherche de pistes d’optimisation"
+            ],
+            [
+              "Augmenter la puissance des machines virtuelles",
+              "Certaines machines sont restées dans un état défaillant, ce qui a bloqué la synchronisation des changements de configuration"
+            ],
+            [
+              "Approche « mesurée » de réparation",
+              "Suivi des résultats par rapport à la reprise attendue"
+            ]
+          ]
+        },
+        {
+          "type": "diagram",
+          "svg": "<svg xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"0 0 640 190\" font-family=\"system-ui,sans-serif\"><rect width=\"640\" height=\"190\" rx=\"14\" fill=\"#f4f6fa\" stroke=\"#c9d1e0\"/><text x=\"320\" y=\"34\" text-anchor=\"middle\" font-size=\"15\" font-weight=\"700\" fill=\"#1b2330\">Déroulé rapporté de l’incident</text><rect x=\"20.0\" y=\"60\" width=\"129.0\" height=\"84\" rx=\"10\" fill=\"#ffffff\" stroke=\"#5b6b8c\" stroke-width=\"1.5\"/><text x=\"84.5\" y=\"87\" text-anchor=\"middle\" font-size=\"12.5\" font-weight=\"700\" fill=\"#1b2330\">Santé des serveurs</text><text x=\"84.5\" y=\"105\" text-anchor=\"middle\" font-size=\"12.5\" font-weight=\"400\" fill=\"#1b2330\">contrôles échoués</text><path d=\"M154.0 102 l18 0 m-6 -6 l6 6 -6 6\" stroke=\"#5b6b8c\" stroke-width=\"2.5\" fill=\"none\" stroke-linecap=\"round\"/><rect x=\"177.0\" y=\"60\" width=\"129.0\" height=\"84\" rx=\"10\" fill=\"#ffffff\" stroke=\"#5b6b8c\" stroke-width=\"1.5\"/><text x=\"241.5\" y=\"87\" text-anchor=\"middle\" font-size=\"12.5\" font-weight=\"700\" fill=\"#1b2330\">Correctif</text><text x=\"241.5\" y=\"105\" text-anchor=\"middle\" font-size=\"12.5\" font-weight=\"400\" fill=\"#1b2330\">inefficace</text><path d=\"M311.0 102 l18 0 m-6 -6 l6 6 -6 6\" stroke=\"#5b6b8c\" stroke-width=\"2.5\" fill=\"none\" stroke-linecap=\"round\"/><rect x=\"334.0\" y=\"60\" width=\"129.0\" height=\"84\" rx=\"10\" fill=\"#ffffff\" stroke=\"#5b6b8c\" stroke-width=\"1.5\"/><text x=\"398.5\" y=\"87\" text-anchor=\"middle\" font-size=\"12.5\" font-weight=\"700\" fill=\"#1b2330\">Capacité ajoutée</text><text x=\"398.5\" y=\"105\" text-anchor=\"middle\" font-size=\"12.5\" font-weight=\"400\" fill=\"#1b2330\">machines bloquées</text><path d=\"M468.0 102 l18 0 m-6 -6 l6 6 -6 6\" stroke=\"#5b6b8c\" stroke-width=\"2.5\" fill=\"none\" stroke-linecap=\"round\"/><rect x=\"491.0\" y=\"60\" width=\"129.0\" height=\"84\" rx=\"10\" fill=\"#ffffff\" stroke=\"#5b6b8c\" stroke-width=\"1.5\"/><text x=\"555.5\" y=\"87\" text-anchor=\"middle\" font-size=\"12.5\" font-weight=\"700\" fill=\"#1b2330\">Reprise</text><text x=\"555.5\" y=\"105\" text-anchor=\"middle\" font-size=\"12.5\" font-weight=\"400\" fill=\"#1b2330\">partielle, régionale</text></svg>",
+          "alt": "Quatre étapes : serveurs échouant aux contrôles d’état, correctif inefficace, ajout de capacité avec des machines bloquées, reprise seulement partielle.",
+          "caption": "Déroulé simplifié à partir des mises à jour publiées par Microsoft."
+        },
+        {
+          "type": "usecases",
+          "title": "Exemples d’utilisation",
+          "items": [
+            {
+              "icon": "📧",
+              "title": "Entreprise dépendante de la messagerie",
+              "text": "Elle bascule les échanges urgents sur un canal secondaire (téléphone, messagerie d’appoint) et prévient ses clients d’éventuels retards."
+            },
+            {
+              "icon": "🛠️",
+              "title": "Administrateur informatique",
+              "text": "Il suit le flux d’état de service de Microsoft et documente l’impact pour les engagements de niveau de service."
+            },
+            {
+              "icon": "📊",
+              "title": "Responsable de la continuité d’activité",
+              "text": "Il fait le point sur la dépendance à un fournisseur unique et sur l’existence d’un plan de repli pour la messagerie."
+            }
+          ]
+        },
+        {
+          "type": "timeline",
+          "title": "D’où l’on vient, où l’on va",
+          "items": [
+            {
+              "label": "12 novembre 2026, vers 18 h UTC",
+              "text": "Début de l’incident touchant Exchange Online et les services associés."
+            },
+            {
+              "label": "13 novembre 2026, 4 h 11 et 5 h 46 UTC",
+              "text": "Microsoft déclare n’avoir aucune indication d’activité malveillante."
+            },
+            {
+              "label": "13 novembre 2026, 6 h 40 UTC",
+              "text": "Plus de douze heures après le début, l’incident se poursuit."
+            }
+          ]
+        },
+        {
+          "type": "opinion",
+          "title": "Notre avis",
+          "paragraphs": [
+            "Cette panne rappelle ce que la concentration sur quelques fournisseurs cloud implique : une défaillance d’un service central, ici la messagerie, se propage à des outils qui en dépendent, comme Teams ou Copilot. L’enchaînement de correctifs inefficaces suggère que l’infrastructure ne revient pas simplement à l’état antérieur après un incident de cette taille.",
+            "D’ici un à trois ans, la résilience pourrait devenir un critère d’achat plus explicite : demande de journaux d’incident détaillés, exercices de repli, voire clauses de compensation. Ce n’est pas acquis, mais la pression des entreprises va dans ce sens."
+          ],
+          "verdict": "Un incident de cette durée rappelle qu’un plan de repli pour la messagerie n’est pas un luxe."
+        },
+        {
+          "type": "callout",
+          "title": "À retenir",
+          "text": "Cet article actualise celui de l’édition du 13 novembre au matin ; les informations évoluent et la cause n’est pas confirmée à l’heure de la rédaction."
+        }
+      ],
+      "publishedAt": "2026-11-13T10:19:08+01:00",
+      "illustration": {
+        "svg": "<svg xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"0 0 640 360\"><defs><linearGradient id=\"g5124\" x1=\"0\" y1=\"0\" x2=\"1\" y2=\"1\"><stop offset=\"0\" stop-color=\"hsl(160,65%,40%)\"/><stop offset=\"1\" stop-color=\"hsl(200,70%,22%)\"/></linearGradient></defs><rect width=\"640\" height=\"360\" fill=\"url(#g5124)\"/><circle cx=\"560\" cy=\"40\" r=\"90\" fill=\"#fff\" fill-opacity=\".07\"/><circle cx=\"70\" cy=\"330\" r=\"110\" fill=\"#fff\" fill-opacity=\".06\"/><path d=\"M250 250 a50 50 0 0 1 0-100 a70 70 0 0 1 135-15 a55 55 0 0 1 10 115 Z\" fill=\"#fff\" fill-opacity=\".92\"/><path d=\"M285 205 l35-35 35 35M320 170v75\" stroke=\"hsl(160,45%,35%)\" stroke-width=\"12\" fill=\"none\" stroke-linecap=\"round\" stroke-linejoin=\"round\"/></svg>"
+      }
+    },
+    {
+      "id": "baochip-1x-soc-22nm-bunnie-huang",
+      "category": "electronique",
+      "icon": "🧬",
+      "importance": 3,
+      "readingMinutes": 3,
+      "sourceDate": "2026-11-12",
+      "title": "Baochip-1x : une puce RISC-V de 22 nm « presque ouverte » pensée pour les usages à haute assurance",
+      "summary": "Le système sur puce Baochip-1x, défendu par Andrew « Bunnie » Huang, associe un cœur VexRISC-V à 350 MHz, 4 Mo de mémoire RRAM et 2 Mo de SRAM, avec des sources publiées sur GitHub.",
+      "tags": [
+        "RISC-V",
+        "Baochip",
+        "SoC",
+        "matériel ouvert"
+      ],
+      "sources": [
+        {
+          "title": "Baochip-1x: A Mostly-Open, 22nm SoC For High Assurance Applications",
+          "url": "https://hackaday.com/2026/11/12/baochip-1x-a-mostly-open-22nm-soc-for-high-assurance-applications/",
+          "publisher": "Hackaday"
+        }
+      ],
+      "blocks": [
+        {
+          "type": "paragraph",
+          "text": "Dans le monde des microcontrôleurs, la confiance se résume souvent à un acte de foi : on ignore ce que contient réellement la puce que l’on soude. Le projet **Baochip-1x**, présenté par Hackaday le 12 novembre 2026, tente d’y répondre avec un système sur puce (SoC) gravé en 22 nm dont les sources sont largement publiées et qui vise explicitement les applications dites « à haute assurance », où chaque élément de la conception doit pouvoir être justifié."
+        },
+        {
+          "type": "heading",
+          "level": 2,
+          "text": "Ce que contient la puce"
+        },
+        {
+          "type": "keyvalue",
+          "items": [
+            {
+              "label": "Cœur",
+              "value": "Un seul cœur VexRISC-V cadencé à 350 MHz"
+            },
+            {
+              "label": "Jeu d’instructions",
+              "value": "RV32IMAC"
+            },
+            {
+              "label": "Mémoire non volatile",
+              "value": "4 Mo de mémoire résistive (RRAM)"
+            },
+            {
+              "label": "Mémoire vive",
+              "value": "2 Mo de SRAM"
+            },
+            {
+              "label": "Gestion mémoire",
+              "value": "Unité de gestion mémoire (MMU) intégrée"
+            },
+            {
+              "label": "Gravure",
+              "value": "22 nm"
+            }
+          ]
+        },
+        {
+          "type": "paragraph",
+          "text": "La présence d’une MMU est notable pour une puce de cette catégorie : elle permet à des logiciels écrits pour RV32IMAC, y compris des systèmes avec isolation entre processus, de fonctionner sur la puce. Selon Hackaday, la conception s’inspire largement du processeur sur FPGA du Precursor, un communicateur conçu pour être entièrement vérifiable. L’article évoque aussi « un grand nombre de fonctions de sécurité » sans les énumérer."
+        },
+        {
+          "type": "heading",
+          "level": 2,
+          "text": "Un degré d’ouverture assumé comme partiel"
+        },
+        {
+          "type": "paragraph",
+          "text": "Le projet est qualifié de « presque ouvert » (mostly open) : les sources en SystemVerilog et Verilog sont publiées sur GitHub (dépôt baochip/baochip-1x), et un guide du programmeur (Coder’s Guide) est disponible sur baochip.github.io/baochip-1x. Cette précision compte : une puce totalement ouverte, jusqu’aux cellules de la bibliothèque de fabrication, reste hors de portée d’un projet de cette taille, et l’adjectif « presque » signale honnêtement cette limite."
+        },
+        {
+          "type": "paragraph",
+          "text": "Les curieux peuvent se procurer la puce sur la carte d’évaluation **Dabao**, au format d’une Raspberry Pi Pico, ou suivre un processus d’assemblage artisanal. L’article ne donne ni prix ni modalités d’achat. Des commentaires de lecteurs, non vérifiés, évoquent une compromission de la puce après son utilisation comme badge d’une conférence de sécurité cette année ; l’article ne traite pas ce point et il convient donc de le prendre avec prudence."
+        },
+        {
+          "type": "usecases",
+          "title": "Exemples d’utilisation",
+          "items": [
+            {
+              "icon": "🔐",
+              "title": "Concepteur de clé matérielle de sécurité",
+              "text": "Il choisit une puce dont les sources sont lisibles pour auditer le comportement du cœur, de la mémoire et de la MMU."
+            },
+            {
+              "icon": "📚",
+              "title": "Enseignant en architecture des ordinateurs",
+              "text": "Il s’appuie sur le code SystemVerilog publié pour faire étudier un SoC réel, du cœur au bus."
+            },
+            {
+              "icon": "🧪",
+              "title": "Bidouilleur sur carte Pico",
+              "text": "Il prototype un petit système isolé sur la carte Dabao en profitant du format familier de la Raspberry Pi Pico."
+            }
+          ]
+        },
+        {
+          "type": "timeline",
+          "title": "D’où l’on vient, où l’on va",
+          "items": [
+            {
+              "label": "Précurseur : Precursor",
+              "text": "Un communicateur vérifiable fondé sur un processeur sur FPGA, dont la conception inspire Baochip-1x."
+            },
+            {
+              "label": "2026",
+              "text": "Publication des sources du Baochip-1x et mise à disposition d’une carte d’évaluation."
+            },
+            {
+              "label": "À suivre",
+              "text": "Prix, volumes et audits indépendants ne sont pas précisés dans l’article."
+            }
+          ]
+        },
+        {
+          "type": "opinion",
+          "title": "Notre avis",
+          "paragraphs": [
+            "L’intérêt du projet tient moins à ses chiffres, modestes face à ceux de puces commerciales, qu’à sa démarche : réduire la zone d’ombre entre ce que le fabricant annonce et ce que le silicium contient. Dans un contexte où la sécurité matérielle devient un sujet réglementaire, un SoC dont la conception est consultable est un argument.",
+            "Sur trois ans, il faudra voir si des audits indépendants et une disponibilité claire suivent. Sans cela, l’ouverture restera une qualité de principe plutôt qu’un avantage opérationnel ; c’est une analyse, pas un constat."
+          ],
+          "verdict": "Une avancée pour la transparence du matériel, qui doit encore prouver sa robustesse et sa disponibilité."
+        }
+      ],
+      "publishedAt": "2026-11-13T10:19:08+01:00",
+      "illustration": {
+        "svg": "<svg xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"0 0 640 360\"><defs><linearGradient id=\"g132\" x1=\"0\" y1=\"0\" x2=\"1\" y2=\"1\"><stop offset=\"0\" stop-color=\"hsl(30,65%,40%)\"/><stop offset=\"1\" stop-color=\"hsl(70,70%,22%)\"/></linearGradient></defs><rect width=\"640\" height=\"360\" fill=\"url(#g132)\"/><circle cx=\"560\" cy=\"40\" r=\"90\" fill=\"#fff\" fill-opacity=\".07\"/><circle cx=\"70\" cy=\"330\" r=\"110\" fill=\"#fff\" fill-opacity=\".06\"/><g stroke=\"#fff\" stroke-width=\"10\" stroke-linecap=\"round\"><path d=\"M270 80v40M320 80v40M370 80v40M270 240v40M320 240v40M370 240v40M220 130h40M220 180h40M220 230h-0M380 130h40M380 180h40\"/></g><rect x=\"250\" y=\"115\" width=\"140\" height=\"130\" rx=\"16\" fill=\"#fff\" fill-opacity=\".92\"/><rect x=\"285\" y=\"150\" width=\"70\" height=\"60\" rx=\"8\" fill=\"hsl(30,45%,35%)\"/></svg>"
+      }
+    },
+    {
+      "id": "bmds-systeme-bureau-esp32-p4",
+      "category": "electronique",
+      "icon": "🖥️",
+      "importance": 2,
+      "readingMinutes": 3,
+      "sourceDate": "2026-11-12",
+      "title": "BMDS : un « système de bureau » façon années 1990 pour l’ESP32-P4",
+      "summary": "Le projet BMDS (« Bare Metal Do Stuff »), fondé sur FreeRTOS, exécute des binaires ELF, offre une compatibilité POSIX partielle, BusyBox et une interface graphique d’inspiration fin des années 1990 sur une carte à base d’ESP32-P4.",
+      "tags": [
+        "ESP32-P4",
+        "FreeRTOS",
+        "BusyBox",
+        "RISC-V"
+      ],
+      "sources": [
+        {
+          "title": "A Desktop OS For The ESP32-P4",
+          "url": "https://hackaday.com/2026/11/12/a-desktop-os-for-the-esp32-p4/",
+          "publisher": "Hackaday"
+        }
+      ],
+      "blocks": [
+        {
+          "type": "paragraph",
+          "text": "Le microcontrôleur ESP32-P4 d’Espressif n’est pas un simple composant de domotique : Hackaday le présente comme un processeur applicatif haut de gamme à deux cœurs RISC-V rapides, capable à lui seul de se comporter comme un ordinateur. Un projet publié sur GitHub par le développeur Jthwho le met en scène avec **BMDS**, pour « Bare Metal Do Stuff » : un système d’exploitation de type bureau pour cette puce."
+        },
+        {
+          "type": "heading",
+          "level": 2,
+          "text": "Ce que fait BMDS"
+        },
+        {
+          "type": "list",
+          "items": [
+            "Il repose sur le noyau temps réel **FreeRTOS**.",
+            "Il se veut monoutilisateur et peu intrusif, ce que l’article compare à DOS.",
+            "Il exécute des binaires au format **ELF** et offre une compatibilité POSIX partielle.",
+            "Il inclut un portage de **BusyBox**, la boîte à outils d’utilitaires en ligne de commande.",
+            "Il fournit un bureau graphique que Hackaday décrit comme proche des interfaces de la fin des années 1990."
+          ]
+        },
+        {
+          "type": "paragraph",
+          "text": "Le projet s’inscrit aussi dans une tendance de fond : l’arrivée de microcontrôleurs suffisamment puissants pour héberger des environnements que l’on réservait jusqu’ici à de petits ordinateurs sous Linux. Un système monoutilisateur, sans les couches de sécurité et d’isolation d’un système généraliste, reste simple à comprendre et à modifier, ce qui en fait un bon terrain d’apprentissage ; en contrepartie, il ne convient pas à un usage où plusieurs utilisateurs ou des applications non fiables partageraient la machine."
+        },
+        {
+          "type": "paragraph",
+          "text": "Le code est disponible dans le dépôt github.com/jthwho/bmds. L’article cible une carte de développement d’Olimex fondée sur l’ESP32-P4 sans en préciser le modèle exact. Il ne donne pas non plus de détails sur la fréquence, la mémoire, l’affichage, le stockage ou les applications autres que BusyBox : ces points devront être vérifiés dans le dépôt."
+        },
+        {
+          "type": "heading",
+          "level": 2,
+          "text": "Pourquoi cela intéresse les amateurs"
+        },
+        {
+          "type": "paragraph",
+          "text": "Le choix du format ELF et d’un début de compatibilité POSIX est le plus important sur le plan technique : il permet en principe de compiler des programmes existants avec une chaîne d’outils standard au lieu de réécrire chaque application pour le microcontrôleur. L’inspiration de bureaux d’une autre époque est autant un clin d’œil qu’un choix pragmatique : une interface simple demande peu de ressources."
+        },
+        {
+          "type": "diagram",
+          "svg": "<svg xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"0 0 640 190\" font-family=\"system-ui,sans-serif\"><rect width=\"640\" height=\"190\" rx=\"14\" fill=\"#f4f6fa\" stroke=\"#c9d1e0\"/><text x=\"320\" y=\"34\" text-anchor=\"middle\" font-size=\"15\" font-weight=\"700\" fill=\"#1b2330\">Les couches de BMDS</text><rect x=\"20.0\" y=\"60\" width=\"129.0\" height=\"84\" rx=\"10\" fill=\"#ffffff\" stroke=\"#5b6b8c\" stroke-width=\"1.5\"/><text x=\"84.5\" y=\"87\" text-anchor=\"middle\" font-size=\"12.5\" font-weight=\"700\" fill=\"#1b2330\">Application</text><text x=\"84.5\" y=\"105\" text-anchor=\"middle\" font-size=\"12.5\" font-weight=\"400\" fill=\"#1b2330\">binaire ELF</text><path d=\"M154.0 102 l18 0 m-6 -6 l6 6 -6 6\" stroke=\"#5b6b8c\" stroke-width=\"2.5\" fill=\"none\" stroke-linecap=\"round\"/><rect x=\"177.0\" y=\"60\" width=\"129.0\" height=\"84\" rx=\"10\" fill=\"#ffffff\" stroke=\"#5b6b8c\" stroke-width=\"1.5\"/><text x=\"241.5\" y=\"87\" text-anchor=\"middle\" font-size=\"12.5\" font-weight=\"700\" fill=\"#1b2330\">BMDS</text><text x=\"241.5\" y=\"105\" text-anchor=\"middle\" font-size=\"12.5\" font-weight=\"400\" fill=\"#1b2330\">FreeRTOS + POSIX partiel</text><path d=\"M311.0 102 l18 0 m-6 -6 l6 6 -6 6\" stroke=\"#5b6b8c\" stroke-width=\"2.5\" fill=\"none\" stroke-linecap=\"round\"/><rect x=\"334.0\" y=\"60\" width=\"129.0\" height=\"84\" rx=\"10\" fill=\"#ffffff\" stroke=\"#5b6b8c\" stroke-width=\"1.5\"/><text x=\"398.5\" y=\"87\" text-anchor=\"middle\" font-size=\"12.5\" font-weight=\"700\" fill=\"#1b2330\">Bureau</text><text x=\"398.5\" y=\"105\" text-anchor=\"middle\" font-size=\"12.5\" font-weight=\"400\" fill=\"#1b2330\">interface graphique</text><path d=\"M468.0 102 l18 0 m-6 -6 l6 6 -6 6\" stroke=\"#5b6b8c\" stroke-width=\"2.5\" fill=\"none\" stroke-linecap=\"round\"/><rect x=\"491.0\" y=\"60\" width=\"129.0\" height=\"84\" rx=\"10\" fill=\"#ffffff\" stroke=\"#5b6b8c\" stroke-width=\"1.5\"/><text x=\"555.5\" y=\"87\" text-anchor=\"middle\" font-size=\"12.5\" font-weight=\"700\" fill=\"#1b2330\">ESP32-P4</text><text x=\"555.5\" y=\"105\" text-anchor=\"middle\" font-size=\"12.5\" font-weight=\"400\" fill=\"#1b2330\">deux cœurs RISC-V</text></svg>",
+          "alt": "Schéma en quatre blocs : application ELF, système BMDS fondé sur FreeRTOS, bureau graphique et puce ESP32-P4.",
+          "caption": "Architecture simplifiée, établie à partir de la description publiée."
+        },
+        {
+          "type": "usecases",
+          "title": "Exemples d’utilisation",
+          "items": [
+            {
+              "icon": "🧑‍🏫",
+              "title": "Formateur en systèmes embarqués",
+              "text": "Il montre à des étudiants comment un microcontrôleur peut exécuter un système complet avec des utilitaires standards."
+            },
+            {
+              "icon": "🛠️",
+              "title": "Amateur de rétro-informatique",
+              "text": "Il retrouve l’esprit des petits ordinateurs de bureau des années 1990 sur une carte qui tient dans la main."
+            },
+            {
+              "icon": "🧪",
+              "title": "Développeur de prototype",
+              "text": "Il teste un programme existant sous forme d’ELF sans devoir le réécrire pour un noyau temps réel."
+            }
+          ]
+        },
+        {
+          "type": "timeline",
+          "title": "D’où l’on vient, où l’on va",
+          "items": [
+            {
+              "label": "Années 1990",
+              "text": "Les bureaux graphiques légers, dont BMDS s’inspire, fonctionnent sur des machines modestes."
+            },
+            {
+              "label": "2026",
+              "text": "Publication du dépôt BMDS pour l’ESP32-P4 et présentation par Hackaday le 12 novembre."
+            },
+            {
+              "label": "À suivre",
+              "text": "Compatibilité POSIX, applications disponibles et prise en charge d’autres cartes ne sont pas détaillées par la source."
+            }
+          ]
+        },
+        {
+          "type": "opinion",
+          "title": "Notre avis",
+          "paragraphs": [
+            "BMDS illustre l’évolution des microcontrôleurs : avec des cœurs RISC-V rapides et de la mémoire en quantité, des fonctions réservées à des ordinateurs monocarte deviennent accessibles pour quelques euros. La compatibilité POSIX partielle est une promesse, mais aussi une limite : tout ce qui suppose un système complet pourrait ne pas fonctionner.",
+            "Dans un à trois ans, on peut imaginer des projets de ce type devenir des plateformes pédagogiques crédibles. C’est une perspective, que la maturité du dépôt devra confirmer."
+          ],
+          "verdict": "Un projet ludique, mais qui montre ce que les microcontrôleurs d’aujourd’hui savent faire seuls."
+        }
+      ],
+      "publishedAt": "2026-11-13T10:19:08+01:00",
+      "illustration": {
+        "svg": "<svg xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"0 0 640 360\"><defs><linearGradient id=\"g132\" x1=\"0\" y1=\"0\" x2=\"1\" y2=\"1\"><stop offset=\"0\" stop-color=\"hsl(30,65%,40%)\"/><stop offset=\"1\" stop-color=\"hsl(70,70%,22%)\"/></linearGradient></defs><rect width=\"640\" height=\"360\" fill=\"url(#g132)\"/><circle cx=\"560\" cy=\"40\" r=\"90\" fill=\"#fff\" fill-opacity=\".07\"/><circle cx=\"70\" cy=\"330\" r=\"110\" fill=\"#fff\" fill-opacity=\".06\"/><g stroke=\"#fff\" stroke-width=\"10\" stroke-linecap=\"round\"><path d=\"M270 80v40M320 80v40M370 80v40M270 240v40M320 240v40M370 240v40M220 130h40M220 180h40M220 230h-0M380 130h40M380 180h40\"/></g><rect x=\"250\" y=\"115\" width=\"140\" height=\"130\" rx=\"16\" fill=\"#fff\" fill-opacity=\".92\"/><rect x=\"285\" y=\"150\" width=\"70\" height=\"60\" rx=\"8\" fill=\"hsl(30,45%,35%)\"/></svg>"
+      }
+    },
+    {
+      "id": "firefox-160-picture-in-picture-mini-fenetre",
+      "category": "web",
+      "icon": "🦊",
+      "importance": 3,
+      "readingMinutes": 4,
+      "sourceDate": "2026-11-10",
+      "title": "Firefox 160 : vitesse de lecture en Picture-in-Picture, mini-fenêtre et reconnaissance vocale sur l’appareil",
+      "summary": "La version 160 de Firefox, publiée le 10 novembre, ajoute des vitesses de lecture de 0,25x à 2x en Picture-in-Picture, une mini-fenêtre toujours visible, l’API SpeechRecognition et le blocage des demandes répétées de gestion de liens.",
+      "tags": [
+        "Firefox",
+        "Mozilla",
+        "navigateur",
+        "WebGL",
+        "accessibilité"
+      ],
+      "sources": [
+        {
+          "title": "Notes de version de Firefox 160.0",
+          "url": "https://www.firefox.com/en-US/firefox/160.0/releasenotes/",
+          "publisher": "Mozilla"
+        }
+      ],
+      "blocks": [
+        {
+          "type": "paragraph",
+          "text": "Mozilla a publié Firefox 160 le 10 novembre 2026. La version ne comporte pas de rupture, mais rassemble de nombreuses améliorations d’usage, quelques évolutions pour les développeurs web et des corrections pour macOS. Voici ce qui change, d’après les notes de version officielles."
+        },
+        {
+          "type": "heading",
+          "level": 2,
+          "text": "Pour les utilisateurs"
+        },
+        {
+          "type": "list",
+          "items": [
+            "**Picture-in-Picture** : des vitesses de lecture de 0,25x à 2,0x. Le contrôle n’apparaît que si la fenêtre de lecture est de taille moyenne ou supérieure.",
+            "**Mini-fenêtre** : une version préliminaire permet de placer un onglet ou une partie de page dans une fenêtre toujours au premier plan ; Mozilla sollicite des retours sur Mozilla Connect.",
+            "**Historique** : on peut faire glisser des entrées de la barre latérale vers la barre d’onglets pour les ouvrir dans de nouveaux onglets.",
+            "**Barre d’adresse** : le menu affiche « Coller et rechercher » au lieu de « Coller et aller » lorsque le texte copié est un terme de recherche ; le contraste du nom de domaine est accru.",
+            "**Demandes de gestion de liens** : un bouton « Ne jamais autoriser » bloque les sites qui demandent sans cesse de gérer les liens `mailto:` ou d’autres protocoles ; la liste est modifiable dans les paramètres.",
+            "**Smart Window** : la fonction « Organiser les onglets », qui propose et nomme des groupes d’onglets proches, est disponible en français, avec un déploiement progressif."
+          ]
+        },
+        {
+          "type": "heading",
+          "level": 2,
+          "text": "Accessibilité et médias"
+        },
+        {
+          "type": "paragraph",
+          "text": "Les PDF enregistrés depuis des pages exposent désormais le contenu MathML aux lecteurs d’écran, ce qui rend les formules mathématiques accessibles. Les fichiers Matroska (MKV) contenant de l’audio FLAC, MP3 ou PCM sont lus. Sous macOS, les contenus WebGL passent par l’API Metal d’Apple, ce qui peut améliorer les performances sur certains sites."
+        },
+        {
+          "type": "heading",
+          "level": 2,
+          "text": "Pour les développeurs et les administrateurs"
+        },
+        {
+          "type": "list",
+          "items": [
+            "L’interface **SpeechRecognition** est prise en charge, avec une reconnaissance vocale sur l’appareil dans 40 langues.",
+            "Le pseudo-élément hérité `::-webkit-input-placeholder` devient un alias de `::placeholder`, ce qui facilite la compatibilité entre navigateurs.",
+            "Les blocages de plusieurs secondes lors de la connexion à des sites d’intranet via NTLM ou Kerberos (Negotiate) sont corrigés."
+          ]
+        },
+        {
+          "type": "paragraph",
+          "text": "Les corrections comprennent la perte du premier caractère tapé dans la barre d’adresse lorsqu’on saisit vite après un clic, la sélection de mots par double appui ou appui long et le placement du curseur dans les champs de texte. Sous macOS, les liens ouverts en arrière-plan depuis d’autres applications ne ramènent plus Firefox au premier plan, les fichiers téléchargés ne s’ouvrent plus parfois dans la mauvaise application, les téléchargements simultanés se terminent correctement et les PDF ouverts dans Aperçu depuis la boîte d’impression retrouvent des noms de fichier cohérents. Les notes mentionnent aussi des correctifs de sécurité non détaillés, référencés dans l’avis MFSA 2026-125, et 22 nouveaux contributeurs."
+        },
+        {
+          "type": "usecases",
+          "title": "Exemples d’utilisation",
+          "items": [
+            {
+              "icon": "🎬",
+              "title": "Spectateur de cours en ligne",
+              "text": "Il ralentit une vidéo à 0,5x en Picture-in-Picture pour prendre des notes dans une autre fenêtre."
+            },
+            {
+              "icon": "🏢",
+              "title": "Administrateur d’un intranet",
+              "text": "Il constate la fin des blocages de plusieurs secondes à la connexion Kerberos sur les sites internes."
+            },
+            {
+              "icon": "♿",
+              "title": "Étudiant en sciences utilisant un lecteur d’écran",
+              "text": "Il accède aux formules d’un PDF enregistré grâce à l’exposition du MathML."
+            }
+          ]
+        },
+        {
+          "type": "timeline",
+          "title": "D’où l’on vient, où l’on va",
+          "items": [
+            {
+              "label": "Avant la version 160",
+              "text": "Le Picture-in-Picture existait sans réglage de vitesse."
+            },
+            {
+              "label": "10 novembre 2026",
+              "text": "Publication de Firefox 160 et de l’avis de sécurité MFSA 2026-125."
+            },
+            {
+              "label": "Prochainement",
+              "text": "La mini-fenêtre est à l’état préliminaire ; Mozilla recueille les retours des utilisateurs."
+            }
+          ]
+        },
+        {
+          "type": "opinion",
+          "title": "Notre avis",
+          "paragraphs": [
+            "Les améliorations sont modestes prises une à une, mais elles montrent une orientation claire : confort au quotidien (vitesse de lecture, historique, demandes de liens importunes) et alignement sur les standards du Web (SpeechRecognition, alias CSS). La reconnaissance vocale sur l’appareil est la plus intéressante pour la vie privée, puisque la voix n’a pas à quitter la machine.",
+            "Reste à voir si la mini-fenêtre deviendra une fonction à part entière. Mozilla la présente comme un premier jet : l’avenir dépendra des retours."
+          ],
+          "verdict": "Une version de consolidation, sans fracas, mais utile sur de nombreux points concrets."
+        }
+      ],
+      "publishedAt": "2026-11-13T10:19:08+01:00",
+      "illustration": {
+        "svg": "<svg xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"0 0 640 360\"><defs><linearGradient id=\"g1435\" x1=\"0\" y1=\"0\" x2=\"1\" y2=\"1\"><stop offset=\"0\" stop-color=\"hsl(210,65%,40%)\"/><stop offset=\"1\" stop-color=\"hsl(250,70%,22%)\"/></linearGradient></defs><rect width=\"640\" height=\"360\" fill=\"url(#g1435)\"/><circle cx=\"560\" cy=\"40\" r=\"90\" fill=\"#fff\" fill-opacity=\".07\"/><circle cx=\"70\" cy=\"330\" r=\"110\" fill=\"#fff\" fill-opacity=\".06\"/><circle cx=\"320\" cy=\"180\" r=\"100\" fill=\"#fff\" fill-opacity=\".9\"/><g fill=\"none\" stroke=\"hsl(210,45%,35%)\" stroke-width=\"8\"><ellipse cx=\"320\" cy=\"180\" rx=\"45\" ry=\"100\"/><path d=\"M220 180h200M235 130h170M235 230h170\"/></g></svg>"
+      }
+    },
+    {
+      "id": "gemini-4-hydrogen-google-search",
+      "category": "ia",
+      "icon": "🔍",
+      "importance": 4,
+      "readingMinutes": 4,
+      "sourceDate": "2026-11-12",
+      "title": "Gemini 4 Hydrogen : Google fait de son nouveau modèle rapide le moteur de sa recherche",
+      "summary": "Google annonce Gemini 4 Hydrogen, modèle pensé pour les tâches « agentiques » rapides, et le déploie dans la Recherche pour mieux répondre aux questions complexes ; il arrive aussi dans AI Studio, l’API Gemini et l’application Gemini.",
+      "tags": [
+        "Google",
+        "Gemini 4",
+        "Recherche",
+        "modèles"
+      ],
+      "sources": [
+        {
+          "title": "Google’s latest Search upgrade promises better answers to your most complicated questions",
+          "url": "https://techcrunch.com/2026/11/12/googles-latest-search-upgrade-promises-better-answers-to-your-most-complicated-questions/",
+          "publisher": "TechCrunch"
+        }
+      ],
+      "blocks": [
+        {
+          "type": "paragraph",
+          "text": "Google a annoncé le 12 novembre 2026 une amélioration de sa Recherche fondée sur **Gemini 4 Hydrogen**, que l’entreprise qualifie de « plus grande amélioration de modèle pour la Recherche à ce jour ». L’objectif affiché : mieux répondre aux questions complexes, en plusieurs parties, très précises, ou comportant des fautes de frappe difficiles à interpréter. L’information est rapportée par TechCrunch."
+        },
+        {
+          "type": "heading",
+          "level": 2,
+          "text": "Un modèle conçu pour la vitesse"
+        },
+        {
+          "type": "paragraph",
+          "text": "Selon Google, Hydrogen est taillé pour exécuter rapidement des tâches agentiques, c’est-à-dire des enchaînements d’étapes menés de façon autonome. Les modèles de pointe de la famille, Gemini 4 Carbon et Gemini 4 Argon, restent consacrés au raisonnement approfondi sur les problèmes difficiles. L’entreprise affirme qu’Hydrogen termine les tâches 2,5 fois plus vite que Gemini 3.8 Flash, son précédent modèle rapide."
+        },
+        {
+          "type": "list",
+          "items": [
+            "Au niveau de réflexion par défaut (élevé), il dépasserait Gemini 4 Argon sur l’indice d’intelligence d’Artificial Analysis, selon Google.",
+            "Il propose quatre niveaux de réflexion : faible, moyen, élevé (par défaut) et un nouveau niveau « xhigh ». Tous visent à terminer plus vite avec moins de jetons en sortie.",
+            "Sur des tâches à plusieurs étapes (recherche approfondie, analyse de données, navigation dans une base de code), il se classe cinquième des évaluations Agent Arena.",
+            "Il peut travailler seul sur des tâches de programmation courantes (écrire du code, lancer des tests, vérifier les changements) ou s’associer à Carbon et Argon dans des chaînes multimodèles."
+          ]
+        },
+        {
+          "type": "heading",
+          "level": 2,
+          "text": "Ce qui change dans la Recherche"
+        },
+        {
+          "type": "list",
+          "items": [
+            "**Compréhension de l’intention** : meilleur traitement des questions nuancées et multi-parties, suivi des instructions et appel d’outils plus précis.",
+            "**Fautes de frappe** : meilleure interprétation des erreurs difficiles à lire.",
+            "**Technique de « fan-out »** : une requête est divisée en plusieurs sous-requêtes, ce qui, selon Google, fait remonter des sites que l’on n’aurait pas trouvés.",
+            "**Mode IA** : plus d’images, des réponses structurées, des tableaux comparatifs et des outils personnalisés, avec de meilleures réponses dans les langues prises en charge."
+          ]
+        },
+        {
+          "type": "paragraph",
+          "text": "Le déploiement concerne l’ensemble des utilisateurs de la Recherche dans le monde, sans que les pays soient précisés. Gemini 4 Hydrogen arrive aussi dans tous les niveaux de Google AI Studio, dans l’API Gemini et dans l’application Gemini ; les abonnés AI Pro et Ultra l’obtiennent dans la plateforme de développement Antigravity. Les performances citées sont celles annoncées par Google : elles n’ont pas, à ce stade, fait l’objet d’une vérification indépendante."
+        },
+        {
+          "type": "diagram",
+          "svg": "<svg xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"0 0 640 190\" font-family=\"system-ui,sans-serif\"><rect width=\"640\" height=\"190\" rx=\"14\" fill=\"#f4f6fa\" stroke=\"#c9d1e0\"/><text x=\"320\" y=\"34\" text-anchor=\"middle\" font-size=\"15\" font-weight=\"700\" fill=\"#1b2330\">Comment Google décrit le traitement d’une requête</text><rect x=\"20.0\" y=\"60\" width=\"129.0\" height=\"84\" rx=\"10\" fill=\"#ffffff\" stroke=\"#5b6b8c\" stroke-width=\"1.5\"/><text x=\"84.5\" y=\"87\" text-anchor=\"middle\" font-size=\"12.5\" font-weight=\"700\" fill=\"#1b2330\">Question</text><text x=\"84.5\" y=\"105\" text-anchor=\"middle\" font-size=\"12.5\" font-weight=\"400\" fill=\"#1b2330\">complexe ou fautive</text><path d=\"M154.0 102 l18 0 m-6 -6 l6 6 -6 6\" stroke=\"#5b6b8c\" stroke-width=\"2.5\" fill=\"none\" stroke-linecap=\"round\"/><rect x=\"177.0\" y=\"60\" width=\"129.0\" height=\"84\" rx=\"10\" fill=\"#ffffff\" stroke=\"#5b6b8c\" stroke-width=\"1.5\"/><text x=\"241.5\" y=\"87\" text-anchor=\"middle\" font-size=\"12.5\" font-weight=\"700\" fill=\"#1b2330\">Fan-out</text><text x=\"241.5\" y=\"105\" text-anchor=\"middle\" font-size=\"12.5\" font-weight=\"400\" fill=\"#1b2330\">sous-requêtes multiples</text><path d=\"M311.0 102 l18 0 m-6 -6 l6 6 -6 6\" stroke=\"#5b6b8c\" stroke-width=\"2.5\" fill=\"none\" stroke-linecap=\"round\"/><rect x=\"334.0\" y=\"60\" width=\"129.0\" height=\"84\" rx=\"10\" fill=\"#ffffff\" stroke=\"#5b6b8c\" stroke-width=\"1.5\"/><text x=\"398.5\" y=\"87\" text-anchor=\"middle\" font-size=\"12.5\" font-weight=\"700\" fill=\"#1b2330\">Gemini 4 Hydrogen</text><text x=\"398.5\" y=\"105\" text-anchor=\"middle\" font-size=\"12.5\" font-weight=\"400\" fill=\"#1b2330\">compréhension et outils</text><path d=\"M468.0 102 l18 0 m-6 -6 l6 6 -6 6\" stroke=\"#5b6b8c\" stroke-width=\"2.5\" fill=\"none\" stroke-linecap=\"round\"/><rect x=\"491.0\" y=\"60\" width=\"129.0\" height=\"84\" rx=\"10\" fill=\"#ffffff\" stroke=\"#5b6b8c\" stroke-width=\"1.5\"/><text x=\"555.5\" y=\"87\" text-anchor=\"middle\" font-size=\"12.5\" font-weight=\"700\" fill=\"#1b2330\">Réponse</text><text x=\"555.5\" y=\"105\" text-anchor=\"middle\" font-size=\"12.5\" font-weight=\"400\" fill=\"#1b2330\">tableaux, images, liens</text></svg>",
+          "alt": "Quatre étapes : question complexe, découpage en sous-requêtes, traitement par Gemini 4 Hydrogen, réponse structurée avec tableaux, images et liens.",
+          "caption": "Description simplifiée du fonctionnement annoncé par Google."
+        },
+        {
+          "type": "usecases",
+          "title": "Exemples d’utilisation",
+          "items": [
+            {
+              "icon": "🧭",
+              "title": "Voyageur préparant un itinéraire",
+              "text": "Il pose une question en plusieurs parties (horaires, budget, correspondances) et obtient un tableau comparatif plutôt qu’une liste de liens."
+            },
+            {
+              "icon": "💻",
+              "title": "Développeur",
+              "text": "Il confie à Hydrogen une tâche de code courante, de l’écriture aux tests, avec un niveau de réflexion adapté au coût et à la rapidité voulus."
+            },
+            {
+              "icon": "📰",
+              "title": "Éditeur de site web",
+              "text": "Il suit l’effet sur son trafic de réponses plus complètes dans le mode IA et du fan-out, qui peut aussi lui amener des visites."
+            }
+          ]
+        },
+        {
+          "type": "timeline",
+          "title": "D’où l’on vient, où l’on va",
+          "items": [
+            {
+              "label": "Avant",
+              "text": "Gemini 3.8 Flash servait de modèle rapide de Google."
+            },
+            {
+              "label": "12 novembre 2026",
+              "text": "Annonce de Gemini 4 Hydrogen et déploiement dans la Recherche."
+            },
+            {
+              "label": "Prochainement",
+              "text": "Disponibilité dans AI Studio, l’API Gemini et l’application Gemini ; Antigravity pour les abonnés AI Pro et Ultra."
+            }
+          ]
+        },
+        {
+          "type": "opinion",
+          "title": "Notre avis",
+          "paragraphs": [
+            "Le choix d’un modèle rapide pour la Recherche est cohérent : la latence compte autant que la qualité pour un service utilisé des milliards de fois. L’arbitrage entre vitesse, coût et profondeur se joue désormais à l’intérieur d’une même famille de modèles, avec des niveaux de réflexion réglables.",
+            "La question de fond reste celle de l’économie du Web : plus la Recherche répond elle-même, moins elle envoie de visiteurs vers les sites. Le fan-out est présenté comme un moyen de faire découvrir des sites, mais seuls des chiffres indépendants permettront de le vérifier."
+          ],
+          "verdict": "Un gain de rapidité annoncé, dont l’effet sur la qualité réelle des réponses et sur les éditeurs reste à mesurer."
+        }
+      ],
+      "publishedAt": "2026-11-13T10:19:08+01:00",
+      "illustration": {
+        "svg": "<svg xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"0 0 640 360\"><defs><linearGradient id=\"g364\" x1=\"0\" y1=\"0\" x2=\"1\" y2=\"1\"><stop offset=\"0\" stop-color=\"hsl(320,65%,40%)\"/><stop offset=\"1\" stop-color=\"hsl(0,70%,22%)\"/></linearGradient></defs><rect width=\"640\" height=\"360\" fill=\"url(#g364)\"/><circle cx=\"560\" cy=\"40\" r=\"90\" fill=\"#fff\" fill-opacity=\".07\"/><circle cx=\"70\" cy=\"330\" r=\"110\" fill=\"#fff\" fill-opacity=\".06\"/><g fill=\"#fff\" fill-opacity=\".92\"><circle cx=\"320\" cy=\"180\" r=\"38\"/><circle cx=\"220\" cy=\"120\" r=\"22\"/><circle cx=\"420\" cy=\"120\" r=\"22\"/><circle cx=\"220\" cy=\"240\" r=\"22\"/><circle cx=\"420\" cy=\"240\" r=\"22\"/></g><g stroke=\"#fff\" stroke-width=\"6\" stroke-opacity=\".85\"><path d=\"M236 130 L290 165M404 130 L350 165M236 230 L290 195M404 230 L350 195\"/></g></svg>"
+      },
+      "cover": {
+        "url": "https://techcrunch.com/wp-content/uploads/2026/11/hydrogen-at-2.01.42-PM.jpg",
+        "alt": "Visuel de Google présentant Gemini 4 Hydrogen",
+        "credit": "techcrunch.com"
+      }
+    }
+  ]
+}
