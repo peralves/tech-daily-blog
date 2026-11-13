@@ -1,0 +1,1379 @@
+{
+ "schemaVersion": "1.0",
+ "date": "2026-11-13",
+ "generatedAt": "2026-11-13T04:18:28+01:00",
+ "title": "Tech du 13 novembre 2026 : failles Citrix et AMD, TypoPrompting, panne Microsoft 365, Qwen3.8 et émulateur AWS",
+ "summary": "Failles Citrix NetScaler et AMD Turin, campagne TypoPrompting, panne Microsoft 365, ré-alignement de Qwen3.8, offre de sécurité Daybreak d'OpenAI, émulateur AWS local, sondage FreeBSD sur l'IA et feuille de route quantique d'IBM.",
+ "highlights": [
+  "Citrix corrige douze failles NetScaler et client Secure Access, sans exploitation connue",
+  "TypoPrompting : 186 faux domaines d'IA piègent les fautes de frappe",
+  "Panne de Microsoft 365 touchant Exchange Online, Teams et Intune",
+  "AWS publie un émulateur local en Rust",
+  "IBM vise 1 040 qubits en 2027"
+ ],
+ "meta": {
+  "generator": "claude-scheduled-task"
+ },
+ "posts": [
+  {
+   "id": "citrix-netscaler-douze-failles-correctifs",
+   "category": "cybersecurite",
+   "title": "Citrix : douze failles corrigées dans NetScaler et le client Secure Access, dont un contournement d'authentification dans la console",
+   "summary": "Citrix publie des correctifs pour neuf dépassements de mémoire dans NetScaler ADC et Gateway, un contournement d'authentification (CVE-2026-120869, CVSS 9,4) dans NetScaler Console et deux élévations de privilèges dans le client Secure Access. Aucune exploitation n'est signalée à ce stade.",
+   "tags": [
+    "Citrix",
+    "NetScaler",
+    "CVE-2026-120869",
+    "correctifs",
+    "VPN"
+   ],
+   "importance": 4,
+   "readingMinutes": 3,
+   "publishedAt": "2026-11-13T04:18:28+01:00",
+   "sourceDate": "2026-11-12",
+   "icon": "🛡️",
+   "illustration": {
+    "svg": "<svg xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"0 0 640 360\"><defs><linearGradient id=\"g577\" x1=\"0\" y1=\"0\" x2=\"1\" y2=\"1\"><stop offset=\"0\" stop-color=\"hsl(175,65%,38%)\"/><stop offset=\"1\" stop-color=\"hsl(215,70%,22%)\"/></linearGradient></defs><rect width=\"640\" height=\"360\" fill=\"url(#g577)\"/><circle cx=\"560\" cy=\"40\" r=\"90\" fill=\"#fff\" fill-opacity=\".07\"/><circle cx=\"70\" cy=\"330\" r=\"110\" fill=\"#fff\" fill-opacity=\".06\"/><path d=\"M320 70 L420 105 V190 C420 250 370 290 320 305 C270 290 220 250 220 190 V105 Z\" fill=\"#fff\" fill-opacity=\".9\"/><path d=\"M280 185 l30 30 55-65\" stroke=\"hsl(175,60%,35%)\" stroke-width=\"16\" fill=\"none\" stroke-linecap=\"round\" stroke-linejoin=\"round\"/></svg>"
+   },
+   "sources": [
+    {
+     "title": "Citrix Patches 12 NetScaler and Secure Access Client Flaws, Including Authentication Bypass",
+     "url": "https://thehackernews.com/2026/11/citrix-patches-12-netscaler-and-secure.html",
+     "publisher": "The Hacker News"
+    }
+   ],
+   "blocks": [
+    {
+     "type": "paragraph",
+     "text": "Les équipements NetScaler occupent une place sensible dans les réseaux d'entreprise : ils servent de répartiteurs de charge, de passerelles VPN et de points d'authentification, souvent exposés directement à Internet. Le 12 novembre 2026, Citrix a publié une série de bulletins (CTX697305, CTX697320, CTX697280 et CTX697281) qui corrigent douze vulnérabilités à la fois dans NetScaler ADC, NetScaler Gateway, NetScaler Console et le client Secure Access pour Windows et Linux. Selon The Hacker News, qui relaie ces avis, l'éditeur affirme ne connaître aucune exploitation en cours."
+    },
+    {
+     "type": "paragraph",
+     "text": "Le dossier mérite attention pour deux raisons. D'abord, le nombre de défauts corrigés en une seule fois est élevé. Ensuite, la plupart concernent des dépassements ou corruptions de mémoire dans des fonctions courantes d'un équipement réseau, ce qui est historiquement la catégorie de faille la plus recherchée par les attaquants sur ce type de produit. Citrix explique avoir mené une revue approfondie du code assistée par des outils d'analyse fondés sur l'IA, ce qui expliquerait ce lot important."
+    },
+    {
+     "type": "heading",
+     "level": 2,
+     "text": "Ce qui est corrigé"
+    },
+    {
+     "type": "table",
+     "headers": [
+      "Identifiant",
+      "Composant",
+      "CVSS",
+      "Particularité"
+     ],
+     "rows": [
+      [
+       "CVE-2026-120868",
+       "ADC et Gateway (traitement des paquets)",
+       "9,3",
+       "Dépassement de mémoire, concerne tous les déploiements"
+      ],
+      [
+       "CVE-2026-107407",
+       "ADC, serveur virtuel SMPP",
+       "9,3",
+       "Dépassement de mémoire sur le trafic SMPP"
+      ],
+      [
+       "CVE-2026-107408 / 107409",
+       "ADC, DNS et DNS sur HTTPS",
+       "9,3",
+       "Corruption de mémoire si le DNS est équilibré ou résolu en récursif"
+      ],
+      [
+       "CVE-2026-107410",
+       "ADC, serveur virtuel PUSH",
+       "9,3",
+       "Dépassement de mémoire"
+      ],
+      [
+       "CVE-2026-107412",
+       "Gateway ou serveur AAA",
+       "9,5",
+       "Dépassements multiples, la note la plus élevée du lot ADC"
+      ],
+      [
+       "CVE-2026-107415",
+       "ADC, OTP par courriel",
+       "9,3",
+       "Nécessite une action de type courriel"
+      ],
+      [
+       "CVE-2026-111344",
+       "VPN ou AAA avec Endpoint Analysis",
+       "9,3",
+       "Dépassement de mémoire"
+      ],
+      [
+       "CVE-2026-120864",
+       "Proxy ICA (serveurs HDX)",
+       "9,3",
+       "Dépassement de mémoire"
+      ],
+      [
+       "CVE-2026-120869",
+       "NetScaler Console",
+       "9,4",
+       "Authentification contournable sans identifiants"
+      ],
+      [
+       "CVE-2026-118268 / 118269",
+       "Secure Access Client (Windows, Linux)",
+       "8,5",
+       "Élévation de privilèges vers SYSTEM ou root"
+      ]
+     ]
+    },
+    {
+     "type": "paragraph",
+     "text": "Pour ADC et Gateway, les effets décrits vont du comportement imprévisible au déni de service ; aucune de ces failles n'est présentée comme un contournement d'authentification. Plusieurs ne touchent que des configurations précises : un serveur virtuel de type SMPP, un équilibrage DNS, un serveur AAA ou la fonction Endpoint Analysis. Vérifier sa configuration permet donc de mesurer l'exposition réelle, mais seule la mise à jour supprime le risque."
+    },
+    {
+     "type": "heading",
+     "level": 2,
+     "text": "Versions corrigées"
+    },
+    {
+     "type": "keyvalue",
+     "items": [
+      {
+       "label": "NetScaler ADC et Gateway 14.1",
+       "value": "14.1-73.57 et ultérieures"
+      },
+      {
+       "label": "NetScaler ADC et Gateway 13.1",
+       "value": "13.1-64.39 et ultérieures"
+      },
+      {
+       "label": "Variantes FIPS et NDcPP",
+       "value": "14.1-73.58 FIPS ; 13.1-37.293 pour 13.1-FIPS et 13.1-NDcPP"
+      },
+      {
+       "label": "NetScaler Console",
+       "value": "14.1-74.34 et ultérieures"
+      },
+      {
+       "label": "Secure Access Client",
+       "value": "26.11.1.6 (Windows) ; 26.10.4 (Linux)"
+      }
+     ]
+    },
+    {
+     "type": "paragraph",
+     "text": "L'article ne mentionne aucune mesure d'atténuation autre que l'application des correctifs. Les organisations françaises soumises à NIS2 ou à des exigences sectorielles peuvent s'appuyer sur les recommandations de l'ANSSI et du CERT-FR, qui publient régulièrement des alertes sur les équipements d'accès distant : ces appareils figurent traditionnellement parmi les premières cibles des campagnes d'intrusion."
+    },
+    {
+     "type": "usecases",
+     "title": "Exemples d'utilisation",
+     "items": [
+      {
+       "icon": "🏢",
+       "title": "Entreprise avec VPN NetScaler Gateway",
+       "text": "L'équipe réseau inventorie ses passerelles, repère les serveurs virtuels concernés et planifie la mise à jour de 13.1 ou 14.1 pendant une fenêtre de maintenance, avant que des preuves d'exploitation n'apparaissent."
+      },
+      {
+       "icon": "🧰",
+       "title": "Prestataire infogérant des consoles NetScaler",
+       "text": "Il met à jour NetScaler Console en priorité et vérifie que l'interface d'administration n'est jamais joignable depuis Internet, car un contournement d'authentification y donnerait accès à tout un parc."
+      },
+      {
+       "icon": "💻",
+       "title": "Parc de postes avec Secure Access Client",
+       "text": "Le service informatique déploie les versions 26.11.1.6 et 26.10.4 via son outil de distribution, pour supprimer deux chemins d'élévation de privilèges exploitables par un utilisateur ou un logiciel malveillant local."
+      }
+     ]
+    },
+    {
+     "type": "timeline",
+     "title": "D'où l'on vient, où l'on va",
+     "items": [
+      {
+       "label": "2026",
+       "text": "Les équipements d'accès distant restent des cibles privilégiées des attaquants, avec des campagnes régulières sur ce type de produit."
+      },
+      {
+       "label": "12 novembre 2026",
+       "text": "Publication par Citrix des quatre bulletins et des versions corrigées ; aucune exploitation connue selon l'éditeur."
+      },
+      {
+       "label": "À venir",
+       "text": "Les analyses indépendantes des correctifs devraient préciser la facilité d'exploitation ; l'éventuelle apparition de code public changerait l'urgence."
+      }
+     ]
+    },
+    {
+     "type": "opinion",
+     "title": "Notre avis",
+     "paragraphs": [
+      "Un lot de douze failles sans exploitation connue peut sembler moins alarmant qu'un zero-day, mais c'est précisément la fenêtre où il faut agir : une fois les correctifs publiés, comparer les versions révèle aux attaquants où chercher. Les dépassements de mémoire dans des composants réseau, notamment, sont souvent transformés en exploits fonctionnels en quelques jours.",
+      "À un à trois ans, la revue de code assistée par IA, citée par Citrix, devrait multiplier ce genre de lots importants : les éditeurs corrigeront davantage, plus tôt, mais les équipes d'exploitation devront absorber un rythme de mises à jour plus soutenu. L'enjeu devient moins la découverte que la capacité à déployer vite."
+     ],
+     "verdict": "Rien n'est exploité aujourd'hui, mais mieux vaut mettre à jour avant que cela change."
+    },
+    {
+     "type": "callout",
+     "title": "À retenir",
+     "text": "Mettre à jour NetScaler ADC, Gateway, Console et Secure Access Client vers les versions indiquées, et ne jamais exposer l'administration à Internet."
+    }
+   ],
+   "cover": {
+    "url": "https://blogger.googleusercontent.com/img/b/R29vZ2xl/AVvXsEjDDv_B4B-cVtvwKyLiGQsL804yGC7_xHF7y3yD5_C284fRXBVRAn5Ashy2apgJr-jaoBHRa3ujgXv1jskM53EvP_pFt41CTazYqFT-tQdcukNBeOTzVIpZXVDsdgtup4MJOEdNNZP9SP0FAdIpG1Cnfgo0YgBXzmI_boLV4qSAsVrmYn5wA3GxnPuj21JO/s1700-nu-rw-lo-l85-e365/citrix.jpg",
+    "alt": "Logo Citrix illustrant les correctifs NetScaler",
+    "credit": "thehackernews.com"
+   }
+  },
+  {
+   "id": "typoprompting-faux-domaines-ia",
+   "category": "cybersecurite",
+   "title": "TypoPrompting : 186 faux domaines d'outils d'IA servent à diffuser des leurres ClickFix et des extensions détournant la recherche",
+   "summary": "La société Island décrit une campagne fondée sur des fautes de frappe : 186 domaines imitent 27 marques d'IA et mènent à des faux contrôles de sécurité, un logiciel pilotant le navigateur et des extensions Chrome qui remplacent le moteur de recherche.",
+   "tags": [
+    "TypoPrompting",
+    "ClickFix",
+    "typosquatting",
+    "extensions Chrome",
+    "IA"
+   ],
+   "importance": 4,
+   "readingMinutes": 4,
+   "publishedAt": "2026-11-13T04:18:28+01:00",
+   "sourceDate": "2026-11-12",
+   "icon": "🎣",
+   "illustration": {
+    "svg": "<svg xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"0 0 640 360\"><defs><linearGradient id=\"g960\" x1=\"0\" y1=\"0\" x2=\"1\" y2=\"1\"><stop offset=\"0\" stop-color=\"hsl(175,65%,38%)\"/><stop offset=\"1\" stop-color=\"hsl(215,70%,22%)\"/></linearGradient></defs><rect width=\"640\" height=\"360\" fill=\"url(#g960)\"/><circle cx=\"560\" cy=\"40\" r=\"90\" fill=\"#fff\" fill-opacity=\".07\"/><circle cx=\"70\" cy=\"330\" r=\"110\" fill=\"#fff\" fill-opacity=\".06\"/><g stroke=\"#fff\" stroke-width=\"4\" stroke-opacity=\".8\"><path d=\"M140 250 L260 120 L400 210 L500 100 M260 120 L330 270 L400 210 M140 250 L330 270\"/></g><g fill=\"#fff\"><circle cx=\"140\" cy=\"250\" r=\"20\"/><circle cx=\"260\" cy=\"120\" r=\"24\"/><circle cx=\"400\" cy=\"210\" r=\"22\"/><circle cx=\"500\" cy=\"100\" r=\"18\"/><circle cx=\"330\" cy=\"270\" r=\"20\"/></g></svg>"
+   },
+   "sources": [
+    {
+     "title": "186 Fake AI Domains Redirect Users to ClickFix Lures, Browser Malware, and Search Hijackers",
+     "url": "https://thehackernews.com/2026/11/186-fake-ai-domains-redirect-users-to.html",
+     "publisher": "The Hacker News"
+    }
+   ],
+   "blocks": [
+    {
+     "type": "paragraph",
+     "text": "Taper le nom d'un assistant d'IA dans la barre d'adresse est devenu un geste quotidien. Une simple faute de frappe suffit désormais à atterrir ailleurs. Le 12 novembre 2026, The Hacker News a détaillé une campagne baptisée **TypoPrompting** par la société de sécurité Island : 186 domaines aux noms trompeurs imitent 27 marques d'IA et redirigent les internautes vers trois types de pièges."
+    },
+    {
+     "type": "paragraph",
+     "text": "Les marques visées sont celles que l'on retrouve dans toutes les entreprises : Claude, ChatGPT, Gemini, Copilot, Grok, DeepSeek, Mistral, Perplexity, Midjourney, ElevenLabs, Lovable ou Cursor. Parmi les exemples cités figurent des écritures comme `cluade`, `chatlgpt`, `geimini`, `preplexity` ou `deepceek`. Certains domaines sont enregistrés depuis juillet 2023, ce qui montre une exploitation de long terme. Un script d'empreinte du navigateur couvre en outre 211 domaines d'entrée, dont des imitations de banques et d'éditeurs de logiciels, signe que l'infrastructure sert à d'autres opérations."
+    },
+    {
+     "type": "heading",
+     "level": 2,
+     "text": "Trois routes de diffusion"
+    },
+    {
+     "type": "list",
+     "items": [
+      "**Leurres ClickFix** : une fausse page de vérification de type Cloudflare propose une commande PowerShell à coller sur Windows, ou une invite de terminal sur macOS ; d'autres pages demandent d'extraire et de lancer un exécutable.",
+      "**Logiciel détournant le navigateur** : huit domaines mènent à un faux « contrôle de sécurité » qui livre *Net Guard*, présenté comme un scanneur de sécurité Wi-Fi et DNS. Island affirme que le fichier est l'application authentique du Microsoft Store, signée par Microsoft, et que son composant de contrôle du navigateur s'active sans demande, après une période d'inactivité. Il peut modifier la recherche de Chrome, exécuter des scripts sur ordre de l'opérateur, éditer des profils et installer des extensions arbitraires.",
+      "**Détournement de recherche** : un domaine imitant Perplexity renvoie vers *Quick Search*, une extension du Chrome Web Store qui remplace le moteur par défaut par celui de l'attaquant, sans demander de permission particulière. Elle fait partie de 16 extensions liées, totalisant 972 000 utilisateurs déclarés au 3 novembre 2026."
+     ]
+    },
+    {
+     "type": "paragraph",
+     "text": "Avant d'afficher la page piégée, une chaîne de redirections empreinte le navigateur et récupère l'adresse IP publique, ce qui permet de ne montrer le contenu malveillant qu'aux victimes jugées intéressantes. Island relie cette mécanique à la monétisation des domaines parqués par des systèmes de distribution de trafic."
+    },
+    {
+     "type": "heading",
+     "level": 2,
+     "text": "Pourquoi c'est préoccupant pour les entreprises"
+    },
+    {
+     "type": "paragraph",
+     "text": "Les requêtes envoyées à un moteur tiers peuvent contenir des noms de serveurs internes, de clients ou de projets, parfois saisis directement dans l'assistant. L'article ne fournit pas de liste formelle de contre-mesures ; Island conclut que l'accès aux outils d'IA devrait passer par un chemin géré plutôt que par la précision de frappe de chacun. On peut en déduire des mesures raisonnables, qui relèvent de l'analyse et non du rapport : favoris ou portail interne vers les services officiels, contrôle des extensions et des changements de moteur de recherche, blocage du copier-coller de commandes depuis le web, et surveillance des exécutions inattendues de PowerShell."
+    },
+    {
+     "type": "usecases",
+     "title": "Exemples d'utilisation",
+     "items": [
+      {
+       "icon": "🧑‍💼",
+       "title": "Salarié pressé",
+       "text": "En tapant `cluade.ai` à la place du nom exact, il arrive sur une fausse vérification de sécurité. Un favori ou un lien du portail interne lui aurait évité ce détour."
+      },
+      {
+       "icon": "🛡️",
+       "title": "Équipe sécurité d'une PME",
+       "text": "Elle limite les extensions Chrome à une liste autorisée et déclenche une alerte quand le moteur de recherche d'un poste change, ce qui aurait stoppé *Quick Search*."
+      },
+      {
+       "icon": "📚",
+       "title": "Sensibilisation interne",
+       "text": "Le service informatique ajoute un exemple « ne collez jamais une commande trouvée sur une page web » à sa prochaine séance, avec la capture d'une fausse vérification Cloudflare."
+      }
+     ]
+    },
+    {
+     "type": "timeline",
+     "title": "D'où l'on vient, où l'on va",
+     "items": [
+      {
+       "label": "Juillet 2023",
+       "text": "Premiers enregistrements de domaines de la famille, selon l'article."
+      },
+      {
+       "label": "3 novembre 2026",
+       "text": "Relevé de 972 000 utilisateurs déclarés pour les 16 extensions liées."
+      },
+      {
+       "label": "12 novembre 2026",
+       "text": "Publication de l'analyse d'Island et nom de campagne TypoPrompting."
+      },
+      {
+       "label": "Ensuite",
+       "text": "Les listes de blocage et les retraits de l'extension du Chrome Web Store seront à surveiller ; l'article ne donne aucune échéance."
+      }
+     ]
+    },
+    {
+     "type": "opinion",
+     "title": "Notre avis",
+     "paragraphs": [
+      "Le véritable danger de TypoPrompting n'est pas technique : il tient au fait que l'attaque ne demande aucune faille. Elle exploite une habitude, la saisie rapide du nom d'un outil désormais indispensable. Le recours à une application authentique signée par Microsoft montre aussi que la confiance accordée à une signature ou à une boutique officielle ne suffit plus à juger un logiciel.",
+      "D'ici un à trois ans, les assistants d'IA seront aussi courants que les moteurs de recherche, et leurs imitations aussi. Les organisations qui n'offriront pas de voie d'accès gérée à ces outils laisseront chaque salarié arbitrer seul entre le bon domaine et ses voisins. Cette analyse est une opinion, non un constat de l'étude."
+     ],
+     "verdict": "Pour une fois, le meilleur correctif est organisationnel : un chemin officiel et simple vers les outils d'IA."
+    },
+    {
+     "type": "callout",
+     "title": "À retenir",
+     "text": "Passer par un favori ou un portail interne, auditer les extensions de navigateur et ne jamais coller dans un terminal une commande issue d'une page de « vérification »."
+    }
+   ],
+   "cover": {
+    "url": "https://blogger.googleusercontent.com/img/b/R29vZ2xl/AVvXsEirJnc36Fxj4oKOmKhcPvspB_xQpv3VgpXjYnu29SOv8NbVJHeaGNKT26851QIPQbHozxeF5vmq5otdRbJBKEaN9557MtuxLwp5fxX-pQVDVKwvZJtPR9ayT2Njx83svW7TVsVkVpFUOt5JHqhdSkSI7uV0d4dxlf5pWAmHISttTHWjURyOpuuy0CzVCSmK/s1700-nu-rw-lo-l85-e365/lauce.jpg",
+    "alt": "Illustration de la campagne TypoPrompting",
+    "credit": "thehackernews.com"
+   }
+  },
+  {
+   "id": "amd-turin-tsa-google-cloud-vm",
+   "category": "cybersecurite",
+   "title": "AMD Turin : trois failles d'attaque par ordonnanceur transitoire exposent des données entre processus dans les machines virtuelles de Google Cloud",
+   "summary": "Google Cloud signale trois variantes d'attaque TSA sur les processeurs EPYC de cinquième génération. Les attaques entre VM et vers l'hôte sont déjà atténuées ; les clients doivent appliquer un correctif du système invité puis arrêter et redémarrer leurs instances.",
+   "tags": [
+    "AMD",
+    "Zen 5",
+    "TSA",
+    "Google Cloud",
+    "canal auxiliaire"
+   ],
+   "importance": 3,
+   "readingMinutes": 4,
+   "publishedAt": "2026-11-13T04:18:28+01:00",
+   "sourceDate": "2026-11-12",
+   "icon": "🧩",
+   "illustration": {
+    "svg": "<svg xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"0 0 640 360\"><defs><linearGradient id=\"g433\" x1=\"0\" y1=\"0\" x2=\"1\" y2=\"1\"><stop offset=\"0\" stop-color=\"hsl(175,65%,38%)\"/><stop offset=\"1\" stop-color=\"hsl(215,70%,22%)\"/></linearGradient></defs><rect width=\"640\" height=\"360\" fill=\"url(#g433)\"/><circle cx=\"560\" cy=\"40\" r=\"90\" fill=\"#fff\" fill-opacity=\".07\"/><circle cx=\"70\" cy=\"330\" r=\"110\" fill=\"#fff\" fill-opacity=\".06\"/><rect x=\"230\" y=\"100\" width=\"180\" height=\"160\" rx=\"18\" fill=\"#fff\" fill-opacity=\".92\"/><rect x=\"270\" y=\"140\" width=\"100\" height=\"80\" rx=\"8\" fill=\"hsl(175,60%,35%)\"/><g stroke=\"#fff\" stroke-width=\"8\" stroke-linecap=\"round\"><path d=\"M260 80V100M320 80V100M380 80V100M260 260V280M320 260V280M380 260V280M210 130H230M210 180H230M210 230H230M410 130H430M410 180H430M410 230H430\"/></g></svg>"
+   },
+   "sources": [
+    {
+     "title": "Google Cloud Warns Three AMD Turin CPU Flaws Could Leak Data Across Processes in VMs",
+     "url": "https://thehackernews.com/2026/11/google-cloud-warns-three-amd-turin-cpu.html",
+     "publisher": "The Hacker News"
+    }
+   ],
+   "blocks": [
+    {
+     "type": "paragraph",
+     "text": "Les failles de processeur ont ceci de particulier qu'aucun logiciel applicatif ne les corrige : il faut un enchaînement de microcode, de noyau, d'hyperviseur et parfois de redémarrage. Le 12 novembre 2026, Google Cloud a prévenu ses clients que trois variantes d'une famille de défauts nommée *Transient Scheduler Attacks* (TSA) touchent les processeurs AMD EPYC de cinquième génération, nom de code Turin, selon le résumé qu'en donne The Hacker News."
+    },
+    {
+     "type": "heading",
+     "level": 2,
+     "text": "Ce que l'on sait des failles"
+    },
+    {
+     "type": "keyvalue",
+     "items": [
+      {
+       "label": "TSA-SQ",
+       "value": "CVE-2024-36350, publiée en juillet 2025 pour des EPYC antérieurs"
+      },
+      {
+       "label": "TSA-L1",
+       "value": "CVE-2024-36357, publiée en juillet 2025 pour des EPYC antérieurs"
+      },
+      {
+       "label": "TSA-Fill",
+       "value": "CVE-2026-0004, nouvelle : elle permettrait d'inférer des données du cache L1 de données"
+      },
+      {
+       "label": "Gravité",
+       "value": "Moyenne selon Google ; attaque locale, complexité élevée, faibles privilèges requis selon AMD"
+      },
+      {
+       "label": "Exploitation",
+       "value": "Aucune signalée par Google ni AMD ; absente du catalogue KEV de la CISA à la publication"
+      }
+     ]
+    },
+    {
+     "type": "paragraph",
+     "text": "Le principe général est celui d'un canal auxiliaire : un attaquant capable d'exécuter du code sur le même cœur peut, par des effets de timing, déduire des informations appartenant à d'autres processus ou au noyau. AMD précise que les processeurs Zen 5 sont touchés « différemment » des générations déjà analysées, et le projet Xen a rectifié une première affirmation selon laquelle Zen 5 n'était pas vulnérable à TSA-SQ et TSA-L1."
+    },
+    {
+     "type": "heading",
+     "level": 2,
+     "text": "Ce que Google a fait et ce que les clients doivent faire"
+    },
+    {
+     "type": "paragraph",
+     "text": "Google indique avoir déjà mitigé les attaques entre machines virtuelles et entre une VM et l'hôte. Les séries concernées sont C4D, N4D, H4D, Z4D et G4, ainsi que les instances bare metal C4D et Z4D. La protection au sein d'une même VM dépend du système invité :"
+    },
+    {
+     "type": "list",
+     "items": [
+      "installer le correctif de l'éditeur du système d'exploitation dès qu'il est publié ;",
+      "laisser Google mettre à jour les informations de processeur remontées aux VM, à partir de la semaine du bulletin, pour que les noyaux corrigés activent leurs protections ;",
+      "arrêter puis redémarrer la VM, car « redémarrer l'OS invité ne suffit pas » ;",
+      "sur bare metal, appliquer les correctifs de son éditeur de système ou d'hyperviseur ; sur GKE, attendre les nouvelles images de nœuds ; Cloud Run n'exige aucune action."
+     ]
+    },
+    {
+     "type": "paragraph",
+     "text": "Côté noyau Linux, un correctif existe pour Zen 5, mais Debian ne le fournit pour l'instant que dans sa branche instable, selon l'article. Pour du matériel hébergé sur site, AMD indique qu'il faut à la fois un micrologiciel de plateforme et une mise à jour du système, avec un possible effet sur les performances. Le microcode figure dans linux-firmware depuis le 23 septembre."
+    },
+    {
+     "type": "usecases",
+     "title": "Exemples d'utilisation",
+     "items": [
+      {
+       "icon": "☁️",
+       "title": "Équipe cloud sur une flotte C4D",
+       "text": "Elle planifie une rotation arrêt/démarrage des instances après publication du correctif de sa distribution, plutôt qu'un simple redémarrage qui laisserait la protection inactive."
+      },
+      {
+       "icon": "🔒",
+       "title": "Éditeur SaaS multilocataire",
+       "text": "Il vérifie que ses charges de travail sensibles tournent sur des VM patchées et note la mitigation dans son registre de risques, en vue d'un audit de conformité."
+      },
+      {
+       "icon": "🖥️",
+       "title": "Entreprise avec serveurs Turin sur site",
+       "text": "Elle coordonne la mise à jour du micrologiciel et du noyau, puis mesure l'impact sur ses charges avant de généraliser."
+      }
+     ]
+    },
+    {
+     "type": "timeline",
+     "title": "D'où l'on vient, où l'on va",
+     "items": [
+      {
+       "label": "8 juillet 2025",
+       "text": "Première divulgation de TSA-SQ et TSA-L1 pour des EPYC antérieurs (bulletin Google GCP-2025-037)."
+      },
+      {
+       "label": "23 septembre 2026",
+       "text": "Microcode pour Zen 5 disponible dans linux-firmware, selon Xen."
+      },
+      {
+       "label": "12 novembre 2026",
+       "text": "Bulletin Google GCP-2026-081 pour les séries à base de Turin."
+      },
+      {
+       "label": "À venir",
+       "text": "Nouvelles images de nœuds GKE et correctifs des distributions encore en attente."
+      }
+     ]
+    },
+    {
+     "type": "opinion",
+     "title": "Notre avis",
+     "paragraphs": [
+      "Ce dossier illustre le coût caché du cloud : la sécurité de la machine virtuelle dépend d'une chaîne que le client ne maîtrise qu'en partie. La consigne d'arrêt et de redémarrage, plutôt qu'un simple reboot, est typiquement le genre de détail qui passe inaperçu et laisse des flottes à moitié protégées.",
+      "D'ici un à trois ans, l'enchaînement de nouvelles familles de processeurs et de variantes de canaux auxiliaires devrait rendre ce type de bulletin routinier. Les équipes auront intérêt à industrialiser la rotation des machines plutôt qu'à la traiter au cas par cas. C'est une projection de notre part."
+     ],
+     "verdict": "Gravité modérée, mais une procédure précise à suivre à la lettre."
+    },
+    {
+     "type": "callout",
+     "title": "À retenir",
+     "text": "Appliquer le correctif du système, puis arrêter et redémarrer chaque VM concernée : un reboot du système invité ne suffit pas."
+    }
+   ],
+   "cover": {
+    "url": "https://blogger.googleusercontent.com/img/b/R29vZ2xl/AVvXsEikEkIc_eg4_tE5XE6CQrLFl74Gk0QwxcqaGXBnDAlitVIbzreq8faf57QtAqFh8rEn7HgTJzvGUZl2yNBhWVKOKo9KqnJHfduQfoT_HqUTlKhE-FzshzDrpIskiMQ3_Lz2hImNMbt9VdCj0O725_WyZsDXDB91phFceXh6Y_qzHgv1nJPMNjv8a7AU52c/s1700-nu-rw-lo-l85-e365/amd.jpg",
+    "alt": "Illustration processeur AMD",
+    "credit": "thehackernews.com"
+   }
+  },
+  {
+   "id": "qwen38-arete-nous-research-post-entrainement",
+   "category": "ia",
+   "title": "Qwen3.8 « rééduqué » : Nous Research et Hirundo retouchent des modèles chinois pour qu'ils répondent sur les sujets censurés",
+   "summary": "Nous Research a post-entraîné Qwen3.8-27B pour créer Arete-27B, et Hirundo a appliqué un « désapprentissage » à un autre modèle Qwen. Les chiffres, auto-déclarés, montrent la fragilité de la couche de censure des modèles à poids ouverts.",
+   "tags": [
+    "Qwen",
+    "Alibaba",
+    "Nous Research",
+    "poids ouverts",
+    "censure"
+   ],
+   "importance": 4,
+   "readingMinutes": 3,
+   "publishedAt": "2026-11-13T04:18:28+01:00",
+   "sourceDate": "2026-11-13",
+   "icon": "🧠",
+   "illustration": {
+    "svg": "<svg xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"0 0 640 360\"><defs><linearGradient id=\"g113\" x1=\"0\" y1=\"0\" x2=\"1\" y2=\"1\"><stop offset=\"0\" stop-color=\"hsl(320,65%,38%)\"/><stop offset=\"1\" stop-color=\"hsl(0,70%,22%)\"/></linearGradient></defs><rect width=\"640\" height=\"360\" fill=\"url(#g113)\"/><circle cx=\"560\" cy=\"40\" r=\"90\" fill=\"#fff\" fill-opacity=\".07\"/><circle cx=\"70\" cy=\"330\" r=\"110\" fill=\"#fff\" fill-opacity=\".06\"/><g fill=\"#fff\" fill-opacity=\".92\"><circle cx=\"270\" cy=\"170\" r=\"62\"/><circle cx=\"350\" cy=\"170\" r=\"62\"/><circle cx=\"310\" cy=\"120\" r=\"50\"/><circle cx=\"310\" cy=\"220\" r=\"50\"/></g><g stroke=\"hsl(320,60%,35%)\" stroke-width=\"7\" fill=\"none\" stroke-linecap=\"round\"><path d=\"M310 90V250M250 150H370M255 200C290 180 330 220 365 195\"/></g></svg>"
+   },
+   "sources": [
+    {
+     "title": "Alibaba's Qwen3.8 re-educated with a more Western worldview",
+     "url": "https://www.theregister.com/ai-and-ml/2026/11/13/alibabas-qwen38-re-educated-with-a-more-western-worldview/5309555",
+     "publisher": "The Register"
+    }
+   ],
+   "blocks": [
+    {
+     "type": "paragraph",
+     "text": "Un modèle à poids ouverts peut être modifié par n'importe qui dispose de la puissance de calcul nécessaire. C'est ce que démontrent deux initiatives relayées le 13 novembre 2026 par The Register : l'une de Nous Research, société texane connue pour son agent Hermes, l'autre de Hirundo. Toutes deux visent à retirer des modèles d'origine chinoise les réponses alignées sur les positions des autorités de Pékin."
+    },
+    {
+     "type": "heading",
+     "level": 2,
+     "text": "Ce qui a été fait"
+    },
+    {
+     "type": "list",
+     "items": [
+      "**Arete-27B** : Nous Research a post-entraîné Qwen3.8-27B (27 milliards de paramètres) avec environ 50 millions de jetons en apprentissage supervisé. Le modèle enseignant est Inkling, un modèle américain à poids ouverts de Thinking Machines Lab. Nemotron 3 Ultra de Nvidia a été écarté en raison de ses résultats jugés irréguliers sur les sujets liés à la Chine.",
+      "**Désapprentissage** : Hirundo a appliqué une technique d'« unlearning » à Qwen3.6-35B-A3B, un autre modèle de la famille, sans passer par un réentraînement complet."
+     ]
+    },
+    {
+     "type": "keyvalue",
+     "items": [
+      {
+       "label": "Score factuel d'Arete-27B",
+       "value": "de 2,32 à 2,98 sur 5, selon Nous Research"
+      },
+      {
+       "label": "Réponses contenant de la propagande",
+       "value": "de 22 % à 1 %, selon Nous Research"
+      },
+      {
+       "label": "Sortie alignée sur le Parti communiste chinois (Hirundo)",
+       "value": "de 89,8 % à 2,8 %"
+      }
+     ]
+    },
+    {
+     "type": "paragraph",
+     "text": "Il faut lire ces chiffres avec prudence : ils sont fournis par les deux sociétés elles-mêmes, sans détail sur les jeux de tests, les consignes ou les juges utilisés. Le journaliste a aussi testé une version quantifiée de Qwen3.8-27B sur les événements de la place Tiananmen en 1989 : le modèle a refusé de répondre ou fourni des réponses édulcorées. Ce test, informel, ne porte que sur une variante. Les notions de « valeurs occidentales » et de « propagande » ne sont pas définies par l'article, qui rappelle qu'elles restent sujettes à interprétation."
+    },
+    {
+     "type": "diagram",
+     "svg": "<svg xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"0 0 640 220\" font-family=\"system-ui,sans-serif\"><rect width=\"640\" height=\"220\" rx=\"16\" fill=\"#f3f5f9\" stroke=\"#c9d0dc\"/><text x=\"320\" y=\"34\" text-anchor=\"middle\" font-size=\"16\" font-weight=\"700\" fill=\"#1b2433\">Du modèle d&#x27;origine à Arete</text><rect x=\"20\" y=\"70\" width=\"127\" height=\"80\" rx=\"12\" fill=\"#ffffff\" stroke=\"#4a6fa5\" stroke-width=\"2\"/><text x=\"84\" y=\"102\" text-anchor=\"middle\" font-size=\"13\" fill=\"#1b2433\">Modèle d&#x27;origine</text><text x=\"84\" y=\"119\" text-anchor=\"middle\" font-size=\"13\" fill=\"#1b2433\">Qwen3.8</text><path d=\"M151 110H174\" stroke=\"#4a6fa5\" stroke-width=\"3\"/><path d=\"M174 104L181 110L174 116Z\" fill=\"#4a6fa5\"/><rect x=\"178\" y=\"70\" width=\"127\" height=\"80\" rx=\"12\" fill=\"#ffffff\" stroke=\"#4a6fa5\" stroke-width=\"2\"/><text x=\"241\" y=\"94\" text-anchor=\"middle\" font-size=\"13\" fill=\"#1b2433\">Modèle</text><text x=\"241\" y=\"111\" text-anchor=\"middle\" font-size=\"13\" fill=\"#1b2433\">enseignant</text><text x=\"241\" y=\"128\" text-anchor=\"middle\" font-size=\"13\" fill=\"#1b2433\">Inkling</text><path d=\"M309 110H331\" stroke=\"#4a6fa5\" stroke-width=\"3\"/><path d=\"M331 104L338 110L331 116Z\" fill=\"#4a6fa5\"/><rect x=\"335\" y=\"70\" width=\"127\" height=\"80\" rx=\"12\" fill=\"#ffffff\" stroke=\"#4a6fa5\" stroke-width=\"2\"/><text x=\"399\" y=\"94\" text-anchor=\"middle\" font-size=\"13\" fill=\"#1b2433\"></text><text x=\"399\" y=\"111\" text-anchor=\"middle\" font-size=\"13\" fill=\"#1b2433\">Post-entraînement</text><text x=\"399\" y=\"128\" text-anchor=\"middle\" font-size=\"13\" fill=\"#1b2433\">50 M de jetons</text><path d=\"M466 110H489\" stroke=\"#4a6fa5\" stroke-width=\"3\"/><path d=\"M489 104L496 110L489 116Z\" fill=\"#4a6fa5\"/><rect x=\"493\" y=\"70\" width=\"127\" height=\"80\" rx=\"12\" fill=\"#ffffff\" stroke=\"#4a6fa5\" stroke-width=\"2\"/><text x=\"556\" y=\"110\" text-anchor=\"middle\" font-size=\"13\" fill=\"#1b2433\">Arete-27B</text><text x=\"320\" y=\"196\" text-anchor=\"middle\" font-size=\"13\" fill=\"#3a4658\">Schéma simplifié du procédé décrit par Nous Research</text></svg>",
+     "alt": "Schéma en quatre étapes : modèle Qwen, enseignant Inkling, post-entraînement, Arete-27B.",
+     "caption": "Procédé décrit : un enseignant américain guide la reformulation des réponses du modèle chinois."
+    },
+    {
+     "type": "heading",
+     "level": 2,
+     "text": "Les enjeux de sécurité et de confiance"
+    },
+    {
+     "type": "paragraph",
+     "text": "L'article rapporte aussi deux arguments avancés dans le débat : une étude de Booz Allen Hamilton de mai 2026 selon laquelle certains modèles chinois produiraient du code plus vulnérable dans certaines conditions, et l'accusation d'Anthropic selon laquelle des opérateurs liés à Qwen auraient utilisé les sorties de Claude pour entraîner des modèles concurrents par distillation. Ces affirmations sont relayées sans confirmation indépendante."
+    },
+    {
+     "type": "usecases",
+     "title": "Exemples d'utilisation",
+     "items": [
+      {
+       "icon": "🏛️",
+       "title": "Administration ou collectivité",
+       "text": "Elle souhaite un assistant local pour traiter des documents ; la possibilité de ré-aligner un modèle ouvert lui permet d'évaluer, sur ses propres cas, les biais avant de l'adopter."
+      },
+      {
+       "icon": "🔬",
+       "title": "Laboratoire de recherche",
+       "text": "Il compare l'original, Arete et la version désapprise pour mesurer à quelle profondeur la censure est ancrée, ce qui alimente la recherche sur l'alignement."
+      },
+      {
+       "icon": "🏢",
+       "title": "Entreprise européenne",
+       "text": "Elle doit documenter dans sa conformité au règlement européen sur l'IA les modifications apportées à un modèle tiers qu'elle déploie ; un post-entraînement ajoute cette obligation de traçabilité."
+      }
+     ]
+    },
+    {
+     "type": "timeline",
+     "title": "D'où l'on vient, où l'on va",
+     "items": [
+      {
+       "label": "Mai 2026",
+       "text": "Étude Booz Allen Hamilton sur la qualité du code de certains modèles chinois."
+      },
+      {
+       "label": "13 novembre 2026",
+       "text": "Nous Research présente Arete-27B et Hirundo ses résultats de désapprentissage."
+      },
+      {
+       "label": "À venir",
+       "text": "Évaluations indépendantes : rien n'est annoncé dans la source."
+      }
+     ]
+    },
+    {
+     "type": "opinion",
+     "title": "Notre avis",
+     "paragraphs": [
+      "Ces expériences confirment que la « couche de propagande » est peu profonde, comme l'affirme Nous Research : quelques dizaines de millions de jetons suffisent à la déplacer. Mais cela vaut dans les deux sens. Si l'on peut retirer un biais, on peut aussi en injecter un autre, ce qui rend la notion de modèle « neutre » plus floue, pas plus claire.",
+      "D'ici un à trois ans, le ré-alignement local deviendra une étape normale du déploiement des modèles ouverts, accompagnée d'audits tiers. Sans méthodologie publique et reproductible, les chiffres actuels resteront des arguments commerciaux. C'est une analyse de notre part."
+     ],
+     "verdict": "Utile à tester, mais des chiffres auto-déclarés ne sont pas une preuve."
+    },
+    {
+     "type": "callout",
+     "title": "À retenir",
+     "text": "Les résultats d'Arete et du désapprentissage sont auto-déclarés ; attendre des évaluations indépendantes avant d'en tirer des conclusions."
+    }
+   ],
+   "cover": {
+    "url": "https://image.theregister.com/5305565.jpg",
+    "alt": "Illustration The Register sur Qwen3.8",
+    "credit": "theregister.com"
+   }
+  },
+  {
+   "id": "openai-daybreak-securite-poursuite-ong",
+   "category": "ia",
+   "title": "OpenAI lance Daybreak Red Team et Defense Factory, alors que des ONG assignent les grands laboratoires d'IA en justice",
+   "summary": "OpenAI présente deux produits de sécurité fondés sur ses modèles, dont GPT-6 Cyber, tandis que quatre organisations demandent à un tribunal de San Francisco de bloquer le développement de systèmes plus puissants.",
+   "tags": [
+    "OpenAI",
+    "Daybreak",
+    "GPT-6 Cyber",
+    "cybersécurité",
+    "procès"
+   ],
+   "importance": 4,
+   "readingMinutes": 4,
+   "publishedAt": "2026-11-13T04:18:28+01:00",
+   "sourceDate": "2026-11-12",
+   "icon": "🧯",
+   "illustration": {
+    "svg": "<svg xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"0 0 640 360\"><defs><linearGradient id=\"g892\" x1=\"0\" y1=\"0\" x2=\"1\" y2=\"1\"><stop offset=\"0\" stop-color=\"hsl(320,65%,38%)\"/><stop offset=\"1\" stop-color=\"hsl(0,70%,22%)\"/></linearGradient></defs><rect width=\"640\" height=\"360\" fill=\"url(#g892)\"/><circle cx=\"560\" cy=\"40\" r=\"90\" fill=\"#fff\" fill-opacity=\".07\"/><circle cx=\"70\" cy=\"330\" r=\"110\" fill=\"#fff\" fill-opacity=\".06\"/><path d=\"M320 70 L420 105 V190 C420 250 370 290 320 305 C270 290 220 250 220 190 V105 Z\" fill=\"#fff\" fill-opacity=\".9\"/><path d=\"M280 185 l30 30 55-65\" stroke=\"hsl(320,60%,35%)\" stroke-width=\"16\" fill=\"none\" stroke-linecap=\"round\" stroke-linejoin=\"round\"/></svg>"
+   },
+   "sources": [
+    {
+     "title": "OpenAI launches security products, tells orgs they're doomed if they don't use them",
+     "url": "https://www.theregister.com/security/2026/11/12/openai-launches-security-products-tells-orgs-theyre-doomed-if-they-dont-use-them/5309500",
+     "publisher": "The Register"
+    }
+   ],
+   "blocks": [
+    {
+     "type": "paragraph",
+     "text": "Le 12 novembre 2026, OpenAI a présenté deux produits de sécurité regroupés sous le nom **Daybreak**, lors d'une keynote où son président Greg Brockman a défendu l'idée que les organisations ne seraient en sécurité que « dans la mesure » où elles utilisent un modèle de pointe. The Register, qui relate l'annonce, note l'ironie d'un discours commercial tenu par une société dont les modèles ont été impliqués dans un incident de sécurité."
+    },
+    {
+     "type": "heading",
+     "level": 2,
+     "text": "Les deux produits"
+    },
+    {
+     "type": "keyvalue",
+     "items": [
+      {
+       "label": "Daybreak Red Team",
+       "value": "Accès anticipé. Teste les applications web d'une entreprise ; valide les vulnérabilités signalées par des scanneurs, des programmes de prime aux bogues ou des divulgations ; teste ensuite les correctifs."
+      },
+      {
+       "label": "Daybreak Defense Factory",
+       "value": "Boucle défensive automatisée : trouver, valider et corriger à grande échelle ; des agents fondés sur GPT-6 Cyber analysent le code et rédigent des correctifs."
+      },
+      {
+       "label": "Livrable",
+       "value": "Une demande de fusion (pull request) avec correctif et test, approuvée par des ingénieurs avant la mise en production"
+      },
+      {
+       "label": "Prix et disponibilité",
+       "value": "Aucun prix annoncé ; seule la disponibilité en accès anticipé de Red Team est indiquée"
+      }
+     ]
+    },
+    {
+     "type": "paragraph",
+     "text": "Nancy Wang, responsable de l'IA appliquée à la cybersécurité chez OpenAI, a décrit Red Team comme un test d'intrusion « surhumain » à l'échelle d'un balayage continu. L'argument est que le volume d'alertes dépasse déjà la capacité de tri humaine, et que l'IA doit absorber la validation et la rédaction de correctifs. Brockman a aussi rappelé que les fondamentaux de sécurité restent importants."
+    },
+    {
+     "type": "heading",
+     "level": 2,
+     "text": "Un contexte judiciaire tendu"
+    },
+    {
+     "type": "paragraph",
+     "text": "Le même jour, quatre organisations (Irreplaceable Education Fund, Public Citizen, Heat Initiative et The Alliance for Secure AI) ont déposé plainte devant la Cour supérieure de San Francisco contre les activités d'IA d'OpenAI, Anthropic, Google, Meta et SpaceX. Elles demandent une ordonnance interdisant de développer ou de déployer des systèmes plus performants que les plus avancés existants. La plainte cite des accès d'agents d'OpenAI à Hugging Face, un accès non autorisé à un portail du gouvernement australien contenant des statistiques de l'assurance maladie, et d'autres incidents. Elle reprend les avertissements des entreprises elles-mêmes sur des risques catastrophiques, qu'elles « n'ont pas tort » de formuler selon le texte."
+    },
+    {
+     "type": "paragraph",
+     "text": "L'issue d'une telle demande est incertaine, et la source ne précise ni calendrier ni réaction des défendeurs. Pour les entreprises françaises, le sujet croise le règlement européen sur l'IA et NIS2 : la supervision humaine des correctifs proposés, qu'OpenAI met en avant, correspond à ce que ces cadres demandent pour les systèmes sensibles."
+    },
+    {
+     "type": "usecases",
+     "title": "Exemples d'utilisation",
+     "items": [
+      {
+       "icon": "🧪",
+       "title": "Équipe de sécurité applicative",
+       "text": "Elle confie à un outil de test continu la validation des alertes de son scanneur, et ne garde pour revue humaine que les failles confirmées, ce qui réduit le bruit."
+      },
+      {
+       "icon": "🛠️",
+       "title": "Éditeur logiciel",
+       "text": "Il utilise un flux automatique de correctifs pour traiter son arriéré de failles mineures, en exigeant qu'un développeur relise chaque demande de fusion."
+      },
+      {
+       "icon": "⚖️",
+       "title": "Direction juridique",
+       "text": "Elle suit la procédure californienne pour anticiper d'éventuelles restrictions d'accès aux modèles utilisés dans ses outils de sécurité."
+      }
+     ]
+    },
+    {
+     "type": "timeline",
+     "title": "D'où l'on vient, où l'on va",
+     "items": [
+      {
+       "label": "2026",
+       "text": "Plusieurs incidents impliquant des agents d'IA sont cités par la plainte."
+      },
+      {
+       "label": "12 novembre 2026",
+       "text": "Annonce de Daybreak et dépôt de la plainte à San Francisco."
+      },
+      {
+       "label": "À venir",
+       "text": "Ouverture de Red Team à davantage de clients et réponses des défendeurs : aucune date annoncée."
+      }
+     ]
+    },
+    {
+     "type": "opinion",
+     "title": "Notre avis",
+     "paragraphs": [
+      "Vendre à la fois l'alerte et le remède est un modèle qui a toujours existé en sécurité, mais ici la tension est plus forte : le même fournisseur nourrit le risque, la demande de défense et, indirectement, les procès. L'automatisation de la correction est prometteuse, à condition que la validation humaine reste réelle et que l'on mesure les faux positifs et les régressions introduites.",
+      "À un à trois ans, la défense continue pilotée par IA devrait devenir un standard des chaînes de livraison, tout comme les attaquants s'équiperont de la même façon. Le procès, lui, relève du débat politique plus que technique : une interdiction judiciaire d'entraîner des modèles plus puissants reste peu probable. Cette appréciation est une opinion."
+     ],
+     "verdict": "Des outils utiles, un discours commercial à manier avec recul."
+    },
+    {
+     "type": "callout",
+     "title": "À retenir",
+     "text": "Aucun prix ni date de disponibilité générale n'est donné ; les correctifs automatiques doivent rester relus par des humains."
+    }
+   ]
+  },
+  {
+   "id": "aws-emulator-local-rust",
+   "category": "devops",
+   "title": "AWS Emulator : Amazon publie un émulateur local en Rust pour tester du code cloud sans appeler le cloud",
+   "summary": "Le programme aws-emulator expose un point d'accès d'API AWS sur le poste du développeur ou dans l'intégration continue. Il couvre les services décrits dans le dépôt de modèles d'API, sans évaluer les politiques IAM comme le fait AWS.",
+   "tags": [
+    "AWS",
+    "émulateur",
+    "Rust",
+    "intégration continue",
+    "tests"
+   ],
+   "importance": 4,
+   "readingMinutes": 3,
+   "publishedAt": "2026-11-13T04:18:28+01:00",
+   "sourceDate": "2026-11-12",
+   "icon": "🧪",
+   "illustration": {
+    "svg": "<svg xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"0 0 640 360\"><defs><linearGradient id=\"g403\" x1=\"0\" y1=\"0\" x2=\"1\" y2=\"1\"><stop offset=\"0\" stop-color=\"hsl(160,65%,38%)\"/><stop offset=\"1\" stop-color=\"hsl(200,70%,22%)\"/></linearGradient></defs><rect width=\"640\" height=\"360\" fill=\"url(#g403)\"/><circle cx=\"560\" cy=\"40\" r=\"90\" fill=\"#fff\" fill-opacity=\".07\"/><circle cx=\"70\" cy=\"330\" r=\"110\" fill=\"#fff\" fill-opacity=\".06\"/><g fill=\"#fff\" fill-opacity=\".93\"><circle cx=\"270\" cy=\"190\" r=\"55\"/><circle cx=\"340\" cy=\"160\" r=\"70\"/><circle cx=\"410\" cy=\"200\" r=\"48\"/><rect x=\"250\" y=\"190\" width=\"180\" height=\"58\" rx=\"10\"/></g><g stroke=\"#fff\" stroke-width=\"6\" stroke-linecap=\"round\"><path d=\"M290 270V300M340 270V310M390 270V300\"/></g></svg>"
+   },
+   "sources": [
+    {
+     "title": "AWS distills its cloud into a local emulator that runs on your PC",
+     "url": "https://www.theregister.com/off-prem/2026/11/12/aws-distills-its-cloud-into-a-local-emulator-that-runs-on-your-pc/5309251",
+     "publisher": "The Register"
+    }
+   ],
+   "blocks": [
+    {
+     "type": "paragraph",
+     "text": "Tester une application conçue pour le cloud oblige souvent à déployer de vraies ressources, ce qui coûte du temps, de l'argent et complique l'intégration continue. Le 12 novembre 2026, The Register a rendu compte de la publication par AWS d'un émulateur local, **aws-emulator**, disponible sur GitHub. Son principe : un programme local qui sert un point d'accès d'API AWS, vers lequel on redirige le SDK habituel."
+    },
+    {
+     "type": "heading",
+     "level": 2,
+     "text": "Ce que fait l'outil"
+    },
+    {
+     "type": "keyvalue",
+     "items": [
+      {
+       "label": "Langage",
+       "value": "Rust, présenté comme sobre en processeur et en mémoire sur un portable"
+      },
+      {
+       "label": "Couverture",
+       "value": "Services disposant d'un modèle d'API dans le dépôt aws/api-models-aws (plus de 1 300 éléments selon The Register), sans réplication du cloud complet"
+      },
+      {
+       "label": "Fidélité",
+       "value": "AWS publie un score par service ; objectif : mêmes résultats pour les appels valides, mêmes erreurs pour les appels invalides"
+      },
+      {
+       "label": "Distribution",
+       "value": "Paquets RPM et Debian ; sur Mac et PC, Docker et une image de l'émulateur"
+      },
+      {
+       "label": "Coût",
+       "value": "Gratuit pour les tests qui n'appellent pas le cloud AWS"
+      },
+      {
+       "label": "Licence",
+       "value": "Non précisée par l'article"
+      }
+     ]
+    },
+    {
+     "type": "paragraph",
+     "text": "Au démarrage, l'émulateur génère des identifiants, un fichier de configuration et un certificat dans un répertoire dédié sous `~/.aws/emulator/`. Il suffit ensuite de pointer le SDK vers le point d'accès local par des variables d'environnement, sans modifier le code de l'application. Un « skill » destiné aux agents de programmation permet en outre de vérifier quelles parties d'un projet se comporteront comme chez AWS."
+    },
+    {
+     "type": "diagram",
+     "svg": "<svg xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"0 0 640 220\" font-family=\"system-ui,sans-serif\"><rect width=\"640\" height=\"220\" rx=\"16\" fill=\"#f3f5f9\" stroke=\"#c9d0dc\"/><text x=\"320\" y=\"34\" text-anchor=\"middle\" font-size=\"16\" font-weight=\"700\" fill=\"#1b2433\">Principe de fonctionnement</text><rect x=\"20\" y=\"70\" width=\"127\" height=\"80\" rx=\"12\" fill=\"#ffffff\" stroke=\"#4a6fa5\" stroke-width=\"2\"/><text x=\"84\" y=\"102\" text-anchor=\"middle\" font-size=\"13\" fill=\"#1b2433\">Application et</text><text x=\"84\" y=\"119\" text-anchor=\"middle\" font-size=\"13\" fill=\"#1b2433\">SDK AWS</text><path d=\"M151 110H174\" stroke=\"#4a6fa5\" stroke-width=\"3\"/><path d=\"M174 104L181 110L174 116Z\" fill=\"#4a6fa5\"/><rect x=\"178\" y=\"70\" width=\"127\" height=\"80\" rx=\"12\" fill=\"#ffffff\" stroke=\"#4a6fa5\" stroke-width=\"2\"/><text x=\"241\" y=\"102\" text-anchor=\"middle\" font-size=\"13\" fill=\"#1b2433\">Variables</text><text x=\"241\" y=\"119\" text-anchor=\"middle\" font-size=\"13\" fill=\"#1b2433\">d&#x27;environnement</text><path d=\"M309 110H331\" stroke=\"#4a6fa5\" stroke-width=\"3\"/><path d=\"M331 104L338 110L331 116Z\" fill=\"#4a6fa5\"/><rect x=\"335\" y=\"70\" width=\"127\" height=\"80\" rx=\"12\" fill=\"#ffffff\" stroke=\"#4a6fa5\" stroke-width=\"2\"/><text x=\"399\" y=\"102\" text-anchor=\"middle\" font-size=\"13\" fill=\"#1b2433\">aws-emulator</text><text x=\"399\" y=\"119\" text-anchor=\"middle\" font-size=\"13\" fill=\"#1b2433\">local</text><path d=\"M466 110H489\" stroke=\"#4a6fa5\" stroke-width=\"3\"/><path d=\"M489 104L496 110L489 116Z\" fill=\"#4a6fa5\"/><rect x=\"493\" y=\"70\" width=\"127\" height=\"80\" rx=\"12\" fill=\"#ffffff\" stroke=\"#4a6fa5\" stroke-width=\"2\"/><text x=\"556\" y=\"110\" text-anchor=\"middle\" font-size=\"13\" fill=\"#1b2433\">Tests sans cloud</text><text x=\"320\" y=\"196\" text-anchor=\"middle\" font-size=\"13\" fill=\"#3a4658\">Même code, point d&#x27;accès différent</text></svg>",
+     "alt": "Schéma : l'application utilise le SDK, redirigé par variables d'environnement vers l'émulateur local.",
+     "caption": "L'émulateur remplace le point d'accès AWS le temps des tests."
+    },
+    {
+     "type": "heading",
+     "level": 2,
+     "text": "Les limites à connaître"
+    },
+    {
+     "type": "list",
+     "items": [
+      "L'émulateur n'évalue pas les politiques IAM comme AWS : un test qui passe en local peut échouer en production pour un défaut de permissions.",
+      "Chaque instance se comporte comme un compte unique, sans comportement inter-comptes ni inter-régions.",
+      "La fidélité varie selon les services et les fonctionnalités, d'où l'intérêt des scores publiés."
+     ]
+    },
+    {
+     "type": "paragraph",
+     "text": "L'article ne compare pas l'outil aux solutions tierces existantes, ni ne détaille la licence : ces deux points seront décisifs pour son adoption dans les équipes qui utilisent déjà d'autres émulateurs."
+    },
+    {
+     "type": "usecases",
+     "title": "Exemples d'utilisation",
+     "items": [
+      {
+       "icon": "🚦",
+       "title": "Pipeline d'intégration continue",
+       "text": "Une équipe remplace ses déploiements de test par l'émulateur lancé dans le conteneur de build, ce qui rend les tests plus rapides, reproductibles et sans coût."
+      },
+      {
+       "icon": "🧑‍💻",
+       "title": "Développeur en déplacement",
+       "text": "Il écrit et débogue une fonction qui manipule des files et du stockage dans le train, sans connexion ni compte cloud."
+      },
+      {
+       "icon": "🎓",
+       "title": "Formation",
+       "text": "Un organisme de formation fait pratiquer des services AWS à des stagiaires sans risque de facture imprévue."
+      }
+     ]
+    },
+    {
+     "type": "timeline",
+     "title": "D'où l'on vient, où l'on va",
+     "items": [
+      {
+       "label": "2026",
+       "text": "Les équipes combinent émulateurs locaux, comptes de test et environnements éphémères."
+      },
+      {
+       "label": "12 novembre 2026",
+       "text": "Publication d'aws-emulator sur GitHub, selon The Register."
+      },
+      {
+       "label": "À venir",
+       "text": "Évolution des scores de fidélité et clarification de la licence : à suivre."
+      }
+     ]
+    },
+    {
+     "type": "opinion",
+     "title": "Notre avis",
+     "paragraphs": [
+      "Le fait qu'AWS fournisse lui-même l'émulateur change la donne : l'écart entre le comportement local et le cloud réel devient la responsabilité du fournisseur, avec des scores publics, ce qui est plus rassurant que l'effort bénévole d'un projet tiers. L'absence d'évaluation IAM reste toutefois la limite majeure, car beaucoup de pannes en production viennent des permissions.",
+      "À un à trois ans, on peut s'attendre à ce que les émulateurs officiels deviennent un maillon standard de l'intégration continue, avec des suites de tests distinguant ce qui se vérifie en local de ce qui exige un compte réel. Il s'agit d'une projection, non d'un fait annoncé."
+     ],
+     "verdict": "Un gain de temps réel, à condition de ne pas oublier que le cloud réel reste l'arbitre."
+    },
+    {
+     "type": "callout",
+     "title": "À retenir",
+     "text": "Gratuit et local, mais sans évaluation IAM : garder des tests sur un vrai compte pour les permissions."
+    }
+   ]
+  },
+  {
+   "id": "microsoft-365-panne-exchange-intune",
+   "category": "devops",
+   "title": "Microsoft 365 : une panne majeure touche Exchange Online, Teams, Copilot et les consoles d'administration",
+   "summary": "Depuis environ 18 h UTC le 12 novembre 2026, des serveurs échouent aux contrôles de santé automatiques. Microsoft a restauré une partie du service avec une méthode de contrôle alternative, mais n'a pas donné d'échéance de retour complet.",
+   "tags": [
+    "Microsoft 365",
+    "Exchange Online",
+    "Intune",
+    "panne",
+    "cloud"
+   ],
+   "importance": 5,
+   "readingMinutes": 3,
+   "publishedAt": "2026-11-13T04:18:28+01:00",
+   "sourceDate": "2026-11-12",
+   "icon": "📧",
+   "illustration": {
+    "svg": "<svg xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"0 0 640 360\"><defs><linearGradient id=\"g401\" x1=\"0\" y1=\"0\" x2=\"1\" y2=\"1\"><stop offset=\"0\" stop-color=\"hsl(160,65%,38%)\"/><stop offset=\"1\" stop-color=\"hsl(200,70%,22%)\"/></linearGradient></defs><rect width=\"640\" height=\"360\" fill=\"url(#g401)\"/><circle cx=\"560\" cy=\"40\" r=\"90\" fill=\"#fff\" fill-opacity=\".07\"/><circle cx=\"70\" cy=\"330\" r=\"110\" fill=\"#fff\" fill-opacity=\".06\"/><g fill=\"#fff\" fill-opacity=\".93\"><circle cx=\"270\" cy=\"190\" r=\"55\"/><circle cx=\"340\" cy=\"160\" r=\"70\"/><circle cx=\"410\" cy=\"200\" r=\"48\"/><rect x=\"250\" y=\"190\" width=\"180\" height=\"58\" rx=\"10\"/></g><g stroke=\"#fff\" stroke-width=\"6\" stroke-linecap=\"round\"><path d=\"M290 270V300M340 270V310M390 270V300\"/></g></svg>"
+   },
+   "sources": [
+    {
+     "title": "Microsoft struggling to fix massive cloud outage that's taken down email and Intune",
+     "url": "https://www.theregister.com/saas/2026/11/12/microsoft-struggling-to-fix-massive-cloud-outage-thats-taken-down-email-and-intune/5309531",
+     "publisher": "The Register"
+    }
+   ],
+   "blocks": [
+    {
+     "type": "paragraph",
+     "text": "Une panne de grande ampleur a touché dans la nuit du 12 au 13 novembre 2026 plusieurs services du cloud Microsoft, dont Exchange Online, Teams, Copilot 365 et Defender pour Office 365. Selon The Register, qui suit l'incident, les consoles d'administration Intune et le centre d'administration des applications Microsoft 365 étaient eux aussi hors service, ce qui a compliqué le diagnostic pour les clients."
+    },
+    {
+     "type": "heading",
+     "level": 2,
+     "text": "Chronologie et causes avancées"
+    },
+    {
+     "type": "table",
+     "headers": [
+      "Moment",
+      "Événement"
+     ],
+     "rows": [
+      [
+       "12 novembre, vers 18 h UTC",
+       "Début de l'incident"
+      ],
+      [
+       "Vers 22 h UTC",
+       "Microsoft valide une autre méthode de contrôle de santé des services, qui remet en ligne un sous-ensemble de serveurs"
+      ],
+      [
+       "Ensuite",
+       "Les actions n'apportent pas le soulagement attendu ; isolement d'une partie de l'infrastructure, redémarrage des composants, réintroduction progressive du trafic"
+      ],
+      [
+       "13 novembre, 0 h 35 UTC",
+       "Certains serveurs sont revenus en ligne mais pourraient redevenir injoignables dès qu'ils reçoivent du trafic"
+      ]
+     ]
+    },
+    {
+     "type": "paragraph",
+     "text": "Microsoft décrit un problème qui fait échouer des serveurs aux contrôles de santé automatiques et les rend indisponibles. L'enquête pointe un composant chargé de traiter la santé des serveurs, et un processus central, sur les serveurs touchés, qui serait saturé, ce qui les rend muets et réduit la capacité. Aucune modification déclenchante n'a été identifiée, aucun nombre d'utilisateurs concernés n'est communiqué, et aucun calendrier de rétablissement n'est donné."
+    },
+    {
+     "type": "heading",
+     "level": 2,
+     "text": "Ce que cela implique pour les entreprises"
+    },
+    {
+     "type": "paragraph",
+     "text": "Pour de nombreuses organisations, le courrier électronique est le principal canal de communication, et la perte simultanée des consoles d'administration prive les équipes informatiques de leurs leviers habituels. Les clients doivent suivre le tableau de bord d'état du service de leur locataire, prévenir leurs utilisateurs par un autre canal et éviter les actions de remédiation locales risquées, tant que Microsoft n'a pas confirmé le retour à la normale."
+    },
+    {
+     "type": "paragraph",
+     "text": "Les pannes de cette ampleur sont rares mais coûteuses : la messagerie porte les factures, les validations, les échanges avec les clients et les alertes de sécurité elles-mêmes. Lorsque Defender pour Office 365 est touché, une partie des protections contre l'hameçonnage peut aussi se trouver dégradée, ce qui impose de redoubler de vigilance sur les messages reçus une fois le service rétabli. Les organisations qui ont déjà un plan de continuité testé savent à quel moment basculer ; les autres improvisent, souvent sur des outils personnels, au détriment de la confidentialité."
+    },
+    {
+     "type": "usecases",
+     "title": "Exemples d'utilisation",
+     "items": [
+      {
+       "icon": "🏢",
+       "title": "PME dépendante d'Exchange Online",
+       "text": "Elle bascule les messages urgents sur un autre canal (téléphone, messagerie alternative) et documente l'impact pour ses clients, en attendant la reprise."
+      },
+      {
+       "icon": "🛠️",
+       "title": "Service informatique",
+       "text": "Il vérifie que ses procédures d'urgence ne dépendent pas des consoles hébergées sur le même cloud, une leçon directe de cette panne."
+      },
+      {
+       "icon": "📋",
+       "title": "Responsable conformité",
+       "text": "Il consigne la durée de l'indisponibilité pour d'éventuelles obligations de notification ou de continuité d'activité, notamment dans les secteurs régulés."
+      }
+     ]
+    },
+    {
+     "type": "timeline",
+     "title": "D'où l'on vient, où l'on va",
+     "items": [
+      {
+       "label": "12 novembre 2026, 18 h UTC",
+       "text": "Début de l'incident, d'après Microsoft."
+      },
+      {
+       "label": "12 novembre 2026, 22 h UTC",
+       "text": "Premier retour d'un sous-ensemble de serveurs."
+      },
+      {
+       "label": "13 novembre 2026, 0 h 35 UTC",
+       "text": "Retour partiel, avec risque de nouvelle saturation."
+      },
+      {
+       "label": "À venir",
+       "text": "Rapport post-incident attendu de l'éditeur : date non communiquée."
+      }
+     ]
+    },
+    {
+     "type": "opinion",
+     "title": "Notre avis",
+     "paragraphs": [
+      "Cette panne rappelle que la redondance annoncée par un grand fournisseur ne protège pas d'une défaillance commune de ses mécanismes de supervision. Quand le contrôle de santé qui doit protéger le service est lui-même la cause de l'indisponibilité, la résilience s'effondre en cascade.",
+      "À un à trois ans, la pression devrait augmenter pour que les clients disposent de plans de continuité indépendants du fournisseur principal : messagerie de secours, consoles hors bande, exercices réguliers. Cette lecture est une opinion et non une annonce de Microsoft."
+     ],
+     "verdict": "Un rappel utile : prévoir ce qu'on fait le jour où le cloud principal est muet."
+    },
+    {
+     "type": "callout",
+     "title": "À retenir",
+     "text": "L'incident n'était pas clos à la dernière mise à jour connue ; consulter l'état de service officiel de son locataire."
+    }
+   ]
+  },
+  {
+   "id": "freebsd-rapport-t3-2026-sondage-ia",
+   "category": "dev",
+   "title": "FreeBSD : le rapport du troisième trimestre 2026 révèle un sondage sur l'IA, 88 % des développeurs voulant une règle",
+   "summary": "Le rapport couvre 51 entrées et 16 projets. Le sondage interne de 140 réponses montre un soutien massif à une politique encadrant le code assisté par IA, avec divulgation et relecture humaine obligatoires, sans interdiction générale.",
+   "tags": [
+    "FreeBSD",
+    "IA",
+    "logiciel libre",
+    "politique de contribution",
+    "Sylve"
+   ],
+   "importance": 3,
+   "readingMinutes": 3,
+   "publishedAt": "2026-11-13T04:18:28+01:00",
+   "sourceDate": "2026-11-12",
+   "icon": "😈",
+   "illustration": {
+    "svg": "<svg xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"0 0 640 360\"><defs><linearGradient id=\"g565\" x1=\"0\" y1=\"0\" x2=\"1\" y2=\"1\"><stop offset=\"0\" stop-color=\"hsl(265,65%,38%)\"/><stop offset=\"1\" stop-color=\"hsl(305,70%,22%)\"/></linearGradient></defs><rect width=\"640\" height=\"360\" fill=\"url(#g565)\"/><circle cx=\"560\" cy=\"40\" r=\"90\" fill=\"#fff\" fill-opacity=\".07\"/><circle cx=\"70\" cy=\"330\" r=\"110\" fill=\"#fff\" fill-opacity=\".06\"/><g stroke=\"#fff\" stroke-width=\"18\" fill=\"none\" stroke-linecap=\"round\" stroke-linejoin=\"round\"><path d=\"M250 120 L180 180 L250 240\"/><path d=\"M390 120 L460 180 L390 240\"/><path d=\"M345 100 L295 260\" stroke-opacity=\".85\"/></g></svg>"
+   },
+   "sources": [
+    {
+     "title": "The latest FreeBSD report is here, and the AI debate is ongoing",
+     "url": "https://www.theregister.com/os-platforms/2026/11/12/the-latest-freebsd-report-is-here-and-the-ai-debate-is-ongoing/5309206",
+     "publisher": "The Register"
+    }
+   ],
+   "blocks": [
+    {
+     "type": "paragraph",
+     "text": "Le projet FreeBSD publie chaque trimestre un rapport d'activité. Celui du troisième trimestre 2026, couvrant juillet à septembre, rassemble 51 entrées issues de cinq équipes et de 16 projets, plus six sections détaillées. The Register, sous la plume de Liam Proven, en retient surtout le sondage interne sur l'IA, qui alimente un débat ouvert depuis septembre 2025 sans politique définitive à ce jour."
+    },
+    {
+     "type": "heading",
+     "level": 2,
+     "text": "Un sondage de 140 réponses"
+    },
+    {
+     "type": "table",
+     "headers": [
+      "Question",
+      "Résultat"
+     ],
+     "rows": [
+      [
+       "Veulent une politique",
+       "88 % (49 % formelle et écrite, 39 % simples bonnes pratiques)"
+      ],
+      [
+       "Souhaitent décourager explicitement l'IA",
+       "6 %"
+      ],
+      [
+       "Estiment les règles actuelles suffisantes",
+       "3 %"
+      ],
+      [
+       "Veulent la divulgation de l'usage de l'IA",
+       "84 % (48 % toujours, 36 % si l'apport est significatif)"
+      ],
+      [
+       "Veulent un marquage dans le journal des commits",
+       "79 %"
+      ],
+      [
+       "Relecture humaine obligatoire",
+       "78 %"
+      ],
+      [
+       "Principe jugé prioritaire : responsabilité d'un humain",
+       "91 %"
+      ]
+     ]
+    },
+    {
+     "type": "paragraph",
+     "text": "Sur le code assisté par IA lui-même, 35 % pensent qu'il doit être signalé, 25 % qu'il appelle une relecture plus stricte que le code humain, 22 % qu'il doit être traité comme les autres contributions et 16 % qu'il doit être rejeté. Les inquiétudes principales portent sur la justesse et les bogues subtils (39 %), l'origine et les licences (26 %) puis la maintenabilité (21 %). Trois quarts des répondants se disent au moins assez préoccupés par le droit d'auteur."
+    },
+    {
+     "type": "heading",
+     "level": 2,
+     "text": "Les autres systèmes et l'avis du journaliste"
+    },
+    {
+     "type": "paragraph",
+     "text": "L'article rappelle que NetBSD a interdit le code généré par IA en 2024, que la présentation d'OpenBSD 8.0, en octobre 2026, raille les utilisateurs d'IA, et que Debian a voté en août 2026 pour autoriser ses contributeurs à utiliser ces outils. Il prédit que FreeBSD suivra probablement Debian : prudence et autorisation. Il s'agit d'une opinion de l'auteur, non d'une décision du projet."
+    },
+    {
+     "type": "heading",
+     "level": 2,
+     "text": "Côté technique"
+    },
+    {
+     "type": "list",
+     "items": [
+      "**Sylve** : une interface graphique pour gérer des hôtes de virtualisation FreeBSD, comparée à Proxmox.",
+      "**AppJail** : un système de distribution d'applications conteneurisées, y compris graphiques, comparable à Snap, Flatpak ou AppImage sur Linux."
+     ]
+    },
+    {
+     "type": "paragraph",
+     "text": "Le rapport trimestriel est aussi un document de confiance : il montre comment un projet bénévole organise ses priorités, entre la maintenance du noyau, la virtualisation, les conteneurs et les outils de construction. Le sondage, lui, n'a pas valeur de vote : il éclaire le travail de l'équipe centrale, à qui il revient de rédiger une règle et de la faire accepter. Les 140 réponses, par ailleurs, ne représentent qu'une partie de la communauté, ce qu'il faut garder en tête avant de généraliser."
+    },
+    {
+     "type": "usecases",
+     "title": "Exemples d'utilisation",
+     "items": [
+      {
+       "icon": "🧑‍💻",
+       "title": "Contributeur occasionnel",
+       "text": "Il saura, avant de proposer un correctif écrit avec un assistant, qu'une mention dans le message de commit sera probablement attendue."
+      },
+      {
+       "icon": "🏢",
+       "title": "Entreprise utilisant FreeBSD en production",
+       "text": "Elle suit la future politique pour évaluer le risque juridique lié aux licences et à l'origine du code qu'elle intègre."
+      },
+      {
+       "icon": "🧰",
+       "title": "Administrateur système",
+       "text": "Il teste Sylve pour piloter ses machines virtuelles sans quitter l'écosystème FreeBSD."
+      }
+     ]
+    },
+    {
+     "type": "timeline",
+     "title": "D'où l'on vient, où l'on va",
+     "items": [
+      {
+       "label": "2024",
+       "text": "NetBSD interdit le code généré par IA."
+      },
+      {
+       "label": "Septembre 2025",
+       "text": "Début du débat FreeBSD sur l'IA."
+      },
+      {
+       "label": "Août 2026",
+       "text": "Debian autorise ses contributeurs à utiliser des outils d'IA."
+      },
+      {
+       "label": "12 novembre 2026",
+       "text": "Publication du rapport du troisième trimestre et des résultats du sondage."
+      }
+     ]
+    },
+    {
+     "type": "opinion",
+     "title": "Notre avis",
+     "paragraphs": [
+      "Le résultat le plus parlant n'est pas la part des opposants, minoritaires, mais le consensus sur la forme : transparence et responsabilité humaine. Cela déplace la question de « pour ou contre » vers « comment tracer et relire », ce qui est plus praticable pour un projet bénévole.",
+      "À un à trois ans, la plupart des grands projets devraient converger vers des règles de divulgation, avec des différences sur les licences et la traçabilité. La difficulté concrète sera de vérifier le respect de la règle, car l'étiquette repose sur la bonne foi. C'est une projection de notre part."
+     ],
+     "verdict": "Un cadre de transparence plutôt qu'une interdiction : la tendance dominante."
+    },
+    {
+     "type": "callout",
+     "title": "À retenir",
+     "text": "Aucune politique FreeBSD n'est encore adoptée ; le sondage montre une préférence pour la divulgation et la relecture humaine."
+    }
+   ]
+  },
+  {
+   "id": "ibm-nighthawk-r3-1040-qubits-2027",
+   "category": "electronique",
+   "title": "IBM : le processeur quantique Nighthawk r3 vise 520 qubits en 2027, et 1 040 qubits en liant deux puces",
+   "summary": "IBM prévoit un processeur de 520 qubits capable de 10 000 opérations, relié à un second par dix coupleurs l pour former un système de 1 040 qubits en 2027, avant l'objectif tolérant aux pannes Starling en 2029.",
+   "tags": [
+    "IBM",
+    "calcul quantique",
+    "Nighthawk",
+    "qubits",
+    "Starling"
+   ],
+   "importance": 3,
+   "readingMinutes": 3,
+   "publishedAt": "2026-11-13T04:18:28+01:00",
+   "sourceDate": "2026-11-12",
+   "icon": "⚛️",
+   "illustration": {
+    "svg": "<svg xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"0 0 640 360\"><defs><linearGradient id=\"g362\" x1=\"0\" y1=\"0\" x2=\"1\" y2=\"1\"><stop offset=\"0\" stop-color=\"hsl(30,65%,38%)\"/><stop offset=\"1\" stop-color=\"hsl(70,70%,22%)\"/></linearGradient></defs><rect width=\"640\" height=\"360\" fill=\"url(#g362)\"/><circle cx=\"560\" cy=\"40\" r=\"90\" fill=\"#fff\" fill-opacity=\".07\"/><circle cx=\"70\" cy=\"330\" r=\"110\" fill=\"#fff\" fill-opacity=\".06\"/><g fill=\"none\" stroke=\"#fff\" stroke-width=\"7\"><ellipse cx=\"320\" cy=\"180\" rx=\"130\" ry=\"50\"/><ellipse cx=\"320\" cy=\"180\" rx=\"130\" ry=\"50\" transform=\"rotate(60 320 180)\"/><ellipse cx=\"320\" cy=\"180\" rx=\"130\" ry=\"50\" transform=\"rotate(120 320 180)\"/></g><circle cx=\"320\" cy=\"180\" r=\"22\" fill=\"#fff\"/></svg>"
+   },
+   "sources": [
+    {
+     "title": "Quantum leap: IBM plans to scale beyond 1,000 qubits in 2027 with Nighthawk r3 processor",
+     "url": "https://www.theregister.com/systems/2026/11/12/quantum-leap-ibm-plans-to-scale-beyond-1000-qubits-in-2027-with-nighthawk-r3-processor/5309357",
+     "publisher": "The Register"
+    }
+   ],
+   "blocks": [
+    {
+     "type": "paragraph",
+     "text": "Pendant des années, la course au calcul quantique s'est jouée au nombre de qubits. IBM propose désormais un autre repère : la capacité à enchaîner des opérations et à relier plusieurs puces. Le 12 novembre 2026, The Register a détaillé la feuille de route de la société autour de son processeur **Nighthawk**, dont la troisième révision doit dépasser les 1 000 qubits au sein d'un système en 2027."
+    },
+    {
+     "type": "heading",
+     "level": 2,
+     "text": "Les chiffres annoncés"
+    },
+    {
+     "type": "table",
+     "headers": [
+      "Processeur",
+      "Qubits",
+      "Opérations",
+      "Disponibilité"
+     ],
+     "rows": [
+      [
+       "Nighthawk r2",
+       "120",
+       "jusqu'à 7 500",
+       "depuis septembre 2026"
+      ],
+      [
+       "Nighthawk r3",
+       "520 (plus de quatre fois r2)",
+       "10 000",
+       "2027"
+      ],
+      [
+       "Deux r3 liés",
+       "1 040",
+       "—",
+       "2027"
+      ],
+      [
+       "Starling (tolérant aux pannes)",
+       "200 qubits logiques",
+       "100 millions",
+       "2029"
+      ]
+     ]
+    },
+    {
+     "type": "paragraph",
+     "text": "La liaison repose sur dix coupleurs de type l, des interconnexions entre puces déjà testées sur les processeurs Nighthawk r1. Starling, la cible de 2029, s'appuie sur un article d'IBM de 2025 décrivant des codes correcteurs qLDPC à « bicycle » bivarié, qui nécessitent beaucoup moins de qubits physiques que les codes de surface. Il sera bâti à partir de modules combinant une mémoire quantique et une unité de traitement logique, reliés par ces coupleurs."
+    },
+    {
+     "type": "diagram",
+     "svg": "<svg xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"0 0 640 220\" font-family=\"system-ui,sans-serif\"><rect width=\"640\" height=\"220\" rx=\"16\" fill=\"#f3f5f9\" stroke=\"#c9d0dc\"/><text x=\"320\" y=\"34\" text-anchor=\"middle\" font-size=\"16\" font-weight=\"700\" fill=\"#1b2433\">La montée en échelle selon IBM</text><rect x=\"20\" y=\"70\" width=\"127\" height=\"80\" rx=\"12\" fill=\"#ffffff\" stroke=\"#4a6fa5\" stroke-width=\"2\"/><text x=\"84\" y=\"102\" text-anchor=\"middle\" font-size=\"13\" fill=\"#1b2433\">Nighthawk r2 120</text><text x=\"84\" y=\"119\" text-anchor=\"middle\" font-size=\"13\" fill=\"#1b2433\">qubits</text><path d=\"M151 110H174\" stroke=\"#4a6fa5\" stroke-width=\"3\"/><path d=\"M174 104L181 110L174 116Z\" fill=\"#4a6fa5\"/><rect x=\"178\" y=\"70\" width=\"127\" height=\"80\" rx=\"12\" fill=\"#ffffff\" stroke=\"#4a6fa5\" stroke-width=\"2\"/><text x=\"241\" y=\"102\" text-anchor=\"middle\" font-size=\"13\" fill=\"#1b2433\">Nighthawk r3 520</text><text x=\"241\" y=\"119\" text-anchor=\"middle\" font-size=\"13\" fill=\"#1b2433\">qubits</text><path d=\"M309 110H331\" stroke=\"#4a6fa5\" stroke-width=\"3\"/><path d=\"M331 104L338 110L331 116Z\" fill=\"#4a6fa5\"/><rect x=\"335\" y=\"70\" width=\"127\" height=\"80\" rx=\"12\" fill=\"#ffffff\" stroke=\"#4a6fa5\" stroke-width=\"2\"/><text x=\"399\" y=\"102\" text-anchor=\"middle\" font-size=\"13\" fill=\"#1b2433\">Deux r3 liés 1</text><text x=\"399\" y=\"119\" text-anchor=\"middle\" font-size=\"13\" fill=\"#1b2433\">040 qubits</text><path d=\"M466 110H489\" stroke=\"#4a6fa5\" stroke-width=\"3\"/><path d=\"M489 104L496 110L489 116Z\" fill=\"#4a6fa5\"/><rect x=\"493\" y=\"70\" width=\"127\" height=\"80\" rx=\"12\" fill=\"#ffffff\" stroke=\"#4a6fa5\" stroke-width=\"2\"/><text x=\"556\" y=\"102\" text-anchor=\"middle\" font-size=\"13\" fill=\"#1b2433\">Starling 200</text><text x=\"556\" y=\"119\" text-anchor=\"middle\" font-size=\"13\" fill=\"#1b2433\">qubits logiques</text><text x=\"320\" y=\"196\" text-anchor=\"middle\" font-size=\"13\" fill=\"#3a4658\">Jalons annoncés par IBM, de 2026 à 2029</text></svg>",
+     "alt": "Quatre étapes : r2, r3, deux r3 liés, Starling.",
+     "caption": "Trajectoire annoncée ; les dates 2027 et 2029 sont des objectifs, non des livraisons."
+    },
+    {
+     "type": "heading",
+     "level": 2,
+     "text": "Intégration avec le calcul haute performance"
+    },
+    {
+     "type": "paragraph",
+     "text": "IBM insiste sur l'hybridation avec les supercalculateurs. Le laboratoire national d'Oak Ridge associe un IBM Quantum System Two équipé de processeurs Nighthawk r2 à des processeurs AMD EPYC de cinquième génération et à des accélérateurs Instinct MI355X, tandis qu'un partenariat avec RIKEN relie un système similaire au supercalculateur Fugaku. L'article ne fournit ni taux d'erreur ni détail sur la fiabilité, ce qui limite l'évaluation de la valeur pratique de ces chiffres."
+    },
+    {
+     "type": "paragraph",
+     "text": "Reste la question du public visé. Une puce de plusieurs centaines de qubits n'a d'intérêt que si l'on sait y exécuter des circuits assez profonds avant que le bruit ne détruise le calcul : c'est pourquoi IBM met en avant le nombre d'opérations, 7 500 aujourd'hui, 10 000 demain. À l'échelle de ce qu'exigent les algorithmes de correction d'erreurs, ces valeurs restent modestes, ce qui explique le saut conceptuel prévu avec Starling et ses qubits logiques."
+    },
+    {
+     "type": "usecases",
+     "title": "Exemples d'utilisation",
+     "items": [
+      {
+       "icon": "🔬",
+       "title": "Chimie et matériaux",
+       "text": "Un laboratoire pourrait simuler de petites molécules en combinant un système quantique et un supercalculateur, à titre de recherche exploratoire."
+      },
+      {
+       "icon": "🏛️",
+       "title": "Centre de calcul public",
+       "text": "Il prépare l'intégration d'un accélérateur quantique à son ordonnanceur existant, pour proposer l'accès aux chercheurs."
+      },
+      {
+       "icon": "🎓",
+       "title": "Formation",
+       "text": "Les écoles d'ingénieurs adaptent leurs cours aux circuits de plusieurs milliers d'opérations, maintenant accessibles sur du matériel réel."
+      }
+     ]
+    },
+    {
+     "type": "timeline",
+     "title": "D'où l'on vient, où l'on va",
+     "items": [
+      {
+       "label": "2025",
+       "text": "IBM publie les codes qLDPC servant de base à Starling."
+      },
+      {
+       "label": "Septembre 2026",
+       "text": "Nighthawk r2 disponible : 120 qubits, 7 500 opérations."
+      },
+      {
+       "label": "2027",
+       "text": "Nighthawk r3 de 520 qubits, 1 040 qubits pour deux puces liées."
+      },
+      {
+       "label": "2029",
+       "text": "Objectif Starling : 200 qubits logiques, 100 millions d'opérations."
+      }
+     ]
+    },
+    {
+     "type": "opinion",
+     "title": "Notre avis",
+     "paragraphs": [
+      "Le passage du nombre de qubits au nombre d'opérations fiables est salutaire : un grand chiffre de qubits sans correction d'erreur ne prouve pas grand-chose. Mais l'article ne donne aucun taux d'erreur, et la feuille de route reste une promesse tant que les liaisons entre puces n'ont pas montré leur qualité à l'échelle.",
+      "À un à trois ans, le véritable test sera de savoir si un problème utile s'exécute plus vite ou moins cher que sur du calcul classique. Nous restons prudents : les annonces de matériel quantique précèdent généralement de plusieurs années les usages productifs. C'est une opinion."
+     ],
+     "verdict": "Une trajectoire crédible sur le papier, des preuves de performance restant à produire."
+    },
+    {
+     "type": "callout",
+     "title": "À retenir",
+     "text": "Les chiffres de 2027 et 2029 sont des objectifs annoncés, pas des produits livrés."
+    }
+   ]
+  }
+ ]
+}
