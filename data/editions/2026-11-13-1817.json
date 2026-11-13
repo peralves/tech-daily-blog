@@ -1,0 +1,990 @@
+{
+ "schemaVersion": "1.0",
+ "date": "2026-11-13",
+ "generatedAt": "2026-11-13T18:17:26+01:00",
+ "title": "Tech du 13 novembre 2026 : failles PostgreSQL, attaques AMD SEV-SNP, IA locale, machines virtuelles Kubernetes, oscilloscopes et paiement par agents",
+ "summary": "PostgreSQL corrige 52 failles, deux attaques de laboratoire visent la confidentialité des serveurs AMD, Edge0 publie un modèle de 145 milliards de paramètres, Broadcom confie une API de machines virtuelles à la CNCF, Tektronix lance des oscilloscopes à 450 dollars et Brave accepte les paiements x402.",
+ "highlights": [
+  "PostgreSQL : 52 failles corrigées, dont CVE-2026-6460, un bogue vieux de 22 ans",
+  "AMD SEV-SNP : Mior et Skyfall, deux attaques qui exigent le contrôle de l'hôte",
+  "Edge0-145B : un modèle ouvert annoncé pour tourner en local, scores non vérifiés",
+  "KubeCon : Broadcom contribue une API de machines virtuelles à la CNCF",
+  "Brave Search API : paiement par requête en USDC via x402"
+ ],
+ "meta": {
+  "generator": "claude-scheduled-task"
+ },
+ "posts": [
+  {
+   "id": "postgresql-52-failles-cve-2026-6460-type-composite",
+   "category": "cybersecurite",
+   "icon": "🐘",
+   "importance": 5,
+   "sourceDate": "2026-11-13",
+   "title": "PostgreSQL : 52 failles corrigées, dont un bogue vieux de 22 ans qui permet d'exécuter du code sur le serveur",
+   "summary": "Les versions 18.7, 17.12, 16.16, 15.20 et 14.25 corrigent 52 failles. La plus grave, CVE-2026-6460 (CVSS 8,8), est une confusion de types qui remonte à 2004 ; aucune attaque n'est signalée, mais les extensions en C doivent être recompilées.",
+   "tags": [
+    "PostgreSQL",
+    "CVE-2026-6460",
+    "base de données",
+    "correctif",
+    "extensions"
+   ],
+   "sources": [
+    {
+     "title": "PostgreSQL Patches 52 Flaws, Including 22-Year-Old Bug Enabling Authenticated RCE",
+     "url": "https://thehackernews.com/2026/11/postgresql-patches-52-flaws-including.html",
+     "publisher": "The Hacker News"
+    }
+   ],
+   "blocks": [
+    {
+     "type": "paragraph",
+     "text": "Le projet PostgreSQL a publié le 12 novembre 2026 une série de versions de maintenance qui corrigent **52 failles de sécurité** d'un coup. Parmi elles, CVE-2026-6460 retient l'attention : une confusion de types dans les types composites, notés 8,8 sur l'échelle CVSS, qui permet à un utilisateur de la base capable de créer des objets d'exécuter du code avec les droits du compte système qui fait tourner PostgreSQL. Selon The Hacker News, aucune attaque réelle n'a été signalée à ce jour et la fiche de CISA indique une exploitation « aucune »."
+    },
+    {
+     "type": "heading",
+     "text": "Une confusion de types vieille de vingt-deux ans"
+    },
+    {
+     "type": "paragraph",
+     "text": "Un type composite est un type formé de champs nommés, comme une ligne de table. Le défaut tient à ceci : le type d'un champ peut changer alors que d'anciennes valeurs de ce type circulent encore ailleurs dans le serveur. PostgreSQL lit alors une ancienne valeur comme si elle appartenait au nouveau type, ce qui ouvre la voie à des lectures et des écritures mémoire inattendues. Le chercheur Mehmet Ince, qui a publié cette semaine un exploit de démonstration sur PostgreSQL 18.6, fait remonter la racine du problème au 5 mai 2004, date à laquelle le moteur a gagné la possibilité de modifier le type d'une colonne. Sa technique d'exécution de code s'appuie sur une modification ultérieure, introduite le 14 mai 2015."
+    },
+    {
+     "type": "paragraph",
+     "text": "Son compte rendu contient le code SQL qui fait planter un serveur non corrigé et une seconde étape qui divulgue des adresses mémoire ; il omet volontairement la dernière requête, celle qui lance une commande. Le chercheur affirme pouvoir provoquer le plantage avec un compte de connexion aux privilèges minimaux. Il avait transmis des preuves de concept dès août aux équipes de sécurité d'AWS (Aurora et RDS), Microsoft (Azure PostgreSQL), Google (AlloyDB), Supabase, Databricks et Ubicloud. L'état de correction chez ces services gérés n'est pas précisé dans la source."
+    },
+    {
+     "type": "heading",
+     "text": "Ce que contient la version"
+    },
+    {
+     "type": "keyvalue",
+     "items": [
+      {
+       "label": "Failles corrigées",
+       "value": "52, dont 32 notées 8,8 (la note la plus élevée de la livraison)"
+      },
+      {
+       "label": "Versions corrigées",
+       "value": "18.7, 17.12, 16.16, 15.20, 14.25"
+      },
+      {
+       "label": "Faille sans authentification",
+       "value": "CVE-2026-116322 : un client non authentifié peut redémarrer un serveur PostgreSQL 18"
+      },
+      {
+       "label": "Outils clients",
+       "value": "pg_restore peut exécuter du code via une archive piégée ; psql peut en exécuter via le script de restauration d'une sortie tar de pg_dump provenant d'un serveur compromis"
+      },
+      {
+       "label": "Fin de vie",
+       "value": "PostgreSQL 14 : 14.25 est sa dernière version"
+      }
+     ]
+    },
+    {
+     "type": "paragraph",
+     "text": "Les failles sur les outils clients rappellent qu'une mise à jour ne concerne pas que le serveur : toute machine qui exécute pg_dump, pg_restore, reindexdb ou vacuumdb doit être mise à jour, y compris les postes d'administration et les tâches de sauvegarde."
+    },
+    {
+     "type": "diagram",
+     "svg": "<svg xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"0 0 640 200\" font-family=\"system-ui,sans-serif\"><rect width=\"640\" height=\"200\" rx=\"14\" fill=\"#f4f6fb\" stroke=\"#c9d1e3\"/><text x=\"320\" y=\"30\" text-anchor=\"middle\" font-size=\"15\" font-weight=\"700\" fill=\"#1b2438\">Comment la confusion de types devient une exécution de code</text><rect x=\"20\" y=\"52\" width=\"129\" height=\"100\" rx=\"10\" fill=\"#fff\" stroke=\"#5b7bd5\" stroke-width=\"2\"/><text x=\"84\" y=\"90\" text-anchor=\"middle\" font-size=\"14\" font-weight=\"700\" fill=\"#1b2438\">Type modifié</text><text x=\"84\" y=\"114\" text-anchor=\"middle\" font-size=\"12\" fill=\"#3a4663\">un champ change</text><text x=\"84\" y=\"130\" text-anchor=\"middle\" font-size=\"12\" fill=\"#3a4663\">de type</text><path d=\"M153 102h20m-7-7l7 7-7 7\" stroke=\"#5b7bd5\" stroke-width=\"3\" fill=\"none\" stroke-linecap=\"round\"/><rect x=\"177\" y=\"52\" width=\"129\" height=\"100\" rx=\"10\" fill=\"#fff\" stroke=\"#5b7bd5\" stroke-width=\"2\"/><text x=\"242\" y=\"90\" text-anchor=\"middle\" font-size=\"14\" font-weight=\"700\" fill=\"#1b2438\">Ancienne valeur</text><text x=\"242\" y=\"114\" text-anchor=\"middle\" font-size=\"12\" fill=\"#3a4663\">reste en mémoire</text><text x=\"242\" y=\"130\" text-anchor=\"middle\" font-size=\"12\" fill=\"#3a4663\">sous l&#x27;ancien type</text><path d=\"M310 102h20m-7-7l7 7-7 7\" stroke=\"#5b7bd5\" stroke-width=\"3\" fill=\"none\" stroke-linecap=\"round\"/><rect x=\"334\" y=\"52\" width=\"129\" height=\"100\" rx=\"10\" fill=\"#fff\" stroke=\"#5b7bd5\" stroke-width=\"2\"/><text x=\"398\" y=\"90\" text-anchor=\"middle\" font-size=\"14\" font-weight=\"700\" fill=\"#1b2438\">Lecture erronée</text><text x=\"398\" y=\"114\" text-anchor=\"middle\" font-size=\"12\" fill=\"#3a4663\">le serveur la lit</text><text x=\"398\" y=\"130\" text-anchor=\"middle\" font-size=\"12\" fill=\"#3a4663\">avec le nouveau type</text><path d=\"M467 102h20m-7-7l7 7-7 7\" stroke=\"#5b7bd5\" stroke-width=\"3\" fill=\"none\" stroke-linecap=\"round\"/><rect x=\"491\" y=\"52\" width=\"129\" height=\"100\" rx=\"10\" fill=\"#fff\" stroke=\"#5b7bd5\" stroke-width=\"2\"/><text x=\"556\" y=\"90\" text-anchor=\"middle\" font-size=\"14\" font-weight=\"700\" fill=\"#1b2438\">Exécution</text><text x=\"556\" y=\"114\" text-anchor=\"middle\" font-size=\"12\" fill=\"#3a4663\">code lancé avec</text><text x=\"556\" y=\"130\" text-anchor=\"middle\" font-size=\"12\" fill=\"#3a4663\">les droits PostgreSQL</text></svg>",
+     "alt": "Schéma en quatre étapes : modification du type d'un champ, ancienne valeur conservée, lecture erronée, exécution de code.",
+     "caption": "Principe simplifié de CVE-2026-6460 d'après la description publiée ; le détail technique de l'exploitation n'est pas public."
+    },
+    {
+     "type": "heading",
+     "text": "Les gestes à faire, dans l'ordre"
+    },
+    {
+     "type": "list",
+     "items": [
+      "Mettre à jour le serveur vers la version corrective de sa branche majeure.",
+      "Recompiler ou mettre à jour en même temps toutes les extensions écrites en C : celles construites pour d'anciennes versions se chargent encore mais ne sont pas protégées.",
+      "Redémarrer immédiatement si PostgreSQL tourne hors de l'unité de service du paquet, par exemple sous Patroni.",
+      "Ne pas désactiver le nouveau paramètre composite_type_mismatch, que le projet déconseille de toucher.",
+      "Suivre les étapes de réindexation de l'annonce, puis refaire une sauvegarde complète si l'on utilise des sauvegardes incrémentales."
+     ]
+    },
+    {
+     "type": "paragraph",
+     "text": "Aucune parade n'existe pour un serveur qui ne peut pas être mis à jour. Les branches majeures plus anciennes que la 14 sont aussi touchées et n'ont reçu aucun correctif."
+    },
+    {
+     "type": "usecases",
+     "title": "Exemples d'utilisation",
+     "items": [
+      {
+       "icon": "🏢",
+       "title": "Une PME avec une base interne",
+       "text": "Un prestataire héberge la base de facturation de l'entreprise sur PostgreSQL 16. Il planifie la mise à jour vers 16.16 pendant une fenêtre de maintenance, recompile l'extension de géolocalisation et vérifie la version avec SELECT version()."
+      },
+      {
+       "icon": "☁️",
+       "title": "Un service géré chez un hébergeur",
+       "text": "L'équipe applicative consulte la page d'état de son fournisseur pour savoir si la version corrective est déployée, car la source ne précise pas le calendrier de chaque offre gérée."
+      },
+      {
+       "icon": "🧰",
+       "title": "Un administrateur de sauvegardes",
+       "text": "Il met à jour les outils pg_dump et pg_restore sur le serveur de sauvegarde, sinon une archive piégée pourrait exécuter du code sur cette machine pourtant « passive »."
+      }
+     ]
+    },
+    {
+     "type": "timeline",
+     "title": "D'où l'on vient, où l'on va",
+     "items": [
+      {
+       "label": "2004",
+       "text": "PostgreSQL permet de changer le type d'une colonne ; la racine du défaut apparaît"
+      },
+      {
+       "label": "2015",
+       "text": "Une modification ultérieure rend l'exploitation possible selon le chercheur"
+      },
+      {
+       "label": "Août 2026",
+       "text": "Mehmet Ince transmet des preuves de concept aux grands hébergeurs"
+      },
+      {
+       "label": "12 novembre 2026",
+       "text": "Publication des versions 18.7, 17.12, 16.16, 15.20 et 14.25"
+      },
+      {
+       "label": "Ensuite",
+       "text": "Mise à jour des services gérés ; la branche 14 n'est plus maintenue"
+      }
+     ]
+    },
+    {
+     "type": "opinion",
+     "title": "Notre avis",
+     "paragraphs": [
+      "Cette livraison illustre un paradoxe fréquent : un défaut ancien, resté invisible pendant deux décennies, devient exploitable parce que des changements successifs, chacun raisonnable, se sont empilés. La contrainte d'avoir un compte pouvant créer des objets limite le risque sur les bases bien cloisonnées, mais beaucoup d'applications donnent trop de privilèges à leurs comptes de service. Une question reste ouverte : la source ne dit pas si un compte aux droits par défaut peut aller au-delà du simple plantage.",
+      "Dans un à trois ans, la nécessité de recompiler les extensions montrera si l'écosystème sait suivre : les extensions peu maintenues deviendront un maillon faible. Le calendrier de fin de vie de la branche 14 pousse aussi à planifier des migrations majeures, ce qui est une analyse et non un fait établi."
+     ],
+     "verdict": "Un correctif à appliquer sans attendre, à condition de ne pas oublier les extensions et les outils clients."
+    },
+    {
+     "type": "callout",
+     "title": "À retenir",
+     "text": "Mettre à jour le serveur ET les extensions C ET les outils clients. Aucune attaque connue à ce jour, mais un exploit partiel est public."
+    }
+   ],
+   "publishedAt": "2026-11-13T18:17:26+01:00",
+   "readingMinutes": 5,
+   "illustration": {
+    "svg": "<svg xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"0 0 640 360\"><defs><linearGradient id=\"g10\" x1=\"0\" y1=\"0\" x2=\"1\" y2=\"1\"><stop offset=\"0\" stop-color=\"hsl(175,65%,40%)\"/><stop offset=\"1\" stop-color=\"hsl(215,70%,22%)\"/></linearGradient></defs><rect width=\"640\" height=\"360\" fill=\"url(#g10)\"/><circle cx=\"570\" cy=\"40\" r=\"90\" fill=\"#fff\" fill-opacity=\".07\"/><circle cx=\"70\" cy=\"330\" r=\"110\" fill=\"#fff\" fill-opacity=\".06\"/><rect x=\"250\" y=\"100\" width=\"140\" height=\"140\" rx=\"16\" fill=\"#fff\" fill-opacity=\".92\"/><rect x=\"285\" y=\"135\" width=\"70\" height=\"70\" rx=\"8\" fill=\"hsl(175,65%,35%)\"/><path d=\"M280 78v22M280 240v22M228 130h22M390 130h22\" stroke=\"#fff\" stroke-width=\"8\" stroke-linecap=\"round\"/><path d=\"M320 78v22M320 240v22M228 170h22M390 170h22\" stroke=\"#fff\" stroke-width=\"8\" stroke-linecap=\"round\"/><path d=\"M360 78v22M360 240v22M228 210h22M390 210h22\" stroke=\"#fff\" stroke-width=\"8\" stroke-linecap=\"round\"/></svg>"
+   }
+  },
+  {
+   "id": "amd-sev-snp-mior-skyfall-attaques-hote-cloud",
+   "category": "cybersecurite",
+   "icon": "🧱",
+   "importance": 4,
+   "sourceDate": "2026-11-13",
+   "title": "AMD SEV-SNP : les attaques Mior et Skyfall montrent qu'un hôte cloud malveillant peut encore lire des machines virtuelles confidentielles",
+   "summary": "Deux travaux universitaires, dont l'un de l'ETH Zurich, contournent la protection SEV-SNP des processeurs EPYC. Elles exigent le contrôle de l'hyperviseur ; AMD publie des correctifs de microprogramme, dont certains attendus en novembre et en décembre.",
+   "tags": [
+    "AMD",
+    "SEV-SNP",
+    "informatique confidentielle",
+    "EPYC",
+    "microcode"
+   ],
+   "sources": [
+    {
+     "title": "New Mior and Skyfall Attacks Let Rogue Cloud Hosts Steal Secrets From AMD SEV-SNP VMs",
+     "url": "https://thehackernews.com/2026/11/new-mior-and-skyfall-attacks-let-rogue.html",
+     "publisher": "The Hacker News"
+    }
+   ],
+   "blocks": [
+    {
+     "type": "paragraph",
+     "text": "L'informatique confidentielle promet qu'une machine virtuelle reste opaque même pour l'hébergeur qui l'exécute. Deux attaques divulguées en même temps, Mior et Skyfall, rappellent les limites de cette promesse sur les serveurs AMD EPYC. Toutes deux ont été démontrées en laboratoire et exigent de contrôler l'hyperviseur ; Mior suppose en plus de maîtriser le BIOS. AMD a publié des avis et des correctifs, mais ceux-ci passent par le microprogramme des serveurs : les clients du cloud dépendent donc de leur fournisseur pour les voir appliqués."
+    },
+    {
+     "type": "heading",
+     "text": "Rappel : ce que protège SEV-SNP"
+    },
+    {
+     "type": "paragraph",
+     "text": "SEV-SNP est la technologie de confidentialité d'AMD pour ses processeurs EPYC. Elle chiffre la mémoire des machines virtuelles et contrôle les accès par matériel. Au démarrage d'une machine, le processeur de sécurité de la puce (PSP) remplit la table RMP, qui consigne le propriétaire et les droits de chaque page mémoire. Il mesure aussi l'image logicielle et signe des rapports d'attestation qui incluent cette mesure : c'est ce qui permet à un client de vérifier ce qui tourne réellement."
+    },
+    {
+     "type": "heading",
+     "text": "Mior : tromper la table RMP"
+    },
+    {
+     "type": "paragraph",
+     "text": "L'attaque Mior, conçue à l'ETH Zurich, détourne au démarrage les écritures du PSP vers une carte graphique contrôlée par les chercheurs, au lieu de la mémoire principale. La carte renvoie à la relecture les valeurs que le PSP attend, si bien que le démarrage se termine sans erreur alors qu'une partie de la table, y compris l'entrée qui protège la table elle-même, reste non initialisée. L'hyperviseur peut alors réécrire les protections : l'équipe a activé le débogage d'une machine confidentielle où il était désactivé, puis lu et écrit sa mémoire. L'opération a réussi lors des 1 000 tentatives effectuées sur deux séries d'essais."
+    },
+    {
+     "type": "paragraph",
+     "text": "Les chercheurs ont aussi copié la mesure d'une machine inoffensive dans une machine malveillante : les rapports d'attestation signés décrivaient alors l'image saine. Mior a été testée sur un seul processeur EPYC 9135 (Zen 5) ; les générations Zen 3 et Zen 4 sont jugées potentiellement touchées mais n'ont pas été vérifiées. Les auteurs soulignent que le modèle de menace de SEV-SNP considère déjà l'UEFI comme non fiable, et qu'une machine virtuelle ordinaire fait de toute façon confiance à son hôte."
+    },
+    {
+     "type": "heading",
+     "text": "Skyfall : des données laissées dans le cache"
+    },
+    {
+     "type": "paragraph",
+     "text": "Skyfall, issue de l'ETH Zurich et de Google, repose sur les Transient Scheduler Attacks (TSA), une famille de défauts d'AMD qui divulguent des données par le temps d'exécution des instructions, révélée le 8 juillet 2025. Quand un hyperviseur fait volontairement échouer le démarrage d'une machine, le processeur a déjà placé une partie de son état sauvegardé en cache sans le nettoyer ; l'hyperviseur peut la lire. L'équipe a récupéré les valeurs de registres d'une machine d'essai et une clé de chiffrement de disque. La lecture directe de la mémoire reste très limitée : trois décalages fixes de ligne de cache dans une page ciblée."
+    },
+    {
+     "type": "table",
+     "headers": [
+      "Attaque",
+      "CVE",
+      "Note CVSS 4.0",
+      "Avis AMD"
+     ],
+     "rows": [
+      [
+       "Mior",
+       "CVE-2026-0462",
+       "5,9",
+       "AMD-SB-3059"
+      ],
+      [
+       "Skyfall (registres de la machine virtuelle)",
+       "CVE-2026-40671",
+       "4,9",
+       "AMD-SB-3061"
+      ],
+      [
+       "Skyfall (mémoire SMM, EDK II)",
+       "CVE-2026-18448",
+       "5,6",
+       "AMD-SB-7072"
+      ]
+     ]
+    },
+    {
+     "type": "diagram",
+     "svg": "<svg xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"0 0 640 200\" font-family=\"system-ui,sans-serif\"><rect width=\"640\" height=\"200\" rx=\"14\" fill=\"#f4f6fb\" stroke=\"#c9d1e3\"/><text x=\"320\" y=\"30\" text-anchor=\"middle\" font-size=\"15\" font-weight=\"700\" fill=\"#1b2438\">Du contrôle de l&#x27;hôte à la fuite de secrets</text><rect x=\"20\" y=\"52\" width=\"129\" height=\"100\" rx=\"10\" fill=\"#fff\" stroke=\"#5b7bd5\" stroke-width=\"2\"/><text x=\"84\" y=\"90\" text-anchor=\"middle\" font-size=\"14\" font-weight=\"700\" fill=\"#1b2438\">Hôte malveillant</text><text x=\"84\" y=\"114\" text-anchor=\"middle\" font-size=\"12\" fill=\"#3a4663\">contrôle l&#x27;hyperviseur</text><text x=\"84\" y=\"130\" text-anchor=\"middle\" font-size=\"12\" fill=\"#3a4663\">(et le BIOS pour Mior)</text><path d=\"M153 102h20m-7-7l7 7-7 7\" stroke=\"#5b7bd5\" stroke-width=\"3\" fill=\"none\" stroke-linecap=\"round\"/><rect x=\"177\" y=\"52\" width=\"129\" height=\"100\" rx=\"10\" fill=\"#fff\" stroke=\"#5b7bd5\" stroke-width=\"2\"/><text x=\"242\" y=\"90\" text-anchor=\"middle\" font-size=\"14\" font-weight=\"700\" fill=\"#1b2438\">Démarrage trompé</text><text x=\"242\" y=\"114\" text-anchor=\"middle\" font-size=\"12\" fill=\"#3a4663\">RMP détournée ou</text><text x=\"242\" y=\"130\" text-anchor=\"middle\" font-size=\"12\" fill=\"#3a4663\">état laissé en cache</text><path d=\"M310 102h20m-7-7l7 7-7 7\" stroke=\"#5b7bd5\" stroke-width=\"3\" fill=\"none\" stroke-linecap=\"round\"/><rect x=\"334\" y=\"52\" width=\"129\" height=\"100\" rx=\"10\" fill=\"#fff\" stroke=\"#5b7bd5\" stroke-width=\"2\"/><text x=\"398\" y=\"90\" text-anchor=\"middle\" font-size=\"14\" font-weight=\"700\" fill=\"#1b2438\">Fuite</text><text x=\"398\" y=\"114\" text-anchor=\"middle\" font-size=\"12\" fill=\"#3a4663\">registres, clés,</text><text x=\"398\" y=\"130\" text-anchor=\"middle\" font-size=\"12\" fill=\"#3a4663\">mémoire de la machine</text><path d=\"M467 102h20m-7-7l7 7-7 7\" stroke=\"#5b7bd5\" stroke-width=\"3\" fill=\"none\" stroke-linecap=\"round\"/><rect x=\"491\" y=\"52\" width=\"129\" height=\"100\" rx=\"10\" fill=\"#fff\" stroke=\"#5b7bd5\" stroke-width=\"2\"/><text x=\"556\" y=\"90\" text-anchor=\"middle\" font-size=\"14\" font-weight=\"700\" fill=\"#1b2438\">Attestation</text><text x=\"556\" y=\"114\" text-anchor=\"middle\" font-size=\"12\" fill=\"#3a4663\">rapport signé</text><text x=\"556\" y=\"130\" text-anchor=\"middle\" font-size=\"12\" fill=\"#3a4663\">potentiellement falsifié</text></svg>",
+     "alt": "Schéma en quatre étapes : hôte malveillant, démarrage trompé, fuite de secrets, attestation falsifiée.",
+     "caption": "Chaîne d'attaque simplifiée d'après la description des chercheurs ; les deux attaques exigent des privilèges élevés sur l'hôte."
+    },
+    {
+     "type": "heading",
+     "text": "Calendrier des correctifs"
+    },
+    {
+     "type": "list",
+     "items": [
+      "Le microcode contre Skyfall est daté du 12 août pour les cinq lignes EPYC concernées ; le microprogramme SEV contre Mior l'est aussi.",
+      "Les microprogrammes de plateforme sont annoncés pour novembre (Skyfall) et décembre (Mior) ; les EPYC embarqués suivront de janvier à avril 2027.",
+      "Les avis ne disent pas si les failles ont été exploitées dans la nature, ni si le microcode suffit sans mise à jour du BIOS, et ils ne listent aucune parade provisoire."
+     ]
+    },
+    {
+     "type": "usecases",
+     "title": "Exemples d'utilisation",
+     "items": [
+      {
+       "icon": "🏦",
+       "title": "Une banque qui traite des données sensibles",
+       "text": "Elle demande à son fournisseur de cloud la version de microprogramme installée et la façon de vérifier les valeurs de base de confiance (TCB) du rapport d'attestation."
+      },
+      {
+       "icon": "🧪",
+       "title": "Une équipe d'apprentissage automatique",
+       "text": "Elle exécute un entraînement sur des données médicales dans une machine confidentielle et ajoute à son contrat une clause de mise à jour du microprogramme sous un délai fixé."
+      },
+      {
+       "icon": "🖥️",
+       "title": "Un exploitant de serveurs sur site",
+       "text": "Il consulte la liste des cartes mères corrigées publiée par son constructeur, qui précise qu'une mise à jour du contrôleur de gestion (BMC) est aussi nécessaire."
+      }
+     ]
+    },
+    {
+     "type": "timeline",
+     "title": "D'où l'on vient, où l'on va",
+     "items": [
+      {
+       "label": "8 juillet 2025",
+       "text": "Divulgation des Transient Scheduler Attacks (TSA) chez AMD"
+      },
+      {
+       "label": "12 août 2026",
+       "text": "Microcode et microprogramme SEV corrigés disponibles"
+      },
+      {
+       "label": "13 novembre 2026",
+       "text": "Publication des travaux Mior et Skyfall"
+      },
+      {
+       "label": "Novembre 2026",
+       "text": "Microprogrammes de plateforme attendus contre Skyfall"
+      },
+      {
+       "label": "Décembre 2026",
+       "text": "Microprogrammes attendus contre Mior"
+      }
+     ]
+    },
+    {
+     "type": "opinion",
+     "title": "Notre avis",
+     "paragraphs": [
+      "Ces attaques ne ruinent pas l'informatique confidentielle : elles supposent un hôte déjà hostile, précisément le cas que la technologie prétend couvrir, mais avec des conditions lourdes (contrôle du BIOS, carte PCIe dédiée, machine inactive). Le comité de lecture de l'IEEE S&P a d'ailleurs relevé que l'article Skyfall sous-estimait les contraintes d'une attaque réaliste. Le risque pratique reste donc modeste ; l'enseignement, lui, est net : l'attestation n'a de valeur que si l'on sait vérifier la version du microprogramme.",
+      "À un à trois ans, les fournisseurs devront publier plus clairement leurs niveaux de correctif, faute de quoi la confiance dans « la machine confidentielle » reposera sur une déclaration. Cette lecture est une analyse, pas un fait établi."
+     ],
+     "verdict": "Une menace de laboratoire à prendre au sérieux surtout pour la transparence qu'elle impose sur les mises à jour."
+    },
+    {
+     "type": "callout",
+     "title": "À retenir",
+     "text": "Demandez à votre fournisseur quelles versions de microprogramme sont installées, et comment vérifier l'attestation. Les deux attaques exigent le contrôle de l'hôte."
+    }
+   ],
+   "publishedAt": "2026-11-13T18:17:26+01:00",
+   "readingMinutes": 4,
+   "illustration": {
+    "svg": "<svg xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"0 0 640 360\"><defs><linearGradient id=\"g11\" x1=\"0\" y1=\"0\" x2=\"1\" y2=\"1\"><stop offset=\"0\" stop-color=\"hsl(175,65%,40%)\"/><stop offset=\"1\" stop-color=\"hsl(215,70%,22%)\"/></linearGradient></defs><rect width=\"640\" height=\"360\" fill=\"url(#g11)\"/><circle cx=\"570\" cy=\"40\" r=\"90\" fill=\"#fff\" fill-opacity=\".07\"/><circle cx=\"70\" cy=\"330\" r=\"110\" fill=\"#fff\" fill-opacity=\".06\"/><rect x=\"250\" y=\"100\" width=\"140\" height=\"140\" rx=\"16\" fill=\"#fff\" fill-opacity=\".92\"/><rect x=\"285\" y=\"135\" width=\"70\" height=\"70\" rx=\"8\" fill=\"hsl(175,65%,35%)\"/><path d=\"M280 78v22M280 240v22M228 130h22M390 130h22\" stroke=\"#fff\" stroke-width=\"8\" stroke-linecap=\"round\"/><path d=\"M320 78v22M320 240v22M228 170h22M390 170h22\" stroke=\"#fff\" stroke-width=\"8\" stroke-linecap=\"round\"/><path d=\"M360 78v22M360 240v22M228 210h22M390 210h22\" stroke=\"#fff\" stroke-width=\"8\" stroke-linecap=\"round\"/></svg>"
+   }
+  },
+  {
+   "id": "edge0-145b-modele-ouvert-145-milliards-parametres-local",
+   "category": "ia",
+   "icon": "💻",
+   "importance": 3,
+   "sourceDate": "2026-11-12",
+   "title": "Edge0-145B : une start-up annonce un modèle ouvert de 145 milliards de paramètres conçu pour tourner sur un ordinateur personnel",
+   "summary": "Edge0 publie les poids d'un modèle à mélange d'experts dont seuls 10 milliards de paramètres sont actifs par étape. Les performances annoncées sont issues d'évaluations internes, non vérifiées de façon indépendante.",
+   "tags": [
+    "modèle ouvert",
+    "IA locale",
+    "mélange d'experts",
+    "Edge0",
+    "inférence"
+   ],
+   "sources": [
+    {
+     "title": "Introducing Edge0-145B",
+     "url": "https://edge0.ai/blog/introducing-edge0-145b-frontier-ai-capabilities-on-your-own-computer",
+     "publisher": "Edge0"
+    }
+   ],
+   "blocks": [
+    {
+     "type": "paragraph",
+     "text": "Le 12 novembre 2026, la société Edge0 a publié **Edge0-145B**, un modèle à poids ouverts de 145 milliards de paramètres au total, accompagné d'un modèle plus petit, Edge0-120B, d'un cadriciel d'inférence et d'outils de déploiement. L'entreprise le présente comme « le premier modèle ouvert de 145 milliards de paramètres conçu pour fonctionner sur l'appareil de l'utilisateur ». Il s'agit d'une affirmation commerciale : rien dans la page source n'est vérifié de façon indépendante."
+    },
+    {
+     "type": "heading",
+     "text": "Une architecture pensée pour la mémoire limitée"
+    },
+    {
+     "type": "paragraph",
+     "text": "Le modèle est à mélange d'experts : à chaque étape de génération, environ 10 milliards de paramètres seulement sont sollicités. Les experts sont regroupés par ensembles de 64 qui partagent deux grandes matrices, chaque expert gardant un petit jeu de paramètres propre, ce qui réduit l'empreinte mémoire. Edge0 indique avoir entraîné le modèle dès le départ pour un déploiement local, au lieu de le compresser après un entraînement dans le cloud."
+    },
+    {
+     "type": "paragraph",
+     "text": "La mémoire est organisée en niveaux : les experts les plus utilisés restent dans la mémoire du processeur graphique, environ 40 Go d'experts résident dans la mémoire système et environ 48 Go de données de vocabulaire sont lus sur le disque SSD à la demande. Le processeur central et le processeur graphique se partagent le travail, et un décodage spéculatif accélère la génération."
+    },
+    {
+     "type": "keyvalue",
+     "items": [
+      {
+       "label": "Paramètres",
+       "value": "145 milliards au total, environ 10 milliards actifs par étape"
+      },
+      {
+       "label": "Mémoire de pointe annoncée",
+       "value": "29 Go (28 Go dans une autre section de la page)"
+      },
+      {
+       "label": "Vitesse annoncée",
+       "value": "plus de 1 100 jetons/s en lecture du contexte, plus de 80 jetons/s en génération"
+      },
+      {
+       "label": "Puissance",
+       "value": "environ 120 W en usage typique, dans la configuration testée"
+      },
+      {
+       "label": "Contexte",
+       "value": "128 000 à 256 000 jetons"
+      },
+      {
+       "label": "Plateformes",
+       "value": "macOS, Windows, Linux (Apple série M, NVIDIA RTX)"
+      }
+     ]
+    },
+    {
+     "type": "heading",
+     "text": "Des chiffres à lire avec précaution"
+    },
+    {
+     "type": "table",
+     "headers": [
+      "Modèle",
+      "DeepSWE 1.1",
+      "Terminal-Bench 2.1",
+      "HLE",
+      "GPQA-Diamond"
+     ],
+     "rows": [
+      [
+       "Edge0-145B",
+       "64,6",
+       "86,52",
+       "35,4",
+       "90,4"
+      ],
+      [
+       "Qwen3.8-Flash-Next",
+       "58,7",
+       "83,3",
+       "35,9",
+       "91,7"
+      ],
+      [
+       "DeepSeek-V4-Flash-0731",
+       "54,4",
+       "82,7",
+       "33,8",
+       "90,8"
+      ],
+      [
+       "Claude-Opus-4.6 (Max)",
+       "—",
+       "78,2",
+       "40,0",
+       "91,3"
+      ]
+     ]
+    },
+    {
+     "type": "paragraph",
+     "text": "Ces résultats proviennent surtout d'évaluations internes à Edge0. Le tableau montre que le modèle devance ses concurrents sur certains tests de programmation mais reste derrière Qwen3.8-Flash-Next sur HLE et GPQA-Diamond, et derrière Claude sur HLE. Sa moyenne sur six évaluations est de 72,8 contre 71,7 pour Qwen3.8-Flash-Next. Les besoins en mémoire attribués aux concurrents (environ 70 Go et 87 Go) sont des estimations et non des mesures."
+    },
+    {
+     "type": "diagram",
+     "svg": "<svg xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"0 0 640 200\" font-family=\"system-ui,sans-serif\"><rect width=\"640\" height=\"200\" rx=\"14\" fill=\"#f4f6fb\" stroke=\"#c9d1e3\"/><text x=\"320\" y=\"30\" text-anchor=\"middle\" font-size=\"15\" font-weight=\"700\" fill=\"#1b2438\">Hiérarchie mémoire annoncée pour Edge0-145B</text><rect x=\"20\" y=\"52\" width=\"129\" height=\"100\" rx=\"10\" fill=\"#fff\" stroke=\"#5b7bd5\" stroke-width=\"2\"/><text x=\"84\" y=\"90\" text-anchor=\"middle\" font-size=\"14\" font-weight=\"700\" fill=\"#1b2438\">GPU</text><text x=\"84\" y=\"114\" text-anchor=\"middle\" font-size=\"12\" fill=\"#3a4663\">experts les plus</text><text x=\"84\" y=\"130\" text-anchor=\"middle\" font-size=\"12\" fill=\"#3a4663\">utilisés</text><path d=\"M153 102h20m-7-7l7 7-7 7\" stroke=\"#5b7bd5\" stroke-width=\"3\" fill=\"none\" stroke-linecap=\"round\"/><rect x=\"177\" y=\"52\" width=\"129\" height=\"100\" rx=\"10\" fill=\"#fff\" stroke=\"#5b7bd5\" stroke-width=\"2\"/><text x=\"242\" y=\"90\" text-anchor=\"middle\" font-size=\"14\" font-weight=\"700\" fill=\"#1b2438\">Mémoire système</text><text x=\"242\" y=\"114\" text-anchor=\"middle\" font-size=\"12\" fill=\"#3a4663\">≈ 40 Go</text><text x=\"242\" y=\"130\" text-anchor=\"middle\" font-size=\"12\" fill=\"#3a4663\">d&#x27;experts</text><path d=\"M310 102h20m-7-7l7 7-7 7\" stroke=\"#5b7bd5\" stroke-width=\"3\" fill=\"none\" stroke-linecap=\"round\"/><rect x=\"334\" y=\"52\" width=\"129\" height=\"100\" rx=\"10\" fill=\"#fff\" stroke=\"#5b7bd5\" stroke-width=\"2\"/><text x=\"398\" y=\"90\" text-anchor=\"middle\" font-size=\"14\" font-weight=\"700\" fill=\"#1b2438\">SSD</text><text x=\"398\" y=\"114\" text-anchor=\"middle\" font-size=\"12\" fill=\"#3a4663\">≈ 48 Go de</text><text x=\"398\" y=\"130\" text-anchor=\"middle\" font-size=\"12\" fill=\"#3a4663\">vocabulaire</text><path d=\"M467 102h20m-7-7l7 7-7 7\" stroke=\"#5b7bd5\" stroke-width=\"3\" fill=\"none\" stroke-linecap=\"round\"/><rect x=\"491\" y=\"52\" width=\"129\" height=\"100\" rx=\"10\" fill=\"#fff\" stroke=\"#5b7bd5\" stroke-width=\"2\"/><text x=\"556\" y=\"90\" text-anchor=\"middle\" font-size=\"14\" font-weight=\"700\" fill=\"#1b2438\">Résultat</text><text x=\"556\" y=\"114\" text-anchor=\"middle\" font-size=\"12\" fill=\"#3a4663\">pic annoncé</text><text x=\"556\" y=\"130\" text-anchor=\"middle\" font-size=\"12\" fill=\"#3a4663\">de 29 Go</text></svg>",
+     "alt": "Schéma des niveaux de mémoire : processeur graphique, mémoire système, SSD, puis pic de mémoire annoncé de 29 Go.",
+     "caption": "Description fournie par Edge0 ; la page n'explique pas comment les 40 Go d'experts et les 48 Go de vocabulaire s'articulent avec le pic de 29 Go annoncé."
+    },
+    {
+     "type": "paragraph",
+     "text": "Les poids sont disponibles sur Hugging Face, avec des variantes NVFP4 pour les deux modèles ; le cadriciel et les guides sont sur GitHub, et une application, Edge0 App v0.2.0, fonctionne hors ligne sans compte. La page parle de modèle « open source » sans nommer la licence : il faut donc consulter la fiche du modèle avant tout usage professionnel. Le rapport technique et le protocole de reproduction des évaluations sont annoncés mais pas encore liés."
+    },
+    {
+     "type": "usecases",
+     "title": "Exemples d'utilisation",
+     "items": [
+      {
+       "icon": "🔒",
+       "title": "Un cabinet qui traite des documents confidentiels",
+       "text": "Il fait résumer des dossiers sur un portable de 48 Go de mémoire, sans envoyer de données à un fournisseur extérieur, après avoir vérifié la licence."
+      },
+      {
+       "icon": "🧑‍💻",
+       "title": "Un développeur indépendant",
+       "text": "Il utilise le modèle comme assistant de programmation hors ligne dans le train et compare ses réponses à celles d'un service en ligne."
+      },
+      {
+       "icon": "🏫",
+       "title": "Un laboratoire de recherche",
+       "text": "Il reproduit les évaluations quand le rapport technique sera publié, pour confirmer ou infirmer les scores annoncés."
+      }
+     ]
+    },
+    {
+     "type": "timeline",
+     "title": "D'où l'on vient, où l'on va",
+     "items": [
+      {
+       "label": "2025-2026",
+       "text": "Les modèles à mélange d'experts se généralisent chez les acteurs ouverts"
+      },
+      {
+       "label": "12 novembre 2026",
+       "text": "Publication d'Edge0-145B, d'Edge0-120B et du cadriciel"
+      },
+      {
+       "label": "Ensuite",
+       "text": "Rapport technique et protocole de reproduction annoncés, sans date"
+      }
+     ]
+    },
+    {
+     "type": "opinion",
+     "title": "Notre avis",
+     "paragraphs": [
+      "L'idée de hiérarchiser la mémoire pour faire tenir un grand modèle dans un ordinateur personnel est séduisante et répond à un vrai besoin : confidentialité, coût et fonctionnement hors ligne. Mais tant que les évaluations ne sont pas reproduites, les comparaisons restent un argument de vente. Un pic de 29 Go avec 88 Go de données réparties entre mémoire et SSD soulève aussi la question de la durée de vie du SSD et de la latence réelle.",
+      "À un à trois ans, la tendance est claire : une part croissante des usages sensibles migrera vers du local, si les licences et les outils suivent. Cela reste une projection et non un fait."
+     ],
+     "verdict": "Une piste crédible, un dossier à instruire : attendre la reproduction indépendante avant d'y croire."
+    },
+    {
+     "type": "callout",
+     "title": "À retenir",
+     "text": "Annonce de l'éditeur : scores internes, licence non précisée, rapport technique pas encore publié."
+    }
+   ],
+   "publishedAt": "2026-11-13T18:17:26+01:00",
+   "readingMinutes": 4,
+   "illustration": {
+    "svg": "<svg xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"0 0 640 360\"><defs><linearGradient id=\"g12\" x1=\"0\" y1=\"0\" x2=\"1\" y2=\"1\"><stop offset=\"0\" stop-color=\"hsl(320,65%,40%)\"/><stop offset=\"1\" stop-color=\"hsl(0,70%,22%)\"/></linearGradient></defs><rect width=\"640\" height=\"360\" fill=\"url(#g12)\"/><circle cx=\"570\" cy=\"40\" r=\"90\" fill=\"#fff\" fill-opacity=\".07\"/><circle cx=\"70\" cy=\"330\" r=\"110\" fill=\"#fff\" fill-opacity=\".06\"/><rect x=\"250\" y=\"100\" width=\"140\" height=\"140\" rx=\"16\" fill=\"#fff\" fill-opacity=\".92\"/><rect x=\"285\" y=\"135\" width=\"70\" height=\"70\" rx=\"8\" fill=\"hsl(320,65%,35%)\"/><path d=\"M280 78v22M280 240v22M228 130h22M390 130h22\" stroke=\"#fff\" stroke-width=\"8\" stroke-linecap=\"round\"/><path d=\"M320 78v22M320 240v22M228 170h22M390 170h22\" stroke=\"#fff\" stroke-width=\"8\" stroke-linecap=\"round\"/><path d=\"M360 78v22M360 240v22M228 210h22M390 210h22\" stroke=\"#fff\" stroke-width=\"8\" stroke-linecap=\"round\"/></svg>"
+   }
+  },
+  {
+   "id": "broadcom-api-machines-virtuelles-cncf-kubecon-2026",
+   "category": "devops",
+   "icon": "🗄️",
+   "importance": 3,
+   "sourceDate": "2026-11-09",
+   "title": "KubeCon : Broadcom confie une API de machines virtuelles à la CNCF et soutient un groupe sur la portabilité des charges de travail",
+   "summary": "L'annonce vise à faire des machines virtuelles des objets de premier rang dans l'écosystème Kubernetes, avec un groupe de travail sur la conformité des charges de travail lancé le même jour. Les détails techniques restent peu documentés.",
+   "tags": [
+    "Kubernetes",
+    "CNCF",
+    "Broadcom",
+    "machines virtuelles",
+    "KubeCon"
+   ],
+   "sources": [
+    {
+     "title": "Broadcom Contributes API for Virtual Machines to CNCF",
+     "url": "https://cloudnativenow.com/features/broadcom-contributes-api-for-virtual-machines-to-cncf/",
+     "publisher": "Cloud Native Now"
+    }
+   ],
+   "blocks": [
+    {
+     "type": "paragraph",
+     "text": "À l'occasion de KubeCon + CloudNativeCon Amérique du Nord 2026, Broadcom a annoncé qu'il contribuait à la Cloud Native Computing Foundation (CNCF) une interface de programmation pour les machines virtuelles, au niveau « sandbox » de la fondation. Selon l'article de Cloud Native Now publié le 9 novembre, l'objectif est de faire des machines virtuelles des « citoyens de premier rang » du monde cloud natif. La source ne nomme ni l'API ni le projet, et ne mentionne pas KubeVirt : ces points restent à confirmer."
+    },
+    {
+     "type": "heading",
+     "text": "Pourquoi les machines virtuelles reviennent dans la discussion"
+    },
+    {
+     "type": "paragraph",
+     "text": "Kubernetes a été pensé pour les conteneurs, mais les entreprises exploitent encore massivement des machines virtuelles. D'après un rapport de la Linux Foundation cité par l'article, elles représentent 53 % des applications en production, et 34 % des personnes interrogées comptent étendre leur parc de machines virtuelles avec l'arrivée des charges d'IA et d'agents. Une API commune permettrait de décrire et de provisionner une machine virtuelle de façon déclarative, qu'elle soit propriétaire ou libre, comme on le fait pour un conteneur."
+    },
+    {
+     "type": "keyvalue",
+     "items": [
+      {
+       "label": "Annonce",
+       "value": "KubeCon + CloudNativeCon Amérique du Nord 2026, article du 9 novembre 2026"
+      },
+      {
+       "label": "Niveau CNCF",
+       "value": "projet « sandbox »"
+      },
+      {
+       "label": "Autre annonce",
+       "value": "lancement d'un groupe de travail sur la conformité des charges de travail (Workload Conformance Working Group)"
+      },
+      {
+       "label": "Outil cité",
+       "value": "Sonobuoy, moteur de diagnostic de Broadcom déjà utilisé pour certifier des distributions Kubernetes"
+      },
+      {
+       "label": "Interlocuteur",
+       "value": "Prashanth Shenoy, directeur marketing de la division VMware Cloud Foundation chez Broadcom"
+      }
+     ]
+    },
+    {
+     "type": "heading",
+     "text": "Un groupe de travail pour mesurer la portabilité"
+    },
+    {
+     "type": "paragraph",
+     "text": "Le groupe sur la conformité des charges de travail, que Broadcom soutient, doit établir « une norme commune et objective » pour vérifier qu'une charge de travail exécutée sur Kubernetes est vraiment portable d'un environnement à l'autre. L'article ne donne ni les critères ni le calendrier. Broadcom met en avant ses chiffres commerciaux : 30 offres partenaires validées sur VMware vSphere Kubernetes Service et plus de 2 600 organisations ayant acquis une licence VCF 9, déployée sur plus de 24 millions de cœurs de processeur. Ce sont des données de l'éditeur."
+    },
+    {
+     "type": "diagram",
+     "svg": "<svg xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"0 0 640 200\" font-family=\"system-ui,sans-serif\"><rect width=\"640\" height=\"200\" rx=\"14\" fill=\"#f4f6fb\" stroke=\"#c9d1e3\"/><text x=\"320\" y=\"30\" text-anchor=\"middle\" font-size=\"15\" font-weight=\"700\" fill=\"#1b2438\">Ce que la proposition cherche à rapprocher</text><rect x=\"20\" y=\"52\" width=\"129\" height=\"100\" rx=\"10\" fill=\"#fff\" stroke=\"#5b7bd5\" stroke-width=\"2\"/><text x=\"84\" y=\"90\" text-anchor=\"middle\" font-size=\"14\" font-weight=\"700\" fill=\"#1b2438\">Aujourd&#x27;hui</text><text x=\"84\" y=\"114\" text-anchor=\"middle\" font-size=\"12\" fill=\"#3a4663\">VM et conteneurs</text><text x=\"84\" y=\"130\" text-anchor=\"middle\" font-size=\"12\" fill=\"#3a4663\">gérés séparément</text><path d=\"M153 102h20m-7-7l7 7-7 7\" stroke=\"#5b7bd5\" stroke-width=\"3\" fill=\"none\" stroke-linecap=\"round\"/><rect x=\"177\" y=\"52\" width=\"129\" height=\"100\" rx=\"10\" fill=\"#fff\" stroke=\"#5b7bd5\" stroke-width=\"2\"/><text x=\"242\" y=\"90\" text-anchor=\"middle\" font-size=\"14\" font-weight=\"700\" fill=\"#1b2438\">API commune</text><text x=\"242\" y=\"114\" text-anchor=\"middle\" font-size=\"12\" fill=\"#3a4663\">VM décrite comme</text><text x=\"242\" y=\"130\" text-anchor=\"middle\" font-size=\"12\" fill=\"#3a4663\">une ressource</text><path d=\"M310 102h20m-7-7l7 7-7 7\" stroke=\"#5b7bd5\" stroke-width=\"3\" fill=\"none\" stroke-linecap=\"round\"/><rect x=\"334\" y=\"52\" width=\"129\" height=\"100\" rx=\"10\" fill=\"#fff\" stroke=\"#5b7bd5\" stroke-width=\"2\"/><text x=\"398\" y=\"90\" text-anchor=\"middle\" font-size=\"14\" font-weight=\"700\" fill=\"#1b2438\">Conformité</text><text x=\"398\" y=\"114\" text-anchor=\"middle\" font-size=\"12\" fill=\"#3a4663\">tests de portabilité</text><text x=\"398\" y=\"130\" text-anchor=\"middle\" font-size=\"12\" fill=\"#3a4663\">(groupe de travail)</text><path d=\"M467 102h20m-7-7l7 7-7 7\" stroke=\"#5b7bd5\" stroke-width=\"3\" fill=\"none\" stroke-linecap=\"round\"/><rect x=\"491\" y=\"52\" width=\"129\" height=\"100\" rx=\"10\" fill=\"#fff\" stroke=\"#5b7bd5\" stroke-width=\"2\"/><text x=\"556\" y=\"90\" text-anchor=\"middle\" font-size=\"14\" font-weight=\"700\" fill=\"#1b2438\">Objectif</text><text x=\"556\" y=\"114\" text-anchor=\"middle\" font-size=\"12\" fill=\"#3a4663\">charges portables</text><text x=\"556\" y=\"130\" text-anchor=\"middle\" font-size=\"12\" fill=\"#3a4663\">d&#x27;un cloud à l&#x27;autre</text></svg>",
+     "alt": "Schéma en quatre étapes : gestion séparée, API commune, conformité, portabilité.",
+     "caption": "Lecture simplifiée de l'objectif annoncé ; les critères de conformité ne sont pas encore publics."
+    },
+    {
+     "type": "usecases",
+     "title": "Exemples d'utilisation",
+     "items": [
+      {
+       "icon": "🏭",
+       "title": "Une DSI en migration progressive",
+       "text": "Elle garde un logiciel métier ancien dans une machine virtuelle et le décrit avec les mêmes manifestes que ses conteneurs, ce qui réduit les outils à maîtriser."
+      },
+      {
+       "icon": "🔁",
+       "title": "Une équipe qui veut éviter l'enfermement",
+       "text": "Elle attend les tests de conformité pour vérifier qu'une application passe d'un fournisseur à l'autre sans réécriture."
+      },
+      {
+       "icon": "🤖",
+       "title": "Un projet d'agents d'IA",
+       "text": "Elle déploie des charges d'IA à côté de machines virtuelles existantes sur la même plateforme de pilotage."
+      }
+     ]
+    },
+    {
+     "type": "timeline",
+     "title": "D'où l'on vient, où l'on va",
+     "items": [
+      {
+       "label": "2014-2020",
+       "text": "Kubernetes s'impose pour les conteneurs ; des projets comme KubeVirt tentent d'y ajouter les machines virtuelles"
+      },
+      {
+       "label": "9 novembre 2026",
+       "text": "Broadcom annonce sa contribution à la CNCF"
+      },
+      {
+       "label": "Ensuite",
+       "text": "Les critères de conformité et la gouvernance du projet restent à publier"
+      }
+     ]
+    },
+    {
+     "type": "opinion",
+     "title": "Notre avis",
+     "paragraphs": [
+      "Normaliser la description des machines virtuelles est utile, car chaque éditeur a aujourd'hui sa façon de faire. Mais l'annonce vient d'un éditeur dont le modèle économique dépend des machines virtuelles, et un projet « sandbox » n'est que le premier échelon de la CNCF : il peut ne jamais dépasser ce stade. L'absence de nom de projet dans la source invite à la prudence.",
+      "À un à trois ans, la vraie question sera l'adoption par les concurrents et par les distributions Kubernetes. Si elle se produit, les entreprises gagneront en liberté de choix ; sinon, l'API restera une couche supplémentaire. Cette lecture est une analyse."
+     ],
+     "verdict": "Un pas vers la portabilité, encore trop peu documenté pour être jugé."
+    },
+    {
+     "type": "callout",
+     "title": "À retenir",
+     "text": "Annonce dans le cadre de KubeCon : projet « sandbox », détails techniques non communiqués dans la source consultée."
+    }
+   ],
+   "publishedAt": "2026-11-13T18:17:26+01:00",
+   "readingMinutes": 3,
+   "illustration": {
+    "svg": "<svg xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"0 0 640 360\"><defs><linearGradient id=\"g13\" x1=\"0\" y1=\"0\" x2=\"1\" y2=\"1\"><stop offset=\"0\" stop-color=\"hsl(160,65%,40%)\"/><stop offset=\"1\" stop-color=\"hsl(200,70%,22%)\"/></linearGradient></defs><rect width=\"640\" height=\"360\" fill=\"url(#g13)\"/><circle cx=\"570\" cy=\"40\" r=\"90\" fill=\"#fff\" fill-opacity=\".07\"/><circle cx=\"70\" cy=\"330\" r=\"110\" fill=\"#fff\" fill-opacity=\".06\"/><path d=\"M250 230a55 55 0 0 1 8-109 75 75 0 0 1 140 20 48 48 0 0 1-8 89z\" fill=\"#fff\" fill-opacity=\".92\"/><circle cx=\"300\" cy=\"190\" r=\"10\" fill=\"hsl(160,65%,35%)\"/><circle cx=\"340\" cy=\"190\" r=\"10\" fill=\"hsl(160,65%,35%)\"/><circle cx=\"380\" cy=\"190\" r=\"10\" fill=\"hsl(160,65%,35%)\"/></svg>"
+   }
+  },
+  {
+   "id": "tektronix-serie-1-oscilloscopes-450-dollars-ia",
+   "category": "electronique",
+   "icon": "📟",
+   "importance": 3,
+   "sourceDate": "2026-11-13",
+   "title": "Tektronix série 1 : des oscilloscopes à partir de 450 dollars, avec un connecteur pour piloter l'appareil par l'IA",
+   "summary": "Seize modèles de 50 à 200 MHz, 12 bits de résolution verticale, écran tactile de 7 pouces. Le pilotage par agents d'IA (Tek Intelligence) n'est proposé que dans un programme d'accès anticipé.",
+   "tags": [
+    "oscilloscope",
+    "Tektronix",
+    "instrumentation",
+    "IA",
+    "mesure"
+   ],
+   "sources": [
+    {
+     "title": "Tektronix 1 Series low-cost DPO oscilloscopes support AI-assisted control, start at just $450",
+     "url": "https://www.cnx-software.com/2026/11/13/tektronix-1-series-low-cost-dpo-oscilloscopes-support-ai-assisted-control-start-at-just-450/",
+     "publisher": "CNX Software"
+    }
+   ],
+   "blocks": [
+    {
+     "type": "paragraph",
+     "text": "Tektronix élargit son offre d'entrée de gamme avec la série 1 : seize variantes d'oscilloscopes à phosphore numérique, à partir de **450 dollars** pour le DPO1052 (50 MHz, deux voies). Les appareils visent l'enseignement, l'atelier et le laboratoire d'électronique, un marché où la concurrence des instruments bon marché est vive. CNX Software, source de ces informations, ne nomme aucun concurrent et ne donne ni date de livraison ni disponibilité par pays."
+    },
+    {
+     "type": "heading",
+     "text": "Les caractéristiques"
+    },
+    {
+     "type": "keyvalue",
+     "items": [
+      {
+       "label": "Bandes passantes",
+       "value": "50, 70, 100 et 200 MHz"
+      },
+      {
+       "label": "Voies",
+       "value": "deux ou quatre"
+      },
+      {
+       "label": "Résolution verticale",
+       "value": "12 bits"
+      },
+      {
+       "label": "Échantillonnage",
+       "value": "jusqu'à 1,25 Géch/s avec la moitié des voies, 625 Méch/s avec toutes"
+      },
+      {
+       "label": "Mémoire",
+       "value": "10 Mpoints par voie"
+      },
+      {
+       "label": "Écran",
+       "value": "tactile capacitif de 7 pouces, 1 024 × 600"
+      },
+      {
+       "label": "Décodage",
+       "value": "I2C, SPI, UART (RS-232/422/485)"
+      },
+      {
+       "label": "Mesures",
+       "value": "23 mesures automatiques, FFT, mathématiques de signaux, tracés XY, tests de gabarit"
+      },
+      {
+       "label": "Connectique",
+       "value": "Ethernet 10/100, un port USB 2.0 hôte, un port USB 2.0 périphérique"
+      },
+      {
+       "label": "Alimentation et taille",
+       "value": "100-240 V, 45 W maximum ; 291 × 174 × 102 mm, 2,16 kg"
+      }
+     ]
+    },
+    {
+     "type": "table",
+     "headers": [
+      "Modèle",
+      "Prix annoncé",
+      "Particularité"
+     ],
+     "rows": [
+      [
+       "DPO1052",
+       "450 $",
+       "50 MHz, 2 voies, modèle d'entrée"
+      ],
+      [
+       "DPO1052S",
+       "690 $",
+       "ajoute le générateur de fonctions (AFG)"
+      ],
+      [
+       "DPO1204S",
+       "1 650 $",
+       "200 MHz, 4 voies, AFG"
+      ]
+     ]
+    },
+    {
+     "type": "paragraph",
+     "text": "Les modèles « S » ajoutent un générateur de fonctions de 25 MHz à 14 bits et l'analyse de Bode, utile pour caractériser un filtre ou une alimentation. Tous offrent un voltmètre à cinq chiffres et un fréquencemètre à six chiffres, ainsi que le déclenchement sur front, largeur d'impulsion, impulsion « naine », temporisation, temps de montée ou de descente et bus série."
+    },
+    {
+     "type": "heading",
+     "text": "Le pilotage par l'IA : une option encore expérimentale"
+    },
+    {
+     "type": "paragraph",
+     "text": "Le connecteur Tek Intelligence permet à des agents d'IA de commander l'oscilloscope à partir de requêtes en langage naturel, traduites en commandes pour régler l'appareil, effectuer des mesures et automatiser des séquences. Selon la source, il n'est disponible que par un programme d'accès anticipé, et non comme fonction intégrée de série. L'intérêt est d'éviter de mémoriser les menus ; le risque est d'accepter sans les relire des réglages ou des mesures produits par un modèle."
+    },
+    {
+     "type": "diagram",
+     "svg": "<svg xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"0 0 640 200\" font-family=\"system-ui,sans-serif\"><rect width=\"640\" height=\"200\" rx=\"14\" fill=\"#f4f6fb\" stroke=\"#c9d1e3\"/><text x=\"320\" y=\"30\" text-anchor=\"middle\" font-size=\"15\" font-weight=\"700\" fill=\"#1b2438\">Pilotage d&#x27;un oscilloscope en langage naturel</text><rect x=\"20\" y=\"52\" width=\"129\" height=\"100\" rx=\"10\" fill=\"#fff\" stroke=\"#5b7bd5\" stroke-width=\"2\"/><text x=\"84\" y=\"90\" text-anchor=\"middle\" font-size=\"14\" font-weight=\"700\" fill=\"#1b2438\">Demande</text><text x=\"84\" y=\"114\" text-anchor=\"middle\" font-size=\"12\" fill=\"#3a4663\">« mesurer le temps</text><text x=\"84\" y=\"130\" text-anchor=\"middle\" font-size=\"12\" fill=\"#3a4663\">de montée du signal »</text><path d=\"M153 102h20m-7-7l7 7-7 7\" stroke=\"#5b7bd5\" stroke-width=\"3\" fill=\"none\" stroke-linecap=\"round\"/><rect x=\"177\" y=\"52\" width=\"129\" height=\"100\" rx=\"10\" fill=\"#fff\" stroke=\"#5b7bd5\" stroke-width=\"2\"/><text x=\"242\" y=\"90\" text-anchor=\"middle\" font-size=\"14\" font-weight=\"700\" fill=\"#1b2438\">Agent d&#x27;IA</text><text x=\"242\" y=\"114\" text-anchor=\"middle\" font-size=\"12\" fill=\"#3a4663\">traduit en</text><text x=\"242\" y=\"130\" text-anchor=\"middle\" font-size=\"12\" fill=\"#3a4663\">commandes</text><path d=\"M310 102h20m-7-7l7 7-7 7\" stroke=\"#5b7bd5\" stroke-width=\"3\" fill=\"none\" stroke-linecap=\"round\"/><rect x=\"334\" y=\"52\" width=\"129\" height=\"100\" rx=\"10\" fill=\"#fff\" stroke=\"#5b7bd5\" stroke-width=\"2\"/><text x=\"398\" y=\"90\" text-anchor=\"middle\" font-size=\"14\" font-weight=\"700\" fill=\"#1b2438\">Connecteur</text><text x=\"398\" y=\"114\" text-anchor=\"middle\" font-size=\"12\" fill=\"#3a4663\">Tek Intelligence</text><text x=\"398\" y=\"130\" text-anchor=\"middle\" font-size=\"12\" fill=\"#3a4663\">(accès anticipé)</text><path d=\"M467 102h20m-7-7l7 7-7 7\" stroke=\"#5b7bd5\" stroke-width=\"3\" fill=\"none\" stroke-linecap=\"round\"/><rect x=\"491\" y=\"52\" width=\"129\" height=\"100\" rx=\"10\" fill=\"#fff\" stroke=\"#5b7bd5\" stroke-width=\"2\"/><text x=\"556\" y=\"90\" text-anchor=\"middle\" font-size=\"14\" font-weight=\"700\" fill=\"#1b2438\">Oscilloscope</text><text x=\"556\" y=\"114\" text-anchor=\"middle\" font-size=\"12\" fill=\"#3a4663\">règle, mesure,</text><text x=\"556\" y=\"130\" text-anchor=\"middle\" font-size=\"12\" fill=\"#3a4663\">renvoie le résultat</text></svg>",
+     "alt": "Schéma en quatre étapes : demande, agent d'IA, connecteur Tek Intelligence, oscilloscope.",
+     "caption": "Fonctionnement décrit par la source ; la fonction n'est proposée que dans un programme d'accès anticipé."
+    },
+    {
+     "type": "usecases",
+     "title": "Exemples d'utilisation",
+     "items": [
+      {
+       "icon": "🎓",
+       "title": "Un lycée professionnel",
+       "text": "Il équipe les postes de travaux pratiques d'oscilloscopes à deux voies pour observer des signaux de capteurs et décoder des bus I2C."
+      },
+      {
+       "icon": "🛠️",
+       "title": "Un électronicien amateur",
+       "text": "Il choisit un modèle « S » pour utiliser le générateur intégré et tracer la réponse d'un filtre sans second appareil."
+      },
+      {
+       "icon": "🏭",
+       "title": "Un bureau d'études",
+       "text": "Il teste le connecteur d'IA dans un banc automatisé, en gardant une vérification humaine des mesures critiques."
+      }
+     ]
+    },
+    {
+     "type": "timeline",
+     "title": "D'où l'on vient, où l'on va",
+     "items": [
+      {
+       "label": "Années 2010",
+       "text": "Les oscilloscopes d'entrée de gamme se démocratisent sous 500 dollars"
+      },
+      {
+       "label": "13 novembre 2026",
+       "text": "Tektronix présente la série 1 et son connecteur d'IA"
+      },
+      {
+       "label": "Ensuite",
+       "text": "Dates de livraison et conditions de l'accès anticipé non précisées"
+      }
+     ]
+    },
+    {
+     "type": "opinion",
+     "title": "Notre avis",
+     "paragraphs": [
+      "Douze bits de résolution verticale à 450 dollars constituent un argument réel pour qui mesure de petits signaux : l'écart avec les huit bits des appareils classiques se voit dans le bruit de quantification. La mémoire de 10 Mpoints par voie est également confortable à ce prix. Le contenu d'« IA » est en revanche un ajout facultatif et non démontré ici, mais il aura un coût de formation ou de licence qu'il faudra surveiller.",
+      "À un à trois ans, le pilotage en langage naturel pourrait devenir courant sur les instruments, à condition que les constructeurs publient des journaux de commandes vérifiables. C'est une projection et non un fait."
+     ],
+     "verdict": "Un bon rapport caractéristiques-prix sur le papier ; l'IA reste, à ce stade, un bonus à tester."
+    },
+    {
+     "type": "callout",
+     "title": "À retenir",
+     "text": "Prix en dollars américains au 13 novembre 2026, avant taxes ; la disponibilité en France n'est pas précisée."
+    }
+   ],
+   "publishedAt": "2026-11-13T18:17:26+01:00",
+   "readingMinutes": 3,
+   "illustration": {
+    "svg": "<svg xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"0 0 640 360\"><defs><linearGradient id=\"g14\" x1=\"0\" y1=\"0\" x2=\"1\" y2=\"1\"><stop offset=\"0\" stop-color=\"hsl(30,65%,40%)\"/><stop offset=\"1\" stop-color=\"hsl(70,70%,22%)\"/></linearGradient></defs><rect width=\"640\" height=\"360\" fill=\"url(#g14)\"/><circle cx=\"570\" cy=\"40\" r=\"90\" fill=\"#fff\" fill-opacity=\".07\"/><circle cx=\"70\" cy=\"330\" r=\"110\" fill=\"#fff\" fill-opacity=\".06\"/><path d=\"M180 180q35-90 70 0t70 0 70 0 70 0\" stroke=\"#fff\" stroke-width=\"14\" fill=\"none\" stroke-linecap=\"round\"/><rect x=\"200\" y=\"215\" width=\"240\" height=\"14\" rx=\"7\" fill=\"#fff\" fill-opacity=\".7\"/></svg>"
+   }
+  },
+  {
+   "id": "brave-search-api-paiement-x402-agents-ia",
+   "category": "web",
+   "icon": "🪙",
+   "importance": 3,
+   "sourceDate": "2026-11-12",
+   "title": "Brave Search API : les agents d'IA peuvent désormais payer chaque requête en USDC, sans compte ni clé d'API",
+   "summary": "Brave adopte le protocole x402 : une requête non payée reçoit une réponse HTTP 402 qui indique le prix, l'agent signe un paiement en USDC sur la blockchain Base, puis relance la requête. Tarif : 0,005 dollar par requête.",
+   "tags": [
+    "API",
+    "x402",
+    "paiement",
+    "agents",
+    "Brave"
+   ],
+   "sources": [
+    {
+     "title": "Brave Search API now accepts agentic payments via the x402 protocol",
+     "url": "https://brave.com/blog/search-api-agentic-payments/",
+     "publisher": "Brave"
+    }
+   ],
+   "blocks": [
+    {
+     "type": "paragraph",
+     "text": "Le 12 novembre 2026, Brave a annoncé que son API de recherche accepte les paiements à la requête via le protocole ouvert **x402**. Un développeur ou un agent d'IA peut interroger l'index indépendant de Brave et régler chaque appel en temps réel, sans créer de compte, souscrire à un forfait ni détenir de clé d'API. La fonction est active dès la date de publication selon l'éditeur."
+    },
+    {
+     "type": "heading",
+     "text": "Comment fonctionne le paiement"
+    },
+    {
+     "type": "paragraph",
+     "text": "Le protocole s'appuie sur un code HTTP resté longtemps inutilisé, le 402 « Paiement requis ». Chaque point d'accès exige un paiement à chaque requête, à la place d'une authentification. Une requête sans paiement reçoit une réponse 402 qui indique le prix et les modalités. L'agent signe alors un paiement en USDC pour ce montant et renvoie la requête avec la preuve de paiement. Après vérification, la recherche s'exécute et renvoie les résultats accompagnés d'un reçu inscrit sur la blockchain Base."
+    },
+    {
+     "type": "diagram",
+     "svg": "<svg xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"0 0 640 200\" font-family=\"system-ui,sans-serif\"><rect width=\"640\" height=\"200\" rx=\"14\" fill=\"#f4f6fb\" stroke=\"#c9d1e3\"/><text x=\"320\" y=\"30\" text-anchor=\"middle\" font-size=\"15\" font-weight=\"700\" fill=\"#1b2438\">Le cycle d&#x27;une requête payée avec x402</text><rect x=\"20\" y=\"52\" width=\"129\" height=\"100\" rx=\"10\" fill=\"#fff\" stroke=\"#5b7bd5\" stroke-width=\"2\"/><text x=\"84\" y=\"90\" text-anchor=\"middle\" font-size=\"14\" font-weight=\"700\" fill=\"#1b2438\">1. Requête</text><text x=\"84\" y=\"114\" text-anchor=\"middle\" font-size=\"12\" fill=\"#3a4663\">l&#x27;agent interroge</text><text x=\"84\" y=\"130\" text-anchor=\"middle\" font-size=\"12\" fill=\"#3a4663\">l&#x27;API</text><path d=\"M153 102h20m-7-7l7 7-7 7\" stroke=\"#5b7bd5\" stroke-width=\"3\" fill=\"none\" stroke-linecap=\"round\"/><rect x=\"177\" y=\"52\" width=\"129\" height=\"100\" rx=\"10\" fill=\"#fff\" stroke=\"#5b7bd5\" stroke-width=\"2\"/><text x=\"242\" y=\"90\" text-anchor=\"middle\" font-size=\"14\" font-weight=\"700\" fill=\"#1b2438\">2. HTTP 402</text><text x=\"242\" y=\"114\" text-anchor=\"middle\" font-size=\"12\" fill=\"#3a4663\">prix et modalités</text><text x=\"242\" y=\"130\" text-anchor=\"middle\" font-size=\"12\" fill=\"#3a4663\">de paiement</text><path d=\"M310 102h20m-7-7l7 7-7 7\" stroke=\"#5b7bd5\" stroke-width=\"3\" fill=\"none\" stroke-linecap=\"round\"/><rect x=\"334\" y=\"52\" width=\"129\" height=\"100\" rx=\"10\" fill=\"#fff\" stroke=\"#5b7bd5\" stroke-width=\"2\"/><text x=\"398\" y=\"90\" text-anchor=\"middle\" font-size=\"14\" font-weight=\"700\" fill=\"#1b2438\">3. Paiement</text><text x=\"398\" y=\"114\" text-anchor=\"middle\" font-size=\"12\" fill=\"#3a4663\">signature d&#x27;un</text><text x=\"398\" y=\"130\" text-anchor=\"middle\" font-size=\"12\" fill=\"#3a4663\">virement en USDC</text><path d=\"M467 102h20m-7-7l7 7-7 7\" stroke=\"#5b7bd5\" stroke-width=\"3\" fill=\"none\" stroke-linecap=\"round\"/><rect x=\"491\" y=\"52\" width=\"129\" height=\"100\" rx=\"10\" fill=\"#fff\" stroke=\"#5b7bd5\" stroke-width=\"2\"/><text x=\"556\" y=\"90\" text-anchor=\"middle\" font-size=\"14\" font-weight=\"700\" fill=\"#1b2438\">4. Résultats</text><text x=\"556\" y=\"114\" text-anchor=\"middle\" font-size=\"12\" fill=\"#3a4663\">réponse + reçu</text><text x=\"556\" y=\"130\" text-anchor=\"middle\" font-size=\"12\" fill=\"#3a4663\">sur Base</text></svg>",
+     "alt": "Schéma en quatre étapes : requête, réponse 402, paiement en USDC, résultats et reçu.",
+     "caption": "Fonctionnement décrit par Brave dans son annonce."
+    },
+    {
+     "type": "keyvalue",
+     "items": [
+      {
+       "label": "Tarif",
+       "value": "0,005 dollar par requête (5 dollars les 1 000) pour LLM Context, le web, l'actualité, les images, les vidéos et le local"
+      },
+      {
+       "label": "Monnaie",
+       "value": "USDC sur la blockchain Base ; d'autres réseaux et monnaies annoncés « bientôt »"
+      },
+      {
+       "label": "Frais de réseau",
+       "value": "pris en charge par Brave pour une durée limitée"
+      },
+      {
+       "label": "Portefeuille recommandé",
+       "value": "Purl, un portefeuille en ligne de commande développé par Stripe"
+      },
+      {
+       "label": "Mise en place",
+       "value": "configurer le portefeuille, l'alimenter en USDC sur Base, puis interroger l'API"
+      }
+     ]
+    },
+    {
+     "type": "paragraph",
+     "text": "Brave exploite son propre « facilitateur », le service qui vérifie et règle les paiements. Les tarifs sont ceux déjà publiés pour l'API. L'intérêt revendiqué : un agent autonome n'a plus besoin qu'un humain ouvre un compte, communique une carte bancaire et gère une clé secrète."
+    },
+    {
+     "type": "heading",
+     "text": "Ce que cela suppose côté entreprise"
+    },
+    {
+     "type": "paragraph",
+     "text": "Pour une entreprise française, payer en cryptomonnaie une API pose des questions pratiques : comptabilisation des USDC, justificatifs pour la TVA et la comptabilité, plafonds de dépense de l'agent. L'annonce ne traite aucun de ces points et ne donne pas d'information sur les conditions d'utilisation pour les clients européens."
+    },
+    {
+     "type": "usecases",
+     "title": "Exemples d'utilisation",
+     "items": [
+      {
+       "icon": "🤖",
+       "title": "Un agent de veille autonome",
+       "text": "Il interroge l'actualité pendant la nuit et règle chaque requête avec un portefeuille doté d'un plafond quotidien."
+      },
+      {
+       "icon": "🧪",
+       "title": "Un prototype sans formalités",
+       "text": "Un développeur teste l'API le week-end sans demander de clé, pour quelques centimes."
+      },
+      {
+       "icon": "🔍",
+       "title": "Un outil de vérification de faits",
+       "text": "Il paie à l'usage les recherches nécessaires à chaque vérification, sans abonnement mensuel."
+      }
+     ]
+    },
+    {
+     "type": "timeline",
+     "title": "D'où l'on vient, où l'on va",
+     "items": [
+      {
+       "label": "Longtemps",
+       "text": "Le code HTTP 402 « Paiement requis » reste réservé et peu utilisé"
+      },
+      {
+       "label": "12 novembre 2026",
+       "text": "Brave ouvre sa Search API aux paiements x402"
+      },
+      {
+       "label": "Bientôt",
+       "text": "Prise en charge annoncée d'autres réseaux et d'autres stablecoins"
+      }
+     ]
+    },
+    {
+     "type": "opinion",
+     "title": "Notre avis",
+     "paragraphs": [
+      "Le paiement à la requête résout un vrai frottement : les clés d'API et les abonnements conviennent mal à des agents qui décident seuls des sources à consulter. Il déplace en revanche le risque : un agent mal borné peut dépenser sans compter, et les clés d'un portefeuille valent de l'argent immédiatement. Le recours à une blockchain impose aussi des frais, aujourd'hui pris en charge par Brave, dont la durée n'est pas précisée.",
+      "À un à trois ans, le succès dépendra de l'adoption par d'autres fournisseurs et de l'apparition de moyens de paiement non crypto. C'est une projection, pas un fait."
+     ],
+     "verdict": "Une idée pratique pour les agents, à manier avec des plafonds de dépense stricts."
+    },
+    {
+     "type": "callout",
+     "title": "À retenir",
+     "text": "Information tirée de l'annonce de Brave : tarifs et fonctionnalités susceptibles d'évoluer ; il ne s'agit pas d'un conseil financier."
+    }
+   ],
+   "publishedAt": "2026-11-13T18:17:26+01:00",
+   "readingMinutes": 3,
+   "illustration": {
+    "svg": "<svg xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"0 0 640 360\"><defs><linearGradient id=\"g15\" x1=\"0\" y1=\"0\" x2=\"1\" y2=\"1\"><stop offset=\"0\" stop-color=\"hsl(210,65%,40%)\"/><stop offset=\"1\" stop-color=\"hsl(250,70%,22%)\"/></linearGradient></defs><rect width=\"640\" height=\"360\" fill=\"url(#g15)\"/><circle cx=\"570\" cy=\"40\" r=\"90\" fill=\"#fff\" fill-opacity=\".07\"/><circle cx=\"70\" cy=\"330\" r=\"110\" fill=\"#fff\" fill-opacity=\".06\"/><circle cx=\"320\" cy=\"180\" r=\"95\" fill=\"#fff\" fill-opacity=\".92\"/><path d=\"M320 120v120M290 150h45a20 20 0 0 1 0 40h-45h50a22 22 0 0 1 0 45h-50\" stroke=\"hsl(210,65%,35%)\" stroke-width=\"12\" fill=\"none\" stroke-linecap=\"round\"/></svg>"
+   }
+  }
+ ]
+}
