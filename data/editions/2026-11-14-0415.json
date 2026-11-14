@@ -1,0 +1,1038 @@
+{
+  "schemaVersion": "1.0",
+  "date": "2026-11-14",
+  "generatedAt": "2026-11-14T04:17:32+01:00",
+  "title": "Tech du samedi : SilentAir espionne des réseaux mobiles, Borland C++ revient du passé, LinkedIn quitte Argo CD",
+  "summary": "Une édition tech marquée par un rapport d'Enea sur l'espionnage des opérateurs asiatiques, des projets de rétro-informatique et d'électronique (Borland C++ 2.0, X11 sur ESP32, cartes TranZPUter), et deux retours d'expérience d'ingénierie : le diagnostic d'agents d'IA et le GitOps de LinkedIn.",
+  "highlights": [
+    "SilentAir : un groupe étatique détourne des réseaux d'opérateurs asiatiques pour intercepter appels, SMS et codes 2FA.",
+    "Le code de Borland C++ 2.0 (1991) reconstitué à partir des binaires, selon Hackaday.",
+    "Un serveur X tient sur un ESP32-S3 ; des cartes RP2350B remplacent des processeurs d'époque.",
+    "LinkedIn remplace Argo CD par un moteur maison : échecs d'infrastructure ramenés de 925 à 63.",
+    "Google publie AQuA pour diagnostiquer les défaillances silencieuses des agents d'IA."
+  ],
+  "meta": {
+    "generator": "claude-scheduled-task"
+  },
+  "posts": [
+    {
+      "id": "silentair-espionnage-telecoms-asiatiques-sms-2fa",
+      "category": "cybersecurite",
+      "icon": "📡",
+      "importance": 5,
+      "sourceDate": "2026-11-13",
+      "title": "SilentAir : un groupe étatique détourne des opérateurs asiatiques pour intercepter appels et SMS",
+      "summary": "Selon l'éditeur Enea, SilentAir a utilisé des équipements compromis dans des réseaux mobiles d'Asie pour dérouter les communications de cibles, surtout à Taïwan, et récupérer au passage des codes d'authentification par SMS.",
+      "tags": [
+        "SS7",
+        "Diameter",
+        "SMS",
+        "2FA",
+        "opérateurs",
+        "espionnage"
+      ],
+      "sources": [
+        {
+          "title": "SilentAir Hijacks Asian Telecom Networks to Intercept SMS 2FA Codes and Spy on Taiwanese Users",
+          "url": "https://thehackernews.com/2026/11/silentair-hijacks-asian-telecom.html",
+          "publisher": "The Hacker News"
+        }
+      ],
+      "blocks": [
+        {
+          "type": "paragraph",
+          "text": "Les réseaux mobiles du monde entier se parlent en permanence : pour qu'un abonné puisse téléphoner ou recevoir un SMS lorsqu'il voyage, son opérateur d'origine et l'opérateur du pays visité échangent des messages de signalisation. L'éditeur suédois Enea, spécialisé dans la sécurité des télécoms, vient de documenter un groupe, baptisé **SilentAir**, qui a détourné ce mécanisme pour espionner des personnes choisies, principalement à Taïwan. Le rapport, relayé le 13 novembre 2026 par The Hacker News, décrit une opération menée depuis l'intérieur même de réseaux d'opérateurs asiatiques."
+        },
+        {
+          "type": "heading",
+          "text": "Comment fonctionne l'attaque"
+        },
+        {
+          "type": "paragraph",
+          "text": "Les opérateurs échangent leur signalisation grâce aux protocoles SS7 et Diameter, qui transitent par un réseau d'interconnexion partagé appelé IPX. Ces protocoles ont été conçus à une époque où l'on supposait que seuls des acteurs de confiance y étaient connectés. SilentAir a lancé ses attaques dans l'IPX à partir d'équipements d'opérateurs qu'il avait compromis."
+        },
+        {
+          "type": "paragraph",
+          "text": "Pour intercepter une cible, le groupe envoyait au réseau d'origine de l'abonné un message de type « mise à jour de localisation » (ou son équivalent Diameter), prétendant que l'équipement piraté desservait désormais le téléphone visé. Si le réseau d'origine acceptait, les appels et les SMS destinés à la victime étaient déroutés vers les attaquants. Enea a observé que, pour certaines cibles, des codes d'authentification à deux facteurs envoyés par SMS avaient été interceptés juste après le déroutement, ce qui suggère des tentatives de prise de contrôle d'autres comptes. Le rapport ne dit toutefois pas si un compte a effectivement été détourné."
+        },
+        {
+          "type": "paragraph",
+          "text": "Le groupe a aussi envoyé à très grande échelle des « SMS silencieux », des messages que le téléphone traite sans rien afficher. Enea y voit un moyen de vérifier qu'un déroutement fonctionne, voire de contrôler en bloc, la nuit, que les déroutements restent actifs."
+        },
+        {
+          "type": "keyvalue",
+          "items": [
+            {
+              "label": "Éditeur à l'origine du rapport",
+              "value": "Enea (Stockholm)"
+            },
+            {
+              "label": "Part des interceptions parmi les attaques observées",
+              "value": "18,3 % (contre 2,1 % pour une société de surveillance typique, selon les travaux antérieurs d'Enea)"
+            },
+            {
+              "label": "Cibles principales",
+              "value": "Taïwan ; aussi d'autres réseaux d'Asie du Sud-Est et de l'Est, parfois l'Afrique de l'Est, l'Asie centrale, le Moyen-Orient et l'Europe"
+            },
+            {
+              "label": "Début du suivi",
+              "value": "début 2025, avec des traces plus anciennes"
+            }
+          ]
+        },
+        {
+          "type": "diagram",
+          "svg": "<svg xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"0 0 640 186\" font-family=\"system-ui,sans-serif\"><rect width=\"640\" height=\"186\" rx=\"14\" fill=\"hsl(175,40%,96%)\"/><text x=\"320\" y=\"26\" text-anchor=\"middle\" font-size=\"15\" font-weight=\"700\" fill=\"hsl(175,50%,22%)\">Détournement de la signalisation mobile</text><rect x=\"20\" y=\"44\" width=\"129\" height=\"122\" rx=\"10\" fill=\"hsl(175,55%,88%)\" stroke=\"hsl(175,55%,35%)\" stroke-width=\"2\"/><text x=\"84.5\" y=\"72\" text-anchor=\"middle\" font-size=\"14\" font-weight=\"700\" fill=\"hsl(175,60%,18%)\">Équipement piraté</text><text x=\"84.5\" y=\"96\" text-anchor=\"middle\" font-size=\"12\" fill=\"hsl(175,40%,22%)\">chez un opérateur</text><text x=\"84.5\" y=\"113\" text-anchor=\"middle\" font-size=\"12\" fill=\"hsl(175,40%,22%)\">asiatique</text><path d=\"M153 105.0h20m-7-7 7 7-7 7\" stroke=\"hsl(175,55%,35%)\" stroke-width=\"3\" fill=\"none\" stroke-linecap=\"round\" stroke-linejoin=\"round\"/><rect x=\"177\" y=\"44\" width=\"129\" height=\"122\" rx=\"10\" fill=\"hsl(175,55%,88%)\" stroke=\"hsl(175,55%,35%)\" stroke-width=\"2\"/><text x=\"241.5\" y=\"72\" text-anchor=\"middle\" font-size=\"14\" font-weight=\"700\" fill=\"hsl(175,60%,18%)\">Réseau IPX</text><text x=\"241.5\" y=\"96\" text-anchor=\"middle\" font-size=\"12\" fill=\"hsl(175,40%,22%)\">message de</text><text x=\"241.5\" y=\"113\" text-anchor=\"middle\" font-size=\"12\" fill=\"hsl(175,40%,22%)\">localisation</text><text x=\"241.5\" y=\"130\" text-anchor=\"middle\" font-size=\"12\" fill=\"hsl(175,40%,22%)\">falsifié</text><path d=\"M310 105.0h20m-7-7 7 7-7 7\" stroke=\"hsl(175,55%,35%)\" stroke-width=\"3\" fill=\"none\" stroke-linecap=\"round\" stroke-linejoin=\"round\"/><rect x=\"334\" y=\"44\" width=\"129\" height=\"122\" rx=\"10\" fill=\"hsl(175,55%,88%)\" stroke=\"hsl(175,55%,35%)\" stroke-width=\"2\"/><text x=\"398.5\" y=\"72\" text-anchor=\"middle\" font-size=\"14\" font-weight=\"700\" fill=\"hsl(175,60%,18%)\">Opérateur d&#x27;origine</text><text x=\"398.5\" y=\"96\" text-anchor=\"middle\" font-size=\"12\" fill=\"hsl(175,40%,22%)\">croit que la cible</text><text x=\"398.5\" y=\"113\" text-anchor=\"middle\" font-size=\"12\" fill=\"hsl(175,40%,22%)\">a changé de réseau</text><path d=\"M467 105.0h20m-7-7 7 7-7 7\" stroke=\"hsl(175,55%,35%)\" stroke-width=\"3\" fill=\"none\" stroke-linecap=\"round\" stroke-linejoin=\"round\"/><rect x=\"491\" y=\"44\" width=\"129\" height=\"122\" rx=\"10\" fill=\"hsl(175,55%,88%)\" stroke=\"hsl(175,55%,35%)\" stroke-width=\"2\"/><text x=\"555.5\" y=\"72\" text-anchor=\"middle\" font-size=\"14\" font-weight=\"700\" fill=\"hsl(175,60%,18%)\">Interception</text><text x=\"555.5\" y=\"96\" text-anchor=\"middle\" font-size=\"12\" fill=\"hsl(175,40%,22%)\">appels, SMS et</text><text x=\"555.5\" y=\"113\" text-anchor=\"middle\" font-size=\"12\" fill=\"hsl(175,40%,22%)\">codes 2FA déroutés</text></svg>",
+          "alt": "Schéma en quatre étapes : un équipement piraté envoie un faux message de localisation via le réseau IPX, l'opérateur d'origine le croit, puis déroute les appels et SMS vers les attaquants.",
+          "caption": "Principe du détournement décrit par Enea, simplifié."
+        },
+        {
+          "type": "heading",
+          "text": "Une attribution prudente"
+        },
+        {
+          "type": "paragraph",
+          "text": "Enea juge avec un niveau de confiance élevé que SilentAir est un acteur de niveau étatique, mais ne le relie à la Chine qu'avec un faible niveau de confiance. Les indices avancés : un ciblage centré sur Taïwan, une activité qui suit une journée de travail à UTC+8 commençant à 9 heures, un quasi-arrêt le week-end et des pauses autour des jours fériés chinois. Un lien avec Liminal Panda, un autre groupe déjà observé dans les réseaux télécoms, est jugé possible mais non confirmé : les deux ont parfois agi en même temps, et parfois sans signe de coopération."
+        },
+        {
+          "type": "paragraph",
+          "text": "Enea n'a pas pu analyser le logiciel malveillant qu'il soupçonne d'avoir été employé. Le groupe a été perturbé, mais pourrait revenir, et le rapport ne précise pas si les opérateurs ont nettoyé les équipements compromis. Il ne nomme ni les pays, ni les opérateurs, ni les cibles."
+        },
+        {
+          "type": "usecases",
+          "title": "Exemples d'utilisation",
+          "items": [
+            {
+              "icon": "🧑‍💼",
+              "title": "Un responsable politique en déplacement",
+              "text": "Un élu dont le téléphone est ciblé voit ses appels déroutés pendant quelques heures, sans le moindre signe visible sur son appareil."
+            },
+            {
+              "icon": "🔑",
+              "title": "Un compte protégé par SMS",
+              "text": "Le code de connexion envoyé par SMS arrive chez l'attaquant : l'authentification par SMS devient le maillon faible, d'où l'intérêt d'applications d'authentification ou de clés physiques."
+            },
+            {
+              "icon": "🏢",
+              "title": "Un opérateur de taille moyenne",
+              "text": "Une équipe réseau déploie des pare-feu pour les protocoles GTP et croise leurs alertes avec celles des pare-feu SS7 et Diameter, comme le recommande Enea."
+            }
+          ]
+        },
+        {
+          "type": "timeline",
+          "title": "D'où l'on vient, où l'on va",
+          "items": [
+            {
+              "label": "2024",
+              "text": "Première documentation du logiciel GTPDoor, associé à Liminal Panda (27 février 2024)."
+            },
+            {
+              "label": "Début 2025",
+              "text": "Enea commence à suivre des attaques SS7 et Diameter inhabituelles venant de réseaux asiatiques."
+            },
+            {
+              "label": "Premier trimestre 2026",
+              "text": "Détection d'activité de Liminal Panda chez plusieurs opérateurs clients d'Enea."
+            },
+            {
+              "label": "13 novembre 2026",
+              "text": "Publication du rapport sur SilentAir ; le groupe est décrit comme perturbé, sans garantie qu'il ne revienne pas."
+            }
+          ]
+        },
+        {
+          "type": "opinion",
+          "title": "Notre avis",
+          "paragraphs": [
+            "Ce rapport rappelle une réalité peu visible du grand public : la sécurité de nos communications dépend d'un réseau d'interconnexion conçu sans méfiance. Ici, l'originalité tient à la méthode, car l'attaque part d'équipements d'opérateurs réellement compromis et non d'adresses usurpées. Les pare-feu de signalisation classiques, qui repèrent les messages venant de partenaires inconnus, perdent alors de leur efficacité. Les limites sont claires : l'attribution reste fragile, les cibles ne sont pas nommées et l'ampleur exacte des comptes pris reste inconnue.",
+            "À un horizon d'un à trois ans, on peut raisonnablement s'attendre à un abandon progressif du code reçu par SMS pour les comptes sensibles, au profit des clés d'accès et des applications dédiées, et à une pression accrue sur les opérateurs pour traiter l'ensemble de l'IPX comme un réseau non fiable. Il s'agit d'une analyse, non d'un fait établi."
+          ],
+          "verdict": "Le SMS n'est plus un second facteur fiable face à un adversaire étatique."
+        },
+        {
+          "type": "callout",
+          "title": "À retenir",
+          "text": "SilentAir détourne la signalisation des opérateurs pour intercepter appels, SMS et codes 2FA. Pour les comptes sensibles, préférer une application d'authentification ou une clé physique au code par SMS."
+        }
+      ],
+      "publishedAt": "2026-11-14T04:17:32+01:00",
+      "readingMinutes": 6,
+      "illustration": {
+        "svg": "<svg xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"0 0 640 360\"><defs><linearGradient id=\"g1\" x1=\"0\" y1=\"0\" x2=\"1\" y2=\"1\"><stop offset=\"0\" stop-color=\"hsl(175,65%,40%)\"/><stop offset=\"1\" stop-color=\"hsl(215,70%,22%)\"/></linearGradient></defs><rect width=\"640\" height=\"360\" fill=\"url(#g1)\"/><circle cx=\"570\" cy=\"40\" r=\"90\" fill=\"#fff\" fill-opacity=\".07\"/><circle cx=\"70\" cy=\"330\" r=\"110\" fill=\"#fff\" fill-opacity=\".06\"/><g stroke=\"#fff\" stroke-width=\"5\" opacity=\".8\"><path d=\"M320 180L180 110M320 180L460 110M320 180L200 270M320 180L450 265M180 110L460 110\"/></g><g fill=\"#fff\"><circle cx=\"320\" cy=\"180\" r=\"34\"/><circle cx=\"180\" cy=\"110\" r=\"20\"/><circle cx=\"460\" cy=\"110\" r=\"20\"/><circle cx=\"200\" cy=\"270\" r=\"20\"/><circle cx=\"450\" cy=\"265\" r=\"20\"/></g><circle cx=\"320\" cy=\"180\" r=\"14\" fill=\"hsl(175,65%,35%)\"/></svg>"
+      },
+      "cover": {
+        "url": "https://blogger.googleusercontent.com/img/b/R29vZ2xl/AVvXsEjskRPNlV_kYE1N2eF2J_J0fBvF_nQxnvtaS78Grj04KqkEauvr-R5jO-ynD9nm51SgF2XtCCAsWUbJrHU0wGRnXC9yHmblhNCF8Jt9NdVahMju3voR2z9xb2uqoSi7Nc085UqDBelqg4XDRdjJ2lsF7EeN28rjq7oBc_NpBUWRqLWXiOh9FBRIH28teHM/s1600/telecom-hack.jpg",
+        "alt": "Illustration d'un réseau de télécommunications piraté",
+        "credit": "thehackernews.com"
+      }
+    },
+    {
+      "id": "borland-cpp-2-0-source-reconstruit-exhume",
+      "category": "dev",
+      "icon": "🕰️",
+      "importance": 3,
+      "sourceDate": "2026-11-13",
+      "title": "Borland C++ 2.0 : le code source du compilateur de 1991 reconstitué à partir des binaires",
+      "summary": "Un développeur publie « borland-reborn », une reconstruction du compilateur Borland C++ 2.0 réalisée avec son outil Exhume ; elle serait identique octet pour octet aux binaires d'origine, selon Hackaday.",
+      "tags": [
+        "Borland",
+        "C++",
+        "rétro-ingénierie",
+        "DOS",
+        "compilateur"
+      ],
+      "sources": [
+        {
+          "title": "Borland C++ 2.0 Compiler Source Reconstructed",
+          "url": "https://hackaday.com/2026/11/13/borland-c-2-0-compiler-source-reconstructed/",
+          "publisher": "Hackaday"
+        }
+      ],
+      "blocks": [
+        {
+          "type": "paragraph",
+          "text": "Pour beaucoup de développeurs des années 1990, Borland C++ était l'environnement de référence sur PC. Sa version 2.0, sortie en 1991, succédait à Turbo C++. Borland n'a jamais publié le code source de ce produit commercial. Hackaday rapporte le 13 novembre 2026 qu'un développeur identifié comme Abedegno vient de reconstituer ce code source à partir des binaires de la chaîne d'outils d'origine."
+        },
+        {
+          "type": "heading",
+          "text": "Ce que l'on sait de la reconstruction"
+        },
+        {
+          "type": "paragraph",
+          "text": "Le projet, intitulé **borland-reborn**, est publié sur GitHub. Il s'appuie sur un outil du même auteur, **Exhume**, que l'article présente comme fondé sur Claude Code, un assistant de programmation fondé sur l'IA. Le document HOW-IT-WORKS.md du dépôt détaille la méthode. L'article de Hackaday ne précise pas la technique exacte employée et ne permet donc pas de dire s'il s'agit d'une décompilation classique ou d'une démarche plus assistée."
+        },
+        {
+          "type": "paragraph",
+          "text": "L'affirmation la plus forte est que la reconstruction serait « fidèle à l'octet » : les binaires produits avec la chaîne d'outils recréée correspondraient à ceux de la chaîne d'origine. C'est une propriété vérifiable, puisqu'il suffit de comparer les empreintes des fichiers obtenus, mais elle n'a pas été confirmée de manière indépendante dans la source consultée."
+        },
+        {
+          "type": "keyvalue",
+          "items": [
+            {
+              "label": "Projet",
+              "value": "borland-reborn (GitHub : abedegno/borland-reborn)"
+            },
+            {
+              "label": "Outil utilisé",
+              "value": "Exhume (GitHub : abedegno/Exhume)"
+            },
+            {
+              "label": "Produit visé",
+              "value": "Borland C++ 2.0, 1991, successeur de Turbo C++"
+            },
+            {
+              "label": "Revendication",
+              "value": "binaires reproduits à l'identique de ceux d'origine"
+            },
+            {
+              "label": "Source de l'information",
+              "value": "Hackaday, 13 novembre 2026, tuyau de Stephen Walters"
+            }
+          ]
+        },
+        {
+          "type": "heading",
+          "text": "Pourquoi cela intéresse les amateurs de logiciels anciens"
+        },
+        {
+          "type": "paragraph",
+          "text": "L'article rappelle le contexte : à l'époque, la norme C89 venait d'être adoptée et la première norme du C++ n'arriverait qu'en 1998. Le compilateur reflète donc un état très particulier du langage. Un code source reconstruit est utile pour les projets qui touchent à des logiciels DOS de cette période, par exemple pour comprendre pourquoi un binaire ancien se comporte d'une certaine manière, et il a une valeur historique."
+        },
+        {
+          "type": "paragraph",
+          "text": "Reste la question des droits. Un code reconstitué à partir d'un produit commercial demeure une œuvre dérivée d'un logiciel protégé, et l'article n'aborde pas le statut juridique de la démarche ni la position des ayants droit actuels. Quiconque voudrait réutiliser ce code dans un projet devrait donc se renseigner avant de le faire."
+        },
+        {
+          "type": "usecases",
+          "title": "Exemples d'utilisation",
+          "items": [
+            {
+              "icon": "🖥️",
+              "title": "Maintenir un vieux logiciel DOS",
+              "text": "Une équipe qui entretient un outil industriel écrit en 1992 peut comparer le comportement d'un compilateur reconstitué avec celui de l'original pour retrouver la cause d'un bogue."
+            },
+            {
+              "icon": "🎓",
+              "title": "Enseigner l'histoire des compilateurs",
+              "text": "Un enseignant montre comment un compilateur de 1991 gérait le code et les optimisations avant la normalisation du C++."
+            },
+            {
+              "icon": "🔬",
+              "title": "Tester une méthode de rétro-ingénierie",
+              "text": "Un chercheur reprend la démarche d'Exhume sur un autre produit ancien pour mesurer ce que des assistants de programmation peuvent reconstruire."
+            }
+          ]
+        },
+        {
+          "type": "timeline",
+          "title": "D'où l'on vient, où l'on va",
+          "items": [
+            {
+              "label": "1991",
+              "text": "Sortie de Borland C++ 2.0, après Turbo C++."
+            },
+            {
+              "label": "1998",
+              "text": "Publication de la première norme du C++."
+            },
+            {
+              "label": "13 novembre 2026",
+              "text": "Hackaday signale la reconstruction du code source du compilateur et la publication du dépôt."
+            }
+          ]
+        },
+        {
+          "type": "opinion",
+          "title": "Notre avis",
+          "paragraphs": [
+            "L'intérêt réel de ce projet tient moins au compilateur lui-même qu'à la méthode. Reconstituer, avec l'aide d'une IA, un code qui compile vers des binaires identiques ouvre une voie de préservation pour de nombreux logiciels dont les sources ont disparu. La limite est double : la revendication d'identité octet pour octet doit être reproduite par des tiers, et la question des droits reste entière.",
+            "D'ici un à trois ans, on peut s'attendre à voir d'autres produits abandonnés reconstitués de la même façon, et à un débat plus vif entre préservation du patrimoine logiciel et propriété intellectuelle. C'est une projection, non un fait."
+          ],
+          "verdict": "Une belle démonstration technique, à regarder avec prudence sur le plan juridique."
+        },
+        {
+          "type": "callout",
+          "title": "À retenir",
+          "text": "Un développeur affirme avoir reconstitué Borland C++ 2.0 avec une fidélité d'octet. L'outil Exhume et le dépôt borland-reborn sont publics ; le statut des droits n'est pas traité par la source."
+        }
+      ],
+      "publishedAt": "2026-11-14T04:17:32+01:00",
+      "readingMinutes": 5,
+      "illustration": {
+        "svg": "<svg xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"0 0 640 360\"><defs><linearGradient id=\"g2\" x1=\"0\" y1=\"0\" x2=\"1\" y2=\"1\"><stop offset=\"0\" stop-color=\"hsl(265,65%,40%)\"/><stop offset=\"1\" stop-color=\"hsl(305,70%,22%)\"/></linearGradient></defs><rect width=\"640\" height=\"360\" fill=\"url(#g2)\"/><circle cx=\"570\" cy=\"40\" r=\"90\" fill=\"#fff\" fill-opacity=\".07\"/><circle cx=\"70\" cy=\"330\" r=\"110\" fill=\"#fff\" fill-opacity=\".06\"/><rect x=\"170\" y=\"80\" width=\"300\" height=\"200\" rx=\"16\" fill=\"#fff\" fill-opacity=\".92\"/><rect x=\"170\" y=\"80\" width=\"300\" height=\"34\" rx=\"16\" fill=\"#fff\"/><circle cx=\"196\" cy=\"97\" r=\"6\" fill=\"hsl(265,65%,40%)\"/><circle cx=\"216\" cy=\"97\" r=\"6\" fill=\"hsl(265,65%,60%)\"/><path d=\"M215 170l-30 28 30 28M425 170l30 28-30 28\" stroke=\"hsl(265,65%,35%)\" stroke-width=\"10\" fill=\"none\" stroke-linecap=\"round\" stroke-linejoin=\"round\"/><path d=\"M345 150l-30 96\" stroke=\"hsl(265,65%,35%)\" stroke-width=\"10\" stroke-linecap=\"round\"/></svg>"
+      },
+      "cover": {
+        "url": "https://hackaday.com/wp-content/uploads/2017/05/c.jpg",
+        "alt": "Illustration du langage C",
+        "credit": "hackaday.com"
+      }
+    },
+    {
+      "id": "woodland-x11-serveur-x-esp32-s3",
+      "category": "electronique",
+      "icon": "🖼️",
+      "importance": 3,
+      "sourceDate": "2026-11-13",
+      "title": "Woodland X11 : un serveur X tient sur un ESP32-S3 et affiche xclock, xcalc et xeyes",
+      "summary": "Sergey Zorin a porté le cœur du serveur X sur un ESP32-S3 avec un écran tactile de 4,3 pouces ; seul le doigt fait office de curseur, sans clavier. Le projet a été réalisé avec l'aide de Claude.",
+      "tags": [
+        "ESP32",
+        "X11",
+        "microcontrôleur",
+        "Linux",
+        "écran tactile"
+      ],
+      "sources": [
+        {
+          "title": "X Window System On The ESP32",
+          "url": "https://hackaday.com/2026/11/13/x-window-system-on-the-esp32/",
+          "publisher": "Hackaday"
+        }
+      ],
+      "blocks": [
+        {
+          "type": "paragraph",
+          "text": "Le système de fenêtrage X, né dans les années 1980 pour les stations de travail Unix, fonctionne sur le modèle client-serveur : les applications (les clients) demandent à un serveur d'afficher des fenêtres et de recueillir les actions de l'utilisateur. Rien n'interdit donc que le serveur tourne sur un très petit appareil, pourvu que les applications s'exécutent ailleurs. C'est le pari de **Woodland X11**, un projet de Sergey Zorin présenté par Hackaday le 13 novembre 2026."
+        },
+        {
+          "type": "heading",
+          "text": "Le matériel et ce qui a été porté"
+        },
+        {
+          "type": "paragraph",
+          "text": "Le montage repose sur une carte Elecrow CrowPanel Advance de 4,3 pouces, équipée d'un module ESP32-S3-N16R8. L'écran IPS affiche 800 × 480 points en RGB565 et dispose d'une commande tactile GT911. L'article ne donne ni la consommation de mémoire vive ni l'occupation de la mémoire flash : il se contente d'indiquer que le serveur « tient » sur le microcontrôleur."
+        },
+        {
+          "type": "paragraph",
+          "text": "Le port reprend le cœur du serveur X, sans aucune extension. Les entrées se limitent au tactile : le doigt sert de curseur, un défilement se fait à deux doigts, et il n'y a pas de prise en charge du clavier. La connexion des applications se fait en Wi-Fi ou par liaison filaire. Aucune mesure de performance n'est fournie ; l'auteur dit que cela fonctionne « assez bien » pour des classiques comme xclock, xcalc et xeyes."
+        },
+        {
+          "type": "keyvalue",
+          "items": [
+            {
+              "label": "Auteur",
+              "value": "Sergey Zorin (serg5z), avec Claude crédité comme codéveloppeur"
+            },
+            {
+              "label": "Carte",
+              "value": "Elecrow CrowPanel Advance 4,3 pouces, ESP32-S3-N16R8"
+            },
+            {
+              "label": "Écran",
+              "value": "800 × 480, RGB565, tactile GT911"
+            },
+            {
+              "label": "Entrées",
+              "value": "tactile seulement, défilement à deux doigts, pas de clavier"
+            },
+            {
+              "label": "Dépôt",
+              "value": "github.com/serg5z/woodland-x11"
+            }
+          ]
+        },
+        {
+          "type": "heading",
+          "text": "Ce que cela montre, et ses limites"
+        },
+        {
+          "type": "paragraph",
+          "text": "Le projet est étiqueté « réalisé avec l'aide d'un grand modèle de langage », ce qui en fait un exemple de plus d'assistants de programmation utilisés sur des tâches de bas niveau. Il faut rester mesuré : l'absence d'extensions limite fortement les applications compatibles, et sans clavier, la saisie de texte est impossible. On a donc affaire à une démonstration plus qu'à un système de bureau."
+        },
+        {
+          "type": "usecases",
+          "title": "Exemples d'utilisation",
+          "items": [
+            {
+              "icon": "🏭",
+              "title": "Un afficheur déporté",
+              "text": "Un petit panneau mural affiche une horloge ou un tableau de bord lancé sur un serveur de l'atelier, sans carte Linux complète."
+            },
+            {
+              "icon": "🧪",
+              "title": "Un banc d'essai pédagogique",
+              "text": "Un lycée technologique montre comment une application graphique parle à un serveur d'affichage distant, sur un matériel qui coûte quelques dizaines d'euros."
+            },
+            {
+              "icon": "🏠",
+              "title": "Un terminal tactile domotique",
+              "text": "Un bricoleur ouvre une petite calculatrice ou un moniteur système sur un écran tactile encastré, alimenté par le réseau local."
+            }
+          ]
+        },
+        {
+          "type": "timeline",
+          "title": "D'où l'on vient, où l'on va",
+          "items": [
+            {
+              "label": "Années 1980",
+              "text": "Le système X est conçu pour séparer l'application de l'affichage."
+            },
+            {
+              "label": "13 novembre 2026",
+              "text": "Hackaday présente Woodland X11 sur ESP32-S3, avec dépôt public."
+            },
+            {
+              "label": "Suite possible",
+              "text": "Clavier, extensions et mesures de performance restent à documenter : l'article n'en annonce pas."
+            }
+          ]
+        },
+        {
+          "type": "opinion",
+          "title": "Notre avis",
+          "paragraphs": [
+            "Ce qui séduit ici, c'est la sobriété : un serveur d'affichage complet sur un composant à quelques euros. Les limites sont nettes : pas de clavier, pas d'extensions, aucune mesure de performance publiée. On ne peut donc pas parler de poste de travail.",
+            "À un horizon de un à trois ans, les microcontrôleurs gagnant en mémoire, on peut imaginer des afficheurs distants compatibles X plus aboutis. Cette perspective est une opinion, pas une annonce."
+          ],
+          "verdict": "Un tour de force amusant, qui vaut surtout comme preuve de faisabilité."
+        },
+        {
+          "type": "callout",
+          "title": "À retenir",
+          "text": "Woodland X11 fait tourner le cœur d'un serveur X sur un ESP32-S3 avec un écran tactile de 4,3 pouces ; pas de clavier ni d'extensions, mais xclock, xcalc et xeyes fonctionnent."
+        }
+      ],
+      "publishedAt": "2026-11-14T04:17:32+01:00",
+      "readingMinutes": 4,
+      "illustration": {
+        "svg": "<svg xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"0 0 640 360\"><defs><linearGradient id=\"g3\" x1=\"0\" y1=\"0\" x2=\"1\" y2=\"1\"><stop offset=\"0\" stop-color=\"hsl(30,65%,40%)\"/><stop offset=\"1\" stop-color=\"hsl(70,70%,22%)\"/></linearGradient></defs><rect width=\"640\" height=\"360\" fill=\"url(#g3)\"/><circle cx=\"570\" cy=\"40\" r=\"90\" fill=\"#fff\" fill-opacity=\".07\"/><circle cx=\"70\" cy=\"330\" r=\"110\" fill=\"#fff\" fill-opacity=\".06\"/><rect x=\"150\" y=\"90\" width=\"340\" height=\"190\" rx=\"14\" fill=\"#fff\" fill-opacity=\".92\"/><rect x=\"190\" y=\"125\" width=\"110\" height=\"70\" rx=\"8\" fill=\"hsl(30,65%,35%)\"/><rect x=\"330\" y=\"125\" width=\"120\" height=\"30\" rx=\"6\" fill=\"hsl(30,60%,55%)\"/><rect x=\"330\" y=\"170\" width=\"120\" height=\"30\" rx=\"6\" fill=\"hsl(30,60%,55%)\"/><path d=\"M190 225h260M190 250h180\" stroke=\"hsl(30,65%,35%)\" stroke-width=\"8\" stroke-linecap=\"round\"/><g fill=\"#fff\"><circle cx=\"170\" cy=\"110\" r=\"5\"/><circle cx=\"470\" cy=\"110\" r=\"5\"/><circle cx=\"170\" cy=\"260\" r=\"5\"/><circle cx=\"470\" cy=\"260\" r=\"5\"/></g></svg>"
+      },
+      "cover": {
+        "url": "https://hackaday.com/wp-content/uploads/2026/11/WoodlandX11_d196a1.jpg",
+        "alt": "Projet Woodland X11 sur un écran ESP32-S3",
+        "credit": "hackaday.com"
+      }
+    },
+    {
+      "id": "tranzputer-pico6809-remplacement-cpu-vintage",
+      "category": "electronique",
+      "icon": "🕹️",
+      "importance": 2,
+      "sourceDate": "2026-11-13",
+      "title": "TranZPUter : des cartes à base de RP2350 pour remplacer les processeurs d'ordinateurs d'époque, du Z80 au 6809",
+      "summary": "Philip Smart propose des cartes enfichables qui émulent d'anciens processeurs avec un RP2350B ; la dernière, Pico6809, vise les Dragon 32/64 et ajoute un coprocesseur ESP32 pour disquettes, cassettes et réseau virtuels.",
+      "tags": [
+        "rétro-informatique",
+        "Z80",
+        "6502",
+        "6809",
+        "RP2350",
+        "Dragon 32"
+      ],
+      "sources": [
+        {
+          "title": "Drop-in Vintage CPU Replacements With The TranZPUter Project",
+          "url": "https://hackaday.com/2026/11/13/drop-in-vintage-cpu-replacements-with-the-tranzputer-project/",
+          "publisher": "Hackaday"
+        }
+      ],
+      "blocks": [
+        {
+          "type": "paragraph",
+          "text": "Réparer un ordinateur des années 1980 se heurte souvent à une pénurie : certains circuits n'ont plus d'équivalent neuf. Le projet **TranZPUter** de Philip Smart répond en proposant des cartes qui se branchent à la place d'un processeur d'époque et le remplacent par un composant moderne. Hackaday en parle le 13 novembre 2026, en s'intéressant surtout à la dernière venue, **Pico6809**."
+        },
+        {
+          "type": "heading",
+          "text": "Une famille de cartes"
+        },
+        {
+          "type": "paragraph",
+          "text": "TranZPUter signifie « ordinateur ZPU transformable ». Dans sa première version, la carte embarquait un FPGA ou un microcontrôleur et visait la conception de processeur ZPU Evo. Plusieurs variantes ont suivi : picoz80 pour le Z80, pico6502 pour le 6502, et donc Pico6809 pour le Motorola 6809. Les variantes citées reposent sur le microcontrôleur RP2350B, dont la fonction PIO (entrées-sorties programmables) imite le comportement des broches du processeur d'origine. L'article ne détaille pas les signaux."
+        },
+        {
+          "type": "paragraph",
+          "text": "La Pico6809 associe le RP2350B à un coprocesseur ESP32 et vise pour l'instant les ordinateurs Dragon 32 et 64. Elle offre en option des lecteurs de disquette et de cassette virtuels, ainsi qu'un accès au réseau. Le 6809 équipait aussi, selon l'article, le TRS-80 Color, le SuperPET et divers jeux d'arcade, ce qui laisse entrevoir d'autres cibles."
+        },
+        {
+          "type": "keyvalue",
+          "items": [
+            {
+              "label": "Auteur",
+              "value": "Philip Smart (projets sur eaw.app)"
+            },
+            {
+              "label": "Variantes citées",
+              "value": "picoz80 (Z80), pico6502 (6502), Pico6809 (6809)"
+            },
+            {
+              "label": "Base matérielle",
+              "value": "RP2350B, fonction PIO ; ESP32 en coprocesseur sur la Pico6809"
+            },
+            {
+              "label": "Cible actuelle de la Pico6809",
+              "value": "Dragon 32 et 64"
+            },
+            {
+              "label": "Dépôt de code",
+              "value": "non indiqué dans l'article ; pages du projet sur eaw.app"
+            }
+          ]
+        },
+        {
+          "type": "heading",
+          "text": "Intérêt et prudence"
+        },
+        {
+          "type": "paragraph",
+          "text": "Un tel remplaçant sert à réparer une machine dont le processeur est mort, mais aussi à lui ajouter des fonctions modernes, comme le stockage sur carte mémoire à la place des cassettes. La fidélité de l'émulation, la vitesse et la compatibilité avec tous les logiciels ne sont pas évaluées dans l'article, qui ne publie pas non plus de bancs d'essai. Il faut donc voir ces cartes comme des outils de passionnés, dont la qualité dépend du modèle d'ordinateur visé."
+        },
+        {
+          "type": "usecases",
+          "title": "Exemples d'utilisation",
+          "items": [
+            {
+              "icon": "🔧",
+              "title": "Sauver un Dragon 32 en panne",
+              "text": "Le processeur d'un ordinateur de collection est défunt : la carte permet de le redémarrer sans chercher un composant d'occasion introuvable."
+            },
+            {
+              "icon": "💾",
+              "title": "Remplacer la cassette",
+              "text": "Un collectionneur charge ses jeux depuis un fichier, grâce au lecteur de cassette virtuel, au lieu d'un magnétophone capricieux."
+            },
+            {
+              "icon": "🏫",
+              "title": "Un atelier de rétro-informatique",
+              "text": "Un club montre à ses membres comment un microcontrôleur moderne imite un circuit de 1980."
+            }
+          ]
+        },
+        {
+          "type": "timeline",
+          "title": "D'où l'on vient, où l'on va",
+          "items": [
+            {
+              "label": "Années 1980",
+              "text": "Le 6809 équipe Dragon 32/64, TRS-80 Color et d'autres machines."
+            },
+            {
+              "label": "Versions successives",
+              "text": "TranZPUter évolue de la conception ZPU Evo vers les variantes Z80, 6502 puis 6809."
+            },
+            {
+              "label": "13 novembre 2026",
+              "text": "Hackaday présente la Pico6809."
+            }
+          ]
+        },
+        {
+          "type": "opinion",
+          "title": "Notre avis",
+          "paragraphs": [
+            "L'idée est élégante : un microcontrôleur à quelques euros qui se fait passer pour une puce rare. Le risque est de dépendre d'un projet individuel, sans dépôt de code cité, et les performances réelles restent inconnues.",
+            "À un horizon de un à trois ans, la rétro-informatique pourrait s'appuyer sur ce type de cartes pour garder en état des machines dont les puces d'origine disparaissent. C'est une conjecture."
+          ],
+          "verdict": "Un remède malin à la pénurie de puces anciennes, dont il reste à mesurer la fidélité."
+        },
+        {
+          "type": "callout",
+          "title": "À retenir",
+          "text": "TranZPUter propose des remplaçants modernes de processeurs d'époque ; la Pico6809, avec un RP2350B et un ESP32, vise les Dragon 32/64."
+        }
+      ],
+      "publishedAt": "2026-11-14T04:17:32+01:00",
+      "readingMinutes": 5,
+      "illustration": {
+        "svg": "<svg xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"0 0 640 360\"><defs><linearGradient id=\"g4\" x1=\"0\" y1=\"0\" x2=\"1\" y2=\"1\"><stop offset=\"0\" stop-color=\"hsl(30,65%,40%)\"/><stop offset=\"1\" stop-color=\"hsl(70,70%,22%)\"/></linearGradient></defs><rect width=\"640\" height=\"360\" fill=\"url(#g4)\"/><circle cx=\"570\" cy=\"40\" r=\"90\" fill=\"#fff\" fill-opacity=\".07\"/><circle cx=\"70\" cy=\"330\" r=\"110\" fill=\"#fff\" fill-opacity=\".06\"/><rect x=\"250\" y=\"100\" width=\"140\" height=\"140\" rx=\"16\" fill=\"#fff\" fill-opacity=\".92\"/><rect x=\"285\" y=\"135\" width=\"70\" height=\"70\" rx=\"8\" fill=\"hsl(30,65%,35%)\"/><path d=\"M280 78v22M320 78v22M360 78v22M280 240v22M320 240v22M360 240v22M228 130h22M228 170h22M228 210h22M390 130h22M390 170h22M390 210h22\" stroke=\"#fff\" stroke-width=\"8\" stroke-linecap=\"round\"/></svg>"
+      },
+      "cover": {
+        "url": "https://hackaday.com/wp-content/uploads/2026/11/pico6809_pcb_top_horiz.png",
+        "alt": "Circuit imprimé de la carte Pico6809",
+        "credit": "hackaday.com"
+      }
+    },
+    {
+      "id": "google-aqua-agent-qualite-production-agents-ia",
+      "category": "ia",
+      "icon": "🩺",
+      "importance": 4,
+      "sourceDate": "2026-11-13",
+      "title": "Google publie AQuA, un agent chargé de repérer les défaillances silencieuses des agents d'IA en production",
+      "summary": "L'outil open source analyse des sessions réelles, regroupe et vérifie les défauts récurrents, puis remonte à leur cause dans le code déployé. Sur une application de voyage, les contournements de choix de siège sont passés de 15 à 2 sessions lors d'un rejeu.",
+      "tags": [
+        "agents IA",
+        "observabilité",
+        "Google",
+        "qualité",
+        "open source"
+      ],
+      "sources": [
+        {
+          "title": "Google Open Sources Ambient Quality Agent (AQuA) to Diagnose Production AI Agent Failures",
+          "url": "https://www.infoq.com/news/2026/11/google-ambient-agent-prod/",
+          "publisher": "InfoQ"
+        }
+      ],
+      "blocks": [
+        {
+          "type": "paragraph",
+          "text": "Un agent d'IA peut répondre avec assurance, sans erreur technique, tout en ignorant une préférence de l'utilisateur ou en sautant un appel d'outil obligatoire. Les outils de supervision d'infrastructure, qui surveillent les temps de réponse et les codes d'erreur, ne voient rien. C'est ce type de régression silencieuse que vise **AQuA** (Ambient Quality Agent), que Google vient de publier en open source, selon InfoQ le 13 novembre 2026."
+        },
+        {
+          "type": "heading",
+          "text": "Comment AQuA travaille"
+        },
+        {
+          "type": "paragraph",
+          "text": "AQuA s'exécute en parallèle de l'agent, dans Google Cloud, hors de son chemin de requête : il ne ralentit donc pas les réponses. Il lit la télémétrie dans Cloud Trace, Cloud Logging ou BigQuery, puis compare les sessions défaillantes à une copie immuable du code, prise au moment du déploiement. Un agent de diagnostic désigne les fichiers ou instructions en cause, cite les lignes concernées et peut proposer des modifications. Il n'applique rien lui-même et n'ouvre pas de demande de fusion."
+        },
+        {
+          "type": "list",
+          "items": [
+            "Échantillonnage : jusqu'à 1 000 sessions récentes par exécution.",
+            "Examen des sessions retenues.",
+            "Regroupement des constats en grappes.",
+            "Vérification des grappes candidates, pour écarter les faux positifs.",
+            "Suivi dans le temps : chaque constat est « nouveau » ou « récurrent », puis « résolu » après quatorze jours sans nouvelle observation."
+          ]
+        },
+        {
+          "type": "paragraph",
+          "text": "Les développeurs peuvent décrire leurs critères de qualité dans un fichier `goal.md` et ajouter des mesures déterministes. L'outil peut se lancer selon un calendrier, après un déploiement ou à la demande. Google défend une règle de preuve : un constat vaut par ses citations, non par un score de confiance déclaré par le modèle."
+        },
+        {
+          "type": "heading",
+          "text": "Les résultats annoncés"
+        },
+        {
+          "type": "paragraph",
+          "text": "Google a testé AQuA sur une application de voyage multiagents : 32 sessions échantillonnées, 42 constats regroupés en neuf grappes candidates. La vérification, qui examine jusqu'à trois transcriptions complètes par grappe, en a rejeté trois, faute de preuves. Six problèmes ont été confirmés, dont des contournements de la vérification de disponibilité des sièges et la perte de la préférence végétalienne d'un voyageur lors d'une délégation entre agents."
+        },
+        {
+          "type": "keyvalue",
+          "items": [
+            {
+              "label": "Contournements du choix de siège",
+              "value": "15 sessions avant, 2 après modification des consignes"
+            },
+            {
+              "label": "Oublis de préférence alimentaire",
+              "value": "7 sessions avant, 0 après"
+            },
+            {
+              "label": "Sessions sans aucun défaut",
+              "value": "5 avant, 13 après"
+            },
+            {
+              "label": "Nature du test",
+              "value": "rejeu contrôlé, pas du trafic de production"
+            }
+          ]
+        },
+        {
+          "type": "diagram",
+          "svg": "<svg xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"0 0 640 186\" font-family=\"system-ui,sans-serif\"><rect width=\"640\" height=\"186\" rx=\"14\" fill=\"hsl(320,40%,96%)\"/><text x=\"320\" y=\"26\" text-anchor=\"middle\" font-size=\"15\" font-weight=\"700\" fill=\"hsl(320,50%,22%)\">Chaîne de diagnostic d&#x27;AQuA</text><rect x=\"20\" y=\"44\" width=\"129\" height=\"122\" rx=\"10\" fill=\"hsl(320,55%,88%)\" stroke=\"hsl(320,55%,35%)\" stroke-width=\"2\"/><text x=\"84.5\" y=\"72\" text-anchor=\"middle\" font-size=\"14\" font-weight=\"700\" fill=\"hsl(320,60%,18%)\">Sessions</text><text x=\"84.5\" y=\"96\" text-anchor=\"middle\" font-size=\"12\" fill=\"hsl(320,40%,22%)\">échantillon jusqu&#x27;à</text><text x=\"84.5\" y=\"113\" text-anchor=\"middle\" font-size=\"12\" fill=\"hsl(320,40%,22%)\">1 000</text><path d=\"M153 105.0h20m-7-7 7 7-7 7\" stroke=\"hsl(320,55%,35%)\" stroke-width=\"3\" fill=\"none\" stroke-linecap=\"round\" stroke-linejoin=\"round\"/><rect x=\"177\" y=\"44\" width=\"129\" height=\"122\" rx=\"10\" fill=\"hsl(320,55%,88%)\" stroke=\"hsl(320,55%,35%)\" stroke-width=\"2\"/><text x=\"241.5\" y=\"72\" text-anchor=\"middle\" font-size=\"14\" font-weight=\"700\" fill=\"hsl(320,60%,18%)\">Constats</text><text x=\"241.5\" y=\"96\" text-anchor=\"middle\" font-size=\"12\" fill=\"hsl(320,40%,22%)\">examen puis grappes</text><path d=\"M310 105.0h20m-7-7 7 7-7 7\" stroke=\"hsl(320,55%,35%)\" stroke-width=\"3\" fill=\"none\" stroke-linecap=\"round\" stroke-linejoin=\"round\"/><rect x=\"334\" y=\"44\" width=\"129\" height=\"122\" rx=\"10\" fill=\"hsl(320,55%,88%)\" stroke=\"hsl(320,55%,35%)\" stroke-width=\"2\"/><text x=\"398.5\" y=\"72\" text-anchor=\"middle\" font-size=\"14\" font-weight=\"700\" fill=\"hsl(320,60%,18%)\">Vérification</text><text x=\"398.5\" y=\"96\" text-anchor=\"middle\" font-size=\"12\" fill=\"hsl(320,40%,22%)\">grappes écartées si</text><text x=\"398.5\" y=\"113\" text-anchor=\"middle\" font-size=\"12\" fill=\"hsl(320,40%,22%)\">non prouvées</text><path d=\"M467 105.0h20m-7-7 7 7-7 7\" stroke=\"hsl(320,55%,35%)\" stroke-width=\"3\" fill=\"none\" stroke-linecap=\"round\" stroke-linejoin=\"round\"/><rect x=\"491\" y=\"44\" width=\"129\" height=\"122\" rx=\"10\" fill=\"hsl(320,55%,88%)\" stroke=\"hsl(320,55%,35%)\" stroke-width=\"2\"/><text x=\"555.5\" y=\"72\" text-anchor=\"middle\" font-size=\"14\" font-weight=\"700\" fill=\"hsl(320,60%,18%)\">Cause</text><text x=\"555.5\" y=\"96\" text-anchor=\"middle\" font-size=\"12\" fill=\"hsl(320,40%,22%)\">lignes du code</text><text x=\"555.5\" y=\"113\" text-anchor=\"middle\" font-size=\"12\" fill=\"hsl(320,40%,22%)\">déployé citées</text></svg>",
+          "alt": "Quatre étapes : sessions, constats, vérification, cause dans le code déployé.",
+          "caption": "Principe de fonctionnement d'AQuA, simplifié."
+        },
+        {
+          "type": "paragraph",
+          "text": "Les limites sont reconnues : l'échantillonnage peut manquer des défaillances rares, le rejeu ne reproduit pas toujours l'état externe, et la vérification d'une grappe ne garantit pas que chaque session montre exactement le même défaut. Les chiffres cités viennent d'un rejeu et non de la production. La licence n'est pas précisée dans l'article ; le code est publié dans le dépôt google/adk-recipes."
+        },
+        {
+          "type": "usecases",
+          "title": "Exemples d'utilisation",
+          "items": [
+            {
+              "icon": "🛫",
+              "title": "Un assistant de réservation",
+              "text": "L'équipe découvre que l'agent saute la vérification de disponibilité dans un cas sur trois et corrige la consigne fautive."
+            },
+            {
+              "icon": "🏦",
+              "title": "Un agent de support client",
+              "text": "Un service détecte que l'agent oublie une mention obligatoire après un transfert vers un autre agent."
+            },
+            {
+              "icon": "🛒",
+              "title": "Un agent de commerce en ligne",
+              "text": "Un site repère une dérive survenue après un déploiement, que ses tableaux de bord classiques n'avaient pas signalée."
+            }
+          ]
+        },
+        {
+          "type": "timeline",
+          "title": "D'où l'on vient, où l'on va",
+          "items": [
+            {
+              "label": "Jusqu'ici",
+              "text": "La supervision classique mesure surtout latence et erreurs, pas la qualité des réponses."
+            },
+            {
+              "label": "13 novembre 2026",
+              "text": "Google publie AQuA en open source, avec des résultats de rejeu."
+            },
+            {
+              "label": "Suite",
+              "text": "Des tests en production et un éventuel traitement automatique des correctifs ne sont pas annoncés."
+            }
+          ]
+        },
+        {
+          "type": "opinion",
+          "title": "Notre avis",
+          "paragraphs": [
+            "L'idée de relier chaque constat à une ligne de code déployée est ce qui rend l'outil crédible : un diagnostic vérifiable vaut mieux qu'un score. Mais il faut garder la tête froide : l'évaluation porte sur 32 sessions, dans un seul exemple, et sert surtout à illustrer la méthode.",
+            "À un horizon de un à trois ans, la supervision de la qualité des agents devrait devenir aussi courante que celle des serveurs. Cette projection est une opinion et non un fait."
+          ],
+          "verdict": "Une approche sérieuse, à éprouver sur de vrais volumes avant de s'y fier."
+        },
+        {
+          "type": "callout",
+          "title": "À retenir",
+          "text": "AQuA diagnostique les défaillances silencieuses d'agents d'IA en citant la preuve dans les traces et le code déployé. Les gains annoncés viennent d'un rejeu de 32 sessions."
+        }
+      ],
+      "publishedAt": "2026-11-14T04:17:32+01:00",
+      "readingMinutes": 6,
+      "illustration": {
+        "svg": "<svg xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"0 0 640 360\"><defs><linearGradient id=\"g5\" x1=\"0\" y1=\"0\" x2=\"1\" y2=\"1\"><stop offset=\"0\" stop-color=\"hsl(320,65%,40%)\"/><stop offset=\"1\" stop-color=\"hsl(0,70%,22%)\"/></linearGradient></defs><rect width=\"640\" height=\"360\" fill=\"url(#g5)\"/><circle cx=\"570\" cy=\"40\" r=\"90\" fill=\"#fff\" fill-opacity=\".07\"/><circle cx=\"70\" cy=\"330\" r=\"110\" fill=\"#fff\" fill-opacity=\".06\"/><rect x=\"240\" y=\"110\" width=\"160\" height=\"130\" rx=\"26\" fill=\"#fff\" fill-opacity=\".93\"/><circle cx=\"285\" cy=\"165\" r=\"16\" fill=\"hsl(320,65%,35%)\"/><circle cx=\"355\" cy=\"165\" r=\"16\" fill=\"hsl(320,65%,35%)\"/><path d=\"M285 208h70\" stroke=\"hsl(320,65%,35%)\" stroke-width=\"9\" stroke-linecap=\"round\"/><path d=\"M320 110V80\" stroke=\"#fff\" stroke-width=\"8\"/><circle cx=\"320\" cy=\"72\" r=\"10\" fill=\"#fff\"/><path d=\"M215 150v40M425 150v40\" stroke=\"#fff\" stroke-width=\"12\" stroke-linecap=\"round\"/></svg>"
+      },
+      "cover": {
+        "url": "https://res.infoq.com/news/2026/11/google-ambient-agent-prod/en/headerimage/generatedHeaderImage-1792894383462.jpg",
+        "alt": "Illustration du diagnostic d'agents d'IA en production",
+        "credit": "infoq.com"
+      }
+    },
+    {
+      "id": "linkedin-remplace-argo-cd-moteur-gitops-maison",
+      "category": "devops",
+      "icon": "🚢",
+      "importance": 4,
+      "sourceDate": "2026-11-13",
+      "title": "LinkedIn abandonne Argo CD pour un moteur GitOps maison sur plus de 250 clusters Kubernetes",
+      "summary": "Le réseau professionnel explique avoir remplacé Argo CD par une bibliothèque interne qui lance un pod éphémère par déploiement ; les échecs d'infrastructure sont passés de 925 à 63 malgré un volume multiplié par 3,7.",
+      "tags": [
+        "Kubernetes",
+        "GitOps",
+        "Argo CD",
+        "déploiement",
+        "LinkedIn"
+      ],
+      "sources": [
+        {
+          "title": "LinkedIn Replaces Argo CD with a Custom GitOps Engine for Kubernetes Deployments",
+          "url": "https://www.infoq.com/news/2026/11/kubernetes-argocd-linkedin/",
+          "publisher": "InfoQ"
+        }
+      ],
+      "blocks": [
+        {
+          "type": "paragraph",
+          "text": "Argo CD est l'un des outils de référence du GitOps : il compare en continu l'état souhaité d'un cluster Kubernetes, décrit dans un dépôt, avec l'état réel, et corrige l'écart. LinkedIn explique pourtant, selon InfoQ le 12 novembre 2026, l'avoir remplacé par un moteur développé en interne pour déployer sur plus de 250 clusters. L'entreprise y fait tourner plus de 4 000 services et plus de 100 000 déploiements par semaine, avec des clusters allant jusqu'à 5 000 nœuds."
+        },
+        {
+          "type": "heading",
+          "text": "Les raisons avancées"
+        },
+        {
+          "type": "list",
+          "items": [
+            "Pas de lien fiable entre synchronisation, santé et déploiement : Argo CD n'expose pas de champ `observedGeneration` ; LinkedIn a dû écrire un contrôle de santé en Lua s'appuyant sur une annotation.",
+            "Un cache périmé du serveur de dépôt pouvait laisser une application à l'état « synchronisée et saine » avec une révision non voulue.",
+            "Des surveillances partagées : un seul suivi par type de ressource, si bien qu'une application très active ralentissait les synchronisations de toutes les autres. Une synchronisation durait moins de 3 minutes avec 60 000 pods, et plus de 10 minutes au-delà de 80 000.",
+            "Perte de la propriété des champs : Kubernetes tronque `managedFields` au-delà de dix gestionnaires, ce qui a laissé survivre un conteneur retiré d'un manifeste sur un pod d'IA ; la suppression automatique a donc été désactivée.",
+            "Des frictions d'exploitation : changements de schéma de CRD nécessitant des redémarrages, états « désynchronisés » sans écart réel, et plus de 200 instances d'Argo CD dont chaque mise à jour prenait plusieurs semaines."
+          ]
+        },
+        {
+          "type": "paragraph",
+          "text": "LinkedIn a aussi écarté Flux, qui repose sur le même paradigme de contrôleur et ne règle donc pas le problème de fond."
+        },
+        {
+          "type": "heading",
+          "text": "Le moteur maison"
+        },
+        {
+          "type": "paragraph",
+          "text": "Il s'agit d'une bibliothèque interne et non d'un contrôleur partagé. Chaque déploiement s'exécute dans son propre pod éphémère, sans état commun ; un orchestrateur central lance ces pods. Les écritures utilisent PUT, un remplacement complet, au lieu de PATCH, avec reprises à délai croissant en cas de conflit sur `resourceVersion`. Une comparaison à trois voies confronte l'objet vivant, le manifeste précédemment déployé et le nouveau manifeste : un écart réel fait échouer le déploiement. Le même pod suit ensuite l'état de l'objet jusqu'à convergence ou délai dépassé, et les objets absents du nouveau manifeste deviennent candidats à la suppression, sous réserve de protection."
+        },
+        {
+          "type": "diagram",
+          "svg": "<svg xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"0 0 640 186\" font-family=\"system-ui,sans-serif\"><rect width=\"640\" height=\"186\" rx=\"14\" fill=\"hsl(160,40%,96%)\"/><text x=\"320\" y=\"26\" text-anchor=\"middle\" font-size=\"15\" font-weight=\"700\" fill=\"hsl(160,50%,22%)\">Déploiement sans contrôleur partagé</text><rect x=\"20\" y=\"44\" width=\"129\" height=\"122\" rx=\"10\" fill=\"hsl(160,55%,88%)\" stroke=\"hsl(160,55%,35%)\" stroke-width=\"2\"/><text x=\"84.5\" y=\"72\" text-anchor=\"middle\" font-size=\"14\" font-weight=\"700\" fill=\"hsl(160,60%,18%)\">Orchestrateur</text><text x=\"84.5\" y=\"96\" text-anchor=\"middle\" font-size=\"12\" fill=\"hsl(160,40%,22%)\">lance un pod par</text><text x=\"84.5\" y=\"113\" text-anchor=\"middle\" font-size=\"12\" fill=\"hsl(160,40%,22%)\">déploiement</text><path d=\"M153 105.0h20m-7-7 7 7-7 7\" stroke=\"hsl(160,55%,35%)\" stroke-width=\"3\" fill=\"none\" stroke-linecap=\"round\" stroke-linejoin=\"round\"/><rect x=\"177\" y=\"44\" width=\"129\" height=\"122\" rx=\"10\" fill=\"hsl(160,55%,88%)\" stroke=\"hsl(160,55%,35%)\" stroke-width=\"2\"/><text x=\"241.5\" y=\"72\" text-anchor=\"middle\" font-size=\"14\" font-weight=\"700\" fill=\"hsl(160,60%,18%)\">Pod éphémère</text><text x=\"241.5\" y=\"96\" text-anchor=\"middle\" font-size=\"12\" fill=\"hsl(160,40%,22%)\">rend le manifeste,</text><text x=\"241.5\" y=\"113\" text-anchor=\"middle\" font-size=\"12\" fill=\"hsl(160,40%,22%)\">compare à trois</text><text x=\"241.5\" y=\"130\" text-anchor=\"middle\" font-size=\"12\" fill=\"hsl(160,40%,22%)\">voies</text><path d=\"M310 105.0h20m-7-7 7 7-7 7\" stroke=\"hsl(160,55%,35%)\" stroke-width=\"3\" fill=\"none\" stroke-linecap=\"round\" stroke-linejoin=\"round\"/><rect x=\"334\" y=\"44\" width=\"129\" height=\"122\" rx=\"10\" fill=\"hsl(160,55%,88%)\" stroke=\"hsl(160,55%,35%)\" stroke-width=\"2\"/><text x=\"398.5\" y=\"72\" text-anchor=\"middle\" font-size=\"14\" font-weight=\"700\" fill=\"hsl(160,60%,18%)\">Écriture</text><text x=\"398.5\" y=\"96\" text-anchor=\"middle\" font-size=\"12\" fill=\"hsl(160,40%,22%)\">PUT complet,</text><text x=\"398.5\" y=\"113\" text-anchor=\"middle\" font-size=\"12\" fill=\"hsl(160,40%,22%)\">reprises en cas de</text><text x=\"398.5\" y=\"130\" text-anchor=\"middle\" font-size=\"12\" fill=\"hsl(160,40%,22%)\">conflit</text><path d=\"M467 105.0h20m-7-7 7 7-7 7\" stroke=\"hsl(160,55%,35%)\" stroke-width=\"3\" fill=\"none\" stroke-linecap=\"round\" stroke-linejoin=\"round\"/><rect x=\"491\" y=\"44\" width=\"129\" height=\"122\" rx=\"10\" fill=\"hsl(160,55%,88%)\" stroke=\"hsl(160,55%,35%)\" stroke-width=\"2\"/><text x=\"555.5\" y=\"72\" text-anchor=\"middle\" font-size=\"14\" font-weight=\"700\" fill=\"hsl(160,60%,18%)\">Suivi</text><text x=\"555.5\" y=\"96\" text-anchor=\"middle\" font-size=\"12\" fill=\"hsl(160,40%,22%)\">attend la</text><text x=\"555.5\" y=\"113\" text-anchor=\"middle\" font-size=\"12\" fill=\"hsl(160,40%,22%)\">convergence ou le</text><text x=\"555.5\" y=\"130\" text-anchor=\"middle\" font-size=\"12\" fill=\"hsl(160,40%,22%)\">délai</text></svg>",
+          "alt": "Quatre étapes : orchestrateur, pod éphémère, écriture PUT, suivi jusqu'à la convergence.",
+          "caption": "Principe du moteur de déploiement de LinkedIn, simplifié."
+        },
+        {
+          "type": "keyvalue",
+          "items": [
+            {
+              "label": "Échecs d'infrastructure",
+              "value": "de 925 à 63, pour un volume de déploiements multiplié par 3,7"
+            },
+            {
+              "label": "Détection d'un échec de déploiement (médiane)",
+              "value": "de 16,1 à 2,45 minutes"
+            },
+            {
+              "label": "Période de migration",
+              "value": "juillet 2025 à avril 2026 ; mai 2026 est le premier mois complet après migration"
+            },
+            {
+              "label": "Argo CD aujourd'hui",
+              "value": "toujours utilisé pour les modules complémentaires et services système des clusters"
+            }
+          ]
+        },
+        {
+          "type": "paragraph",
+          "text": "LinkedIn nuance ses résultats : les gains ne tiennent pas qu'au nouveau moteur, puisque la classification des erreurs et la fiabilité de l'orchestrateur se sont améliorées dans le même temps. Le décompte d'échecs exclut les écarts, car les deux systèmes définissent différemment la dérive. Le moteur n'est pas ouvert, son coût d'un pod par déploiement n'est pas chiffré, et les équipes doivent désormais maintenir leur propre outil."
+        },
+        {
+          "type": "usecases",
+          "title": "Exemples d'utilisation",
+          "items": [
+            {
+              "icon": "🔍",
+              "title": "Auditer ses objets Kubernetes",
+              "text": "Une équipe compte les gestionnaires de champs sur ses objets durables pour détecter une troncature de `managedFields` avant qu'elle ne laisse un conteneur orphelin."
+            },
+            {
+              "icon": "⏱️",
+              "title": "Mesurer la contention",
+              "text": "Un exploitant vérifie si la durée de synchronisation suit le nombre total de pods d'un cluster partagé, signe de surveillance saturée."
+            },
+            {
+              "icon": "🧩",
+              "title": "Isoler les déploiements",
+              "text": "Une plateforme étudie un pod éphémère par déploiement pour éviter qu'une application bruyante ralentisse les autres."
+            }
+          ]
+        },
+        {
+          "type": "timeline",
+          "title": "D'où l'on vient, où l'on va",
+          "items": [
+            {
+              "label": "Juillet 2025",
+              "text": "Début de la migration vers le moteur interne."
+            },
+            {
+              "label": "Avril 2026",
+              "text": "Fin de la migration ; mai 2026 sert de premier mois de comparaison."
+            },
+            {
+              "label": "12 novembre 2026",
+              "text": "Publication du retour d'expérience relayé par InfoQ."
+            }
+          ]
+        },
+        {
+          "type": "opinion",
+          "title": "Notre avis",
+          "paragraphs": [
+            "Le retour est précieux parce qu'il est chiffré et nuancé : LinkedIn reconnaît que les gains ne sont pas dus qu'au moteur. Mais ce choix n'est transposable qu'à de très grandes organisations. Pour la plupart des équipes, maintenir un moteur de déploiement coûterait bien plus cher que de contourner les limites d'Argo CD.",
+            "À un à trois ans, on peut s'attendre à ce que les très grands exploitants isolent davantage les déploiements, tandis que les projets ouverts intègrent ces enseignements. Il s'agit d'une prévision d'opinion."
+          ],
+          "verdict": "Une solution de géant : instructive, mais rarement à copier telle quelle."
+        },
+        {
+          "type": "callout",
+          "title": "À retenir",
+          "text": "Argo CD reste pertinent pour la plupart des équipes ; son remplacement par LinkedIn répond à des problèmes d'échelle (plus de 250 clusters). Vérifier `managedFields` sur ses objets durables est un geste utile."
+        }
+      ],
+      "publishedAt": "2026-11-14T04:17:32+01:00",
+      "readingMinutes": 7,
+      "illustration": {
+        "svg": "<svg xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"0 0 640 360\"><defs><linearGradient id=\"g6\" x1=\"0\" y1=\"0\" x2=\"1\" y2=\"1\"><stop offset=\"0\" stop-color=\"hsl(160,65%,40%)\"/><stop offset=\"1\" stop-color=\"hsl(200,70%,22%)\"/></linearGradient></defs><rect width=\"640\" height=\"360\" fill=\"url(#g6)\"/><circle cx=\"570\" cy=\"40\" r=\"90\" fill=\"#fff\" fill-opacity=\".07\"/><circle cx=\"70\" cy=\"330\" r=\"110\" fill=\"#fff\" fill-opacity=\".06\"/><path d=\"M230 250a55 55 0 0 1-5-109 80 80 0 0 1 150-20 65 65 0 0 1 40 129z\" fill=\"#fff\" fill-opacity=\".93\"/><g fill=\"hsl(160,65%,35%)\"><rect x=\"255\" y=\"190\" width=\"40\" height=\"30\" rx=\"5\"/><rect x=\"305\" y=\"190\" width=\"40\" height=\"30\" rx=\"5\"/><rect x=\"355\" y=\"190\" width=\"40\" height=\"30\" rx=\"5\"/></g></svg>"
+      },
+      "cover": {
+        "url": "https://res.infoq.com/news/2026/11/kubernetes-argocd-linkedin/en/headerimage/generatedHeaderImage-1794414453878.jpg",
+        "alt": "Illustration du déploiement GitOps sur Kubernetes",
+        "credit": "infoq.com"
+      }
+    },
+    {
+      "id": "dropbox-auditeur-cookies-playwright-consentement",
+      "category": "web",
+      "icon": "🍪",
+      "importance": 3,
+      "sourceDate": "2026-11-13",
+      "title": "Dropbox contrôle le consentement aux cookies de plus de 200 surfaces web avec un auditeur Playwright",
+      "summary": "Trois tests par page (visiteur américain, visiteur européen, signal Global Privacy Control), des rapports hebdomadaires et une liste de cookies approuvés mise à jour sans livraison : Dropbox détaille son outil interne.",
+      "tags": [
+        "cookies",
+        "consentement",
+        "Playwright",
+        "vie privée",
+        "tests"
+      ],
+      "sources": [
+        {
+          "title": "Dropbox Shares How Its In-House Cookie Auditor Tests Consent Behaviour Across 200+ Web Surfaces",
+          "url": "https://www.infoq.com/news/2026/11/dropbox-cookie-auditor/",
+          "publisher": "InfoQ"
+        }
+      ],
+      "blocks": [
+        {
+          "type": "paragraph",
+          "text": "Une bannière de cookies qui affiche « Refuser » ne prouve rien : encore faut-il que, une fois le refus enregistré, le site cesse bien de déposer les traceurs non essentiels. Les ingénieurs de Dropbox, Yasmin McDowell et Lawrence Good, ont décrit un outil interne qui vérifie cela automatiquement, relaté par InfoQ le 13 novembre 2026. L'auditeur couvre plus de 200 surfaces web, réparties entre Dropbox, Dropbox Sign, DocSend et FormSwift."
+        },
+        {
+          "type": "heading",
+          "text": "Trois visiteurs simulés par page"
+        },
+        {
+          "type": "paragraph",
+          "text": "Fondé sur Playwright, une bibliothèque d'automatisation de navigateurs maintenue par Microsoft, l'auditeur se comporte comme un visiteur soucieux de sa vie privée. Pour chaque page concernée, il exécute trois tests : un visiteur américain standard, un visiteur européen et un visiteur qui envoie le signal Global Privacy Control (GPC). Chaque test démarre dans un contexte de navigateur isolé, sans cookie."
+        },
+        {
+          "type": "list",
+          "items": [
+            "Avant toute interaction, l'outil relève les cookies déjà chargés et les compare à la référence attendue pour le scénario.",
+            "Il repère ensuite les commandes de consentement et refuse les cookies non essentiels.",
+            "Il recharge enfin la page et vérifie que le choix a bien été conservé."
+          ]
+        },
+        {
+          "type": "paragraph",
+          "text": "Les commandes ne sont pas retrouvées d'après le texte des boutons : Dropbox gère 22 langues et la bannière peut être flottante, une fenêtre de préférences ou un lien de pied de page. L'auditeur agit donc sur les éléments de consentement sous-jacents. Comme la bannière est développée en interne, il se branche directement sur cette infrastructure plutôt que de s'adapter à un produit tiers."
+        },
+        {
+          "type": "heading",
+          "text": "Configuration, couverture et rapports"
+        },
+        {
+          "type": "paragraph",
+          "text": "Les classifications de cookies sont stockées hors du code. L'équipe chargée de la vie privée peut ainsi modifier la liste des cookies approuvés et les exceptions connues sans attendre une livraison d'ingénierie. Un détecteur d'adresses complémentaire, que l'article présente comme « un auditeur pour notre auditeur », s'appuie sur les données de trafic pour trouver toutes les surfaces web actives : des milliards d'enregistrements de visites sont filtrés en un nombre gérable de chemins uniques, regroupés selon leur logique de consentement afin que des adresses représentatives tiennent lieu de familles de pages."
+        },
+        {
+          "type": "paragraph",
+          "text": "Un rapport hebdomadaire est adressé aux équipes vie privée et ingénierie ; il distingue les violations probables des faux positifs connus et suit les tendances. L'étape suivante prévue est d'adresser les constats directement aux équipes responsables de chaque page. L'article ne donne ni taux de faux positifs, ni nombre de violations."
+        },
+        {
+          "type": "keyvalue",
+          "items": [
+            {
+              "label": "Surfaces couvertes",
+              "value": "plus de 200"
+            },
+            {
+              "label": "Langues prises en charge",
+              "value": "22"
+            },
+            {
+              "label": "Tests par page",
+              "value": "3 (États-Unis, Europe, signal GPC)"
+            },
+            {
+              "label": "Cadence des rapports",
+              "value": "hebdomadaire"
+            }
+          ]
+        },
+        {
+          "type": "paragraph",
+          "text": "Le principal enseignement avancé est que l'automatisation du navigateur est sans doute la partie la plus simple. Le plus difficile consiste à définir le comportement correct, à tenir à jour l'inventaire des surfaces et à séparer les vrais problèmes du bruit."
+        },
+        {
+          "type": "usecases",
+          "title": "Exemples d'utilisation",
+          "items": [
+            {
+              "icon": "🧪",
+              "title": "Une équipe e-commerce",
+              "text": "Après chaque refonte de la bannière, un test automatisé confirme qu'aucun traceur publicitaire n'est déposé après un refus."
+            },
+            {
+              "icon": "🇫🇷",
+              "title": "Un site soumis à la CNIL",
+              "text": "Un éditeur français vérifie que le refus est aussi simple que l'acceptation et que le choix est mémorisé, deux points sur lesquels la CNIL est attentive."
+            },
+            {
+              "icon": "📊",
+              "title": "Un responsable vie privée",
+              "text": "Il reçoit chaque semaine une liste triée des violations probables, sans avoir à relire des centaines de pages."
+            }
+          ]
+        },
+        {
+          "type": "timeline",
+          "title": "D'où l'on vient, où l'on va",
+          "items": [
+            {
+              "label": "Aujourd'hui",
+              "text": "Les audits de cookies se font souvent à la main, par sondage."
+            },
+            {
+              "label": "13 novembre 2026",
+              "text": "Dropbox décrit un auditeur couvrant plus de 200 surfaces."
+            },
+            {
+              "label": "Prochaine étape annoncée",
+              "text": "Routage direct des constats vers les équipes propriétaires de chaque page."
+            }
+          ]
+        },
+        {
+          "type": "opinion",
+          "title": "Notre avis",
+          "paragraphs": [
+            "La démarche de Dropbox est surtout exemplaire par son pragmatisme : une liste de cookies hors du code, un inventaire automatisé des pages et un tri des faux positifs. Elle montre que la conformité ne se joue pas dans la bannière mais dans ce qui se passe après le clic. Limite : l'article reste muet sur les chiffres de violations et de faux positifs, ce qui empêche d'apprécier l'efficacité réelle.",
+            "D'ici un à trois ans, les audits de consentement automatisés pourraient s'inscrire dans les chaînes d'intégration continue de nombreux sites. C'est une opinion, non une certitude."
+          ],
+          "verdict": "Auditer le comportement, pas l'apparence : voilà le bon réflexe."
+        },
+        {
+          "type": "callout",
+          "title": "À retenir",
+          "text": "Tester ce qui est réellement déposé après un refus, dans plusieurs profils (région, signal GPC), est plus fiable que vérifier la bannière."
+        }
+      ],
+      "publishedAt": "2026-11-14T04:17:32+01:00",
+      "readingMinutes": 5,
+      "illustration": {
+        "svg": "<svg xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"0 0 640 360\"><defs><linearGradient id=\"g7\" x1=\"0\" y1=\"0\" x2=\"1\" y2=\"1\"><stop offset=\"0\" stop-color=\"hsl(210,65%,40%)\"/><stop offset=\"1\" stop-color=\"hsl(250,70%,22%)\"/></linearGradient></defs><rect width=\"640\" height=\"360\" fill=\"url(#g7)\"/><circle cx=\"570\" cy=\"40\" r=\"90\" fill=\"#fff\" fill-opacity=\".07\"/><circle cx=\"70\" cy=\"330\" r=\"110\" fill=\"#fff\" fill-opacity=\".06\"/><circle cx=\"320\" cy=\"180\" r=\"95\" fill=\"#fff\" fill-opacity=\".93\"/><g fill=\"hsl(210,65%,35%)\"><circle cx=\"285\" cy=\"150\" r=\"13\"/><circle cx=\"350\" cy=\"140\" r=\"10\"/><circle cx=\"360\" cy=\"205\" r=\"14\"/><circle cx=\"295\" cy=\"215\" r=\"9\"/><circle cx=\"320\" cy=\"180\" r=\"7\"/></g><path d=\"M400 100l30-30\" stroke=\"#fff\" stroke-width=\"8\" stroke-linecap=\"round\"/></svg>"
+      },
+      "cover": {
+        "url": "https://res.infoq.com/news/2026/11/dropbox-cookie-auditor/en/headerimage/generatedHeaderImage-1794331089979.jpg",
+        "alt": "Illustration de l'audit du consentement aux cookies",
+        "credit": "infoq.com"
+      }
+    }
+  ]
+}
