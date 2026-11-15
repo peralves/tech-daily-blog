@@ -1,0 +1,477 @@
+{
+ "schemaVersion": "1.0",
+ "date": "2026-11-15",
+ "generatedAt": "2026-11-15T03:15:27+00:00",
+ "title": "Tech : une faille IRC déjà exploitée, une télécommande libre et un sauvetage de partitions",
+ "summary": "Trois sujets nouveaux depuis la dernière édition : l'exploitation d'une faille critique d'UnrealIRCd, une télécommande infrarouge libre sur ESP32 et un travail de rétro-ingénierie pour préserver des partitions de musique.",
+ "highlights": [
+  "UnrealIRCd : faille exploitée, correctif 6.2.7.1 à installer sans attendre",
+  "IRis : une télécommande infrarouge libre compatible avec la base Flipper-IRDB",
+  "Score Perfect : un convertisseur vers MusicXML après quatre ans de rétro-ingénierie"
+ ],
+ "meta": {
+  "generator": "claude-scheduled-task"
+ },
+ "posts": [
+  {
+   "id": "unrealircd-faille-label-exploitee-cisa",
+   "category": "cybersecurite",
+   "icon": "💬",
+   "importance": 5,
+   "sourceDate": "2026-11-14",
+   "title": "UnrealIRCd : une faille dans le suivi des « labels » IRCv3 est exploitée, la CISA l'ajoute à son catalogue",
+   "summary": "Une injection de commandes serveur à serveur touche UnrealIRCd 6.0.0 à 6.2.7. Le correctif 6.2.7.1 date du 7 novembre ; des attaques ont débuté environ un jour plus tard.",
+   "tags": [
+    "UnrealIRCd",
+    "IRC",
+    "CVE-2026-114713",
+    "CISA",
+    "KEV",
+    "injection"
+   ],
+   "sources": [
+    {
+     "title": "Attackers Exploit UnrealIRCd Flaw That Enables Server-Level Command Injection",
+     "url": "https://thehackernews.com/2026/11/attackers-exploit-unrealircd-flaw-that.html",
+     "publisher": "The Hacker News"
+    }
+   ],
+   "blocks": [
+    {
+     "type": "paragraph",
+     "text": "**UnrealIRCd**, serveur IRC libre très répandu dans les communautés techniques, fait l'objet d'attaques actives. La CISA américaine a inscrit le vendredi 13 novembre 2026 la faille **CVE-2026-114713** à son catalogue des vulnérabilités exploitées (KEV), alors que le correctif était disponible depuis une semaine. Pour les administrateurs de réseaux IRC, le message est simple : mettre à jour sans attendre."
+    },
+    {
+     "type": "heading",
+     "text": "Ce que l'on sait de la faille",
+     "level": 2
+    },
+    {
+     "type": "paragraph",
+     "text": "La vulnérabilité, notée **8,6** sur l'échelle CVSS, résulte d'une neutralisation incorrecte de délimiteurs. Selon la description reprise de la base NVD, le module de « réponse étiquetée » (*labeled-response*) ne protège pas l'étiquette IRCv3 `label` lorsqu'il la recopie dans ses réponses. Un utilisateur d'un réseau comportant au moins deux serveurs reliés peut donc glisser des commandes de serveur à serveur dans cette étiquette. Ces commandes s'exécutent ensuite avec l'autorité d'un serveur, bien au-delà des droits d'un simple utilisateur."
+    },
+    {
+     "type": "paragraph",
+     "text": "Le défaut est ancien dans sa logique mais récent dans sa découverte : toutes les versions de la branche 6, de la 6.0.0 jusqu'à la 6.2.7 incluse, sont concernées. La version **6.2.7.1**, publiée le 7 novembre 2026 sous forme de correctif d'urgence, corrige cette faille ainsi que plusieurs autres. Son mainteneur, Bram Matthys (alias Syzop), indique que ces problèmes ont été trouvés avec l'aide d'outils d'intelligence artificielle."
+    },
+    {
+     "type": "keyvalue",
+     "items": [
+      {
+       "label": "Produit",
+       "value": "UnrealIRCd (serveur IRC libre)"
+      },
+      {
+       "label": "Identifiant",
+       "value": "CVE-2026-114713, score CVSS 8,6"
+      },
+      {
+       "label": "Versions touchées",
+       "value": "6.0.0 à 6.2.7 (avant 6.2.7.1)"
+      },
+      {
+       "label": "Version corrigée",
+       "value": "6.2.7.1, publiée le 7 novembre 2026"
+      },
+      {
+       "label": "Ajout au catalogue KEV de la CISA",
+       "value": "13 novembre 2026"
+      },
+      {
+       "label": "Échéance pour les agences fédérales américaines",
+       "value": "16 novembre 2026"
+      }
+     ]
+    },
+    {
+     "type": "diagram",
+     "svg": "<svg xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"0 0 640 220\" font-family=\"system-ui,sans-serif\"><rect width=\"640\" height=\"220\" rx=\"16\" fill=\"#f4f6fa\"/><text x=\"320\" y=\"34\" text-anchor=\"middle\" font-size=\"16\" font-weight=\"700\" fill=\"#1b2433\">Chemin de l&#x27;attaque</text><rect x=\"40\" y=\"70\" width=\"116\" height=\"100\" rx=\"12\" fill=\"hsl(175,55%,88%)\" stroke=\"hsl(175,55%,35%)\" stroke-width=\"2\"/><text x=\"98\" y=\"100\" text-anchor=\"middle\" font-size=\"13\" fill=\"#1b2433\">Utilisateur</text><text x=\"98\" y=\"120\" text-anchor=\"middle\" font-size=\"13\" fill=\"#1b2433\">connecté au</text><text x=\"98\" y=\"140\" text-anchor=\"middle\" font-size=\"13\" fill=\"#1b2433\">réseau</text><path d=\"M156 120l14 0\" stroke=\"#1b2433\" stroke-width=\"3\"/><path d=\"M164 114l8 6l-8 6z\" fill=\"#1b2433\"/><rect x=\"180\" y=\"70\" width=\"116\" height=\"100\" rx=\"12\" fill=\"hsl(175,55%,88%)\" stroke=\"hsl(175,55%,35%)\" stroke-width=\"2\"/><text x=\"238\" y=\"100\" text-anchor=\"middle\" font-size=\"13\" fill=\"#1b2433\">Étiquette «</text><text x=\"238\" y=\"120\" text-anchor=\"middle\" font-size=\"13\" fill=\"#1b2433\">label » piégée</text><path d=\"M296 120l14 0\" stroke=\"#1b2433\" stroke-width=\"3\"/><path d=\"M304 114l8 6l-8 6z\" fill=\"#1b2433\"/><rect x=\"320\" y=\"70\" width=\"116\" height=\"100\" rx=\"12\" fill=\"hsl(175,55%,88%)\" stroke=\"hsl(175,55%,35%)\" stroke-width=\"2\"/><text x=\"378\" y=\"100\" text-anchor=\"middle\" font-size=\"13\" fill=\"#1b2433\">Recopie sans</text><text x=\"378\" y=\"120\" text-anchor=\"middle\" font-size=\"13\" fill=\"#1b2433\">protection</text><path d=\"M436 120l14 0\" stroke=\"#1b2433\" stroke-width=\"3\"/><path d=\"M444 114l8 6l-8 6z\" fill=\"#1b2433\"/><rect x=\"460\" y=\"70\" width=\"116\" height=\"100\" rx=\"12\" fill=\"hsl(175,55%,88%)\" stroke=\"hsl(175,55%,35%)\" stroke-width=\"2\"/><text x=\"518\" y=\"100\" text-anchor=\"middle\" font-size=\"13\" fill=\"#1b2433\">Commande</text><text x=\"518\" y=\"120\" text-anchor=\"middle\" font-size=\"13\" fill=\"#1b2433\">exécutée avec</text><text x=\"518\" y=\"140\" text-anchor=\"middle\" font-size=\"13\" fill=\"#1b2433\">l&#x27;autorité</text><text x=\"518\" y=\"160\" text-anchor=\"middle\" font-size=\"13\" fill=\"#1b2433\">d&#x27;un serveur</text></svg>",
+     "alt": "Schéma en quatre étapes montrant comment une étiquette IRCv3 piégée devient une commande de serveur.",
+     "caption": "Principe de l'injection décrite dans la fiche de vulnérabilité : l'étiquette n'est pas neutralisée avant d'être renvoyée."
+    },
+    {
+     "type": "heading",
+     "text": "Des attaques dès le lendemain du correctif",
+     "level": 2
+    },
+    {
+     "type": "paragraph",
+     "text": "Les premières tentatives d'exploitation auraient commencé environ un jour après la publication du correctif, un délai devenu habituel : l'analyse des différences entre deux versions permet de retrouver rapidement le défaut. Les détails des opérations malveillantes et les objectifs des attaquants restent inconnus à ce stade. Le mainteneur a pourtant été très direct sur le forum du projet : il parle de la faille la plus critique découverte dans UnrealIRCd en quinze ans et affirme que des attaques sont en cours sur Internet."
+    },
+    {
+     "type": "paragraph",
+     "text": "Pour les organisations qui ne peuvent pas mettre à jour immédiatement, le mainteneur évoque une parade temporaire à base de filtre anti-spam (*spamfilter*). Ses détails ne sont pas repris dans l'article consulté ; il faut les chercher sur le forum officiel du projet, qui reste la référence. La seule protection complète demeure la montée de version."
+    },
+    {
+     "type": "usecases",
+     "title": "Exemples d'utilisation",
+     "items": [
+      {
+       "icon": "🧑‍💻",
+       "title": "Communauté de développeurs",
+       "text": "Une association qui héberge un réseau IRC de plusieurs serveurs pour ses projets libres vérifie la version de chaque nœud et déploie la 6.2.7.1 sur tous, pas seulement sur le serveur public."
+      },
+      {
+       "icon": "🏢",
+       "title": "Équipe d'exploitation",
+       "text": "Une PME qui utilise un serveur IRC interne pour ses alertes d'astreinte l'inventorie, l'isole d'Internet si besoin et surveille ses journaux depuis le 7 novembre."
+      },
+      {
+       "icon": "🔎",
+       "title": "Équipe de sécurité",
+       "text": "Un centre opérationnel de sécurité ajoute le CVE au suivi des correctifs et recherche les connexions anormales sur les ports IRC exposés."
+      }
+     ]
+    },
+    {
+     "type": "timeline",
+     "title": "D'où l'on vient, où l'on va",
+     "items": [
+      {
+       "label": "7 novembre 2026",
+       "text": "Publication d'UnrealIRCd 6.2.7.1, qui corrige plusieurs failles."
+      },
+      {
+       "label": "Vers le 8 novembre 2026",
+       "text": "Premières tentatives d'exploitation signalées."
+      },
+      {
+       "label": "13 novembre 2026",
+       "text": "La CISA inscrit la faille à son catalogue KEV."
+      },
+      {
+       "label": "16 novembre 2026",
+       "text": "Échéance fixée aux agences fédérales américaines pour appliquer le correctif."
+      }
+     ]
+    },
+    {
+     "type": "opinion",
+     "title": "Notre avis",
+     "paragraphs": [
+      "Cette affaire rappelle que les logiciels « d'infrastructure discrète », comme les serveurs IRC, sont rarement supervisés avec le même soin que les serveurs web. Or leur exposition est directe et leur mise à jour dépend souvent d'un seul bénévole. Elle illustre aussi un renversement : la découverte de failles assistée par IA raccourcit le temps entre le correctif et l'exploitation, au détriment des défenseurs lents.",
+      "Dans un à trois ans, on peut raisonnablement attendre davantage de correctifs d'urgence de ce type, découverts en lots par des outils automatisés. Les projets libres de petite taille auront besoin de canaux d'alerte clairs et de mises à jour automatiques pour tenir le rythme ; c'est une analyse, non un fait établi."
+     ],
+     "verdict": "Un correctif disponible ne protège que s'il est installé : ici, le délai se compte en heures."
+    },
+    {
+     "type": "callout",
+     "title": "À retenir",
+     "text": "Si vous exploitez UnrealIRCd 6.0.0 à 6.2.7, passez en 6.2.7.1 ou plus récent et consultez le forum du projet pour la parade temporaire. Source principale : The Hacker News, 14 novembre 2026."
+    }
+   ],
+   "publishedAt": "2026-11-15T03:15:27+00:00",
+   "readingMinutes": 4,
+   "illustration": {
+    "svg": "<svg xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"0 0 640 360\"><defs><linearGradient id=\"g\" x1=\"0\" y1=\"0\" x2=\"1\" y2=\"1\"><stop offset=\"0\" stop-color=\"hsl(175,65%,42%)\"/><stop offset=\"1\" stop-color=\"hsl(215,70%,22%)\"/></linearGradient></defs><rect width=\"640\" height=\"360\" fill=\"url(#g)\"/><circle cx=\"570\" cy=\"40\" r=\"90\" fill=\"#fff\" fill-opacity=\".07\"/><circle cx=\"70\" cy=\"330\" r=\"110\" fill=\"#fff\" fill-opacity=\".06\"/><g stroke=\"#fff\" stroke-width=\"5\" opacity=\".8\"><path d=\"M320 180L180 110M320 180L460 110M320 180L200 270M320 180L450 265\"/></g><g fill=\"#fff\"><circle cx=\"320\" cy=\"180\" r=\"34\"/><circle cx=\"180\" cy=\"110\" r=\"20\"/><circle cx=\"460\" cy=\"110\" r=\"20\"/><circle cx=\"200\" cy=\"270\" r=\"20\"/><circle cx=\"450\" cy=\"265\" r=\"20\"/></g></svg>"
+   }
+  },
+  {
+   "id": "iris-telecommande-infrarouge-esp32-flipper-irdb",
+   "category": "electronique",
+   "icon": "📺",
+   "importance": 3,
+   "sourceDate": "2026-11-14",
+   "title": "IRis : une télécommande universelle à cinq boutons qui apprend les codes et lit les fichiers du Flipper Zero",
+   "summary": "Ce projet libre d'amateur repose sur un ESP32, un petit écran OLED et une cellule 18650. Il lit les fichiers .ir de la base Flipper-IRDB et reprend le principe du TV-B-Gone.",
+   "tags": [
+    "ESP32",
+    "infrarouge",
+    "OLED",
+    "Flipper Zero",
+    "open source",
+    "télécommande"
+   ],
+   "sources": [
+    {
+     "title": "IRis Learning Remote Has Five Buttons, Supports Thousands Of Devices",
+     "url": "https://hackaday.com/2026/11/14/iris-learning-remote-has-five-buttons-supports-thousands-of-devices/",
+     "publisher": "Hackaday"
+    },
+    {
+     "title": "Dépôt du projet IRis",
+     "url": "https://github.com/nruizneiman/IRis",
+     "publisher": "GitHub"
+    }
+   ],
+   "blocks": [
+    {
+     "type": "paragraph",
+     "text": "Perdre une télécommande reste l'un des petits tracas domestiques les plus tenaces. Nicolas Ruiz Neiman propose une réponse de bricoleur : **IRis**, une télécommande infrarouge qui apprend les codes des appareils existants et en connaît des milliers d'autres grâce à une base de données communautaire. Le projet a été présenté le 14 novembre 2026 par Hackaday."
+    },
+    {
+     "type": "heading",
+     "text": "Une architecture volontairement simple",
+     "level": 2
+    },
+    {
+     "type": "paragraph",
+     "text": "Le cœur du montage est une carte **ESP32-WROOM-32**, associée à un petit écran OLED, à un module récepteur infrarouge pour l'apprentissage et à des diodes émettrices. L'interface se limite à quatre touches directionnelles et une touche de validation. L'alimentation vient d'une cellule lithium-ion 18650 avec son chargeur, ce qui rend l'appareil autonome et rechargeable. Un boîtier à imprimer en 3D est disponible sur MakerWorld, avec des fichiers CAO au format STEP qui facilitent les modifications."
+    },
+    {
+     "type": "heading",
+     "text": "Apprendre, importer, éteindre",
+     "level": 2
+    },
+    {
+     "type": "paragraph",
+     "text": "IRis sait enregistrer les codes émis par une télécommande d'origine : on pointe celle-ci vers le récepteur, on appuie sur une touche, et l'appareil mémorise le signal pour le rejouer plus tard. Il lit aussi les fichiers au format `.ir`, utilisés par la collection **Flipper-IRDB**, constituée pour le Flipper Zero. Cette compatibilité donne d'emblée accès à des milliers de profils d'appareils sans avoir à tout saisir à la main."
+    },
+    {
+     "type": "paragraph",
+     "text": "Une fonction « Be Gone » reprend en outre le principe du TV-B-Gone : elle envoie successivement les signaux de mise en veille de tous les appareils d'une catégorie. Elle sert de test pratique et d'outil de dépannage, par exemple pour éteindre le téléviseur d'une salle d'attente que personne ne parvient à arrêter. Il convient toutefois de l'utiliser avec discernement, chez soi ou avec l'accord des personnes concernées."
+    },
+    {
+     "type": "keyvalue",
+     "items": [
+      {
+       "label": "Microcontrôleur",
+       "value": "ESP32-WROOM-32"
+      },
+      {
+       "label": "Affichage",
+       "value": "petit écran OLED"
+      },
+      {
+       "label": "Commandes",
+       "value": "4 touches directionnelles + touche OK"
+      },
+      {
+       "label": "Alimentation",
+       "value": "cellule 18650 et chargeur intégré"
+      },
+      {
+       "label": "Format de fichiers",
+       "value": "`.ir` (base Flipper-IRDB)"
+      },
+      {
+       "label": "Boîtier",
+       "value": "modèle 3D sur MakerWorld, CAO au format STEP"
+      }
+     ]
+    },
+    {
+     "type": "heading",
+     "text": "Des choix d'ergonomie discutés",
+     "level": 2
+    },
+    {
+     "type": "paragraph",
+     "text": "Le choix de cinq boutons a ses limites. Les commentaires sous l'article de Hackaday regrettent l'absence de touches dédiées au retour, à l'alimentation ou au volume, et jugent la navigation dans les menus un peu profonde. D'autres critiques portent sur le style du code, notamment du code exécutable placé dans des fichiers d'en-tête ; l'article ne permet pas de vérifier ces remarques. Le projet comporte en revanche une suite de tests qui simule le matériel et les appuis de touches sur chaque écran pour vérifier l'interface. La licence n'est pas précisée dans l'article : il faut la consulter dans le dépôt GitHub avant toute réutilisation."
+    },
+    {
+     "type": "usecases",
+     "title": "Exemples d'utilisation",
+     "items": [
+      {
+       "icon": "🛋️",
+       "title": "Salon familial",
+       "text": "Remplacer une télécommande perdue pour un vieux téléviseur ou un ventilateur dont plus aucun modèle n'est vendu, en important le profil depuis la base communautaire."
+      },
+      {
+       "icon": "🏫",
+       "title": "Salle de réunion",
+       "text": "Centraliser sur un seul appareil les commandes d'un vidéoprojecteur et d'un climatiseur très différents."
+      },
+      {
+       "icon": "🛠️",
+       "title": "Atelier d'électronique",
+       "text": "Étudier les trames infrarouges d'un appareil inconnu, les enregistrer et les rejouer pour comprendre leur structure."
+      }
+     ]
+    },
+    {
+     "type": "timeline",
+     "title": "D'où l'on vient, où l'on va",
+     "items": [
+      {
+       "label": "Années 2000",
+       "text": "Le TV-B-Gone popularise l'idée d'une télécommande capable d'éteindre de nombreux téléviseurs."
+      },
+      {
+       "label": "Années 2020",
+       "text": "Le Flipper Zero et sa base Flipper-IRDB rendent les profils infrarouge largement partageables."
+      },
+      {
+       "label": "14 novembre 2026",
+       "text": "Hackaday présente IRis, qui lit ce format sur un ESP32 à bas coût."
+      }
+     ]
+    },
+    {
+     "type": "opinion",
+     "title": "Notre avis",
+     "paragraphs": [
+      "IRis montre qu'une base de données collaborative vaut parfois plus que le matériel : un montage à quelques euros devient utile dès qu'il parle le même format qu'une collection de milliers d'appareils. Son point faible reste l'ergonomie, que seuls les retours d'usage permettront d'améliorer ; cinq touches suffisent pour un outil de dépannage, moins pour un usage quotidien.",
+      "À un horizon de un à trois ans, on peut imaginer des télécommandes de bricolage plus nombreuses, hybrides infrarouge et radio, dont la vraie valeur sera la qualité des profils partagés. C'est une projection, pas une annonce."
+     ],
+     "verdict": "Un joli projet pour apprendre et dépanner, à juger à l'usage plutôt que sur la fiche technique."
+    },
+    {
+     "type": "callout",
+     "title": "À retenir",
+     "text": "Projet communautaire à consulter sur GitHub (nruizneiman/IRis) ; vérifiez la licence avant de réutiliser le code ou le boîtier."
+    }
+   ],
+   "publishedAt": "2026-11-15T03:15:27+00:00",
+   "readingMinutes": 4,
+   "illustration": {
+    "svg": "<svg xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"0 0 640 360\"><defs><linearGradient id=\"g\" x1=\"0\" y1=\"0\" x2=\"1\" y2=\"1\"><stop offset=\"0\" stop-color=\"hsl(30,65%,42%)\"/><stop offset=\"1\" stop-color=\"hsl(70,70%,22%)\"/></linearGradient></defs><rect width=\"640\" height=\"360\" fill=\"url(#g)\"/><circle cx=\"570\" cy=\"40\" r=\"90\" fill=\"#fff\" fill-opacity=\".07\"/><circle cx=\"70\" cy=\"330\" r=\"110\" fill=\"#fff\" fill-opacity=\".06\"/><g fill=\"#fff\"><rect x=\"200\" y=\"110\" width=\"240\" height=\"140\" rx=\"18\" fill-opacity=\".9\"/></g><g fill=\"hsl(30,60%,30%)\"><circle cx=\"320\" cy=\"180\" r=\"34\"/><rect x=\"230\" y=\"135\" width=\"40\" height=\"10\" rx=\"5\"/><rect x=\"370\" y=\"215\" width=\"40\" height=\"10\" rx=\"5\"/></g></svg>"
+   }
+  },
+  {
+   "id": "score-perfect-retroingenierie-musicxml",
+   "category": "dev",
+   "icon": "🎼",
+   "importance": 3,
+   "sourceDate": "2026-11-14",
+   "title": "Score Perfect : quatre ans de rétro-ingénierie pour sauver des partitions vers MusicXML",
+   "summary": "Maarten Tromp a décortiqué le format de fichiers d'un logiciel de notation musicale abandonné en 2012 pour récupérer les œuvres de son père, grâce à Ghidra et à une comparaison méthodique de fichiers.",
+   "tags": [
+    "rétro-ingénierie",
+    "préservation",
+    "MusicXML",
+    "Ghidra",
+    "formats de fichiers"
+   ],
+   "sources": [
+    {
+     "title": "Reverse Engineering Score Perfect To Rescue Its Files",
+     "url": "https://hackaday.com/2026/11/14/reverse-engineering-score-perfect-to-rescue-its-files/",
+     "publisher": "Hackaday"
+    },
+    {
+     "title": "Score Perfect to MusicXML converter",
+     "url": "https://www.geekabit.nl/projects/score-perfect-to-musicxml-converter/",
+     "publisher": "geekabit.nl"
+    }
+   ],
+   "blocks": [
+    {
+     "type": "paragraph",
+     "text": "Un fichier n'est jamais éternel : il dépend d'un logiciel capable de le lire. Lorsque ce logiciel disparaît, des années de travail peuvent devenir illisibles. C'est ce qui menaçait les partitions du père de **Maarten Tromp**, créées avec **Score Perfect**, un programme de notation musicale. Après quatre ans d'efforts, Maarten a écrit un convertisseur vers **MusicXML**, que Hackaday a présenté le 14 novembre 2026."
+    },
+    {
+     "type": "heading",
+     "text": "Un logiciel orphelin",
+     "level": 2
+    },
+    {
+     "type": "paragraph",
+     "text": "Score Perfect est apparu en 1990 sur Atari, avant d'être porté sur Windows. Son développement s'est arrêté en 2012. À partir de la version 4, il utilisait un nouveau format de fichier, jamais documenté publiquement. L'export MusicXML intégré au logiciel ne gérait que les notes : accords, paroles et autres informations disparaissaient. Pour une partition complète, c'était insuffisant."
+    },
+    {
+     "type": "heading",
+     "text": "La méthode : démonter, puis comparer",
+     "level": 2
+    },
+    {
+     "type": "paragraph",
+     "text": "Première piste : désassembler le programme pour retrouver la lecture des fichiers. Maarten espérait que ce programme écrit en Visual Basic aurait été compilé en P-code, plus facile à analyser ; il s'agissait en réalité de code natif. Il a donc utilisé **Ghidra**, l'outil libre de rétro-ingénierie, pour étudier la fonction d'export."
+    },
+    {
+     "type": "paragraph",
+     "text": "La partie la plus longue a été l'analyse du format lui-même, par comparaison : créer un fichier vide dans le logiciel, y apporter une seule modification, puis comparer les deux fichiers octet par octet. En répétant l'opération avec des changements minimes, il a établi que le fichier est organisé en blocs, comme les mesures et les notes, et en étiquettes portant des informations complémentaires."
+    },
+    {
+     "type": "diagram",
+     "svg": "<svg xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"0 0 640 220\" font-family=\"system-ui,sans-serif\"><rect width=\"640\" height=\"220\" rx=\"16\" fill=\"#f4f6fa\"/><text x=\"320\" y=\"34\" text-anchor=\"middle\" font-size=\"16\" font-weight=\"700\" fill=\"#1b2433\">Démarche de rétro-ingénierie</text><rect x=\"40\" y=\"70\" width=\"88\" height=\"100\" rx=\"12\" fill=\"hsl(265,55%,88%)\" stroke=\"hsl(265,55%,35%)\" stroke-width=\"2\"/><text x=\"84\" y=\"100\" text-anchor=\"middle\" font-size=\"13\" fill=\"#1b2433\">Fichier</text><text x=\"84\" y=\"120\" text-anchor=\"middle\" font-size=\"13\" fill=\"#1b2433\">vide</text><path d=\"M128 120l14 0\" stroke=\"#1b2433\" stroke-width=\"3\"/><path d=\"M136 114l8 6l-8 6z\" fill=\"#1b2433\"/><rect x=\"152\" y=\"70\" width=\"88\" height=\"100\" rx=\"12\" fill=\"hsl(265,55%,88%)\" stroke=\"hsl(265,55%,35%)\" stroke-width=\"2\"/><text x=\"196\" y=\"100\" text-anchor=\"middle\" font-size=\"13\" fill=\"#1b2433\">Une seule</text><text x=\"196\" y=\"120\" text-anchor=\"middle\" font-size=\"13\" fill=\"#1b2433\">modification</text><path d=\"M240 120l14 0\" stroke=\"#1b2433\" stroke-width=\"3\"/><path d=\"M248 114l8 6l-8 6z\" fill=\"#1b2433\"/><rect x=\"264\" y=\"70\" width=\"88\" height=\"100\" rx=\"12\" fill=\"hsl(265,55%,88%)\" stroke=\"hsl(265,55%,35%)\" stroke-width=\"2\"/><text x=\"308\" y=\"100\" text-anchor=\"middle\" font-size=\"13\" fill=\"#1b2433\"></text><text x=\"308\" y=\"120\" text-anchor=\"middle\" font-size=\"13\" fill=\"#1b2433\">Comparaison</text><text x=\"308\" y=\"140\" text-anchor=\"middle\" font-size=\"13\" fill=\"#1b2433\">des octets</text><path d=\"M352 120l14 0\" stroke=\"#1b2433\" stroke-width=\"3\"/><path d=\"M360 114l8 6l-8 6z\" fill=\"#1b2433\"/><rect x=\"376\" y=\"70\" width=\"88\" height=\"100\" rx=\"12\" fill=\"hsl(265,55%,88%)\" stroke=\"hsl(265,55%,35%)\" stroke-width=\"2\"/><text x=\"420\" y=\"100\" text-anchor=\"middle\" font-size=\"13\" fill=\"#1b2433\">Blocs et</text><text x=\"420\" y=\"120\" text-anchor=\"middle\" font-size=\"13\" fill=\"#1b2433\">étiquettes</text><text x=\"420\" y=\"140\" text-anchor=\"middle\" font-size=\"13\" fill=\"#1b2433\">identifiés</text><path d=\"M464 120l14 0\" stroke=\"#1b2433\" stroke-width=\"3\"/><path d=\"M472 114l8 6l-8 6z\" fill=\"#1b2433\"/><rect x=\"488\" y=\"70\" width=\"88\" height=\"100\" rx=\"12\" fill=\"hsl(265,55%,88%)\" stroke=\"hsl(265,55%,35%)\" stroke-width=\"2\"/><text x=\"532\" y=\"100\" text-anchor=\"middle\" font-size=\"13\" fill=\"#1b2433\">Export</text><text x=\"532\" y=\"120\" text-anchor=\"middle\" font-size=\"13\" fill=\"#1b2433\">MusicXML</text></svg>",
+     "alt": "Cinq étapes allant du fichier vide à l'export MusicXML.",
+     "caption": "La technique des différences minimales décrite dans l'article, présentée sous forme simplifiée."
+    },
+    {
+     "type": "keyvalue",
+     "items": [
+      {
+       "label": "Logiciel",
+       "value": "Score Perfect, notation musicale (1990, Atari puis Windows)"
+      },
+      {
+       "label": "Fin du développement",
+       "value": "2012"
+      },
+      {
+       "label": "Outil d'analyse",
+       "value": "Ghidra"
+      },
+      {
+       "label": "Durée du projet",
+       "value": "quatre ans"
+      },
+      {
+       "label": "Résultat",
+       "value": "convertisseur vers MusicXML"
+      }
+     ]
+    },
+    {
+     "type": "heading",
+     "text": "Pourquoi cela compte",
+     "level": 2
+    },
+    {
+     "type": "paragraph",
+     "text": "L'histoire dépasse la musique. Elle illustre un risque courant : la dégradation des données par perte de métadonnées, panne matérielle ou disparition d'un format. Elle rappelle aussi la valeur des formats ouverts comme MusicXML, qui permettent à une partition de survivre à son logiciel d'origine. L'article rapproche ce travail d'efforts comparables sur les formats d'Altium ou de fichiers STL, preuve que la démarche est reproductible."
+    },
+    {
+     "type": "usecases",
+     "title": "Exemples d'utilisation",
+     "items": [
+      {
+       "icon": "🎹",
+       "title": "Familles et musiciens",
+       "text": "Récupérer les partitions d'un parent compositeur sans repartir de zéro dans un logiciel moderne."
+      },
+      {
+       "icon": "🏛️",
+       "title": "Bibliothèques et archives",
+       "text": "Préserver des fonds créés avec des logiciels disparus en les convertissant vers un format ouvert."
+      },
+      {
+       "icon": "🔬",
+       "title": "Amateurs de rétro-ingénierie",
+       "text": "Appliquer la comparaison de fichiers modifiés un à un pour comprendre n'importe quel format propriétaire."
+      }
+     ]
+    },
+    {
+     "type": "timeline",
+     "title": "D'où l'on vient, où l'on va",
+     "items": [
+      {
+       "label": "1990",
+       "text": "Sortie de Score Perfect sur Atari."
+      },
+      {
+       "label": "2012",
+       "text": "Arrêt du développement du logiciel."
+      },
+      {
+       "label": "14 novembre 2026",
+       "text": "Présentation du convertisseur par Hackaday, après quatre ans de travail."
+      }
+     ]
+    },
+    {
+     "type": "opinion",
+     "title": "Notre avis",
+     "paragraphs": [
+      "Le plus frappant est la sobriété de la méthode : pas de magie, mais de la patience et une expérience contrôlée. Chaque modification isolée produit une différence lisible, et l'accumulation de ces différences dessine le format. Les limites sont celles du bénévolat : un convertisseur écrit pour un cas précis peut ne pas couvrir toutes les variantes de fichiers.",
+      "À un horizon de un à trois ans, les outils d'analyse assistés par IA pourraient accélérer ce type de sauvetage, mais ils ne remplaceront pas l'exigence d'exporter en format ouvert dès aujourd'hui ; ceci est une opinion, non un fait."
+     ],
+     "verdict": "La meilleure sauvegarde reste un format ouvert, mais à défaut, la patience peut sauver des décennies de travail."
+    },
+    {
+     "type": "callout",
+     "title": "À retenir",
+     "text": "Consultez la page du projet sur geekabit.nl pour tester le convertisseur sur vos propres fichiers Score Perfect."
+    }
+   ],
+   "publishedAt": "2026-11-15T03:15:27+00:00",
+   "readingMinutes": 4,
+   "illustration": {
+    "svg": "<svg xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"0 0 640 360\"><defs><linearGradient id=\"g\" x1=\"0\" y1=\"0\" x2=\"1\" y2=\"1\"><stop offset=\"0\" stop-color=\"hsl(265,65%,42%)\"/><stop offset=\"1\" stop-color=\"hsl(305,70%,22%)\"/></linearGradient></defs><rect width=\"640\" height=\"360\" fill=\"url(#g)\"/><circle cx=\"570\" cy=\"40\" r=\"90\" fill=\"#fff\" fill-opacity=\".07\"/><circle cx=\"70\" cy=\"330\" r=\"110\" fill=\"#fff\" fill-opacity=\".06\"/><g fill=\"none\" stroke=\"#fff\" stroke-width=\"8\" stroke-linecap=\"round\" opacity=\".9\"><path d=\"M170 250L250 140L330 220L410 110L480 190\"/></g><g fill=\"#fff\"><circle cx=\"250\" cy=\"140\" r=\"14\"/><circle cx=\"330\" cy=\"220\" r=\"14\"/><circle cx=\"410\" cy=\"110\" r=\"14\"/></g></svg>"
+   }
+  }
+ ]
+}
