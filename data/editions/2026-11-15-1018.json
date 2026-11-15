@@ -1,0 +1,1114 @@
+{
+ "schemaVersion": "1.0",
+ "date": "2026-11-15",
+ "generatedAt": "2026-11-15T10:18:16+01:00",
+ "title": "Tech : Cursor et une extension piégée, PostgreSQL corrige 52 failles, Rust 1.100 et le casse-tête des contrats C++26",
+ "summary": "Huit sujets nouveaux : une chaîne d'attaque partie d'une clé de prestataire jusqu'à Cursor, un nouveau délai de divulgation chez Project Zero, la version 1.100 de Rust, l'échec du vote ISO sur C++26, un correctif géant pour PostgreSQL, un bilan critique de Glasswing, des applications Lovable qui exposent des données et un processeur audio à lampes simulées.",
+ "highlights": [
+  "Cursor : une clé volée chez Fireworks AI a permis de publier une extension Claude Code piégée",
+  "PostgreSQL : 52 failles corrigées, dont la CVE-2026-6460 vieille de 22 ans",
+  "Project Zero : divulgation à 90 jours maintenant, 60 jours en février 2027, 30 jours en 2028",
+  "Rust 1.100 stabilise le type « never » ; C++26 trébuche sur les contrats",
+  "Lovable : 24 664 sites renvoient des enregistrements sans connexion, selon Crissy Field"
+ ],
+ "meta": {
+  "generator": "claude-scheduled-task"
+ },
+ "posts": [
+  {
+   "id": "cursor-fireworks-cle-extension-claude-code-piegee",
+   "category": "cybersecurite",
+   "icon": "🗝️",
+   "importance": 5,
+   "sourceDate": "2026-11-15",
+   "title": "Cursor : une clé volée chez Fireworks AI mène à une extension Claude Code piégée",
+   "summary": "Un attaquant a exploité une clé d'accès confiée à Fireworks AI pour copier des données de Cursor, puis publié le 29 octobre une version piégée de l'extension Claude Code dans la place de marché de l'éditeur. Cursor affirme l'incident contenu.",
+   "tags": [
+    "Cursor",
+    "Fireworks AI",
+    "chaîne d'approvisionnement",
+    "Claude Code",
+    "extension",
+    "fuite de données"
+   ],
+   "sources": [
+    {
+     "title": "Stolen Fireworks AI Key Led to Cursor Data Breach and Trojanized Claude Code Extension",
+     "url": "https://thehackernews.com/2026/11/stolen-fireworks-ai-key-led-to-cursor.html",
+     "publisher": "The Hacker News"
+    },
+    {
+     "title": "Cursor Security Incident Update",
+     "url": "https://cursor.com/blog/security-incident-update",
+     "publisher": "Cursor"
+    }
+   ],
+   "illustration": {
+    "svg": "<svg xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"0 0 640 360\"><defs><linearGradient id=\"g\" x1=\"0\" y1=\"0\" x2=\"1\" y2=\"1\"><stop offset=\"0\" stop-color=\"hsl(175,65%,42%)\"/><stop offset=\"1\" stop-color=\"hsl(215,70%,22%)\"/></linearGradient></defs><rect width=\"640\" height=\"360\" fill=\"url(#g)\"/><circle cx=\"570\" cy=\"40\" r=\"90\" fill=\"#fff\" fill-opacity=\".07\"/><circle cx=\"70\" cy=\"330\" r=\"110\" fill=\"#fff\" fill-opacity=\".06\"/><g fill=\"#fff\"><circle cx=\"250\" cy=\"180\" r=\"48\"/><rect x=\"290\" y=\"168\" width=\"170\" height=\"24\" rx=\"6\"/><rect x=\"400\" y=\"190\" width=\"20\" height=\"40\" rx=\"4\"/><rect x=\"436\" y=\"190\" width=\"20\" height=\"30\" rx=\"4\"/></g><circle cx=\"250\" cy=\"180\" r=\"18\" fill=\"hsl(175,65%,32%)\"/><path d=\"M150 290l60-30m260 30l-50-30\" stroke=\"#fff\" stroke-width=\"5\" opacity=\".6\"/></svg>"
+   },
+   "blocks": [
+    {
+     "type": "paragraph",
+     "text": "Une simple clé d'accès, confiée à un prestataire, a suffi à ouvrir toute une chaîne d'intrusion. Selon [The Hacker News](https://thehackernews.com/2026/11/stolen-fireworks-ai-key-led-to-cursor.html), un attaquant a mis la main sur une clé que **Cursor** avait délivrée à **Fireworks AI**, fournisseur d'inférence, puis s'en est servi pour copier des données et, le 29 octobre 2026, pour faire circuler une version piégée de l'extension **Claude Code** dans la place de marché de Cursor. L'éditeur a détaillé l'incident dans un point de situation publié vendredi 13 novembre et affirme l'avoir contenu."
+    },
+    {
+     "type": "heading",
+     "text": "Du seau de stockage aux outils internes",
+     "level": 2
+    },
+    {
+     "type": "paragraph",
+     "text": "La clé donnait accès en lecture seule à un espace de stockage servant à partager des données avec Fireworks. L'attaquant y a copié des traces d'agents de programmation, pour l'essentiel datées de 2025, issues de sessions réalisées sans le « mode confidentialité » de Cursor, qui permet de refuser l'utilisation des données pour l'entraînement. Certaines traces contenaient des identifiants non expurgés : des accès d'API de moins de 0,01 % des clients, d'après Cursor."
+    },
+    {
+     "type": "paragraph",
+     "text": "Ces identifiants ont ensuite ouvert l'accès à plusieurs outils SaaS de l'entreprise. L'attaquant a pu consulter des dépôts de code archivés hors production, des échanges limités avec le support, des mesures d'usage du produit, des résumés de conversations d'agents et des identifiants que des utilisateurs avaient transmis au support."
+    },
+    {
+     "type": "keyvalue",
+     "items": [
+      {
+       "label": "Point d'entrée",
+       "value": "clé d'accès délivrée par Cursor à Fireworks AI"
+      },
+      {
+       "label": "Données copiées",
+       "value": "traces d'agents hors mode confidentialité, dépôts archivés hors production, données de support"
+      },
+      {
+       "label": "Extension piégée",
+       "value": "Claude Code 2.1.312 ou 2.1.313, disponible environ 11 heures le 29 octobre 2026"
+      },
+      {
+       "label": "Utilisateurs potentiellement touchés",
+       "value": "5 000 au plus"
+      },
+      {
+       "label": "Dernière activité de l'attaquant",
+       "value": "1er novembre 2026, bloquée"
+      }
+     ]
+    },
+    {
+     "type": "diagram",
+     "svg": "<svg xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"0 0 640 220\" font-family=\"system-ui,sans-serif\"><rect width=\"640\" height=\"220\" rx=\"16\" fill=\"#f4f6fa\"/><text x=\"320\" y=\"34\" text-anchor=\"middle\" font-size=\"16\" font-weight=\"700\" fill=\"#1b2433\">Enchaînement de l&#x27;intrusion</text><rect x=\"40\" y=\"70\" width=\"116\" height=\"100\" rx=\"12\" fill=\"hsl(175,55%,88%)\" stroke=\"hsl(175,55%,35%)\" stroke-width=\"2\"/><text x=\"98\" y=\"110\" text-anchor=\"middle\" font-size=\"13\" fill=\"#1b2433\">Clé exposée</text><text x=\"98\" y=\"130\" text-anchor=\"middle\" font-size=\"13\" fill=\"#1b2433\">chez Fireworks</text><path d=\"M156 120l32 0\" stroke=\"#1b2433\" stroke-width=\"3\"/><path d=\"M180 114l8 6l-8 6z\" fill=\"#1b2433\"/><rect x=\"188\" y=\"70\" width=\"116\" height=\"100\" rx=\"12\" fill=\"hsl(175,55%,88%)\" stroke=\"hsl(175,55%,35%)\" stroke-width=\"2\"/><text x=\"246\" y=\"110\" text-anchor=\"middle\" font-size=\"13\" fill=\"#1b2433\">Copie de traces</text><text x=\"246\" y=\"130\" text-anchor=\"middle\" font-size=\"13\" fill=\"#1b2433\">d&#x27;agents</text><path d=\"M304 120l32 0\" stroke=\"#1b2433\" stroke-width=\"3\"/><path d=\"M328 114l8 6l-8 6z\" fill=\"#1b2433\"/><rect x=\"336\" y=\"70\" width=\"116\" height=\"100\" rx=\"12\" fill=\"hsl(175,55%,88%)\" stroke=\"hsl(175,55%,35%)\" stroke-width=\"2\"/><text x=\"394\" y=\"110\" text-anchor=\"middle\" font-size=\"13\" fill=\"#1b2433\">Identifiants</text><text x=\"394\" y=\"130\" text-anchor=\"middle\" font-size=\"13\" fill=\"#1b2433\">réutilisés</text><path d=\"M452 120l32 0\" stroke=\"#1b2433\" stroke-width=\"3\"/><path d=\"M476 114l8 6l-8 6z\" fill=\"#1b2433\"/><rect x=\"484\" y=\"70\" width=\"116\" height=\"100\" rx=\"12\" fill=\"hsl(175,55%,88%)\" stroke=\"hsl(175,55%,35%)\" stroke-width=\"2\"/><text x=\"542\" y=\"110\" text-anchor=\"middle\" font-size=\"13\" fill=\"#1b2433\">Extension</text><text x=\"542\" y=\"130\" text-anchor=\"middle\" font-size=\"13\" fill=\"#1b2433\">piégée</text></svg>",
+     "alt": "Schéma en quatre étapes : clé exposée chez Fireworks, copie de traces d'agents, réutilisation d'identifiants, publication d'une extension piégée.",
+     "caption": "Chaîne d'attaque décrite par Cursor : chaque étape s'appuie sur un secret trouvé à l'étape précédente."
+    },
+    {
+     "type": "heading",
+     "text": "L'extension piégée du 29 octobre",
+     "level": 2
+    },
+    {
+     "type": "paragraph",
+     "text": "Avec un identifiant découvert dans ces données, l'attaquant a déposé une version modifiée de l'extension Claude Code dans le cache qui alimente la place de marché de Cursor. La version, présentée comme une mise à jour légitime, devait installer une porte dérobée SSH persistante. Cursor précise qu'au plus 5 000 utilisateurs, ayant demandé des versions précises en cache ce jour-là, ont pu la recevoir. Elle est restée accessible environ onze heures. Anthropic ne l'a jamais publiée et le registre Open VSX n'a pas été touché."
+    },
+    {
+     "type": "paragraph",
+     "text": "Cursor a publié dès le 30 octobre un avis avec indicateurs de compromission et scripts de vérification, puis prévenu les utilisateurs et administrateurs d'équipe concernés. L'éditeur a aussi désactivé la clé de Fireworks, fait tourner les identifiants, coupé l'accès du prestataire à tous les jeux de données partagés et déplacé tout le trafic d'inférence ailleurs. Il écarte tout impact sur l'application, ses mises à jour officielles, ses clés de signature, les dépôts des clients et l'environnement de production. Il souligne aussi que désinstaller l'extension ne suffit pas toujours."
+    },
+    {
+     "type": "usecases",
+     "title": "Exemples d'utilisation",
+     "items": [
+      {
+       "icon": "🧑‍💻",
+       "title": "Développeur individuel",
+       "text": "Un développeur ouvre l'éditeur, relève la version installée de l'extension Claude Code et la compare à 2.1.312 et 2.1.313. En cas de doute, il exécute les scripts de vérification de l'avis du 30 octobre et change ses clés SSH et ses jetons."
+      },
+      {
+       "icon": "🏢",
+       "title": "Administrateur d'une équipe",
+       "text": "Un responsable informatique consulte la liste de clés envoyée par courriel, les révoque dans l'ordre et vérifie dans les journaux si des connexions SSH inhabituelles ont eu lieu depuis le 29 octobre."
+      },
+      {
+       "icon": "📋",
+       "title": "Responsable sécurité d'une PME",
+       "text": "À l'occasion de l'incident, il recense les clés partagées avec des prestataires d'IA, limite leur durée de vie et vérifie que les traces d'agents ne contiennent pas de secrets."
+      }
+     ]
+    },
+    {
+     "type": "timeline",
+     "title": "D'où l'on vient, où l'on va",
+     "items": [
+      {
+       "label": "29 octobre 2026",
+       "text": "Publication de l'extension piégée dans le cache de la place de marché, retirée environ onze heures plus tard."
+      },
+      {
+       "label": "30 octobre 2026",
+       "text": "Cursor publie un avis de sécurité avec indicateurs de compromission et scripts de vérification."
+      },
+      {
+       "label": "1er novembre 2026",
+       "text": "Dernière activité observée de l'attaquant, bloquée."
+      },
+      {
+       "label": "13 novembre 2026",
+       "text": "Point de situation détaillé de Cursor ; l'éditeur indique avoir déplacé son trafic d'inférence hors de Fireworks."
+      }
+     ]
+    },
+    {
+     "type": "opinion",
+     "title": "Notre avis",
+     "paragraphs": [
+      "L'épisode illustre une faiblesse classique des outils d'IA : les traces d'agents ressemblent à des journaux inoffensifs, mais elles contiennent des secrets en clair. Dès qu'un prestataire reçoit ces traces, sa sécurité devient celle de son client. Le point de départ, une clé trop puissante confiée à un tiers, est banal ; ce sont les rebonds successifs, jusqu'à la place de marché d'extensions, qui rendent l'affaire sérieuse. Reste que l'essentiel du récit repose sur les déclarations de Cursor, sans vérification indépendante à ce stade.",
+      "À un horizon d'un à trois ans, les éditeurs d'environnements de développement assistés par IA devraient traiter leurs places de marché comme une chaîne d'approvisionnement critique : signature des extensions, expiration automatique des clés et expurgation systématique des secrets avant toute copie de traces deviendront des exigences contractuelles. C'est une projection, pas un fait."
+     ],
+     "verdict": "Un secret oublié dans une trace d'agent peut finir en porte dérobée sur des milliers de postes de développeurs."
+    },
+    {
+     "type": "callout",
+     "title": "À retenir",
+     "text": "Si l'extension Claude Code 2.1.312 ou 2.1.313 a été installée depuis la place de marché de Cursor le 29 octobre 2026, suivre l'avis de Cursor, exécuter les scripts de vérification et révoquer les clés exposées. Désinstaller l'extension seule peut ne pas suffire."
+    }
+   ],
+   "publishedAt": "2026-11-15T10:18:16+01:00",
+   "readingMinutes": 4
+  },
+  {
+   "id": "project-zero-divulgation-full-90-puis-30-jours",
+   "category": "cybersecurite",
+   "icon": "⏳",
+   "importance": 3,
+   "sourceDate": "2026-11-13",
+   "title": "Project Zero abandonne le délai de grâce : divulgation fixée à 90 jours, puis 60 et 30 jours",
+   "summary": "L'équipe de recherche en sécurité de Google remplace sa politique « 90 + 30 » par une échéance unique, mesurée à partir du signalement, qui raccourcira à 60 jours en février 2027 puis à 30 jours en janvier 2028.",
+   "tags": [
+    "Project Zero",
+    "divulgation",
+    "vulnérabilités",
+    "Google",
+    "correctifs"
+   ],
+   "sources": [
+    {
+     "title": "Project Zero's disclosure policy",
+     "url": "https://projectzero.google/2026/11/disclosure-policy.html",
+     "publisher": "Google Project Zero"
+    }
+   ],
+   "illustration": {
+    "svg": "<svg xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"0 0 640 360\"><defs><linearGradient id=\"g\" x1=\"0\" y1=\"0\" x2=\"1\" y2=\"1\"><stop offset=\"0\" stop-color=\"hsl(175,65%,42%)\"/><stop offset=\"1\" stop-color=\"hsl(215,70%,22%)\"/></linearGradient></defs><rect width=\"640\" height=\"360\" fill=\"url(#g)\"/><circle cx=\"570\" cy=\"40\" r=\"90\" fill=\"#fff\" fill-opacity=\".07\"/><circle cx=\"70\" cy=\"330\" r=\"110\" fill=\"#fff\" fill-opacity=\".06\"/><g fill=\"none\" stroke=\"#fff\" stroke-width=\"8\"><circle cx=\"320\" cy=\"180\" r=\"90\"/></g><g stroke=\"#fff\" stroke-width=\"8\" stroke-linecap=\"round\"><path d=\"M320 180V120M320 180L370 205\"/></g><g fill=\"#fff\"><circle cx=\"320\" cy=\"180\" r=\"9\"/><rect x=\"150\" y=\"150\" width=\"50\" height=\"14\" rx=\"5\" opacity=\".7\"/><rect x=\"440\" y=\"196\" width=\"60\" height=\"14\" rx=\"5\" opacity=\".7\"/></g></svg>"
+   },
+   "blocks": [
+    {
+     "type": "paragraph",
+     "text": "Combien de temps un éditeur doit-il disposer pour corriger une faille avant qu'elle soit rendue publique ? **Google Project Zero** a tranché le 13 novembre 2026 en publiant une nouvelle politique de divulgation, baptisée « Full X ». Depuis 2021, l'équipe appliquait la règle « 90 + 30 » : 90 jours pour corriger, puis 30 jours supplémentaires pour laisser le correctif se déployer. Cette période de grâce disparaît, et le délai total se réduira progressivement."
+    },
+    {
+     "type": "heading",
+     "text": "Un calendrier en trois temps",
+     "level": 2
+    },
+    {
+     "type": "paragraph",
+     "text": "La règle devient simple : les vulnérabilités sont publiées un nombre fixe de jours après leur signalement à l'éditeur. L'équipe justifie ce changement par l'essor des outils d'intelligence artificielle : les attaquants découvrent plus vite des failles, exploitent plus vite les correctifs une fois publiés et le volume de signalements augmente. Les anciens garde-fous, la période de grâce et la politique sur les variantes, sont supprimés."
+    },
+    {
+     "type": "list",
+     "ordered": false,
+     "items": [
+      "**Full 90** : en vigueur dès à présent, soit 90 jours après le signalement.",
+      "**Full 60** : à partir du 2 février 2027.",
+      "**Full 30** : à partir du 3 janvier 2028."
+     ]
+    },
+    {
+     "type": "diagram",
+     "svg": "<svg xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"0 0 640 260\" font-family=\"system-ui,sans-serif\"><rect width=\"640\" height=\"260\" rx=\"16\" fill=\"#f4f6fa\"/><text x=\"320\" y=\"34\" text-anchor=\"middle\" font-size=\"16\" font-weight=\"700\" fill=\"#1b2433\">Délai de divulgation après signalement</text><text x=\"40\" y=\"84\" font-size=\"14\" fill=\"#1b2433\">Maintenant</text><rect x=\"190\" y=\"60\" width=\"288.0\" height=\"34\" rx=\"8\" fill=\"hsl(175,55%,45%)\"/><text x=\"488.0\" y=\"84\" font-size=\"14\" font-weight=\"700\" fill=\"#1b2433\">90 jours</text><text x=\"40\" y=\"134\" font-size=\"14\" fill=\"#1b2433\">Dès février 2027</text><rect x=\"190\" y=\"110\" width=\"192.0\" height=\"34\" rx=\"8\" fill=\"hsl(175,55%,45%)\"/><text x=\"392.0\" y=\"134\" font-size=\"14\" font-weight=\"700\" fill=\"#1b2433\">60 jours</text><text x=\"40\" y=\"184\" font-size=\"14\" fill=\"#1b2433\">Dès janvier 2028</text><rect x=\"190\" y=\"160\" width=\"96.0\" height=\"34\" rx=\"8\" fill=\"hsl(175,55%,45%)\"/><text x=\"296.0\" y=\"184\" font-size=\"14\" font-weight=\"700\" fill=\"#1b2433\">30 jours</text><text x=\"320\" y=\"244\" text-anchor=\"middle\" font-size=\"12\" fill=\"#3b4658\">Source : politique de Project Zero du 13 novembre 2026</text></svg>",
+     "alt": "Diagramme à barres : 90 jours aujourd'hui, 60 jours à partir de février 2027, 30 jours à partir de janvier 2028.",
+     "caption": "Le délai de divulgation raccourcit par paliers. Il n'inclut plus de période de grâce."
+    },
+    {
+     "type": "heading",
+     "text": "Exceptions et logique d'ensemble",
+     "level": 2
+    },
+    {
+     "type": "paragraph",
+     "text": "Les failles déjà exploitées dans la nature suivent la politique de divulgation de Google pour la sécurité applicative. L'équipe peut aussi publier plus tôt si d'autres l'ont déjà fait, ou si l'éditeur concerné le demande. Elle ne renonce pas à des exceptions rares, comme pour Spectre et Meltdown."
+    },
+    {
+     "type": "paragraph",
+     "text": "Project Zero précise ne signaler que des bogues de gravité substantielle et d'impact démontré, mais ne plus se servir de la gravité pour décider du moment de la publication : celle-ci mesure l'effet sur les utilisateurs, pas la probabilité qu'un attaquant trouve la faille. L'état du correctif sera toujours suivi et communiqué, sans plus conditionner la date. Le calendrier progressif répond aux retours d'éditeurs, qui redoutaient qu'un changement brutal expose des failles non corrigées ou les pousse à prioriser selon l'échéance plutôt que selon le risque."
+    },
+    {
+     "type": "usecases",
+     "title": "Exemples d'utilisation",
+     "items": [
+      {
+       "icon": "🏭",
+       "title": "Éditeur de logiciels",
+       "text": "Une équipe produit révise sa chaîne de correction pour tenir 60 jours et non plus 90 : tri plus rapide des signalements, publication de correctifs intermédiaires et automatisation des tests de non-régression."
+      },
+      {
+       "icon": "🛠️",
+       "title": "Administrateur système",
+       "text": "L'équipe informatique d'une PME raccourcit son cycle d'installation des mises à jour : si les failles sont publiées plus tôt, l'écart entre correctif et déploiement devient le risque principal."
+      },
+      {
+       "icon": "🔎",
+       "title": "Chercheur indépendant",
+       "text": "Un chercheur qui signale à un éditeur peut s'appuyer sur un calendrier prévisible et annoncé, sans négocier un délai de grâce au cas par cas."
+      }
+     ]
+    },
+    {
+     "type": "timeline",
+     "title": "D'où l'on vient, où l'on va",
+     "items": [
+      {
+       "label": "2021",
+       "text": "Entrée en vigueur de la règle « 90 + 30 »."
+      },
+      {
+       "label": "13 novembre 2026",
+       "text": "Publication de « Full X » ; le palier « Full 90 » s'applique immédiatement."
+      },
+      {
+       "label": "2 février 2027",
+       "text": "Passage à « Full 60 »."
+      },
+      {
+       "label": "3 janvier 2028",
+       "text": "Passage à « Full 30 »."
+      }
+     ]
+    },
+    {
+     "type": "opinion",
+     "title": "Notre avis",
+     "paragraphs": [
+      "Le message adressé aux éditeurs est clair : l'écart entre la sortie d'un correctif et son installation chez les clients devient la variable à réduire. Reste une tension réelle : un délai plus court profite aux défenseurs si les correctifs arrivent à temps, mais expose les utilisateurs si un éditeur y renonce. Le choix d'un calendrier progressif, annoncé plus d'un an à l'avance, atténue ce risque.",
+      "À un horizon d'un à trois ans, d'autres équipes de recherche pourraient s'aligner, ce qui obligerait les éditeurs à industrialiser la correction et l'analyse des signalements, y compris ceux produits par des outils d'IA. C'est une hypothèse, pas une certitude."
+     ],
+     "verdict": "Une règle plus simple et plus stricte, qui reporte la pression sur la vitesse de correction et de déploiement."
+    },
+    {
+     "type": "callout",
+     "title": "À retenir",
+     "text": "Divulgation 90 jours après signalement dès maintenant, 60 jours à partir du 2 février 2027, 30 jours à partir du 3 janvier 2028, sans période de grâce."
+    }
+   ],
+   "publishedAt": "2026-11-15T10:18:16+01:00",
+   "readingMinutes": 3
+  },
+  {
+   "id": "rust-1-100-type-never-allocator-cargo-dependances",
+   "category": "dev",
+   "icon": "🦀",
+   "importance": 4,
+   "sourceDate": "2026-11-12",
+   "title": "Rust 1.100 : le type « never » est stabilisé, Cargo signale les dépendances inutilisées",
+   "summary": "La version 1.100.0, publiée le 12 novembre 2026, stabilise le type `!`, le cœur de l'API d'allocation et un délai minimal avant l'adoption d'une version récente d'une dépendance.",
+   "tags": [
+    "Rust",
+    "Cargo",
+    "type never",
+    "allocateur",
+    "chaîne d'approvisionnement"
+   ],
+   "sources": [
+    {
+     "title": "Announcing Rust 1.100.0",
+     "url": "https://blog.rust-lang.org/2026/11/12/Rust-1.100.0/",
+     "publisher": "Rust Blog"
+    },
+    {
+     "title": "Rust 1.100.0 released",
+     "url": "https://lwn.net/Articles/1107187/",
+     "publisher": "LWN.net"
+    }
+   ],
+   "illustration": {
+    "svg": "<svg xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"0 0 640 360\"><defs><linearGradient id=\"g\" x1=\"0\" y1=\"0\" x2=\"1\" y2=\"1\"><stop offset=\"0\" stop-color=\"hsl(265,65%,42%)\"/><stop offset=\"1\" stop-color=\"hsl(300,70%,22%)\"/></linearGradient></defs><rect width=\"640\" height=\"360\" fill=\"url(#g)\"/><circle cx=\"570\" cy=\"40\" r=\"90\" fill=\"#fff\" fill-opacity=\".07\"/><circle cx=\"70\" cy=\"330\" r=\"110\" fill=\"#fff\" fill-opacity=\".06\"/><g fill=\"#fff\"><path d=\"M320 100l28 20 34-4 12 32 28 20-14 32 6 34-32 10-18 30-34-8-34 8-18-30-32-10 6-34-14-32 28-20 12-32 34 4z\" opacity=\".9\"/></g><circle cx=\"320\" cy=\"190\" r=\"46\" fill=\"hsl(265,60%,30%)\"/><path d=\"M296 190h48M320 166v48\" stroke=\"#fff\" stroke-width=\"8\" stroke-linecap=\"round\"/></svg>"
+   },
+   "blocks": [
+    {
+     "type": "paragraph",
+     "text": "Après des années de tentatives, le type « never », noté `!`, est enfin stable dans **Rust 1.100.0**. La version, publiée le 12 novembre 2026, ne se limite pas à ce changement de langage : elle apporte aussi une API d'allocation utilisable, un nouvel utilitaire de bibliothèque standard et plusieurs évolutions de Cargo, dont une protection contre les versions de dépendances trop récentes. Pour mettre à jour une installation existante : `rustup update stable`."
+    },
+    {
+     "type": "heading",
+     "text": "Le type « never » enfin stabilisé",
+     "level": 2
+    },
+    {
+     "type": "paragraph",
+     "text": "Le type `!` représente une valeur qui n'existe jamais, par exemple le résultat d'une fonction qui ne retourne pas. Il peut désormais être nommé partout, notamment dans `Result<T, !>`, qui exprime une opération ne pouvant pas échouer. `Infallible` devient un alias de `!`. Le changement a une contrepartie : pour les éditions 2015, 2018 et 2021, le repli de type en cas d'inférence passe de `()` à `!`, ce qui peut casser, dans de rares cas, du code existant."
+    },
+    {
+     "type": "heading",
+     "text": "Bibliothèque standard et Cargo",
+     "level": 2
+    },
+    {
+     "type": "list",
+     "ordered": false,
+     "items": [
+      "**Allocator** : les éléments essentiels de l'API sont stables, ce qui permet d'écrire des allocateurs personnalisés pour `Vec` et `Box`. D'autres éléments sont attendus plus tard.",
+      "**DropGuard** : nouveau type de `core::mem` qui exécute une fermeture à sa destruction, avec possibilité de l'annuler. Il convient à une logique de retour en arrière.",
+      "**conjure_zst** : fonction `unsafe` pour créer des types de taille nulle, à la place de bricolages comme la conversion d'un `()`.",
+      "**Autres API stabilisées** : `bool::toggle`, `Box::take`, `Rc::map`, `Arc::map`, `trim_prefix`, `trim_suffix`, `Vec::from_fn` et des aides pour `UnsafeCell`."
+     ]
+    },
+    {
+     "type": "paragraph",
+     "text": "Côté Cargo, trois évolutions retiennent l'attention. D'abord, un avertissement signale les dépendances déclarées mais inutilisées, via la table `[lints.cargo]` ; les dépendances de développement n'en font pas partie et une compilation d'une seule cible peut manquer une dépendance utilisée ailleurs. Ensuite, les artefacts de compilation sont réorganisés par étape, avec un hachage de configuration appliqué de façon cohérente : moins de recompilations et de collisions, notamment entre plusieurs arbres de travail Git, au risque de casser des contournements de l'ancien fonctionnement."
+    },
+    {
+     "type": "paragraph",
+     "text": "Enfin, le réglage `global-min-publish-age` du fichier `.cargo/config.toml` permet d'ignorer les versions publiées trop récemment, un « délai de décantation » contre les paquets malveillants publiés puis retirés. Les versions sans champ `pubtime` ne sont jamais retenues par ce filtre, `cargo install` l'ignore et la variable `CARGO_RESOLVER_INCOMPATIBLE_PUBLISH_AGE=allow` le désactive le temps d'une mise à jour."
+    },
+    {
+     "type": "usecases",
+     "title": "Exemples d'utilisation",
+     "items": [
+      {
+       "icon": "🧩",
+       "title": "Auteur de bibliothèque",
+       "text": "Il écrit des fonctions génériques sur `Result<T, !>` pour exprimer qu'une conversion ne peut pas échouer, sans recourir à un type vide défini à la main."
+      },
+      {
+       "icon": "⚙️",
+       "title": "Développement système",
+       "text": "Une équipe qui travaille sur un moteur de traitement prépare un allocateur d'espace temporaire, réinitialisé après chaque requête, pour limiter les allocations."
+      },
+      {
+       "icon": "🛡️",
+       "title": "Équipe de sécurité",
+       "text": "Elle fixe un délai minimal de publication dans la configuration de Cargo, afin de ne pas adopter immédiatement une version fraîchement publiée d'une dépendance."
+      }
+     ]
+    },
+    {
+     "type": "timeline",
+     "title": "D'où l'on vient, où l'on va",
+     "items": [
+      {
+       "label": "Années précédentes",
+       "text": "Plusieurs tentatives de stabilisation du type `!`, qui aboutissent seulement avec cette version."
+      },
+      {
+       "label": "12 novembre 2026",
+       "text": "Publication de Rust 1.100.0."
+      },
+      {
+       "label": "Prochaines versions",
+       "text": "D'autres éléments de l'API Allocator sont attendus, selon l'annonce."
+      }
+     ]
+    },
+    {
+     "type": "opinion",
+     "title": "Notre avis",
+     "paragraphs": [
+      "Le type « never » intéresse surtout les auteurs de bibliothèques, mais les mesures de Cargo sont plus parlantes pour le grand public : un avertissement sur les dépendances inutilisées réduit à la fois le temps de compilation et la surface d'attaque, puisqu'une dépendance non utilisée peut exécuter un script de construction. Les limites sont signalées par l'annonce elle-même : pas de contrôle des dépendances de développement et un résultat qui peut varier selon la cible compilée.",
+      "Le délai minimal de publication traduit une tendance de fond : les gestionnaires de paquets intègrent désormais des protections contre les attaques de la chaîne d'approvisionnement. D'ici un à trois ans, ce type de réglage pourrait devenir courant dans la plupart des écosystèmes. C'est une projection, non un fait."
+     ],
+     "verdict": "Une version riche en fondations du langage, où Cargo gagne des garde-fous bienvenus."
+    },
+    {
+     "type": "callout",
+     "title": "À retenir",
+     "text": "Rust 1.100.0 est disponible depuis le 12 novembre 2026. Avant de mettre à jour, vérifier les éditions 2015, 2018 et 2021, dont le comportement du repli de type change dans de rares cas."
+    }
+   ],
+   "publishedAt": "2026-11-15T10:18:16+01:00",
+   "readingMinutes": 3
+  },
+  {
+   "id": "cpp26-contrats-vote-iso-echec",
+   "category": "dev",
+   "icon": "📜",
+   "importance": 4,
+   "sourceDate": "2026-11-13",
+   "title": "C++26 : le projet de norme échoue au vote ISO à cause des contrats, la date de publication vacille",
+   "summary": "Le vote sur le projet de norme international a recueilli 13 voix pour, 9 contre et 12 abstentions en octobre 2026. Les contrats, défendus par une partie du comité et combattus par Bjarne Stroustrup, sont au cœur du litige.",
+   "tags": [
+    "C++",
+    "C++26",
+    "ISO",
+    "contrats",
+    "Stroustrup",
+    "WG21"
+   ],
+   "sources": [
+    {
+     "title": "C++26 stumbles at finish line over Contracts dispute",
+     "url": "https://www.theregister.com/devops/2026/11/13/c26-stumbles-at-finish-line-over-contracts-dispute/5309526",
+     "publisher": "The Register"
+    }
+   ],
+   "illustration": {
+    "svg": "<svg xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"0 0 640 360\"><defs><linearGradient id=\"g\" x1=\"0\" y1=\"0\" x2=\"1\" y2=\"1\"><stop offset=\"0\" stop-color=\"hsl(265,65%,42%)\"/><stop offset=\"1\" stop-color=\"hsl(300,70%,22%)\"/></linearGradient></defs><rect width=\"640\" height=\"360\" fill=\"url(#g)\"/><circle cx=\"570\" cy=\"40\" r=\"90\" fill=\"#fff\" fill-opacity=\".07\"/><circle cx=\"70\" cy=\"330\" r=\"110\" fill=\"#fff\" fill-opacity=\".06\"/><g fill=\"#fff\"><rect x=\"190\" y=\"90\" width=\"260\" height=\"180\" rx=\"14\" opacity=\".92\"/></g><g stroke=\"hsl(265,60%,35%)\" stroke-width=\"8\" stroke-linecap=\"round\"><path d=\"M225 135h190M225 175h150M225 215h110\"/></g><path d=\"M400 235l22 22 44-50\" stroke=\"#fff\" stroke-width=\"12\" fill=\"none\" stroke-linecap=\"round\" opacity=\".0\"/><g fill=\"#fff\"><circle cx=\"470\" cy=\"260\" r=\"34\"/></g><path d=\"M455 260l12 12 22-26\" stroke=\"hsl(265,60%,35%)\" stroke-width=\"7\" fill=\"none\" stroke-linecap=\"round\"/></svg>"
+   },
+   "blocks": [
+    {
+     "type": "paragraph",
+     "text": "La prochaine version du langage C++ devait paraître en 2026, mais son calendrier est désormais incertain. Selon [The Register](https://www.theregister.com/devops/2026/11/13/c26-stumbles-at-finish-line-over-contracts-dispute/5309526), le projet de norme internationale de **C++26** a échoué en octobre 2026 à l'étape de vote ISO qui précède l'approbation finale. En cause : les **contrats**, une fonctionnalité de sécurité très débattue au sein du comité de normalisation."
+    },
+    {
+     "type": "heading",
+     "text": "Ce que sont les contrats",
+     "level": 2
+    },
+    {
+     "type": "paragraph",
+     "text": "Les contrats permettent d'ajouter à une fonction des préconditions, des postconditions et des assertions, pour vérifier que certaines conditions sont respectées et éviter des erreurs conduisant à un comportement indéfini. L'approche, dite « conception par contrat », existe déjà dans des langages comme Ada et Eiffel. Retirés de C++20 à cause de réglages par défaut jugés dangereux, les contrats ont été reproposés sous la forme du document P2900, intégré à C++26."
+    },
+    {
+     "type": "heading",
+     "text": "Un vote qui ne passe pas",
+     "level": 2
+    },
+    {
+     "type": "paragraph",
+     "text": "Le vote a donné 13 voix pour, 9 contre et 12 abstentions. ISO exige au plus 25 % de votes négatifs ; selon l'article, les contrats ont été le principal point de blocage pour les opposants. En ne comptant que les suffrages exprimés hors abstentions, les 9 votes contre représentent plus de 40 % (calcul de la rédaction). Cet échec est rare dans l'histoire du langage."
+    },
+    {
+     "type": "diagram",
+     "svg": "<svg xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"0 0 640 260\" font-family=\"system-ui,sans-serif\"><rect width=\"640\" height=\"260\" rx=\"16\" fill=\"#f4f6fa\"/><text x=\"320\" y=\"34\" text-anchor=\"middle\" font-size=\"16\" font-weight=\"700\" fill=\"#1b2433\">Vote sur le projet de norme C++26</text><text x=\"40\" y=\"84\" font-size=\"14\" fill=\"#1b2433\">Pour</text><rect x=\"190\" y=\"60\" width=\"260\" height=\"34\" rx=\"8\" fill=\"hsl(265,55%,45%)\"/><text x=\"460\" y=\"84\" font-size=\"14\" font-weight=\"700\" fill=\"#1b2433\">13</text><text x=\"40\" y=\"134\" font-size=\"14\" fill=\"#1b2433\">Contre</text><rect x=\"190\" y=\"110\" width=\"180\" height=\"34\" rx=\"8\" fill=\"hsl(265,55%,45%)\"/><text x=\"380\" y=\"134\" font-size=\"14\" font-weight=\"700\" fill=\"#1b2433\">9</text><text x=\"40\" y=\"184\" font-size=\"14\" fill=\"#1b2433\">Abstentions</text><rect x=\"190\" y=\"160\" width=\"240\" height=\"34\" rx=\"8\" fill=\"hsl(265,55%,45%)\"/><text x=\"440\" y=\"184\" font-size=\"14\" font-weight=\"700\" fill=\"#1b2433\">12</text><text x=\"320\" y=\"244\" text-anchor=\"middle\" font-size=\"12\" fill=\"#3b4658\">Source : The Register, 13 novembre 2026</text></svg>",
+     "alt": "Diagramme à barres : 13 voix pour, 9 contre, 12 abstentions.",
+     "caption": "Résultat du vote ISO sur le projet de norme C++26, octobre 2026."
+    },
+    {
+     "type": "paragraph",
+     "text": "Bjarne Stroustrup, créateur de C++, s'oppose aux contrats dans leur forme actuelle. Dans le document P4334R0, daté d'août 2026, lui et ses coauteurs qualifient P2900 de « menace existentielle pour C++ », jugent l'implémentation confuse, dépassée et insuffisamment testée, et estiment qu'une bibliothèque ferait mieux l'affaire. À l'inverse, Andreas Fertig, membre du comité, répond que les critiques ont déjà été examinées et que les contrats ont remporté à plusieurs reprises les votes à la majorité. Harry Bott, directeur de la C++ Alliance, voit dans ce renvoi le processus fonctionner comme prévu, tout en admettant qu'il peut s'améliorer."
+    },
+    {
+     "type": "usecases",
+     "title": "Exemples d'utilisation",
+     "items": [
+      {
+       "icon": "🚗",
+       "title": "Logiciel embarqué critique",
+       "text": "Une équipe qui développe un logiciel embarqué attendait les contrats pour documenter des préconditions dans le code. Elle doit maintenant prévoir une solution maison ou une bibliothèque si la fonctionnalité quitte la norme."
+      },
+      {
+       "icon": "🏗️",
+       "title": "Éditeur de bibliothèques",
+       "text": "Un projet qui a déjà adopté les contrats suit de près l'une des trois options possibles : leur retrait, une spécification technique séparée ou une révision mineure."
+      },
+      {
+       "icon": "🧪",
+       "title": "Équipe de compilateurs",
+       "text": "Les mainteneurs de compilateurs hésitent à poursuivre l'implémentation tant que l'issue de la réunion du comité n'est pas connue."
+      }
+     ]
+    },
+    {
+     "type": "timeline",
+     "title": "D'où l'on vient, où l'on va",
+     "items": [
+      {
+       "label": "C++20",
+       "text": "Les contrats sont retirés du projet à cause de réglages par défaut jugés dangereux."
+      },
+      {
+       "label": "Août 2026",
+       "text": "Stroustrup et ses coauteurs publient le document P4334R0 contre le texte P2900."
+      },
+      {
+       "label": "Octobre 2026",
+       "text": "Le projet de norme échoue au vote ISO : 13 voix pour, 9 contre, 12 abstentions."
+      },
+      {
+       "label": "Semaine du 16 novembre 2026",
+       "text": "Réunion du groupe WG21 à Búzios, au Brésil, qui doit examiner la suite."
+      }
+     ]
+    },
+    {
+     "type": "paragraph",
+     "text": "Trois options sont évoquées par un consultant cité par l'article : retirer les contrats de la spécification pour publier le reste, un chemin difficile puisque des bibliothèques les utilisent déjà ; les déplacer dans une spécification technique séparée pour continuer à les affiner ; ou procéder à une révision mineure suivie d'un nouveau vote. Si la norme paraît en 2027, son nom officiel serait ISO/IEC 14882:2027 et l'appellation courante pourrait devenir « C++27 »."
+    },
+    {
+     "type": "opinion",
+     "title": "Notre avis",
+     "paragraphs": [
+      "Le litige dépasse une querelle de procédure. Les contrats touchent à la promesse centrale du langage : concilier performances et sûreté, alors que C++ est critiqué pour ses failles mémoire et que certains projets se tournent vers Rust. Les deux camps ont des arguments recevables : retirer une fonctionnalité si tard est coûteux, mais figer pour des décennies une conception contestée l'est encore davantage.",
+      "À un horizon d'un à trois ans, la solution la plus réaliste semble être un compromis qui isole les contrats pour les faire mûrir, au prix d'un retard. C'est une opinion et non une prévision certaine."
+     ],
+     "verdict": "Un retard d'un an serait un moindre mal si le comité en profite pour trouver un compromis durable."
+    },
+    {
+     "type": "callout",
+     "title": "À retenir",
+     "text": "Le projet de norme C++26 a échoué à son vote ISO en octobre 2026 (13 pour, 9 contre, 12 abstentions). Le groupe WG21 se réunit la semaine prochaine à Búzios pour décider de la suite."
+    }
+   ],
+   "publishedAt": "2026-11-15T10:18:16+01:00",
+   "readingMinutes": 3
+  },
+  {
+   "id": "postgresql-52-failles-corrigees-cve-2026-6460",
+   "category": "devops",
+   "icon": "🐘",
+   "importance": 4,
+   "sourceDate": "2026-11-13",
+   "title": "PostgreSQL corrige 52 failles, dont un défaut vieux de 22 ans qui permet d'exécuter du code",
+   "summary": "Les versions 18.7, 17.12, 16.16, 15.20 et 14.25 corrigent la CVE-2026-6460 (CVSS 8,8). Les extensions écrites en C doivent être recompilées et la branche 14 arrive en fin de vie.",
+   "tags": [
+    "PostgreSQL",
+    "CVE-2026-6460",
+    "base de données",
+    "correctifs",
+    "extensions"
+   ],
+   "sources": [
+    {
+     "title": "PostgreSQL Patches 52 Flaws, Including 22-Year-Old Bug Enabling Authenticated RCE",
+     "url": "https://thehackernews.com/2026/11/postgresql-patches-52-flaws-including.html",
+     "publisher": "The Hacker News"
+    }
+   ],
+   "illustration": {
+    "svg": "<svg xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"0 0 640 360\"><defs><linearGradient id=\"g\" x1=\"0\" y1=\"0\" x2=\"1\" y2=\"1\"><stop offset=\"0\" stop-color=\"hsl(160,65%,42%)\"/><stop offset=\"1\" stop-color=\"hsl(200,70%,22%)\"/></linearGradient></defs><rect width=\"640\" height=\"360\" fill=\"url(#g)\"/><circle cx=\"570\" cy=\"40\" r=\"90\" fill=\"#fff\" fill-opacity=\".07\"/><circle cx=\"70\" cy=\"330\" r=\"110\" fill=\"#fff\" fill-opacity=\".06\"/><g fill=\"#fff\"><ellipse cx=\"320\" cy=\"110\" rx=\"100\" ry=\"34\"/><path d=\"M220 110v120c0 19 45 34 100 34s100-15 100-34V110c0 19-45 34-100 34s-100-15-100-34z\" opacity=\".9\"/></g><g fill=\"none\" stroke=\"hsl(160,60%,28%)\" stroke-width=\"6\"><path d=\"M220 170c0 19 45 34 100 34s100-15 100-34\"/></g><g stroke=\"#fff\" stroke-width=\"6\"><path d=\"M470 150l26 26-26 26\" fill=\"none\" stroke-linecap=\"round\"/></g></svg>"
+   },
+   "blocks": [
+    {
+     "type": "paragraph",
+     "text": "Avec 52 failles corrigées d'un coup, la mise à jour de sécurité de novembre 2026 de PostgreSQL est exceptionnelle par son ampleur. Selon [The Hacker News](https://thehackernews.com/2026/11/postgresql-patches-52-flaws-including.html), la plus grave, **CVE-2026-6460**, est une confusion de types qui permet à un utilisateur de la base, capable de créer des objets, d'exécuter du code sur le serveur. Son origine remonte à une modification du 5 mai 2004. Les versions 18.7, 17.12, 16.16, 15.20 et 14.25 la corrigent."
+    },
+    {
+     "type": "heading",
+     "text": "Une confusion de types vieille de 22 ans",
+     "level": 2
+    },
+    {
+     "type": "paragraph",
+     "text": "La faille, notée 8,8 sur l'échelle CVSS, concerne les types composites, construits à partir de champs nommés ayant chacun leur type. Quand le type d'un champ change alors que d'anciennes valeurs de ce type existent encore ailleurs dans le serveur, ce dernier peut relire une ancienne valeur comme si elle avait le nouveau type. Le code s'exécute alors avec les droits de l'utilisateur du système d'exploitation qui fait tourner PostgreSQL. Le correctif ajoute des contrôles de version permettant de détecter une valeur qui ne correspond plus à son type."
+    },
+    {
+     "type": "paragraph",
+     "text": "Le groupe de développement ne signale aucune attaque et l'évaluation de la CISA dans la fiche CVE indique une exploitation « nulle ». Mais le chercheur Mehmet Ince a publié une analyse décrivant un exploit fonctionnel sur PostgreSQL 18.6. Il en publie les étapes qui font planter un serveur non corrigé ou divulguent des adresses mémoire, et garde pour lui la dernière, qui exécute une commande. Il a transmis des preuves de concept dès août aux équipes de sécurité de services gérés, parmi lesquels AWS, Microsoft, Google, Supabase, Databricks et Ubicloud ; l'état de leurs correctifs n'est pas précisé."
+    },
+    {
+     "type": "keyvalue",
+     "items": [
+      {
+       "label": "Identifiant",
+       "value": "CVE-2026-6460, CVSS 8,8"
+      },
+      {
+       "label": "Versions corrigées",
+       "value": "18.7, 17.12, 16.16, 15.20, 14.25"
+      },
+      {
+       "label": "Condition d'exploitation",
+       "value": "compte de base capable de créer ou de modifier des objets"
+      },
+      {
+       "label": "Autre faille notable",
+       "value": "CVE-2026-116322 : un client non authentifié peut redémarrer un serveur PostgreSQL 18"
+      },
+      {
+       "label": "Fin de vie",
+       "value": "la branche 14 ne recevra plus de correctifs après la 14.25"
+      }
+     ]
+    },
+    {
+     "type": "heading",
+     "text": "Ce que doivent faire les administrateurs",
+     "level": 2
+    },
+    {
+     "type": "list",
+     "ordered": true,
+     "items": [
+      "Mettre à jour le serveur vers la version correspondant à sa branche majeure.",
+      "Recompiler ou mettre à jour en même temps toutes les extensions en langage C : celles construites pour d'anciennes versions se chargent encore, mais peuvent ne pas être protégées.",
+      "Si PostgreSQL ne tourne pas sous l'unité de service du paquet, par exemple avec Patroni, le redémarrer juste après la mise à jour.",
+      "Mettre à jour les outils clients (`pg_dump`, `pg_restore`, `reindexdb`, `vacuumdb`) sur toutes les machines qui les utilisent : une archive piégée peut faire exécuter du code à `pg_restore`.",
+      "Ne pas désactiver les vérifications avec le nouveau paramètre `composite_type_mismatch`, que le projet déconseille.",
+      "Suivre les étapes de réindexation de l'annonce et, en cas de sauvegardes incrémentales, refaire une sauvegarde complète."
+     ]
+    },
+    {
+     "type": "usecases",
+     "title": "Exemples d'utilisation",
+     "items": [
+      {
+       "icon": "🗄️",
+       "title": "Base auto-hébergée",
+       "text": "Une équipe qui administre elle-même ses serveurs planifie une fenêtre de maintenance, met à jour le serveur, recompile ses extensions C, redémarre et relance une sauvegarde complète."
+      },
+      {
+       "icon": "☁️",
+       "title": "Service géré",
+       "text": "Une entreprise qui utilise une base gérée vérifie auprès de son fournisseur la date d'application du correctif, faute d'information publique à ce stade."
+      },
+      {
+       "icon": "🧰",
+       "title": "Poste d'exploitation",
+       "text": "Un administrateur qui restaure des sauvegardes depuis un poste de travail met à jour `pg_restore` et `psql` et évite d'ouvrir des archives de provenance douteuse."
+      }
+     ]
+    },
+    {
+     "type": "timeline",
+     "title": "D'où l'on vient, où l'on va",
+     "items": [
+      {
+       "label": "5 mai 2004",
+       "text": "Modification qui introduit le changement de type de colonne, origine du défaut."
+      },
+      {
+       "label": "Août 2026",
+       "text": "Mehmet Ince transmet des preuves de concept aux équipes de sécurité de services gérés."
+      },
+      {
+       "label": "Novembre 2026",
+       "text": "Publication des versions corrigées, 52 failles au total."
+      },
+      {
+       "label": "Après la 14.25",
+       "text": "La branche 14 n'est plus maintenue."
+      }
+     ]
+    },
+    {
+     "type": "opinion",
+     "title": "Notre avis",
+     "paragraphs": [
+      "L'exigence de recompiler les extensions est le point le plus lourd : le correctif ne se résume pas à un paquet de plus à installer. L'absence de contournement oblige à mettre à jour, alors qu'un exploit partiel est public. Le risque est cependant tempéré par la condition d'exploitation, un compte capable de créer des objets, ce qui réduit l'urgence pour les bases dont les droits sont bien cloisonnés.",
+      "À un horizon d'un à trois ans, la maintenance d'extensions natives deviendra un sujet de gouvernance à part entière pour les équipes de bases de données. C'est une projection, non un fait."
+     ],
+     "verdict": "Une mise à jour à traiter vite, avec un travail annexe de recompilation que beaucoup d'équipes sous-estimeront."
+    },
+    {
+     "type": "callout",
+     "title": "À retenir",
+     "text": "Mettre à jour vers 18.7, 17.12, 16.16, 15.20 ou 14.25, recompiler les extensions C, puis suivre les étapes de réindexation de l'annonce. La branche 14 est en fin de vie."
+    }
+   ],
+   "publishedAt": "2026-11-15T10:18:16+01:00",
+   "readingMinutes": 4
+  },
+  {
+   "id": "glasswing-bilan-vulncheck-trouvailles-ia-doublons",
+   "category": "ia",
+   "icon": "🪟",
+   "importance": 3,
+   "sourceDate": "2026-11-12",
+   "title": "Projet Glasswing : un bilan de VulnCheck pointe peu de correctifs et beaucoup de doublons",
+   "summary": "Sur 37 966 failles rapportées par le programme d'Anthropic depuis avril, 217 sont marquées corrigées contre 1 654 doublons, selon l'analyse de VulnCheck relayée par LWN.",
+   "tags": [
+    "Glasswing",
+    "Anthropic",
+    "VulnCheck",
+    "vulnérabilités",
+    "mainteneurs",
+    "open source"
+   ],
+   "sources": [
+    {
+     "title": "Glasswing overwhelms maintainers with underwhelming findings (VulnCheck)",
+     "url": "https://lwn.net/Articles/1107173/",
+     "publisher": "LWN.net"
+    }
+   ],
+   "illustration": {
+    "svg": "<svg xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"0 0 640 360\"><defs><linearGradient id=\"g\" x1=\"0\" y1=\"0\" x2=\"1\" y2=\"1\"><stop offset=\"0\" stop-color=\"hsl(320,65%,42%)\"/><stop offset=\"1\" stop-color=\"hsl(270,70%,22%)\"/></linearGradient></defs><rect width=\"640\" height=\"360\" fill=\"url(#g)\"/><circle cx=\"570\" cy=\"40\" r=\"90\" fill=\"#fff\" fill-opacity=\".07\"/><circle cx=\"70\" cy=\"330\" r=\"110\" fill=\"#fff\" fill-opacity=\".06\"/><g fill=\"#fff\"><rect x=\"170\" y=\"100\" width=\"300\" height=\"190\" rx=\"18\" opacity=\".9\"/></g><g fill=\"hsl(320,60%,38%)\"><rect x=\"200\" y=\"240\" width=\"40\" height=\"30\" rx=\"4\"/><rect x=\"260\" y=\"200\" width=\"40\" height=\"70\" rx=\"4\"/><rect x=\"320\" y=\"160\" width=\"40\" height=\"110\" rx=\"4\"/></g><circle cx=\"420\" cy=\"170\" r=\"28\" fill=\"none\" stroke=\"hsl(320,60%,38%)\" stroke-width=\"8\"/><path d=\"M440 192l24 24\" stroke=\"hsl(320,60%,38%)\" stroke-width=\"8\" stroke-linecap=\"round\"/></svg>"
+   },
+   "blocks": [
+    {
+     "type": "paragraph",
+     "text": "Les outils d'intelligence artificielle trouvent des failles à grande échelle, mais qui en assume le tri ? C'est la question que pose un bilan chiffré du **projet Glasswing**, le programme d'Anthropic lancé le 7 avril 2026, publié par Patrick Garrity de la société **VulnCheck** et résumé le 12 novembre 2026 par [LWN.net](https://lwn.net/Articles/1107173/). Sa conclusion : l'IA est un outil de recherche de vulnérabilités précieux, mais les chiffres ne soutiennent pas le récit du lancement."
+    },
+    {
+     "type": "heading",
+     "text": "Les chiffres du bilan",
+     "level": 2
+    },
+    {
+     "type": "paragraph",
+     "text": "Selon l'analyse, Anthropic annonce 37 966 découvertes. Seules 7 349 (19,4 %) ont été rendues publiques, 217 sont marquées comme corrigées, 419 ont été retirées et 1 654 (4,4 %) sont classées comme doublons, soit environ 7,5 fois le nombre de correctifs. Le registre d'Anthropic affiche pourtant un taux de vrais positifs de 94,2 %, contre 90,8 % au lancement. Garrity juge ce chiffre incohérent, puisque davantage de découvertes ont été retirées ou classées en doublon que corrigées, et suppose que les retours du tri n'y sont pas intégrés."
+    },
+    {
+     "type": "keyvalue",
+     "items": [
+      {
+       "label": "Découvertes annoncées",
+       "value": "37 966"
+      },
+      {
+       "label": "Rendues publiques",
+       "value": "7 349 (19,4 %)"
+      },
+      {
+       "label": "Marquées comme corrigées",
+       "value": "217"
+      },
+      {
+       "label": "Doublons",
+       "value": "1 654 (4,4 %)"
+      },
+      {
+       "label": "Retirées",
+       "value": "419"
+      },
+      {
+       "label": "Taux de vrais positifs affiché",
+       "value": "94,2 %, contre 90,8 % au lancement"
+      }
+     ]
+    },
+    {
+     "type": "paragraph",
+     "text": "Garrity estime en outre que les failles de ce programme représentent une petite part des CVE de l'année et que presque aucune n'est exploitée. Les correctifs piétinent tandis que doublons et retraits s'accumulent, et le travail de tri retombe sur les mainteneurs de logiciels libres, que le programme disait justement vouloir aider."
+    },
+    {
+     "type": "heading",
+     "text": "Ce qu'en disent les développeurs",
+     "level": 2
+    },
+    {
+     "type": "paragraph",
+     "text": "Les commentaires de lecteurs sur LWN, non vérifiés, donnent un tableau nuancé. Plusieurs jugent la relecture de correctifs par IA utile, mais les rapports de sécurité générés trop verbeux, exagérés ou redondants. Un lecteur estime qu'environ les trois quarts des vraies failles avaient été corrigées comme de simples bogues avant le traitement de leur rapport. Un autre juge les rapports reçus pour les projets iproute et DPDK le plus souvent exacts et utiles, mais trop centrés sur des cas marginaux, ce qui alourdit la charge."
+    },
+    {
+     "type": "usecases",
+     "title": "Exemples d'utilisation",
+     "items": [
+      {
+       "icon": "🧑‍🔧",
+       "title": "Mainteneur bénévole",
+       "text": "Il reçoit plusieurs rapports automatisés pour le même défaut. Il fusionne les doublons, vérifie la reproductibilité et répond en priorité aux cas montrant un impact réel."
+      },
+      {
+       "icon": "🏢",
+       "title": "Équipe de sécurité d'entreprise",
+       "text": "Elle utilise l'IA pour relire ses propres correctifs avant publication, usage que plusieurs commentateurs jugent efficace, plutôt que pour produire des rapports de masse."
+      },
+      {
+       "icon": "📊",
+       "title": "Responsable de programme de bug bounty",
+       "text": "Il met en place un filtre de qualité : preuve de concept obligatoire, déduplication automatique et priorisation selon l'exploitabilité réelle."
+      }
+     ]
+    },
+    {
+     "type": "timeline",
+     "title": "D'où l'on vient, où l'on va",
+     "items": [
+      {
+       "label": "7 avril 2026",
+       "text": "Lancement du projet Glasswing d'Anthropic."
+      },
+      {
+       "label": "12 novembre 2026",
+       "text": "Publication du bilan de VulnCheck et de son résumé par LWN."
+      },
+      {
+       "label": "À venir",
+       "text": "Aucune réponse d'Anthropic n'est mentionnée dans la source consultée."
+      }
+     ]
+    },
+    {
+     "type": "opinion",
+     "title": "Notre avis",
+     "paragraphs": [
+      "Ce bilan rappelle qu'une découverte n'est pas un correctif. Un volume élevé de signalements ne produit de la valeur que si quelqu'un peut les vérifier, les dédoublonner et les corriger. L'écart entre le taux de vrais positifs affiché et le faible nombre de failles corrigées mérite une explication publique. L'analyse émane d'un acteur de la veille sur les vulnérabilités et la source consultée est un résumé : les chiffres doivent être lus avec cette précaution.",
+      "À un horizon d'un à trois ans, la qualité du tri, plus que la capacité de détection, devrait devenir le critère de réussite de ces programmes. Les éditeurs d'IA qui financeront ou fourniront eux-mêmes ce tri y gagneront la confiance des mainteneurs. C'est une opinion, non un fait."
+     ],
+     "verdict": "Trouver des failles devient facile ; les corriger et les trier reste le goulot d'étranglement."
+    },
+    {
+     "type": "callout",
+     "title": "À retenir",
+     "text": "Selon VulnCheck, 217 failles seulement sont marquées corrigées sur 37 966 annoncées. Ces chiffres proviennent d'une analyse tierce relayée par LWN.net, le 12 novembre 2026."
+    }
+   ],
+   "publishedAt": "2026-11-15T10:18:16+01:00",
+   "readingMinutes": 3
+  },
+  {
+   "id": "lovable-applications-donnees-exposees-supabase",
+   "category": "web",
+   "icon": "🔓",
+   "importance": 4,
+   "sourceDate": "2026-11-14",
+   "title": "Lovable : des milliers d'applications générées par IA exposent des données sans connexion, selon des chercheurs",
+   "summary": "Une étude de Crissy Field a analysé 159 041 projets Lovable : 24 664 sites renvoient des enregistrements Supabase dès le chargement, sans authentification.",
+   "tags": [
+    "Lovable",
+    "Supabase",
+    "applications web",
+    "IA générative",
+    "fuite de données",
+    "RGPD"
+   ],
+   "sources": [
+    {
+     "title": "Lovable: Many Apps Expose Sensitive Data",
+     "url": "https://www.crissyfield.de/research/lovable-en/",
+     "publisher": "Crissy Field GmbH"
+    }
+   ],
+   "illustration": {
+    "svg": "<svg xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"0 0 640 360\"><defs><linearGradient id=\"g\" x1=\"0\" y1=\"0\" x2=\"1\" y2=\"1\"><stop offset=\"0\" stop-color=\"hsl(210,65%,42%)\"/><stop offset=\"1\" stop-color=\"hsl(250,70%,22%)\"/></linearGradient></defs><rect width=\"640\" height=\"360\" fill=\"url(#g)\"/><circle cx=\"570\" cy=\"40\" r=\"90\" fill=\"#fff\" fill-opacity=\".07\"/><circle cx=\"70\" cy=\"330\" r=\"110\" fill=\"#fff\" fill-opacity=\".06\"/><g fill=\"#fff\"><rect x=\"150\" y=\"90\" width=\"340\" height=\"210\" rx=\"16\" opacity=\".92\"/></g><rect x=\"150\" y=\"90\" width=\"340\" height=\"40\" rx=\"16\" fill=\"#fff\"/><g fill=\"hsl(210,60%,40%)\"><circle cx=\"178\" cy=\"110\" r=\"7\"/><circle cx=\"202\" cy=\"110\" r=\"7\"/><rect x=\"240\" y=\"104\" width=\"200\" height=\"12\" rx=\"6\" opacity=\".4\"/></g><g stroke=\"hsl(210,60%,40%)\" stroke-width=\"8\" fill=\"none\" stroke-linecap=\"round\"><path d=\"M290 220v-24a30 30 0 0 1 60 0\"/></g><rect x=\"270\" y=\"215\" width=\"100\" height=\"56\" rx=\"10\" fill=\"hsl(210,60%,40%)\"/></svg>"
+   },
+   "blocks": [
+    {
+     "type": "paragraph",
+     "text": "Créer une application web en quelques phrases est séduisant, mais la sécurité des données ne se génère pas toute seule. Une étude du cabinet allemand **Crissy Field GmbH** conclut que de nombreuses applications construites avec **Lovable**, plateforme de génération d'applications par IA fondée à Stockholm en 2023, exposent des données personnelles et confidentielles à toute personne qui charge le site, sans connexion préalable. Les résultats avaient déjà fait l'objet d'un article du quotidien Handelsblatt le 2 novembre 2026 ; le rapport présente des chiffres mis à jour."
+    },
+    {
+     "type": "heading",
+     "text": "Méthode et chiffres",
+     "level": 2
+    },
+    {
+     "type": "paragraph",
+     "text": "Les chercheurs ont repéré des projets Lovable à partir des archives du web Common Crawl, puis se sont concentrés sur le service de base de données **Supabase**, selon eux le plus utilisé avec Lovable. Ils ont vérifié deux points : les données envoyées au premier chargement d'un site, et les contenus accessibles par de simples requêtes en lecture avec la même clé d'API. Ils n'ont pas publié les détails d'accès, pour ne pas faciliter d'autres intrusions."
+    },
+    {
+     "type": "keyvalue",
+     "items": [
+      {
+       "label": "Projets analysés (décembre 2025 à septembre 2026)",
+       "value": "159 041"
+      },
+      {
+       "label": "Projets utilisant Supabase",
+       "value": "34 545"
+      },
+      {
+       "label": "Sites renvoyant des enregistrements dès le chargement, sans connexion",
+       "value": "24 664"
+      },
+      {
+       "label": "Sites avec adresses e-mail dans les tables",
+       "value": "7 403, dans 10 560 tables (environ 30 % des 24 664)"
+      }
+     ]
+    },
+    {
+     "type": "paragraph",
+     "text": "Ces chiffres demandent de la prudence, et les auteurs le disent : le taux de 30 % n'est pas un taux de fuite confirmé, car une adresse peut être un contact public ou une donnée de test ; l'échantillon n'est pas représentatif de toutes les applications Lovable ; seule une partie des jeux de données a été récupérée ; et l'utilisation malveillante éventuelle des données n'a pas pu être établie."
+    },
+    {
+     "type": "heading",
+     "text": "Des exemples concrets",
+     "level": 2
+    },
+    {
+     "type": "list",
+     "ordered": false,
+     "items": [
+      "Un forum allemand : plus de 80 000 profils (noms, e-mails, dates de naissance) et plus de 200 000 messages de discussion.",
+      "Des organisateurs d'événements et des restaurants : des dizaines de milliers d'enregistrements de ventes, avec e-mails, téléphones, adresses postales, informations de paiement et codes de billets.",
+      "Une société de gestion immobilière : des résumés générés par IA d'échanges internes sur des locataires et des propriétaires.",
+      "Un prestataire de services : plus de 1 000 fiches avec numéros de passeport, dates d'expiration et nationalités."
+     ]
+    },
+    {
+     "type": "paragraph",
+     "text": "La page ne décrit aucune réponse de Lovable ni aucun correctif ; Handelsblatt avait contacté l'entreprise avec ces résultats. Les chercheurs recommandent de vérifier les droits d'accès, les interfaces et la séparation entre comptes d'utilisateurs avant qu'une application traite des données réelles, de répéter ces contrôles après chaque évolution importante, et rappellent que des contrôles automatiques ne remplacent pas un audit professionnel."
+    },
+    {
+     "type": "usecases",
+     "title": "Exemples d'utilisation",
+     "items": [
+      {
+       "icon": "🚀",
+       "title": "Jeune pousse",
+       "text": "Une équipe qui lance un prototype généré par IA active les règles d'accès au niveau des lignes et teste, sans être connectée, l'accès à chaque table avant d'ouvrir le service au public."
+      },
+      {
+       "icon": "🏪",
+       "title": "Commerce local",
+       "text": "Un restaurateur dont le site de réservation a été généré en ligne demande à son prestataire de vérifier que les fiches de clients ne sont pas lisibles sans authentification."
+      },
+      {
+       "icon": "⚖️",
+       "title": "Délégué à la protection des données",
+       "text": "Il inclut dans son registre les applications créées par les équipes métier avec des outils d'IA et exige une revue de sécurité avant toute mise en ligne."
+      }
+     ]
+    },
+    {
+     "type": "timeline",
+     "title": "D'où l'on vient, où l'on va",
+     "items": [
+      {
+       "label": "2023",
+       "text": "Création de Lovable à Stockholm ; son prédécesseur, GPT Engineer, est publié la même année."
+      },
+      {
+       "label": "Novembre 2024",
+       "text": "Lancement public du produit sous le nom Lovable."
+      },
+      {
+       "label": "2 novembre 2026",
+       "text": "Handelsblatt rend compte des constats de Crissy Field."
+      },
+      {
+       "label": "Mi-novembre 2026",
+       "text": "Publication du rapport avec chiffres actualisés ; aucune réponse de Lovable n'y figure."
+      }
+     ]
+    },
+    {
+     "type": "opinion",
+     "title": "Notre avis",
+     "paragraphs": [
+      "Le problème n'est pas propre à un seul outil : générer du code ne dispense pas de configurer les droits d'accès, et des non-spécialistes déploient désormais des applications qui manipulent des données réelles. L'étude est sérieuse sur ses limites, mais il s'agit d'une source unique et les détails techniques sont volontairement tus. Les chiffres montrent l'ampleur du risque potentiel, pas un nombre établi de fuites.",
+      "À un horizon d'un à trois ans, les plateformes de génération d'applications devront livrer des réglages sûrs par défaut et des contrôles automatiques avant publication. En Europe, le RGPD et la CNIL rappellent déjà que le responsable de traitement reste celui qui publie l'application. C'est une analyse, non un fait."
+     ],
+     "verdict": "Une application générée en dix minutes engage la responsabilité de son éditeur aussi longtemps qu'une application écrite en dix mois."
+    },
+    {
+     "type": "callout",
+     "title": "À retenir",
+     "text": "Avant de mettre en ligne une application générée par IA, tester l'accès aux tables sans être connecté. Chiffres issus de l'étude de Crissy Field, non confirmés comme fuites avérées."
+    }
+   ],
+   "publishedAt": "2026-11-15T10:18:16+01:00",
+   "readingMinutes": 4
+  },
+  {
+   "id": "esp32-processeur-son-a-tubes-wm8960",
+   "category": "electronique",
+   "icon": "🎛️",
+   "importance": 2,
+   "sourceDate": "2026-11-14",
+   "title": "Un processeur de « son à lampes » sur ESP32 imite la distorsion des tubes sans une seule lampe",
+   "summary": "Le projet de mircemk associe un ESP32 et un codec WM8960 pour appliquer une courbe de transfert non linéaire réglable, dans un boîtier inspiré des appareils de mesure Tektronix.",
+   "tags": [
+    "ESP32",
+    "WM8960",
+    "audio",
+    "DSP",
+    "lampes",
+    "Hackaday"
+   ],
+   "sources": [
+    {
+     "title": "Warm Analog DSP, On The ESP",
+     "url": "https://hackaday.com/2026/11/14/warm-analog-dsp-on-the-esp/",
+     "publisher": "Hackaday"
+    }
+   ],
+   "illustration": {
+    "svg": "<svg xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"0 0 640 360\"><defs><linearGradient id=\"g\" x1=\"0\" y1=\"0\" x2=\"1\" y2=\"1\"><stop offset=\"0\" stop-color=\"hsl(30,65%,42%)\"/><stop offset=\"1\" stop-color=\"hsl(350,70%,22%)\"/></linearGradient></defs><rect width=\"640\" height=\"360\" fill=\"url(#g)\"/><circle cx=\"570\" cy=\"40\" r=\"90\" fill=\"#fff\" fill-opacity=\".07\"/><circle cx=\"70\" cy=\"330\" r=\"110\" fill=\"#fff\" fill-opacity=\".06\"/><g fill=\"#fff\"><rect x=\"140\" y=\"110\" width=\"360\" height=\"150\" rx=\"14\" opacity=\".92\"/></g><g fill=\"hsl(30,70%,35%)\"><circle cx=\"200\" cy=\"185\" r=\"28\"/><circle cx=\"440\" cy=\"185\" r=\"28\"/></g><path d=\"M250 215c30-70 60-70 70-30s40 40 70-30\" stroke=\"hsl(30,70%,35%)\" stroke-width=\"8\" fill=\"none\" stroke-linecap=\"round\"/><g stroke=\"#fff\" stroke-width=\"6\" opacity=\".8\"><path d=\"M200 260v40M440 260v40\"/></g></svg>"
+   },
+   "blocks": [
+    {
+     "type": "paragraph",
+     "text": "Le « son chaud » des amplificateurs à lampes fascine toujours les amateurs de musique, malgré le coût et les dangers de ces composants. Un projet présenté par [Hackaday](https://hackaday.com/2026/11/14/warm-analog-dsp-on-the-esp/) le 14 novembre 2026 montre qu'on peut en imiter l'effet avec un microcontrôleur : un « processeur de son à lampes » conçu par **mircemk**, sans aucune lampe, autour d'un **ESP32** et d'un codec audio **WM8960**."
+    },
+    {
+     "type": "heading",
+     "text": "Comment cela fonctionne",
+     "level": 2
+    },
+    {
+     "type": "paragraph",
+     "text": "Le WM8960 prend en charge l'entrée et la sortie analogiques ; l'ESP32 numérise le signal puis lui applique une fonction de transfert non linéaire, c'est-à-dire la distorsion qui donne son caractère au son. Selon l'article, les lampes arrondissent davantage le haut de l'onde que le bas, alors que les étages à transistors en push-pull déforment les deux moitiés de façon comparable. L'utilisateur peut modifier cette courbe, dessinée à l'écran."
+    },
+    {
+     "type": "paragraph",
+     "text": "L'auteur du projet dit modéliser aussi la réponse lente des lampes aux signaux qui varient vite. Elle reste introuvable dans le code publié, et l'article invite les lecteurs à la chercher. Le matériel est logé dans un boîtier inspiré des instruments Tektronix, adapté à un établi comme à un salon, et il avait déjà été présenté avec un autre logiciel, en égaliseur paramétrique."
+    },
+    {
+     "type": "keyvalue",
+     "items": [
+      {
+       "label": "Microcontrôleur",
+       "value": "ESP32"
+      },
+      {
+       "label": "Codec audio",
+       "value": "WM8960"
+      },
+      {
+       "label": "Affichage",
+       "value": "courbe de transfert (modèle non précisé)"
+      },
+      {
+       "label": "Logiciel",
+       "value": "fichier « ESP32_Stereo_Tube_Processor_V1.2 » : traitement stéréo, version 1.2"
+      },
+      {
+       "label": "Non précisé dans l'article",
+       "value": "fréquence d'échantillonnage, latence, coût, mesures de distorsion"
+      }
+     ]
+    },
+    {
+     "type": "heading",
+     "text": "Un débat d'amateurs",
+     "level": 2
+    },
+    {
+     "type": "paragraph",
+     "text": "Les commentaires de lecteurs, non vérifiés, illustrent l'éternelle discussion. L'un soutient que les termes « haut » et « bas » de l'article renvoient à la fréquence et non aux crêtes de l'onde, et que la répartition des harmoniques, paires ou impaires, compte plus pour l'oreille que le taux de distorsion total. D'autres rappellent que les lampes sont chères et délicates à manipuler, quand un autre juge leur « chaleur » purement psychologique."
+    },
+    {
+     "type": "usecases",
+     "title": "Exemples d'utilisation",
+     "items": [
+      {
+       "icon": "🎸",
+       "title": "Guitariste amateur",
+       "text": "Il place le boîtier entre sa guitare et son amplificateur pour tester différentes courbes de saturation avant d'investir dans un matériel à lampes."
+      },
+      {
+       "icon": "🎧",
+       "title": "Passionné de hi-fi",
+       "text": "Il insère le processeur dans la boucle d'effets de sa chaîne audio pour comparer le son traité et le son d'origine, à l'oreille."
+      },
+      {
+       "icon": "🧪",
+       "title": "Atelier d'électronique",
+       "text": "Un club d'électronique s'en sert comme support pour découvrir le traitement numérique du signal : codec, courbe de transfert et mesures."
+      }
+     ]
+    },
+    {
+     "type": "timeline",
+     "title": "D'où l'on vient, où l'on va",
+     "items": [
+      {
+       "label": "Projet précédent",
+       "text": "Le même matériel avait déjà servi de base à un égaliseur paramétrique, avec un autre logiciel."
+      },
+      {
+       "label": "14 novembre 2026",
+       "text": "Présentation du projet par Hackaday, avec lien vers la page du projet et le code."
+      },
+      {
+       "label": "À venir",
+       "text": "Aucune évolution n'est annoncée dans l'article."
+      }
+     ]
+    },
+    {
+     "type": "opinion",
+     "title": "Notre avis",
+     "paragraphs": [
+      "Le projet est un bon exercice d'ingénierie : le numérique reproduit une courbe simple à moindre coût, et la rend réglable, ce qu'un étage à lampes n'offre pas. Mais l'article lui-même relève des manques, comme la modélisation de la réponse lente absente du code, et aucune mesure n'est fournie. Il faut donc voir ce montage comme une approximation expérimentale et non comme un clone fidèle.",
+      "À un horizon d'un à trois ans, des microcontrôleurs peu chers et des codecs courants continueront de rendre accessibles des effets autrefois réservés à du matériel coûteux. C'est une perspective, pas une certitude."
+     ],
+     "verdict": "Un joli montage pédagogique, à juger à l'oreille et aux mesures plutôt qu'au discours."
+    },
+    {
+     "type": "callout",
+     "title": "À retenir",
+     "text": "ESP32, codec WM8960 et une courbe de transfert réglable suffisent à imiter la distorsion des lampes. Le code et la page du projet sont accessibles depuis l'article de Hackaday."
+    }
+   ],
+   "publishedAt": "2026-11-15T10:18:16+01:00",
+   "readingMinutes": 3
+  }
+ ]
+}
