@@ -1,0 +1,827 @@
+{
+ "schemaVersion": "1.0",
+ "date": "2026-11-15",
+ "generatedAt": "2026-11-15T18:16:05+01:00",
+ "title": "Tech Daily — Passerelles Check Point piégées, Cerebras CS-5, oscilloscopes à 450 dollars",
+ "summary": "Au programme : une campagne qui détruit des données sur des hôtes ESXi via des passerelles Check Point, deux attaques de laboratoire contre AMD SEV-SNP, le calendrier de Cerebras, la refonte sécurité de PyPI et deux nouveautés d'électronique.",
+ "highlights": [
+  "Check Point : des passerelles piratées mènent à un effaceur de données sur ESXi",
+  "AMD SEV-SNP : Mior et Skyfall, deux attaques de laboratoire",
+  "Cerebras : le CS-5 attendu début d'été 2027",
+  "PyPI affiche la provenance des fichiers",
+  "Tektronix lance des oscilloscopes dès 450 dollars"
+ ],
+ "meta": {
+  "generator": "claude-scheduled-task"
+ },
+ "posts": [
+  {
+   "id": "check-point-php2shell-wiper-esxi",
+   "category": "cybersecurite",
+   "icon": "🧨",
+   "importance": 5,
+   "sourceDate": "2026-11-13",
+   "title": "Passerelles Check Point piratées via PHP2Shell : un logiciel d'effacement de données frappe des hôtes VMware ESXi",
+   "summary": "Des attaquants exploitent deux failles PHP critiques puis une faille inédite des passerelles Check Point pour atteindre des serveurs ESXi et y déployer un outil destructeur. Un correctif cumulatif est disponible.",
+   "tags": [
+    "Check Point",
+    "PHP2Shell",
+    "VMware ESXi",
+    "wiper",
+    "CISA"
+   ],
+   "sources": [
+    {
+     "title": "Check Point gateways hacked via PHP2Shell to deploy VMware ESXi wiper",
+     "url": "https://www.bleepingcomputer.com/news/security/check-point-gateways-hacked-via-php2shell-to-deploy-vmware-esxi-wiper/",
+     "publisher": "BleepingComputer"
+    }
+   ],
+   "illustration": {
+    "svg": "<svg xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"0 0 640 360\"><defs><linearGradient id=\"g\" x1=\"0\" y1=\"0\" x2=\"1\" y2=\"1\"><stop offset=\"0\" stop-color=\"hsl(175,62%,40%)\"/><stop offset=\"1\" stop-color=\"hsl(210,66%,22%)\"/></linearGradient></defs><rect width=\"640\" height=\"360\" fill=\"url(#g)\"/><circle cx=\"540\" cy=\"60\" r=\"120\" fill=\"#fff\" fill-opacity=\".08\"/><circle cx=\"90\" cy=\"320\" r=\"100\" fill=\"#fff\" fill-opacity=\".07\"/><g fill=\"none\" stroke=\"#fff\" stroke-width=\"8\" stroke-linejoin=\"round\"><path d=\"M320 70l95 36v70c0 60-45 98-95 116c-50-18-95-56-95-116v-70z\"/><path d=\"M280 150l80 80M360 150l-80 80\" stroke-linecap=\"round\"/></g></svg>"
+   },
+   "blocks": [
+    {
+     "type": "paragraph",
+     "text": "Des passerelles de sécurité Check Point non corrigées ont servi de porte d'entrée à une campagne qui s'est terminée par le déploiement d'un logiciel d'effacement de données sur des hôtes VMware ESXi. Selon BleepingComputer, qui s'appuie sur les conclusions publiées par Check Point le 13 novembre 2026, les premières attaques remontent au 30 octobre 2026 et ont d'abord visé des organisations israéliennes. L'épisode rappelle qu'un équipement de sécurité exposé sur Internet peut devenir le maillon le plus fragile d'un réseau."
+    },
+    {
+     "type": "heading",
+     "text": "Les trois failles en jeu"
+    },
+    {
+     "type": "paragraph",
+     "text": "L'attaque repose sur un enchaînement. Deux failles critiques du langage PHP, surnommées PHP2Shell, permettent une exécution de code à distance sans authentification : il s'agit de CVE-2026-109618 et de CVE-2026-109619. Les attaquants les ont exploitées par le portail Mobile Access des passerelles, puis ont obtenu les droits root grâce à une faille inédite, CVE-2026-123039, que Check Point corrige en tant que faille d'élévation de privilèges de DynamicCLI."
+    },
+    {
+     "type": "list",
+     "items": [
+      "PHP a publié des correctifs d'urgence le 21 octobre 2026 ; Amazon Threat Intelligence avait signalé des tentatives d'exploitation quatre jours plus tôt.",
+      "La CISA a ajouté les deux failles PHP2Shell à son catalogue des vulnérabilités exploitées le 26 octobre 2026, puis a averti qu'elles étaient chaînées avec la faille Linux Fragnesia pour obtenir les droits root.",
+      "La faille d'élévation de privilèges des passerelles était inconnue avant l'attaque, ce qui en fait un zero-day."
+     ]
+    },
+    {
+     "type": "heading",
+     "text": "Du portail VPN au disque des hyperviseurs"
+    },
+    {
+     "type": "diagram",
+     "svg": "<svg xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"0 0 640 230\" font-family=\"system-ui,sans-serif\"><rect width=\"640\" height=\"230\" rx=\"14\" fill=\"#f1f5f9\"/><rect x=\"10\" y=\"40\" width=\"106\" height=\"150\" rx=\"10\" fill=\"#fff\" stroke=\"#94a3b8\"/><circle cx=\"63\" cy=\"40\" r=\"14\" fill=\"#1d4ed8\"/><text x=\"63\" y=\"45\" text-anchor=\"middle\" font-size=\"14\" font-weight=\"700\" fill=\"#fff\">1</text><text x=\"63\" y=\"72\" text-anchor=\"middle\" font-size=\"12.5\" font-weight=\"700\" fill=\"#0f172a\">Accès initial</text><text x=\"63\" y=\"92\" text-anchor=\"middle\" font-size=\"10.5\" fill=\"#334155\">PHP2Shell sur le</text><text x=\"63\" y=\"106\" text-anchor=\"middle\" font-size=\"10.5\" fill=\"#334155\">portail Mobile</text><text x=\"63\" y=\"120\" text-anchor=\"middle\" font-size=\"10.5\" fill=\"#334155\">Access</text><path d=\"M120 115l14 0m-6 -6l6 6l-6 6\" stroke=\"#64748b\" stroke-width=\"2\" fill=\"none\"/><rect x=\"138\" y=\"40\" width=\"106\" height=\"150\" rx=\"10\" fill=\"#fff\" stroke=\"#94a3b8\"/><circle cx=\"191\" cy=\"40\" r=\"14\" fill=\"#1d4ed8\"/><text x=\"191\" y=\"45\" text-anchor=\"middle\" font-size=\"14\" font-weight=\"700\" fill=\"#fff\">2</text><text x=\"191\" y=\"72\" text-anchor=\"middle\" font-size=\"12.5\" font-weight=\"700\" fill=\"#0f172a\">Élévation</text><text x=\"191\" y=\"92\" text-anchor=\"middle\" font-size=\"10.5\" fill=\"#334155\">Zero-day : droits</text><text x=\"191\" y=\"106\" text-anchor=\"middle\" font-size=\"10.5\" fill=\"#334155\">root sur la</text><text x=\"191\" y=\"120\" text-anchor=\"middle\" font-size=\"10.5\" fill=\"#334155\">passerelle</text><path d=\"M248 115l14 0m-6 -6l6 6l-6 6\" stroke=\"#64748b\" stroke-width=\"2\" fill=\"none\"/><rect x=\"266\" y=\"40\" width=\"106\" height=\"150\" rx=\"10\" fill=\"#fff\" stroke=\"#94a3b8\"/><circle cx=\"319\" cy=\"40\" r=\"14\" fill=\"#1d4ed8\"/><text x=\"319\" y=\"45\" text-anchor=\"middle\" font-size=\"14\" font-weight=\"700\" fill=\"#fff\">3</text><text x=\"319\" y=\"72\" text-anchor=\"middle\" font-size=\"12.5\" font-weight=\"700\" fill=\"#0f172a\">Persistance</text><text x=\"319\" y=\"92\" text-anchor=\"middle\" font-size=\"10.5\" fill=\"#334155\">Webshells PHP et</text><text x=\"319\" y=\"106\" text-anchor=\"middle\" font-size=\"10.5\" fill=\"#334155\">porte dérobée</text><text x=\"319\" y=\"120\" text-anchor=\"middle\" font-size=\"10.5\" fill=\"#334155\">TSGA / TSProxy</text><path d=\"M376 115l14 0m-6 -6l6 6l-6 6\" stroke=\"#64748b\" stroke-width=\"2\" fill=\"none\"/><rect x=\"394\" y=\"40\" width=\"106\" height=\"150\" rx=\"10\" fill=\"#fff\" stroke=\"#94a3b8\"/><circle cx=\"447\" cy=\"40\" r=\"14\" fill=\"#1d4ed8\"/><text x=\"447\" y=\"45\" text-anchor=\"middle\" font-size=\"14\" font-weight=\"700\" fill=\"#fff\">4</text><text x=\"447\" y=\"72\" text-anchor=\"middle\" font-size=\"12.5\" font-weight=\"700\" fill=\"#0f172a\">Rebond</text><text x=\"447\" y=\"92\" text-anchor=\"middle\" font-size=\"10.5\" fill=\"#334155\">Scan du réseau</text><text x=\"447\" y=\"106\" text-anchor=\"middle\" font-size=\"10.5\" fill=\"#334155\">avec l'outil</text><text x=\"447\" y=\"120\" text-anchor=\"middle\" font-size=\"10.5\" fill=\"#334155\">gogo, accès aux</text><text x=\"447\" y=\"134\" text-anchor=\"middle\" font-size=\"10.5\" fill=\"#334155\">hôtes ESXi</text><path d=\"M504 115l14 0m-6 -6l6 6l-6 6\" stroke=\"#64748b\" stroke-width=\"2\" fill=\"none\"/><rect x=\"522\" y=\"40\" width=\"106\" height=\"150\" rx=\"10\" fill=\"#fff\" stroke=\"#94a3b8\"/><circle cx=\"575\" cy=\"40\" r=\"14\" fill=\"#1d4ed8\"/><text x=\"575\" y=\"45\" text-anchor=\"middle\" font-size=\"14\" font-weight=\"700\" fill=\"#fff\">5</text><text x=\"575\" y=\"72\" text-anchor=\"middle\" font-size=\"12.5\" font-weight=\"700\" fill=\"#0f172a\">Destruction</text><text x=\"575\" y=\"92\" text-anchor=\"middle\" font-size=\"10.5\" fill=\"#334155\">Outil destroy_v6</text><text x=\"575\" y=\"106\" text-anchor=\"middle\" font-size=\"10.5\" fill=\"#334155\">: effacement</text><text x=\"575\" y=\"120\" text-anchor=\"middle\" font-size=\"10.5\" fill=\"#334155\">récursif des</text><text x=\"575\" y=\"134\" text-anchor=\"middle\" font-size=\"10.5\" fill=\"#334155\">fichiers</text></svg>",
+     "alt": "Schéma en cinq étapes de l'attaque, de l'exploitation du portail Mobile Access à l'effacement de données sur les hôtes ESXi.",
+     "caption": "Chaîne d'attaque décrite par Check Point, d'après BleepingComputer."
+    },
+    {
+     "type": "paragraph",
+     "text": "Une fois installés, les attaquants déposent des webshells PHP et la porte dérobée TSGA, qui comprend un composant nommé TSProxy : celui-ci attend des commandes dissimulées dans un trafic d'apparence normale. Pour la première vague, ils repèrent ensuite les hôtes ESXi grâce au scanner réseau libre gogo. L'outil destructeur, destroy_v6, supprime récursivement les fichiers d'un répertoire cible. Il tente d'abord de les remplir de zéros pour compliquer toute récupération et propose un mode rapide qui saute cette étape."
+    },
+    {
+     "type": "keyvalue",
+     "items": [
+      {
+       "label": "Première vague",
+       "value": "À partir du 30 octobre 2026, organisations israéliennes, activité destructrice"
+      },
+      {
+       "label": "Seconde vague",
+       "value": "2 novembre 2026, entreprises de plusieurs pays et secteurs, sans activité destructrice constatée"
+      },
+      {
+       "label": "Note déposée",
+       "value": "DREAM_ANNEXATION.txt, qui mentionne « Dream Security Ltd. » et refuse toute négociation de rançon"
+      },
+      {
+       "label": "Remédiation",
+       "value": "Correctif cumulatif « Jumbo Hotfix » de novembre sur les serveurs de gestion et les passerelles"
+      }
+     ]
+    },
+    {
+     "type": "heading",
+     "text": "Une attribution encore incertaine"
+    },
+    {
+     "type": "paragraph",
+     "text": "La note laissée sur les machines contient des messages politiques et exclut toute rançon : l'objectif semble être la perturbation plutôt que l'extorsion. Elle pourrait aussi relever d'une fausse piste. Check Point rapproche, avec prudence, la porte dérobée TSGA du cadriciel PhiliKit, déjà observé contre des équipements Ivanti, et ESET associe PhiliKit au groupe chinois UNC5221. Les chercheurs jugent toutefois les éléments insuffisants pour une attribution ferme."
+    },
+    {
+     "type": "usecases",
+     "title": "Exemples d'utilisation",
+     "items": [
+      {
+       "icon": "🛡️",
+       "title": "Équipe sécurité d'un hôpital",
+       "text": "Elle recherche sur chaque passerelle des fichiers de session contenant « upload_progress_pwn » et des processus CPconfigdaemon inattendus avant de considérer l'équipement comme sain."
+      },
+      {
+       "icon": "🧯",
+       "title": "Administrateur de virtualisation",
+       "text": "Il surveille les connexions SSH sortantes d'une passerelle vers les hôtes ESXi : Check Point y voit un signe clair de compromission."
+      },
+      {
+       "icon": "🗄️",
+       "title": "PME avec sauvegardes",
+       "text": "Elle vérifie que ses sauvegardes sont isolées du réseau de production, car un effacement sur l'hyperviseur ne se rattrape qu'avec une copie hors ligne."
+      }
+     ]
+    },
+    {
+     "type": "timeline",
+     "title": "D'où l'on vient, où l'on va",
+     "items": [
+      {
+       "label": "17 octobre 2026",
+       "text": "Amazon Threat Intelligence signale des tentatives d'exploitation de PHP2Shell."
+      },
+      {
+       "label": "21 octobre 2026",
+       "text": "PHP publie des correctifs d'urgence."
+      },
+      {
+       "label": "26 octobre 2026",
+       "text": "La CISA inscrit les deux failles PHP2Shell à son catalogue."
+      },
+      {
+       "label": "30 octobre 2026",
+       "text": "Début des attaques contre des organisations israéliennes."
+      },
+      {
+       "label": "13 novembre 2026",
+       "text": "Check Point publie ses conclusions et son correctif cumulatif."
+      }
+     ]
+    },
+    {
+     "type": "opinion",
+     "title": "Notre avis",
+     "paragraphs": [
+      "Cette campagne montre le coût d'un retard de correctif sur un équipement périmétrique : les failles PHP étaient publiques depuis près de deux semaines quand la première vague a commencé. Le choix d'un outil d'effacement plutôt que d'un chiffrement avec rançon indique une logique de sabotage, plus difficile à négocier et à assurer.",
+      "D'ici un à trois ans, on peut s'attendre à voir davantage d'attaques ciblant directement les hyperviseurs, car un seul accès à ESXi touche des dizaines de machines virtuelles. Cela plaide pour une segmentation stricte de l'administration de la virtualisation et pour des sauvegardes immuables, par principe de précaution plus que par certitude."
+     ],
+     "verdict": "Corriger vite les passerelles exposées, et traiter toute connexion d'une passerelle vers ESXi comme un incident."
+    },
+    {
+     "type": "callout",
+     "title": "À retenir",
+     "text": "Installez le correctif cumulatif de novembre sur les serveurs de gestion et les passerelles, en priorité sur les portails Mobile Access exposés, et vérifiez les indicateurs de compromission. L'attribution reste incertaine."
+    }
+   ],
+   "readingMinutes": 6,
+   "publishedAt": "2026-11-15T18:16:05+01:00"
+  },
+  {
+   "id": "amd-sev-snp-mior-skyfall",
+   "category": "cybersecurite",
+   "icon": "🧬",
+   "importance": 3,
+   "sourceDate": "2026-11-13",
+   "title": "Mior et Skyfall : deux attaques de laboratoire contre les machines virtuelles confidentielles AMD SEV-SNP",
+   "summary": "Des chercheurs montrent qu'un hôte malveillant peut lire, voire modifier, la mémoire de machines virtuelles protégées par SEV-SNP. Les correctifs sont publiés ou planifiés, sans exploitation connue.",
+   "tags": [
+    "AMD",
+    "SEV-SNP",
+    "EPYC",
+    "cloud confidentiel",
+    "TSA"
+   ],
+   "sources": [
+    {
+     "title": "New Mior and Skyfall Attacks Let Rogue Cloud Hosts Steal Secrets From AMD SEV-SNP VMs",
+     "url": "https://thehackernews.com/2026/11/new-mior-and-skyfall-attacks-let-rogue.html",
+     "publisher": "The Hacker News"
+    }
+   ],
+   "illustration": {
+    "svg": "<svg xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"0 0 640 360\"><defs><linearGradient id=\"g\" x1=\"0\" y1=\"0\" x2=\"1\" y2=\"1\"><stop offset=\"0\" stop-color=\"hsl(175,62%,40%)\"/><stop offset=\"1\" stop-color=\"hsl(210,66%,22%)\"/></linearGradient></defs><rect width=\"640\" height=\"360\" fill=\"url(#g)\"/><circle cx=\"540\" cy=\"60\" r=\"120\" fill=\"#fff\" fill-opacity=\".08\"/><circle cx=\"90\" cy=\"320\" r=\"100\" fill=\"#fff\" fill-opacity=\".07\"/><g fill=\"none\" stroke=\"#fff\" stroke-width=\"8\"><rect x=\"230\" y=\"110\" width=\"180\" height=\"140\" rx=\"14\"/><rect x=\"270\" y=\"150\" width=\"100\" height=\"60\" rx=\"8\" fill=\"#fff\" fill-opacity=\".25\"/><path d=\"M270 110v-30M320 110v-30M370 110v-30M270 250v30M320 250v30M370 250v30M230 160h-30M230 210h-30M410 160h30M410 210h30\" stroke-linecap=\"round\"/></g></svg>"
+   },
+   "blocks": [
+    {
+     "type": "paragraph",
+     "text": "La promesse de l'informatique confidentielle est de protéger une machine virtuelle contre son propre hébergeur. Deux attaques présentées ensemble, Mior et Skyfall, montrent que cette frontière peut être contournée sur les processeurs AMD EPYC équipés de SEV-SNP, au prix de conditions très particulières. D'après The Hacker News, ces travaux relèvent du laboratoire : aucune exploitation dans la nature n'est signalée, et les deux équipes ont publié du code de démonstration."
+    },
+    {
+     "type": "heading",
+     "text": "Mior : tromper le démarrage"
+    },
+    {
+     "type": "paragraph",
+     "text": "Mior, conçue à l'ETH Zurich, vise la phase de démarrage. Le processeur de sécurité de la plateforme (PSP) remplit la table de correspondance inverse (RMP), qui consigne le propriétaire de chaque page mémoire. Les chercheurs ont redirigé ces écritures vers une carte graphique qu'ils contrôlaient : le démarrage s'achève sans erreur, mais une partie de la table reste non initialisée, y compris l'entrée qui la protège. L'hyperviseur peut alors réécrire les protections de pages, activer le débogage d'une machine virtuelle qui l'interdisait et lire ou écrire sa mémoire. L'essai a réussi lors des 1 000 tentatives réalisées sur deux séries de tests."
+    },
+    {
+     "type": "paragraph",
+     "text": "Une seconde expérience copie la mesure d'une machine virtuelle inoffensive dans une machine malveillante, dont les rapports d'attestation décrivent alors la mauvaise image. Mior exige toutefois le contrôle de l'hyperviseur et du BIOS ainsi qu'un périphérique PCIe, et n'a été testée que sur un EPYC 9135 (Zen 5) ; les générations Zen 3 et Zen 4 sont jugées potentiellement concernées, sans test."
+    },
+    {
+     "type": "heading",
+     "text": "Skyfall : exploiter ce qui reste en cache"
+    },
+    {
+     "type": "paragraph",
+     "text": "Skyfall, développée avec l'ETH Zurich et Google, s'appuie sur les attaques d'ordonnanceur transitoire (TSA) divulguées le 8 juillet 2025. Lorsqu'un hyperviseur provoque volontairement l'échec du démarrage d'une machine virtuelle, le processeur a mis en cache une partie de son état sauvegardé, qui reste lisible via TSA. L'équipe a récupéré des valeurs de registres et une clé de chiffrement de disque sur une machine de test, à raison de trois lignes de cache par page ciblée. Les essais ont porté sur des EPYC 7313 (Zen 3), 9124 et 9334 (Zen 4), mais pas sur Zen 5. Le comité de programme d'IEEE S&P a estimé que l'article néglige les conditions d'une attaque réaliste."
+    },
+    {
+     "type": "keyvalue",
+     "items": [
+      {
+       "label": "Mior",
+       "value": "CVE-2026-0462, score CVSS 4.0 de 5,9 (bulletin AMD-SB-3059)"
+      },
+      {
+       "label": "Skyfall",
+       "value": "CVE-2026-40671, score de 4,9 (AMD-SB-3061)"
+      },
+      {
+       "label": "Fuite EDK II",
+       "value": "CVE-2026-18448, score de 5,6 (AMD-SB-7072)"
+      },
+      {
+       "label": "Micrologiciels",
+       "value": "Correctifs SEV datés du 12 août 2026 ; plateformes prévues en novembre (Skyfall) et en décembre (Mior)"
+      }
+     ]
+    },
+    {
+     "type": "heading",
+     "text": "Ce que cela change pour les clients du cloud"
+    },
+    {
+     "type": "paragraph",
+     "text": "Les bulletins ne précisent pas si les correctifs suffisent seuls ou s'ils exigent aussi une mise à jour du BIOS, et aucune mesure de contournement n'est listée. Supermicro a publié une liste de mises à jour pour ses cartes H12, H13 et H14, en précisant que les mises à jour du BMC sont également nécessaires. Les clients de services de machines virtuelles confidentielles dépendent donc de leur fournisseur, et les bulletins ne donnent pas de méthode pour vérifier soi-même les valeurs de la base de confiance."
+    },
+    {
+     "type": "usecases",
+     "title": "Exemples d'utilisation",
+     "items": [
+      {
+       "icon": "☁️",
+       "title": "Client d'un cloud confidentiel",
+       "text": "Il demande à son fournisseur la date d'application des correctifs de micrologiciel avant de traiter des données réglementées."
+      },
+      {
+       "icon": "🏦",
+       "title": "Équipe sécurité d'une banque",
+       "text": "Elle intègre ces attaques à son modèle de menace : l'opérateur du cloud n'est plus supposé hors de portée dès qu'il maîtrise le BIOS."
+      },
+      {
+       "icon": "🔬",
+       "title": "Chercheur en sécurité",
+       "text": "Il reprend le code publié pour tester si d'autres générations de processeurs, non essayées par les auteurs, sont concernées."
+      }
+     ]
+    },
+    {
+     "type": "timeline",
+     "title": "D'où l'on vient, où l'on va",
+     "items": [
+      {
+       "label": "8 juillet 2025",
+       "text": "Divulgation des attaques d'ordonnanceur transitoire (TSA) sur les processeurs AMD."
+      },
+      {
+       "label": "12 août 2026",
+       "text": "Date des micrologiciels SEV et du microcode corrigés."
+      },
+      {
+       "label": "Novembre 2026",
+       "text": "Échéance prévue des correctifs de plateforme pour Skyfall ; publication des travaux."
+      },
+      {
+       "label": "Décembre 2026",
+       "text": "Échéance prévue pour les correctifs de plateforme contre Mior."
+      },
+      {
+       "label": "Janvier à avril 2027",
+       "text": "Correctifs attendus pour les EPYC embarqués."
+      }
+     ]
+    },
+    {
+     "type": "opinion",
+     "title": "Notre avis",
+     "paragraphs": [
+      "Ces deux travaux ne cassent pas SEV-SNP en pratique : ils exigent un attaquant déjà maître de l'hôte, ce qui est précisément le cas que la technologie prétend couvrir. Leur intérêt est de montrer que la protection dépend de chaînes d'initialisation complexes, où une table mal remplie suffit à ruiner la garantie.",
+      "À un horizon d'un à trois ans, on peut attendre un cycle régulier de découvertes et de correctifs, comme pour les attaques sur les processeurs il y a quelques années. Les clients gagneraient à disposer d'outils d'attestation vérifiables, ce que les bulletins actuels n'offrent pas."
+     ],
+     "verdict": "Pas de panique, mais l'informatique confidentielle reste une défense en profondeur, non une garantie absolue."
+    },
+    {
+     "type": "callout",
+     "title": "À retenir",
+     "text": "Aucune exploitation en conditions réelles n'est signalée. Les scores de gravité sont modérés (4,9 à 5,9) et les attaques demandent le contrôle de l'hyperviseur."
+    }
+   ],
+   "readingMinutes": 5,
+   "publishedAt": "2026-11-15T18:16:05+01:00"
+  },
+  {
+   "id": "cerebras-cs-5-wse-5-2027",
+   "category": "ia",
+   "icon": "🧠",
+   "importance": 4,
+   "sourceDate": "2026-11-14",
+   "title": "Cerebras prépare le système CS-5 pour 2027 : une puce WSE-5 plus rapide, mais des marges encore minces",
+   "summary": "Le fabricant de puces géantes annonce une production du CS-5 début d'été 2027, alors que ses ventes de matériel reculent de 28,8 % au troisième trimestre et que sa dépendance à OpenAI reste forte.",
+   "tags": [
+    "Cerebras",
+    "WSE-5",
+    "CS-5",
+    "inférence",
+    "OpenAI"
+   ],
+   "sources": [
+    {
+     "title": "Cerebras readies CS-5 systems for 2027 launch as it bags another hyperscaler",
+     "url": "https://www.nextplatform.com/compute/2026/11/14/cerebras-readies-cs-5-systems-for-2027-launch-as-it-bags-another-hyperscaler/5309932",
+     "publisher": "The Next Platform"
+    }
+   ],
+   "illustration": {
+    "svg": "<svg xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"0 0 640 360\"><defs><linearGradient id=\"g\" x1=\"0\" y1=\"0\" x2=\"1\" y2=\"1\"><stop offset=\"0\" stop-color=\"hsl(320,62%,40%)\"/><stop offset=\"1\" stop-color=\"hsl(355,66%,22%)\"/></linearGradient></defs><rect width=\"640\" height=\"360\" fill=\"url(#g)\"/><circle cx=\"540\" cy=\"60\" r=\"120\" fill=\"#fff\" fill-opacity=\".08\"/><circle cx=\"90\" cy=\"320\" r=\"100\" fill=\"#fff\" fill-opacity=\".07\"/><g fill=\"none\" stroke=\"#fff\" stroke-width=\"7\" stroke-linecap=\"round\"><rect x=\"215\" y=\"90\" width=\"210\" height=\"180\" rx=\"18\"/><rect x=\"255\" y=\"130\" width=\"130\" height=\"100\" rx=\"10\" fill=\"#fff\" fill-opacity=\".25\"/><path d=\"M255 90v-25M320 90v-25M385 90v-25M255 270v25M320 270v25M385 270v25M215 140h-25M215 220h-25M425 140h25M425 220h25\"/></g></svg>"
+   },
+   "blocks": [
+    {
+     "type": "paragraph",
+     "text": "Cerebras, connu pour ses processeurs gravés sur une galette de silicium entière, détaille le calendrier de sa cinquième génération de systèmes. Selon The Next Platform, la puce WSE-5 est partie en fabrication le 15 juin 2026, est revenue de la fonderie en avance, fait déjà tourner des modèles et passe en essais dans son châssis. Le système CS-5, qui l'accueillera, doit entrer en production au début de l'été 2027 et, selon l'entreprise, « plus que doubler » la vitesse du CS-4."
+    },
+    {
+     "type": "heading",
+     "text": "Ce que l'on sait de la puce"
+    },
+    {
+     "type": "paragraph",
+     "text": "La WSE-5 reste gravée par TSMC en 5 nm, le même procédé que les WSE-3 et WSE-3 Turbo. Cette dernière, version à fréquence doublée de la WSE-3, a été lancée en août 2026 dans le CS-4, et il n'y aura pas de WSE-4. L'auteur de l'article avance, à titre d'hypothèse, que la WSE-5 pourrait recourir à la photonique sur silicium, à l'empilement de mémoire SRAM et à une fréquence doublée ; Cerebras avait par ailleurs présenté une mémoire DRAM empilée en 3D lors de Hot Chips plus tôt cette année."
+    },
+    {
+     "type": "heading",
+     "text": "Des clients de poids, des chiffres contrastés"
+    },
+    {
+     "type": "keyvalue",
+     "items": [
+      {
+       "label": "Ventes de matériel, troisième trimestre 2026",
+       "value": "68,9 millions de dollars, soit −28,8 % sur un an"
+      },
+      {
+       "label": "Marge brute, troisième trimestre",
+       "value": "Environ 11 %, pour un objectif à long terme de 60 %"
+      },
+      {
+       "label": "Trésorerie",
+       "value": "7,36 milliards de dollars à la fin du troisième trimestre"
+      },
+      {
+       "label": "Carnet de commandes",
+       "value": "26,1 milliards de dollars, en majorité auprès d'OpenAI"
+      },
+      {
+       "label": "Chiffre d'affaires 2026 (estimation de l'auteur)",
+       "value": "Environ 885 millions de dollars, en hausse d'environ 73 %"
+      }
+     ]
+    },
+    {
+     "type": "paragraph",
+     "text": "L'accord avec OpenAI, signé en janvier 2026, porte sur 750 MW de capacité d'inférence ; il est décrit comme valant de 20 à 30 milliards de dollars entre 2026 et 2032, avec une extension possible de 1,25 GW d'ici 2030. Cerebras a aussi des contrats avec Amazon Web Services, Oracle Cloud et Microsoft Azure, mais ils ne figurent pas encore dans le carnet de commandes et n'ont pas produit de revenus. L'entreprise conteste les affirmations sur un problème de rendement de fabrication, et attribue la faible marge en partie aux prix très bas négociés par un client précoce, probablement G42. Son directeur général, Andrew Feldman, attend un triplement des ventes en 2027, avec l'aide des fabricants Flex et Sanmina pour améliorer les marges."
+    },
+    {
+     "type": "usecases",
+     "title": "Exemples d'utilisation",
+     "items": [
+      {
+       "icon": "💬",
+       "title": "Assistant conversationnel à grande échelle",
+       "text": "Un service qui doit répondre en quelques centaines de millisecondes peut s'appuyer sur la capacité d'inférence rapide que visent ces systèmes."
+      },
+      {
+       "icon": "🧑‍💻",
+       "title": "Agent de programmation",
+       "text": "Des agents qui enchaînent de nombreuses requêtes gagnent à réduire la latence de chaque étape, d'où l'intérêt des clients pour la vitesse brute."
+      },
+      {
+       "icon": "🏢",
+       "title": "Fournisseur de cloud",
+       "text": "Il peut proposer à ses clients une alternative aux GPU Nvidia et AMD, à condition que les logiciels et les contrats suivent."
+      }
+     ]
+    },
+    {
+     "type": "timeline",
+     "title": "D'où l'on vient, où l'on va",
+     "items": [
+      {
+       "label": "Janvier 2026",
+       "text": "Signature de l'accord de 750 MW avec OpenAI."
+      },
+      {
+       "label": "15 juin 2026",
+       "text": "Sortie de fabrication (tape-out) de la WSE-5."
+      },
+      {
+       "label": "Août 2026",
+       "text": "Lancement de la WSE-3 Turbo dans le CS-4."
+      },
+      {
+       "label": "Troisième trimestre 2026",
+       "text": "Ventes de matériel en recul, marge brute d'environ 11 %."
+      },
+      {
+       "label": "Début d'été 2027",
+       "text": "Production prévue du CS-5."
+      }
+     ]
+    },
+    {
+     "type": "opinion",
+     "title": "Notre avis",
+     "paragraphs": [
+      "Le contraste est net : une technologie qui impressionne et un modèle économique qui dépend encore d'un client dominant. Un carnet de commandes de 26,1 milliards de dollars rassure sur la demande, mais une marge brute d'environ 11 % montre que la rentabilité reste à prouver, et les contrats avec d'autres géants du cloud n'ont pas encore généré de revenus.",
+      "À un horizon d'un à trois ans, l'enjeu sera moins la performance de la puce que la capacité à la produire en volume, à la refroidir et à la vendre avec une marge normale. Si le calendrier de 2027 tient, Cerebras pourrait s'imposer sur l'inférence rapide ; sinon, les GPU et les puces maison des grands du cloud garderont l'avantage."
+     ],
+     "verdict": "Une avance technique réelle, mais encore à transformer en rentabilité."
+    },
+    {
+     "type": "callout",
+     "title": "À retenir",
+     "text": "Les performances du CS-5 sont des annonces de l'entreprise, non des mesures indépendantes. Les chiffres financiers proviennent de l'analyse de The Next Platform, qui inclut des estimations."
+    }
+   ],
+   "readingMinutes": 5,
+   "publishedAt": "2026-11-15T18:16:05+01:00"
+  },
+  {
+   "id": "pypi-pages-projet-signaux-securite",
+   "category": "dev",
+   "icon": "🐍",
+   "importance": 3,
+   "sourceDate": "2026-11-06",
+   "title": "PyPI : les pages de projet refondues affichent enfin la provenance des fichiers et des alertes explicites",
+   "summary": "Un nouvel onglet « Sécurité » indique si les fichiers d'une version disposent d'attestations de provenance et signale les changements suspects, comme un dépôt source différent ou une provenance disparue.",
+   "tags": [
+    "PyPI",
+    "Python",
+    "attestations",
+    "chaîne d'approvisionnement",
+    "OpenSSF"
+   ],
+   "sources": [
+    {
+     "title": "PyPI's redesigned project pages with clearer security signals are now live",
+     "url": "https://blog.pypi.org/posts/2026-11-06-ui-updates-complete/",
+     "publisher": "Blog PyPI"
+    }
+   ],
+   "illustration": {
+    "svg": "<svg xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"0 0 640 360\"><defs><linearGradient id=\"g\" x1=\"0\" y1=\"0\" x2=\"1\" y2=\"1\"><stop offset=\"0\" stop-color=\"hsl(265,62%,40%)\"/><stop offset=\"1\" stop-color=\"hsl(300,66%,22%)\"/></linearGradient></defs><rect width=\"640\" height=\"360\" fill=\"url(#g)\"/><circle cx=\"540\" cy=\"60\" r=\"120\" fill=\"#fff\" fill-opacity=\".08\"/><circle cx=\"90\" cy=\"320\" r=\"100\" fill=\"#fff\" fill-opacity=\".07\"/><g fill=\"none\" stroke=\"#fff\" stroke-width=\"8\" stroke-linejoin=\"round\" stroke-linecap=\"round\"><path d=\"M320 80l90 52v96l-90 52l-90-52v-96z\"/><path d=\"M320 80v200M230 132l180 96M410 132l-180 96\" stroke-opacity=\".5\"/><path d=\"M285 190l28 28l52-62\"/></g></svg>"
+   },
+   "blocks": [
+    {
+     "type": "paragraph",
+     "text": "PyPI a terminé la refonte de l'interface annoncée en juillet 2026. Selon le blog du dépôt de paquets Python, le chantier, mené avec Kabu Creative et financé par l'Open Source Security Foundation (OpenSSF), vise à rendre les signaux de sécurité lisibles par des utilisateurs qui ne connaissent pas forcément les notions de provenance ou d'attestation. Il s'appuie sur une enquête auprès de membres de la communauté Python."
+    },
+    {
+     "type": "heading",
+     "text": "L'onglet « Sécurité »"
+    },
+    {
+     "type": "paragraph",
+     "text": "Pour chaque version, l'onglet affiche l'état de provenance et les attestations par fichier. PyPI les introduit depuis 2024 pour consigner l'origine d'un fichier publié. Deux types existent : les attestations de publication, qui confirment qu'un fichier a été publié par un éditeur de confiance (Trusted Publisher), et les attestations de provenance de construction SLSA, qui relient un fichier à son commit source, à sa plateforme de construction et à ses instructions de build. L'utilisateur peut consulter les métadonnées ou suivre les liens vers les journaux de transparence."
+    },
+    {
+     "type": "diagram",
+     "svg": "<svg xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"0 0 640 230\" font-family=\"system-ui,sans-serif\"><rect width=\"640\" height=\"230\" rx=\"14\" fill=\"#f1f5f9\"/><rect x=\"10\" y=\"40\" width=\"192\" height=\"150\" rx=\"10\" fill=\"#fff\" stroke=\"#94a3b8\"/><circle cx=\"106\" cy=\"40\" r=\"14\" fill=\"#1d4ed8\"/><text x=\"106\" y=\"45\" text-anchor=\"middle\" font-size=\"14\" font-weight=\"700\" fill=\"#fff\">1</text><text x=\"106\" y=\"72\" text-anchor=\"middle\" font-size=\"12.5\" font-weight=\"700\" fill=\"#0f172a\">Provenance complète</text><text x=\"106\" y=\"92\" text-anchor=\"middle\" font-size=\"10.5\" fill=\"#334155\">Chaque fichier de la version a</text><text x=\"106\" y=\"106\" text-anchor=\"middle\" font-size=\"10.5\" fill=\"#334155\">une attestation</text><path d=\"M206 115l14 0m-6 -6l6 6l-6 6\" stroke=\"#64748b\" stroke-width=\"2\" fill=\"none\"/><rect x=\"224\" y=\"40\" width=\"192\" height=\"150\" rx=\"10\" fill=\"#fff\" stroke=\"#94a3b8\"/><circle cx=\"320\" cy=\"40\" r=\"14\" fill=\"#1d4ed8\"/><text x=\"320\" y=\"45\" text-anchor=\"middle\" font-size=\"14\" font-weight=\"700\" fill=\"#fff\">2</text><text x=\"320\" y=\"72\" text-anchor=\"middle\" font-size=\"12.5\" font-weight=\"700\" fill=\"#0f172a\">Aucune provenance</text><text x=\"320\" y=\"92\" text-anchor=\"middle\" font-size=\"10.5\" fill=\"#334155\">Aucun fichier attesté : origine</text><text x=\"320\" y=\"106\" text-anchor=\"middle\" font-size=\"10.5\" fill=\"#334155\">invérifiable, sans être</text><text x=\"320\" y=\"120\" text-anchor=\"middle\" font-size=\"10.5\" fill=\"#334155\">forcément malveillante</text><path d=\"M420 115l14 0m-6 -6l6 6l-6 6\" stroke=\"#64748b\" stroke-width=\"2\" fill=\"none\"/><rect x=\"438\" y=\"40\" width=\"192\" height=\"150\" rx=\"10\" fill=\"#fff\" stroke=\"#94a3b8\"/><circle cx=\"534\" cy=\"40\" r=\"14\" fill=\"#1d4ed8\"/><text x=\"534\" y=\"45\" text-anchor=\"middle\" font-size=\"14\" font-weight=\"700\" fill=\"#fff\">3</text><text x=\"534\" y=\"72\" text-anchor=\"middle\" font-size=\"12.5\" font-weight=\"700\" fill=\"#0f172a\">Alerte</text><text x=\"534\" y=\"92\" text-anchor=\"middle\" font-size=\"10.5\" fill=\"#334155\">Provenance incomplète,</text><text x=\"534\" y=\"106\" text-anchor=\"middle\" font-size=\"10.5\" fill=\"#334155\">incohérente, modifiée ou perdue</text></svg>",
+     "alt": "Trois états possibles d'une version sur PyPI : provenance complète, aucune provenance, ou alerte de provenance.",
+     "caption": "États affichés par l'onglet « Sécurité » de PyPI."
+    },
+    {
+     "type": "heading",
+     "text": "Quatre alertes à connaître"
+    },
+    {
+     "type": "list",
+     "items": [
+      "Provenance incomplète : certains fichiers sont attestés, d'autres non, par exemple des roues publiées via Trusted Publishing et une archive source envoyée avec un jeton d'API.",
+      "Provenance incohérente : les fichiers d'une même version viennent de systèmes de construction ou de dépôts différents.",
+      "Changement de provenance : la version provient d'un autre dépôt ou flux de travail qu'auparavant, ce qui peut refléter une migration ou un pipeline compromis.",
+      "Perte de provenance : un projet qui publiait des attestations envoie désormais des fichiers sans elles."
+     ]
+    },
+    {
+     "type": "paragraph",
+     "text": "Ces alertes apparaissent en haut de la page du projet, à côté des bandeaux sur les versions retirées, les projets archivés et les préversions ; une mise en quarantaine prime et s'affiche seule. La barre latérale rappelle l'état de provenance, et les métadonnées sont classées par utilité, sous les mentions « Données PyPI » ou « Données vérifiées par PyPI ». L'onglet des fichiers gagne la recherche et le filtrage, et signale d'une icône orange les fichiers ajoutés plus de 14 jours après la version, une pratique que PyPI rejette depuis juillet 2026."
+    },
+    {
+     "type": "usecases",
+     "title": "Exemples d'utilisation",
+     "items": [
+      {
+       "icon": "🔍",
+       "title": "Mainteneur d'une bibliothèque",
+       "text": "Il active la publication de confiance pour que ses versions affichent une provenance complète et gagnent la confiance des utilisateurs."
+      },
+      {
+       "icon": "🏭",
+       "title": "Équipe de développement en entreprise",
+       "text": "Avant d'ajouter une dépendance, elle vérifie l'onglet « Sécurité » et se méfie d'une alerte de changement de provenance."
+      },
+      {
+       "icon": "🎓",
+       "title": "Enseignant en programmation",
+       "text": "Il utilise la page pour expliquer à ses étudiants ce qu'est une attaque sur la chaîne d'approvisionnement logicielle."
+      }
+     ]
+    },
+    {
+     "type": "timeline",
+     "title": "D'où l'on vient, où l'on va",
+     "items": [
+      {
+       "label": "2024",
+       "text": "Introduction des attestations numériques sur PyPI."
+      },
+      {
+       "label": "Juillet 2026",
+       "text": "Annonce de la refonte et rejet des nouveaux fichiers après 14 jours."
+      },
+      {
+       "label": "6 novembre 2026",
+       "text": "Publication de l'annonce de fin de la refonte."
+      },
+      {
+       "label": "Plus tard",
+       "text": "L'onglet est conçu pour accueillir d'autres types d'attestations et des avis de sécurité."
+      }
+     ]
+    },
+    {
+     "type": "opinion",
+     "title": "Notre avis",
+     "paragraphs": [
+      "La refonte déplace la sécurité du bon vouloir de chaque utilisateur vers l'interface elle-même : un signal visible vaut mieux qu'une bonne pratique documentée. Mais l'absence de provenance ne prouve rien, et une provenance présente ne garantit pas que le code est sain ; l'onglet aide à juger, non à décider.",
+      "D'ici un à trois ans, la pression devrait croître sur les mainteneurs pour adopter la publication de confiance, et les outils d'installation pourraient exploiter ces signaux pour bloquer ou avertir automatiquement. C'est une projection, mais elle suit la logique du projet."
+     ],
+     "verdict": "Un progrès concret, à condition que les mainteneurs adoptent les attestations."
+    },
+    {
+     "type": "callout",
+     "title": "À retenir",
+     "text": "L'absence de provenance, fréquente sur les anciennes versions, ne signifie pas qu'un paquet est malveillant : elle signifie seulement que son origine ne peut pas être vérifiée cryptographiquement."
+    }
+   ],
+   "readingMinutes": 5,
+   "publishedAt": "2026-11-15T18:16:05+01:00"
+  },
+  {
+   "id": "tektronix-serie-1-dpo-450-dollars",
+   "category": "electronique",
+   "icon": "📟",
+   "importance": 4,
+   "sourceDate": "2026-11-13",
+   "title": "Tektronix série 1 DPO : des oscilloscopes à partir de 450 dollars, avec un connecteur d'IA en accès anticipé",
+   "summary": "Seize variantes de 50 à 200 MHz, un écran tactile de 7 pouces et une résolution de 12 bits : Tektronix vise l'enseignement et le dépannage courant avec une gamme très abordable.",
+   "tags": [
+    "Tektronix",
+    "oscilloscope",
+    "DPO",
+    "mesure",
+    "IA"
+   ],
+   "sources": [
+    {
+     "title": "Tektronix 1 Series low-cost DPO oscilloscopes support AI-assisted control, start at just $450",
+     "url": "https://www.cnx-software.com/2026/11/13/tektronix-1-series-low-cost-dpo-oscilloscopes-support-ai-assisted-control-start-at-just-450/",
+     "publisher": "CNX Software"
+    }
+   ],
+   "illustration": {
+    "svg": "<svg xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"0 0 640 360\"><defs><linearGradient id=\"g\" x1=\"0\" y1=\"0\" x2=\"1\" y2=\"1\"><stop offset=\"0\" stop-color=\"hsl(30,62%,40%)\"/><stop offset=\"1\" stop-color=\"hsl(65,66%,22%)\"/></linearGradient></defs><rect width=\"640\" height=\"360\" fill=\"url(#g)\"/><circle cx=\"540\" cy=\"60\" r=\"120\" fill=\"#fff\" fill-opacity=\".08\"/><circle cx=\"90\" cy=\"320\" r=\"100\" fill=\"#fff\" fill-opacity=\".07\"/><g fill=\"none\" stroke=\"#fff\" stroke-width=\"7\" stroke-linecap=\"round\" stroke-linejoin=\"round\"><rect x=\"160\" y=\"80\" width=\"320\" height=\"200\" rx=\"16\"/><path d=\"M190 190l35-60l35 100l35-90l35 70l40-50l35 30\" stroke-width=\"9\"/><path d=\"M200 255h240\" stroke-opacity=\".5\"/></g></svg>"
+   },
+   "blocks": [
+    {
+     "type": "paragraph",
+     "text": "Tektronix, plus connu pour ses instruments haut de gamme, lance la série 1 DPO, une gamme d'oscilloscopes à phosphore numérique dont l'entrée de gamme est annoncée à 450 dollars. D'après CNX Software, ces appareils visent les essais d'électronique, le développement embarqué, l'enseignement et le dépannage quotidien de circuits. La gamme compte seize variantes, combinant quatre bandes passantes (50, 70, 100 et 200 MHz), deux ou quatre voies analogiques, avec ou sans générateur de fonctions intégré."
+    },
+    {
+     "type": "heading",
+     "text": "Les caractéristiques principales"
+    },
+    {
+     "type": "keyvalue",
+     "items": [
+      {
+       "label": "DPO1052",
+       "value": "450 dollars, 50 MHz, deux voies (entrée de gamme)"
+      },
+      {
+       "label": "DPO1052S",
+       "value": "690 dollars, ajoute le générateur de fonctions intégré"
+      },
+      {
+       "label": "DPO1204S",
+       "value": "1 650 dollars, quatre voies, 200 MHz, générateur de fonctions"
+      },
+      {
+       "label": "Écran",
+       "value": "Tactile capacitif de 7 pouces, 1 024 × 600"
+      },
+      {
+       "label": "Numérisation",
+       "value": "Convertisseur de 12 bits, jusqu'à 1,25 GS/s avec la moitié des voies actives"
+      },
+      {
+       "label": "Mémoire",
+       "value": "10 Mpoints par voie, environ 125 000 formes d'onde par seconde"
+      }
+     ]
+    },
+    {
+     "type": "paragraph",
+     "text": "Les entrées ont une impédance de 1 MΩ et une capacité de 17 pF, avec une sensibilité de 1 mV à 10 V par division. Les déclenchements couvrent les fronts, les impulsions, les impulsions réduites (runt), les temporisations, les temps de montée et de descente, ainsi que les bus série. L'appareil décode l'I2C, le SPI et l'UART (RS-232, 422 et 485), propose 23 mesures automatiques, une FFT, des fonctions mathématiques, des courbes XY et des tests de masque. Un voltmètre à cinq chiffres et un fréquencemètre à six chiffres sont intégrés ; les modèles S ajoutent un générateur arbitraire de 14 bits et 25 MHz, ainsi que l'analyse de Bode."
+    },
+    {
+     "type": "heading",
+     "text": "Un connecteur d'IA en accès anticipé"
+    },
+    {
+     "type": "paragraph",
+     "text": "Tektronix annonce un accès anticipé à Tek Intelligence, un connecteur qui permettrait à des agents d'IA de piloter l'oscilloscope par instructions en langage naturel, traduites en commandes pour la configuration, les mesures et l'automatisation. Il n'est proposé que dans le cadre d'un programme d'accès anticipé, et l'article ne précise ni les plateformes d'IA prises en charge ni un éventuel surcoût. Pour l'enseignement, les professeurs peuvent désactiver l'Autoset, les curseurs et les mesures automatiques afin que les élèves apprennent à mesurer à la main, et une aide intégrée propose tutoriels et démonstrations."
+    },
+    {
+     "type": "usecases",
+     "title": "Exemples d'utilisation",
+     "items": [
+      {
+       "icon": "🎓",
+       "title": "Lycée technologique",
+       "text": "Un enseignant bloque les mesures automatiques pour obliger les élèves à lire une période et une amplitude sur l'écran."
+      },
+      {
+       "icon": "🛠️",
+       "title": "Atelier de réparation",
+       "text": "Un technicien contrôle une alimentation à découpage ou un bus I2C d'un appareil avec un instrument peu coûteux mais précis sur 12 bits."
+      },
+      {
+       "icon": "🏡",
+       "title": "Bricoleur de domotique",
+       "text": "Il vérifie les signaux SPI ou UART d'un module ESP32 avant d'intégrer son montage dans une installation."
+      }
+     ]
+    },
+    {
+     "type": "timeline",
+     "title": "D'où l'on vient, où l'on va",
+     "items": [
+      {
+       "label": "Jusqu'ici",
+       "text": "Tektronix est surtout connu pour des instruments haut de gamme."
+      },
+      {
+       "label": "13 novembre 2026",
+       "text": "Présentation de la série 1 DPO à partir de 450 dollars."
+      },
+      {
+       "label": "À venir",
+       "text": "Ouverture progressive de l'accès anticipé au connecteur Tek Intelligence ; disponibilité régionale non précisée."
+      }
+     ]
+    },
+    {
+     "type": "opinion",
+     "title": "Notre avis",
+     "paragraphs": [
+      "Un convertisseur de 12 bits, 10 Mpoints de mémoire et des déclencheurs avancés pour 450 dollars changent la donne face aux appareils concurrents bon marché. Un commentaire cité par CNX Software note qu'un modèle à 1 600 dollars offre des fonctions autrefois réservées à un instrument à 25 000 dollars, ce qui illustre la baisse du prix de la mesure.",
+      "Le connecteur d'IA est moins convaincant à ce stade : il reste en accès anticipé et sans précisions sur sa compatibilité. L'idée de demander une mesure en langage naturel est séduisante pour les débutants, mais elle suppose de vérifier ce que l'agent a réellement réglé ; il faudra des retours d'usage pour juger de sa fiabilité."
+     ],
+     "verdict": "Une gamme abordable et sérieuse ; la partie IA reste à prouver."
+    },
+    {
+     "type": "callout",
+     "title": "À retenir",
+     "text": "Les prix et caractéristiques sont ceux annoncés par Tektronix, relayés par CNX Software. L'article ne précise ni dates d'expédition ni disponibilité par région."
+    }
+   ],
+   "readingMinutes": 5,
+   "publishedAt": "2026-11-15T18:16:05+01:00"
+  },
+  {
+   "id": "sylphide-os-bmds-esp32-p4-systemes-bureau",
+   "category": "electronique",
+   "icon": "🖥️",
+   "importance": 3,
+   "sourceDate": "2026-11-14",
+   "title": "Sylphide OS et BMDS : deux systèmes de bureau libres pour microcontrôleurs ESP32-P4 et RP2350",
+   "summary": "Un système monochrome inspiré des premiers Macintosh et un environnement coloré en 1 280 × 720 voient le jour pour de petites cartes à microcontrôleur, sous licences GPL v3 et MIT.",
+   "tags": [
+    "ESP32-P4",
+    "Sylphide OS",
+    "BMDS",
+    "FreeRTOS",
+    "logiciel libre"
+   ],
+   "sources": [
+    {
+     "title": "Desktop operating systems for ESP32-P4-based PCs – Meet Sylphide OS and Bare Metal, Do Stuff (BMDS)",
+     "url": "https://www.cnx-software.com/2026/11/14/desktop-operating-systems-for-esp32-p4-based-pcs-meet-sylphide-os-and-bare-metal-do-stuff-bmds/",
+     "publisher": "CNX Software"
+    }
+   ],
+   "illustration": {
+    "svg": "<svg xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"0 0 640 360\"><defs><linearGradient id=\"g\" x1=\"0\" y1=\"0\" x2=\"1\" y2=\"1\"><stop offset=\"0\" stop-color=\"hsl(30,62%,40%)\"/><stop offset=\"1\" stop-color=\"hsl(65,66%,22%)\"/></linearGradient></defs><rect width=\"640\" height=\"360\" fill=\"url(#g)\"/><circle cx=\"540\" cy=\"60\" r=\"120\" fill=\"#fff\" fill-opacity=\".08\"/><circle cx=\"90\" cy=\"320\" r=\"100\" fill=\"#fff\" fill-opacity=\".07\"/><g fill=\"none\" stroke=\"#fff\" stroke-width=\"7\" stroke-linejoin=\"round\" stroke-linecap=\"round\"><rect x=\"150\" y=\"80\" width=\"340\" height=\"200\" rx=\"14\"/><rect x=\"180\" y=\"110\" width=\"140\" height=\"90\" rx=\"6\" fill=\"#fff\" fill-opacity=\".25\"/><rect x=\"340\" y=\"130\" width=\"120\" height=\"110\" rx=\"6\" fill=\"#fff\" fill-opacity=\".15\"/><path d=\"M300 280h40M320 280v-0\"/></g></svg>"
+   },
+   "blocks": [
+    {
+     "type": "paragraph",
+     "text": "Faire tourner une interface de bureau complète sur un microcontrôleur n'a rien d'évident, mais deux projets libres s'y emploient. Selon CNX Software, Sylphide OS et Bare Metal, Do Stuff (BMDS) visent d'abord la carte Olimex ESP32-P4-PC, dotée d'une sortie HDMI, d'Ethernet et de ports USB. Tous deux reposent sur FreeRTOS, mais leurs ambitions diffèrent."
+    },
+    {
+     "type": "heading",
+     "text": "Sylphide OS : un bureau monochrome portable"
+    },
+    {
+     "type": "paragraph",
+     "text": "Annoncé fin octobre 2026 par Thomas Capricelli, Sylphide OS propose une interface graphique monochrome avec bureau, menus, fenêtres et icônes, d'inspiration Macintosh des débuts. Il fonctionne sur la Raspberry Pi Pico 2 avec connecteurs VGA et USB, sur la carte Olimex ESP32-SBC-FabGL (entrée PS/2, sortie VGA), sur des cartes ESP32-P4 et dans un émulateur sous Linux. Il comprend un panneau d'information matérielle et logicielle, un rendu bas niveau pour tampons d'image, images et polices, des pilotes pour la souris, le clavier, l'affichage, le stockage et le réseau, ainsi qu'une configuration par kconfig."
+    },
+    {
+     "type": "paragraph",
+     "text": "Le projet est en développement : le stockage sur microSD et USB, le réseau Ethernet et Wi-Fi, les composants graphiques et le chargement de programmes externes figurent parmi les évolutions futures. Le code, majoritairement en C avec du C++ pour l'interface et un peu d'assembleur, est publié sous licence GPL v3."
+    },
+    {
+     "type": "heading",
+     "text": "BMDS : un bureau en couleur, plus fourni"
+    },
+    {
+     "type": "paragraph",
+     "text": "BMDS, créé par Jason Howard, est un système de bureau libre pour les cartes ESP32-P4 d'Espressif. Son esprit rappelle le DOS, mais il propose une interface fenêtrée en couleur, en 1 280 × 720 à 60 images par seconde. Les applications sont des binaires ELF séparés, lancés depuis la carte SD. Il intègre un synthétiseur audio (FM et table d'ondes), un serveur et un client SSH/SFTP, la prise en charge de POSIX avec BusyBox et Dropbear, un portage de Doom, des jeux originaux, un SDK stable pour les développeurs tiers, ainsi qu'un gestionnaire de paquets avec installateur en ligne. Il est publié sous licence MIT et s'appuie sur ESP-IDF."
+    },
+    {
+     "type": "keyvalue",
+     "items": [
+      {
+       "label": "Sylphide OS",
+       "value": "Monochrome, plusieurs plateformes (Pico 2, ESP32, ESP32-P4, émulateur), GPL v3"
+      },
+      {
+       "label": "BMDS",
+       "value": "Couleur 1 280 × 720, ESP32-P4 uniquement, MIT, gestionnaire de paquets et SDK"
+      }
+     ]
+    },
+    {
+     "type": "usecases",
+     "title": "Exemples d'utilisation",
+     "items": [
+      {
+       "icon": "🎮",
+       "title": "Amateur de rétro-informatique",
+       "text": "Il installe BMDS sur une carte ESP32-P4-PC pour jouer à Doom et tester une machine à bas coût avec une vraie interface graphique."
+      },
+      {
+       "icon": "📚",
+       "title": "Atelier d'initiation aux systèmes",
+       "text": "Un formateur utilise Sylphide OS et son émulateur pour montrer comment un système d'exploitation gère fenêtres, pilotes et ordonnancement."
+      },
+      {
+       "icon": "🔧",
+       "title": "Développeur de systèmes embarqués",
+       "text": "Il s'inspire du SDK de BMDS pour charger des applications ELF depuis une carte SD sur un microcontrôleur."
+      }
+     ]
+    },
+    {
+     "type": "timeline",
+     "title": "D'où l'on vient, où l'on va",
+     "items": [
+      {
+       "label": "Fin octobre 2026",
+       "text": "Annonce de Sylphide OS par Thomas Capricelli."
+      },
+      {
+       "label": "14 novembre 2026",
+       "text": "Présentation conjointe des deux projets par CNX Software."
+      },
+      {
+       "label": "À venir",
+       "text": "Stockage, réseau et programmes externes pour Sylphide OS ; l'article ne liste pas de limites pour BMDS."
+      }
+     ]
+    },
+    {
+     "type": "opinion",
+     "title": "Notre avis",
+     "paragraphs": [
+      "Ces projets n'ont pas de vocation commerciale : ils prouvent qu'un microcontrôleur à bas prix peut offrir une expérience de bureau, ce qui aurait paru absurde il y a quelques années. Leur valeur est surtout pédagogique et ludique, et ils s'adressent à des passionnés plus qu'à un public large.",
+      "Si la communauté s'en empare, on peut imaginer des postes très économes en énergie pour l'éducation ou de petites bornes d'information. Cela reste une hypothèse, tant que les fonctions de stockage et de réseau ne sont pas complètes et que l'écosystème d'applications reste restreint."
+     ],
+     "verdict": "Deux expériences libres à suivre, plus qu'un produit à adopter."
+    },
+    {
+     "type": "callout",
+     "title": "À retenir",
+     "text": "Sylphide OS est encore en développement ; BMDS fournit déjà un installateur web, mais ne cible que les cartes ESP32-P4."
+    }
+   ],
+   "readingMinutes": 5,
+   "publishedAt": "2026-11-15T18:16:05+01:00"
+  }
+ ]
+}
