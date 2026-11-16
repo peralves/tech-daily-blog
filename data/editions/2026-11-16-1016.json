@@ -1,0 +1,775 @@
+{
+ "schemaVersion": "1.0",
+ "date": "2026-11-16",
+ "generatedAt": "2026-11-16T10:16:37+01:00",
+ "title": "Tech Daily — Agents d'IA contre clés d'API, implants dans des portefeuilles Trezor, XRAID et console 486",
+ "summary": "Cette édition réunit deux sujets de cybersécurité (la campagne ARTEX et des portefeuilles matériels piégés), un nouveau RAID pour XFS, une console portable à processeur 486 et un moniteur de fréquence du réseau électrique.",
+ "highlights": [
+  "ARTEX : des agents d'IA automatisent le vol de clés d'API sur des applications d'IA exposées, selon Amazon et le FBI",
+  "Trezor confirme des implants espions dans trois portefeuilles Safe 5 vendus par un revendeur",
+  "XRAID : un RAID à parité déclustérisée pour XFS, avec des écritures annoncées jusqu'à vingt fois plus rapides",
+  "VapourDeck : une console portable à vrai processeur 486"
+ ],
+ "meta": {
+  "generator": "claude-scheduled-task"
+ },
+ "posts": [
+  {
+   "id": "artex-agents-ia-cles-api",
+   "category": "cybersecurite",
+   "icon": "🕵️",
+   "importance": 5,
+   "sourceDate": "2026-11-16",
+   "title": "ARTEX : des agents d'IA traquent les clés d'API des applications d'IA exposées, Amazon et le FBI documentent la campagne",
+   "summary": "Des serveurs leurres d'Amazon ont capté les journaux d'agents offensifs automatisés qui cherchent des clés d'API sur des applications d'IA mal protégées, tandis que le FBI alerte sur l'outil ARTEX.",
+   "tags": [
+    "ARTEX",
+    "agents d'IA",
+    "clés d'API",
+    "Amazon",
+    "FBI",
+    "Cloudflare",
+    "CI/CD"
+   ],
+   "sources": [
+    {
+     "title": "Amazon Uncovers AI Agent Campaign Targeting LiteLLM, Dify, and Other Apps for API Keys",
+     "url": "https://thehackernews.com/2026/11/amazon-uncovers-ai-agent-campaign.html",
+     "publisher": "The Hacker News"
+    },
+    {
+     "title": "FBI warns ARTEX AI hacking tool is powering global cyberattacks",
+     "url": "https://www.bleepingcomputer.com/news/security/fbi-warns-artex-ai-hacking-tool-is-powering-global-cyberattacks/",
+     "publisher": "BleepingComputer"
+    }
+   ],
+   "illustration": {
+    "svg": "<svg xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"0 0 640 360\"><defs><linearGradient id=\"g\" x1=\"0\" y1=\"0\" x2=\"1\" y2=\"1\"><stop offset=\"0\" stop-color=\"hsl(175,62%,40%)\"/><stop offset=\"1\" stop-color=\"hsl(210,66%,22%)\"/></linearGradient></defs><rect width=\"640\" height=\"360\" fill=\"url(#g)\"/><circle cx=\"545\" cy=\"60\" r=\"120\" fill=\"#fff\" fill-opacity=\".08\"/><circle cx=\"90\" cy=\"320\" r=\"100\" fill=\"#fff\" fill-opacity=\".07\"/><g fill=\"#fff\"><circle cx=\"320\" cy=\"170\" r=\"70\" fill-opacity=\".9\"/><circle cx=\"320\" cy=\"170\" r=\"34\" fill=\"hsl(175,60%,25%)\"/><circle cx=\"320\" cy=\"170\" r=\"12\"/><path d=\"M250 170H150m420 0H390M320 100V50m0 260v-50\" stroke=\"#fff\" stroke-width=\"6\" fill=\"none\" stroke-opacity=\".7\"/><rect x=\"110\" y=\"152\" width=\"40\" height=\"36\" rx=\"6\" fill-opacity=\".6\"/><rect x=\"570\" y=\"152\" width=\"40\" height=\"36\" rx=\"6\" fill-opacity=\".6\"/><rect x=\"300\" y=\"20\" width=\"40\" height=\"30\" rx=\"6\" fill-opacity=\".6\"/></g></svg>"
+   },
+   "blocks": [
+    {
+     "type": "paragraph",
+     "text": "Le 16 novembre 2026, l'équipe de renseignement sur les menaces d'Amazon a publié le résultat d'une observation inhabituelle : au lieu de voir des attaquants, elle a recueilli les traces d'agents d'intelligence artificielle chargés de pirater des applications. Ces agents, très probablement pilotés par l'outil libre de test d'intrusion **ARTEX**, parcourent Internet à la recherche d'applications d'IA mal protégées, en extraient les clés d'API des fournisseurs de modèles, puis les versent dans un fonds commun. Dans le même temps, le FBI a diffusé une alerte de type FLASH sur l'usage criminel de cet outil."
+    },
+    {
+     "type": "heading",
+     "text": "Comment Amazon a observé des agents attaquants"
+    },
+    {
+     "type": "paragraph",
+     "text": "Les chercheurs ont déployé un réseau de leurres baptisé MadPot, qui imitait des services de modèles de langage populaires. Du 3 octobre jusqu'à la fin de la semaine dernière, les agents ont envoyé à ces faux services des requêtes contenant souvent l'historique complet de la campagne, les consignes de l'opérateur et leurs propres constats. Amazon a donc pu lire de l'intérieur le fonctionnement de ces opérations. L'entreprise précise toutefois n'avoir pas observé directement les intrusions et ne pas pouvoir vérifier les résultats que les agents déclaraient."
+    },
+    {
+     "type": "paragraph",
+     "text": "Le principe d'ARTEX est simple : un opérateur fixe une cible et un objectif, un agent planificateur découpe cet objectif en tâches, des agents exécutants lancent des outils de sécurité classiques et un modèle de langage décide de l'étape suivante. Amazon estime, avec un degré de confiance moyen, que les agents observés reposaient sur cet outil."
+    },
+    {
+     "type": "heading",
+     "text": "Ce que cherchent les agents"
+    },
+    {
+     "type": "list",
+     "items": [
+      "**Applications visées** : LiteLLM, One API, New API, Veloera, Sub2API, Dify, FastGPT, Langflow, RAGFlow, Open WebUI, LobeChat et Ollama.",
+      "**Identifiants d'administration par défaut** et points de gestion accessibles sans authentification.",
+      "**Contournement d'authentification** par l'en-tête `isCliRequest` dans la famille One API.",
+      "**Falsification de requêtes côté serveur** (SSRF) pour atteindre les services de métadonnées du cloud.",
+      "**Secrets oubliés** dans le JavaScript côté client, les cartes de sources, les routes de débogage et les fichiers d'environnement."
+     ]
+    },
+    {
+     "type": "paragraph",
+     "text": "Lorsque des identifiants cloud sont trouvés, les agents visent en priorité les services de modèles gérés plutôt qu'un accès général à l'infrastructure. Ils cherchent aussi des clés déjà divulguées : balayage d'Internet, journaux de transparence des certificats, GitHub, npm, PyPI, images de conteneurs, notebooks, sites de partage de texte et Telegram. Les traces couvrent des centaines de cibles et Amazon a prévenu les clients AWS potentiellement touchés. Selon l'entreprise, les opérateurs seraient plusieurs groupes distincts liés à la Chine, avec une confiance moyenne : consignes en chinois simplifié et fuseaux horaires chinois dans les configurations."
+    },
+    {
+     "type": "diagram",
+     "svg": "<svg xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"0 0 640 300\" font-family=\"system-ui,sans-serif\"><rect width=\"640\" height=\"300\" rx=\"16\" fill=\"hsl(175,35%,96%)\"/><text x=\"320\" y=\"50\" text-anchor=\"middle\" font-size=\"18\" font-weight=\"700\" fill=\"#1f2933\">Le parcours d'une campagne ARTEX</text><rect x=\"20\" y=\"110\" width=\"106\" height=\"110\" rx=\"12\" fill=\"hsl(175,45%,90%)\" stroke=\"hsl(175,50%,35%)\"/><text x=\"73\" y=\"158\" text-anchor=\"middle\" font-size=\"13\" font-weight=\"700\" fill=\"#1f2933\">Opérateur</text><text x=\"73\" y=\"182\" text-anchor=\"middle\" font-size=\"12\" fill=\"#3e4c59\">fixe cible et but</text><path d=\"M129 165h12m-5-5l5 5l-5 5\" fill=\"none\" stroke=\"#3e4c59\" stroke-width=\"2\"/><rect x=\"144\" y=\"110\" width=\"106\" height=\"110\" rx=\"12\" fill=\"hsl(175,45%,84%)\" stroke=\"hsl(175,50%,35%)\"/><text x=\"196\" y=\"158\" text-anchor=\"middle\" font-size=\"13\" font-weight=\"700\" fill=\"#1f2933\">Planificateur</text><text x=\"196\" y=\"182\" text-anchor=\"middle\" font-size=\"12\" fill=\"#3e4c59\">découpe en tâches</text><path d=\"M252 165h12m-5-5l5 5l-5 5\" fill=\"none\" stroke=\"#3e4c59\" stroke-width=\"2\"/><rect x=\"267\" y=\"110\" width=\"106\" height=\"110\" rx=\"12\" fill=\"hsl(175,45%,90%)\" stroke=\"hsl(175,50%,35%)\"/><text x=\"320\" y=\"158\" text-anchor=\"middle\" font-size=\"13\" font-weight=\"700\" fill=\"#1f2933\">Agents</text><text x=\"320\" y=\"182\" text-anchor=\"middle\" font-size=\"12\" fill=\"#3e4c59\">lancent les outils</text><path d=\"M376 165h12m-5-5l5 5l-5 5\" fill=\"none\" stroke=\"#3e4c59\" stroke-width=\"2\"/><rect x=\"391\" y=\"110\" width=\"106\" height=\"110\" rx=\"12\" fill=\"hsl(175,45%,84%)\" stroke=\"hsl(175,50%,35%)\"/><text x=\"444\" y=\"158\" text-anchor=\"middle\" font-size=\"13\" font-weight=\"700\" fill=\"#1f2933\">Applications IA</text><text x=\"444\" y=\"182\" text-anchor=\"middle\" font-size=\"12\" fill=\"#3e4c59\">exposées sur Internet</text><path d=\"M499 165h12m-5-5l5 5l-5 5\" fill=\"none\" stroke=\"#3e4c59\" stroke-width=\"2\"/><rect x=\"514\" y=\"110\" width=\"106\" height=\"110\" rx=\"12\" fill=\"hsl(175,45%,90%)\" stroke=\"hsl(175,50%,35%)\"/><text x=\"567\" y=\"158\" text-anchor=\"middle\" font-size=\"13\" font-weight=\"700\" fill=\"#1f2933\">Clés d'API</text><text x=\"567\" y=\"182\" text-anchor=\"middle\" font-size=\"12\" fill=\"#3e4c59\">vérifiées, mises en commun</text><text x=\"320\" y=\"270\" text-anchor=\"middle\" font-size=\"12\" fill=\"#52606d\">Schéma simplifié d'après la description d'Amazon</text></svg>",
+     "alt": "Schéma en cinq étapes : opérateur, agent planificateur, agents exécutants, applications d'IA exposées, clés d'API mises en commun",
+     "caption": "Fonctionnement d'ARTEX tel que décrit par Amazon (confiance moyenne)."
+    },
+    {
+     "type": "heading",
+     "text": "Le cas de Cloudflare"
+    },
+    {
+     "type": "paragraph",
+     "text": "Cloudflare a affronté, en huit semaines, plusieurs incidents liés à ARTEX. Dans l'un d'eux, un jeton d'API de niveau compte, rattaché à une chaîne CI/CD et dépourvu de restriction d'adresse IP comme de limitation de débit, a été suivi de 400 requêtes d'export de bases de données en une heure. Cloudflare n'a pas indiqué si des données ont été effectivement renvoyées. La cause commune est banale : des jetons statiques de CI/CD qui n'expirent jamais. Des scripts Worker aux noms commençant par `artex-` sont également apparus, et plus de 50 familles d'outils de test d'intrusion par IA ont balayé ses clients en trois jours, depuis des milliers d'adresses IP."
+    },
+    {
+     "type": "heading",
+     "text": "Ce que dit le FBI"
+    },
+    {
+     "type": "paragraph",
+     "text": "L'alerte FLASH indique que des attaquants utilisent ARTEX depuis au moins août contre des organisations de nombreux secteurs. Elle reprend onze rapports antérieurs et ne décrit pas d'incident nouveau ; elle évoque notamment la compromission de la chaîne d'approvisionnement de ConnectWise, qui a touché des environnements Microsoft 365 de clients. Le dépôt GitHub d'ARTEX a été retiré le 8 octobre après des signalements d'abus, mais des copies, des bifurcations et une version commerciale, ARTEX PRO, restent disponibles."
+    },
+    {
+     "type": "keyvalue",
+     "items": [
+      {
+       "label": "Langflow, CVE-2025-3248",
+       "value": "exécution de code sans authentification, corrigée en 1.3.0 ; au catalogue des failles exploitées de la CISA depuis le 5 mai 2025"
+      },
+      {
+       "label": "RAGFlow, CVE-2026-28797",
+       "value": "injection de gabarit côté serveur ; versions 0.24.0 et antérieures touchées, gabarits isolés en bac à sable depuis la 0.25.0 (21 avril)"
+      },
+      {
+       "label": "Famille One API",
+       "value": "contournement via `isCliRequest` ; le rapport ne cite ni version touchée ni correctif"
+      }
+     ]
+    },
+    {
+     "type": "heading",
+     "text": "Mesures recommandées"
+    },
+    {
+     "type": "list",
+     "items": [
+      "Changer les identifiants par défaut, y compris la clé maître de LiteLLM, et ne jamais laisser une installation à moitié configurée.",
+      "Chercher les secrets dans les configurations, variables d'environnement, chaînes CI/CD et bases de données, puis renouveler ceux qui ont pu fuir.",
+      "Limiter la durée de vie et les adresses IP autorisées des jetons Cloudflare ; les nouveaux jetons portent le préfixe `cfut_`, que les outils de détection de secrets reconnaissent.",
+      "Rechercher des Workers dont le nom commence par `artex-` et consulter les journaux à la recherche des 11 adresses IP publiées et des plus de 2 500 adresses que Cisco Talos associe à ARTEX.",
+      "Traiter passerelles d'IA et points d'inférence comme des systèmes de production, avec surveillance des dépenses et usages inhabituels."
+     ]
+    },
+    {
+     "type": "usecases",
+     "title": "Exemples d'utilisation",
+     "items": [
+      {
+       "icon": "🏢",
+       "title": "PME avec une interface d'IA interne",
+       "text": "Une PME a installé une interface de discussion pour ses équipes et n'a jamais changé le mot de passe administrateur. Un agent la trouve en quelques minutes et revend l'accès à ses clés de modèles."
+      },
+      {
+       "icon": "🔁",
+       "title": "Équipe DevOps",
+       "text": "Une équipe vérifie que ses jetons de déploiement expirent, sont liés à des adresses IP et ne figurent dans aucun fichier d'environnement."
+      },
+      {
+       "icon": "📊",
+       "title": "Direction financière",
+       "text": "Une alerte de dépense sur le compte du fournisseur de modèles signale un pic nocturne et déclenche la rotation immédiate des clés."
+      }
+     ]
+    },
+    {
+     "type": "timeline",
+     "title": "D'où l'on vient, où l'on va",
+     "items": [
+      {
+       "label": "Août 2026",
+       "text": "Selon le FBI, ARTEX est utilisé par des attaquants depuis au moins ce mois."
+      },
+      {
+       "label": "3 octobre 2026",
+       "text": "Début des traces recueillies par les leurres d'Amazon."
+      },
+      {
+       "label": "8 octobre 2026",
+       "text": "Retrait du dépôt GitHub d'ARTEX après des signalements d'abus."
+      },
+      {
+       "label": "15 novembre 2026",
+       "text": "L'alerte FLASH du FBI est relayée par la presse spécialisée."
+      },
+      {
+       "label": "16 novembre 2026",
+       "text": "Amazon publie son analyse des journaux d'agents."
+      }
+     ]
+    },
+    {
+     "type": "opinion",
+     "title": "Notre avis",
+     "paragraphs": [
+      "La nouveauté n'est pas technique : les failles décrites (mots de passe par défaut, jetons éternels, points d'administration ouverts) sont connues depuis des années. Ce qui change, c'est la cadence. Un agent ne se lasse pas, relance sans cesse et teste des centaines de cibles, ce qui rend rentable l'exploitation de fautes autrefois jugées trop mineures. Les passerelles d'IA, souvent installées à la hâte pour un prototype, sont devenues des cibles de choix parce qu'une clé volée se monnaie immédiatement.",
+      "D'ici un à trois ans, on peut raisonnablement s'attendre à ce que ce type d'automatisation soit la norme des deux côtés : les défenseurs devront eux aussi déléguer à des agents l'inventaire des secrets exposés. Il s'agit d'une analyse, non d'un fait établi : les attributions d'Amazon restent à confiance moyenne et les résultats annoncés par les agents n'ont pas été vérifiés."
+     ],
+     "verdict": "L'IA n'invente pas de nouvelles failles, elle punit plus vite les anciennes négligences."
+    },
+    {
+     "type": "callout",
+     "title": "À retenir",
+     "text": "Inventoriez vos outils d'IA exposés, changez les identifiants par défaut, faites expirer les jetons de CI/CD et surveillez la consommation de vos clés d'API."
+    }
+   ],
+   "publishedAt": "2026-11-16T10:16:37+01:00",
+   "readingMinutes": 6,
+   "cover": {
+    "url": "https://blogger.googleusercontent.com/img/b/R29vZ2xl/AVvXsEigoyCtEKcD7TM_5vDkKiZYFdk_l4-js7HNuvMXzZbVqUbEgq1nnD2vEZgZ0kL9CdmOkITC0Rbd-ebTkSX-R4NPKwWZXzUD6zS0g9nEfnlXw3njm3oW2Se97qbT7lIfZEL56X3IIaZAildTni9-zQJu5sa4Lhvi_mVlbTeZFyFtezOMHJ_bDhJWfG7KQ8eh/s1700-nu-rw-lo-l85-e365/amazon.jpg",
+    "alt": "Illustration de l'article de The Hacker News sur la campagne d'agents d'IA visant des clés d'API",
+    "credit": "thehackernews.com"
+   }
+  },
+  {
+   "id": "trezor-implants-cryptobilis",
+   "category": "cybersecurite",
+   "icon": "🔓",
+   "importance": 4,
+   "sourceDate": "2026-11-13",
+   "title": "Trezor confirme des implants matériels dans des portefeuilles Safe 5 vendus par un revendeur asiatique",
+   "summary": "Trois portefeuilles Trezor Safe 5 achetés chez le revendeur CryptoBilis contenaient une carte espionne capable de copier la phrase de récupération et de l'envoyer par le réseau mobile.",
+   "tags": [
+    "Trezor",
+    "portefeuille matériel",
+    "chaîne d'approvisionnement",
+    "crypto-actifs",
+    "implant"
+   ],
+   "sources": [
+    {
+     "title": "Trezor Confirms Hidden Implants in CryptoBilis-Sold Wallets That Can Steal Recovery Phrases",
+     "url": "https://thehackernews.com/2026/11/trezor-confirms-hidden-hardware.html",
+     "publisher": "The Hacker News"
+    },
+    {
+     "title": "Trezor confirms crypto-stealing implants in three wallets, releases fix",
+     "url": "https://www.bleepingcomputer.com/news/cryptocurrency/trezor-confirms-crypto-stealing-implants-in-three-wallets-releases-fix/",
+     "publisher": "BleepingComputer"
+    }
+   ],
+   "illustration": {
+    "svg": "<svg xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"0 0 640 360\"><defs><linearGradient id=\"g\" x1=\"0\" y1=\"0\" x2=\"1\" y2=\"1\"><stop offset=\"0\" stop-color=\"hsl(175,62%,40%)\"/><stop offset=\"1\" stop-color=\"hsl(210,66%,22%)\"/></linearGradient></defs><rect width=\"640\" height=\"360\" fill=\"url(#g)\"/><circle cx=\"545\" cy=\"60\" r=\"120\" fill=\"#fff\" fill-opacity=\".08\"/><circle cx=\"90\" cy=\"320\" r=\"100\" fill=\"#fff\" fill-opacity=\".07\"/><g fill=\"#fff\"><rect x=\"230\" y=\"90\" width=\"180\" height=\"170\" rx=\"22\" fill-opacity=\".9\"/><rect x=\"250\" y=\"112\" width=\"140\" height=\"70\" rx=\"8\" fill=\"hsl(175,60%,22%)\"/><circle cx=\"320\" cy=\"222\" r=\"14\" fill=\"hsl(175,60%,22%)\"/><path d=\"M430 110c25 15 25 45 0 60m25-80c40 25 40 75 0 100\" stroke=\"#fff\" stroke-width=\"6\" fill=\"none\" stroke-opacity=\".8\"/><circle cx=\"410\" cy=\"140\" r=\"6\"/></g></svg>"
+   },
+   "blocks": [
+    {
+     "type": "paragraph",
+     "text": "Le 12 novembre 2026, le fabricant de portefeuilles matériels Trezor a confirmé ce qu'il soupçonnait depuis fin octobre : trois portefeuilles **Trezor Safe 5**, achetés chez le revendeur CryptoBilis, contenaient une carte supplémentaire destinée à voler la phrase de récupération de leur propriétaire. Le fabricant affirme n'avoir reçu aucun signalement de fonds perdus à ce stade, mais conseille aux acheteurs concernés de transférer leurs avoirs vers un nouveau portefeuille."
+    },
+    {
+     "type": "heading",
+     "text": "Un implant entre la carte principale et l'écran"
+    },
+    {
+     "type": "paragraph",
+     "text": "Selon Trezor, le dispositif se loge entre la carte principale du Safe 5 et son écran. Il lit à l'écran la phrase de récupération au moment où elle s'affiche, lors de la création d'une sauvegarde, ou lorsque l'utilisateur la saisit pour restaurer un portefeuille. Il copie aussi la phrase secrète additionnelle (passphrase) si elle apparaît. Les données sont chiffrées puis envoyées par le réseau mobile vers un serveur contrôlé par l'attaquant ; si la connexion échoue, l'implant les conserve et réessaie jusqu'à y parvenir."
+    },
+    {
+     "type": "paragraph",
+     "text": "Point important : l'implant ne modifie ni le micrologiciel ni l'élément sécurisé du portefeuille. Il agit comme un espion placé devant l'écran, ce qui explique qu'il échappe à une vérification logicielle classique. Trezor indique que le principe est le même que celui d'implants découverts dans des appareils Ledger, adapté à l'écran du Safe 5. L'entreprise n'a pas dit qui avait posé ces cartes ni à quel moment de la chaîne logistique."
+    },
+    {
+     "type": "heading",
+     "text": "Ce que l'on sait de l'étendue"
+    },
+    {
+     "type": "list",
+     "items": [
+      "Les trois portefeuilles ont été achetés entre le 20 août et le 23 septembre ; Trezor en a examiné un en laboratoire et identifié les deux autres à partir de photos envoyées par leurs propriétaires.",
+      "Seuls des Safe 5 vendus par CryptoBilis sont concernés pour l'instant, pas ceux d'autres revendeurs ni d'autres modèles.",
+      "Après les signalements d'octobre, 48 personnes ont contacté Trezor ; le fabricant vérifie leurs appareils mais n'a pas précisé combien l'ont été.",
+      "Le nombre total de portefeuilles piégés n'est pas connu."
+     ]
+    },
+    {
+     "type": "keyvalue",
+     "items": [
+      {
+       "label": "9 octobre",
+       "value": "Trezor retire CryptoBilis de sa liste de revendeurs officiels en Asie du Sud-Est ; Ledger ouvre le même jour une enquête sur des pertes de fonds chez ce revendeur"
+      },
+      {
+       "label": "13 octobre",
+       "value": "Trezor annonce réduire son réseau de revendeurs d'environ 80 % ; les revendeurs écartés peuvent écouler leur stock jusqu'au 1er janvier 2027"
+      },
+      {
+       "label": "30 octobre",
+       "value": "Premier avertissement sur un implant suspecté, deux jours après le signalement d'un acheteur"
+      },
+      {
+       "label": "12 novembre",
+       "value": "Confirmation officielle des implants"
+      }
+     ]
+    },
+    {
+     "type": "heading",
+     "text": "Correctif et conseils"
+    },
+    {
+     "type": "paragraph",
+     "text": "Le micrologiciel 2.13.1, diffusé pour les Safe 7, Safe 5, Safe 3 et Model T, empêche les implants identifiés de capturer des données sur un appareil à jour. Il ne protège pas une sauvegarde déjà copiée avant la mise à jour. Pour toute personne ayant acheté chez CryptoBilis depuis mars, Trezor recommande de créer un nouveau portefeuille avec une nouvelle phrase de récupération et d'y déplacer les fonds : restaurer l'ancienne phrase sur un autre appareil ne règle rien. L'entreprise propose un remplacement et rappelle qu'elle ne demande jamais la phrase de récupération ; peser ou ouvrir l'appareil n'est pas un test fiable."
+    },
+    {
+     "type": "usecases",
+     "title": "Exemples d'utilisation",
+     "items": [
+      {
+       "icon": "🛒",
+       "title": "Acheteur chez un revendeur tiers",
+       "text": "Une personne qui a acheté son portefeuille hors du site officiel vérifie l'origine du revendeur, puis contacte le support du fabricant en cas de doute."
+      },
+      {
+       "icon": "🧳",
+       "title": "Épargnant qui restaure une sauvegarde",
+       "text": "Avant de saisir une ancienne phrase de récupération sur un appareil neuf, il s'assure de son achat chez un revendeur officiel."
+      },
+      {
+       "icon": "🏦",
+       "title": "Responsable informatique d'une jeune pousse",
+       "text": "Elle impose l'achat direct auprès du fabricant pour tout matériel de signature et consigne le numéro de lot."
+      }
+     ]
+    },
+    {
+     "type": "timeline",
+     "title": "D'où l'on vient, où l'on va",
+     "items": [
+      {
+       "label": "Depuis mars 2026",
+       "text": "Les acheteurs de ce revendeur à partir de cette date sont concernés par les conseils de Trezor."
+      },
+      {
+       "label": "9 octobre 2026",
+       "text": "Retrait du revendeur du réseau officiel."
+      },
+      {
+       "label": "30 octobre 2026",
+       "text": "Premier avertissement public."
+      },
+      {
+       "label": "12 novembre 2026",
+       "text": "Confirmation et publication du micrologiciel 2.13.1."
+      },
+      {
+       "label": "1er janvier 2027",
+       "text": "Fin du statut de revendeur autorisé pour les revendeurs écartés."
+      }
+     ]
+    },
+    {
+     "type": "opinion",
+     "title": "Notre avis",
+     "paragraphs": [
+      "Cet épisode rappelle une règle ancienne : la sécurité d'un portefeuille matériel commence à l'achat. Le meilleur élément sécurisé ne sert à rien si un composant discret lit simplement l'écran. L'attaque est d'autant plus sournoise qu'elle ne laisse aucune trace logicielle et qu'elle touche des acheteurs prudents, qui avaient pourtant choisi un matériel dédié.",
+      "Dans les un à trois ans à venir, on peut s'attendre à des contrôles d'intégrité plus visibles (scellés, vérification à distance de la carte) et à des réseaux de distribution beaucoup plus resserrés, comme le fait déjà Trezor avec ses revendeurs. C'est une projection, non un fait."
+     ],
+     "verdict": "Acheter son portefeuille matériel directement chez le fabricant reste la première protection."
+    },
+    {
+     "type": "callout",
+     "title": "À retenir",
+     "text": "Si votre portefeuille Trezor Safe 5 vient de CryptoBilis, déplacez vos fonds vers un nouveau portefeuille avec une nouvelle phrase de récupération et contactez le support."
+    }
+   ],
+   "publishedAt": "2026-11-16T10:16:37+01:00",
+   "readingMinutes": 4
+  },
+  {
+   "id": "xraid-xfs-raid-declustered",
+   "category": "dev",
+   "icon": "💽",
+   "importance": 3,
+   "sourceDate": "2026-11-13",
+   "title": "XRAID : Christoph Hellwig présente un RAID à parité déclustérisée intégré à XFS",
+   "summary": "Le développeur du noyau Linux publie une première version de XRAID, qui promet des écritures jusqu'à vingt fois plus rapides que mdraid et vise les disques SMR à zones.",
+   "tags": [
+    "Linux",
+    "XFS",
+    "RAID",
+    "stockage",
+    "SMR"
+   ],
+   "sources": [
+    {
+     "title": "Announcing XRAID",
+     "url": "https://lwn.net/Articles/1107473/",
+     "publisher": "LWN.net"
+    }
+   ],
+   "illustration": {
+    "svg": "<svg xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"0 0 640 360\"><defs><linearGradient id=\"g\" x1=\"0\" y1=\"0\" x2=\"1\" y2=\"1\"><stop offset=\"0\" stop-color=\"hsl(265,62%,40%)\"/><stop offset=\"1\" stop-color=\"hsl(300,66%,22%)\"/></linearGradient></defs><rect width=\"640\" height=\"360\" fill=\"url(#g)\"/><circle cx=\"545\" cy=\"60\" r=\"120\" fill=\"#fff\" fill-opacity=\".08\"/><circle cx=\"90\" cy=\"320\" r=\"100\" fill=\"#fff\" fill-opacity=\".07\"/><g fill=\"#fff\"><g fill-opacity=\".9\"><rect x=\"150\" y=\"110\" width=\"70\" height=\"150\" rx=\"10\"/><rect x=\"240\" y=\"110\" width=\"70\" height=\"150\" rx=\"10\"/><rect x=\"330\" y=\"110\" width=\"70\" height=\"150\" rx=\"10\"/><rect x=\"420\" y=\"110\" width=\"70\" height=\"150\" rx=\"10\"/></g><g fill=\"hsl(265,50%,30%)\"><rect x=\"160\" y=\"125\" width=\"50\" height=\"20\" rx=\"4\"/><rect x=\"250\" y=\"165\" width=\"50\" height=\"20\" rx=\"4\"/><rect x=\"340\" y=\"205\" width=\"50\" height=\"20\" rx=\"4\"/><rect x=\"430\" y=\"145\" width=\"50\" height=\"20\" rx=\"4\"/></g></g></svg>"
+   },
+   "blocks": [
+    {
+     "type": "paragraph",
+     "text": "Le 13 novembre 2026, Christoph Hellwig, développeur de longue date du noyau Linux, a annoncé la première version publique de **XRAID**, une implémentation de RAID à parité déclustérisée intégrée au système de fichiers XFS. Le projet, développé depuis environ un an et demi, n'est pas près d'être proposé à l'intégration dans le noyau : son auteur cherche surtout des retours et des essais auprès d'un public plus large."
+    },
+    {
+     "type": "heading",
+     "text": "Ce que XRAID cherche à résoudre"
+    },
+    {
+     "type": "paragraph",
+     "text": "Selon l'annonce relayée par LWN, trois objectifs sont poursuivis. Le premier est de gérer la parité sur les périphériques de stockage à zones, comme les disques durs à enregistrement par tuiles (SMR). Le deuxième est de proposer un RAID rapide qui ne souffre pas des problèmes d'intégrité des données propres aux approches existantes ; l'article ne détaille pas la manière dont XRAID y parvient. Enfin, le système doit aussi fonctionner sur des disques durs classiques et des SSD, même si les performances sur SSD n'ont pas été la priorité."
+    },
+    {
+     "type": "paragraph",
+     "text": "Une parité déclustérisée répartit en principe données, parité et capacité de secours sur l'ensemble des disques, plutôt que de dédier des disques entiers à ces rôles ; cela peut accélérer la reconstruction après une panne. Il s'agit d'une définition générale : l'annonce résumée par LWN n'explique pas comment XRAID organise concrètement cette répartition."
+    },
+    {
+     "type": "heading",
+     "text": "Performances et fonctionnalités annoncées"
+    },
+    {
+     "type": "list",
+     "items": [
+      "**Écritures** : Christoph Hellwig affirme qu'elles seraient jusqu'à vingt fois plus rapides qu'avec mdraid. Aucun protocole de test ni résultat détaillé n'est fourni, ce chiffre est donc à considérer comme une affirmation de l'auteur.",
+      "**Parité** : la version actuelle gère de zéro à deux parités. Les développeurs ont expérimenté la bibliothèque de parité de SnapRAID pour en gérer trois ou plus ; cette prise en charge n'est pas dans cette version mais le code y est préparé.",
+      "**Outils** : une branche de xfsprogs ajoute la création de systèmes de fichiers XRAID avec mkfs, un nouvel utilitaire `xraid` gère les périphériques et inspecte les systèmes de fichiers, et l'outil de visualisation Zonar montre désormais la correspondance entre zones logiques et zones physiques."
+     ]
+    },
+    {
+     "type": "heading",
+     "text": "Pourquoi les disques à zones changent la donne"
+    },
+    {
+     "type": "paragraph",
+     "text": "Les disques SMR écrivent en séquence dans des zones, ce qui rend les mises à jour sur place coûteuses. Un système de fichiers pensé pour ces zones, comme la prise en charge des périphériques à zones de XFS, évite les réécritures aléatoires. Ajouter une parité à ce modèle demande de ne jamais modifier une zone déjà écrite, ce qui explique l'intérêt d'une intégration dans le système de fichiers plutôt que d'une couche de RAID séparée. C'est l'idée générale du projet, telle que l'annonce la présente."
+    },
+    {
+     "type": "heading",
+     "text": "Comment participer"
+    },
+    {
+     "type": "paragraph",
+     "text": "L'annonce invite à lire la discussion sur la liste de diffusion, à tester la branche xfsprogs et l'utilitaire `xraid`, et à consulter les diapositives de la présentation « raid-sucks » donnée au FOSSY 2026. La vidéo de cette intervention n'était pas encore disponible au moment de la publication."
+    },
+    {
+     "type": "usecases",
+     "title": "Exemples d'utilisation",
+     "items": [
+      {
+       "icon": "🗄️",
+       "title": "Administrateur d'une baie d'archives",
+       "text": "Il évalue XRAID sur un banc d'essai avec des disques SMR pour comparer la reconstruction après panne à celle de mdraid."
+      },
+      {
+       "icon": "🧪",
+       "title": "Contributeur du noyau",
+       "text": "Il relit la branche et teste l'utilitaire `xraid` pour remonter des bogues avant toute proposition d'intégration."
+      },
+      {
+       "icon": "🏠",
+       "title": "Passionné de stockage domestique",
+       "text": "Il suit le projet en vue d'un futur serveur de sauvegarde à disques de grande capacité, sans l'utiliser en production pour l'instant."
+      }
+     ]
+    },
+    {
+     "type": "timeline",
+     "title": "D'où l'on vient, où l'on va",
+     "items": [
+      {
+       "label": "Il y a environ un an et demi",
+       "text": "Début du développement, d'après l'annonce."
+      },
+      {
+       "label": "2026",
+       "text": "Présentation « raid-sucks » au FOSSY 2026."
+      },
+      {
+       "label": "13 novembre 2026",
+       "text": "Première annonce publique de XRAID."
+      },
+      {
+       "label": "Plus tard",
+       "text": "Intégration dans le noyau : aucune date, le projet n'est pas près d'être soumis."
+      }
+     ]
+    },
+    {
+     "type": "opinion",
+     "title": "Notre avis",
+     "paragraphs": [
+      "Un RAID intégré au système de fichiers n'est pas une idée neuve, mais l'associer aux disques à zones répond à un besoin réel : la capacité des disques SMR progresse plus vite que les outils pour les protéger. La promesse de performances est spectaculaire et mérite des mesures indépendantes avant d'être prise au sérieux ; sans protocole publié, vingt fois n'est qu'un ordre de grandeur annoncé.",
+      "Sur un à trois ans, le projet ne deviendra utile que s'il franchit l'épreuve de la revue par la communauté du noyau, ce qui est long. Il s'agit d'une opinion argumentée, pas d'un pronostic certain."
+     ],
+     "verdict": "Prometteur, mais à regarder en laboratoire et pas encore en production."
+    },
+    {
+     "type": "callout",
+     "title": "À retenir",
+     "text": "XRAID est une version de travail : à tester sur des données jetables, pas encore sur des données qui comptent."
+    }
+   ],
+   "publishedAt": "2026-11-16T10:16:37+01:00",
+   "readingMinutes": 4
+  },
+  {
+   "id": "vapourdeck-console-486",
+   "category": "electronique",
+   "icon": "🕹️",
+   "importance": 3,
+   "sourceDate": "2026-11-15",
+   "title": "VapourDeck : une console portable à processeur 486 pour jouer aux jeux DOS",
+   "summary": "Le bricoleur Sprite_tm a conçu sa propre carte mère 486 avec FPGA et son ESP32-S3 pour en faire un ordinateur de poche libre.",
+   "tags": [
+    "486",
+    "DOS",
+    "FPGA",
+    "ESP32-S3",
+    "matériel libre"
+   ],
+   "sources": [
+    {
+     "title": "VapourDeck Is The 486 Handheld You Didn't Know You Needed",
+     "url": "https://hackaday.com/2026/11/15/vapourdeck-is-the-486-handheld-you-didnt-know-you-needed/",
+     "publisher": "Hackaday"
+    },
+    {
+     "title": "VapourDeck, journal de conception de Sprite_tm",
+     "url": "https://spritesmods.com/?art=vapourdeck",
+     "publisher": "Sprite's Mods"
+    }
+   ],
+   "illustration": {
+    "svg": "<svg xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"0 0 640 360\"><defs><linearGradient id=\"g\" x1=\"0\" y1=\"0\" x2=\"1\" y2=\"1\"><stop offset=\"0\" stop-color=\"hsl(30,62%,40%)\"/><stop offset=\"1\" stop-color=\"hsl(65,66%,22%)\"/></linearGradient></defs><rect width=\"640\" height=\"360\" fill=\"url(#g)\"/><circle cx=\"545\" cy=\"60\" r=\"120\" fill=\"#fff\" fill-opacity=\".08\"/><circle cx=\"90\" cy=\"320\" r=\"100\" fill=\"#fff\" fill-opacity=\".07\"/><g fill=\"#fff\"><rect x=\"120\" y=\"110\" width=\"400\" height=\"150\" rx=\"40\" fill-opacity=\".9\"/><rect x=\"215\" y=\"128\" width=\"210\" height=\"114\" rx=\"8\" fill=\"hsl(30,50%,22%)\"/><circle cx=\"165\" cy=\"185\" r=\"22\" fill=\"hsl(30,50%,22%)\"/><circle cx=\"478\" cy=\"165\" r=\"10\" fill=\"hsl(30,50%,22%)\"/><circle cx=\"498\" cy=\"195\" r=\"10\" fill=\"hsl(30,50%,22%)\"/></g></svg>"
+   },
+   "blocks": [
+    {
+     "type": "paragraph",
+     "text": "Le processeur 486 d'Intel est apparu en 1989 et a porté les jeux DOS pendant toute la première moitié des années 1990. Plus de trente ans plus tard, le bricoleur connu sous le pseudonyme **Sprite_tm** en a fait une console portable : la **VapourDeck**, présentée le 15 novembre 2026 par Hackaday. Le projet est entièrement libre, avec les fichiers de conception publiés sur Codeberg."
+    },
+    {
+     "type": "heading",
+     "text": "Une carte mère dessinée de zéro"
+    },
+    {
+     "type": "paragraph",
+     "text": "Plutôt que de monter un ordinateur existant dans un boîtier, Sprite_tm a conçu sa propre carte mère à base de 486, ce qui lui a évité de considérer le système comme une boîte noire. Il justifie ce choix par un argument très concret : Intel avait à l'époque publié la documentation du composant, et le processeur exécute ses jeux DOS préférés. Le projet se démarque donc de l'émulation, fréquente dans les consoles rétro, en faisant tourner du vrai matériel d'époque."
+    },
+    {
+     "type": "list",
+     "items": [
+      "**Processeur** : un Intel 486 sur une carte conçue pour l'occasion ; Hackaday ne précise pas le modèle exact.",
+      "**Graphisme** : une puce VGA d'époque associée à 1 Mo de mémoire vidéo.",
+      "**Logique de liaison et entrées-sorties** : un FPGA moderne remplace les nombreux circuits d'assemblage d'un PC de l'époque.",
+      "**Son** : un ESP32-S3.",
+      "**Batterie, mémoire vive, écran et stockage** : non précisés dans l'article ; un commentateur évoque un processeur de 8 W et de grosses batteries, sans durée d'autonomie chiffrée."
+     ]
+    },
+    {
+     "type": "diagram",
+     "svg": "<svg xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"0 0 640 300\" font-family=\"system-ui,sans-serif\"><rect width=\"640\" height=\"300\" rx=\"16\" fill=\"hsl(30,35%,96%)\"/><text x=\"320\" y=\"50\" text-anchor=\"middle\" font-size=\"18\" font-weight=\"700\" fill=\"#1f2933\">Les blocs de la VapourDeck</text><rect x=\"20\" y=\"110\" width=\"136\" height=\"110\" rx=\"12\" fill=\"hsl(30,45%,90%)\" stroke=\"hsl(30,50%,35%)\"/><text x=\"88\" y=\"158\" text-anchor=\"middle\" font-size=\"13\" font-weight=\"700\" fill=\"#1f2933\">Intel 486</text><text x=\"88\" y=\"182\" text-anchor=\"middle\" font-size=\"12\" fill=\"#3e4c59\">processeur d'époque</text><path d=\"M160 165h12m-5-5l5 5l-5 5\" fill=\"none\" stroke=\"#3e4c59\" stroke-width=\"2\"/><rect x=\"174\" y=\"110\" width=\"136\" height=\"110\" rx=\"12\" fill=\"hsl(30,45%,84%)\" stroke=\"hsl(30,50%,35%)\"/><text x=\"243\" y=\"158\" text-anchor=\"middle\" font-size=\"13\" font-weight=\"700\" fill=\"#1f2933\">FPGA</text><text x=\"243\" y=\"182\" text-anchor=\"middle\" font-size=\"12\" fill=\"#3e4c59\">logique de liaison, E/S</text><path d=\"M314 165h12m-5-5l5 5l-5 5\" fill=\"none\" stroke=\"#3e4c59\" stroke-width=\"2\"/><rect x=\"329\" y=\"110\" width=\"136\" height=\"110\" rx=\"12\" fill=\"hsl(30,45%,90%)\" stroke=\"hsl(30,50%,35%)\"/><text x=\"397\" y=\"158\" text-anchor=\"middle\" font-size=\"13\" font-weight=\"700\" fill=\"#1f2933\">Puce VGA</text><text x=\"397\" y=\"182\" text-anchor=\"middle\" font-size=\"12\" fill=\"#3e4c59\">1 Mo de mémoire vidéo</text><path d=\"M468 165h12m-5-5l5 5l-5 5\" fill=\"none\" stroke=\"#3e4c59\" stroke-width=\"2\"/><rect x=\"484\" y=\"110\" width=\"136\" height=\"110\" rx=\"12\" fill=\"hsl(30,45%,84%)\" stroke=\"hsl(30,50%,35%)\"/><text x=\"552\" y=\"158\" text-anchor=\"middle\" font-size=\"13\" font-weight=\"700\" fill=\"#1f2933\">ESP32-S3</text><text x=\"552\" y=\"182\" text-anchor=\"middle\" font-size=\"12\" fill=\"#3e4c59\">son</text><text x=\"320\" y=\"270\" text-anchor=\"middle\" font-size=\"12\" fill=\"#52606d\">Schéma simplifié d'après la description de Hackaday</text></svg>",
+     "alt": "Schéma de quatre blocs : processeur 486, FPGA, puce VGA et ESP32-S3 pour le son",
+     "caption": "Architecture de la VapourDeck, telle que résumée par Hackaday (autres éléments non précisés)."
+    },
+    {
+     "type": "heading",
+     "text": "Pourquoi un FPGA et un ESP32-S3 ?"
+    },
+    {
+     "type": "paragraph",
+     "text": "Un PC des années 1990 reposait sur des jeux de composants aujourd'hui introuvables : contrôleurs d'interruptions, de DMA, de clavier, de disques. Les remplacer par un FPGA permet de reproduire leur comportement avec un seul circuit moderne, tout en gardant le processeur et le circuit graphique d'origine. L'ESP32-S3 prend en charge le son. Cette répartition est la lecture de l'architecture donnée par Hackaday ; les détails d'implémentation figurent dans le journal de conception de l'auteur, que l'article ne résume pas."
+    },
+    {
+     "type": "paragraph",
+     "text": "L'article ne décrit pas de difficultés précises. Il souligne surtout que le journal de Sprite_tm explique en détail la réflexion qui a mené à ces choix, ce qui en fait une ressource pour qui voudrait concevoir une carte similaire."
+    },
+    {
+     "type": "usecases",
+     "title": "Exemples d'utilisation",
+     "items": [
+      {
+       "icon": "🎮",
+       "title": "Joueur nostalgique",
+       "text": "Il lance des classiques DOS sur du vrai matériel de la même génération plutôt que sur un émulateur."
+      },
+      {
+       "icon": "🔧",
+       "title": "Concepteur de cartes",
+       "text": "Il étudie les fichiers de conception pour apprendre à raccorder un processeur ancien à un FPGA."
+      },
+      {
+       "icon": "🏫",
+       "title": "Enseignant en électronique",
+       "text": "Il s'appuie sur le projet pour expliquer en classe l'architecture d'un PC de la fin des années 1980."
+      }
+     ]
+    },
+    {
+     "type": "timeline",
+     "title": "D'où l'on vient, où l'on va",
+     "items": [
+      {
+       "label": "1989",
+       "text": "Intel lance le processeur 486."
+      },
+      {
+       "label": "Années 1990",
+       "text": "Âge d'or des jeux DOS sur ce type de matériel."
+      },
+      {
+       "label": "15 novembre 2026",
+       "text": "Hackaday présente la VapourDeck."
+      },
+      {
+       "label": "Après",
+       "text": "Aucune date de production ni de vente annoncée dans l'article."
+      }
+     ]
+    },
+    {
+     "type": "opinion",
+     "title": "Notre avis",
+     "paragraphs": [
+      "Ce genre de projet ne vise pas le marché : il vise la compréhension. En refusant d'émuler, Sprite_tm rend visibles les choix de conception d'une époque, ce que les consoles rétro commerciales cachent. Le revers est évident : un 486 consomme beaucoup plus qu'un processeur moderne et l'autonomie reste une inconnue non documentée dans l'article.",
+      "À un ou trois ans, on peut penser que ce travail nourrira d'autres cartes libres d'ordinateurs anciens, grâce à la combinaison FPGA et composants d'origine. C'est une opinion, pas une certitude."
+     ],
+     "verdict": "Un petit objet de collection qui vaut surtout par ce qu'il enseigne."
+    },
+    {
+     "type": "callout",
+     "title": "À retenir",
+     "text": "Les fichiers de conception sont publiés sur Codeberg et le journal du projet sur le site de Sprite_tm."
+    }
+   ],
+   "publishedAt": "2026-11-16T10:16:37+01:00",
+   "readingMinutes": 3,
+   "cover": {
+    "url": "https://hackaday.com/wp-content/uploads/2026/11/vapourdeck1.jpeg?w=800",
+    "alt": "Photographie de la console portable VapourDeck",
+    "credit": "hackaday.com"
+   }
+  },
+  {
+   "id": "moniteur-frequence-reseau-arduino",
+   "category": "electronique",
+   "icon": "📉",
+   "importance": 2,
+   "sourceDate": "2026-11-16",
+   "title": "Suivre la fréquence du réseau électrique avec un Arduino : un moniteur de stabilité très économe",
+   "summary": "Un projet publié sur Hackaday.io mesure la fréquence du secteur grâce à un optocoupleur et une interruption, et conserve des années d'historique en quelques octets par semaine.",
+   "tags": [
+    "Arduino",
+    "fréquence du réseau",
+    "optocoupleur",
+    "Hackaday.io"
+   ],
+   "sources": [
+    {
+     "title": "Follow The Grid With An Arduino Uno",
+     "url": "https://hackaday.com/2026/11/16/follow-the-grid-with-an-arduino-uno/",
+     "publisher": "Hackaday"
+    },
+    {
+     "title": "Grid Stability Monitor",
+     "url": "https://hackaday.io/project/207352-grid-stability-monitor",
+     "publisher": "Hackaday.io"
+    }
+   ],
+   "illustration": {
+    "svg": "<svg xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"0 0 640 360\"><defs><linearGradient id=\"g\" x1=\"0\" y1=\"0\" x2=\"1\" y2=\"1\"><stop offset=\"0\" stop-color=\"hsl(30,62%,40%)\"/><stop offset=\"1\" stop-color=\"hsl(65,66%,22%)\"/></linearGradient></defs><rect width=\"640\" height=\"360\" fill=\"url(#g)\"/><circle cx=\"545\" cy=\"60\" r=\"120\" fill=\"#fff\" fill-opacity=\".08\"/><circle cx=\"90\" cy=\"320\" r=\"100\" fill=\"#fff\" fill-opacity=\".07\"/><g fill=\"#fff\"><path d=\"M60 200c40-80 60-80 100 0s60 80 100 0 60-80 100 0 60 80 100 0 40-60 60-60\" stroke=\"#fff\" stroke-width=\"10\" fill=\"none\" stroke-linecap=\"round\"/><rect x=\"60\" y=\"260\" width=\"520\" height=\"8\" rx=\"4\" fill-opacity=\".5\"/><circle cx=\"520\" cy=\"110\" r=\"24\"/></g></svg>"
+   },
+   "blocks": [
+    {
+     "type": "paragraph",
+     "text": "La fréquence du courant du secteur est de 50 Hz en Europe et de 60 Hz aux États-Unis, mais cette valeur n'est qu'un centre autour duquel le réseau oscille. Dans un système très interconnecté, la fréquence réelle dérive légèrement selon l'équilibre entre production et consommation. Un projet présenté le 16 novembre 2026 par Hackaday permet de suivre ces variations avec un **Arduino Uno** et un afficheur de deux lignes de seize caractères."
+    },
+    {
+     "type": "heading",
+     "text": "Un montage prudent"
+    },
+    {
+     "type": "paragraph",
+     "text": "Mesurer directement la tension du secteur est dangereux. L'auteur passe donc par un optocoupleur, qui isole électriquement le montage du réseau tout en faisant basculer une broche d'interruption de l'Arduino à chaque passage de la tension. L'article ne détaille ni la méthode de mesure du temps, ni le code, ni la précision obtenue : aucun chiffre d'erreur n'est publié. Les lecteurs intéressés sont renvoyés à la page du projet sur Hackaday.io."
+    },
+    {
+     "type": "heading",
+     "text": "Des années d'historique en quelques octets"
+    },
+    {
+     "type": "paragraph",
+     "text": "Le moniteur suit à la fois les tendances de long terme et les fréquences instantanées. Pour l'historique, il consigne une valeur par semaine sur quatre octets, ce qui permet de conserver environ 240 semaines (près de 4,6 ans) sur un Nano R3 et plus de 2 000 semaines (environ 39 ans) sur un Nano R4. Les données sont récupérées par le port série USB de la carte."
+    },
+    {
+     "type": "keyvalue",
+     "items": [
+      {
+       "label": "Capteur",
+       "value": "optocoupleur relié à une broche d'interruption"
+      },
+      {
+       "label": "Affichage",
+       "value": "écran LCD de deux lignes de seize caractères"
+      },
+      {
+       "label": "Historique",
+       "value": "quatre octets par semaine"
+      },
+      {
+       "label": "Capacité",
+       "value": "environ 240 semaines sur Nano R3, plus de 2 000 sur Nano R4"
+      },
+      {
+       "label": "Export",
+       "value": "port série USB"
+      }
+     ]
+    },
+    {
+     "type": "heading",
+     "text": "Pourquoi la fréquence varie"
+    },
+    {
+     "type": "paragraph",
+     "text": "Sur un réseau interconnecté comme celui de l'Europe continentale, la fréquence baisse quand la consommation dépasse la production et monte dans le cas inverse ; les opérateurs corrigent en continu pour la ramener vers 50 Hz. Les horloges synchronisées sur le secteur dérivent alors légèrement. L'article rappelle d'ailleurs que des événements géopolitiques peuvent laisser leur trace dans les données de fréquence, en renvoyant à un article de 2018 intitulé « L'Europe perd six minutes à cause d'une fréquence qui s'affaisse et de la politique internationale »."
+    },
+    {
+     "type": "usecases",
+     "title": "Exemples d'utilisation",
+     "items": [
+      {
+       "icon": "🔌",
+       "title": "Bricoleur curieux",
+       "text": "Il installe le moniteur près de son tableau électrique pour observer, au fil des semaines, les variations de la fréquence."
+      },
+      {
+       "icon": "⏰",
+       "title": "Collectionneur d'horloges synchrones",
+       "text": "Il compare la dérive de ses pendules sur secteur aux mesures consignées par le moniteur."
+      },
+      {
+       "icon": "🎓",
+       "title": "Enseignant",
+       "text": "Il s'en sert pour montrer à des étudiants le lien entre équilibre production-consommation et fréquence."
+      }
+     ]
+    },
+    {
+     "type": "timeline",
+     "title": "D'où l'on vient, où l'on va",
+     "items": [
+      {
+       "label": "Mars 2018",
+       "text": "Hackaday évoque un décalage horaire des horloges européennes lié à une fréquence trop basse."
+      },
+      {
+       "label": "16 novembre 2026",
+       "text": "Présentation du moniteur d'Arduino Uno."
+      },
+      {
+       "label": "Aujourd'hui",
+       "text": "Le Nano R4 permet d'étendre l'historique à plus de 2 000 semaines."
+      }
+     ]
+    },
+    {
+     "type": "opinion",
+     "title": "Notre avis",
+     "paragraphs": [
+      "Ce montage a le mérite de rendre tangible une grandeur invisible dont dépend toute la vie électrique. Sa sobriété (quatre octets par semaine) est un exercice de compression bienvenu à une époque où l'on stocke tout sans compter. En revanche, sans précision publiée, il vaut surtout comme instrument pédagogique plutôt que comme mesure de référence.",
+      "Avec la multiplication des sources renouvelables et la baisse de l'inertie des réseaux, la fréquence risque de devenir un sujet plus visible ; un tel instrument libre peut aider à en prendre conscience. Il s'agit d'une analyse, non d'un fait."
+     ],
+     "verdict": "Un instrument pédagogique peu coûteux, avec une précision encore à documenter."
+    },
+    {
+     "type": "callout",
+     "title": "À retenir",
+     "text": "Le montage utilise un optocoupleur pour s'isoler du secteur : ne branchez jamais directement une carte Arduino sur le réseau."
+    }
+   ],
+   "publishedAt": "2026-11-16T10:16:37+01:00",
+   "readingMinutes": 3,
+   "cover": {
+    "url": "https://hackaday.com/wp-content/uploads/2026/11/grid-monitor-featured.jpg?w=800",
+    "alt": "Moniteur de fréquence du réseau électrique à base d'Arduino",
+    "credit": "hackaday.com"
+   }
+  }
+ ]
+}
