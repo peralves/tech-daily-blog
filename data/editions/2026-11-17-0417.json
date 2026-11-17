@@ -1,0 +1,1163 @@
+{
+ "title": "Tech Daily — Optimizely piégé, NoisyTCP, fuite chez Maileva, panne Microsoft 365 et Mythos sur GPU AMD",
+ "summary": "Trois sujets de cybersécurité (une attaque de la chaîne d'approvisionnement qui touche 178 organisations, une faille Linux vieille de onze ans et une fuite de données chez la filiale de La Poste), le post-mortem d'une panne Microsoft 365, des correctifs rédigés par IA chez Ubuntu, HTML dans le canvas de Chrome, le portage GPU de Mythos, Jiff 1.0 et un grand écran ePaper.",
+ "highlights": [
+  "Optimizely : des fichiers JavaScript piégés ont touché 178 organisations, dont Zoom, GitLab, la BBC et Air France",
+  "NoisyTCP : une faille du noyau Linux vieille de onze ans permet de faire tomber un serveur à distance",
+  "Maileva (La Poste) : un vol de données qui toucherait 22 millions de personnes",
+  "Microsoft 365 : une panne causée par un défaut introduit par un correctif de juillet"
+ ],
+ "schemaVersion": "1.0",
+ "date": "2026-11-17",
+ "generatedAt": "2026-11-17T04:17:14+01:00",
+ "meta": {
+  "generator": "claude-scheduled-task"
+ },
+ "posts": [
+  {
+   "id": "optimizely-chaine-approvisionnement",
+   "category": "cybersecurite",
+   "icon": "🕸️",
+   "importance": 5,
+   "sourceDate": "2026-11-16",
+   "title": "Optimizely : des scripts piégés ont infecté plus de 170 organisations, de Zoom à la BBC",
+   "summary": "Des fichiers JavaScript hébergés sur le réseau de diffusion d'Optimizely ont chargé un code qui détourne les adresses de portefeuilles crypto, copie les cartes bancaires et cible les iPhone.",
+   "tags": [
+    "Optimizely",
+    "chaîne d'approvisionnement",
+    "JavaScript",
+    "skimming",
+    "crypto-actifs"
+   ],
+   "sources": [
+    {
+     "title": "Optimizely supply chain attack infects major brands' sites with malware",
+     "url": "https://www.bleepingcomputer.com/news/security/optimizely-supply-chain-attack-infects-major-brands-sites-with-malware/",
+     "publisher": "BleepingComputer"
+    },
+    {
+     "title": "Worlds largest brands infected with malware via Optimizely",
+     "url": "https://blog.report-uri.com/worlds-largest-brands-infected-with-malware-via-optimizely/",
+     "publisher": "Report URI"
+    }
+   ],
+   "illustration": {
+    "svg": "<svg xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"0 0 640 360\"><defs><linearGradient id=\"g\" x1=\"0\" y1=\"0\" x2=\"1\" y2=\"1\"><stop offset=\"0\" stop-color=\"hsl(175,62%,40%)\"/><stop offset=\"1\" stop-color=\"hsl(210,66%,22%)\"/></linearGradient></defs><rect width=\"640\" height=\"360\" fill=\"url(#g)\"/><circle cx=\"545\" cy=\"60\" r=\"120\" fill=\"#fff\" fill-opacity=\".08\"/><circle cx=\"90\" cy=\"320\" r=\"100\" fill=\"#fff\" fill-opacity=\".07\"/><g fill=\"#fff\"><path d=\"M320 80l90 30v70c0 60-40 100-90 120-50-20-90-60-90-120v-70z\" fill-opacity=\".92\"/><path d=\"M280 180l30 30 55-60\" stroke=\"hsl(175,60%,24%)\" stroke-width=\"16\" fill=\"none\"/></g></svg>"
+   },
+   "blocks": [
+    {
+     "type": "paragraph",
+     "text": "Le 16 novembre 2026, le chercheur en sécurité Scott Helme a signalé qu'un code malveillant se chargeait sur de nombreux sites très fréquentés. L'origine n'est ni un site isolé ni une faille chez chacun de ces éditeurs : il s'agit d'**Optimizely**, une plateforme d'expérimentation et d'optimisation de sites web dont les clients intègrent un fichier JavaScript hébergé sur le réseau de diffusion (CDN) du prestataire. En altérant ces fichiers, les attaquants ont obtenu un point d'entrée sur des pages vues chaque jour par des millions de visiteurs."
+    },
+    {
+     "type": "paragraph",
+     "text": "Ce schéma est l'un des plus redoutés par les équipes de sécurité : une attaque de la chaîne d'approvisionnement logicielle. Les sites concernés n'ont rien modifié, et c'est pourtant leur propre page qui exécute le code piégé, avec les mêmes droits que leur code légitime. Les mesures habituelles (mises à jour, pare-feu applicatif, sécurité du serveur) ne servent à rien contre une dépendance externe compromise."
+    },
+    {
+     "type": "heading",
+     "text": "Ce que l'on sait de l'attaque"
+    },
+    {
+     "type": "list",
+     "items": [
+      "**Ampleur** : sur 1 611 scripts analysés, l'équipe de Scott Helme a trouvé 188 fichiers infectés appartenant à 178 organisations.",
+      "**Marques concernées**, vérifiées par BleepingComputer à l'aide de captures d'urlscan.io : Zoom, GitLab, KLM, Air France, la BBC, CNN, Fox News, Salesforce, Smartsheet, HSBC Insurance, Bitly, UNICEF USA, entre autres.",
+      "**Mécanisme** : le code injecté charge un second script depuis un domaine contrôlé par les pirates. Certaines variantes encodent l'adresse en Base64 et la décodent à l'exécution (`atob()`) pour passer sous les filtres ; l'une d'elles embarque une copie du code au cas où le script distant serait bloqué.",
+      "**Date** : les premiers détournements remontent à la nuit du 15 au 16 novembre 2026."
+     ]
+    },
+    {
+     "type": "heading",
+     "text": "Trois charges utiles dans un même script"
+    },
+    {
+     "type": "paragraph",
+     "text": "Le script distant, nommé `track.js`, réunit plusieurs fonctions. La première est le **détournement de cryptomonnaies** : il surveille les pages à la recherche d'adresses de portefeuilles (bitcoin, ether, USDT sur Tron, Solana, Dogecoin et d'autres) et les remplace par celles des attaquants au moment où l'utilisateur copie ou colle une adresse. La deuxième est le **vol de cartes bancaires** (numéro, date d'expiration, cryptogramme) sur les formulaires de paiement. La troisième vise les **appareils Apple** : pour les iPhone et iPad, le script charge des charges secondaires identifiées comme les kits d'exploitation « Coruna » et « DarkSword », qui ciblent différentes versions d'iOS."
+    },
+    {
+     "type": "paragraph",
+     "text": "Les premiers chiffres restent modestes : Scott Helme a relevé environ 7 000 dollars reçus sur les portefeuilles intégrés au code le 16 novembre, ce qui montre que la partie détournement fonctionnait. Les montants liés au vol de cartes ne sont pas connus. Selon BleepingComputer, à 21 h 52 (UTC) le même jour, un seul des 188 fichiers contenait encore du code malveillant, signe d'un nettoyage rapide."
+    },
+    {
+     "type": "diagram",
+     "svg": "<svg xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"0 0 640 260\" font-family=\"system-ui,sans-serif\"><rect width=\"640\" height=\"260\" rx=\"16\" fill=\"hsl(0,35%,96%)\"/><text x=\"320\" y=\"38\" text-anchor=\"middle\" font-size=\"17\" font-weight=\"700\" fill=\"#1f2933\">Comment un script tiers piégé atteint les visiteurs</text><rect x=\"20\" y=\"70\" width=\"129\" height=\"130\" rx=\"12\" fill=\"#fff\" stroke=\"hsl(0,50%,40%)\" stroke-width=\"2\"/><text x=\"84\" y=\"105\" text-anchor=\"middle\" font-size=\"13\" font-weight=\"700\" fill=\"#1f2933\">Projet Optimizely</text><text x=\"84\" y=\"128\" text-anchor=\"middle\" font-size=\"11.5\" fill=\"#3e4c59\">fichier JS du client</text><text x=\"84\" y=\"146\" text-anchor=\"middle\" font-size=\"11.5\" fill=\"#3e4c59\">hébergé sur le CDN</text><path d=\"M153 135h20m-7-7l7 7-7 7\" stroke=\"hsl(0,50%,35%)\" stroke-width=\"3\" fill=\"none\"/><rect x=\"177\" y=\"70\" width=\"129\" height=\"130\" rx=\"12\" fill=\"#fff\" stroke=\"hsl(0,50%,40%)\" stroke-width=\"2\"/><text x=\"242\" y=\"105\" text-anchor=\"middle\" font-size=\"13\" font-weight=\"700\" fill=\"#1f2933\">Injection</text><text x=\"242\" y=\"128\" text-anchor=\"middle\" font-size=\"11.5\" fill=\"#3e4c59\">code ajouté par</text><text x=\"242\" y=\"146\" text-anchor=\"middle\" font-size=\"11.5\" fill=\"#3e4c59\">les attaquants</text><path d=\"M310 135h20m-7-7l7 7-7 7\" stroke=\"hsl(0,50%,35%)\" stroke-width=\"3\" fill=\"none\"/><rect x=\"334\" y=\"70\" width=\"129\" height=\"130\" rx=\"12\" fill=\"#fff\" stroke=\"hsl(0,50%,40%)\" stroke-width=\"2\"/><text x=\"398\" y=\"105\" text-anchor=\"middle\" font-size=\"13\" font-weight=\"700\" fill=\"#1f2933\">Page du client</text><text x=\"398\" y=\"128\" text-anchor=\"middle\" font-size=\"11.5\" fill=\"#3e4c59\">charge le script</text><text x=\"398\" y=\"146\" text-anchor=\"middle\" font-size=\"11.5\" fill=\"#3e4c59\">sans le savoir</text><path d=\"M467 135h20m-7-7l7 7-7 7\" stroke=\"hsl(0,50%,35%)\" stroke-width=\"3\" fill=\"none\"/><rect x=\"491\" y=\"70\" width=\"129\" height=\"130\" rx=\"12\" fill=\"#fff\" stroke=\"hsl(0,50%,40%)\" stroke-width=\"2\"/><text x=\"556\" y=\"105\" text-anchor=\"middle\" font-size=\"13\" font-weight=\"700\" fill=\"#1f2933\">Visiteur</text><text x=\"556\" y=\"128\" text-anchor=\"middle\" font-size=\"11.5\" fill=\"#3e4c59\">adresse crypto</text><text x=\"556\" y=\"146\" text-anchor=\"middle\" font-size=\"11.5\" fill=\"#3e4c59\">remplacée, carte copiée</text><text x=\"320\" y=\"238\" text-anchor=\"middle\" font-size=\"12\" fill=\"#3e4c59\">Le site du client n'est jamais piraté : seule la dépendance externe est modifiée.</text></svg>",
+     "alt": "Schéma en quatre étapes : un fichier JavaScript hébergé chez Optimizely est modifié, puis chargé par la page d'un client, qui expose ensuite le visiteur.",
+     "caption": "La compromission passe par le fichier hébergé chez le prestataire, pas par le site du client."
+    },
+    {
+     "type": "heading",
+     "text": "Ce que l'on ignore encore"
+    },
+    {
+     "type": "paragraph",
+     "text": "Au moment de la rédaction, Optimizely n'avait pas publié de réponse détaillée. On ignore comment les pirates ont obtenu la capacité de modifier autant de projets clients : compromission de l'infrastructure du fournisseur, vol d'identifiants, accès à une interface d'administration ? La réponse conditionnera les mesures à prendre. Les sites concernés devraient surveiller les communications avec le domaine malveillant, contrôler l'intégrité de leurs scripts tiers et vérifier leurs formulaires de paiement."
+    },
+    {
+     "type": "usecases",
+     "title": "Exemples d'utilisation",
+     "items": [
+      {
+       "icon": "🛒",
+       "title": "Site marchand",
+       "text": "Un responsable e-commerce vérifie que les pages de paiement ne chargent aucun script inattendu et compare le contenu des fichiers Optimizely à une version de référence."
+      },
+      {
+       "icon": "🛡️",
+       "title": "Équipe sécurité",
+       "text": "Elle ajoute une politique de sécurité du contenu (CSP) restrictive et l'attribut d'intégrité des sous-ressources (SRI) lorsque le fournisseur le permet, pour bloquer les domaines inattendus."
+      },
+      {
+       "icon": "👤",
+       "title": "Utilisateur de crypto",
+       "text": "Avant tout envoi, il relit l'adresse du destinataire sur un second appareil ou sur l'écran de son portefeuille matériel, car le presse-papiers peut avoir été altéré."
+      }
+     ]
+    },
+    {
+     "type": "timeline",
+     "title": "D'où l'on vient, où l'on va",
+     "items": [
+      {
+       "label": "Novembre 2026, nuit du 15 au 16",
+       "text": "Premiers fichiers Optimizely modifiés, selon les traces relevées."
+      },
+      {
+       "label": "16 novembre",
+       "text": "Alerte de Scott Helme, identification de 188 fichiers, nettoyage presque complet en fin de journée."
+      },
+      {
+       "label": "Prochains jours",
+       "text": "Réponse attendue d'Optimizely sur la cause de l'intrusion et sur les données éventuellement dérobées."
+      }
+     ]
+    },
+    {
+     "type": "opinion",
+     "title": "Notre avis",
+     "paragraphs": [
+      "Cet incident rappelle une réalité peu confortable : la sécurité d'un site dépend de chacun des scripts externes qu'il charge. Mesure d'audience, tests A/B, chat, paiement : chaque ligne de JavaScript tierce est une délégation de confiance. Or la plupart des organisations ne tiennent aucun inventaire de ces dépendances et ne disposent d'aucun contrôle d'intégrité.",
+      "À horizon de un à trois ans, on peut raisonnablement attendre une généralisation des politiques de sécurité du contenu strictes et du contrôle d'intégrité, ainsi qu'une pression des régulateurs et des assureurs sur les prestataires de ce type. Pour les sites français, une fuite de données de cartes engagerait par ailleurs la responsabilité du responsable de traitement au titre du RGPD, avec une notification à la CNIL sous 72 heures."
+     ],
+     "verdict": "Un seul fournisseur compromis suffit à exposer des centaines de marques : le contrôle des scripts tiers n'est plus optionnel."
+    },
+    {
+     "type": "callout",
+     "title": "À retenir",
+     "text": "Inventoriez les scripts tiers, appliquez une politique de sécurité du contenu stricte et vérifiez l'intégrité des fichiers chargés sur les pages de paiement."
+    }
+   ],
+   "publishedAt": "2026-11-17T04:17:14+01:00",
+   "readingMinutes": 5,
+   "cover": {
+    "url": "https://www.bleepstatic.com/content/posts/2026/11/16/supply-chain-attack.jpg",
+    "alt": "Illustration d'une attaque de la chaîne d'approvisionnement logicielle",
+    "credit": "bleepstatic.com"
+   }
+  },
+  {
+   "id": "noisytcp-noyau-linux",
+   "category": "cybersecurite",
+   "icon": "💥",
+   "importance": 4,
+   "sourceDate": "2026-11-16",
+   "title": "NoisyTCP : une faille vieille de onze ans permet de faire tomber à distance un serveur Linux",
+   "summary": "Référencée CVE-2026-99288, cette erreur de gestion de mémoire dans le code TCP du noyau Linux provoque un arrêt complet de la machine, y compris depuis un conteneur ; un correctif existe en amont.",
+   "tags": [
+    "Linux",
+    "noyau",
+    "TCP",
+    "CVE-2026-99288",
+    "déni de service"
+   ],
+   "sources": [
+    {
+     "title": "New NoisyTCP vulnerability lets attackers crash Linux servers",
+     "url": "https://www.bleepingcomputer.com/news/linux/new-noisytcp-linux-kernel-flaw-lets-attackers-crash-servers/",
+     "publisher": "BleepingComputer"
+    },
+    {
+     "title": "NoisyTCP bug gives Linux servers a remote crash problem 11 years in the making",
+     "url": "https://www.theregister.com/security/2026/11/16/noisytcp-bug-gives-linux-servers-a-remote-crash-problem-11-years-in-the-making/5310144",
+     "publisher": "The Register"
+    }
+   ],
+   "illustration": {
+    "svg": "<svg xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"0 0 640 360\"><defs><linearGradient id=\"g\" x1=\"0\" y1=\"0\" x2=\"1\" y2=\"1\"><stop offset=\"0\" stop-color=\"hsl(175,62%,40%)\"/><stop offset=\"1\" stop-color=\"hsl(210,66%,22%)\"/></linearGradient></defs><rect width=\"640\" height=\"360\" fill=\"url(#g)\"/><circle cx=\"545\" cy=\"60\" r=\"120\" fill=\"#fff\" fill-opacity=\".08\"/><circle cx=\"90\" cy=\"320\" r=\"100\" fill=\"#fff\" fill-opacity=\".07\"/><g fill=\"#fff\"><g stroke=\"#fff\" stroke-width=\"5\" stroke-opacity=\".8\"><path d=\"M320 180L200 100M320 180L450 110M320 180L220 270M320 180L440 260\"/></g><circle cx=\"320\" cy=\"180\" r=\"38\"/><circle cx=\"200\" cy=\"100\" r=\"24\"/><circle cx=\"450\" cy=\"110\" r=\"24\"/><circle cx=\"220\" cy=\"270\" r=\"24\"/><circle cx=\"440\" cy=\"260\" r=\"24\"/></g></svg>"
+   },
+   "blocks": [
+    {
+     "type": "paragraph",
+     "text": "Une faille du noyau Linux baptisée **NoisyTCP** (CVE-2026-99288) a été détaillée le 15 novembre 2026 par le chercheur Hyunwoo Kim, déjà connu pour la faille « Dirty Frag » découverte en mai 2026. Elle se situe dans le code TCP, au cœur de la pile réseau, et date d'octobre 2015 : elle est donc restée invisible pendant plus de dix ans. Son effet est un **déni de service à distance** : un attaquant capable d'envoyer du trafic vers un port TCP ouvert peut provoquer une panique du noyau et faire tomber toute la machine."
+    },
+    {
+     "type": "heading",
+     "text": "Le mécanisme"
+    },
+    {
+     "type": "paragraph",
+     "text": "Deux parties du noyau entrent en conflit lorsqu'elles traitent le trafic entrant et l'une d'elles réutilise de la mémoire déjà libérée, ce que l'on appelle une utilisation après libération (*use-after-free*). Dans le cas présent, la condition apparaît sur des systèmes qui répartissent le trafic reçu sur plusieurs files de réception ou plusieurs cœurs, ce qui est la situation courante sur un serveur moderne. Aucune configuration particulière n'est nécessaire : Nginx, Apache ou SSH peuvent être exposés par défaut, sans identifiant ni authentification."
+    },
+    {
+     "type": "list",
+     "items": [
+      "**Gravité** : Red Hat classe la faille « importante », avec un score CVSS de 7,5.",
+      "**Conteneurs** : une attaque contre un service tournant dans un conteneur peut faire tomber l'hôte entier et tous les conteneurs voisins, puisque le noyau est partagé.",
+      "**Résultats de laboratoire** : sur des machines virtuelles QEMU/KVM, le chercheur a fait tomber des serveurs Nginx, Apache et SSH en 5 secondes à 2 minutes ; sur du matériel physique, un exploit adapté a demandé environ 14 heures pour faire tomber un serveur Nginx.",
+      "**Limites** : une exécution de code à distance n'est pas démontrée. L'auteur dispose d'un exploit limité en laboratoire et d'un second chemin plus difficile, mais rien n'indique à ce stade un vol de données ou une prise de contrôle."
+     ]
+    },
+    {
+     "type": "heading",
+     "text": "Correctifs et contournements"
+    },
+    {
+     "type": "paragraph",
+     "text": "Le correctif a été intégré au noyau amont le 3 novembre 2026 et les détails ont été publiés le 15 novembre, à la levée de l'embargo. Il revient désormais à chaque distribution de livrer un noyau mis à jour ; les administrateurs doivent donc vérifier l'état de leur distribution et planifier un redémarrage. Si l'application immédiate du correctif est impossible, deux contournements existent, tous deux coûteux : désactiver les cookies SYN (ce qui affaiblit la protection contre les inondations de paquets SYN et doit être réglé séparément dans chaque espace de noms réseau de conteneur) ou limiter le traitement des paquets entrants à une seule file de réception, au prix d'une dégradation des performances réseau."
+    },
+    {
+     "type": "usecases",
+     "title": "Exemples d'utilisation",
+     "items": [
+      {
+       "icon": "🖥️",
+       "title": "Hébergeur et fournisseur cloud",
+       "text": "Une équipe d'exploitation inventorie ses hyperviseurs et ses nœuds de conteneurs, puis planifie le déploiement du noyau corrigé en priorité sur les machines exposées à Internet."
+      },
+      {
+       "icon": "☸️",
+       "title": "Cluster Kubernetes",
+       "text": "Un administrateur sait qu'un pod compromis ou ciblé peut faire tomber le nœud entier : il prévoit la redistribution automatique des charges et des redémarrages échelonnés."
+      },
+      {
+       "icon": "🏠",
+       "title": "Auto-hébergement",
+       "text": "Un particulier qui exploite un petit serveur domestique met à jour son noyau, ou limite l'exposition des ports TCP inutiles tant que la mise à jour n'est pas disponible."
+      }
+     ]
+    },
+    {
+     "type": "timeline",
+     "title": "D'où l'on vient, où l'on va",
+     "items": [
+      {
+       "label": "Octobre 2015",
+       "text": "Introduction de l'erreur dans le code TCP du noyau."
+      },
+      {
+       "label": "3 novembre 2026",
+       "text": "Correctif intégré au noyau Linux amont."
+      },
+      {
+       "label": "15 novembre 2026",
+       "text": "Publication des détails par Hyunwoo Kim après la levée de l'embargo."
+      },
+      {
+       "label": "À venir",
+       "text": "Livraison des noyaux corrigés par les distributions et les fournisseurs."
+      }
+     ]
+    },
+    {
+     "type": "opinion",
+     "title": "Notre avis",
+     "paragraphs": [
+      "Un déni de service est souvent traité avec moins d'urgence qu'une exécution de code. C'est une erreur de perspective quand l'attaque est possible sans authentification et que la machine visée héberge des dizaines de conteneurs : un seul paquet bien construit peut interrompre un service entier, ce qui est déjà un risque majeur pour une activité en ligne.",
+      "L'autre enseignement est la durée de vie de ces défauts. Onze ans sans détection dans un code aussi surveillé que celui de TCP montrent les limites de la relecture humaine, et ce sont les outils de recherche automatisée de failles, de plus en plus performants, qui changeront probablement le rythme des découvertes dans les années à venir."
+     ],
+     "verdict": "Une faille « seulement » capable de planter une machine reste prioritaire quand elle est atteignable sans authentification depuis le réseau."
+    },
+    {
+     "type": "callout",
+     "title": "À retenir",
+     "text": "Installez les noyaux corrigés dès qu'ils sont livrés par votre distribution et n'utilisez les contournements qu'à titre temporaire."
+    }
+   ],
+   "publishedAt": "2026-11-17T04:17:14+01:00",
+   "readingMinutes": 5
+  },
+  {
+   "id": "maileva-vol-de-donnees-la-poste",
+   "category": "cybersecurite",
+   "icon": "📮",
+   "importance": 4,
+   "sourceDate": "2026-11-16",
+   "title": "Maileva : le courrier hybride de Docaposte visé par un vol de données qui toucherait 22 millions de personnes",
+   "summary": "La plateforme d'envoi de courriers de la filiale de La Poste a subi une intrusion à l'automne ; noms et adresses postales ont été dérobés, et des documents de clients pourraient avoir été exposés.",
+   "tags": [
+    "Maileva",
+    "La Poste",
+    "Docaposte",
+    "fuite de données",
+    "CNIL"
+   ],
+   "sources": [
+    {
+     "title": "Criminals attack French postal operator subsidiary, grab contact details of 22M people",
+     "url": "https://www.theregister.com/cyber-crime/2026/11/16/criminals-attack-french-postal-operator-subsidiary-grab-contact-details-of-22m-people/5310070",
+     "publisher": "The Register"
+    }
+   ],
+   "illustration": {
+    "svg": "<svg xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"0 0 640 360\"><defs><linearGradient id=\"g\" x1=\"0\" y1=\"0\" x2=\"1\" y2=\"1\"><stop offset=\"0\" stop-color=\"hsl(175,62%,40%)\"/><stop offset=\"1\" stop-color=\"hsl(210,66%,22%)\"/></linearGradient></defs><rect width=\"640\" height=\"360\" fill=\"url(#g)\"/><circle cx=\"545\" cy=\"60\" r=\"120\" fill=\"#fff\" fill-opacity=\".08\"/><circle cx=\"90\" cy=\"320\" r=\"100\" fill=\"#fff\" fill-opacity=\".07\"/><g fill=\"#fff\"><rect x=\"230\" y=\"70\" width=\"180\" height=\"220\" rx=\"14\" fill-opacity=\".92\"/><g fill=\"hsl(175,60%,24%)\"><rect x=\"255\" y=\"105\" width=\"130\" height=\"12\" rx=\"6\"/><rect x=\"255\" y=\"135\" width=\"130\" height=\"12\" rx=\"6\"/><rect x=\"255\" y=\"165\" width=\"90\" height=\"12\" rx=\"6\"/><rect x=\"255\" y=\"195\" width=\"130\" height=\"12\" rx=\"6\"/></g></g></svg>"
+   },
+   "blocks": [
+    {
+     "type": "paragraph",
+     "text": "**Maileva**, la plateforme de courrier dématérialisé de Docaposte (filiale numérique de La Poste), a subi une intrusion dont les conséquences sont désormais connues. Selon *The Register*, qui a obtenu la confirmation de La Poste le 16 novembre 2026, les noms complets et les adresses postales de 22 millions de personnes ont été volés. Le service permet à des organisations de téléverser des documents que Maileva imprime et expédie par la poste : il compte plus de 70 000 utilisateurs inscrits et plus de 180 millions de documents envoyés chaque année."
+    },
+    {
+     "type": "heading",
+     "text": "Une chronologie étalée sur plusieurs semaines"
+    },
+    {
+     "type": "list",
+     "items": [
+      "**Fin septembre** : Maileva informe ses clients d'une tentative d'intrusion. L'attaquant envoie des courriels depuis les adresses de confiance de clients, ce qui entraîne six jours de perturbation du service.",
+      "**Octobre** : plusieurs clients confirment publiquement l'attaque.",
+      "**Début novembre** : le site spécialisé Cyberattaque révèle l'incident.",
+      "**Mi-novembre** : La Poste confirme le vol de données à *The Register*."
+     ]
+    },
+    {
+     "type": "heading",
+     "text": "Quelles données sont concernées ?"
+    },
+    {
+     "type": "paragraph",
+     "text": "Selon La Poste, il s'agit des noms et des adresses postales. Les clients de la plateforme signalent toutefois des expositions plus larges, qui varient selon l'usage. Un service de santé au travail indique que les identifiants et adresses électroniques des expéditeurs ont été compromis, ainsi que le genre de destinataires. L'hôpital Foch de Suresnes, dont un partenaire de recouvrement utilisait Maileva, évoque une possible exposition de noms de documents, qui peuvent indirectement révéler un état de santé. D'après Cyberattaque, des courriers de relance de paiement auraient été consultés, avec numéros de factures, montants et dates de soins, et un bailleur social aurait vu des lettres vieilles de dix ans exposées. Maileva affirme ne pas avoir connaissance d'une compromission des documents téléversés et assure que l'attaquant n'a ni modifié ni détruit de données."
+    },
+    {
+     "type": "paragraph",
+     "text": "Aucun groupe n'a revendiqué l'attaque dans les éléments rapportés et aucune demande de rançon n'est mentionnée. L'autorité française de protection des données serait saisie après la déclaration de l'intrusion par La Poste, mais les détails de son contrôle ne sont pas précisés à ce stade."
+    },
+    {
+     "type": "heading",
+     "text": "Un second incident en moins d'un an"
+    },
+    {
+     "type": "paragraph",
+     "text": "L'épisode survient moins d'un an après l'attaque par déni de service distribué qui avait perturbé le courrier, le suivi des colis et les services bancaires en ligne de La Poste le 22 décembre 2025, suivie d'une seconde vague le jour de l'An, décrite par le groupe comme « plusieurs milliards de tentatives de connexion par seconde » depuis plusieurs millions d'adresses IP."
+    },
+    {
+     "type": "usecases",
+     "title": "Exemples d'utilisation",
+     "items": [
+      {
+       "icon": "📬",
+       "title": "Personne concernée",
+       "text": "Elle reste attentive aux courriels et SMS qui évoquent un courrier, une facture ou un remboursement, car les noms et adresses permettent d'écrire des messages d'hameçonnage très crédibles."
+      },
+      {
+       "icon": "🏥",
+       "title": "Établissement de santé ou bailleur",
+       "text": "Il recense les envois confiés à Maileva, évalue ce que les noms de fichiers révèlent et informe les personnes concernées, avec une notification à la CNIL si le risque est avéré."
+      },
+      {
+       "icon": "🏢",
+       "title": "Entreprise cliente d'un prestataire",
+       "text": "Elle vérifie dans ses contrats la durée de conservation des documents chez le sous-traitant et exige un journal des accès pour pouvoir évaluer l'ampleur d'une fuite."
+      }
+     ]
+    },
+    {
+     "type": "timeline",
+     "title": "D'où l'on vient, où l'on va",
+     "items": [
+      {
+       "label": "22 décembre 2025",
+       "text": "Attaque par déni de service distribué contre La Poste."
+      },
+      {
+       "label": "Fin septembre 2026",
+       "text": "Tentative d'intrusion signalée par Maileva à ses clients."
+      },
+      {
+       "label": "Début novembre 2026",
+       "text": "Premières révélations publiques sur le vol de données."
+      },
+      {
+       "label": "16 novembre 2026",
+       "text": "Confirmation par La Poste à la presse."
+      }
+     ]
+    },
+    {
+     "type": "opinion",
+     "title": "Notre avis",
+     "paragraphs": [
+      "Cette affaire illustre la fragilité des intermédiaires de confiance : un prestataire qui traite le courrier de milliers d'organisations devient une cible de choix, car une seule intrusion donne accès à des données de nombreux responsables de traitement. Pour les victimes, la gravité tient moins aux noms et adresses qu'à leur utilisation : l'hameçonnage ciblé est facilité lorsque l'attaquant connaît le nom, l'adresse et parfois le contexte d'un courrier.",
+      "La transparence sera décisive. Si les chiffres de 22 millions de personnes se confirment, la CNIL pourrait être amenée à examiner les mesures de sécurité du prestataire et celles des clients, qui restent responsables de leurs traitements en tant que responsables ou co-responsables. Les contrôles de sous-traitance devraient devenir un sujet de conseil d'administration."
+     ],
+     "verdict": "Le plus grand risque pour les personnes concernées n'est pas la fuite en elle-même, mais l'hameçonnage ciblé qui peut en découler."
+    },
+    {
+     "type": "callout",
+     "title": "À retenir",
+     "text": "Méfiez-vous des messages qui évoquent un courrier ou une facture, ne cliquez jamais sur un lien sans l'avoir vérifié sur le site officiel de l'organisme."
+    }
+   ],
+   "publishedAt": "2026-11-17T04:17:14+01:00",
+   "readingMinutes": 5
+  },
+  {
+   "id": "ubuntu-edge-correctifs-ia",
+   "category": "devops",
+   "icon": "🐧",
+   "importance": 3,
+   "sourceDate": "2026-11-16",
+   "title": "Ubuntu Edge : Canonical propose des correctifs de sécurité rédigés par des agents d'IA, sur option",
+   "summary": "Le cadre « Surge » de Canonical génère et teste des correctifs de failles pour Ubuntu ; ils sont proposés dans une archive facultative réservée aux abonnés Pro, sans publication automatique en version stable.",
+   "tags": [
+    "Ubuntu",
+    "Canonical",
+    "correctifs de sécurité",
+    "agents d'IA",
+    "Linux"
+   ],
+   "sources": [
+    {
+     "title": "Ubuntu gets AI-generated security fixes for those feeling brave",
+     "url": "https://www.theregister.com/os-platforms/2026/11/16/ubuntu-gets-ai-generated-security-fixes-for-those-feeling-brave/5310139",
+     "publisher": "The Register"
+    }
+   ],
+   "illustration": {
+    "svg": "<svg xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"0 0 640 360\"><defs><linearGradient id=\"g\" x1=\"0\" y1=\"0\" x2=\"1\" y2=\"1\"><stop offset=\"0\" stop-color=\"hsl(160,62%,40%)\"/><stop offset=\"1\" stop-color=\"hsl(195,66%,22%)\"/></linearGradient></defs><rect width=\"640\" height=\"360\" fill=\"url(#g)\"/><circle cx=\"545\" cy=\"60\" r=\"120\" fill=\"#fff\" fill-opacity=\".08\"/><circle cx=\"90\" cy=\"320\" r=\"100\" fill=\"#fff\" fill-opacity=\".07\"/><g fill=\"#fff\"><rect x=\"240\" y=\"100\" width=\"160\" height=\"160\" rx=\"18\" fill-opacity=\".92\"/><rect x=\"278\" y=\"138\" width=\"84\" height=\"84\" rx=\"8\" fill=\"hsl(160,60%,24%)\"/><g stroke=\"#fff\" stroke-width=\"8\" stroke-linecap=\"round\"><path d=\"M270 80v20M320 80v20M370 80v20M270 260v20M320 260v20M370 260v20M220 130h20M220 180h20M220 230h20M400 130h20M400 180h20M400 230h20\"/></g></g></svg>"
+   },
+   "blocks": [
+    {
+     "type": "paragraph",
+     "text": "Lors de l'Ubuntu Summit 26.10, Pierre Guillemin, vice-président « Excellence Engineering » de Canonical, a présenté une archive facultative baptisée **Edge**. Elle contient des correctifs de sécurité produits par **Surge**, un cadre d'orchestration multi-agents conçu pour corriger des failles (CVE) et les adapter (rétroportage) aux versions de paquets d'Ubuntu. Selon la presse spécialisée, l'objectif affiché est d'utiliser l'IA « pour combattre l'IA » alors que la découverte de failles s'accélère : Pierre Guillemin a indiqué qu'octobre 2026 avait produit presque autant de CVE que toute l'année 2025."
+    },
+    {
+     "type": "heading",
+     "text": "Comment fonctionne la chaîne"
+    },
+    {
+     "type": "list",
+     "items": [
+      "Un groupe de modèles de langage **trie** les nouvelles vulnérabilités et cherche les correctifs existants.",
+      "Plusieurs modèles concurrents **rétroportent** ces correctifs vers les versions de paquets d'Ubuntu, puis les changements passent des **tests automatisés**.",
+      "Un autre groupe de « modèles juges » évalue les candidats et cherche un consensus.",
+      "Les correctifs retenus suivent les **tests de paquets habituels** d'Ubuntu ; les cas limites, les scores de confiance faibles ou les blocages sont transmis à l'équipe de sécurité de Canonical."
+     ]
+    },
+    {
+     "type": "heading",
+     "text": "Ce qui change, et ce qui ne change pas"
+    },
+    {
+     "type": "paragraph",
+     "text": "Canonical précise que ces correctifs ne seront pas publiés automatiquement dans les versions stables. L'archive Edge est une option : elle est accessible aux abonnés d'**Ubuntu Pro**, dont le niveau gratuit permet à des chercheurs et à la communauté d'essayer le dispositif. Les correctifs y sont publiés avant la fin des tests approfondis et de la qualification : c'est à l'utilisateur d'en évaluer le risque. Les mises à jour distribuées par les canaux de sécurité habituels restent validées par des humains. Le périmètre est limité à l'espace utilisateur (paquets applicatifs) et exclut le noyau."
+    },
+    {
+     "type": "paragraph",
+     "text": "Ce choix de livrer plus tôt, au prix d'une validation moindre, repose sur un constat : entre la publication d'une faille et son correctif, la fenêtre d'exposition est de plus en plus exploitée par des attaquants qui utilisent eux-mêmes des agents pour fabriquer des exploits à partir des correctifs publiés."
+    },
+    {
+     "type": "usecases",
+     "title": "Exemples d'utilisation",
+     "items": [
+      {
+       "icon": "🏭",
+       "title": "Exploitant de serveurs Linux",
+       "text": "Il active Edge sur un environnement de préproduction, mesure les régressions, puis décide de reprendre ou non les paquets dans son propre dépôt interne."
+      },
+      {
+       "icon": "🔬",
+       "title": "Chercheur ou mainteneur",
+       "text": "Il compare les rétroportages proposés par Surge à son propre travail et signale les écarts, ce qui alimente la qualité du dispositif."
+      },
+      {
+       "icon": "🏛️",
+       "title": "Responsable conformité",
+       "text": "Il documente l'usage d'un canal « non qualifié » et le limite aux systèmes non critiques, conformément à ses exigences de maîtrise du risque."
+      }
+     ]
+    },
+    {
+     "type": "timeline",
+     "title": "D'où l'on vient, où l'on va",
+     "items": [
+      {
+       "label": "Juin 2026",
+       "text": "Canonical annonce son virage vers l'IA agentique lors du précédent Ubuntu Summit."
+      },
+      {
+       "label": "Novembre 2026",
+       "text": "Présentation d'Edge et de Surge à l'Ubuntu Summit 26.10."
+      },
+      {
+       "label": "À venir",
+       "text": "Retours de la communauté sur la fiabilité des correctifs générés."
+      }
+     ]
+    },
+    {
+     "type": "opinion",
+     "title": "Notre avis",
+     "paragraphs": [
+      "Faire relire par une IA des correctifs écrits par une IA est une idée séduisante, mais elle déplace le risque plutôt qu'elle ne le supprime : un consensus entre modèles n'équivaut pas à une preuve de correction. Le garde-fou le plus sérieux reste le caractère facultatif d'Edge et le maintien d'une validation humaine pour la voie principale.",
+      "À un horizon de un à trois ans, la question sera moins de savoir si des correctifs seront produits automatiquement que de mesurer, chiffres à l'appui, leur taux de réussite, de régression et leur délai. Les éditeurs capables de publier ces mesures gagneront en crédibilité face à des attaquants qui, eux, n'ont aucun processus de validation à respecter."
+     ],
+     "verdict": "Une piste prometteuse tant qu'elle reste une option mesurée et jamais le chemin par défaut vers la production."
+    },
+    {
+     "type": "callout",
+     "title": "À retenir",
+     "text": "Edge est facultatif et non qualifié : testez-le hors production avant de l'envisager pour des systèmes critiques."
+    }
+   ],
+   "publishedAt": "2026-11-17T04:17:14+01:00",
+   "readingMinutes": 5
+  },
+  {
+   "id": "html-in-canvas-chrome-157",
+   "category": "web",
+   "icon": "🎨",
+   "importance": 4,
+   "sourceDate": "2026-11-16",
+   "title": "HTML-in-Canvas : Chrome 157 permet d'afficher du vrai HTML dans l'élément canvas",
+   "summary": "Après deux ans d'expérimentation, l'API met du contenu HTML interactif et accessible à l'intérieur d'un canvas, pour des interfaces 3D, des visualisations ou des effets graphiques inédits.",
+   "tags": [
+    "Chrome",
+    "canvas",
+    "API web",
+    "HTML",
+    "accessibilité"
+   ],
+   "sources": [
+    {
+     "title": "HTML-in-Canvas ships and could make the web a lot more creative and a lot stupider",
+     "url": "https://www.theregister.com/devops/2026/11/16/html-in-canvas-ships-and-could-make-the-web-a-lot-more-creativeand-a-lot-stupider/5310135",
+     "publisher": "The Register"
+    }
+   ],
+   "illustration": {
+    "svg": "<svg xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"0 0 640 360\"><defs><linearGradient id=\"g\" x1=\"0\" y1=\"0\" x2=\"1\" y2=\"1\"><stop offset=\"0\" stop-color=\"hsl(210,62%,40%)\"/><stop offset=\"1\" stop-color=\"hsl(245,66%,22%)\"/></linearGradient></defs><rect width=\"640\" height=\"360\" fill=\"url(#g)\"/><circle cx=\"545\" cy=\"60\" r=\"120\" fill=\"#fff\" fill-opacity=\".08\"/><circle cx=\"90\" cy=\"320\" r=\"100\" fill=\"#fff\" fill-opacity=\".07\"/><g fill=\"#fff\"><rect x=\"170\" y=\"85\" width=\"300\" height=\"190\" rx=\"16\" fill-opacity=\".92\"/><rect x=\"170\" y=\"85\" width=\"300\" height=\"38\" rx=\"16\" fill-opacity=\".6\"/><rect x=\"195\" y=\"150\" width=\"120\" height=\"14\" rx=\"7\" fill=\"hsl(210,60%,24%)\"/><rect x=\"195\" y=\"180\" width=\"200\" height=\"14\" rx=\"7\" fill=\"hsl(210,60%,24%)\"/><rect x=\"195\" y=\"210\" width=\"90\" height=\"14\" rx=\"7\" fill=\"hsl(210,60%,24%)\"/><circle cx=\"440\" cy=\"240\" r=\"30\"/></g></svg>"
+   },
+   "blocks": [
+    {
+     "type": "paragraph",
+     "text": "L'élément `<canvas>` sert depuis longtemps à dessiner des graphismes en JavaScript, mais il ne savait pas afficher de vraies commandes HTML : champs de saisie, liens, texte sélectionnable. Les développeurs devaient mettre en forme le texte à la main, et perdaient au passage l'interactivité et l'accessibilité. L'équipe Chrome vient de livrer, dans **Chrome 157**, une API baptisée **HTML-in-Canvas** qui lève cette limite, après environ deux ans d'expérimentation."
+    },
+    {
+     "type": "heading",
+     "text": "Comment cela fonctionne"
+    },
+    {
+     "type": "paragraph",
+     "text": "Un élément `canvas` portant l'attribut `content` réglé sur `\"drawable\"` demande au moteur de rendu de préparer le HTML qu'il contient afin que JavaScript puisse le dessiner dans le canvas. Le contenu reste du véritable HTML : il peut donc recevoir des événements, du texte sélectionnable et des composants natifs, tout en étant transformé, déformé ou placé dans une scène 3D. L'API est disponible dans Chrome et Chrome pour Android ; les autres navigateurs principaux ne la prennent pas en charge. Microsoft Edge 157, fondé sur Chromium, semble en gérer officieusement certaines actions. Une proposition d'intégration dans le standard HTML « vivant » du WHATWG a été déposée."
+    },
+    {
+     "type": "heading",
+     "text": "Les premiers usages"
+    },
+    {
+     "type": "list",
+     "items": [
+      "Un livre virtuel en 3D dont on tourne les pages en copiant le texte.",
+      "Un lecteur vidéo avec ses propres commandes, placé dans un canvas de forme irrégulière.",
+      "Des environnements Three.js et des graphiques D3.js enrichis de contrôles réels.",
+      "Des démonstrations comme « Margin Dragon » (un dragon se déplace dans le texte d'un livre, qui se réorganise autour de lui) ou un effet de bosse élastique qui suit le curseur."
+     ]
+    },
+    {
+     "type": "heading",
+     "text": "Limites et points de vigilance"
+    },
+    {
+     "type": "paragraph",
+     "text": "L'article de *The Register* relève plusieurs réserves. Certaines propriétés CSS ne sont pas peintes à l'endroit attendu et la synchronisation avec les bibliothèques réactives doit progresser. Un problème de copie de données sensibles entre origines différentes a été corrigé par les développeurs de Chrome, mais l'API n'indique pas lorsqu'elle refuse de copier : les échecs sont silencieux. Côté accessibilité, les développeurs doivent définir les zones à l'écran pour que les lecteurs d'écran et les cibles de clic fonctionnent correctement dans une scène en 3D. Enfin, le média s'attend à ce que des annonceurs en fassent un usage plus intrusif."
+    },
+    {
+     "type": "usecases",
+     "title": "Exemples d'utilisation",
+     "items": [
+      {
+       "icon": "📚",
+       "title": "Édition numérique",
+       "text": "Une rédaction réalise un reportage interactif où des pages de texte réel se plient en 3D tout en restant sélectionnables et lisibles par un lecteur d'écran."
+      },
+      {
+       "icon": "📊",
+       "title": "Tableau de bord",
+       "text": "Une équipe de données place des commandes de filtre réelles dans une visualisation D3 plutôt que de les redessiner à la main."
+      },
+      {
+       "icon": "🎮",
+       "title": "Jeu web",
+       "text": "Un studio indépendant affiche des menus et des dialogues HTML dans une scène Three.js, avec les mêmes composants que sur le reste du site."
+      }
+     ]
+    },
+    {
+     "type": "timeline",
+     "title": "D'où l'on vient, où l'on va",
+     "items": [
+      {
+       "label": "2024 environ",
+       "text": "Début des expérimentations dans Chrome autour du dessin de HTML dans un canvas."
+      },
+      {
+       "label": "Novembre 2026",
+       "text": "Livraison dans Chrome 157."
+      },
+      {
+       "label": "À venir",
+       "text": "Examen par le WHATWG et réaction des autres éditeurs de navigateurs."
+      }
+     ]
+    },
+    {
+     "type": "opinion",
+     "title": "Notre avis",
+     "paragraphs": [
+      "L'intérêt technique est réel : jusqu'ici, tout contenu dessiné dans un canvas était invisible pour les technologies d'assistance et peu pratique à maintenir. En réutilisant le HTML, on gagne de l'accessibilité par construction, à condition d'en respecter les règles.",
+      "Le risque vient de la fragmentation : tant que Firefox et Safari ne suivent pas, les sites devront prévoir une alternative, et le standard peut encore évoluer. À un horizon de un à trois ans, la réussite dépendra de l'intégration dans la norme et d'une meilleure signalisation des échecs de rendu."
+     ],
+     "verdict": "Une avancée utile pour l'accessibilité des expériences graphiques : tant que les autres navigateurs ne l'adoptent pas, elle reste un bonus qui exige une solution de repli."
+    },
+    {
+     "type": "callout",
+     "title": "À retenir",
+     "text": "Réservée pour l'instant à Chrome : prévoyez une version de repli pour les autres navigateurs et testez l'accessibilité avec un lecteur d'écran."
+    }
+   ],
+   "publishedAt": "2026-11-17T04:17:14+01:00",
+   "readingMinutes": 5
+  },
+  {
+   "id": "mythos-gpu-amd-trois-jours",
+   "category": "ia",
+   "icon": "🧮",
+   "importance": 4,
+   "sourceDate": "2026-11-16",
+   "title": "Anthropic affirme que Claude Mythos a porté ses modèles sur des GPU AMD en trois jours",
+   "summary": "Dans sa présentation aux investisseurs, la société avance trois jours au lieu de six à douze mois pour une partie précise du travail, avec de nombreuses réserves sur le périmètre.",
+   "tags": [
+    "Anthropic",
+    "AMD",
+    "GPU",
+    "CUDA",
+    "Claude Mythos"
+   ],
+   "sources": [
+    {
+     "title": "Claude Mythos slashed software work to onboard AMD GPUs to around three days",
+     "url": "https://www.tomshardware.com/tech-industry/artificial-intelligence/anthropic-says-claude-mythos-slashed-software-work-to-onboard-amd-gpus-from-up-to-12-months-to-around-three-days-writing-almost-100-percent-of-kernels-autonomously-chips-away-at-nvidias-cuda-moat",
+     "publisher": "Tom's Hardware"
+    }
+   ],
+   "illustration": {
+    "svg": "<svg xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"0 0 640 360\"><defs><linearGradient id=\"g\" x1=\"0\" y1=\"0\" x2=\"1\" y2=\"1\"><stop offset=\"0\" stop-color=\"hsl(320,62%,40%)\"/><stop offset=\"1\" stop-color=\"hsl(355,66%,22%)\"/></linearGradient></defs><rect width=\"640\" height=\"360\" fill=\"url(#g)\"/><circle cx=\"545\" cy=\"60\" r=\"120\" fill=\"#fff\" fill-opacity=\".08\"/><circle cx=\"90\" cy=\"320\" r=\"100\" fill=\"#fff\" fill-opacity=\".07\"/><g fill=\"#fff\"><rect x=\"240\" y=\"100\" width=\"160\" height=\"160\" rx=\"18\" fill-opacity=\".92\"/><rect x=\"278\" y=\"138\" width=\"84\" height=\"84\" rx=\"8\" fill=\"hsl(320,60%,24%)\"/><g stroke=\"#fff\" stroke-width=\"8\" stroke-linecap=\"round\"><path d=\"M270 80v20M320 80v20M370 80v20M270 260v20M320 260v20M370 260v20M220 130h20M220 180h20M220 230h20M400 130h20M400 180h20M400 230h20\"/></g></g></svg>"
+   },
+   "blocks": [
+    {
+     "type": "paragraph",
+     "text": "Dans une vidéo de présentation destinée aux investisseurs, datée du 10 novembre 2026 et diffusée à l'occasion de l'introduction en Bourse d'Anthropic, Tom Brown, cofondateur et responsable de la puissance de calcul, affirme que le modèle **Claude Mythos Preview** a réalisé en environ trois jours, « presque sans intervention humaine », le travail logiciel nécessaire pour faire tourner les modèles de la société sur des processeurs graphiques AMD. Ce travail aurait demandé de six à douze mois à des « dizaines d'ingénieurs ». L'information est rapportée par *Tom's Hardware* le 16 novembre."
+    },
+    {
+     "type": "heading",
+     "text": "Ce que recouvre exactement l'annonce"
+    },
+    {
+     "type": "list",
+     "items": [
+      "**Périmètre précis** : une note de bas de diapositive limite le résultat au traitement du prompt (« prefill ») d'un modèle sur des GPU AMD **MI355X**, « à un niveau de performance utile ». La phase de génération de la réponse (« decode ») n'est pas indiquée comme incluse.",
+      "**Écriture du code** : Mythos aurait porté ou écrit « presque 100 % » des noyaux de calcul (kernels). La définition de ce pourcentage n'est pas donnée.",
+      "**Estimation de départ** : la durée de six à douze mois est présentée comme une estimation fondée sur l'expérience passée, et non comme une mesure.",
+      "**Prospectus** : le document déposé auprès de la SEC (S-1/A n° 2, 10 novembre 2026) indique seulement qu'Anthropic peut « intégrer de nouvelles plateformes de puces en une fraction du temps » qu'auparavant, sans chiffre ni puce nommée."
+     ]
+    },
+    {
+     "type": "heading",
+     "text": "Pourquoi cela intéresse tout le secteur"
+    },
+    {
+     "type": "paragraph",
+     "text": "L'avantage historique de Nvidia ne tient pas qu'à ses puces : il repose aussi sur CUDA, l'écosystème logiciel dans lequel s'écrivent la plupart des noyaux de calcul pour l'IA. Si des agents d'IA peuvent traduire ou réécrire ces noyaux pour d'autres architectures, le coût de changement de fournisseur baisse. Anthropic exploite déjà ses modèles sur des GPU Nvidia et AMD, sur les TPU de Google et sur les puces Trainium d'Amazon, gérés comme un « parc de calcul interchangeable », et dispose d'un accord avec AMD pour jusqu'à 2 gigawatts, avec de premières puces MI450 attendues au premier semestre 2027."
+    },
+    {
+     "type": "paragraph",
+     "text": "Les réactions des acteurs sont contrastées. Jensen Huang, patron de Nvidia, avait déclaré en avril 2026 qu'Anthropic était « un cas unique, pas une tendance » et que personne ne connaît mieux l'architecture de Nvidia que Nvidia. Du côté d'AMD, plusieurs responsables ont affirmé cet été que des noyaux générés par IA pouvaient égaler, voire dépasser, des versions réglées à la main. L'analyse de SemiAnalysis rappelle toutefois que les agents de programmation ont besoin de GPU pour tester le code et que l'accès à ces machines reste limité chez AMD."
+    },
+    {
+     "type": "usecases",
+     "title": "Exemples d'utilisation",
+     "items": [
+      {
+       "icon": "🏗️",
+       "title": "Opérateur de centre de données",
+       "text": "Il envisage de diversifier ses achats de puces sans craindre un surcoût logiciel prohibitif, tout en demandant des mesures de performance indépendantes."
+      },
+      {
+       "icon": "👩‍💻",
+       "title": "Équipe d'ingénierie IA",
+       "text": "Elle utilise un agent pour proposer un premier portage de noyaux, puis dédie des ingénieurs à la validation et à l'optimisation sur le matériel réel."
+      },
+      {
+       "icon": "📈",
+       "title": "Investisseur institutionnel",
+       "text": "Il lit les chiffres de la diapositive avec leurs notes de bas de page, car le périmètre réel (prefill seul, une puce, un modèle) change fortement la portée de l'annonce."
+      }
+     ]
+    },
+    {
+     "type": "timeline",
+     "title": "D'où l'on vient, où l'on va",
+     "items": [
+      {
+       "label": "Août 2025",
+       "text": "AMD présente GEAK, un agent qui réussit 19 noyaux sur 30 écrits par des experts."
+      },
+      {
+       "label": "Avril 2026",
+       "text": "Jensen Huang minimise la portée du cas Anthropic."
+      },
+      {
+       "label": "10 novembre 2026",
+       "text": "Présentation aux investisseurs et dépôt du prospectus modifié."
+      },
+      {
+       "label": "Premier semestre 2027",
+       "text": "Livraison attendue des premiers MI450 en baies Helios."
+      }
+     ]
+    },
+    {
+     "type": "opinion",
+     "title": "Notre avis",
+     "paragraphs": [
+      "Le message est habile : un chiffre spectaculaire, trois jours contre un an, qui sert à la fois le récit commercial d'Anthropic et la crédibilité d'AMD. Il faut le lire pour ce qu'il est, un argument de présentation à des investisseurs, dont les conditions précises (prefill, un modèle, une puce) sont étroites et non vérifiées de façon indépendante.",
+      "La tendance de fond est néanmoins plausible : l'écriture de noyaux est une tâche bien délimitée, vérifiable par des tests, donc favorable aux agents. À un horizon de un à trois ans, on peut s'attendre à une érosion graduelle des barrières logicielles, sans que l'avantage de Nvidia en performance brute et en outils ne disparaisse."
+     ],
+     "verdict": "Un résultat à prendre au sérieux sans l'extrapoler : le périmètre annoncé est étroit, mais la direction est crédible."
+    },
+    {
+     "type": "callout",
+     "title": "À retenir",
+     "text": "Trois jours pour une phase précise, sur une puce précise : le chiffre est réel dans sa note de bas de page, pas dans son titre."
+    }
+   ],
+   "publishedAt": "2026-11-17T04:17:14+01:00",
+   "readingMinutes": 6
+  },
+  {
+   "id": "trmnl-frame-epaper-31-pouces",
+   "category": "electronique",
+   "icon": "🖼️",
+   "importance": 3,
+   "sourceDate": "2026-11-16",
+   "title": "TRMNL Frame : un écran ePaper couleur de 31,5 pouces dans un cadre en bois fait main",
+   "summary": "La société annonce un écran à encre électronique en couleur fonctionnant sur batterie, avec un mode entièrement hors ligne par carte microSD et un moteur de conversion des couleurs promis en logiciel libre.",
+   "tags": [
+    "TRMNL",
+    "ePaper",
+    "écran",
+    "Spectra 6",
+    "open source"
+   ],
+   "sources": [
+    {
+     "title": "Introducing Frame — TRMNL",
+     "url": "https://trmnl.com/blog/introducing-frame",
+     "publisher": "TRMNL"
+    }
+   ],
+   "illustration": {
+    "svg": "<svg xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"0 0 640 360\"><defs><linearGradient id=\"g\" x1=\"0\" y1=\"0\" x2=\"1\" y2=\"1\"><stop offset=\"0\" stop-color=\"hsl(30,62%,40%)\"/><stop offset=\"1\" stop-color=\"hsl(65,66%,22%)\"/></linearGradient></defs><rect width=\"640\" height=\"360\" fill=\"url(#g)\"/><circle cx=\"545\" cy=\"60\" r=\"120\" fill=\"#fff\" fill-opacity=\".08\"/><circle cx=\"90\" cy=\"320\" r=\"100\" fill=\"#fff\" fill-opacity=\".07\"/><g fill=\"#fff\"><rect x=\"170\" y=\"85\" width=\"300\" height=\"190\" rx=\"16\" fill-opacity=\".92\"/><rect x=\"170\" y=\"85\" width=\"300\" height=\"38\" rx=\"16\" fill-opacity=\".6\"/><rect x=\"195\" y=\"150\" width=\"120\" height=\"14\" rx=\"7\" fill=\"hsl(30,60%,24%)\"/><rect x=\"195\" y=\"180\" width=\"200\" height=\"14\" rx=\"7\" fill=\"hsl(30,60%,24%)\"/><rect x=\"195\" y=\"210\" width=\"90\" height=\"14\" rx=\"7\" fill=\"hsl(30,60%,24%)\"/><circle cx=\"440\" cy=\"240\" r=\"30\"/></g></svg>"
+   },
+   "blocks": [
+    {
+     "type": "paragraph",
+     "text": "TRMNL, la société connue pour ses petits écrans à encre électronique, a présenté le 16 novembre 2026 **Frame**, son troisième produit : un écran ePaper en couleur de **31,5 pouces** monté dans un cadre en bois fait main, réalisé à la commande dans son atelier de Pine Mountain, en Géorgie (États-Unis). L'essence de bois se choisit au moment de la commande. Un écran à encre électronique ne consomme de l'énergie que pour changer d'image, ce qui en fait un candidat naturel pour des tableaux d'informations ou des cadres d'art qui restent affichés sans consommer."
+    },
+    {
+     "type": "heading",
+     "text": "Ce que l'on sait des caractéristiques"
+    },
+    {
+     "type": "keyvalue",
+     "items": [
+      {
+       "label": "Écran",
+       "value": "ePaper couleur 31,5 pouces, désigné comme une dalle de type Spectra 6"
+      },
+      {
+       "label": "Orientation",
+       "value": "Portrait ou paysage, fixation affleurante sans matériel supplémentaire ; béquille en option"
+      },
+      {
+       "label": "Alimentation",
+       "value": "Batterie rechargeable de 10 000 à 20 000 mAh selon l'option ; prise USB-C arrière en option pour une alimentation continue"
+      },
+      {
+       "label": "Hors ligne",
+       "value": "Lecteur microSD pour fonctionner sans envoyer d'informations personnelles aux serveurs de TRMNL"
+      },
+      {
+       "label": "Résolution et prix",
+       "value": "Non indiqués dans l'annonce"
+      }
+     ]
+    },
+    {
+     "type": "heading",
+     "text": "Les nouveautés logicielles"
+    },
+    {
+     "type": "list",
+     "items": [
+      "**Clock Sync** : mise à jour à des heures fixes plutôt que toutes les N minutes, pour limiter le scintillement et prolonger l'autonomie.",
+      "**Lazarus** : moteur de conversion des couleurs pour les dalles Spectra 6. Il sera publié en logiciel libre, afin que les utilisateurs puissent le régler, et arrivera aussi sur l'appareil à quatre couleurs de TRMNL.",
+      "**Plugin « Local Art »** : il permet à des créateurs de proposer et de vendre leurs œuvres via la plateforme TRMNL."
+     ]
+    },
+    {
+     "type": "heading",
+     "text": "Disponibilité"
+    },
+    {
+     "type": "paragraph",
+     "text": "Les précommandes sont ouvertes pour un premier lot d'environ 470 exemplaires, destiné aux États-Unis, au Canada, au Mexique et à l'Australie ; les résidents d'autres pays peuvent s'inscrire via un formulaire susceptible de fermer sans préavis en cas d'épuisement. TRMNL espère livrer quelques unités avant la fin de 2026, la plupart des livraisons étant prévues début 2027. Un second atelier de menuiserie, près de l'entrepôt berlinois de la société, doit ouvrir début 2027 pour une livraison sans frais ni droits de douane en Europe."
+    },
+    {
+     "type": "usecases",
+     "title": "Exemples d'utilisation",
+     "items": [
+      {
+       "icon": "🏠",
+       "title": "Cadre d'art à la maison",
+       "text": "Un particulier affiche une œuvre ou une photo qui change à heure fixe, sans écran lumineux ni réseau permanent."
+      },
+      {
+       "icon": "📅",
+       "title": "Tableau de bord familial",
+       "text": "Une famille consulte l'agenda, la météo et les tâches sur un grand écran lisible en pleine lumière, alimenté par batterie pendant des semaines."
+      },
+      {
+       "icon": "🏪",
+       "title": "Commerce ou bureau",
+       "text": "Un atelier ou une boutique affiche un menu, des horaires ou des annonces avec un mode hors ligne qui évite de transmettre des données à un service externe."
+      }
+     ]
+    },
+    {
+     "type": "timeline",
+     "title": "D'où l'on vient, où l'on va",
+     "items": [
+      {
+       "label": "16 novembre 2026",
+       "text": "Annonce de Frame et ouverture des précommandes."
+      },
+      {
+       "label": "Fin 2026",
+       "text": "Livraison d'au moins quelques exemplaires."
+      },
+      {
+       "label": "Début 2027",
+       "text": "Livraison de la majorité du premier lot et ouverture d'un atelier près de Berlin."
+      }
+     ]
+    },
+    {
+     "type": "opinion",
+     "title": "Notre avis",
+     "paragraphs": [
+      "Le positionnement est cohérent : le papier électronique n'est pas fait pour la vidéo, mais pour l'information et l'image fixe, où sa faible consommation et sa lisibilité en lumière ambiante sont des atouts. La promesse d'un mode hors ligne et d'un moteur de couleurs ouvert répond bien aux attentes d'une communauté d'amateurs soucieuse de maîtrise de ses données.",
+      "La prudence s'impose cependant : ni le prix ni la résolution ne sont précisés, et un premier lot de 470 unités est modeste. À un horizon de un à trois ans, la question sera celle du coût de ces grandes dalles couleur et de la qualité réelle des teintes, un point sur lequel les premiers tests indépendants seront déterminants."
+     ],
+     "verdict": "Un produit de niche séduisant, dont l'intérêt dépendra du prix et des tests indépendants."
+    },
+    {
+     "type": "callout",
+     "title": "À retenir",
+     "text": "Précommande ouverte, premier lot d'environ 470 exemplaires, livraisons surtout début 2027 : prix et résolution restent à confirmer."
+    }
+   ],
+   "publishedAt": "2026-11-17T04:17:14+01:00",
+   "readingMinutes": 5,
+   "cover": {
+    "url": "https://trmnl-public.s3.us-east-2.amazonaws.com/zzswly4kqlbg9cqf982toa8anyeg",
+    "alt": "Écran ePaper TRMNL Frame dans un cadre en bois",
+    "credit": "trmnl.com"
+   }
+  },
+  {
+   "id": "microsoft-365-panne-defaut-juillet",
+   "category": "devops",
+   "icon": "📧",
+   "importance": 4,
+   "sourceDate": "2026-11-15",
+   "title": "Microsoft 365 : la panne d'Exchange Online vient d'un défaut introduit par un correctif de juillet",
+   "summary": "Selon le rapport préliminaire de Microsoft, un défaut de verrouillage dans une passerelle réseau a mis hors service plus de 80 % des serveurs du 12 au 14 novembre, faute de tests de charge réalistes.",
+   "tags": [
+    "Microsoft 365",
+    "Exchange Online",
+    "panne",
+    "fiabilité",
+    "post-mortem"
+   ],
+   "sources": [
+    {
+     "title": "Microsoft blames monster email outage on software defect introduced in July fix",
+     "url": "https://www.theregister.com/saas/2026/11/16/microsoft-blames-monster-email-outage-on-software-defect-introduced-in-july-fix/5310026",
+     "publisher": "The Register"
+    },
+    {
+     "title": "Microsoft says months-old bug caused global Microsoft 365 outage",
+     "url": "https://www.bleepingcomputer.com/news/microsoft/microsoft-says-months-old-bug-caused-global-microsoft-365-outage/",
+     "publisher": "BleepingComputer"
+    }
+   ],
+   "illustration": {
+    "svg": "<svg xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"0 0 640 360\"><defs><linearGradient id=\"g\" x1=\"0\" y1=\"0\" x2=\"1\" y2=\"1\"><stop offset=\"0\" stop-color=\"hsl(160,62%,40%)\"/><stop offset=\"1\" stop-color=\"hsl(195,66%,22%)\"/></linearGradient></defs><rect width=\"640\" height=\"360\" fill=\"url(#g)\"/><circle cx=\"545\" cy=\"60\" r=\"120\" fill=\"#fff\" fill-opacity=\".08\"/><circle cx=\"90\" cy=\"320\" r=\"100\" fill=\"#fff\" fill-opacity=\".07\"/><g fill=\"#fff\"><path d=\"M210 250a55 55 0 0 1 8-109 80 80 0 0 1 150-14 65 65 0 0 1 32 123z\" fill-opacity=\".92\"/><path d=\"M320 200l-40-40m40 40l40-40m-40 40v60\" stroke=\"hsl(160,60%,24%)\" stroke-width=\"12\" fill=\"none\" stroke-linecap=\"round\"/></g></svg>"
+   },
+   "blocks": [
+    {
+     "type": "paragraph",
+     "text": "Du 12 au 14 novembre 2026, une panne mondiale a perturbé Microsoft 365, en particulier Exchange Online et donc Outlook. Dans son rapport préliminaire publié le 15 novembre, Microsoft attribue l'incident à un **défaut introduit par un correctif livré en juillet 2026** sur les serveurs passerelles réseau de son service. Un rapport définitif est annoncé pour le 20 novembre. Les enseignements, au-delà de l'incident, intéressent toute équipe qui exploite des systèmes à grande échelle."
+    },
+    {
+     "type": "heading",
+     "text": "Une cause cachée depuis quatre mois"
+    },
+    {
+     "type": "paragraph",
+     "text": "Le correctif de juillet avait passé les tests de charge et avait été déployé sans effet visible. Selon Microsoft, ces tests étaient insuffisants : « nos tests de charge avaient tendance à se concentrer sur du matériel moins puissant, avec moins de cœurs ». Le défaut provoquait une contention de verrous dans un processus interne de Windows, qui épuisait le processeur et la mémoire ; il était d'autant plus marqué que les machines comptaient davantage de cœurs et qu'elles étaient récentes."
+    },
+    {
+     "type": "heading",
+     "text": "Une réaction en chaîne"
+    },
+    {
+     "type": "list",
+     "items": [
+      "**Déclencheur** : deux événements simultanés. Des équipes ont basculé vers la passerelle principale d'Exchange Online, ce qui a augmenté la charge, alors qu'environ 14 % de la capacité de cette passerelle était indisponible. Microsoft estime que la marge restait suffisante, mais la combinaison a fait basculer le service dans le défaut.",
+      "**Propagation** : le trafic des serveurs défaillants a été redirigé vers les serveurs sains, qui sont tombés de la même façon. En deux heures, tout le parc était touché ; au plus bas, plus de 80 % des serveurs ne répondaient plus.",
+      "**Services touchés** : Exchange Online et Outlook ont été les plus atteints, car ils ne pouvaient pas quitter cette passerelle pour des raisons de capacité ; Teams, OneDrive, SharePoint et les applications Office ont pu s'en détourner."
+     ]
+    },
+    {
+     "type": "diagram",
+     "svg": "<svg xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"0 0 640 260\" font-family=\"system-ui,sans-serif\"><rect width=\"640\" height=\"260\" rx=\"16\" fill=\"hsl(210,35%,96%)\"/><text x=\"320\" y=\"38\" text-anchor=\"middle\" font-size=\"17\" font-weight=\"700\" fill=\"#1f2933\">Une panne qui se propage d'un serveur à l'autre</text><rect x=\"20\" y=\"70\" width=\"129\" height=\"130\" rx=\"12\" fill=\"#fff\" stroke=\"hsl(210,50%,40%)\" stroke-width=\"2\"/><text x=\"84\" y=\"105\" text-anchor=\"middle\" font-size=\"13\" font-weight=\"700\" fill=\"#1f2933\">Défaut de juillet</text><text x=\"84\" y=\"128\" text-anchor=\"middle\" font-size=\"11.5\" fill=\"#3e4c59\">verrous internes</text><text x=\"84\" y=\"146\" text-anchor=\"middle\" font-size=\"11.5\" fill=\"#3e4c59\">sous forte charge</text><path d=\"M153 135h20m-7-7l7 7-7 7\" stroke=\"hsl(210,50%,35%)\" stroke-width=\"3\" fill=\"none\"/><rect x=\"177\" y=\"70\" width=\"129\" height=\"130\" rx=\"12\" fill=\"#fff\" stroke=\"hsl(210,50%,40%)\" stroke-width=\"2\"/><text x=\"242\" y=\"105\" text-anchor=\"middle\" font-size=\"13\" font-weight=\"700\" fill=\"#1f2933\">Basculement</text><text x=\"242\" y=\"128\" text-anchor=\"middle\" font-size=\"11.5\" fill=\"#3e4c59\">charge accrue,</text><text x=\"242\" y=\"146\" text-anchor=\"middle\" font-size=\"11.5\" fill=\"#3e4c59\">14 % hors service</text><path d=\"M310 135h20m-7-7l7 7-7 7\" stroke=\"hsl(210,50%,35%)\" stroke-width=\"3\" fill=\"none\"/><rect x=\"334\" y=\"70\" width=\"129\" height=\"130\" rx=\"12\" fill=\"#fff\" stroke=\"hsl(210,50%,40%)\" stroke-width=\"2\"/><text x=\"398\" y=\"105\" text-anchor=\"middle\" font-size=\"13\" font-weight=\"700\" fill=\"#1f2933\">Cascade</text><text x=\"398\" y=\"128\" text-anchor=\"middle\" font-size=\"11.5\" fill=\"#3e4c59\">le trafic redirigé</text><text x=\"398\" y=\"146\" text-anchor=\"middle\" font-size=\"11.5\" fill=\"#3e4c59\">fait tomber les sains</text><path d=\"M467 135h20m-7-7l7 7-7 7\" stroke=\"hsl(210,50%,35%)\" stroke-width=\"3\" fill=\"none\"/><rect x=\"491\" y=\"70\" width=\"129\" height=\"130\" rx=\"12\" fill=\"#fff\" stroke=\"hsl(210,50%,40%)\" stroke-width=\"2\"/><text x=\"556\" y=\"105\" text-anchor=\"middle\" font-size=\"13\" font-weight=\"700\" fill=\"#1f2933\">Plus de 80 %</text><text x=\"556\" y=\"128\" text-anchor=\"middle\" font-size=\"11.5\" fill=\"#3e4c59\">des serveurs</text><text x=\"556\" y=\"146\" text-anchor=\"middle\" font-size=\"11.5\" fill=\"#3e4c59\">ne répondent plus</text><text x=\"320\" y=\"238\" text-anchor=\"middle\" font-size=\"12\" fill=\"#3e4c59\">Source : rapport préliminaire de Microsoft du 15 novembre 2026</text></svg>",
+     "alt": "Schéma en quatre étapes montrant comment un défaut latent s'est propagé à l'ensemble du parc de passerelles.",
+     "caption": "Quand chaque serveur défaillant reporte sa charge sur les autres, la panne s'amplifie."
+    },
+    {
+     "type": "heading",
+     "text": "Pourquoi le rétablissement a été long"
+    },
+    {
+     "type": "paragraph",
+     "text": "Redémarrer les serveurs n'a pas suffi : submergés, ils retombaient en panne. La récupération automatisée n'était pas conçue pour une défaillance aussi large, et un retour arrière n'était pas possible, puisque le défaut datait de plusieurs mois. Les ingénieurs ont donc élaboré une mise à jour qui « a ramené le chemin de code à un état précédent connu comme sain » dans Windows, appliquée par groupes de serveurs. Les déploiements et changements de configuration ont été suspendus pendant la gestion de crise."
+    },
+    {
+     "type": "keyvalue",
+     "items": [
+      {
+       "label": "12 novembre, 01 h 07 UTC",
+       "value": "Basculement de Teams vers la passerelle principale"
+      },
+      {
+       "label": "12 novembre, 16 h 33 UTC",
+       "value": "Premier signalement par un client"
+      },
+      {
+       "label": "13 novembre, 07 h 20 UTC",
+       "value": "Mitigation : mise à jour qui annule le changement défectueux"
+      },
+      {
+       "label": "13 novembre, 16 h 10 UTC",
+       "value": "Services confirmés sains"
+      },
+      {
+       "label": "14 novembre, 04 h 15 UTC",
+       "value": "Dernière communication aux clients"
+      }
+     ]
+    },
+    {
+     "type": "usecases",
+     "title": "Exemples d'utilisation",
+     "items": [
+      {
+       "icon": "🧪",
+       "title": "Équipe de fiabilité",
+       "text": "Elle ajoute à ses tests de charge du matériel haut de gamme à nombreux cœurs et simule des pertes de capacité de 15 à 20 %, comme celles de l'incident."
+      },
+      {
+       "icon": "🏢",
+       "title": "DSI d'une PME",
+       "text": "Elle prévoit une messagerie de secours (comptes d'urgence, canal alternatif) pour communiquer lorsqu'Exchange Online est indisponible."
+      },
+      {
+       "icon": "📜",
+       "title": "Responsable continuité d'activité",
+       "text": "Il vérifie que le plan de reprise couvre le cas d'un fournisseur cloud en panne de plusieurs heures et pas seulement d'un incident local."
+      }
+     ]
+    },
+    {
+     "type": "timeline",
+     "title": "D'où l'on vient, où l'on va",
+     "items": [
+      {
+       "label": "Juillet 2026",
+       "text": "Déploiement du correctif défectueux, sans effet visible."
+      },
+      {
+       "label": "12 au 14 novembre 2026",
+       "text": "Panne mondiale d'Exchange Online et gestion de crise."
+      },
+      {
+       "label": "15 novembre 2026",
+       "text": "Rapport préliminaire publié."
+      },
+      {
+       "label": "20 novembre 2026",
+       "text": "Rapport définitif annoncé."
+      }
+     ]
+    },
+    {
+     "type": "opinion",
+     "title": "Notre avis",
+     "paragraphs": [
+      "Le plus instructif est la nature du défaut : latent pendant quatre mois, déclenché par une combinaison de conditions que les tests n'ont pas reproduite. Ce type de défaut est caractéristique des systèmes très distribués, où l'on teste le cas moyen mais pas la queue de distribution de la charge.",
+      "Pour les clients, la leçon est organisationnelle : les engagements de disponibilité n'empêchent pas les pannes longues. À un horizon de un à trois ans, on peut attendre plus d'exigences contractuelles et réglementaires sur la résilience des services cloud critiques, notamment en Europe avec les textes sur la résilience opérationnelle et la cybersécurité."
+     ],
+     "verdict": "Une bonne leçon d'ingénierie : le test de charge doit ressembler à la production, y compris au matériel le plus récent."
+    },
+    {
+     "type": "callout",
+     "title": "À retenir",
+     "text": "Attendez le rapport définitif du 20 novembre avant de tirer des conclusions complètes, et vérifiez vos plans de secours de messagerie."
+    }
+   ],
+   "publishedAt": "2026-11-17T04:17:14+01:00",
+   "readingMinutes": 6
+  },
+  {
+   "id": "jiff-1-0-rust-dates",
+   "category": "dev",
+   "icon": "🕰️",
+   "importance": 3,
+   "sourceDate": "2026-11-15",
+   "title": "Jiff 1.0 : la bibliothèque Rust de dates et d'heures qui met les fuseaux horaires au centre",
+   "summary": "Andrew Gallant publie la première version stable de Jiff, une alternative à chrono et time qui gère les changements d'heure et promet de conserver son interface sur le long terme.",
+   "tags": [
+    "Rust",
+    "Jiff",
+    "dates et heures",
+    "fuseaux horaires",
+    "bibliothèque"
+   ],
+   "sources": [
+    {
+     "title": "Jiff 1.0: A datetime library for Rust",
+     "url": "https://burntsushi.net/jiff/",
+     "publisher": "Andrew Gallant"
+    }
+   ],
+   "illustration": {
+    "svg": "<svg xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"0 0 640 360\"><defs><linearGradient id=\"g\" x1=\"0\" y1=\"0\" x2=\"1\" y2=\"1\"><stop offset=\"0\" stop-color=\"hsl(265,62%,40%)\"/><stop offset=\"1\" stop-color=\"hsl(300,66%,22%)\"/></linearGradient></defs><rect width=\"640\" height=\"360\" fill=\"url(#g)\"/><circle cx=\"545\" cy=\"60\" r=\"120\" fill=\"#fff\" fill-opacity=\".08\"/><circle cx=\"90\" cy=\"320\" r=\"100\" fill=\"#fff\" fill-opacity=\".07\"/><g fill=\"#fff\"><g fill-opacity=\".92\"><rect x=\"190\" y=\"200\" width=\"46\" height=\"80\" rx=\"8\"/><rect x=\"262\" y=\"150\" width=\"46\" height=\"130\" rx=\"8\"/><rect x=\"334\" y=\"110\" width=\"46\" height=\"170\" rx=\"8\"/><rect x=\"406\" y=\"70\" width=\"46\" height=\"210\" rx=\"8\"/></g></g></svg>"
+   },
+   "blocks": [
+    {
+     "type": "paragraph",
+     "text": "Le 15 novembre 2026, Andrew Gallant (BurntSushi) a annoncé la version **1.0** de **Jiff**, sa bibliothèque Rust de gestion des dates et des heures. Prononcé comme « gif » avec un « g » doux, ce nom désigne une bibliothèque qui place les **fuseaux horaires** au centre de son interface et prend en charge de nombreux pièges liés à l'heure d'été. Parmi les projets qui l'utilisent, l'auteur cite uv, Cargo, Starship, fd, Nushell, mise, Jujutsu et uutils/coreutils."
+    },
+    {
+     "type": "heading",
+     "text": "Une promesse de stabilité"
+    },
+    {
+     "type": "paragraph",
+     "text": "Passer à la version 1.0 est un engagement : l'auteur prévoit de conserver l'interface 1.0 indéfiniment, sauf défaut majeur. La raison est pratique : Jiff est destinée à apparaître dans l'interface publique d'autres bibliothèques, et une version incompatible perturberait l'écosystème. Le journal des modifications liste les changements incompatibles entre la 0.2 et la 1.0."
+    },
+    {
+     "type": "heading",
+     "text": "Les types de base : l'« oignon » des dates"
+    },
+    {
+     "type": "list",
+     "items": [
+      "`civil::Date`, `civil::Time` et `civil::DateTime` : des valeurs « à l'heure du mur », sans lieu associé.",
+      "`Timestamp` : un instant absolu, stocké en nanosecondes depuis l'époque Unix.",
+      "`TimeZone` : la correspondance entre instants et dates civiles, à partir de la base IANA.",
+      "`ZonedDateTime` : l'ensemble d'un instant, d'une date civile et d'un fuseau."
+     ]
+    },
+    {
+     "type": "heading",
+     "text": "Les choix de conception"
+    },
+    {
+     "type": "paragraph",
+     "text": "Jiff encapsule la complexité plutôt que de la laisser aux appelants. Pour les heures locales ambiguës (les « plis » et « trous » des changements d'heure), une stratégie « compatible » par défaut choisit la première occurrence dans un pli et l'heure postérieure dans un trou, tandis que l'appelant peut préférer `earlier`, `later` ou `unambiguous`. Les durées existent sous deux formes : `Span`, qui garde séparées les unités calendaires et physiques (2 heures et 120 minutes sont deux valeurs distinctes tant qu'on ne les compare pas), et `SignedDuration`, limitée au temps physique. L'inspiration vient largement de l'API Temporal de JavaScript, avec des différences de nommage, une prise en charge du seul calendrier grégorien et une plage de ±9 999 ans."
+    },
+    {
+     "type": "paragraph",
+     "text": "Côté lecture et écriture, Jiff gère RFC 3339, RFC 9557 (qui ajoute les identifiants de fuseau) et ISO 8601, suivant la grammaire plus souple de Temporal. Un format de durée « amical » (`3d 4h 59m`) est sans perte, contrairement aux durées ISO 8601. L'internationalisation et les calendriers non grégoriens passent par ICU4X via la bibliothèque `jiff-icu`. L'arithmétique tient compte des transitions de fuseau : un jour de changement d'heure peut durer 25 heures."
+    },
+    {
+     "type": "usecases",
+     "title": "Exemples d'utilisation",
+     "items": [
+      {
+       "icon": "🌍",
+       "title": "Application internationale",
+       "text": "Une équipe stocke des instants en `Timestamp`, convertit en `ZonedDateTime` à l'affichage et évite les bogues liés à l'heure d'été."
+      },
+      {
+       "icon": "🗓️",
+       "title": "Outil de planification",
+       "text": "Un logiciel de rendez-vous ajoute « un jour » à une réunion qui franchit un changement d'heure et obtient la même heure locale, pas 24 heures plus tard."
+      },
+      {
+       "icon": "⏱️",
+       "title": "Mesure de durée",
+       "text": "Un développeur utilise `std::time::Instant` pour mesurer un temps écoulé et réserve Jiff aux dates visibles par les utilisateurs, conformément aux conseils de l'auteur."
+      }
+     ]
+    },
+    {
+     "type": "timeline",
+     "title": "D'où l'on vient, où l'on va",
+     "items": [
+      {
+       "label": "Avant 1.0",
+       "text": "Séries 0.x, avec des changements d'interface entre versions."
+      },
+      {
+       "label": "15 novembre 2026",
+       "text": "Publication de Jiff 1.0 et engagement de stabilité."
+      },
+      {
+       "label": "À venir",
+       "text": "Adoption par d'autres bibliothèques dans leurs interfaces publiques."
+      }
+     ]
+    },
+    {
+     "type": "opinion",
+     "title": "Notre avis",
+     "paragraphs": [
+      "La gestion du temps est un domaine où l'intuition trompe : l'heure d'été, les secondes intercalaires ou les changements de règles de fuseau font échouer des programmes expérimentés. Une bibliothèque qui rend les erreurs difficiles à commettre plutôt que d'exposer un maximum d'options apporte une vraie valeur.",
+      "L'engagement de stabilité sera le test : les écosystèmes se structurent autour de types partagés, et une première version stable permet à d'autres bibliothèques d'exposer Jiff dans leurs interfaces. À un horizon de un à trois ans, la concurrence avec chrono restera vive, avec un partage selon les usages."
+     ],
+     "verdict": "Une bibliothèque réfléchie, dont la 1.0 est le signal que les types de base sont enfin stables."
+    },
+    {
+     "type": "callout",
+     "title": "À retenir",
+     "text": "Utilisez `Timestamp` pour les instants, `ZonedDateTime` pour l'affichage, et `std::time::Instant` pour mesurer des durées écoulées."
+    }
+   ],
+   "publishedAt": "2026-11-17T04:17:14+01:00",
+   "readingMinutes": 6
+  }
+ ]
+}
