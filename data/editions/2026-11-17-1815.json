@@ -1,0 +1,1094 @@
+{
+  "schemaVersion": "1.0",
+  "date": "2026-11-17",
+  "generatedAt": "2026-11-17T18:19:02+01:00",
+  "title": "Tech Daily — PostgreSQL 14 en fin de vie, vol de sessions Microsoft 365 et OpenShell à la CNCF",
+  "summary": "Édition tech : une livraison record de correctifs PostgreSQL, les kits d'hameçonnage qui volent les sessions Microsoft 365, la fuite de données de chauffeurs Uber via un prestataire d'IA, la conservation des conversations Gemini, OpenShell de Nvidia chez la CNCF et deux nouveautés d'électronique embarquée.",
+  "highlights": [
+    "PostgreSQL : 52 failles corrigées, la version 14 n'est plus supportée",
+    "Microsoft 365 : trois kits d'hameçonnage contournent l'authentification multifacteur en volant des sessions",
+    "Uber : 149 346 personnes touchées via le prestataire d'IA Fireworks",
+    "Gemini : l'historique désactivé n'empêche plus une conservation d'environ deux mois",
+    "Nvidia confie OpenShell à la CNCF pour encadrer les agents d'IA"
+  ],
+  "meta": {
+    "generator": "claude-scheduled-task"
+  },
+  "posts": [
+    {
+      "id": "postgresql-52-failles-version-14-fin-de-vie",
+      "category": "dev",
+      "icon": "🐘",
+      "importance": 4,
+      "sourceDate": "2026-11-17",
+      "title": "PostgreSQL : 52 failles de sécurité corrigées et fin de vie de la version 14",
+      "summary": "La publication trimestrielle de novembre 2026 corrige 52 vulnérabilités et plus de 140 bogues dans les versions 14 à 18, et marque la dernière mise à jour de la branche 14.",
+      "tags": [
+        "PostgreSQL",
+        "base de données",
+        "correctifs de sécurité",
+        "fin de support",
+        "PostgreSQL 19"
+      ],
+      "sources": [
+        {
+          "title": "PostgreSQL patches 52 security holes, sends version 14 into retirement",
+          "url": "https://www.theregister.com/databases/2026/11/17/postgresql-patches-52-security-holes-sends-version-14-into-retirement/5310108",
+          "publisher": "The Register"
+        }
+      ],
+      "cover": {
+        "url": "https://image.theregister.com/263315.jpg?imageId=263315&x=0&y=0&cropw=100&croph=100&panox=0&panoy=0&panow=100&panoh=100&width=1200&height=683",
+        "alt": "Illustration d'un article de The Register consacré aux bases de données",
+        "credit": "theregister.com"
+      },
+      "readingMinutes": 4,
+      "illustration": {
+        "svg": "<svg xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"0 0 640 360\"><defs><linearGradient id=\"g\" x1=\"0\" y1=\"0\" x2=\"1\" y2=\"1\"><stop offset=\"0\" stop-color=\"hsl(265,62%,40%)\"/><stop offset=\"1\" stop-color=\"hsl(300,66%,22%)\"/></linearGradient></defs><rect width=\"640\" height=\"360\" fill=\"url(#g)\"/><circle cx=\"545\" cy=\"60\" r=\"120\" fill=\"#fff\" fill-opacity=\".08\"/><circle cx=\"90\" cy=\"320\" r=\"100\" fill=\"#fff\" fill-opacity=\".07\"/><g fill=\"none\" stroke=\"#fff\" stroke-width=\"10\"><ellipse cx=\"320\" cy=\"110\" rx=\"110\" ry=\"36\" fill=\"#fff\" fill-opacity=\".9\"/><path d=\"M210 110v140c0 20 49 36 110 36s110-16 110-36V110\"/><path d=\"M210 180c0 20 49 36 110 36s110-16 110-36\"/></g><g fill=\"#fff\"><rect x=\"450\" y=\"215\" width=\"90\" height=\"16\" rx=\"8\" transform=\"rotate(-35 495 223)\"/><circle cx=\"500\" cy=\"262\" r=\"22\"/></g></svg>"
+      },
+      "blocks": [
+        {
+          "type": "paragraph",
+          "text": "Le projet PostgreSQL a publié sa livraison trimestrielle de correctifs le 17 novembre 2026, et le volume est inhabituel : **52 vulnérabilités de sécurité** et plus de **140 bogues** sont corrigés dans les versions 14 à 18 du système de gestion de bases de données. La même livraison comprend un deuxième candidat à la publication (release candidate) de la version 19, et signe la fin du support de la version 14, dont la dernière mise à jour porte le numéro 14.25."
+        },
+        {
+          "type": "paragraph",
+          "text": "Pour les équipes qui exploitent PostgreSQL en production, c'est un rendez-vous à ne pas manquer : il s'agit à la fois d'un lot de correctifs à appliquer rapidement et d'une échéance de migration pour toutes celles qui tournent encore en version 14."
+        },
+        {
+          "type": "heading",
+          "text": "Ce que contient la livraison"
+        },
+        {
+          "type": "keyvalue",
+          "items": [
+            {
+              "label": "Vulnérabilités corrigées",
+              "value": "52, dans les branches 14 à 18"
+            },
+            {
+              "label": "Bogues corrigés",
+              "value": "plus de 140"
+            },
+            {
+              "label": "Dernière version 14",
+              "value": "14.25, branche désormais sans support"
+            },
+            {
+              "label": "Version 19",
+              "value": "deuxième candidat à la publication inclus"
+            },
+            {
+              "label": "Gravité maximale citée",
+              "value": "CVE-2026-6460, score CVSS de 8,8 sur 10"
+            }
+          ]
+        },
+        {
+          "type": "paragraph",
+          "text": "La faille la plus sérieuse mise en avant par la presse spécialisée est **CVE-2026-6460**, une confusion de types (*type confusion*) qui pourrait permettre à un utilisateur de la base, disposant du droit de créer des objets, d'exécuter du code arbitraire. Son score CVSS est de 8,8 sur 10. Alastair Turner, technologue chez Percona, rappelle toutefois que l'exploitation suppose un accès à la base : ces failles ne sont pas atteignables par un attaquant anonyme depuis Internet. Il souligne en revanche qu'une injection SQL ou un vol d'identifiants pourrait aggraver une compromission, ce qui suffit à justifier une mise à jour sans attendre."
+        },
+        {
+          "type": "paragraph",
+          "text": "Selon lui, les correctifs touchent de nombreuses parties du logiciel plutôt qu'un seul composant défaillant : il parle d'une « large base » corrigée. Certains correctifs exigent des opérations supplémentaires après la mise à jour, comme la reconstruction d'index concernés ou la réalisation d'une nouvelle sauvegarde complète. Les administrateurs doivent donc lire les notes de version avant de redémarrer leurs instances, et non se contenter de remplacer les binaires."
+        },
+        {
+          "type": "heading",
+          "text": "Un nombre de CVE en hausse constante"
+        },
+        {
+          "type": "paragraph",
+          "text": "Alastair Turner qualifie cette livraison de « nombre record de CVE corrigées dans une version trimestrielle », le troisième record consécutif. Il y voit deux causes : l'analyse assistée par intelligence artificielle, notamment grâce à des outils de recherche de failles ouverts publiés par Anthropic et OpenAI, et l'attention croissante que suscite PostgreSQL à mesure que son usage progresse en entreprise. Ce second point mérite d'être souligné : plus un logiciel est déployé dans des systèmes critiques, plus il est examiné, et plus les chercheurs y trouvent de défauts anciens."
+        },
+        {
+          "type": "heading",
+          "text": "Quelle version viser ?"
+        },
+        {
+          "type": "list",
+          "items": [
+            "**Version 14** : plus aucun correctif de sécurité ni de bogue. Y rester, c'est exploiter une base exposée à toute faille découverte à l'avenir.",
+            "**Version 17** : c'est la cible actuelle des organisations qui appliquent une politique « N-1 », c'est-à-dire une version majeure de retard sur la plus récente.",
+            "**Version 18** : elle reste la dernière version stable jusqu'à la sortie de la 19.",
+            "**Version 19** : la disponibilité générale est annoncée pour le jeudi 19 novembre 2026, sauf nouvel incident."
+          ]
+        },
+        {
+          "type": "usecases",
+          "title": "Exemples d'utilisation",
+          "items": [
+            {
+              "icon": "🏢",
+              "title": "PME avec un ERP hébergé",
+              "text": "Une PME dont l'ERP repose sur PostgreSQL 14 doit demander à son éditeur ou à son hébergeur un calendrier de passage à la version 16, 17 ou 18, avant que la prochaine faille ne reste sans correctif."
+            },
+            {
+              "icon": "🧑‍💻",
+              "title": "Équipe d'exploitation",
+              "text": "Une équipe qui gère plusieurs bases applique les mises à jour mineures sur un environnement de préproduction, vérifie les index signalés dans les notes de version, puis planifie une fenêtre de maintenance en production."
+            },
+            {
+              "icon": "🛡️",
+              "title": "Responsable sécurité",
+              "text": "Un RSSI inscrit au registre des risques toute instance PostgreSQL 14 et exige un plan de migration daté, en rappelant que le principe du moindre privilège limite l'impact des failles réservées aux utilisateurs authentifiés."
+            }
+          ]
+        },
+        {
+          "type": "timeline",
+          "title": "D'où l'on vient, où l'on va",
+          "items": [
+            {
+              "label": "Septembre 2021",
+              "text": "Sortie de PostgreSQL 14, dont le cycle de support de cinq ans se termine avec la version 14.25."
+            },
+            {
+              "label": "Novembre 2026",
+              "text": "Livraison trimestrielle record : 52 failles corrigées, fin de la branche 14."
+            },
+            {
+              "label": "19 novembre 2026",
+              "text": "Date annoncée pour la disponibilité générale de PostgreSQL 19, avec la commande REPACK et son option CONCURRENTLY."
+            }
+          ]
+        },
+        {
+          "type": "heading",
+          "text": "PostgreSQL 19 : réorganiser sans bloquer"
+        },
+        {
+          "type": "paragraph",
+          "text": "La version 19 introduit une commande `REPACK` dotée d'une option `CONCURRENTLY`, qui permet de récupérer de l'espace disque tout en laissant les lectures et les écritures se poursuivre. À titre de comparaison, `VACUUM FULL` pose un verrou exclusif sur la table et bloque tout accès pendant son exécution. Pour les tables volumineuses, cette différence peut transformer une opération de maintenance nocturne en tâche courante."
+        },
+        {
+          "type": "opinion",
+          "title": "Notre avis",
+          "paragraphs": [
+            "Le chiffre de 52 failles impressionne, mais il dit autant sur la méthode que sur la qualité du code : à mesure que les outils d'analyse automatique progressent, les logiciels les plus utilisés voient ressortir des défauts qui dormaient depuis des années. Ce n'est pas un signe d'alerte en soi ; c'est plutôt la preuve que le processus de correction du projet tient la charge. Le risque réel se situe ailleurs : dans les instances jamais mises à jour, que cette multiplication des correctifs rend de plus en plus dangereuses.",
+            "À un horizon d'un à trois ans, on peut raisonnablement s'attendre à ce que ces livraisons restent volumineuses, voire s'alourdissent. La charge de la mise à jour continue pèsera davantage sur les équipes que celle du développement, et les organisations qui n'ont pas industrialisé leurs montées de version subiront un coût croissant. Il s'agit d'une analyse, non d'un fait établi."
+          ],
+          "verdict": "Appliquer les correctifs et quitter la version 14 : le calendrier ne laisse plus de marge."
+        },
+        {
+          "type": "callout",
+          "title": "À retenir",
+          "text": "Faits : 52 failles et plus de 140 bogues corrigés dans les versions 14 à 18, version 14.25 dernière de sa branche. Analyse : le nombre record de CVE reflète en partie l'essor de la recherche assistée par IA. La date de sortie de PostgreSQL 19 reste soumise à d'éventuels nouveaux incidents."
+        },
+        {
+          "type": "diagram",
+          "svg": "<svg xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"0 0 640 230\" font-family=\"system-ui,sans-serif\"><rect width=\"640\" height=\"230\" rx=\"14\" fill=\"#eef0f8\"/><g font-size=\"14\" text-anchor=\"middle\" fill=\"#1d2140\"><text x=\"320\" y=\"30\" font-size=\"15\" font-weight=\"600\">Branches PostgreSQL au 17 novembre 2026</text><rect x=\"30\" y=\"60\" width=\"90\" height=\"90\" rx=\"8\" fill=\"#fff\" stroke=\"#b3261e\" stroke-width=\"2\"/><text x=\"75\" y=\"95\">14</text><text x=\"75\" y=\"115\" font-size=\"12\">14.25</text><text x=\"75\" y=\"133\" font-size=\"12\">fin de vie</text><rect x=\"140\" y=\"60\" width=\"90\" height=\"90\" rx=\"8\" fill=\"#fff\" stroke=\"#3a4ba8\" stroke-width=\"2\"/><text x=\"185\" y=\"95\">15</text><text x=\"185\" y=\"115\" font-size=\"12\">corrigée</text><rect x=\"250\" y=\"60\" width=\"90\" height=\"90\" rx=\"8\" fill=\"#fff\" stroke=\"#3a4ba8\" stroke-width=\"2\"/><text x=\"295\" y=\"95\">16</text><text x=\"295\" y=\"115\" font-size=\"12\">corrigée</text><rect x=\"360\" y=\"60\" width=\"90\" height=\"90\" rx=\"8\" fill=\"#fff\" stroke=\"#3a4ba8\" stroke-width=\"2\"/><text x=\"405\" y=\"95\">17</text><text x=\"405\" y=\"115\" font-size=\"12\">cible « N-1 »</text><rect x=\"470\" y=\"60\" width=\"90\" height=\"90\" rx=\"8\" fill=\"#fff\" stroke=\"#2e7d32\" stroke-width=\"2\"/><text x=\"515\" y=\"95\">18</text><text x=\"515\" y=\"115\" font-size=\"12\">stable</text><rect x=\"570\" y=\"60\" width=\"60\" height=\"90\" rx=\"8\" fill=\"#fff\" stroke=\"#8a6a1f\" stroke-width=\"2\" stroke-dasharray=\"5 4\"/><text x=\"600\" y=\"95\">19</text><text x=\"600\" y=\"115\" font-size=\"12\">RC2</text></g><text x=\"320\" y=\"190\" text-anchor=\"middle\" font-size=\"13\" fill=\"#44476b\">Failles corrigées dans les versions 14 à 18 ; la 19 est annoncée pour le 19 novembre 2026</text></svg>",
+          "alt": "Schéma des branches PostgreSQL 14 à 19 avec leur état au 17 novembre 2026",
+          "caption": "État des branches PostgreSQL après la livraison de novembre 2026."
+        }
+      ],
+      "publishedAt": "2026-11-17T18:19:02+01:00"
+    },
+    {
+      "id": "kits-hameconnage-microsoft-365-vol-de-sessions",
+      "category": "cybersecurite",
+      "icon": "🪝",
+      "importance": 4,
+      "sourceDate": "2026-10-22",
+      "title": "Microsoft 365 : trois kits d'hameçonnage qui volent des sessions, et non des mots de passe",
+      "summary": "EvilTokens, Knight Office et Kali365 permettent à des attaquants peu expérimentés de contourner l'authentification multifacteur en captant des jetons de session. Les analystes de Huntress détaillent comment les repérer et y répondre.",
+      "tags": [
+        "hameçonnage",
+        "Microsoft 365",
+        "jetons de session",
+        "adversary-in-the-middle",
+        "Huntress"
+      ],
+      "sources": [
+        {
+          "title": "Unboxing Phishing Kits: Advanced Cred Theft for Entry-Level Hackers",
+          "url": "https://www.huntress.com/blog/unboxing-phishing-kits",
+          "publisher": "Huntress"
+        },
+        {
+          "title": "Inside Modern Phishing Kits Built to Steal Microsoft 365 Sessions",
+          "url": "https://www.bleepingcomputer.com/news/security/inside-modern-phishing-kits-built-to-steal-microsoft-365-sessions/",
+          "publisher": "BleepingComputer"
+        }
+      ],
+      "cover": {
+        "url": "https://images.huntress.com/asset/file/dca76d702afd4b8fb78824a5b8651986",
+        "alt": "Visuel du billet de blog de Huntress consacré aux kits d'hameçonnage",
+        "credit": "huntress.com"
+      },
+      "readingMinutes": 5,
+      "illustration": {
+        "svg": "<svg xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"0 0 640 360\"><defs><linearGradient id=\"g\" x1=\"0\" y1=\"0\" x2=\"1\" y2=\"1\"><stop offset=\"0\" stop-color=\"hsl(175,62%,40%)\"/><stop offset=\"1\" stop-color=\"hsl(210,66%,22%)\"/></linearGradient></defs><rect width=\"640\" height=\"360\" fill=\"url(#g)\"/><circle cx=\"545\" cy=\"60\" r=\"120\" fill=\"#fff\" fill-opacity=\".08\"/><circle cx=\"90\" cy=\"320\" r=\"100\" fill=\"#fff\" fill-opacity=\".07\"/><g fill=\"#fff\"><path d=\"M320 60l110 40v80c0 70-50 110-110 130-60-20-110-60-110-130v-80z\" fill-opacity=\".92\"/></g><g fill=\"none\" stroke=\"hsl(175,60%,25%)\" stroke-width=\"14\" stroke-linecap=\"round\"><circle cx=\"305\" cy=\"170\" r=\"30\"/><path d=\"M330 192l45 45M355 217l18-18\"/></g><g fill=\"#fff\" fill-opacity=\".85\"><rect x=\"70\" y=\"250\" width=\"110\" height=\"14\" rx=\"7\"/><rect x=\"460\" y=\"120\" width=\"110\" height=\"14\" rx=\"7\"/></g></svg>"
+      },
+      "blocks": [
+        {
+          "type": "paragraph",
+          "text": "Pendant longtemps, l'hameçonnage visait un objectif simple : récupérer un nom d'utilisateur et un mot de passe. Les kits décrits par les analystes de Huntress, relayés le 17 novembre 2026 par BleepingComputer, visent autre chose : une **session authentifiée**, c'est-à-dire le jeton qui prouve qu'un utilisateur s'est déjà connecté, authentification multifacteur comprise. Une fois ce jeton en main, l'attaquant n'a plus besoin du mot de passe."
+        },
+        {
+          "type": "paragraph",
+          "text": "L'analyse s'appuie sur un atelier mensuel de Huntress, publié le 22 octobre 2026, qui passe en revue trois kits observés dans les mois précédents. Tous ciblent les jetons de Microsoft 365."
+        },
+        {
+          "type": "heading",
+          "text": "Trois kits, trois approches"
+        },
+        {
+          "type": "list",
+          "items": [
+            "**EvilTokens** : une opération d'hameçonnage par code d'appareil (*device code*), qui s'appuyait sur la plateforme Railway comme moteur de collecte et de rejeu de jetons. Selon Huntress, une collaboration entre l'unité de lutte contre la cybercriminalité de Microsoft et le FBI a conduit, quelques semaines avant l'atelier, à l'arrestation d'un opérateur présumé. Le kit se présentait comme un service commercial, avec une interface soignée et une assistance disponible à toute heure.",
+            "**Knight Office** : un kit de type *adversary-in-the-middle* (AitM), c'est-à-dire un relais qui s'intercale entre la victime et le vrai service, avec des panneaux de contrôle sur mesure et le vol de jetons Microsoft 365.",
+            "**Kali365** : un kit dont le panneau d'administration fonctionne comme un écosystème criminel complet, avec des fonctions d'intelligence artificielle. Il aide les opérateurs à se procurer de l'infrastructure, à collecter des éléments d'authentification, à conserver l'accès et à passer à l'échelle."
+          ]
+        },
+        {
+          "type": "paragraph",
+          "text": "Ces outils transforment une compétence autrefois réservée à des équipes expérimentées en produit clé en main. Les kits de base se limitent à quelques fichiers HTML et scripts affichant une fausse page de connexion ; les kits avancés ajoutent un tableau de bord pour suivre les victimes, modifier le contenu des pages et relayer les identifiants en temps réel."
+        },
+        {
+          "type": "heading",
+          "text": "Trois chemins vers une session valide"
+        },
+        {
+          "type": "keyvalue",
+          "items": [
+            {
+              "label": "Code d'appareil",
+              "value": "la victime se connecte réellement auprès du fournisseur d'identité, mais l'autorisation obtenue est captée par l'attaquant"
+            },
+            {
+              "label": "AitM",
+              "value": "le relais transmet l'échange en direct : la victime valide l'authentification multifacteur, l'attaquant récupère la session"
+            },
+            {
+              "label": "Vol et rejeu de jeton",
+              "value": "le jeton volé est rejoué pour accéder aux ressources cloud et à la messagerie de la victime"
+            }
+          ]
+        },
+        {
+          "type": "paragraph",
+          "text": "Huntress estime qu'environ **un incident sur six** examiné par son équipe de détection et de réponse aux identités impliquait l'enregistrement d'un appareil non autorisé. Lors d'un sondage en direct, 36 % des participants disaient avoir déjà vu de l'hameçonnage par code d'appareil dans la nature. Rich Mozeleski, de Huntress, recommande les politiques d'accès conditionnel : selon lui, la plupart des environnements Microsoft n'ont tout simplement pas besoin du flux par code d'appareil."
+        },
+        {
+          "type": "diagram",
+          "svg": "<svg xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"0 0 640 230\" font-family=\"system-ui,sans-serif\"><rect width=\"640\" height=\"230\" rx=\"14\" fill=\"#edf5f4\"/><text x=\"320\" y=\"28\" text-anchor=\"middle\" font-size=\"15\" font-weight=\"600\" fill=\"#0f3330\">Chaîne d'une attaque par vol de session</text><g font-size=\"13\" text-anchor=\"middle\" fill=\"#0f3330\"><rect x=\"12\" y=\"60\" width=\"100\" height=\"70\" rx=\"8\" fill=\"#fff\" stroke=\"#1f7a72\"/><text x=\"62\" y=\"90\">Leurre</text><text x=\"62\" y=\"108\">(courriel)</text><rect x=\"134\" y=\"60\" width=\"100\" height=\"70\" rx=\"8\" fill=\"#fff\" stroke=\"#1f7a72\"/><text x=\"184\" y=\"90\">Connexion</text><text x=\"184\" y=\"108\">+ MFA validée</text><rect x=\"256\" y=\"60\" width=\"100\" height=\"70\" rx=\"8\" fill=\"#fff\" stroke=\"#b3261e\"/><text x=\"306\" y=\"90\">Jeton</text><text x=\"306\" y=\"108\">capté</text><rect x=\"378\" y=\"60\" width=\"100\" height=\"70\" rx=\"8\" fill=\"#fff\" stroke=\"#b3261e\"/><text x=\"428\" y=\"90\">Nouvel</text><text x=\"428\" y=\"108\">appareil</text><rect x=\"500\" y=\"60\" width=\"128\" height=\"70\" rx=\"8\" fill=\"#fff\" stroke=\"#b3261e\"/><text x=\"564\" y=\"90\">Messagerie,</text><text x=\"564\" y=\"108\">hameçonnage sortant</text></g><g stroke=\"#b3261e\" stroke-width=\"3\"><path d=\"M112 95h18M234 95h18M356 95h18M478 95h18\"/></g><text x=\"320\" y=\"175\" text-anchor=\"middle\" font-size=\"13\" fill=\"#2c4a47\">Un seul signal est faible ; la suite complète des signaux est révélatrice</text><text x=\"320\" y=\"200\" text-anchor=\"middle\" font-size=\"12\" fill=\"#2c4a47\">Révoquer les jetons de rafraîchissement et supprimer les appareils ajoutés</text></svg>",
+          "alt": "Schéma en cinq étapes d'une attaque par vol de session Microsoft 365, du leurre à l'accès à la messagerie",
+          "caption": "Chaîne type d'une attaque par vol de session, d'après la description de Huntress."
+        },
+        {
+          "type": "heading",
+          "text": "Comment détecter et répondre"
+        },
+        {
+          "type": "paragraph",
+          "text": "Huntress défend une idée simple : un signal isolé est faible, une **séquence** de signaux est forte. Il faut donc relier le leurre, l'authentification, l'émission ou le vol du jeton, l'enregistrement d'un appareil et l'activité de la messagerie, en croisant les journaux de l'identité, du poste de travail, du navigateur, du réseau et de la boîte aux lettres. Parmi les indices à surveiller en priorité : des connexions réussies depuis une infrastructure cloud inconnue, des authentifications par code d'appareil, des renouvellements automatiques de jetons, de nouveaux appareils et de nouvelles méthodes d'authentification."
+        },
+        {
+          "type": "list",
+          "items": [
+            "Révoquer les jetons de rafraîchissement ;",
+            "supprimer les appareils non autorisés et les identifiants Windows Hello ajoutés ;",
+            "restreindre ou bloquer le flux par code d'appareil lorsque c'est possible ;",
+            "examiner l'accès à la messagerie, les règles de transfert et les courriels d'hameçonnage envoyés depuis le compte ;",
+            "poursuivre la surveillance après la mise hors ligne du domaine de hameçonnage."
+          ]
+        },
+        {
+          "type": "usecases",
+          "title": "Exemples d'utilisation",
+          "items": [
+            {
+              "icon": "🏢",
+              "title": "Une PME sous Microsoft 365",
+              "text": "Un administrateur bloque le flux par code d'appareil par une politique d'accès conditionnel, car ses équipes n'utilisent aucun appareil sans clavier nécessitant ce mode de connexion."
+            },
+            {
+              "icon": "🔎",
+              "title": "Un prestataire de supervision",
+              "text": "Un centre opérationnel de sécurité crée une règle qui corrèle une connexion depuis un hébergeur inhabituel, l'ajout d'un appareil puis la création d'une règle de transfert dans la boîte aux lettres."
+            },
+            {
+              "icon": "🎓",
+              "title": "Une session de sensibilisation",
+              "text": "Un responsable informatique explique aux salariés qu'une validation d'authentification multifacteur qu'ils n'ont pas déclenchée, ou un code à saisir sur une page inconnue, doit être signalé immédiatement."
+            }
+          ]
+        },
+        {
+          "type": "timeline",
+          "title": "D'où l'on vient, où l'on va",
+          "items": [
+            {
+              "label": "Février 2026",
+              "text": "Huntress découvre la campagne EvilTokens, qui lance ses recherches sur les kits."
+            },
+            {
+              "label": "22 octobre 2026",
+              "text": "Publication de l'analyse de trois kits ciblant Microsoft 365."
+            },
+            {
+              "label": "17 novembre 2026",
+              "text": "BleepingComputer relaie l'analyse et ses conseils de détection."
+            }
+          ]
+        },
+        {
+          "type": "opinion",
+          "title": "Notre avis",
+          "paragraphs": [
+            "Le message le plus utile de cette analyse est que l'authentification multifacteur n'est plus une garantie de confiance sur la session : elle protège l'ouverture de la porte, pas ce qui se passe ensuite. Les kits décrits industrialisent le contournement et le mettent à la portée d'attaquants débutants, ce qui change l'échelle du problème plus que sa nature.",
+            "Dans les un à trois prochaines années, la défense devrait se déplacer vers la durée de vie des jetons, la liaison des sessions à l'appareil et la corrélation des signaux. C'est une évolution probable, formulée ici comme une opinion : les éditeurs et les administrateurs ont déjà les outils, mais ils sont encore trop rarement configurés."
+          ],
+          "verdict": "Réduire la surface (code d'appareil, appareils inconnus) vaut mieux que courir après chaque kit."
+        },
+        {
+          "type": "callout",
+          "title": "À retenir",
+          "text": "Faits : trois kits, un risque commun, la session volée. À faire : accès conditionnel, révocation des jetons, corrélation des signaux. Les chiffres cités (un incident sur six, 36 % des participants) proviennent de Huntress et d'un sondage informel."
+        }
+      ],
+      "publishedAt": "2026-11-17T18:19:02+01:00"
+    },
+    {
+      "id": "uber-fireworks-ai-fuite-permis-conduire",
+      "category": "cybersecurite",
+      "icon": "🪪",
+      "importance": 3,
+      "sourceDate": "2026-11-17",
+      "title": "Uber : près de 150 000 chauffeurs touchés après le piratage de son prestataire d'IA Fireworks",
+      "summary": "Des images de permis de conduire confiées à un fournisseur d'inférence ont été consultées avec des identifiants légitimes, sans déclencher d'alerte. Uber a commencé à prévenir les victimes le 10 novembre.",
+      "tags": [
+        "Uber",
+        "Fireworks AI",
+        "fuite de données",
+        "chaîne d'approvisionnement",
+        "identifiants"
+      ],
+      "sources": [
+        {
+          "title": "Hackers smash 'n' grab AI vendor, take off with license data of Uber drivers",
+          "url": "https://www.theregister.com/security/2026/11/17/hackers-smash-n-grab-ai-vendor-take-off-with-license-data-of-uber-drivers/5310464",
+          "publisher": "The Register"
+        },
+        {
+          "title": "Uber notifies drivers of data breach affecting nearly 150,000 people",
+          "url": "https://www.bleepingcomputer.com/news/security/uber-notifies-drivers-of-data-breach-affecting-nearly-150-000-people/",
+          "publisher": "BleepingComputer"
+        }
+      ],
+      "cover": {
+        "url": "https://image.theregister.com/5310468.jpg?imageId=5310468&x=0&y=0&cropw=100&croph=100&panox=0&panoy=0&panow=100&panoh=100&width=1200&height=683",
+        "alt": "Illustration d'un article de The Register sur le vol de données de chauffeurs Uber",
+        "credit": "theregister.com"
+      },
+      "readingMinutes": 4,
+      "illustration": {
+        "svg": "<svg xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"0 0 640 360\"><defs><linearGradient id=\"g\" x1=\"0\" y1=\"0\" x2=\"1\" y2=\"1\"><stop offset=\"0\" stop-color=\"hsl(175,62%,40%)\"/><stop offset=\"1\" stop-color=\"hsl(210,66%,22%)\"/></linearGradient></defs><rect width=\"640\" height=\"360\" fill=\"url(#g)\"/><circle cx=\"545\" cy=\"60\" r=\"120\" fill=\"#fff\" fill-opacity=\".08\"/><circle cx=\"90\" cy=\"320\" r=\"100\" fill=\"#fff\" fill-opacity=\".07\"/><g fill=\"#fff\"><rect x=\"190\" y=\"90\" width=\"260\" height=\"170\" rx=\"18\" fill-opacity=\".92\"/></g><g fill=\"hsl(175,60%,25%)\"><circle cx=\"255\" cy=\"160\" r=\"26\"/><path d=\"M215 235c0-30 80-30 80 0z\"/><rect x=\"320\" y=\"130\" width=\"100\" height=\"14\" rx=\"7\"/><rect x=\"320\" y=\"165\" width=\"80\" height=\"14\" rx=\"7\"/><rect x=\"320\" y=\"200\" width=\"100\" height=\"14\" rx=\"7\"/></g><g stroke=\"#fff\" stroke-width=\"10\" stroke-linecap=\"round\"><path d=\"M110 300l70-60M520 80l-60 50\"/></g></svg>"
+      },
+      "blocks": [
+        {
+          "type": "paragraph",
+          "text": "Uber a confirmé que les informations personnelles de près de 150 000 personnes ont été compromises. Le dossier déposé auprès du procureur général de l'Oregon avance le chiffre précis de **149 346** personnes. L'origine de la fuite n'est pas Uber elle-même, mais un fournisseur d'infrastructure d'intelligence artificielle, Fireworks AI, un prestataire d'inférence que l'entreprise a désigné auprès de TechCrunch. Les documents officiels d'Uber ne le nomment pas."
+        },
+        {
+          "type": "paragraph",
+          "text": "Cet épisode est la suite d'un incident déjà connu : le piratage de Fireworks AI, évoqué dans nos pages à propos d'une clé volée ayant touché l'éditeur Cursor. L'angle est ici celui des données de chauffeurs confiées à ce fournisseur."
+        },
+        {
+          "type": "heading",
+          "text": "Les données exposées et la chronologie"
+        },
+        {
+          "type": "keyvalue",
+          "items": [
+            {
+              "label": "Données concernées",
+              "value": "images de permis de conduire, noms, adresses personnelles, dates de naissance et numéros de permis extraits de ces images"
+            },
+            {
+              "label": "7 octobre",
+              "value": "accès des assaillants aux informations des chauffeurs"
+            },
+            {
+              "label": "9 octobre",
+              "value": "Fireworks alerte Uber de l'intrusion ; Uber coupe l'accès du prestataire à ses données"
+            },
+            {
+              "label": "9 novembre",
+              "value": "Fireworks reconnaît la compromission de certaines données clients"
+            },
+            {
+              "label": "10 novembre",
+              "value": "Uber commence à notifier les personnes touchées"
+            }
+          ]
+        },
+        {
+          "type": "paragraph",
+          "text": "Uber avait mis en place pour Fireworks un environnement de stockage cloud dédié, dont la surveillance relevait de sa propre équipe de sécurité cloud. Mais les assaillants utilisaient des **identifiants légitimes** : aucune alarme ne s'est donc déclenchée. Selon Uber, ces identifiants ne permettaient pas d'atteindre ses autres systèmes, et ceux liés au prestataire ont depuis été révoqués ou modifiés. Il a fallu environ quatre jours à Uber, après l'alerte du 9 octobre, pour établir que les données avaient bien été consultées le 7 octobre."
+        },
+        {
+          "type": "heading",
+          "text": "Ce que l'on sait de Fireworks AI"
+        },
+        {
+          "type": "list",
+          "items": [
+            "Le fournisseur propose une infrastructure permettant aux développeurs d'exécuter et d'affiner des modèles d'IA.",
+            "Il a signalé un premier incident le 9 octobre, après avoir constaté l'utilisation non autorisée de ses identifiants internes. Il affirmait alors n'avoir aucune preuve d'accès à des données personnelles ou à des jeux de données clients.",
+            "Il a été piraté une seconde fois dans le courant d'octobre. Le 9 novembre, il a reconnu que les assaillants avaient accédé à des données de facturation, à certains jeux de données clients et à des poids de modèles incomplets.",
+            "Parmi les entreprises touchées figure Notion, dont certains clients ont vu des conversations avec l'assistant d'IA exposées.",
+            "Fireworks soupçonne des criminels motivés par l'argent, qui revendent des accès non autorisés à de grands modèles de langage."
+          ]
+        },
+        {
+          "type": "paragraph",
+          "text": "Uber propose aux personnes concernées une surveillance de crédit et une aide contre la fraude gratuites, avec 90 jours à compter de la date de la lettre pour s'inscrire. La question centrale, restée sans réponse dans l'article source : pourquoi un fournisseur d'inférence détenait-il des images de permis de conduire ? The Register a interrogé les deux sociétés sur ce point, ainsi que sur une éventuelle atteinte hors des États-Unis ; l'article ne rapporte pas de réponse."
+        },
+        {
+          "type": "usecases",
+          "title": "Exemples d'utilisation",
+          "items": [
+            {
+              "icon": "📋",
+              "title": "Registre des sous-traitants",
+              "text": "Un responsable de la conformité recense chaque prestataire qui reçoit des pièces d'identité ou des permis, et vérifie que le volume de données confié correspond au besoin réel du service rendu."
+            },
+            {
+              "icon": "🔑",
+              "title": "Gestion des identifiants",
+              "text": "Une équipe cloud impose des identifiants à courte durée de vie, liés à une adresse réseau, pour tous les accès de tiers, et surveille les usages inhabituels même lorsque l'identifiant est valide."
+            },
+            {
+              "icon": "📬",
+              "title": "Alerte aux personnes concernées",
+              "text": "Un chauffeur qui reçoit une lettre active la surveillance proposée, reste vigilant face aux appels ou messages se faisant passer pour la plateforme et signale toute tentative d'usurpation."
+            }
+          ]
+        },
+        {
+          "type": "timeline",
+          "title": "D'où l'on vient, où l'on va",
+          "items": [
+            {
+              "label": "Août 2026",
+              "text": "Uber Freight confirme une intrusion revendiquée par le groupe Helix, sans lien établi avec cet épisode."
+            },
+            {
+              "label": "7-9 octobre 2026",
+              "text": "Accès aux données, puis alerte de Fireworks et coupure de l'accès."
+            },
+            {
+              "label": "9-10 novembre 2026",
+              "text": "Aveu de Fireworks, puis début des notifications d'Uber."
+            },
+            {
+              "label": "À venir",
+              "text": "Les réponses sur le périmètre géographique et sur la finalité de la collecte restent attendues."
+            }
+          ]
+        },
+        {
+          "type": "opinion",
+          "title": "Notre avis",
+          "paragraphs": [
+            "L'enseignement principal n'est pas l'intrusion elle-même, mais le trou de visibilité : un accès fait avec des identifiants valides ressemble à une activité normale, et l'alerte est venue du prestataire, pas de la surveillance d'Uber. Plus on délègue de traitements à des chaînes d'outils d'IA, plus le périmètre des données exposées s'étend au-delà de ce que le donneur d'ordre contrôle.",
+            "Dans un à trois ans, on peut s'attendre à ce que les clients exigent des preuves de minimisation des données et des audits d'accès de la part des fournisseurs d'IA, comme ils le font déjà pour l'hébergement. Il s'agit d'une analyse : l'article source ne dit pas comment Uber compte changer ses pratiques."
+          ],
+          "verdict": "Confier des pièces d'identité à un sous-traitant exige de prouver la nécessité et le contrôle des accès."
+        },
+        {
+          "type": "callout",
+          "title": "À retenir",
+          "text": "Faits : 149 346 personnes selon le dossier de l'Oregon, identifiants légitimes, accès coupé le 9 octobre, notifications dès le 10 novembre. Non établi : la raison de la présence des permis chez le prestataire et la portée hors des États-Unis."
+        }
+      ],
+      "publishedAt": "2026-11-17T18:19:02+01:00"
+    },
+    {
+      "id": "gemini-historique-conservation-deux-mois",
+      "category": "ia",
+      "icon": "🕰️",
+      "importance": 4,
+      "sourceDate": "2026-11-16",
+      "title": "Gemini : désactiver l'historique ne suffit plus, les conversations sont désormais conservées environ deux mois",
+      "summary": "Google dissocie l'historique des conversations de l'entraînement des modèles, mais allonge la conservation pour les utilisateurs qui ont coupé l'historique : de 72 heures à environ deux mois, selon The Register.",
+      "tags": [
+        "Gemini",
+        "Google",
+        "vie privée",
+        "conservation des données",
+        "RGPD"
+      ],
+      "sources": [
+        {
+          "title": "Opting out of Gemini tracking? Google will still hold your data 20x longer",
+          "url": "https://www.theregister.com/ai-and-ml/2026/11/17/opting-out-of-gemini-tracking-google-will-still-hold-your-data-20x-longer/5310517",
+          "publisher": "The Register"
+        }
+      ],
+      "cover": {
+        "url": "https://image.theregister.com/248218.jpg?imageId=248218&x=0&y=0&cropw=100&croph=100&panox=0&panoy=0&panow=100&panoh=100&width=1200&height=683",
+        "alt": "Illustration d'un article de The Register consacré aux assistants d'intelligence artificielle de Google",
+        "credit": "theregister.com"
+      },
+      "readingMinutes": 4,
+      "illustration": {
+        "svg": "<svg xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"0 0 640 360\"><defs><linearGradient id=\"g\" x1=\"0\" y1=\"0\" x2=\"1\" y2=\"1\"><stop offset=\"0\" stop-color=\"hsl(320,62%,40%)\"/><stop offset=\"1\" stop-color=\"hsl(355,66%,22%)\"/></linearGradient></defs><rect width=\"640\" height=\"360\" fill=\"url(#g)\"/><circle cx=\"545\" cy=\"60\" r=\"120\" fill=\"#fff\" fill-opacity=\".08\"/><circle cx=\"90\" cy=\"320\" r=\"100\" fill=\"#fff\" fill-opacity=\".07\"/><g fill=\"#fff\"><path d=\"M320 70c10 70 40 100 110 110-70 10-100 40-110 110-10-70-40-100-110-110 70-10 100-40 110-110z\" fill-opacity=\".92\"/></g><g fill=\"none\" stroke=\"#fff\" stroke-width=\"10\" stroke-linecap=\"round\"><circle cx=\"520\" cy=\"270\" r=\"40\"/><path d=\"M520 270v-25M520 270l20 12\"/></g><g fill=\"#fff\" fill-opacity=\".8\"><rect x=\"80\" y=\"70\" width=\"120\" height=\"14\" rx=\"7\"/><rect x=\"80\" y=\"100\" width=\"80\" height=\"14\" rx=\"7\"/></g></svg>"
+      },
+      "blocks": [
+        {
+          "type": "paragraph",
+          "text": "Le 16 novembre 2026, Google a annoncé, dans un billet de blog, des changements dans la gestion de l'historique des conversations de son assistant Gemini. Présentées comme un surcroît de contrôle pour l'utilisateur, ces nouveautés ont un revers que relève The Register : pour ceux qui ont désactivé l'historique, la durée pendant laquelle leurs échanges sont conservés est multipliée par environ vingt."
+        },
+        {
+          "type": "heading",
+          "text": "Ce qui change"
+        },
+        {
+          "type": "list",
+          "items": [
+            "**Deux réglages séparés** : l'enregistrement de l'historique est désormais distinct de l'autorisation d'utiliser les conversations pour entraîner les modèles. Jusqu'ici, les deux étaient liés.",
+            "**Un nouveau nom** : le réglage « Historique » remplace l'ancienne option « Activité Gemini », pour les utilisateurs qui désactivent l'enregistrement des conversations.",
+            "**Une durée allongée** : si le réglage est désactivé, les futures conversations sont conservées « environ deux mois », selon la formule citée de Google."
+          ]
+        },
+        {
+          "type": "keyvalue",
+          "items": [
+            {
+              "label": "Avant la mise à jour",
+              "value": "72 heures de conservation avec l'option désactivée, d'après une version archivée de la page d'assistance de Google"
+            },
+            {
+              "label": "Après la mise à jour",
+              "value": "environ deux mois, soit une multiplication par vingt selon The Register"
+            },
+            {
+              "label": "Avis ou retour envoyé sur une réponse",
+              "value": "trois ans de conservation temporaire, avant comme après le changement"
+            }
+          ]
+        },
+        {
+          "type": "diagram",
+          "svg": "<svg xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"0 0 640 240\" font-family=\"system-ui,sans-serif\"><rect width=\"640\" height=\"240\" rx=\"14\" fill=\"#f6eef5\"/><text x=\"320\" y=\"30\" text-anchor=\"middle\" font-size=\"15\" font-weight=\"600\" fill=\"#3a1536\">Durée de conservation avec l'historique désactivé (échelle non proportionnelle)</text><g font-size=\"13\" fill=\"#3a1536\"><text x=\"20\" y=\"80\">Avant</text><rect x=\"110\" y=\"62\" width=\"40\" height=\"26\" rx=\"5\" fill=\"#9b4a8f\"/><text x=\"160\" y=\"80\">72 heures</text><text x=\"20\" y=\"130\">Après</text><rect x=\"110\" y=\"112\" width=\"300\" height=\"26\" rx=\"5\" fill=\"#b3261e\"/><text x=\"420\" y=\"130\">environ 2 mois</text><text x=\"20\" y=\"180\">Retour</text><rect x=\"110\" y=\"162\" width=\"500\" height=\"26\" rx=\"5\" fill=\"#6d1a62\" fill-opacity=\".85\"/><text x=\"400\" y=\"180\" fill=\"#fff\">3 ans après un avis envoyé</text></g><text x=\"320\" y=\"222\" text-anchor=\"middle\" font-size=\"12\" fill=\"#5a3a56\">Les longueurs des barres sont indicatives : seules les durées citées par la source sont exactes.</text></svg>",
+          "alt": "Comparaison de trois durées de conservation des conversations Gemini : 72 heures, environ deux mois et trois ans",
+          "caption": "Durées de conservation citées par The Register, représentées sans échelle proportionnelle."
+        },
+        {
+          "type": "paragraph",
+          "text": "Google justifie la conservation par la nécessité de répondre aux utilisateurs, de traiter les retours et de protéger Google, ses utilisateurs et le public, et affirme que le changement vise à rendre Gemini plus sûr. Le billet de blog ne mentionne cependant pas que la durée précédente était de 72 heures. Google n'a pas répondu aux questions de The Register."
+        },
+        {
+          "type": "heading",
+          "text": "Le piège du bouton « avis »"
+        },
+        {
+          "type": "paragraph",
+          "text": "Le plus délicat est le cas des retours d'utilisateurs. Envoyer un avis sur une réponse de Gemini, même avec l'historique désactivé, porte la conservation temporaire de la conversation à **trois ans**. Des relecteurs humains peuvent alors examiner l'échange, les fichiers associés et les conversations liées, et Google acquiert le droit d'utiliser ces contenus pour améliorer ses services et ses modèles. Cette règle s'appliquait déjà avant la modification, mais elle prend plus de poids dès lors que l'on croit avoir pris soin de désactiver l'historique."
+        },
+        {
+          "type": "paragraph",
+          "text": "**Pour les utilisateurs en France** : le RGPD s'applique et la CNIL est l'autorité compétente pour recevoir une réclamation. L'article source ne précise pas si ces durées valent à l'identique dans l'Union européenne ; il convient de consulter les pages officielles de Google pour son pays avant d'en tirer une conclusion. Ceci est une information générale, non un avis juridique."
+        },
+        {
+          "type": "usecases",
+          "title": "Exemples d'utilisation",
+          "items": [
+            {
+              "icon": "👩‍⚕️",
+              "title": "Un professionnel de santé",
+              "text": "Un cabinet qui teste Gemini pour reformuler des courriers évite d'y saisir des données de patients, car même avec l'historique coupé, les échanges restent stockés plusieurs semaines."
+            },
+            {
+              "icon": "🧑‍💼",
+              "title": "Un salarié en entreprise",
+              "text": "Un salarié qui utilise un compte personnel pour résumer un document interne doit savoir que la conversation peut rester chez Google pendant environ deux mois ; son employeur peut préférer une offre professionnelle aux conditions négociées."
+            },
+            {
+              "icon": "🏠",
+              "title": "Un particulier soucieux de sa vie privée",
+              "text": "Un utilisateur désactive l'historique, vérifie ses réglages après la mise à jour et s'abstient d'envoyer des avis détaillés sur les réponses sensibles."
+            }
+          ]
+        },
+        {
+          "type": "timeline",
+          "title": "D'où l'on vient, où l'on va",
+          "items": [
+            {
+              "label": "Avant le 16 novembre 2026",
+              "text": "L'option « Activité Gemini » désactivée limite la conservation à 72 heures."
+            },
+            {
+              "label": "16 novembre 2026",
+              "text": "Google annonce le réglage « Historique », séparé de l'entraînement des modèles."
+            },
+            {
+              "label": "À venir",
+              "text": "Les précisions sur l'application dans l'Union européenne restent à vérifier auprès de Google."
+            }
+          ]
+        },
+        {
+          "type": "opinion",
+          "title": "Notre avis",
+          "paragraphs": [
+            "Séparer l'historique de l'entraînement est une bonne idée : l'utilisateur peut garder ses conversations sans nourrir les modèles. Mais présenter comme un gain de contrôle un changement qui allonge d'un facteur vingt la conservation pour les plus prudents est discutable, d'autant que l'annonce ne rappelle pas la durée antérieure.",
+            "Dans un à trois ans, la conservation des échanges avec les assistants d'IA devrait devenir un critère de choix aussi important que la qualité des réponses, et les autorités de protection des données s'y intéresseront. Ce pronostic est une opinion, non un fait."
+          ],
+          "verdict": "Un réglage de confidentialité vaut ce que vaut sa durée réelle de conservation."
+        },
+        {
+          "type": "callout",
+          "title": "À retenir",
+          "text": "Faits (selon The Register) : 72 heures avant, environ deux mois après, trois ans en cas d'avis envoyé. À vérifier : l'application exacte de ces durées en France et dans l'Union européenne."
+        }
+      ],
+      "publishedAt": "2026-11-17T18:19:02+01:00"
+    },
+    {
+      "id": "nvidia-openshell-cncf-agents-ia-kubernetes",
+      "category": "devops",
+      "icon": "🛡️",
+      "importance": 4,
+      "sourceDate": "2026-11-10",
+      "title": "KubeCon : Nvidia confie OpenShell à la CNCF pour encadrer les agents d'IA sur Kubernetes",
+      "summary": "Le runtime open source de gouvernance des agents entre dans la CNCF comme projet Sandbox. Nvidia lance aussi NVKE et NVKR en préversion publique et un outil de restauration rapide de réplicas d'inférence.",
+      "tags": [
+        "Nvidia",
+        "OpenShell",
+        "CNCF",
+        "Kubernetes",
+        "agents d'IA",
+        "KubeCon"
+      ],
+      "sources": [
+        {
+          "title": "NVIDIA Expands Open Source Commitment With OpenShell Donation and New AI Infrastructure",
+          "url": "https://blogs.nvidia.com/blog/open-source-openshell-infrastructure/",
+          "publisher": "NVIDIA"
+        },
+        {
+          "title": "Why Nvidia gave OpenShell to the CNCF",
+          "url": "https://thenewstack.io/nvidia-donates-openshell-cncf/",
+          "publisher": "The New Stack"
+        }
+      ],
+      "cover": {
+        "url": "https://blogs.nvidia.com/wp-content/uploads/2026/11/end-to-end-key-visual-kubecon-blog-1920x1080-5915250-v2.jpg",
+        "alt": "Visuel de l'annonce de Nvidia à KubeCon + CloudNativeCon",
+        "credit": "blogs.nvidia.com"
+      },
+      "readingMinutes": 5,
+      "illustration": {
+        "svg": "<svg xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"0 0 640 360\"><defs><linearGradient id=\"g\" x1=\"0\" y1=\"0\" x2=\"1\" y2=\"1\"><stop offset=\"0\" stop-color=\"hsl(160,62%,40%)\"/><stop offset=\"1\" stop-color=\"hsl(195,66%,22%)\"/></linearGradient></defs><rect width=\"640\" height=\"360\" fill=\"url(#g)\"/><circle cx=\"545\" cy=\"60\" r=\"120\" fill=\"#fff\" fill-opacity=\".08\"/><circle cx=\"90\" cy=\"320\" r=\"100\" fill=\"#fff\" fill-opacity=\".07\"/><g fill=\"none\" stroke=\"#fff\" stroke-width=\"10\"><rect x=\"160\" y=\"80\" width=\"320\" height=\"200\" rx=\"20\" stroke-dasharray=\"26 14\"/></g><g fill=\"#fff\"><circle cx=\"320\" cy=\"180\" r=\"50\" fill-opacity=\".92\"/><circle cx=\"230\" cy=\"130\" r=\"14\"/><circle cx=\"410\" cy=\"130\" r=\"14\"/><circle cx=\"230\" cy=\"235\" r=\"14\"/><circle cx=\"410\" cy=\"235\" r=\"14\"/></g><g stroke=\"#fff\" stroke-width=\"6\"><path d=\"M243 138l35 25M397 138l-35 25M243 227l35-25M397 227l-35-25\"/></g></svg>"
+      },
+      "blocks": [
+        {
+          "type": "paragraph",
+          "text": "Pendant KubeCon + CloudNativeCon Amérique du Nord, le 10 novembre 2026, Nvidia a annoncé qu'il contribuait **OpenShell** à la Cloud Native Computing Foundation (CNCF), la fondation de la Linux Foundation qui héberge Kubernetes. OpenShell est un environnement d'exécution open source destiné à sécuriser et à gouverner les agents autonomes. Il entre à la CNCF dans la catégorie Sandbox, le premier échelon réservé aux projets jeunes."
+        },
+        {
+          "type": "heading",
+          "text": "Ce qu'est OpenShell"
+        },
+        {
+          "type": "paragraph",
+          "text": "Selon Nvidia, OpenShell applique des **contrôles déterministes** au comportement des agents : les équipes définissent des politiques sur la manière dont un agent utilise des outils, accède à des services d'inférence et exécute des charges de travail. Le projet permet de brancher ses propres ressources de calcul, fournisseurs d'inférence, stockages d'identifiants et outils de surveillance. Nvidia affirme que des centaines d'organisations l'utilisent et que le projet a reçu des dizaines de milliers de contributions en moins d'un an depuis son lancement, chiffres communiqués par l'entreprise elle-même et à prendre avec prudence."
+        },
+        {
+          "type": "paragraph",
+          "text": "D'après The New Stack, le projet adopte **Cedar**, un autre projet de la CNCF, comme langage de politiques. Ali Golshan, qui dirige le projet chez Nvidia, explique ce choix de la CNCF par le fait que les équipes qui exploitent OpenShell en production travaillent déjà avec Kubernetes et les autres projets de la fondation. La Linux Foundation héberge aussi l'Agentic AI Foundation (agentgateway, MCP, A2A) : OpenShell avait donc d'autres options. Jim Zemlin, directeur général de la Linux Foundation, résume : la contribution donne aux développeurs « une base commune »."
+        },
+        {
+          "type": "diagram",
+          "svg": "<svg xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"0 0 640 240\" font-family=\"system-ui,sans-serif\"><rect width=\"640\" height=\"240\" rx=\"14\" fill=\"#ecf5f1\"/><text x=\"320\" y=\"28\" text-anchor=\"middle\" font-size=\"15\" font-weight=\"600\" fill=\"#0e3326\">Principe : la politique se situe hors du modèle</text><g font-size=\"13\" text-anchor=\"middle\" fill=\"#0e3326\"><rect x=\"20\" y=\"70\" width=\"130\" height=\"90\" rx=\"10\" fill=\"#fff\" stroke=\"#2a8a62\"/><text x=\"85\" y=\"108\">Agent d'IA</text><text x=\"85\" y=\"128\">(modèle + code)</text><rect x=\"255\" y=\"55\" width=\"130\" height=\"120\" rx=\"10\" fill=\"#d9f0e6\" stroke=\"#2a8a62\" stroke-width=\"3\"/><text x=\"320\" y=\"95\">OpenShell</text><text x=\"320\" y=\"115\">politiques</text><text x=\"320\" y=\"135\">(langage Cedar)</text><rect x=\"490\" y=\"45\" width=\"130\" height=\"38\" rx=\"8\" fill=\"#fff\" stroke=\"#2a8a62\"/><text x=\"555\" y=\"69\">Outils</text><rect x=\"490\" y=\"101\" width=\"130\" height=\"38\" rx=\"8\" fill=\"#fff\" stroke=\"#2a8a62\"/><text x=\"555\" y=\"125\">Inférence</text><rect x=\"490\" y=\"157\" width=\"130\" height=\"38\" rx=\"8\" fill=\"#fff\" stroke=\"#2a8a62\"/><text x=\"555\" y=\"181\">Calcul</text></g><g stroke=\"#2a8a62\" stroke-width=\"3\"><path d=\"M150 115h100M385 115h100M385 64l100-4M385 120l100 0M385 170l100 6\"/></g><text x=\"320\" y=\"222\" text-anchor=\"middle\" font-size=\"12\" fill=\"#27503f\">Chaque accès de l'agent passe par une règle explicite, avant d'atteindre un outil, un modèle ou une machine</text></svg>",
+          "alt": "Schéma montrant un agent d'IA dont les accès aux outils, à l'inférence et au calcul passent par OpenShell",
+          "caption": "Principe de fonctionnement d'OpenShell tel que décrit par Nvidia (schéma simplifié)."
+        },
+        {
+          "type": "heading",
+          "text": "Autour d'OpenShell : Agent Substrate, NVKE et Snapshot"
+        },
+        {
+          "type": "list",
+          "items": [
+            "**Agent Substrate** : un projet Sandbox de la CNCF, né chez Google, qui sert à exécuter des charges d'agents de longue durée sur Kubernetes en conservant les environnements entre les tâches et en libérant le calcul quand les agents sont inactifs. Nvidia veille à sa compatibilité avec Dynamo (inférence) et KAI Scheduler (répartition des ressources), et prépare avec Google l'intégration d'OpenShell.",
+            "**NVKE et NVKR** : Nvidia Kubernetes Engine et Nvidia Kubernetes Recipes, en préversion publique, sont des briques open source pour proposer des services Kubernetes gérés sur infrastructure GPU, avec images signées et versions figées. Parmi les partenaires cités : Mirantis, Rafay, Spectro Cloud et vCluster.",
+            "**Nvidia Snapshot** : il restaure en quelques secondes des réplicas d'inférence sauvegardés. Selon les retours cités par Nvidia, Crusoe est passé d'environ huit minutes à 31 secondes de délai de disponibilité, et Saturn Cloud a ramené le démarrage de vLLM de 2 à 8,5 minutes à 6 à 34 secondes."
+          ]
+        },
+        {
+          "type": "paragraph",
+          "text": "Ces résultats de performance proviennent de Nvidia et de ses clients ; ils n'ont pas été vérifiés de manière indépendante dans les sources lues."
+        },
+        {
+          "type": "usecases",
+          "title": "Exemples d'utilisation",
+          "items": [
+            {
+              "icon": "🏦",
+              "title": "Une banque qui teste des agents",
+              "text": "Une équipe de plateforme déclare dans une politique que l'agent d'analyse peut lire certaines bases mais pas écrire, et qu'il ne peut appeler que deux services d'inférence approuvés."
+            },
+            {
+              "icon": "☁️",
+              "title": "Un fournisseur de cloud GPU",
+              "text": "Un opérateur assemble NVKE, NVKR et des images signées pour proposer un Kubernetes géré à ses clients, tout en gardant la maîtrise de son infrastructure."
+            },
+            {
+              "icon": "⚡",
+              "title": "Une équipe d'inférence",
+              "text": "Une équipe utilise des instantanés pour remettre en service un réplica après une panne sans recharger le modèle, ce qui réduit l'indisponibilité visible par les utilisateurs."
+            }
+          ]
+        },
+        {
+          "type": "timeline",
+          "title": "D'où l'on vient, où l'on va",
+          "items": [
+            {
+              "label": "Mars 2026",
+              "text": "Nvidia lance OpenShell lors de sa conférence GTC."
+            },
+            {
+              "label": "10 novembre 2026",
+              "text": "Contribution à la CNCF comme projet Sandbox, à KubeCon."
+            },
+            {
+              "label": "À venir",
+              "text": "Les intégrations avec Agent Substrate et la maturité des projets sont à suivre ; aucune date de passage à un échelon supérieur n'a été annoncée."
+            }
+          ]
+        },
+        {
+          "type": "opinion",
+          "title": "Notre avis",
+          "paragraphs": [
+            "Mettre la politique **hors du modèle** est la bonne intuition : on ne peut pas demander à un agent de respecter une règle qu'il pourrait contourner, alors qu'une couche déterministe, vérifiable, offre une base d'audit. L'entrée à la CNCF crédibilise aussi la démarche, car la gouvernance multi-entreprises est un meilleur gage de neutralité qu'un projet détenu par un seul constructeur de GPU.",
+            "À un horizon d'un à trois ans, la gouvernance des agents devrait devenir une couche standard des plateformes Kubernetes, comme l'ont été les contrôleurs d'admission. Ce pronostic est une opinion. Reste un point de vigilance : un projet Sandbox n'est pas un produit éprouvé, et les chiffres d'adoption viennent de Nvidia."
+          ],
+          "verdict": "Une bonne idée d'architecture, à évaluer sur pièces avant de la généraliser."
+        },
+        {
+          "type": "callout",
+          "title": "À retenir",
+          "text": "Faits : OpenShell est un projet Sandbox de la CNCF depuis KubeCon (10 novembre 2026) ; NVKE et NVKR sont en préversion publique. Réserves : adoption et performances restent déclarées par Nvidia."
+        }
+      ],
+      "publishedAt": "2026-11-17T18:19:02+01:00"
+    },
+    {
+      "id": "home-assistant-connect-aux-2-nabu-casa",
+      "category": "electronique",
+      "icon": "🔊",
+      "importance": 3,
+      "sourceDate": "2026-11-16",
+      "title": "Home Assistant Connect AUX-2 : un boîtier à 69 dollars pour brancher chaîne hi-fi, RS-232 et Bluetooth sans cloud",
+      "summary": "Nabu Casa lance un contrôleur à base d'ESP32-S3 avec sortie audio, ports série RS-232, alimentation par Ethernet et relais Bluetooth, vendu 68,90 dollars chez Seeed Studio.",
+      "tags": [
+        "Home Assistant",
+        "Nabu Casa",
+        "ESP32-S3",
+        "ESPHome",
+        "domotique",
+        "Power over Ethernet"
+      ],
+      "sources": [
+        {
+          "title": "$69 Home Assistant Connect AUX-2 controller offers PoE, audio streaming, RS-232 control, Bluetooth proxy, and more",
+          "url": "https://www.cnx-software.com/2026/11/16/69-home-assistant-connect-aux-2-offers-poe-audio-streaming-rs-232-control-bluetooth-proxy/",
+          "publisher": "CNX Software"
+        }
+      ],
+      "cover": {
+        "url": "https://www.cnx-software.com/wp-content/uploads/2026/11/Home-Assistant-Connect-AUX-2-smart-home-controller.jpg",
+        "alt": "Le contrôleur Home Assistant Connect AUX-2 en boîtier polycarbonate blanc translucide",
+        "credit": "cnx-software.com"
+      },
+      "readingMinutes": 4,
+      "illustration": {
+        "svg": "<svg xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"0 0 640 360\"><defs><linearGradient id=\"g\" x1=\"0\" y1=\"0\" x2=\"1\" y2=\"1\"><stop offset=\"0\" stop-color=\"hsl(30,62%,40%)\"/><stop offset=\"1\" stop-color=\"hsl(65,66%,22%)\"/></linearGradient></defs><rect width=\"640\" height=\"360\" fill=\"url(#g)\"/><circle cx=\"545\" cy=\"60\" r=\"120\" fill=\"#fff\" fill-opacity=\".08\"/><circle cx=\"90\" cy=\"320\" r=\"100\" fill=\"#fff\" fill-opacity=\".07\"/><g fill=\"#fff\"><rect x=\"150\" y=\"120\" width=\"340\" height=\"130\" rx=\"22\" fill-opacity=\".92\"/></g><g fill=\"hsl(30,70%,25%)\"><circle cx=\"200\" cy=\"185\" r=\"16\"/><rect x=\"250\" y=\"165\" width=\"50\" height=\"40\" rx=\"6\"/><rect x=\"320\" y=\"165\" width=\"50\" height=\"40\" rx=\"6\"/><rect x=\"390\" y=\"165\" width=\"60\" height=\"40\" rx=\"6\"/></g><g fill=\"none\" stroke=\"#fff\" stroke-width=\"9\" stroke-linecap=\"round\"><path d=\"M320 120V70M285 80q35-30 70 0M260 62q60-50 120 0\"/></g></svg>"
+      },
+      "blocks": [
+        {
+          "type": "paragraph",
+          "text": "Nabu Casa, la société derrière Home Assistant, a présenté le **Connect AUX-2**, un petit contrôleur domotique construit autour d'un ESP32-S3. L'idée : relier à Home Assistant, sans passer par le cloud, des équipements anciens ou peu connectés, comme des chaînes audio, des téléviseurs, des amplificateurs audio-vidéo, des onduleurs ou des onduleurs solaires. Il est vendu 68,90 dollars sur la boutique de Seeed Studio et par des distributeurs en Amérique du Nord, en Europe, en Australie et en Afrique. Les alimentations, câbles et adaptateurs sans fil optionnels ne sont pas inclus."
+        },
+        {
+          "type": "heading",
+          "text": "Ce que contient le boîtier"
+        },
+        {
+          "type": "keyvalue",
+          "items": [
+            {
+              "label": "Processeur",
+              "value": "ESP32-S3R8, deux cœurs Tensilica LX7 jusqu'à 240 MHz"
+            },
+            {
+              "label": "Sans fil",
+              "value": "Wi-Fi 4 sur 2,4 GHz et Bluetooth 5 LE, relais pour trois connexions actives plus capteurs passifs"
+            },
+            {
+              "label": "Réseau",
+              "value": "Ethernet 10/100 Mbit/s (contrôleur W5500) avec alimentation par Ethernet 802.3af"
+            },
+            {
+              "label": "Alimentation",
+              "value": "USB-C 5 V/2 A ou PoE ; consommation inférieure à 1 W"
+            },
+            {
+              "label": "Audio",
+              "value": "DAC PCM5122, jack 3,5 mm ou sortie optique mini-TOSLINK, 24 bits/48 kHz au maximum"
+            },
+            {
+              "label": "Série",
+              "value": "deux ports RS-232 de 3,5 mm avec commutateurs TX/RX indépendants"
+            },
+            {
+              "label": "Dimensions",
+              "value": "106 × 63 × 25 mm pour 104 g, usage intérieur de 0 à 65 °C"
+            }
+          ]
+        },
+        {
+          "type": "paragraph",
+          "text": "Le choix de l'**alimentation par Ethernet** est déterminant : il permet d'installer le boîtier loin du serveur Home Assistant, derrière un meuble audiovisuel ou dans une baie, avec un seul câble. L'audio utilise le protocole Sendspin avec Music Assistant pour diffuser des fichiers locaux ou des services de streaming compatibles, avec les formats FLAC, MP3 et WAV (firmware 2026.11.1). Plusieurs unités peuvent se synchroniser avec des enceintes connectées compatibles pour une diffusion multipièce. La limite est nette : sortie audio uniquement, sans diffusion Bluetooth."
+        },
+        {
+          "type": "diagram",
+          "svg": "<svg xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"0 0 640 240\" font-family=\"system-ui,sans-serif\"><rect width=\"640\" height=\"240\" rx=\"14\" fill=\"#f8f0e6\"/><text x=\"320\" y=\"28\" text-anchor=\"middle\" font-size=\"15\" font-weight=\"600\" fill=\"#3d2610\">AUX-2 : une passerelle locale entre équipements et Home Assistant</text><g font-size=\"13\" text-anchor=\"middle\" fill=\"#3d2610\"><rect x=\"20\" y=\"55\" width=\"130\" height=\"40\" rx=\"8\" fill=\"#fff\" stroke=\"#b36a1f\"/><text x=\"85\" y=\"80\">Chaîne hi-fi</text><rect x=\"20\" y=\"105\" width=\"130\" height=\"40\" rx=\"8\" fill=\"#fff\" stroke=\"#b36a1f\"/><text x=\"85\" y=\"130\">Ampli (RS-232)</text><rect x=\"20\" y=\"155\" width=\"130\" height=\"40\" rx=\"8\" fill=\"#fff\" stroke=\"#b36a1f\"/><text x=\"85\" y=\"180\">Capteurs BLE</text><rect x=\"255\" y=\"70\" width=\"130\" height=\"110\" rx=\"12\" fill=\"#ffe3bf\" stroke=\"#b36a1f\" stroke-width=\"3\"/><text x=\"320\" y=\"110\">Connect AUX-2</text><text x=\"320\" y=\"130\">ESP32-S3</text><text x=\"320\" y=\"150\">ESPHome</text><rect x=\"490\" y=\"95\" width=\"130\" height=\"60\" rx=\"10\" fill=\"#fff\" stroke=\"#b36a1f\"/><text x=\"555\" y=\"122\">Home Assistant</text><text x=\"555\" y=\"140\">(chiffré, local)</text></g><g stroke=\"#b36a1f\" stroke-width=\"3\"><path d=\"M150 75l100 30M150 125h100M150 175l100-30M385 125h100\"/></g><text x=\"320\" y=\"222\" text-anchor=\"middle\" font-size=\"12\" fill=\"#5a3f22\">Un câble Ethernet suffit si le PoE est utilisé</text></svg>",
+          "alt": "Schéma montrant des équipements audio, série et Bluetooth reliés à Home Assistant par le boîtier AUX-2",
+          "caption": "Rôle de passerelle locale du Connect AUX-2 (schéma simplifié)."
+        },
+        {
+          "type": "heading",
+          "text": "USB, Zigbee et ouverture du matériel"
+        },
+        {
+          "type": "list",
+          "items": [
+            "Un port USB-A accueille l'adaptateur Z-Wave Home Assistant Connect ZWA-2 ou un convertisseur USB vers RS-485 pris en charge.",
+            "L'adaptateur Zigbee Connect ZBT-2 est reconnu à titre expérimental, uniquement avec ZHA et Home Assistant 2026.11 ou plus récent ; Zigbee2MQTT et Thread ne sont pas pris en charge.",
+            "Le micrologiciel, open source et publié sur GitHub, repose sur ESPHome ; la connexion avec Home Assistant est chiffrée et les mises à jour se font à distance.",
+            "Le chargeur d'amorçage n'est pas verrouillé : on peut installer un micrologiciel personnalisé. Nabu Casa prévoit de publier la conception du circuit imprimé et des fichiers de boîtier imprimable en 3D."
+          ]
+        },
+        {
+          "type": "usecases",
+          "title": "Exemples d'utilisation",
+          "items": [
+            {
+              "icon": "🎵",
+              "title": "Diffusion dans toute la maison",
+              "text": "On branche la sortie optique d'un vieil amplificateur et on y diffuse sa musique locale via Music Assistant, en la synchronisant avec d'autres pièces."
+            },
+            {
+              "icon": "📺",
+              "title": "Pilotage d'un ancien équipement",
+              "text": "Un téléviseur ou un amplificateur sans API réseau est commandé en RS-232 : mise en marche, choix de l'entrée et volume deviennent des actions d'automatisation."
+            },
+            {
+              "icon": "🔋",
+              "title": "Supervision d'un onduleur",
+              "text": "Un onduleur ou un onduleur solaire doté d'une liaison série est lu en local, sans application constructeur ni compte en ligne."
+            }
+          ]
+        },
+        {
+          "type": "timeline",
+          "title": "D'où l'on vient, où l'on va",
+          "items": [
+            {
+              "label": "Avant novembre 2026",
+              "text": "La gamme Home Assistant Connect compte déjà les adaptateurs Z-Wave ZWA-2 et Zigbee ZBT-2, que l'AUX-2 sait accueillir."
+            },
+            {
+              "label": "16 novembre 2026",
+              "text": "Mise en vente du Connect AUX-2 à 68,90 dollars."
+            },
+            {
+              "label": "À venir",
+              "text": "Publication annoncée du dessin du circuit imprimé et des fichiers du boîtier ; l'adaptateur Zigbee reste expérimental."
+            }
+          ]
+        },
+        {
+          "type": "opinion",
+          "title": "Notre avis",
+          "paragraphs": [
+            "L'intérêt du produit tient moins à sa fiche technique qu'à sa promesse : faire parler à Home Assistant des appareils sans API moderne, en local, avec une alimentation par un seul câble. À moins de 70 dollars, il remplace plusieurs adaptateurs bricolés et s'adresse à un public précis : ceux qui possèdent un parc d'équipements anciens.",
+            "L'ouverture du matériel et du micrologiciel est un atout durable, car elle permet à la communauté d'ajouter des usages que Nabu Casa n'a pas prévus. À un horizon d'un à trois ans, on peut penser que ce type de passerelle locale gagnera en importance face aux services dépendants du cloud ; c'est une opinion, non une certitude. À surveiller : le prix final en Europe, taxes et frais de port compris, que l'article ne détaille pas."
+          ],
+          "verdict": "Un outil sobre et utile pour les installations hétérogènes, à choisir si l'on a des équipements série à piloter."
+        },
+        {
+          "type": "callout",
+          "title": "À retenir",
+          "text": "Faits : 68,90 dollars chez Seeed Studio, PoE 802.3af, deux RS-232, sortie audio 24 bits/48 kHz, Zigbee expérimental. Limites : pas de Bluetooth audio, pas de Thread, usage intérieur uniquement."
+        }
+      ],
+      "publishedAt": "2026-11-17T18:19:02+01:00"
+    },
+    {
+      "id": "gigadevice-gd32h7-cortex-m7-ethercat",
+      "category": "electronique",
+      "icon": "🧠",
+      "importance": 3,
+      "sourceDate": "2026-11-17",
+      "title": "GigaDevice GD32H7 : des microcontrôleurs Cortex-M7 jusqu'à 750 MHz avec EtherCAT pour l'industrie",
+      "summary": "La famille GD32H7 s'enrichit de variantes industrielles : jusqu'à 9,5 Mo de mémoire flash, EtherCAT intégré, interface MIPI DSI et certification de sécurité fonctionnelle. Échantillons attendus en janvier 2027.",
+      "tags": [
+        "GigaDevice",
+        "GD32H7",
+        "Cortex-M7",
+        "EtherCAT",
+        "microcontrôleur",
+        "robotique"
+      ],
+      "sources": [
+        {
+          "title": "750 MHz GigaDevice GD32H7 Cortex-M7 MCU family gets up to 9.5MB Flash, EtherCAT for industrial applications",
+          "url": "https://www.cnx-software.com/2026/11/17/750-mhz-gigadevice-gd32h7-cortex-m7-mcu-family-gets-up-to-9-5mb-flash-ethercat-for-industrial-applications/",
+          "publisher": "CNX Software"
+        }
+      ],
+      "cover": {
+        "url": "https://www.cnx-software.com/wp-content/uploads/2026/11/GigaDevice-GD32H7-new-generation-MCU.jpg",
+        "alt": "Illustration de la nouvelle génération de microcontrôleurs GigaDevice GD32H7",
+        "credit": "cnx-software.com"
+      },
+      "readingMinutes": 5,
+      "illustration": {
+        "svg": "<svg xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"0 0 640 360\"><defs><linearGradient id=\"g\" x1=\"0\" y1=\"0\" x2=\"1\" y2=\"1\"><stop offset=\"0\" stop-color=\"hsl(30,62%,40%)\"/><stop offset=\"1\" stop-color=\"hsl(65,66%,22%)\"/></linearGradient></defs><rect width=\"640\" height=\"360\" fill=\"url(#g)\"/><circle cx=\"545\" cy=\"60\" r=\"120\" fill=\"#fff\" fill-opacity=\".08\"/><circle cx=\"90\" cy=\"320\" r=\"100\" fill=\"#fff\" fill-opacity=\".07\"/><g fill=\"#fff\"><rect x=\"220\" y=\"100\" width=\"200\" height=\"160\" rx=\"14\" fill-opacity=\".92\"/></g><g fill=\"hsl(30,70%,25%)\"><rect x=\"255\" y=\"135\" width=\"130\" height=\"90\" rx=\"8\"/></g><g stroke=\"#fff\" stroke-width=\"10\" stroke-linecap=\"round\"><path d=\"M250 100V65M290 100V65M330 100V65M370 100V65M250 260v35M290 260v35M330 260v35M370 260v35M220 135h-35M220 180h-35M220 225h-35M420 135h35M420 180h35M420 225h35\"/></g></svg>"
+      },
+      "blocks": [
+        {
+          "type": "paragraph",
+          "text": "GigaDevice a ajouté des variantes industrielles à sa famille de microcontrôleurs **GD32H7**, construits autour d'un cœur Arm Cortex-M7 cadencé jusqu'à 750 MHz. Introduite en 2023, la famille s'élargit avec des puces destinées aux servovariateurs, aux articulations de robots, aux interfaces homme-machine industrielles, aux machines à commande numérique, aux automates programmables et à l'électronique de puissance numérique. Les échantillons de toute la gamme sont prévus pour janvier 2027, la production en série pour avril 2027 ; les prix n'ont pas été annoncés."
+        },
+        {
+          "type": "heading",
+          "text": "Quatre sous-familles pour quatre usages"
+        },
+        {
+          "type": "list",
+          "items": [
+            "**GD32H77R** : pensée pour les articulations de robots et les servovariateurs, elle intègre un contrôleur EtherCAT, deux interfaces physiques Ethernet 100 Mbit/s et des interfaces de codeurs moteur. Fréquence jusqu'à 600 MHz.",
+            "**GD32H78D/77D** : destinées aux interfaces homme-machine industrielles, avec MIPI DSI à deux voies, accélération graphique, contrôleur d'écran TFT, interface caméra et audio (quatre SAI, quatre I2S, S/PDIF, microphone PDM).",
+            "**GD32H78E/77E** : orientées commande de mouvement en temps réel, avec EtherCAT et codeurs pour systèmes multiaxes ; l'horloge distribuée EtherCAT peut descendre à un cycle de 62,5 µs.",
+            "**GD32H789/779** : pour l'automatisation industrielle généraliste, avec convertisseurs analogiques-numériques à haute résolution, filtrage numérique et nombreuses interfaces de communication."
+          ]
+        },
+        {
+          "type": "keyvalue",
+          "items": [
+            {
+              "label": "Fréquence",
+              "value": "jusqu'à 750 MHz (78D, 78E, 789) ou 600 MHz (77R, 77D, 77E, 779)"
+            },
+            {
+              "label": "Performance",
+              "value": "jusqu'à 3 736 CoreMark"
+            },
+            {
+              "label": "Mémoire flash",
+              "value": "1 664 Ko, 5 632 Ko ou 9 728 Ko (9,5 Mo) selon la référence"
+            },
+            {
+              "label": "SRAM",
+              "value": "896 Ko ou 1 152 Ko, plus 640 Ko de mémoire à couplage étroit (TCM) à la fréquence du cœur"
+            },
+            {
+              "label": "Température",
+              "value": "de -40 °C à +105 °C, alimentation de 1,71 V à 3,6 V"
+            },
+            {
+              "label": "Sécurité fonctionnelle",
+              "value": "certification IEC 61508 SC3 pour des applications SIL 2/SIL 3"
+            }
+          ]
+        },
+        {
+          "type": "paragraph",
+          "text": "Le cœur n'est pas seul : un **module trigonométrique** et une accélération matérielle des transformées de Fourier (FFT) et des filtres FIR soulagent le processeur dans les boucles de régulation. Les puces proposent jusqu'à 132 broches d'entrée-sortie, trois contrôleurs CAN FD, deux convertisseurs 14 bits (jusqu'à 4 MSPS) et un 12 bits (jusqu'à 5,3 MSPS), ainsi que deux interfaces OSPI à 200 MHz pour la mémoire externe."
+        },
+        {
+          "type": "diagram",
+          "svg": "<svg xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"0 0 640 240\" font-family=\"system-ui,sans-serif\"><rect width=\"640\" height=\"240\" rx=\"14\" fill=\"#f8f0e6\"/><text x=\"320\" y=\"28\" text-anchor=\"middle\" font-size=\"15\" font-weight=\"600\" fill=\"#3d2610\">GD32H7 : quelle sous-famille pour quel usage ?</text><g font-size=\"13\" text-anchor=\"middle\" fill=\"#3d2610\"><rect x=\"14\" y=\"50\" width=\"146\" height=\"130\" rx=\"10\" fill=\"#fff\" stroke=\"#b36a1f\"/><text x=\"87\" y=\"80\" font-weight=\"600\">77R</text><text x=\"87\" y=\"102\">Articulation</text><text x=\"87\" y=\"120\">de robot</text><text x=\"87\" y=\"145\">EtherCAT + PHY</text><text x=\"87\" y=\"163\">600 MHz</text><rect x=\"170\" y=\"50\" width=\"146\" height=\"130\" rx=\"10\" fill=\"#fff\" stroke=\"#b36a1f\"/><text x=\"243\" y=\"80\" font-weight=\"600\">78D / 77D</text><text x=\"243\" y=\"102\">IHM</text><text x=\"243\" y=\"120\">industrielle</text><text x=\"243\" y=\"145\">MIPI DSI, audio</text><text x=\"243\" y=\"163\">750 / 600 MHz</text><rect x=\"326\" y=\"50\" width=\"146\" height=\"130\" rx=\"10\" fill=\"#fff\" stroke=\"#b36a1f\"/><text x=\"399\" y=\"80\" font-weight=\"600\">78E / 77E</text><text x=\"399\" y=\"102\">Mouvement</text><text x=\"399\" y=\"120\">multiaxe</text><text x=\"399\" y=\"145\">EtherCAT, codeurs</text><text x=\"399\" y=\"163\">750 / 600 MHz</text><rect x=\"482\" y=\"50\" width=\"144\" height=\"130\" rx=\"10\" fill=\"#fff\" stroke=\"#b36a1f\"/><text x=\"554\" y=\"80\" font-weight=\"600\">789 / 779</text><text x=\"554\" y=\"102\">Automatisation</text><text x=\"554\" y=\"120\">générale</text><text x=\"554\" y=\"145\">ADC, filtrage</text><text x=\"554\" y=\"163\">750 / 600 MHz</text></g><text x=\"320\" y=\"215\" text-anchor=\"middle\" font-size=\"12\" fill=\"#5a3f22\">Échantillons : janvier 2027 ; production en série : avril 2027 ; prix non annoncés</text></svg>",
+          "alt": "Quatre cartes présentant les sous-familles GD32H7 et leurs usages principaux",
+          "caption": "Sous-familles GD32H7 et usages visés, d'après CNX Software."
+        },
+        {
+          "type": "heading",
+          "text": "Sécurité et outils"
+        },
+        {
+          "type": "paragraph",
+          "text": "Les puces embarquent AES, SHA-256, un générateur de nombres aléatoires matériel et un identifiant unique, avec démarrage sécurisé, mises à jour authentifiées du micrologiciel et protection contre le retour à une version antérieure. GigaDevice annonce trois cartes d'évaluation (GD32H77DI-EVAL, GD32H77EI-EVAL et GD32H779I-EVAL) et des démonstrations en version 1.0.0 avec prise en charge du débogage SEGGER J-Link."
+        },
+        {
+          "type": "usecases",
+          "title": "Exemples d'utilisation",
+          "items": [
+            {
+              "icon": "🤖",
+              "title": "Articulation de robot humanoïde",
+              "text": "La 77R, avec EtherCAT et deux interfaces physiques intégrées, peut regrouper commande de moteur, lecture du codeur et communication sur une seule puce."
+            },
+            {
+              "icon": "🖥️",
+              "title": "Écran de commande d'une machine",
+              "text": "La 78D pilote un écran par MIPI DSI, lit une caméra et gère l'audio pour une interface d'atelier sans processeur applicatif séparé."
+            },
+            {
+              "icon": "⚙️",
+              "title": "Axes d'une machine à commande numérique",
+              "text": "La 78E synchronise plusieurs axes sur un réseau EtherCAT à cycle court, avec prise en charge de différents protocoles de codeurs."
+            }
+          ]
+        },
+        {
+          "type": "timeline",
+          "title": "D'où l'on vient, où l'on va",
+          "items": [
+            {
+              "label": "2023",
+              "text": "Introduction de la famille GD32H7."
+            },
+            {
+              "label": "17 novembre 2026",
+              "text": "Annonce des variantes industrielles avec EtherCAT, MIPI DSI et plus de flash."
+            },
+            {
+              "label": "Janvier 2027",
+              "text": "Échantillons de toute la gamme."
+            },
+            {
+              "label": "Avril 2027",
+              "text": "Production en série prévue."
+            }
+          ]
+        },
+        {
+          "type": "opinion",
+          "title": "Notre avis",
+          "paragraphs": [
+            "L'intégration d'EtherCAT et de deux interfaces physiques dans la 77R est l'argument le plus concret : elle réduit la nomenclature et la surface de carte d'un variateur ou d'une articulation. La certification de sécurité fonctionnelle, si elle se confirme sur toutes les références, répond à une demande réelle des fabricants de machines.",
+            "Reste à voir le prix, la disponibilité et la maturité des bibliothèques, trois points absents de l'annonce. À un horizon d'un à trois ans, la concurrence entre fabricants de microcontrôleurs sur le segment du mouvement industriel devrait s'intensifier ; cette évolution est une opinion, non un fait. Pour un projet qui démarre, la démarche prudente est d'attendre les cartes d'évaluation et les premiers retours."
+          ],
+          "verdict": "Une gamme cohérente pour la commande de mouvement, mais à juger sur prix et disponibilité."
+        },
+        {
+          "type": "callout",
+          "title": "À retenir",
+          "text": "Faits : jusqu'à 750 MHz, jusqu'à 9,5 Mo de flash, EtherCAT sur 77R et 78E/77E, MIPI DSI sur 78D/77D. Non annoncé : prix. Calendrier : échantillons en janvier 2027, production en avril 2027."
+        }
+      ],
+      "publishedAt": "2026-11-17T18:19:02+01:00"
+    }
+  ]
+}
