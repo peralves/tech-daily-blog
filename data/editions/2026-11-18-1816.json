@@ -1,0 +1,619 @@
+{
+ "schemaVersion": "1.0",
+ "date": "2026-11-18",
+ "generatedAt": "2026-11-18T18:16:21+01:00",
+ "title": "Tech : failles NGINX, attaque contre le TPM, Roller exploité et nouveaux modèles MAI",
+ "summary": "Deux failles critiques HTTP/2 corrigées dans NGINX, un contournement physique du verrouillage du TPM, une faille d'Apache Roller déjà exploitée et la gamme de modèles MAI de Microsoft.",
+ "highlights": [
+  "NGINX : deux failles HTTP/2 notées 9,2, dont une présente depuis 2015, corrigées en 1.30.7 et 1.31.9",
+  "TPM : un PIN BitLocker à six chiffres passerait de 19 ans à environ 20 jours d'effort, au pire, avec un accès physique",
+  "Apache Roller : une exécution de code à distance est exploitée, mise à jour vers 6.1.6",
+  "Microsoft présente MAI Code 2 et plusieurs modèles, avec des comparaisons de prix issues de l'éditeur"
+ ],
+ "meta": {
+  "generator": "claude-scheduled-task"
+ },
+ "posts": [
+  {
+   "id": "nginx-http2-deux-failles-critiques",
+   "category": "cybersecurite",
+   "icon": "🛡️",
+   "importance": 5,
+   "title": "NGINX : deux failles critiques dans HTTP/2, dont une vieille de onze ans, corrigées par F5",
+   "summary": "F5 publie les versions 1.30.7 et 1.31.9 de NGINX pour deux failles HTTP/2 notées 9,2 sur 10. Wiz a obtenu une exécution de code en laboratoire ; aucune exploitation réelle n'est signalée.",
+   "tags": [
+    "NGINX",
+    "HTTP/2",
+    "CVE-2026-123633",
+    "CVE-2026-123007",
+    "F5",
+    "Wiz"
+   ],
+   "sourceDate": "2026-11-18",
+   "cover": {
+    "url": "https://www.datocms-assets.com/75231/1794936719-img_7875.png?fm=webp",
+    "alt": "Visuel de l'article de Wiz sur les failles HTTP/2 de NGINX",
+    "credit": "wiz.io"
+   },
+   "sources": [
+    {
+     "title": "NGINX HTTP/2 vulnerabilities",
+     "url": "https://www.wiz.io/blog/nginx-http2-rce-vulnerabilities",
+     "publisher": "Wiz Research"
+    }
+   ],
+   "illustration": {
+    "svg": "<svg xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"0 0 640 360\"><defs><linearGradient id=\"g\" x1=\"0\" y1=\"0\" x2=\"1\" y2=\"1\"><stop offset=\"0\" stop-color=\"hsl(175,65%,38%)\"/><stop offset=\"1\" stop-color=\"hsl(215,70%,22%)\"/></linearGradient></defs><rect width=\"640\" height=\"360\" fill=\"url(#g)\"/><circle cx=\"560\" cy=\"60\" r=\"110\" fill=\"#fff\" opacity=\".07\"/><circle cx=\"70\" cy=\"320\" r=\"130\" fill=\"#fff\" opacity=\".06\"/><rect x=\"200\" y=\"90\" width=\"240\" height=\"180\" rx=\"16\" fill=\"none\" stroke=\"#fff\" stroke-width=\"8\"/><path d=\"M320 120 l60 24 v50 q0 40 -60 62 q-60 -22 -60 -62 v-50z\" fill=\"#fff\" opacity=\".9\"/><path d=\"M290 190 l22 22 l40 -44\" stroke=\"hsl(175,65%,30%)\" stroke-width=\"12\" fill=\"none\"/></svg>"
+   },
+   "blocks": [
+    {
+     "type": "paragraph",
+     "text": "Le 18 novembre 2026, F5 a publié un correctif de sécurité pour NGINX, le serveur web et mandataire inverse présent derrière une grande partie du trafic du Web. Il corrige deux vulnérabilités de la gestion du protocole HTTP/2, notées **9,2 sur 10** en CVSS 4.0 : CVE-2026-123633 et CVE-2026-123007. Wiz Research, qui les a trouvées à l'aide de son outil Wiz Atlas, a publié le même jour son analyse technique, en coordination avec l'éditeur."
+    },
+    {
+     "type": "paragraph",
+     "text": "L'une des deux failles remonte à la version 1.9.5, sortie en 2015 : elle sommeillait donc dans le code depuis environ onze ans. Wiz précise ne pas diffuser ses codes d'exploitation et ne rapporte aucune attaque observée dans la nature. Plusieurs autres équipes (Ikotas Labs, Metnir, Rapid7 et Xint) ont, de leur côté, signalé indépendamment ces défauts à F5, ce qui montre à quel point la gestion de HTTP/2 est scrutée."
+    },
+    {
+     "type": "heading",
+     "text": "Deux défauts de mémoire distincts"
+    },
+    {
+     "type": "paragraph",
+     "text": "La première faille, **CVE-2026-123633**, est une utilisation de mémoire après libération. Une connexion HTTP/2 inactive est marquée comme réutilisable, mais n'est pas retirée de la liste correspondante quand une requête démarre. Lorsque les emplacements de connexion libres se raréfient, NGINX peut fermer cette connexion alors qu'une requête s'y déroule. Si la création de la trame GOAWAY échoue, la mémoire de la connexion est libérée alors que la requête continue de s'en servir. Le scénario concerne surtout NGINX utilisé en mandataire inverse, avec peu d'emplacements disponibles."
+    },
+    {
+     "type": "paragraph",
+     "text": "La seconde, **CVE-2026-123007**, est un dépassement d'entier par le bas sur la fenêtre d'émission (`send_window`). Quand un flux annulé restitue la part de contrôle de flux qu'il n'avait pas utilisée, la valeur n'est pas comparée à la fenêtre maximale de HTTP/2. Le compteur dépasse alors la limite, et le contrôle effectué dans la fonction `ngx_http_v2_state_window_update()` produit une valeur invalide, interprétée comme une longueur négative. Il en résulte une copie mémoire hors limites dans le chemin d'envoi TLS."
+    },
+    {
+     "type": "keyvalue",
+     "items": [
+      {
+       "label": "Gravité",
+       "value": "9,2 sur 10 (CVSS 4.0) pour les deux failles"
+      },
+      {
+       "label": "Versions touchées (OSS)",
+       "value": "à partir de 1.19.7 (CVE-2026-123633) et de 1.9.5 (CVE-2026-123007)"
+      },
+      {
+       "label": "Versions corrigées (OSS)",
+       "value": "1.30.7 (stable) et 1.31.9 (principale)"
+      },
+      {
+       "label": "Versions corrigées (Plus)",
+       "value": "37.0.7.1 et 37.2.0.1 ; 37.0.8.1 et 37.3.0.1 selon la faille"
+      },
+      {
+       "label": "Exploitation réelle",
+       "value": "non signalée à la date de publication"
+      }
+     ]
+    },
+    {
+     "type": "heading",
+     "text": "Ce que Wiz a réellement démontré"
+    },
+    {
+     "type": "paragraph",
+     "text": "Wiz a construit des preuves de concept et les a exécutées en laboratoire contre des configurations courantes. Pour CVE-2026-123007, l'entreprise confirme une **exécution de code à distance avec contournement de l'ASLR** sur les versions officielles 1.31.7 et 1.31.8, avec de simples fichiers statiques servis en HTTPS sur systèmes 64 bits, sans application derrière ni module tiers. L'exploitation reste toutefois exigeante : il faut obtenir une fuite d'informations sur la mémoire, préparer le tas, gérer les écarts de version et de configuration, et envoyer un grand nombre de trames WINDOW_UPDATE."
+    },
+    {
+     "type": "diagram",
+     "svg": "<svg xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"0 0 640 240\" font-family=\"system-ui,sans-serif\"><rect width=\"640\" height=\"240\" rx=\"14\" fill=\"#f4f6fa\"/><text x=\"320\" y=\"30\" text-anchor=\"middle\" font-size=\"15\" font-weight=\"700\" fill=\"#1d2433\">CVE-2026-123007 : de la fenêtre HTTP/2 à la corruption mémoire</text><rect x=\"20\" y=\"55\" width=\"127\" height=\"150\" rx=\"10\" fill=\"hsl(175,60%,90%)\" stroke=\"hsl(175,50%,40%)\" stroke-width=\"2\"/><text x=\"83\" y=\"85\" text-anchor=\"middle\" font-size=\"13\" font-weight=\"700\" fill=\"#1d2433\">1. HTTP/2 actif</text><text x=\"83\" y=\"110\" text-anchor=\"middle\" font-size=\"12\" fill=\"#2b3447\">Le serveur accepte</text><text x=\"83\" y=\"128\" text-anchor=\"middle\" font-size=\"12\" fill=\"#2b3447\">les connexions</text><text x=\"83\" y=\"146\" text-anchor=\"middle\" font-size=\"12\" fill=\"#2b3447\">HTTP/2 en HTTPS</text><path d=\"M151 130 h22 m-7 -6 l7 6 l-7 6\" stroke=\"#1d2433\" stroke-width=\"2.5\" fill=\"none\"/><rect x=\"177\" y=\"55\" width=\"127\" height=\"150\" rx=\"10\" fill=\"hsl(175,60%,90%)\" stroke=\"hsl(175,50%,40%)\" stroke-width=\"2\"/><text x=\"240\" y=\"85\" text-anchor=\"middle\" font-size=\"13\" font-weight=\"700\" fill=\"#1d2433\">2. Flux annulé</text><text x=\"240\" y=\"110\" text-anchor=\"middle\" font-size=\"12\" fill=\"#2b3447\">Une fenêtre de</text><text x=\"240\" y=\"128\" text-anchor=\"middle\" font-size=\"12\" fill=\"#2b3447\">contrôle de flux</text><text x=\"240\" y=\"146\" text-anchor=\"middle\" font-size=\"12\" fill=\"#2b3447\">est restituée sans</text><text x=\"240\" y=\"164\" text-anchor=\"middle\" font-size=\"12\" fill=\"#2b3447\">contrôle</text><path d=\"M308 130 h22 m-7 -6 l7 6 l-7 6\" stroke=\"#1d2433\" stroke-width=\"2.5\" fill=\"none\"/><rect x=\"334\" y=\"55\" width=\"127\" height=\"150\" rx=\"10\" fill=\"hsl(175,60%,90%)\" stroke=\"hsl(175,50%,40%)\" stroke-width=\"2\"/><text x=\"397\" y=\"85\" text-anchor=\"middle\" font-size=\"13\" font-weight=\"700\" fill=\"#1d2433\">3. Compteur faussé</text><text x=\"397\" y=\"110\" text-anchor=\"middle\" font-size=\"12\" fill=\"#2b3447\">Le contrôle de</text><text x=\"397\" y=\"128\" text-anchor=\"middle\" font-size=\"12\" fill=\"#2b3447\">borne déborde :</text><text x=\"397\" y=\"146\" text-anchor=\"middle\" font-size=\"12\" fill=\"#2b3447\">longueur négative</text><path d=\"M465 130 h22 m-7 -6 l7 6 l-7 6\" stroke=\"#1d2433\" stroke-width=\"2.5\" fill=\"none\"/><rect x=\"491\" y=\"55\" width=\"127\" height=\"150\" rx=\"10\" fill=\"hsl(175,60%,90%)\" stroke=\"hsl(175,50%,40%)\" stroke-width=\"2\"/><text x=\"554\" y=\"85\" text-anchor=\"middle\" font-size=\"13\" font-weight=\"700\" fill=\"#1d2433\">4. Copie hors limites</text><text x=\"554\" y=\"110\" text-anchor=\"middle\" font-size=\"12\" fill=\"#2b3447\">Écriture mémoire</text><text x=\"554\" y=\"128\" text-anchor=\"middle\" font-size=\"12\" fill=\"#2b3447\">dans le chemin</text><text x=\"554\" y=\"146\" text-anchor=\"middle\" font-size=\"12\" fill=\"#2b3447\">TLS, puis code</text><text x=\"554\" y=\"164\" text-anchor=\"middle\" font-size=\"12\" fill=\"#2b3447\">possible</text></svg>",
+     "alt": "Schéma en quatre étapes montrant comment un flux HTTP/2 annulé fausse le compteur de fenêtre et provoque une copie mémoire hors limites.",
+     "caption": "Enchaînement simplifié de CVE-2026-123007 d'après l'analyse de Wiz."
+    },
+    {
+     "type": "heading",
+     "text": "Mettre à jour, sinon désactiver HTTP/2"
+    },
+    {
+     "type": "paragraph",
+     "text": "La mesure recommandée est la mise à jour vers l'une des versions corrigées. Si elle est impossible à court terme, Wiz propose de désactiver HTTP/2 : directive `http2 off;` dans les blocs `server` concernés (à partir de NGINX 1.25.1) et suppression du paramètre `http2` des directives `listen`. Il faut ensuite tester la compatibilité des applications, recharger NGINX et vérifier que les anciens processus ont bien disparu, puis réactiver HTTP/2 après la mise à jour. Les réseaux de diffusion de contenu et les pare-feu applicatifs qui terminent HTTP/2 peuvent atténuer le risque, selon leur implémentation."
+    },
+    {
+     "type": "paragraph",
+     "text": "Pour la détection, Wiz invite à examiner les arrêts inattendus de processus NGINX, les commandes lancées par le serveur et les connexions HTTP/2 longues qui envoient de gros volumes de données. Ces signaux sont des pistes générales, et non des indicateurs de compromission confirmés."
+    },
+    {
+     "type": "usecases",
+     "title": "Exemples d'utilisation",
+     "items": [
+      {
+       "icon": "🧰",
+       "title": "Équipe d'exploitation d'un site à fort trafic",
+       "text": "Elle inventorie les versions de NGINX en production, planifie un déploiement progressif de la 1.30.7 et surveille les redémarrages anormaux de processus pendant la fenêtre de mise à jour."
+      },
+      {
+       "icon": "☸️",
+       "title": "Cluster Kubernetes avec contrôleur d'entrée",
+       "text": "L'équipe vérifie que l'image du contrôleur embarque un NGINX corrigé, et désactive provisoirement HTTP/2 sur les points d'entrée exposés si la mise à jour de l'image tarde."
+      },
+      {
+       "icon": "🏢",
+       "title": "PME avec un NGINX hérité",
+       "text": "Un prestataire recense les serveurs oubliés, applique `http2 off;` en attendant la migration, puis consigne la date de correction dans le registre des vulnérabilités."
+      }
+     ]
+    },
+    {
+     "type": "timeline",
+     "title": "D'où l'on vient, où l'on va",
+     "items": [
+      {
+       "label": "2015",
+       "text": "NGINX 1.9.5 introduit la prise en charge de HTTP/2, version à partir de laquelle CVE-2026-123007 est présente."
+      },
+      {
+       "label": "21 octobre 2026",
+       "text": "Wiz signale CVE-2026-123633 à F5, qui indique qu'une autre équipe l'avait déjà fait."
+      },
+      {
+       "label": "10 novembre 2026",
+       "text": "F5 fournit un correctif pour relecture."
+      },
+      {
+       "label": "16-17 novembre 2026",
+       "text": "Wiz signale CVE-2026-123007 ; F5 confirme qu'elle figure dans la publication prévue."
+      },
+      {
+       "label": "18 novembre 2026",
+       "text": "Publication coordonnée des correctifs et de l'analyse."
+      }
+     ]
+    },
+    {
+     "type": "opinion",
+     "title": "Notre avis",
+     "paragraphs": [
+      "Ces deux failles rappellent qu'un protocole performant est aussi un protocole complexe : le contrôle de flux de HTTP/2 multiplie les états à tenir et donc les occasions d'erreurs d'arithmétique. L'absence d'exploitation signalée et la difficulté technique tempèrent l'alarme, mais une exécution de code démontrée sur une configuration banale, sans module tiers, justifie de ne pas attendre.",
+      "À un horizon d'un à trois ans, on peut raisonnablement attendre davantage de découvertes assistées par des outils automatisés, comme Wiz Atlas ici, sur du code ancien. Cette évolution, formulée comme une opinion, devrait raccourcir le délai entre introduction d'un défaut et découverte : les équipes qui automatisent leurs mises à jour d'infrastructure en sortiront avantagées."
+     ],
+     "verdict": "Un correctif à appliquer sans délai, avec la désactivation de HTTP/2 en solution d'attente."
+    },
+    {
+     "type": "callout",
+     "title": "À retenir",
+     "text": "Versions corrigées : NGINX 1.30.7 (stable) et 1.31.9 (principale). Sans mise à jour possible, `http2 off;` supprime la surface d'attaque décrite par Wiz."
+    }
+   ],
+   "publishedAt": "2026-11-18T18:16:21+01:00",
+   "readingMinutes": 5
+  },
+  {
+   "id": "tpm-lockout-contourne-windows-hello-bitlocker",
+   "category": "cybersecurite",
+   "icon": "🔓",
+   "importance": 4,
+   "title": "TPM : une attaque physique contourne le verrouillage et réduit à des jours le décryptage des PIN Windows Hello et BitLocker",
+   "summary": "Des chercheurs de l'Université technique de Berlin réinitialisent le compteur d'essais du TPM de certains PC AMD et Intel. Un PIN BitLocker à six chiffres passe de 19 ans à environ 20 jours de calcul, au pire.",
+   "tags": [
+    "TPM",
+    "BitLocker",
+    "Windows Hello",
+    "AMD",
+    "CVE-2026-43613"
+   ],
+   "sourceDate": "2026-11-18",
+   "cover": {
+    "url": "https://blogger.googleusercontent.com/img/b/R29vZ2xl/AVvXsEgpsv4GxAUbzCsIV1umrxZs6VxfD1eFwAeCgRHQQG_dNbP1fLiYe48hM-Wbd_8w5IxlacAwoidLqyQgBmG7YD7qKo0_XcqW2GhggfXshuK1uXz8BOma2H0Jjs8fabCO4IxHBfRopEUFDd0xHRRv43gMeog852Usv40sfcTwnO_9coyxtIMmteJxeJI_oPA/s1600/bitlocker.jpg",
+    "alt": "Illustration de l'article de The Hacker News sur BitLocker",
+    "credit": "thehackernews.com"
+   },
+   "sources": [
+    {
+     "title": "New Attack Bypasses TPM Lockout to Crack Windows Hello and BitLocker PINs in Days, Not Years",
+     "url": "https://thehackernews.com/2026/11/flash-chip-attack-bypasses-tpm-lockout.html",
+     "publisher": "The Hacker News"
+    }
+   ],
+   "illustration": {
+    "svg": "<svg xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"0 0 640 360\"><defs><linearGradient id=\"g\" x1=\"0\" y1=\"0\" x2=\"1\" y2=\"1\"><stop offset=\"0\" stop-color=\"hsl(175,65%,38%)\"/><stop offset=\"1\" stop-color=\"hsl(215,70%,22%)\"/></linearGradient></defs><rect width=\"640\" height=\"360\" fill=\"url(#g)\"/><circle cx=\"560\" cy=\"60\" r=\"110\" fill=\"#fff\" opacity=\".07\"/><circle cx=\"70\" cy=\"320\" r=\"130\" fill=\"#fff\" opacity=\".06\"/><rect x=\"215\" y=\"120\" width=\"210\" height=\"140\" rx=\"14\" fill=\"#fff\" opacity=\".92\"/><path d=\"M255 120 v-30 a65 65 0 0 1 130 0 v30\" fill=\"none\" stroke=\"#fff\" stroke-width=\"14\"/><circle cx=\"320\" cy=\"180\" r=\"18\" fill=\"hsl(175,65%,30%)\"/><rect x=\"313\" y=\"190\" width=\"14\" height=\"40\" rx=\"5\" fill=\"hsl(175,65%,30%)\"/><path d=\"M450 250 l60 -60 m-20 0 h20 v20\" stroke=\"#fff\" stroke-width=\"8\" fill=\"none\"/></svg>"
+   },
+   "blocks": [
+    {
+     "type": "paragraph",
+     "text": "Un module TPM est censé rendre impraticable la recherche par force brute d'un code PIN : après un certain nombre d'échecs, il se verrouille. Des chercheurs de l'Université technique de Berlin montrent, dans un article posté en novembre 2026, qu'une **attaque physique** permet de remettre ce compteur à zéro sur certains ordinateurs AMD et Intel. Le temps nécessaire pour deviner un PIN passe alors de plusieurs années à quelques jours."
+    },
+    {
+     "type": "heading",
+     "text": "Comment le compteur est remis à zéro"
+    },
+    {
+     "type": "paragraph",
+     "text": "De nombreux PC AMD, et quelques PC Intel, utilisent un TPM logiciel intégré au processeur. Faute de stockage sécurisé propre, son état, y compris le compteur d'essais infructueux, est enregistré chiffré sur la puce mémoire flash de la carte mère. Un attaquant peut copier cet état puis le réécrire plus tard, ce qui rétablit le compteur, sauf si le PC détecte le retour en arrière."
+    },
+    {
+     "type": "paragraph",
+     "text": "Les machines récentes s'appuient pour cela sur des compteurs monotones intégrés à la puce flash (RPMC). Les chercheurs décrivent deux contournements. Chez AMD, le micrologiciel du processeur ne vérifie jamais que la valeur du compteur a bien augmenté : une carte intermédiaire placée entre le processeur et la flash peut bloquer la mise à jour et répondre qu'elle a réussi. Avec les puces flash RPMC de Winbond, une perturbation de tension suffit à faire révéler la clé secrète qui signe les valeurs du compteur ; l'extraction a pris environ une seconde avec les meilleurs réglages, après quoi n'importe quelle valeur peut être falsifiée."
+    },
+    {
+     "type": "keyvalue",
+     "items": [
+      {
+       "label": "Windows Hello (AMD)",
+       "value": "PIN à 4 chiffres trouvé après 236 essais en 57 minutes sur un HP OmniBook 3"
+      },
+      {
+       "label": "BitLocker (Intel)",
+       "value": "PIN à 6 chiffres trouvé après 236 essais en 6 min 55 s sur un Framework Laptop 13"
+      },
+      {
+       "label": "Faille AMD",
+       "value": "CVE-2026-43613, score CVSS 5,1, bulletin AMD-SB-7079 du 17 novembre 2026"
+      },
+      {
+       "label": "Correctifs AMD",
+       "value": "prévus de novembre 2026 à février 2027 selon les gammes"
+      }
+     ]
+    },
+    {
+     "type": "heading",
+     "text": "Des durées qui s'effondrent"
+    },
+    {
+     "type": "paragraph",
+     "text": "Dans les pires cas, un PIN Windows Hello à quatre chiffres tomberait en 40 heures, contre 69 jours avec le verrouillage documenté. Un PIN BitLocker à six chiffres, valeur par défaut, passerait de 19 ans à 20 jours. Il s'agit d'estimations de pire cas, extrapolées des vitesses mesurées sur un seul ordinateur de chaque type. Les deux attaques exigent de dessouder ou de raccorder la puce flash et d'y brancher la carte des chercheurs : elles supposent donc un accès physique prolongé à la machine."
+    },
+    {
+     "type": "diagram",
+     "svg": "<svg xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"0 0 640 240\" font-family=\"system-ui,sans-serif\"><rect width=\"640\" height=\"240\" rx=\"14\" fill=\"#f4f6fa\"/><text x=\"320\" y=\"30\" text-anchor=\"middle\" font-size=\"15\" font-weight=\"700\" fill=\"#1d2433\">Réinitialiser le compteur du TPM, étape par étape</text><rect x=\"20\" y=\"55\" width=\"127\" height=\"150\" rx=\"10\" fill=\"hsl(175,60%,90%)\" stroke=\"hsl(175,50%,40%)\" stroke-width=\"2\"/><text x=\"83\" y=\"85\" text-anchor=\"middle\" font-size=\"13\" font-weight=\"700\" fill=\"#1d2433\">Copie de l'état</text><text x=\"83\" y=\"110\" text-anchor=\"middle\" font-size=\"12\" fill=\"#2b3447\">Le contenu de la</text><text x=\"83\" y=\"128\" text-anchor=\"middle\" font-size=\"12\" fill=\"#2b3447\">flash, compteur</text><text x=\"83\" y=\"146\" text-anchor=\"middle\" font-size=\"12\" fill=\"#2b3447\">compris, est copié</text><path d=\"M151 130 h22 m-7 -6 l7 6 l-7 6\" stroke=\"#1d2433\" stroke-width=\"2.5\" fill=\"none\"/><rect x=\"177\" y=\"55\" width=\"127\" height=\"150\" rx=\"10\" fill=\"hsl(175,60%,90%)\" stroke=\"hsl(175,50%,40%)\" stroke-width=\"2\"/><text x=\"240\" y=\"85\" text-anchor=\"middle\" font-size=\"13\" font-weight=\"700\" fill=\"#1d2433\">Essais de PIN</text><text x=\"240\" y=\"110\" text-anchor=\"middle\" font-size=\"12\" fill=\"#2b3447\">Une trentaine</text><text x=\"240\" y=\"128\" text-anchor=\"middle\" font-size=\"12\" fill=\"#2b3447\">d'essais sont</text><text x=\"240\" y=\"146\" text-anchor=\"middle\" font-size=\"12\" fill=\"#2b3447\">tentés</text><path d=\"M308 130 h22 m-7 -6 l7 6 l-7 6\" stroke=\"#1d2433\" stroke-width=\"2.5\" fill=\"none\"/><rect x=\"334\" y=\"55\" width=\"127\" height=\"150\" rx=\"10\" fill=\"hsl(175,60%,90%)\" stroke=\"hsl(175,50%,40%)\" stroke-width=\"2\"/><text x=\"397\" y=\"85\" text-anchor=\"middle\" font-size=\"13\" font-weight=\"700\" fill=\"#1d2433\">Retour arrière</text><text x=\"397\" y=\"110\" text-anchor=\"middle\" font-size=\"12\" fill=\"#2b3447\">L'ancien état est</text><text x=\"397\" y=\"128\" text-anchor=\"middle\" font-size=\"12\" fill=\"#2b3447\">réécrit, le</text><text x=\"397\" y=\"146\" text-anchor=\"middle\" font-size=\"12\" fill=\"#2b3447\">compteur repart à</text><text x=\"397\" y=\"164\" text-anchor=\"middle\" font-size=\"12\" fill=\"#2b3447\">zéro</text><path d=\"M465 130 h22 m-7 -6 l7 6 l-7 6\" stroke=\"#1d2433\" stroke-width=\"2.5\" fill=\"none\"/><rect x=\"491\" y=\"55\" width=\"127\" height=\"150\" rx=\"10\" fill=\"hsl(175,60%,90%)\" stroke=\"hsl(175,50%,40%)\" stroke-width=\"2\"/><text x=\"554\" y=\"85\" text-anchor=\"middle\" font-size=\"13\" font-weight=\"700\" fill=\"#1d2433\">Nouvelle série</text><text x=\"554\" y=\"110\" text-anchor=\"middle\" font-size=\"12\" fill=\"#2b3447\">Les essais</text><text x=\"554\" y=\"128\" text-anchor=\"middle\" font-size=\"12\" fill=\"#2b3447\">reprennent jusqu'à</text><text x=\"554\" y=\"146\" text-anchor=\"middle\" font-size=\"12\" fill=\"#2b3447\">trouver le PIN</text></svg>",
+     "alt": "Schéma de la boucle d'attaque : copie de l'état du TPM, essais de PIN, réécriture de l'ancien état puis nouvelle série d'essais.",
+     "caption": "Principe de la boucle d'attaque décrite par les chercheurs (schéma simplifié)."
+    },
+    {
+     "type": "heading",
+     "text": "Réactions et protections"
+    },
+    {
+     "type": "paragraph",
+     "text": "AMD confirme un défaut de micrologiciel, tout en estimant que les attaques physiques sortent de son modèle de menace, et précise que les RPMC sont censés contrer ce type d'attaque. Intel indique que les travaux n'ont pas démontré de vulnérabilité dans un composant Intel. Microsoft a classé le signalement Windows Hello en gravité modérée, sans CVE, et s'est engagé à relever le PIN minimal recommandé à six chiffres ; une version de test de Windows 11 impose six chiffres pour les comptes personnels. Winbond étudie le problème, sans correctif ni date."
+    },
+    {
+     "type": "paragraph",
+     "text": "Les chercheurs conseillent d'ajouter au moins deux chiffres au PIN. Pour BitLocker, la stratégie de groupe « Configurer la longueur minimale du code PIN pour le démarrage » accepte de 4 à 20 chiffres, et les PIN améliorés autorisent lettres et symboles. Il reste prudent d'installer les mises à jour de micrologiciel dès qu'elles sont proposées et de garder les appareils sensibles sous contrôle physique."
+    },
+    {
+     "type": "usecases",
+     "title": "Exemples d'utilisation",
+     "items": [
+      {
+       "icon": "🧳",
+       "title": "Cadre en déplacement",
+       "text": "Un ordinateur portable volé en voyage chiffré avec un PIN court devient plus vulnérable ; passer à un PIN long ou alphanumérique allonge fortement les durées d'attaque."
+      },
+      {
+       "icon": "🏛️",
+       "title": "DSI d'un organisme public",
+       "text": "Elle impose par stratégie de groupe une longueur minimale de PIN et inventorie les modèles de PC concernés avant de planifier les mises à jour de micrologiciel."
+      },
+      {
+       "icon": "🔬",
+       "title": "Équipe d'évaluation de matériel",
+       "text": "Elle utilise le script publié par les chercheurs pour repérer les parcs AMD exposant des compteurs RPMC, en sachant qu'un résultat négatif ne prouve rien."
+      }
+     ]
+    },
+    {
+     "type": "timeline",
+     "title": "D'où l'on vient, où l'on va",
+     "items": [
+      {
+       "label": "Janvier 2025",
+       "text": "Winbond est informé d'une faiblesse de sa puce face aux perturbations de tension."
+      },
+      {
+       "label": "Février 2026",
+       "text": "Les chercheurs signalent la faille à AMD."
+      },
+      {
+       "label": "Avril 2026",
+       "text": "Signalement à Microsoft ; second rapport à Winbond montrant la fuite de clé."
+      },
+      {
+       "label": "17 novembre 2026",
+       "text": "AMD publie son bulletin et attribue CVE-2026-43613."
+      },
+      {
+       "label": "Novembre 2026 - février 2027",
+       "text": "Calendrier prévu des correctifs AMD."
+      }
+     ]
+    },
+    {
+     "type": "opinion",
+     "title": "Notre avis",
+     "paragraphs": [
+      "Il faut relativiser : ces attaques réclament un accès physique, du matériel spécialisé et du temps. Elles ne menacent pas l'utilisateur ordinaire face à un voleur opportuniste. Elles concernent plutôt les cibles de valeur, où un ordinateur volé ou saisi peut contenir des secrets. Elles fragilisent surtout une promesse : celle d'un PIN court protégé par le matériel.",
+      "Sur un à trois ans, on peut s'attendre, c'est une opinion, à un glissement vers des codes plus longs ou des phrases de passe pour le chiffrement de disque, et à des puces flash dotées de compteurs réellement inviolables. Tant que la garantie repose sur la flash de la carte mère, la longueur du secret reste la protection la plus sûre."
+     ],
+     "verdict": "Un risque réel mais ciblé : allonger le PIN est la parade immédiate."
+    },
+    {
+     "type": "callout",
+     "title": "À retenir",
+     "text": "Le TPM n'est pas inviolable face à un attaquant disposant du PC et de temps. Un PIN BitLocker plus long ou alphanumérique reste la meilleure défense en attendant les correctifs."
+    }
+   ],
+   "publishedAt": "2026-11-18T18:16:21+01:00",
+   "readingMinutes": 5
+  },
+  {
+   "id": "apache-roller-rce-exploitee",
+   "category": "cybersecurite",
+   "icon": "💥",
+   "importance": 3,
+   "title": "Apache Roller : une faille d'exécution de code notée 9,8 est exploitée, l'ASF recommande la version 6.1.6",
+   "summary": "L'Apache Software Foundation indique que CVE-2026-129448, une désérialisation non authentifiée dans le point d'accès XML-RPC, est déjà exploitée. Les versions 4.0.0 à 6.1.4 sont concernées.",
+   "tags": [
+    "Apache Roller",
+    "CVE-2026-129448",
+    "désérialisation",
+    "XML-RPC"
+   ],
+   "sourceDate": "2026-11-18",
+   "cover": {
+    "url": "https://blogger.googleusercontent.com/img/b/R29vZ2xl/AVvXsEgbiCYJD7nei_TBSnUlQG59idq9moCbsg97fnzsiXNi4KvQaphZYA4hHIzXv08t2OsvVZokzPIdhZPzxTkXoEgzTsFby-rBvQX6CY6yPo1Iv8DPnSmPeOeh3OQXF79Q60Hq3UI7kVdhmEKGL2bUwm42JO-8C_ClLHpTpGkWpnflAQMrDDgjIvMKq09DEskr/s1600/apache.jpg",
+    "alt": "Illustration d'un article sur une faille d'Apache",
+    "credit": "thehackernews.com"
+   },
+   "sources": [
+    {
+     "title": "Critical Apache Roller RCE Flaw Under Active Exploitation, No Authentication Required",
+     "url": "https://thehackernews.com/2026/11/critical-apache-roller-rce-flaw-under.html",
+     "publisher": "The Hacker News"
+    }
+   ],
+   "illustration": {
+    "svg": "<svg xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"0 0 640 360\"><defs><linearGradient id=\"g\" x1=\"0\" y1=\"0\" x2=\"1\" y2=\"1\"><stop offset=\"0\" stop-color=\"hsl(175,65%,38%)\"/><stop offset=\"1\" stop-color=\"hsl(215,70%,22%)\"/></linearGradient></defs><rect width=\"640\" height=\"360\" fill=\"url(#g)\"/><circle cx=\"560\" cy=\"60\" r=\"110\" fill=\"#fff\" opacity=\".07\"/><circle cx=\"70\" cy=\"320\" r=\"130\" fill=\"#fff\" opacity=\".06\"/><rect x=\"170\" y=\"100\" width=\"300\" height=\"170\" rx=\"14\" fill=\"#fff\" opacity=\".92\"/><rect x=\"170\" y=\"100\" width=\"300\" height=\"34\" rx=\"14\" fill=\"#fff\"/><circle cx=\"195\" cy=\"117\" r=\"6\" fill=\"hsl(175,65%,30%)\"/><path d=\"M215 170 l-26 20 l26 20 M425 170 l26 20 l-26 20\" stroke=\"hsl(175,65%,30%)\" stroke-width=\"10\" fill=\"none\"/><path d=\"M335 160 l-30 60 h30 l-10 40 l50 -70 h-30 l15 -30z\" fill=\"#e8a317\"/></svg>"
+   },
+   "blocks": [
+    {
+     "type": "paragraph",
+     "text": "Apache Roller est une plateforme de blogs open source écrite en Java. Le 18 novembre 2026, l'Apache Software Foundation (ASF) a indiqué qu'une de ses failles, **CVE-2026-129448**, notée 9,8 sur 10 en CVSS, « est exploitée activement ». Elle permet à une personne non authentifiée d'exécuter du code à distance sur le serveur qui héberge l'application. L'ASF n'a donné aucun détail sur les attaques observées ni sur leurs cibles."
+    },
+    {
+     "type": "heading",
+     "text": "Une désérialisation avant authentification"
+    },
+    {
+     "type": "paragraph",
+     "text": "Le défaut se situe dans le point d'accès XML-RPC de Roller. Selon l'ASF, il accepte des types d'extension propres à des fournisseurs et les désérialise **avant** d'avoir authentifié l'appelant. Désérialiser des données non fiables est une classe de faille bien connue en Java : un objet construit de manière malveillante peut déclencher, lors de sa reconstruction, des enchaînements de code menant à l'exécution de commandes."
+    },
+    {
+     "type": "paragraph",
+     "text": "L'ASF précise qu'il s'agit du même problème que CVE-2026-82384, également noté 9,8 et corrigé en septembre 2026. L'avis de l'époque ne mentionnait toutefois que la version 6.1.5 comme touchée ; l'avis actuel élargit le périmètre aux versions **4.0.0 à 6.1.4**. Le chercheur n0mi1k est crédité de la découverte, et Matt Raible est remercié pour le signalement."
+    },
+    {
+     "type": "keyvalue",
+     "items": [
+      {
+       "label": "Identifiant",
+       "value": "CVE-2026-129448, CVSS 9,8"
+      },
+      {
+       "label": "Versions touchées",
+       "value": "Apache Roller 4.0.0 à 6.1.4"
+      },
+      {
+       "label": "Correctif",
+       "value": "Apache Roller 6.1.6 ou ultérieure"
+      },
+      {
+       "label": "Exploitation",
+       "value": "confirmée par l'ASF, sans détail"
+      }
+     ]
+    },
+    {
+     "type": "heading",
+     "text": "Corriger, ou réduire la surface exposée"
+    },
+    {
+     "type": "paragraph",
+     "text": "La version 6.1.6 désactive les types d'extension et rejette les requêtes XML-RPC lorsque cette fonction est désactivée. Si la mise à jour est impossible immédiatement, deux contournements existent : mettre « enabledForExtensions » à « false » dans `WEB-INF/web.xml`, ou supprimer la correspondance de servlet `/roller-services/xmlrpc`, puis redémarrer Roller."
+    },
+    {
+     "type": "paragraph",
+     "text": "Point d'attention : l'ASF avertit que désactiver XML-RPC dans l'interface d'administration ne suffit pas sur les anciennes versions, car elles désérialisent la requête avant de vérifier ce réglage. Il faut donc agir sur la configuration de l'application elle-même, ou filtrer l'accès au chemin concerné en amont, par exemple avec un mandataire inverse."
+    },
+    {
+     "type": "diagram",
+     "svg": "<svg xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"0 0 640 240\" font-family=\"system-ui,sans-serif\"><rect width=\"640\" height=\"240\" rx=\"14\" fill=\"#f4f6fa\"/><text x=\"320\" y=\"30\" text-anchor=\"middle\" font-size=\"15\" font-weight=\"700\" fill=\"#1d2433\">Pourquoi l'ordre des opérations compte</text><rect x=\"20\" y=\"55\" width=\"127\" height=\"150\" rx=\"10\" fill=\"hsl(175,60%,90%)\" stroke=\"hsl(175,50%,40%)\" stroke-width=\"2\"/><text x=\"83\" y=\"85\" text-anchor=\"middle\" font-size=\"13\" font-weight=\"700\" fill=\"#1d2433\">Requête XML-RPC</text><text x=\"83\" y=\"110\" text-anchor=\"middle\" font-size=\"12\" fill=\"#2b3447\">Envoyée sans</text><text x=\"83\" y=\"128\" text-anchor=\"middle\" font-size=\"12\" fill=\"#2b3447\">authentification</text><text x=\"83\" y=\"146\" text-anchor=\"middle\" font-size=\"12\" fill=\"#2b3447\">au chemin</text><text x=\"83\" y=\"164\" text-anchor=\"middle\" font-size=\"12\" fill=\"#2b3447\">/roller-services/xmlrpc</text><path d=\"M151 130 h22 m-7 -6 l7 6 l-7 6\" stroke=\"#1d2433\" stroke-width=\"2.5\" fill=\"none\"/><rect x=\"177\" y=\"55\" width=\"127\" height=\"150\" rx=\"10\" fill=\"hsl(175,60%,90%)\" stroke=\"hsl(175,50%,40%)\" stroke-width=\"2\"/><text x=\"240\" y=\"85\" text-anchor=\"middle\" font-size=\"13\" font-weight=\"700\" fill=\"#1d2433\">Désérialisation</text><text x=\"240\" y=\"110\" text-anchor=\"middle\" font-size=\"12\" fill=\"#2b3447\">Les types</text><text x=\"240\" y=\"128\" text-anchor=\"middle\" font-size=\"12\" fill=\"#2b3447\">d'extension sont</text><text x=\"240\" y=\"146\" text-anchor=\"middle\" font-size=\"12\" fill=\"#2b3447\">reconstruits avant</text><text x=\"240\" y=\"164\" text-anchor=\"middle\" font-size=\"12\" fill=\"#2b3447\">tout contrôle</text><path d=\"M308 130 h22 m-7 -6 l7 6 l-7 6\" stroke=\"#1d2433\" stroke-width=\"2.5\" fill=\"none\"/><rect x=\"334\" y=\"55\" width=\"127\" height=\"150\" rx=\"10\" fill=\"hsl(175,60%,90%)\" stroke=\"hsl(175,50%,40%)\" stroke-width=\"2\"/><text x=\"397\" y=\"85\" text-anchor=\"middle\" font-size=\"13\" font-weight=\"700\" fill=\"#1d2433\">Objet piégé</text><text x=\"397\" y=\"110\" text-anchor=\"middle\" font-size=\"12\" fill=\"#2b3447\">Un objet</text><text x=\"397\" y=\"128\" text-anchor=\"middle\" font-size=\"12\" fill=\"#2b3447\">malveillant</text><text x=\"397\" y=\"146\" text-anchor=\"middle\" font-size=\"12\" fill=\"#2b3447\">déclenche du code</text><text x=\"397\" y=\"164\" text-anchor=\"middle\" font-size=\"12\" fill=\"#2b3447\">lors de sa</text><text x=\"397\" y=\"182\" text-anchor=\"middle\" font-size=\"12\" fill=\"#2b3447\">reconstruction</text><path d=\"M465 130 h22 m-7 -6 l7 6 l-7 6\" stroke=\"#1d2433\" stroke-width=\"2.5\" fill=\"none\"/><rect x=\"491\" y=\"55\" width=\"127\" height=\"150\" rx=\"10\" fill=\"hsl(175,60%,90%)\" stroke=\"hsl(175,50%,40%)\" stroke-width=\"2\"/><text x=\"554\" y=\"85\" text-anchor=\"middle\" font-size=\"13\" font-weight=\"700\" fill=\"#1d2433\">Prise de contrôle</text><text x=\"554\" y=\"110\" text-anchor=\"middle\" font-size=\"12\" fill=\"#2b3447\">Exécution de</text><text x=\"554\" y=\"128\" text-anchor=\"middle\" font-size=\"12\" fill=\"#2b3447\">commandes sur le</text><text x=\"554\" y=\"146\" text-anchor=\"middle\" font-size=\"12\" fill=\"#2b3447\">serveur</text></svg>",
+     "alt": "Schéma en quatre étapes : requête XML-RPC non authentifiée, désérialisation, objet piégé, exécution de commandes.",
+     "caption": "Chaîne d'attaque générique d'une désérialisation non authentifiée, telle que décrite par l'ASF."
+    },
+    {
+     "type": "usecases",
+     "title": "Exemples d'utilisation",
+     "items": [
+      {
+       "icon": "🔎",
+       "title": "Équipe sécurité d'une université",
+       "text": "Elle recherche les instances Roller héritées sur ses blogs pédagogiques, vérifie la version et applique la 6.1.6 ou, à défaut, supprime la servlet XML-RPC."
+      },
+      {
+       "icon": "🧱",
+       "title": "Administrateur système",
+       "text": "Il bloque le chemin `/roller-services/xmlrpc` sur le mandataire inverse en attendant la fenêtre de maintenance."
+      },
+      {
+       "icon": "📜",
+       "title": "Responsable de la conformité",
+       "text": "Il consigne la faille exploitée dans le registre des vulnérabilités et vérifie les journaux d'accès à la recherche de requêtes inhabituelles vers ce chemin."
+      }
+     ]
+    },
+    {
+     "type": "timeline",
+     "title": "D'où l'on vient, où l'on va",
+     "items": [
+      {
+       "label": "Septembre 2026",
+       "text": "Correctif de CVE-2026-82384, dont l'avis ne citait que la version 6.1.5."
+      },
+      {
+       "label": "18 novembre 2026",
+       "text": "Nouvel avis élargissant les versions touchées à 4.0.0-6.1.4 et confirmant l'exploitation."
+      },
+      {
+       "label": "Ensuite",
+       "text": "Mise à jour vers 6.1.6 ou ultérieure ; aucune date supplémentaire n'est annoncée."
+      }
+     ]
+    },
+    {
+     "type": "opinion",
+     "title": "Notre avis",
+     "paragraphs": [
+      "Cet épisode illustre un travers fréquent : un avis initial trop étroit, puis un périmètre qui s'élargit après coup. Les administrateurs qui avaient lu l'avis de septembre et conclu qu'ils n'étaient pas concernés doivent réévaluer leur situation, d'autant que l'exploitation est confirmée.",
+      "Sur un à trois ans, on peut penser que les projets open source de petite taille, souvent maintenus par peu de personnes, seront de plus en plus pris pour cibles par des attaquants qui rejouent les correctifs publiés. Cette lecture est une opinion : elle plaide pour un inventaire logiciel complet, y compris des outils vieillissants."
+     ],
+     "verdict": "Une application discrète peut devenir une porte d'entrée : vérifier la version, sans attendre."
+    },
+    {
+     "type": "callout",
+     "title": "À retenir",
+     "text": "Si Roller tourne sur votre réseau, passez en 6.1.6 ou plus récent. Désactiver XML-RPC dans l'interface ne suffit pas sur les anciennes versions."
+    }
+   ],
+   "publishedAt": "2026-11-18T18:16:21+01:00",
+   "readingMinutes": 3
+  },
+  {
+   "id": "microsoft-ignite-mai-code-2-modeles",
+   "category": "ia",
+   "icon": "🧠",
+   "importance": 4,
+   "title": "Microsoft Ignite : MAI Code 2, MAI Realtime 1 et une série de modèles maison à prix cassés",
+   "summary": "Microsoft présente de nouveaux modèles MAI pour le code, la cybersécurité, l'image et la voix, ainsi que l'accélérateur Maia 200. Les comparaisons de performance et de prix proviennent de Microsoft.",
+   "tags": [
+    "Microsoft",
+    "MAI",
+    "Ignite",
+    "GitHub Copilot",
+    "Maia 200"
+   ],
+   "sourceDate": "2026-11-18",
+   "sources": [
+    {
+     "title": "Microsoft Ignite 2026 : annonces MAI",
+     "url": "https://microsoft.ai/news/microsoft-ignite-2026/",
+     "publisher": "Microsoft AI"
+    }
+   ],
+   "illustration": {
+    "svg": "<svg xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"0 0 640 360\"><defs><linearGradient id=\"g\" x1=\"0\" y1=\"0\" x2=\"1\" y2=\"1\"><stop offset=\"0\" stop-color=\"hsl(320,65%,38%)\"/><stop offset=\"1\" stop-color=\"hsl(0,70%,22%)\"/></linearGradient></defs><rect width=\"640\" height=\"360\" fill=\"url(#g)\"/><circle cx=\"560\" cy=\"60\" r=\"110\" fill=\"#fff\" opacity=\".07\"/><circle cx=\"70\" cy=\"320\" r=\"130\" fill=\"#fff\" opacity=\".06\"/><rect x=\"200\" y=\"110\" width=\"240\" height=\"140\" rx=\"18\" fill=\"#fff\" opacity=\".92\"/><g fill=\"hsl(320,60%,35%)\"><circle cx=\"260\" cy=\"150\" r=\"12\"/><circle cx=\"320\" cy=\"150\" r=\"12\"/><circle cx=\"380\" cy=\"150\" r=\"12\"/><circle cx=\"290\" cy=\"210\" r=\"12\"/><circle cx=\"350\" cy=\"210\" r=\"12\"/></g><path d=\"M260 150 L290 210 L320 150 L350 210 L380 150 M260 150 H380\" stroke=\"hsl(320,60%,35%)\" stroke-width=\"4\" fill=\"none\"/><path d=\"M440 180 h60 m-16 -14 l16 14 l-16 14\" stroke=\"#fff\" stroke-width=\"8\" fill=\"none\"/></svg>"
+   },
+   "blocks": [
+    {
+     "type": "paragraph",
+     "text": "À l'occasion de sa conférence Ignite 2026, Microsoft a dévoilé une série de modèles d'intelligence artificielle de sa gamme **MAI**, conçus en interne et annoncés avec des comparaisons de performance et de prix face à ceux d'OpenAI et d'Anthropic. L'annonce, intitulée « sept nouveaux modèles de classe mondiale », en liste en réalité cinq modèles principaux et trois éléments complémentaires dont un accélérateur matériel."
+    },
+    {
+     "type": "paragraph",
+     "text": "Précaution de lecture : tous les chiffres ci-dessous proviennent de Microsoft elle-même, qui choisit ses protocoles de test. Ils donnent une indication sur la stratégie de l'entreprise, qui cherche visiblement à proposer des modèles moins chers, plutôt que des résultats vérifiés de manière indépendante."
+    },
+    {
+     "type": "heading",
+     "text": "Les cinq modèles principaux"
+    },
+    {
+     "type": "list",
+     "items": [
+      "**MAI Cyber 2 Flash** (cybersécurité) : selon Microsoft, il dépasse la qualité de GPT-6 Astra sur le test CyberGym-E2E pour moins de 2 % du coût par tâche ; ses jetons de sortie coûtent 86 % de moins que ceux de MAI Cyber 1.1 Flash.",
+      "**MAI Code 2** (programmation) : en moyenne sur DeepSWE 1.1, Terminal Bench 2.1, SWE-Atlas et FrontierCode v1.1, il atteint 98 % des performances de GPT-6.1 Sol pour environ 40 % du prix, et 96 % de celles de Claude Opus 5.5 pour environ 5 % du prix. Il est disponible dans GitHub Copilot.",
+      "**MAI Code 2 Flash** (programmation à gros volume) : performances comparables à GPT-6 Luna pour 65 % du prix, et à Claude Haiku 5.5 pour 20 % du prix. Disponible dans GitHub Copilot et en préversion à accès limité dans Microsoft Foundry.",
+      "**MAI Image 2.7** (génération et édition d'images) : premier au classement d'Artificial Analysis pour l'édition d'images, devant GPT Image 2.6 Sunburst (maximum) pour un cinquième du prix, et quatrième en génération à partir de texte. Disponible dans Microsoft Foundry.",
+      "**MAI Realtime 1** (voix) : supérieur à GPT-Realtime 2.1 dans les évaluations de Microsoft, dont des tests externes et Dynamics 365. Tarifs à partir de 0,01 dollar la minute d'audio."
+     ]
+    },
+    {
+     "type": "heading",
+     "text": "Les trois compléments"
+    },
+    {
+     "type": "keyvalue",
+     "items": [
+      {
+       "label": "Dragon Copilot Transcribe",
+       "value": "fondé sur MAI Transcribe 2 ; transcrit toutes les conversations médecin-patient de ce produit (10 millions de consultations par mois) et divise par deux les erreurs en multilingue"
+      },
+      {
+       "label": "Decision 1.1",
+       "value": "routeur de requêtes qui réserve les gros modèles aux cas qui l'exigent ; 50 fois plus rapide et 79 fois moins cher que GPT-6.1 Sol selon Microsoft ; 4 000 clients"
+      },
+      {
+       "label": "Maia 200",
+       "value": "accélérateur de deuxième génération, en production, avec 1,7 fois plus de jetons par watt"
+      }
+     ]
+    },
+    {
+     "type": "diagram",
+     "svg": "<svg xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"0 0 640 240\" font-family=\"system-ui,sans-serif\"><rect width=\"640\" height=\"240\" rx=\"14\" fill=\"#f4f6fa\"/><text x=\"320\" y=\"30\" text-anchor=\"middle\" font-size=\"15\" font-weight=\"700\" fill=\"#1d2433\">La logique de coût de l'offre MAI (schéma simplifié)</text><rect x=\"20\" y=\"55\" width=\"127\" height=\"150\" rx=\"10\" fill=\"hsl(320,60%,90%)\" stroke=\"hsl(320,50%,40%)\" stroke-width=\"2\"/><text x=\"83\" y=\"85\" text-anchor=\"middle\" font-size=\"13\" font-weight=\"700\" fill=\"#1d2433\">Requête</text><text x=\"83\" y=\"110\" text-anchor=\"middle\" font-size=\"12\" fill=\"#2b3447\">Une demande arrive</text><text x=\"83\" y=\"128\" text-anchor=\"middle\" font-size=\"12\" fill=\"#2b3447\">: code, voix,</text><text x=\"83\" y=\"146\" text-anchor=\"middle\" font-size=\"12\" fill=\"#2b3447\">image ou analyse</text><path d=\"M151 130 h22 m-7 -6 l7 6 l-7 6\" stroke=\"#1d2433\" stroke-width=\"2.5\" fill=\"none\"/><rect x=\"177\" y=\"55\" width=\"127\" height=\"150\" rx=\"10\" fill=\"hsl(320,60%,90%)\" stroke=\"hsl(320,50%,40%)\" stroke-width=\"2\"/><text x=\"240\" y=\"85\" text-anchor=\"middle\" font-size=\"13\" font-weight=\"700\" fill=\"#1d2433\">Routeur Decision 1.1</text><text x=\"240\" y=\"110\" text-anchor=\"middle\" font-size=\"12\" fill=\"#2b3447\">Choisit le modèle</text><text x=\"240\" y=\"128\" text-anchor=\"middle\" font-size=\"12\" fill=\"#2b3447\">suffisant plutôt</text><text x=\"240\" y=\"146\" text-anchor=\"middle\" font-size=\"12\" fill=\"#2b3447\">que le plus gros</text><path d=\"M308 130 h22 m-7 -6 l7 6 l-7 6\" stroke=\"#1d2433\" stroke-width=\"2.5\" fill=\"none\"/><rect x=\"334\" y=\"55\" width=\"127\" height=\"150\" rx=\"10\" fill=\"hsl(320,60%,90%)\" stroke=\"hsl(320,50%,40%)\" stroke-width=\"2\"/><text x=\"397\" y=\"85\" text-anchor=\"middle\" font-size=\"13\" font-weight=\"700\" fill=\"#1d2433\">Modèle MAI</text><text x=\"397\" y=\"110\" text-anchor=\"middle\" font-size=\"12\" fill=\"#2b3447\">Code 2, Realtime</text><text x=\"397\" y=\"128\" text-anchor=\"middle\" font-size=\"12\" fill=\"#2b3447\">1, Image 2.7 ou</text><text x=\"397\" y=\"146\" text-anchor=\"middle\" font-size=\"12\" fill=\"#2b3447\">Cyber 2 Flash</text><path d=\"M465 130 h22 m-7 -6 l7 6 l-7 6\" stroke=\"#1d2433\" stroke-width=\"2.5\" fill=\"none\"/><rect x=\"491\" y=\"55\" width=\"127\" height=\"150\" rx=\"10\" fill=\"hsl(320,60%,90%)\" stroke=\"hsl(320,50%,40%)\" stroke-width=\"2\"/><text x=\"554\" y=\"85\" text-anchor=\"middle\" font-size=\"13\" font-weight=\"700\" fill=\"#1d2433\">Puces Maia 200</text><text x=\"554\" y=\"110\" text-anchor=\"middle\" font-size=\"12\" fill=\"#2b3447\">Exécution à 1,7</text><text x=\"554\" y=\"128\" text-anchor=\"middle\" font-size=\"12\" fill=\"#2b3447\">fois plus de</text><text x=\"554\" y=\"146\" text-anchor=\"middle\" font-size=\"12\" fill=\"#2b3447\">jetons par watt</text></svg>",
+     "alt": "Schéma en quatre étapes : requête, routeur de modèles, modèle MAI, accélérateur Maia 200.",
+     "caption": "Représentation simplifiée de la stratégie décrite par Microsoft : router, puis exécuter sur son propre matériel."
+    },
+    {
+     "type": "usecases",
+     "title": "Exemples d'utilisation",
+     "items": [
+      {
+       "icon": "👩‍💻",
+       "title": "Équipe de développement",
+       "text": "Elle choisit MAI Code 2 Flash dans GitHub Copilot pour les tâches répétitives à fort volume, et réserve un modèle plus puissant aux refactorisations délicates."
+      },
+      {
+       "icon": "📞",
+       "title": "Centre de relation client",
+       "text": "Elle teste MAI Realtime 1 pour un assistant vocal en temps réel, en mesurant la qualité et le coût à la minute avant tout déploiement."
+      },
+      {
+       "icon": "🛡️",
+       "title": "Équipe de sécurité",
+       "text": "Elle évalue MAI Cyber 2 Flash pour trier des alertes, en vérifiant sur ses propres données les résultats annoncés par l'éditeur."
+      }
+     ]
+    },
+    {
+     "type": "timeline",
+     "title": "D'où l'on vient, où l'on va",
+     "items": [
+      {
+       "label": "Avant Ignite 2026",
+       "text": "Microsoft proposait déjà des modèles MAI, dont MAI Cyber 1.1 Flash, cité comme point de comparaison pour les tarifs."
+      },
+      {
+       "label": "18 novembre 2026",
+       "text": "Annonce de la nouvelle série lors d'Ignite, avec disponibilité dans GitHub Copilot et Microsoft Foundry selon les modèles."
+      },
+      {
+       "label": "Ensuite",
+       "text": "Aucune date supplémentaire n'est précisée dans l'annonce pour les accès limités."
+      }
+     ]
+    },
+    {
+     "type": "opinion",
+     "title": "Notre avis",
+     "paragraphs": [
+      "Le message de Microsoft est avant tout économique : pour la programmation, elle revendique près de 96 % de la performance d'un modèle concurrent pour environ 5 % du prix. Si ces ordres de grandeur se confirmaient hors de ses protocoles, la concurrence se jouerait moins sur la qualité brute que sur le coût par tâche. Il faut cependant attendre des évaluations indépendantes, car un moyennage de plusieurs tests peut masquer des écarts sur les tâches difficiles.",
+      "À un horizon d'un à trois ans, on peut penser, c'est une opinion, que la maîtrise de la chaîne complète, du modèle jusqu'à la puce Maia, deviendra un avantage décisif : réduire le coût de chaque jeton ouvre des usages aujourd'hui trop chers."
+     ],
+     "verdict": "Des promesses de prix très agressives, à confronter à des mesures indépendantes."
+    },
+    {
+     "type": "callout",
+     "title": "À retenir",
+     "text": "Les performances et les prix annoncés sont ceux de Microsoft. Avant de changer de modèle, comparez-les sur vos propres cas d'usage."
+    }
+   ],
+   "publishedAt": "2026-11-18T18:16:21+01:00",
+   "readingMinutes": 4
+  }
+ ]
+}
