@@ -1,0 +1,707 @@
+{
+ "schemaVersion": "1.0",
+ "date": "2026-11-18",
+ "generatedAt": "2026-11-18T04:16:12+01:00",
+ "title": "Tech Daily — faux recruteurs nord-coréens, portes dérobées dans le cloud, SHA pinning et Redict",
+ "summary": "Édition tech : la campagne Trigram qui piège les développeurs, les implants GitDoor et GraphDoor cachés dans des services cloud, les limites de l'épinglage au SHA dans GitHub Actions, l'abandon de Redict au profit de Valkey et un micrologiciel libre pour liseuses à bas prix.",
+ "highlights": [
+  "Trigram : une cinquantaine de marques usurpées pour faire exécuter un infostealer aux développeurs",
+  "GitDoor et GraphDoor : des ordres d'attaque cachés dans GitHub, SharePoint et Ably",
+  "GitHub Actions : l'épinglage au SHA ne prouve pas l'auteur du code, les lockfiles aident",
+  "Redict est déprécié, Valkey devient la référence",
+  "Crosspoint Reader : plus de 300 000 installations sur des liseuses à bas prix"
+ ],
+ "meta": {
+  "generator": "claude-scheduled-task"
+ },
+ "posts": [
+  {
+   "id": "trigram-faux-recruteurs-infostealer-developpeurs",
+   "category": "cybersecurite",
+   "icon": "🎣",
+   "importance": 5,
+   "title": "Trigram : une campagne usurpe une cinquantaine de marques de l'IA et de la blockchain pour piéger les développeurs",
+   "summary": "Stormshield décrit une campagne qui mêle faux recrutements, invitations à des conférences et dépôts piégés pour faire exécuter un infostealer par les développeurs eux-mêmes ; elle est rattachée, avec un niveau de confiance élevé, à la mouvance nord-coréenne.",
+   "tags": [
+    "Trigram",
+    "Stormshield",
+    "infostealer",
+    "ingénierie sociale",
+    "chaîne d'approvisionnement",
+    "Kimsuky"
+   ],
+   "sources": [
+    {
+     "title": "Trigram Campaign Impersonates About 50 AI and Blockchain Brands to Target Devs with Infostealers",
+     "url": "https://thehackernews.com/2026/11/trigram-campaign-impersonates-about-50.html",
+     "publisher": "The Hacker News"
+    }
+   ],
+   "illustration": {
+    "svg": "<svg xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"0 0 640 360\"><defs><linearGradient id=\"g\" x1=\"0\" y1=\"0\" x2=\"1\" y2=\"1\"><stop offset=\"0\" stop-color=\"hsl(175,62%,40%)\"/><stop offset=\"1\" stop-color=\"hsl(210,66%,22%)\"/></linearGradient></defs><rect width=\"640\" height=\"360\" fill=\"url(#g)\"/><circle cx=\"545\" cy=\"60\" r=\"120\" fill=\"#fff\" fill-opacity=\".08\"/><circle cx=\"90\" cy=\"320\" r=\"100\" fill=\"#fff\" fill-opacity=\".07\"/><path d=\"M320 70l110 40v70c0 70-50 110-110 130-60-20-110-60-110-130v-70z\" fill=\"#fff\" fill-opacity=\".92\"/><path d=\"M270 185l35 35 70-80\" fill=\"none\" stroke=\"hsl(175,60%,30%)\" stroke-width=\"16\"/></svg>"
+   },
+   "blocks": [
+    {
+     "type": "paragraph",
+     "text": "Le 16 novembre 2026, l'éditeur français Stormshield a publié un rapport technique sur une campagne qu'il baptise **Trigram**. Elle vise des développeurs des secteurs de l'intelligence artificielle, de la blockchain et de la logistique, en Europe et aux États-Unis. Son principe est simple et redoutable : plutôt que d'exploiter une faille logicielle, les attaquants convainquent leurs cibles d'exécuter elles-mêmes une commande dans un terminal, en se faisant passer pour une cinquantaine de marques connues du secteur."
+    },
+    {
+     "type": "paragraph",
+     "text": "*Précision sur la source : le récit ci-dessous s'appuie sur l'article de The Hacker News qui résume le rapport de Stormshield ; le rapport original n'a pas été consulté directement. L'attribution reste une évaluation d'analystes, non une preuve judiciaire.*"
+    },
+    {
+     "type": "heading",
+     "text": "Trois scénarios, une même infrastructure"
+    },
+    {
+     "type": "paragraph",
+     "text": "Stormshield décrit trois leurres d'ingénierie sociale : le recrutement, l'invitation à une conférence et le suivi de colis. Tous convergent vers la même infrastructure et la même charge utile. Dans le scénario de recrutement, de faux portails de carrières imitent notamment Amber Group, une véritable société de crypto-actifs. La victime reçoit un courriel d'offre d'emploi et arrive sur un site qui affiche des annonces et un formulaire de candidature. Pour y accéder, il faut saisir un code de parrainage ; les codes refusés déclenchent des messages tels que « Already used » ou « Locked to another IP », ce qui donne au site un air de service sélectif et crédible."
+    },
+    {
+     "type": "paragraph",
+     "text": "Le site profile aussi les visiteurs et écarte certaines régions, peut-être la Chine. Les candidats acceptés doivent coller une commande dans leur terminal au titre d'un prétendu « contrôle technique ». Une première tentative affiche une erreur de délai d'attente ; au second essai, un bouton « Copier » modifié place dans le presse-papiers la véritable commande. Selon le système d'exploitation, un script PowerShell (Windows) ou Bash (Linux et macOS) télécharge un chargeur, qui installe au besoin Node.js 20.18.1 puis récupère une charge utile JavaScript nommée `install_guard.js`. Sous macOS et Linux, une fausse boîte de dialogue réclame le mot de passe système pour « appliquer des mises à jour »."
+    },
+    {
+     "type": "heading",
+     "text": "Ce que fait le logiciel malveillant"
+    },
+    {
+     "type": "paragraph",
+     "text": "La charge utile télécharge une étape chiffrée exécutée en mémoire. Le serveur de commande est retrouvé grâce à une « boîte aux lettres morte » hébergée sur GitLab. L'étape finale dérobe les mots de passe et cookies des navigateurs, les trousseaux, les portefeuilles de crypto-actifs, les clés SSH et les fichiers `.env`, puis installe un agent d'accès à distance déguisé en logiciel Google. Sous Linux et macOS, la chaîne déploie Overlord, un cheval de Troie d'accès à distance open source."
+    },
+    {
+     "type": "keyvalue",
+     "items": [
+      {
+       "label": "Leurres",
+       "value": "recrutement, conférence, suivi de colis"
+      },
+      {
+       "label": "Marques usurpées",
+       "value": "environ 50, dans l'IA et la blockchain"
+      },
+      {
+       "label": "Dépôt piégé",
+       "value": "commit falsifié sur antd-img-crop, poussé le 31 octobre 2026 (le paquet npm lui-même n'est pas touché)"
+      },
+      {
+       "label": "Extension piégée",
+       "value": "extension VS Code ou Cursor « google-dev-tools.google-update-support », supprimée après exécution"
+      },
+      {
+       "label": "Cibles",
+       "value": "développeurs IA, blockchain et logistique, Europe et États-Unis"
+      }
+     ]
+    },
+    {
+     "type": "diagram",
+     "svg": "<svg xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"0 0 640 230\" font-family=\"system-ui,sans-serif\"><rect width=\"640\" height=\"230\" rx=\"14\" fill=\"#eef0f8\"/><text x=\"320\" y=\"32\" text-anchor=\"middle\" font-size=\"15\" font-weight=\"600\" fill=\"#1d2140\">Chaîne d'infection de Trigram</text><rect x=\"20\" y=\"60\" width=\"102\" height=\"130\" rx=\"10\" fill=\"#fff\" stroke=\"#1f6f6b\" stroke-width=\"2\"/><text x=\"71\" y=\"88\" text-anchor=\"middle\" font-size=\"13\" font-weight=\"700\" fill=\"#1f6f6b\">1. Leurre</text><text x=\"71\" y=\"112\" text-anchor=\"middle\" font-size=\"11.5\" fill=\"#1d2140\">Offre d'emploi,</text><text x=\"71\" y=\"129\" text-anchor=\"middle\" font-size=\"11.5\" fill=\"#1d2140\">invitation ou</text><text x=\"71\" y=\"146\" text-anchor=\"middle\" font-size=\"11.5\" fill=\"#1d2140\">colis</text><path d=\"M124 125h18l-6-6m6 6l-6 6\" stroke=\"#1f6f6b\" stroke-width=\"2.5\" fill=\"none\"/><rect x=\"144\" y=\"60\" width=\"102\" height=\"130\" rx=\"10\" fill=\"#fff\" stroke=\"#1f6f6b\" stroke-width=\"2\"/><text x=\"196\" y=\"88\" text-anchor=\"middle\" font-size=\"13\" font-weight=\"700\" fill=\"#1f6f6b\">2. Faux site</text><text x=\"196\" y=\"112\" text-anchor=\"middle\" font-size=\"11.5\" fill=\"#1d2140\">Code de</text><text x=\"196\" y=\"129\" text-anchor=\"middle\" font-size=\"11.5\" fill=\"#1d2140\">parrainage,</text><text x=\"196\" y=\"146\" text-anchor=\"middle\" font-size=\"11.5\" fill=\"#1d2140\">profilage</text><path d=\"M249 125h18l-6-6m6 6l-6 6\" stroke=\"#1f6f6b\" stroke-width=\"2.5\" fill=\"none\"/><rect x=\"269\" y=\"60\" width=\"102\" height=\"130\" rx=\"10\" fill=\"#fff\" stroke=\"#1f6f6b\" stroke-width=\"2\"/><text x=\"320\" y=\"88\" text-anchor=\"middle\" font-size=\"13\" font-weight=\"700\" fill=\"#1f6f6b\">3. Commande</text><text x=\"320\" y=\"112\" text-anchor=\"middle\" font-size=\"11.5\" fill=\"#1d2140\">Collée dans le</text><text x=\"320\" y=\"129\" text-anchor=\"middle\" font-size=\"11.5\" fill=\"#1d2140\">terminal</text><path d=\"M373 125h18l-6-6m6 6l-6 6\" stroke=\"#1f6f6b\" stroke-width=\"2.5\" fill=\"none\"/><rect x=\"393\" y=\"60\" width=\"102\" height=\"130\" rx=\"10\" fill=\"#fff\" stroke=\"#1f6f6b\" stroke-width=\"2\"/><text x=\"444\" y=\"88\" text-anchor=\"middle\" font-size=\"13\" font-weight=\"700\" fill=\"#1f6f6b\">4. Chargeur</text><text x=\"444\" y=\"112\" text-anchor=\"middle\" font-size=\"11.5\" fill=\"#1d2140\">Node.js, charge</text><text x=\"444\" y=\"129\" text-anchor=\"middle\" font-size=\"11.5\" fill=\"#1d2140\">JavaScript</text><path d=\"M498 125h18l-6-6m6 6l-6 6\" stroke=\"#1f6f6b\" stroke-width=\"2.5\" fill=\"none\"/><rect x=\"518\" y=\"60\" width=\"102\" height=\"130\" rx=\"10\" fill=\"#fff\" stroke=\"#1f6f6b\" stroke-width=\"2\"/><text x=\"569\" y=\"88\" text-anchor=\"middle\" font-size=\"13\" font-weight=\"700\" fill=\"#1f6f6b\">5. Vol</text><text x=\"569\" y=\"112\" text-anchor=\"middle\" font-size=\"11.5\" fill=\"#1d2140\">Mots de passe,</text><text x=\"569\" y=\"129\" text-anchor=\"middle\" font-size=\"11.5\" fill=\"#1d2140\">clés,</text><text x=\"569\" y=\"146\" text-anchor=\"middle\" font-size=\"11.5\" fill=\"#1d2140\">portefeuilles</text></svg>",
+     "alt": "Cinq étapes : leurre, faux site, commande collée, chargeur, vol de données",
+     "caption": "Schéma simplifié de la chaîne d'infection décrite par Stormshield."
+    },
+    {
+     "type": "heading",
+     "text": "Une attribution prudente"
+    },
+    {
+     "type": "paragraph",
+     "text": "Stormshield estime « avec un niveau de confiance élevé » que Trigram prolonge le groupe d'activité UNK_DeadDrop, lui-même rapproché d'opérateurs alignés sur la Corée du Nord, en particulier Kimsuky, et présentant des similitudes avec la campagne de longue date Contagious Interview. La société SafeDep nuance : la technique correspond à Contagious Interview, mais cela « ne prouve pas l'identité des opérateurs ». Une branche distincte, l'opération GitPower, suivie par Genians et attribuée à Kimsuky, recourt à Ollama et GPT4All pour fabriquer des documents leurres."
+    },
+    {
+     "type": "usecases",
+     "title": "Exemples d'utilisation",
+     "items": [
+      {
+       "icon": "👩‍💻",
+       "title": "Le développeur en recherche d'emploi",
+       "text": "Un ingénieur blockchain reçoit une offre alléchante d'une société connue. Avant de copier-coller quoi que ce soit dans un terminal, il vérifie l'offre sur le site officiel de l'entreprise et refuse tout « test technique » qui exige d'exécuter une commande opaque."
+      },
+      {
+       "icon": "🏢",
+       "title": "L'équipe sécurité d'une start-up",
+       "text": "Elle impose que les tests techniques de recrutement et les projets tiers soient ouverts dans une machine virtuelle jetable, sans accès aux clés SSH ni aux portefeuilles de l'entreprise."
+      },
+      {
+       "icon": "🔎",
+       "title": "Le mainteneur open source",
+       "text": "Il surveille les commits inattendus qui ajoutent un script exécuté avant la construction du projet, comme le crochet `prebuild` signalé dans cette campagne, et exige une relecture pour tout changement de ce type."
+      }
+     ]
+    },
+    {
+     "type": "timeline",
+     "title": "D'où l'on vient, où l'on va",
+     "items": [
+      {
+       "label": "Août 2026",
+       "text": "Jamf Threat Labs signale une campagne macOS qui utilise un faux installateur Zoom pour déployer Overlord."
+      },
+      {
+       "label": "31 octobre 2026",
+       "text": "Un commit falsifié est poussé sur le dépôt antd-img-crop."
+      },
+      {
+       "label": "16 novembre 2026",
+       "text": "Stormshield publie son rapport sur Trigram."
+      },
+      {
+       "label": "Ensuite",
+       "text": "Les indicateurs publiés (domaine, dépôt GitHub, compte Telegram) permettent aux équipes de détection de rechercher d'éventuelles compromissions."
+      }
+     ]
+    },
+    {
+     "type": "opinion",
+     "title": "Notre avis",
+     "paragraphs": [
+      "Trigram illustre un déplacement de la menace : le maillon faible n'est plus le logiciel, mais le geste « de confiance » du développeur qui colle une commande pour passer un entretien. Les défenses classiques, centrées sur les failles, n'y peuvent rien. Ce sont les habitudes qui comptent : environnement isolé pour les tests, secrets absents des postes de travail, méfiance envers tout code à exécuter pour être recruté.",
+      "À un horizon d'un à trois ans, on peut s'attendre à des leurres de plus en plus personnalisés, nourris par l'IA et par les profils publics sur GitHub. Les plateformes de recrutement et les éditeurs d'outils de développement devront probablement renforcer la vérification des offres et le cloisonnement des extensions. Il s'agit d'une analyse, pas d'un fait établi."
+     ],
+     "verdict": "Quand l'attaque ne repose sur aucune faille, la meilleure parade est un réflexe : ne jamais exécuter ce qu'un recruteur vous envoie."
+    },
+    {
+     "type": "callout",
+     "title": "À retenir",
+     "text": "Faits : environ 50 marques usurpées, trois leurres, une charge utile qui vole mots de passe, clés et portefeuilles ; rapport de Stormshield du 16 novembre 2026. Analyse : l'attribution à la mouvance nord-coréenne est une évaluation, pas une preuve. L'article source ne propose pas de mesures de défense ; les conseils de cet article sont des bonnes pratiques générales."
+    }
+   ],
+   "publishedAt": "2026-11-18T04:16:12+01:00",
+   "readingMinutes": 5
+  },
+  {
+   "id": "gitdoor-graphdoor-portes-derobees-cloud",
+   "category": "cybersecurite",
+   "icon": "☁️",
+   "importance": 4,
+   "title": "GitDoor et GraphDoor : deux portes dérobées qui cachent leurs ordres dans GitHub, SharePoint et Ably",
+   "summary": "Kaspersky détaille l'opération ShadowCloud, qui vise des administrations d'Asie et d'Afrique avec deux implants inédits dont le trafic de commande se fond dans des services cloud légitimes.",
+   "tags": [
+    "Kaspersky",
+    "ShadowCloud",
+    "GitDoor",
+    "GraphDoor",
+    "MeshCentral",
+    "commande et contrôle"
+   ],
+   "sources": [
+    {
+     "title": "New GitDoor and GraphDoor Backdoors Turn GitHub and SharePoint Into Covert C2 Channels",
+     "url": "https://thehackernews.com/2026/11/new-gitdoor-and-graphdoor-backdoors.html",
+     "publisher": "The Hacker News"
+    }
+   ],
+   "illustration": {
+    "svg": "<svg xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"0 0 640 360\"><defs><linearGradient id=\"g\" x1=\"0\" y1=\"0\" x2=\"1\" y2=\"1\"><stop offset=\"0\" stop-color=\"hsl(175,62%,40%)\"/><stop offset=\"1\" stop-color=\"hsl(210,66%,22%)\"/></linearGradient></defs><rect width=\"640\" height=\"360\" fill=\"url(#g)\"/><circle cx=\"545\" cy=\"60\" r=\"120\" fill=\"#fff\" fill-opacity=\".08\"/><circle cx=\"90\" cy=\"320\" r=\"100\" fill=\"#fff\" fill-opacity=\".07\"/><g stroke=\"#fff\" stroke-width=\"6\" fill=\"none\"><path d=\"M320 120L220 240M320 120L420 240M220 240h200M320 120v-0\"/></g><g fill=\"#fff\"><circle cx=\"320\" cy=\"110\" r=\"26\"/><circle cx=\"215\" cy=\"245\" r=\"26\"/><circle cx=\"425\" cy=\"245\" r=\"26\"/></g></svg>"
+   },
+   "blocks": [
+    {
+     "type": "paragraph",
+     "text": "Les défenseurs réseau ont longtemps bloqué des adresses IP suspectes. Que faire lorsque les ordres d'un attaquant transitent par GitHub, Microsoft SharePoint ou un service de messagerie en temps réel, c'est-à-dire par des domaines que l'entreprise autorise déjà ? C'est le pari de l'opération **ShadowCloud**, que Kaspersky a repérée début 2026 et dont l'éditeur vient de publier l'analyse en deux parties. Elle concerne deux portes dérobées inédites, **GitDoor** et **GraphDoor**, utilisées contre des secteurs gouvernementaux en Asie et en Afrique."
+    },
+    {
+     "type": "paragraph",
+     "text": "*Précision sur la source : ce compte rendu repose sur l'article de The Hacker News du 17 novembre 2026, qui résume les travaux de Kaspersky. L'article ne donne ni condensats de fichiers ni recommandations de défense ; les pistes de détection proposées plus bas relèvent de notre analyse.*"
+    },
+    {
+     "type": "heading",
+     "text": "Un accès initial par un outil légitime"
+    },
+    {
+     "type": "paragraph",
+     "text": "Les attaquants abusent de MeshCentral Agent, un outil d'accès à distance parfaitement légitime, pour déposer les deux implants. Le mode d'installation initial est inconnu ; les indices évoquent la « réutilisation d'une infection déjà présente sur le réseau ». L'agent contacte un serveur codé en dur (27.102.66[.]162, port 443) et récupère trois éléments : un exécutable légitime servant au chargement latéral de bibliothèque (start.exe, pythonw.exe ou zoomit.exe), une bibliothèque DLL malveillante (jli.dll, SbieDll.dll ou WINMM.dll) et un fichier chiffré contenant le cœur de la charge. Deux types de chargeurs ont été identifiés, l'un combinant RC4 et un masque XOR, l'autre se limitant à XOR. Le code est en outre brouillé par aplatissement du flot de contrôle."
+    },
+    {
+     "type": "heading",
+     "text": "GitDoor : GitHub comme canal de commande"
+    },
+    {
+     "type": "paragraph",
+     "text": "GitDoor lit ses ordres dans un dépôt GitHub public et renvoie les résultats vers un dépôt privé. D'après les dates de création des dépôts, la préparation remonterait au moins à la fin de 2024. L'implant gère 26 commandes : gestion de fichiers, enregistrement des frappes, lancement d'un proxy, chargement de code machine encodé en Base64. Ces modules complémentaires ajoutent l'injection de processus, la gestion des services, la modification du pare-feu, les tâches planifiées, l'accès au registre, la gestion des comptes et diverses fonctions de vol d'identifiants : cookies de Chrome et Edge, Mimikatz contre LSASS, clé de la base de données WhatsApp."
+    },
+    {
+     "type": "heading",
+     "text": "GraphDoor : SharePoint via l'API Microsoft Graph"
+    },
+    {
+     "type": "paragraph",
+     "text": "GraphDoor crée un répertoire « Intel_Log » dans le dossier de données d'application, collecte des informations système, puis s'authentifie auprès de login.microsoftonline.com avec une application malveillante. Le jeton obtenu lui permet de déposer et lire des données sur SharePoint par l'API Graph. Il récupère en parallèle trois modules pour les captures d'écran, la liste des processus et l'enregistrement des frappes, ainsi qu'un tunnel SOCKS5 qui passe par le service WebSocket d'Ably."
+    },
+    {
+     "type": "diagram",
+     "svg": "<svg xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"0 0 640 230\" font-family=\"system-ui,sans-serif\"><rect width=\"640\" height=\"230\" rx=\"14\" fill=\"#eef0f8\"/><text x=\"320\" y=\"32\" text-anchor=\"middle\" font-size=\"15\" font-weight=\"600\" fill=\"#1d2140\">Trois canaux de commande dans le cloud</text><rect x=\"20\" y=\"60\" width=\"102\" height=\"130\" rx=\"10\" fill=\"#fff\" stroke=\"#1f6f6b\" stroke-width=\"2\"/><text x=\"71\" y=\"88\" text-anchor=\"middle\" font-size=\"13\" font-weight=\"700\" fill=\"#1f6f6b\">MeshCentral</text><text x=\"71\" y=\"112\" text-anchor=\"middle\" font-size=\"11.5\" fill=\"#1d2140\">Agent légitime</text><text x=\"71\" y=\"129\" text-anchor=\"middle\" font-size=\"11.5\" fill=\"#1d2140\">détourné</text><path d=\"M124 125h18l-6-6m6 6l-6 6\" stroke=\"#1f6f6b\" stroke-width=\"2.5\" fill=\"none\"/><rect x=\"144\" y=\"60\" width=\"102\" height=\"130\" rx=\"10\" fill=\"#fff\" stroke=\"#1f6f6b\" stroke-width=\"2\"/><text x=\"196\" y=\"88\" text-anchor=\"middle\" font-size=\"13\" font-weight=\"700\" fill=\"#1f6f6b\">Chargeur DLL</text><text x=\"196\" y=\"112\" text-anchor=\"middle\" font-size=\"11.5\" fill=\"#1d2140\">Chargement</text><text x=\"196\" y=\"129\" text-anchor=\"middle\" font-size=\"11.5\" fill=\"#1d2140\">latéral,</text><text x=\"196\" y=\"146\" text-anchor=\"middle\" font-size=\"11.5\" fill=\"#1d2140\">mémoire</text><path d=\"M249 125h18l-6-6m6 6l-6 6\" stroke=\"#1f6f6b\" stroke-width=\"2.5\" fill=\"none\"/><rect x=\"269\" y=\"60\" width=\"102\" height=\"130\" rx=\"10\" fill=\"#fff\" stroke=\"#1f6f6b\" stroke-width=\"2\"/><text x=\"320\" y=\"88\" text-anchor=\"middle\" font-size=\"13\" font-weight=\"700\" fill=\"#1f6f6b\">GitDoor</text><text x=\"320\" y=\"112\" text-anchor=\"middle\" font-size=\"11.5\" fill=\"#1d2140\">Ordres lus sur</text><text x=\"320\" y=\"129\" text-anchor=\"middle\" font-size=\"11.5\" fill=\"#1d2140\">GitHub</text><path d=\"M373 125h18l-6-6m6 6l-6 6\" stroke=\"#1f6f6b\" stroke-width=\"2.5\" fill=\"none\"/><rect x=\"393\" y=\"60\" width=\"102\" height=\"130\" rx=\"10\" fill=\"#fff\" stroke=\"#1f6f6b\" stroke-width=\"2\"/><text x=\"444\" y=\"88\" text-anchor=\"middle\" font-size=\"13\" font-weight=\"700\" fill=\"#1f6f6b\">GraphDoor</text><text x=\"444\" y=\"112\" text-anchor=\"middle\" font-size=\"11.5\" fill=\"#1d2140\">Données sur</text><text x=\"444\" y=\"129\" text-anchor=\"middle\" font-size=\"11.5\" fill=\"#1d2140\">SharePoint</text><path d=\"M498 125h18l-6-6m6 6l-6 6\" stroke=\"#1f6f6b\" stroke-width=\"2.5\" fill=\"none\"/><rect x=\"518\" y=\"60\" width=\"102\" height=\"130\" rx=\"10\" fill=\"#fff\" stroke=\"#1f6f6b\" stroke-width=\"2\"/><text x=\"569\" y=\"88\" text-anchor=\"middle\" font-size=\"13\" font-weight=\"700\" fill=\"#1f6f6b\">Ably</text><text x=\"569\" y=\"112\" text-anchor=\"middle\" font-size=\"11.5\" fill=\"#1d2140\">Tunnel SOCKS5</text></svg>",
+     "alt": "Schéma : agent détourné, chargeur, GitDoor, GraphDoor et Ably",
+     "caption": "Les implants s'appuient sur des services que l'entreprise autorise déjà."
+    },
+    {
+     "type": "heading",
+     "text": "Cibles et attribution"
+    },
+    {
+     "type": "paragraph",
+     "text": "L'attaque initiale a visé une organisation taïwanaise non nommée, dans un contexte plus large de ciblage gouvernemental. L'acteur n'est pas identifié. Kaspersky relève un recoupement partiel avec un groupe lié à la Chine que Sophos suit sous le nom Bronze Sandcastle, ainsi que des similitudes tactiques avec FamousSparrow et CopperTurtle (BlackTech) : sur plusieurs machines, ces groupes ont utilisé les mêmes répertoires de transit, avec des implants déposés à un jour d'intervalle. L'éditeur précise que cela ne prouve pas un lien direct."
+    },
+    {
+     "type": "usecases",
+     "title": "Exemples d'utilisation",
+     "items": [
+      {
+       "icon": "🛡️",
+       "title": "Le centre opérationnel de sécurité",
+       "text": "Il recherche les connexions GitHub ou Graph provenant de serveurs qui n'ont aucune raison d'y accéder, ainsi que la présence d'un répertoire « Intel_Log » ou du fichier de journal cité parmi les indicateurs."
+      },
+      {
+       "icon": "🏛️",
+       "title": "La DSI d'une administration",
+       "text": "Elle inventorie les outils d'administration à distance, comme MeshCentral, et retire ceux qu'aucune équipe ne reconnaît."
+      },
+      {
+       "icon": "☁️",
+       "title": "L'administrateur Microsoft 365",
+       "text": "Il passe en revue les applications enregistrées dans l'annuaire et les consentements accordés, afin de repérer une application inconnue autorisée à lire SharePoint."
+      }
+     ]
+    },
+    {
+     "type": "timeline",
+     "title": "D'où l'on vient, où l'on va",
+     "items": [
+      {
+       "label": "Fin 2024",
+       "text": "Date de création estimée des dépôts GitHub utilisés par GitDoor."
+      },
+      {
+       "label": "Début 2026",
+       "text": "Kaspersky identifie la campagne ShadowCloud."
+      },
+      {
+       "label": "17 novembre 2026",
+       "text": "Publication de l'analyse en deux parties et reprise par la presse spécialisée."
+      }
+     ]
+    },
+    {
+     "type": "opinion",
+     "title": "Notre avis",
+     "paragraphs": [
+      "Cette campagne rappelle qu'un domaine « de confiance » n'est pas un domaine sûr. Quand le canal de commande se confond avec l'activité normale d'une entreprise, la détection par liste de blocage perd son sens ; il faut raisonner en comportements : qui parle à GitHub, depuis quelle machine, avec quel jeton ?",
+      "On peut raisonnablement penser que cette approche se généralisera, car elle coûte peu aux attaquants et complique la vie des défenseurs. Cela donnera plus de poids à la journalisation des identités et des applications cloud qu'au filtrage réseau seul. Cette projection est une opinion, non un fait."
+     ],
+     "verdict": "Le cloud est devenu le meilleur camouflage des attaquants : la détection doit désormais suivre les identités et les usages, pas seulement les adresses."
+    }
+   ],
+   "publishedAt": "2026-11-18T04:16:12+01:00",
+   "readingMinutes": 4
+  },
+  {
+   "id": "github-actions-epinglage-sha-limites-lockfiles",
+   "category": "devops",
+   "icon": "📌",
+   "importance": 4,
+   "title": "GitHub Actions : épingler une action à un SHA ne prouve pas qui a écrit le code, et les fichiers de verrouillage ne règlent pas tout",
+   "summary": "Des attaquants exploitent le modèle de fourches de GitHub pour faire passer un commit malveillant pour légitime ; les workflow lockfiles, disponibles depuis le 28 octobre 2026, réduisent le risque sans l'éliminer.",
+   "tags": [
+    "GitHub Actions",
+    "SHA pinning",
+    "chaîne d'approvisionnement",
+    "Trivy",
+    "lockfiles",
+    "CI/CD"
+   ],
+   "sources": [
+    {
+     "title": "Hackers Found a Way Around GitHub SHA Pinning. This Webinar Explains How to Close the Gap",
+     "url": "https://thehackernews.com/2026/11/hackers-found-way-around-github-sha.html",
+     "publisher": "The Hacker News"
+    }
+   ],
+   "illustration": {
+    "svg": "<svg xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"0 0 640 360\"><defs><linearGradient id=\"g\" x1=\"0\" y1=\"0\" x2=\"1\" y2=\"1\"><stop offset=\"0\" stop-color=\"hsl(160,62%,40%)\"/><stop offset=\"1\" stop-color=\"hsl(195,66%,22%)\"/></linearGradient></defs><rect width=\"640\" height=\"360\" fill=\"url(#g)\"/><circle cx=\"545\" cy=\"60\" r=\"120\" fill=\"#fff\" fill-opacity=\".08\"/><circle cx=\"90\" cy=\"320\" r=\"100\" fill=\"#fff\" fill-opacity=\".07\"/><g stroke=\"#fff\" stroke-width=\"10\" fill=\"none\"><path d=\"M240 80v200M240 140c0 50 160 0 160 70\"/></g><g fill=\"#fff\"><circle cx=\"240\" cy=\"80\" r=\"22\"/><circle cx=\"240\" cy=\"280\" r=\"22\"/><circle cx=\"400\" cy=\"210\" r=\"22\"/></g></svg>"
+   },
+   "blocks": [
+    {
+     "type": "paragraph",
+     "text": "Dans les pipelines d'intégration continue, une règle de bon sens s'est imposée : au lieu de référencer une action GitHub par une étiquette modifiable (`@v4`), on l'épingle à l'empreinte exacte d'un commit, le SHA de 40 caractères. En mars 2025, la compromission de `tj-actions/changed-files`, dont les étiquettes avaient été redirigées vers un commit malveillant dans plus de 23 000 dépôts, avait donné raison à cette pratique : les équipes épinglées n'avaient pas été touchées."
+    },
+    {
+     "type": "paragraph",
+     "text": "*Précision sur la source : cet article se fonde sur un texte contribué publié par The Hacker News le 17 novembre 2026, qui promeut aussi un webinaire d'un éditeur de sécurité. Les faits sont à lire avec cette réserve ; les dates des fonctionnalités GitHub citées proviennent de ce texte et n'ont pas été recoupées avec le journal des modifications de GitHub.*"
+    },
+    {
+     "type": "heading",
+     "text": "Ce que l'épinglage garantit, et ce qu'il ne garantit pas"
+    },
+    {
+     "type": "paragraph",
+     "text": "Un SHA garantit l'immuabilité : le contenu référencé ne changera pas. Il ne dit rien de l'auteur. Selon l'article, le contournement exploite le modèle de fourches de GitHub : une fourche partage ses objets avec le dépôt d'origine, si bien qu'un commit de l'attaquant peut exister dans le même « réseau » de dépôts que le projet légitime. En résumé, « n'importe quel commit d'une fourche peut être épinglé »."
+    },
+    {
+     "type": "list",
+     "items": [
+      "**Trivy, mars 2026.** Des attaquants ont détourné ce scanner de sécurité très utilisé en glissant du code malveillant présenté comme un correctif de sécurité et paraissant provenir de l'outil officiel de récupération de code de GitHub. Une équipe épinglée sur ce commit aurait passé tous les contrôles.",
+      "**actions-cool/issues-helper, mai 2026.** La même technique a servi contre cette action populaire, qui a permis de voler des identifiants dans les pipelines qui l'exécutaient."
+     ]
+    },
+    {
+     "type": "heading",
+     "text": "Trois questions sans réponse"
+    },
+    {
+     "type": "keyvalue",
+     "items": [
+      {
+       "label": "Paternité",
+       "value": "un SHA n'indique pas qui a écrit le commit"
+      },
+      {
+       "label": "Appartenance au projet",
+       "value": "les règles d'organisation vérifient qu'une référence est un SHA de 40 caractères, pas que le commit appartient au dépôt amont"
+      },
+      {
+       "label": "Exécution",
+       "value": "une action fondée sur Docker et épinglée peut construire son image au moment de l'exécution, avec des dépendances jamais figées"
+      }
+     ]
+    },
+    {
+     "type": "heading",
+     "text": "La réponse de GitHub : les workflow lockfiles"
+    },
+    {
+     "type": "paragraph",
+     "text": "La feuille de route de sécurité 2026 de GitHub Actions, publiée le 26 mars, plaçait en priorité le verrouillage déterministe des dépendances. Les fichiers de verrouillage de workflows sont entrés en préversion publique le 14 octobre, puis en disponibilité générale le 28 octobre 2026. Ils lient chaque exécution aux commits enregistrés pour les actions et leurs dépendances transitives, même si une étiquette est déplacée ensuite. Comme les commits verrouillés doivent exister sur une branche du dépôt source, ils limitent le risque des imposteurs hébergés uniquement dans une fourche."
+    },
+    {
+     "type": "paragraph",
+     "text": "Les limites sont nettes. D'après le journal des modifications cité, le verrouillage ne dit pas si une dépendance est sûre ; la paternité et les constructions à l'exécution restent ouvertes ; les versions immuables ne protègent que si les mainteneurs les activent ; et GitHub Enterprise Server ne prend pas en charge ces fichiers."
+    },
+    {
+     "type": "diagram",
+     "svg": "<svg xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"0 0 640 230\" font-family=\"system-ui,sans-serif\"><rect width=\"640\" height=\"230\" rx=\"14\" fill=\"#eef0f8\"/><text x=\"320\" y=\"32\" text-anchor=\"middle\" font-size=\"15\" font-weight=\"600\" fill=\"#1d2140\">Ce que chaque protection couvre</text><rect x=\"20\" y=\"60\" width=\"134\" height=\"130\" rx=\"10\" fill=\"#fff\" stroke=\"#17785a\" stroke-width=\"2\"/><text x=\"87\" y=\"88\" text-anchor=\"middle\" font-size=\"13\" font-weight=\"700\" fill=\"#17785a\">Étiquette @v4</text><text x=\"87\" y=\"112\" text-anchor=\"middle\" font-size=\"11.5\" fill=\"#1d2140\">Modifiable : peut</text><text x=\"87\" y=\"129\" text-anchor=\"middle\" font-size=\"11.5\" fill=\"#1d2140\">être redirigée</text><path d=\"M156 125h18l-6-6m6 6l-6 6\" stroke=\"#17785a\" stroke-width=\"2.5\" fill=\"none\"/><rect x=\"176\" y=\"60\" width=\"134\" height=\"130\" rx=\"10\" fill=\"#fff\" stroke=\"#17785a\" stroke-width=\"2\"/><text x=\"242\" y=\"88\" text-anchor=\"middle\" font-size=\"13\" font-weight=\"700\" fill=\"#17785a\">SHA épinglé</text><text x=\"242\" y=\"112\" text-anchor=\"middle\" font-size=\"11.5\" fill=\"#1d2140\">Contenu figé, auteur</text><text x=\"242\" y=\"129\" text-anchor=\"middle\" font-size=\"11.5\" fill=\"#1d2140\">inconnu</text><path d=\"M311 125h18l-6-6m6 6l-6 6\" stroke=\"#17785a\" stroke-width=\"2.5\" fill=\"none\"/><rect x=\"331\" y=\"60\" width=\"134\" height=\"130\" rx=\"10\" fill=\"#fff\" stroke=\"#17785a\" stroke-width=\"2\"/><text x=\"398\" y=\"88\" text-anchor=\"middle\" font-size=\"13\" font-weight=\"700\" fill=\"#17785a\">Lockfile</text><text x=\"398\" y=\"112\" text-anchor=\"middle\" font-size=\"11.5\" fill=\"#1d2140\">Commit présent sur</text><text x=\"398\" y=\"129\" text-anchor=\"middle\" font-size=\"11.5\" fill=\"#1d2140\">la branche source</text><path d=\"M466 125h18l-6-6m6 6l-6 6\" stroke=\"#17785a\" stroke-width=\"2.5\" fill=\"none\"/><rect x=\"486\" y=\"60\" width=\"134\" height=\"130\" rx=\"10\" fill=\"#fff\" stroke=\"#17785a\" stroke-width=\"2\"/><text x=\"553\" y=\"88\" text-anchor=\"middle\" font-size=\"13\" font-weight=\"700\" fill=\"#17785a\">À ajouter</text><text x=\"553\" y=\"112\" text-anchor=\"middle\" font-size=\"11.5\" fill=\"#1d2140\">Revue, catalogue</text><text x=\"553\" y=\"129\" text-anchor=\"middle\" font-size=\"11.5\" fill=\"#1d2140\">d'actions vérifiées</text></svg>",
+     "alt": "Quatre niveaux de protection des actions GitHub",
+     "caption": "Chaque niveau réduit un risque différent ; aucun ne remplace la revue des dépendances."
+    },
+    {
+     "type": "usecases",
+     "title": "Exemples d'utilisation",
+     "items": [
+      {
+       "icon": "🔧",
+       "title": "L'équipe plateforme",
+       "text": "Elle active les fichiers de verrouillage sur les dépôts critiques et ajoute une étape de revue lorsqu'un SHA d'action change dans une demande de fusion."
+      },
+      {
+       "icon": "📦",
+       "title": "Le mainteneur d'une action",
+       "text": "Il publie des versions immuables pour que ses utilisateurs puissent s'appuyer sur un contenu qu'on ne peut plus réécrire."
+      },
+      {
+       "icon": "🏦",
+       "title": "Une DSI sous contrainte réglementaire",
+       "text": "Elle limite les pipelines à un catalogue interne d'actions examinées et refuse toute action non référencée."
+      }
+     ]
+    },
+    {
+     "type": "timeline",
+     "title": "D'où l'on vient, où l'on va",
+     "items": [
+      {
+       "label": "Mars 2025",
+       "text": "Compromission de tj-actions/changed-files : plus de 23 000 dépôts concernés."
+      },
+      {
+       "label": "Mars 2026",
+       "text": "Détournement de Trivy ; feuille de route de sécurité de GitHub Actions publiée le 26 mars."
+      },
+      {
+       "label": "Mai 2026",
+       "text": "Attaque contre actions-cool/issues-helper."
+      },
+      {
+       "label": "28 octobre 2026",
+       "text": "Les workflow lockfiles passent en disponibilité générale."
+      }
+     ]
+    },
+    {
+     "type": "opinion",
+     "title": "Notre avis",
+     "paragraphs": [
+      "L'épinglage au SHA est devenu un réflexe presque rituel, et ce récit montre le risque d'un faux sentiment de sécurité : on a figé le contenu, pas la confiance. Les fichiers de verrouillage sont un progrès réel, parce qu'ils s'attaquent précisément au cas des commits venus d'une fourche. Mais l'outil ne remplace ni la revue de code ni la réduction du nombre d'actions utilisées.",
+      "D'ici un à trois ans, on peut imaginer que la provenance vérifiable (qui a construit quoi, depuis quel dépôt) devienne la norme dans les pipelines, au même titre que les signatures dans les paquets. C'est une projection, non un fait."
+     ],
+     "verdict": "Figer un commit ne dit pas s'il est digne de confiance : il faut y ajouter la provenance et la revue."
+    }
+   ],
+   "publishedAt": "2026-11-18T04:16:12+01:00",
+   "readingMinutes": 4
+  },
+  {
+   "id": "redict-abandonne-au-profit-de-valkey",
+   "category": "dev",
+   "icon": "🗄️",
+   "importance": 3,
+   "title": "Redict est abandonné au profit de Valkey : la fin d'un fork copyleft de Redis",
+   "summary": "Drew DeVault annonce que Redict est déprécié et recommande à ses utilisateurs de passer à Valkey, faute d'avoir réuni une communauté assez durable.",
+   "tags": [
+    "Redict",
+    "Valkey",
+    "Redis",
+    "licences libres",
+    "bases de données"
+   ],
+   "sources": [
+    {
+     "title": "Redict deprecated in favor of Valkey",
+     "url": "https://lwn.net/Articles/1108155/",
+     "publisher": "LWN.net"
+    }
+   ],
+   "illustration": {
+    "svg": "<svg xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"0 0 640 360\"><defs><linearGradient id=\"g\" x1=\"0\" y1=\"0\" x2=\"1\" y2=\"1\"><stop offset=\"0\" stop-color=\"hsl(265,62%,40%)\"/><stop offset=\"1\" stop-color=\"hsl(300,66%,22%)\"/></linearGradient></defs><rect width=\"640\" height=\"360\" fill=\"url(#g)\"/><circle cx=\"545\" cy=\"60\" r=\"120\" fill=\"#fff\" fill-opacity=\".08\"/><circle cx=\"90\" cy=\"320\" r=\"100\" fill=\"#fff\" fill-opacity=\".07\"/><g fill=\"#fff\" fill-opacity=\".92\"><ellipse cx=\"320\" cy=\"110\" rx=\"100\" ry=\"30\"/><path d=\"M220 110v50c0 17 45 30 100 30s100-13 100-30v-50c0 17-45 30-100 30s-100-13-100-30z\"/><path d=\"M220 175v50c0 17 45 30 100 30s100-13 100-30v-50c0 17-45 30-100 30s-100-13-100-30z\"/></g></svg>"
+   },
+   "blocks": [
+    {
+     "type": "paragraph",
+     "text": "Le 17 novembre 2026, LWN a relayé l'annonce de Drew DeVault : **Redict**, le fork de Redis qu'il animait, est déprécié. Les utilisateurs sont invités à passer à **Valkey**, le projet soutenu par la Linux Foundation. C'est un épilogue discret mais instructif de la crise de licences qui avait secoué le monde des bases de données clé-valeur à partir de 2024."
+    },
+    {
+     "type": "paragraph",
+     "text": "*Précision sur la source : cet article s'appuie sur le résumé publié par LWN ; l'annonce originale de l'auteur n'a pas pu être consultée directement. Le résumé ne précise pas la version de Redis sur laquelle Redict avait été fondé.*"
+    },
+    {
+     "type": "heading",
+     "text": "Pourquoi Redict avait été créé"
+    },
+    {
+     "type": "paragraph",
+     "text": "Redict était né en réaction au changement de licence de Redis en 2024. DeVault espérait rassembler la diaspora de Redis autour d'un projet sous licence copyleft, une manière de se prémunir contre les « tapis tirés de sous les pieds », c'est-à-dire les changements de licence soudains décidés par une seule entreprise. Le copyleft impose que les versions modifiées restent libres, ce qui rend plus difficile une appropriation privative."
+    },
+    {
+     "type": "heading",
+     "text": "Les raisons de l'abandon"
+    },
+    {
+     "type": "list",
+     "items": [
+      "**Valkey a réussi.** Ce fork permissif, soutenu par la Linux Foundation, a rassemblé la communauté que Redict espérait attirer.",
+      "**Redis est redevenu open source.** Le produit d'origine est de nouveau sous une licence open source copyleft, mais avec un accord de licence de contributeur (CLA) que DeVault juge susceptible de permettre un nouveau changement de licence.",
+      "**Une communauté insuffisante.** Selon l'auteur, Redict « n'a pas réussi à construire une communauté durable »."
+     ]
+    },
+    {
+     "type": "keyvalue",
+     "items": [
+      {
+       "label": "Redict",
+       "value": "copyleft, projet déprécié"
+      },
+      {
+       "label": "Valkey",
+       "value": "licence permissive, soutenu par la Linux Foundation"
+      },
+      {
+       "label": "Redis",
+       "value": "de nouveau open source et copyleft, avec un CLA"
+      },
+      {
+       "label": "Migration recommandée",
+       "value": "de Redict vers Valkey ; retour vers Redis déconseillé par l'auteur"
+      }
+     ]
+    },
+    {
+     "type": "paragraph",
+     "text": "Selon l'annonce, les deux projets sont compatibles entre eux : la migration consisterait surtout à changer le paquet installé et à renommer le fichier de configuration. Il revient à chaque équipe de tester ce passage dans son contexte avant de le généraliser, notamment pour les modules et les options propres à chaque version."
+    },
+    {
+     "type": "usecases",
+     "title": "Exemples d'utilisation",
+     "items": [
+      {
+       "icon": "🛠️",
+       "title": "L'administrateur d'un cache applicatif",
+       "text": "Il planifie la bascule de ses instances Redict vers Valkey dans un environnement de préproduction, en comparant les performances et les fichiers de configuration avant de migrer la production."
+      },
+      {
+       "icon": "📦",
+       "title": "Le mainteneur d'une distribution Linux",
+       "text": "Il retire le paquet Redict de ses dépôts à terme et oriente les utilisateurs vers Valkey, avec une note de migration."
+      },
+      {
+       "icon": "⚖️",
+       "title": "Le responsable juridique d'une entreprise",
+       "text": "Il compare les licences en jeu et le CLA de Redis pour décider quelle base de données maintenir dans son catalogue logiciel."
+      }
+     ]
+    },
+    {
+     "type": "timeline",
+     "title": "D'où l'on vient, où l'on va",
+     "items": [
+      {
+       "label": "2024",
+       "text": "Redis change de licence ; plusieurs forks apparaissent, dont Redict et Valkey."
+      },
+      {
+       "label": "Depuis",
+       "text": "Redis revient à une licence open source copyleft, assortie d'un CLA."
+      },
+      {
+       "label": "17 novembre 2026",
+       "text": "Annonce de la dépréciation de Redict en faveur de Valkey."
+      }
+     ]
+    },
+    {
+     "type": "opinion",
+     "title": "Notre avis",
+     "paragraphs": [
+      "L'histoire de Redict montre qu'un projet libre ne survit pas par la seule vertu de sa licence : il lui faut des contributeurs, des financements et une gouvernance. Valkey a obtenu un soutien institutionnel que le copyleft seul n'a pas su attirer, ce qui relativise l'idée que la licence la plus protectrice gagne toujours.",
+      "À un horizon d'un à trois ans, la question qui restera ouverte est celle de la confiance envers Redis, malgré le retour à l'open source : le CLA évoqué par DeVault pèsera dans le choix des entreprises. Il s'agit d'une analyse, non d'un fait."
+     ],
+     "verdict": "Une licence protège un code, mais c'est une communauté qui fait vivre un projet."
+    }
+   ],
+   "publishedAt": "2026-11-18T04:16:12+01:00",
+   "readingMinutes": 3
+  },
+  {
+   "id": "crosspoint-reader-liseuses-esp32-pull-requests-llm",
+   "category": "electronique",
+   "icon": "📖",
+   "importance": 3,
+   "title": "Crosspoint Reader : un micrologiciel libre pour liseuses à bas prix, et l'avalanche de contributions générées par LLM",
+   "summary": "Présenté à l'Ubuntu Summit, le projet revendique plus de 300 000 installations sur des liseuses à base d'ESP32-C3 et illustre la pression que les contributions automatisées exercent sur les mainteneurs.",
+   "tags": [
+    "Crosspoint Reader",
+    "ESP32-C3",
+    "liseuse",
+    "open source",
+    "LLM"
+   ],
+   "sources": [
+    {
+     "title": "Inspiring FOSS project Crosspoint Reader has lessons about tech, communities, and LLMs",
+     "url": "https://www.theregister.com/software/2026/11/17/inspiring-foss-project-crosspoint-reader-has-lessons-about-tech-communities-and-llms/5310424",
+     "publisher": "The Register"
+    }
+   ],
+   "illustration": {
+    "svg": "<svg xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"0 0 640 360\"><defs><linearGradient id=\"g\" x1=\"0\" y1=\"0\" x2=\"1\" y2=\"1\"><stop offset=\"0\" stop-color=\"hsl(30,62%,40%)\"/><stop offset=\"1\" stop-color=\"hsl(65,66%,22%)\"/></linearGradient></defs><rect width=\"640\" height=\"360\" fill=\"url(#g)\"/><circle cx=\"545\" cy=\"60\" r=\"120\" fill=\"#fff\" fill-opacity=\".08\"/><circle cx=\"90\" cy=\"320\" r=\"100\" fill=\"#fff\" fill-opacity=\".07\"/><g fill=\"#fff\" fill-opacity=\".92\"><path d=\"M320 100c-40-25-90-25-130-10v160c40-15 90-15 130 10z\"/><path d=\"M320 100c40-25 90-25 130-10v160c-40-15-90-15-130 10z\"/></g><path d=\"M215 130h80M215 160h80M345 130h80M345 160h80\" stroke=\"hsl(30,60%,30%)\" stroke-width=\"8\"/></svg>"
+   },
+   "blocks": [
+    {
+     "type": "paragraph",
+     "text": "Une liseuse de poche à moins de cent dollars, dotée d'un microcontrôleur modeste, peut-elle devenir un phénomène open source ? C'est ce que raconte **Crosspoint Reader**, un micrologiciel libre et multiplateforme pour petites liseuses à encre électronique, présenté par son responsable, Justin Mitchell, lors de l'Ubuntu Summit. Certains appareils neufs sont désormais vendus avec ce logiciel préinstallé."
+    },
+    {
+     "type": "paragraph",
+     "text": "*Précision sur la source : cet article repose sur le compte rendu de The Register du 17 novembre 2026. L'article ne précise pas qui a fondé le projet ; les chiffres d'utilisation sont ceux annoncés par le responsable.*"
+    },
+    {
+     "type": "heading",
+     "text": "Un matériel très contraint"
+    },
+    {
+     "type": "paragraph",
+     "text": "Le projet liste onze appareils pris en charge, tous construits autour du système sur puce ESP32-C3 : un seul cœur RISC-V cadencé à quelques centaines de mégahertz, avec environ 400 ko de mémoire vive, dont quelque 380 ko réellement disponibles. C'est très peu pour lire des livres numériques au format EPUB, ce qui oblige à une programmation économe."
+    },
+    {
+     "type": "keyvalue",
+     "items": [
+      {
+       "label": "Xteink X4 Classic",
+       "value": "99 dollars, écran de 4 pouces environ"
+      },
+      {
+       "label": "Xteink X3",
+       "value": "79 dollars, format carte bancaire, écran de 3,7 pouces"
+      },
+      {
+       "label": "Autres appareils cités",
+       "value": "Onyx Palma (environ 300 dollars à sa sortie), Boox Picco"
+      },
+      {
+       "label": "Installations annoncées",
+       "value": "plus de 300 000, soit près d'un demi-million d'utilisateurs selon le responsable"
+      },
+      {
+       "label": "Forks sur GitHub",
+       "value": "environ 2 300 au moment de la rédaction"
+      }
+     ]
+    },
+    {
+     "type": "paragraph",
+     "text": "Autour du firmware, une communauté s'est organisée. La « Brick Club List », née sous la forme d'un simple tableur indiquant quelles versions fonctionnent sur quels appareils, est devenue un site web. Beaucoup d'utilisateurs ne sont pas techniciens et découvrent l'open source avec ce projet : certains attendent un support technique, d'autres demandent des fonctions que le matériel ne pourrait tout simplement pas exécuter."
+    },
+    {
+     "type": "heading",
+     "text": "Quand tout le monde peut « contribuer »"
+    },
+    {
+     "type": "paragraph",
+     "text": "Les modèles de langage bon marché dans le cloud permettent à des non-spécialistes de tenter d'ajouter leurs propres fonctions. Le projet reçoit désormais plusieurs soumissions de code par jour. Beaucoup fonctionneraient isolément, mais l'équipe ne peut pas toutes les intégrer, et leur volume épuise des mainteneurs bénévoles. Mitchell évoque aussi des contributeurs automatisés qui ignorent que leurs outils envoient des demandes de fusion : une personne en aurait adressé 10 000 en un mois. Il faut en outre refuser des propositions techniquement correctes mais inadaptées à un produit vendu moins de 60 livres, parce qu'elles correspondent à un besoin trop spécifique."
+    },
+    {
+     "type": "diagram",
+     "svg": "<svg xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"0 0 640 230\" font-family=\"system-ui,sans-serif\"><rect width=\"640\" height=\"230\" rx=\"14\" fill=\"#eef0f8\"/><text x=\"320\" y=\"32\" text-anchor=\"middle\" font-size=\"15\" font-weight=\"600\" fill=\"#1d2140\">Le goulot d'étranglement n'est plus le code</text><rect x=\"20\" y=\"60\" width=\"134\" height=\"130\" rx=\"10\" fill=\"#fff\" stroke=\"#9a5a14\" stroke-width=\"2\"/><text x=\"87\" y=\"88\" text-anchor=\"middle\" font-size=\"13\" font-weight=\"700\" fill=\"#9a5a14\">Utilisateur</text><text x=\"87\" y=\"112\" text-anchor=\"middle\" font-size=\"11.5\" fill=\"#1d2140\">Veut une nouvelle</text><text x=\"87\" y=\"129\" text-anchor=\"middle\" font-size=\"11.5\" fill=\"#1d2140\">fonction</text><path d=\"M156 125h18l-6-6m6 6l-6 6\" stroke=\"#9a5a14\" stroke-width=\"2.5\" fill=\"none\"/><rect x=\"176\" y=\"60\" width=\"134\" height=\"130\" rx=\"10\" fill=\"#fff\" stroke=\"#9a5a14\" stroke-width=\"2\"/><text x=\"242\" y=\"88\" text-anchor=\"middle\" font-size=\"13\" font-weight=\"700\" fill=\"#9a5a14\">Assistant IA</text><text x=\"242\" y=\"112\" text-anchor=\"middle\" font-size=\"11.5\" fill=\"#1d2140\">Produit un correctif</text><text x=\"242\" y=\"129\" text-anchor=\"middle\" font-size=\"11.5\" fill=\"#1d2140\">plausible</text><path d=\"M311 125h18l-6-6m6 6l-6 6\" stroke=\"#9a5a14\" stroke-width=\"2.5\" fill=\"none\"/><rect x=\"331\" y=\"60\" width=\"134\" height=\"130\" rx=\"10\" fill=\"#fff\" stroke=\"#9a5a14\" stroke-width=\"2\"/><text x=\"398\" y=\"88\" text-anchor=\"middle\" font-size=\"13\" font-weight=\"700\" fill=\"#9a5a14\">Demande de fusion</text><text x=\"398\" y=\"112\" text-anchor=\"middle\" font-size=\"11.5\" fill=\"#1d2140\">Plusieurs par jour</text><path d=\"M466 125h18l-6-6m6 6l-6 6\" stroke=\"#9a5a14\" stroke-width=\"2.5\" fill=\"none\"/><rect x=\"486\" y=\"60\" width=\"134\" height=\"130\" rx=\"10\" fill=\"#fff\" stroke=\"#9a5a14\" stroke-width=\"2\"/><text x=\"553\" y=\"88\" text-anchor=\"middle\" font-size=\"13\" font-weight=\"700\" fill=\"#9a5a14\">Mainteneurs</text><text x=\"553\" y=\"112\" text-anchor=\"middle\" font-size=\"11.5\" fill=\"#1d2140\">Jugement, confiance,</text><text x=\"553\" y=\"129\" text-anchor=\"middle\" font-size=\"11.5\" fill=\"#1d2140\">responsabilité</text></svg>",
+     "alt": "Schéma : utilisateur, assistant IA, demande de fusion, mainteneurs",
+     "caption": "Le coût de production du code baisse, pas celui de sa relecture."
+    },
+    {
+     "type": "usecases",
+     "title": "Exemples d'utilisation",
+     "items": [
+      {
+       "icon": "📚",
+       "title": "Le lecteur occasionnel",
+       "text": "Il reflashe une liseuse bon marché pour lire ses EPUB sans compte ni boutique imposée, avec un appareil qui tient dans une poche."
+      },
+      {
+       "icon": "🧑‍🏫",
+       "title": "Le bricoleur d'électronique",
+       "text": "Il étudie un projet réel d'ESP32-C3 à encre électronique pour apprendre à gérer une mémoire de 400 ko et un écran lent."
+      },
+      {
+       "icon": "🤝",
+       "title": "Le mainteneur d'un autre projet libre",
+       "text": "Il s'inspire du cas pour rédiger des règles de contribution qui limitent les demandes de fusion automatisées."
+      }
+     ]
+    },
+    {
+     "type": "timeline",
+     "title": "D'où l'on vient, où l'on va",
+     "items": [
+      {
+       "label": "2024",
+       "text": "The Register évoque déjà l'Onyx Palma, liseuse de la taille d'un smartphone."
+      },
+      {
+       "label": "2026",
+       "text": "Le projet atteint plus de 300 000 installations, et des appareils sont livrés avec Crosspoint Reader préinstallé."
+      },
+      {
+       "label": "17 novembre 2026",
+       "text": "Compte rendu de la conférence donnée à l'Ubuntu Summit."
+      }
+     ]
+    },
+    {
+     "type": "opinion",
+     "title": "Notre avis",
+     "paragraphs": [
+      "Le cas est un laboratoire du futur de l'open source : quand n'importe qui peut produire du code plausible, la ressource rare devient la capacité à trancher, à faire confiance et à assumer la maintenance. Le responsable du projet le formule ainsi, et l'on ne peut que lui donner raison.",
+      "D'ici un à trois ans, les projets populaires devront probablement filtrer plus strictement les contributions (modèles de demande, quotas, priorité aux utilisateurs identifiés). C'est une projection, non un fait."
+     ],
+     "verdict": "Dans l'open source, le code devient abondant ; le jugement, lui, reste rare."
+    }
+   ],
+   "publishedAt": "2026-11-18T04:16:12+01:00",
+   "readingMinutes": 3
+  }
+ ]
+}
