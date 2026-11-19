@@ -1,0 +1,1036 @@
+{
+ "schemaVersion": "1.0",
+ "date": "2026-11-19",
+ "generatedAt": "2026-11-19T18:17:31+01:00",
+ "title": "Tech : failles critiques dans PHP, vCenter et Ruby, PHP 8.6 et les agents d'IA",
+ "summary": "Une journée chargée pour les équipes d'exploitation : PHP publie huit correctifs de sécurité en même temps que la version 8.6, VMware corrige un contournement d'authentification, Ruby colmate une faille de Rails, et des chercheurs publient des exploits visant quatre moteurs de bases de données.",
+ "highlights": [
+  "PHP 8.2.36, 8.3.37, 8.4.28, 8.5.13 et 8.6.0 corrigent huit failles, dont phpAfterShell.",
+  "VMware vCenter : un contournement d'authentification noté 9,8, sans contournement officiel.",
+  "Ruby2Shell : un octet de trop met en danger Rails, GitLab et GitHub Enterprise Server.",
+  "Satya Nadella prédit un basculement de l'économie du web vers les agents d'IA."
+ ],
+ "meta": {
+  "generator": "claude-scheduled-task"
+ },
+ "posts": [
+  {
+   "id": "php-huit-failles-critiques-phpaftershell",
+   "category": "cybersecurite",
+   "icon": "🐘",
+   "title": "PHP : huit failles corrigées d'un coup, dont « phpAfterShell », qui mène à l'exécution de code via les sessions",
+   "summary": "La fondation PHP publie 8.5.13, 8.4.28, 8.3.37, 8.2.36 et 8.6.0. Sept des huit failles sont notées 9,2 ; la plus médiatisée détourne l'écriture des fichiers de session.",
+   "tags": [
+    "PHP",
+    "RCE",
+    "sessions",
+    "correctif",
+    "Depthfirst"
+   ],
+   "importance": 5,
+   "readingMinutes": 5,
+   "sourceDate": "2026-11-19",
+   "illustration": {
+    "svg": "<svg xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"0 0 640 360\"><defs><linearGradient id=\"g\" x1=\"0\" y1=\"0\" x2=\"1\" y2=\"1\"><stop offset=\"0\" stop-color=\"hsl(175,65%,38%)\"/><stop offset=\"1\" stop-color=\"hsl(215,70%,22%)\"/></linearGradient></defs><rect width=\"640\" height=\"360\" fill=\"url(#g)\"/><circle cx=\"90\" cy=\"300\" r=\"120\" fill=\"#fff\" opacity=\".07\"/><circle cx=\"560\" cy=\"60\" r=\"90\" fill=\"#fff\" opacity=\".08\"/><ellipse cx=\"320\" cy=\"190\" rx=\"52\" ry=\"68\" fill=\"#fff\" opacity=\".92\"/><circle cx=\"320\" cy=\"108\" r=\"26\" fill=\"#fff\"/><g stroke=\"#fff\" stroke-width=\"8\" stroke-linecap=\"round\"><path d=\"M268 150l-50-24M268 195h-62M270 238l-48 30M372 150l50-24M372 195h62M370 238l48 30\"/></g><text x=\"560\" y=\"320\" font-size=\"44\" text-anchor=\"middle\">🐘</text></svg>"
+   },
+   "cover": {
+    "url": "https://blogger.googleusercontent.com/img/b/R29vZ2xl/AVvXsEjD2D26Hu7r43uUrdDxmsmmbBe2oMxd-L3_DIVLqAPyDrOnSmdvXfkIq1_lNmWqr49gbrIZ0NeTmA2OYgyWgdUjRf_RTRfflyXn3Vgujkb9tiByOPfej1OqEszpQf2FeozeSqmK5L7aSj28GLwzKmzehIp9zJyeJqgRvbVOW91_pVEMhs3KY9_oXjwf5BE/s1700-nu-rw-lo-l85-e365/php-flawss.jpg",
+    "alt": "Illustration de The Hacker News sur les failles critiques corrigées dans PHP",
+    "credit": "thehackernews.com"
+   },
+   "sources": [
+    {
+     "url": "https://thehackernews.com/2026/11/php-fixes-7-critical-flaws-including.html",
+     "title": "PHP Fixes 7 Critical Flaws, Including Bugs That Could Allow Remote Code Execution",
+     "publisher": "The Hacker News"
+    },
+    {
+     "url": "https://thehackernews.com/2026/11/phpaftershell-explained-how-hackers.html",
+     "title": "phpAfterShell Explained",
+     "publisher": "The Hacker News"
+    },
+    {
+     "url": "https://lwn.net/Articles/1108552/",
+     "title": "Four PHP security releases including fixes for critical vulnerabilities",
+     "publisher": "LWN.net"
+    }
+   ],
+   "blocks": [
+    {
+     "type": "paragraph",
+     "text": "Le 19 novembre 2026, la fondation PHP a publié des versions de sécurité pour toutes les branches encore prises en charge : **8.2.36, 8.3.37, 8.4.28 et 8.5.13**, en même temps que la nouvelle version majeure **8.6.0**. Au total, huit vulnérabilités sont corrigées. Sept d'entre elles sont notées 9,2 sur l'échelle CVSS, la dernière 8,8. Un avis préalable avait annoncé la publication, sans détail, afin que les administrateurs puissent réserver une fenêtre de maintenance."
+    },
+    {
+     "type": "paragraph",
+     "text": "Le titre de la source parle de sept failles alors que huit identifiants sont listés : le compte exact importe peu, car la consigne est la même pour tous les hébergeurs et équipes d'exploitation : mettre à jour. PHP fait fonctionner une très large part du web, des sites WordPress aux applications Symfony ou Laravel ; une faille d'exécution de code dans le moteur concerne donc potentiellement un grand nombre de serveurs. Il faut toutefois lire les conditions de chaque faille avant de céder à l'alarme : la plupart exigent une configuration particulière ou une application qui se comporte de façon précise."
+    },
+    {
+     "type": "heading",
+     "text": "Ce que corrigent les huit identifiants"
+    },
+    {
+     "type": "list",
+     "items": [
+      "**CVE-2026-126714 (« phpAfterShell »)** : une situation de concurrence entre vérification et utilisation dans l'écriture des fichiers de session peut conduire à l'exécution de code avec les droits du processus PHP. Corrigée en 8.2.36, 8.3.37, 8.4.28, 8.5.13 et 8.6.0.",
+      "**CVE-2026-115560** : validation d'entrée insuffisante, avec des conséquences possibles allant de la modification de fichiers à l'exécution de code, en passant par la corruption de session et le déni de service.",
+      "**CVE-2026-129289** : interprétation incohérente des requêtes HTTP. Elle concerne les architectures où le serveur frontal garde des connexions persistantes vers PHP (nginx avec `fastcgi_keep_conn`, Apache avec `mod_proxy_fcgi` et `enablereuse`, HAProxy, LSAPI) et où l'application ouvre `php://input` sans le lire entièrement.",
+      "**CVE-2026-129182, CVE-2026-129474, CVE-2026-129481, CVE-2026-129496** : quatre utilisations de mémoire après libération, pouvant corrompre la mémoire, faire tomber des processus de travail ou, dans les cas les plus graves, exécuter du code. Plusieurs ne touchent que PHP 8.5 et suivants.",
+      "**CVE-2026-129291** (8,8) : élévation locale de privilèges, qui suppose déjà une exécution de code dans un processus FPM et une configuration précise (`catch_workers_output`, moteur epoll)."
+     ]
+    },
+    {
+     "type": "heading",
+     "text": "Le mécanisme de phpAfterShell"
+    },
+    {
+     "type": "paragraph",
+     "text": "La société Depthfirst, qui a baptisé la faille, décrit un scénario en trois temps. Si l'écriture d'un fichier de session est interrompue, par exemple parce que le processus meurt en plein travail, le fichier peut contenir le début de la nouvelle session suivi de la fin de l'ancienne. En fabriquant des champs de longueur adaptés, un attaquant peut faire en sorte que le décodeur de session interprète les octets restants comme des entrées de session et des objets sérialisés. La charge est déclenchée quand l'application appelle `session_start()`."
+    },
+    {
+     "type": "diagram",
+     "svg": "<svg xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"0 0 640 260\" font-family=\"system-ui,sans-serif\" font-size=\"14\"><rect width=\"640\" height=\"260\" rx=\"14\" fill=\"#f3f5f9\" stroke=\"#c9d1e0\"/><g fill=\"#fff\" stroke=\"#6b7a99\" stroke-width=\"2\"><rect x=\"24\" y=\"40\" width=\"170\" height=\"70\" rx=\"10\"/><rect x=\"235\" y=\"40\" width=\"170\" height=\"70\" rx=\"10\"/><rect x=\"446\" y=\"40\" width=\"170\" height=\"70\" rx=\"10\"/></g><g fill=\"#1c2640\" text-anchor=\"middle\"><text x=\"109\" y=\"68\">1. Écriture de session</text><text x=\"109\" y=\"88\" font-size=\"12\">interrompue en cours</text><text x=\"320\" y=\"68\">2. Fichier mélangé</text><text x=\"320\" y=\"88\" font-size=\"12\">début neuf + fin ancienne</text><text x=\"531\" y=\"68\">3. Désérialisation</text><text x=\"531\" y=\"88\" font-size=\"12\">lors de session_start()</text></g><g stroke=\"#6b7a99\" stroke-width=\"3\" fill=\"none\"><path d=\"M196 75h37\"/><path d=\"M407 75h37\"/></g><rect x=\"24\" y=\"140\" width=\"592\" height=\"90\" rx=\"10\" fill=\"#fde8e8\" stroke=\"#c0392b\"/><g fill=\"#7a1f16\" text-anchor=\"middle\"><text x=\"320\" y=\"170\" font-weight=\"600\">Condition nécessaire : une chaîne de gadgets exploitable dans l'application</text><text x=\"320\" y=\"196\" font-size=\"12\">Sans elle, la faille ne mène pas à l'exécution de code. Correctif : PHP 8.5.13, 8.4.28, 8.3.37, 8.2.36 ou 8.6.0</text></g></svg>",
+     "alt": "Schéma en trois étapes : écriture de session interrompue, fichier mélangé, désérialisation au moment de session_start, avec la condition d'une chaîne de gadgets dans l'application.",
+     "caption": "Principe de phpAfterShell : l'exécution de code n'est possible que si une chaîne de gadgets de désérialisation existe dans l'application."
+    },
+    {
+     "type": "paragraph",
+     "text": "Cette exploitation n'est pas automatique : elle demande une influence sur les données de session, une écriture interrompue et une chaîne de gadgets de désérialisation exploitable dans le code ou les bibliothèques de l'application. Depthfirst indique que la faille s'enchaîne avec une autre découverte portant sur la désérialisation native de PHP. Selon la source, toute application utilisant des sessions stockées dans des fichiers sur une version touchée est concernée. Si la mise à jour immédiate est impossible, la source recommande de désactiver le suivi de progression des envois de fichiers (« session upload progress »)."
+    },
+    {
+     "type": "usecases",
+     "title": "Exemples d'utilisation",
+     "items": [
+      {
+       "icon": "🛒",
+       "title": "Boutique en ligne sur serveur mutualisé",
+       "text": "L'hébergeur applique 8.4.28 en quelques heures ; le commerçant, lui, vérifie sur son tableau de bord que la branche active est bien celle corrigée, car certains hébergeurs laissent le choix de la version."
+      },
+      {
+       "icon": "🧰",
+       "title": "Équipe d'exploitation avec nginx en frontal",
+       "text": "Elle recense les applications qui lisent `php://input` en flux et contrôle les directives de connexions persistantes, afin de savoir si CVE-2026-129289 la concerne avant même la mise à jour."
+      },
+      {
+       "icon": "🧪",
+       "title": "Éditeur d'application métier",
+       "text": "Il audite ses dépendances à la recherche de classes pouvant servir de gadgets de désérialisation et envisage de sortir les sessions des fichiers (base de données, magasin clé-valeur)."
+      }
+     ]
+    },
+    {
+     "type": "timeline",
+     "title": "D'où l'on vient, où l'on va",
+     "items": [
+      {
+       "label": "Avant le 19 novembre 2026",
+       "text": "L'avis préalable annonce des versions de sécurité pour toutes les branches prises en charge."
+      },
+      {
+       "label": "19 novembre 2026",
+       "text": "Publication des versions 8.2.36, 8.3.37, 8.4.28, 8.5.13 et de PHP 8.6.0."
+      },
+      {
+       "label": "Prochains jours",
+       "text": "Les éditeurs de CMS et les hébergeurs devraient publier leurs propres mises à jour ; aucun calendrier n'est fourni par la source."
+      }
+     ]
+    },
+    {
+     "type": "opinion",
+     "title": "Notre avis",
+     "paragraphs": [
+      "Le chiffre de 9,2 impressionne, mais il décrit le pire cas théorique. Les conditions d'exploitation (gadget de désérialisation, configuration non standard, architecture à connexions persistantes) réduisent en pratique le nombre de serveurs réellement exposés. Cela ne justifie pas d'attendre : une chaîne de gadgets se trouve souvent dans les bibliothèques tierces, et les attaquants savent les assembler.",
+      "À un horizon d'un à trois ans, ces failles pèsent en faveur de pratiques plus sobres : sessions hors fichiers, désérialisation évitée ou signée, mises à jour de branche automatisées. Les nouveaux réglages par défaut de PHP 8.6 sur les sessions (mode strict et cookie `HttpOnly` activés par défaut) vont dans le même sens, ce qui est une opinion sur la trajectoire, non un fait établi."
+     ],
+     "verdict": "Huit failles, peu d'exploitations immédiates, mais un bon moment pour sortir de la dette de version."
+    },
+    {
+     "type": "callout",
+     "title": "À retenir",
+     "text": "Mettez à jour vers 8.2.36, 8.3.37, 8.4.28, 8.5.13 ou 8.6.0. Les branches plus anciennes ne sont pas citées comme corrigées."
+    }
+   ],
+   "publishedAt": "2026-11-19T18:17:31+01:00"
+  },
+  {
+   "id": "vcenter-contournement-authentification-cvss-98",
+   "category": "cybersecurite",
+   "icon": "🖥️",
+   "title": "VMware vCenter : un contournement d'authentification noté 9,8, le second de l'année dans le même service d'annuaire",
+   "summary": "Broadcom corrige cinq failles dans vCenter et ses offres associées ; la plus grave, découverte par Mandiant, n'a pas de contournement et pas d'exploitation connue pour l'instant.",
+   "tags": [
+    "VMware",
+    "vCenter",
+    "Broadcom",
+    "Mandiant",
+    "authentification"
+   ],
+   "importance": 4,
+   "readingMinutes": 5,
+   "sourceDate": "2026-11-19",
+   "illustration": {
+    "svg": "<svg xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"0 0 640 360\"><defs><linearGradient id=\"g\" x1=\"0\" y1=\"0\" x2=\"1\" y2=\"1\"><stop offset=\"0\" stop-color=\"hsl(175,65%,38%)\"/><stop offset=\"1\" stop-color=\"hsl(215,70%,22%)\"/></linearGradient></defs><rect width=\"640\" height=\"360\" fill=\"url(#g)\"/><circle cx=\"90\" cy=\"300\" r=\"120\" fill=\"#fff\" opacity=\".07\"/><circle cx=\"560\" cy=\"60\" r=\"90\" fill=\"#fff\" opacity=\".08\"/><g fill=\"#fff\"><rect x=\"220\" y=\"90\" width=\"200\" height=\"54\" rx=\"10\" opacity=\".95\"/><rect x=\"220\" y=\"158\" width=\"200\" height=\"54\" rx=\"10\" opacity=\".8\"/><rect x=\"220\" y=\"226\" width=\"200\" height=\"54\" rx=\"10\" opacity=\".65\"/></g><g fill=\"currentColor\"><circle cx=\"248\" cy=\"117\" r=\"8\" fill=\"#fc4\"/><circle cx=\"248\" cy=\"185\" r=\"8\" fill=\"#fc4\"/><circle cx=\"248\" cy=\"253\" r=\"8\" fill=\"#fc4\"/></g><text x=\"560\" y=\"320\" font-size=\"44\" text-anchor=\"middle\">🖥️</text></svg>"
+   },
+   "sources": [
+    {
+     "url": "https://thehackernews.com/2026/11/critical-vmware-vcenter-flaw-cvss-98.html",
+     "title": "Critical VMware vCenter Flaw (CVSS 9.8) Lets Network Attackers Bypass Authentication",
+     "publisher": "The Hacker News"
+    }
+   ],
+   "blocks": [
+    {
+     "type": "paragraph",
+     "text": "Broadcom a publié le 19 novembre 2026 un avis de sécurité regroupant cinq vulnérabilités. La plus sévère, **CVE-2026-123890**, est un contournement d'authentification dans le service d'annuaire VMware (« Directory Service ») de vCenter. Notée 9,8 sur 10, elle permet à un attaquant ayant accès au réseau d'obtenir un accès non autorisé. La source ne précise pas le niveau d'accès obtenu. La faille a été signalée par Mandiant, filiale de Google."
+    },
+    {
+     "type": "paragraph",
+     "text": "vCenter est la console centrale qui pilote les hôtes de virtualisation ESX d'une infrastructure : y entrer sans autorisation, c'est se placer en position de contrôler les machines virtuelles. C'est pourquoi les failles de ce composant sont systématiquement scrutées par les groupes de rançongiciels et d'espionnage."
+    },
+    {
+     "type": "heading",
+     "text": "Qui est concerné, et que faire"
+    },
+    {
+     "type": "keyvalue",
+     "items": [
+      {
+       "label": "Versions touchées",
+       "value": "vCenter 8.0, 9.0 et 9.1, ainsi que les versions de vCenter livrées avec VMware Cloud Foundation (y compris la ligne 5.x), vSphere Foundation, Telco Cloud Platform et Telco Cloud Infrastructure"
+      },
+      {
+       "label": "Mode Enhanced Linked",
+       "value": "Sans importance : la faille s'applique avec ou sans ce mode"
+      },
+      {
+       "label": "Contournement",
+       "value": "Aucun n'est proposé par Broadcom"
+      },
+      {
+       "label": "Exploitation",
+       "value": "Aucune attaque ni code public signalés à ce jour par l'éditeur"
+      },
+      {
+       "label": "Hôtes ESX",
+       "value": "Non concernés ; aucune des cinq failles ne permet d'exécuter du code sur un hôte ESX depuis une machine virtuelle"
+      }
+     ]
+    },
+    {
+     "type": "paragraph",
+     "text": "Des correctifs existent pour toutes les branches prises en charge. Les mises à jour sont cumulatives et ne peuvent pas passer par la fonction d'application rapide de correctifs de vCenter. Détail important pour les équipes : installer vCenter 8.0 U3m ou 9.0.2.0200 empêche une montée de version ultérieure vers VMware Cloud Foundation 9.1.1. Il faut alors passer d'abord à 9.1.1 ou attendre la version 9.1.2. Les versions 6.5 et 6.7 ne sont plus évaluées mais sont présumées touchées ; vSphere 7.0, sorti du support général en octobre 2025, n'est couvert que par les contrats de support étendu."
+    },
+    {
+     "type": "heading",
+     "text": "Les quatre autres failles de l'avis"
+    },
+    {
+     "type": "list",
+     "items": [
+      "**CVE-2026-123891** : injection SQL dans SDDC Manager.",
+      "**CVE-2026-123892** : injection de commandes dans SDDC Manager.",
+      "**CVE-2026-123893** : élévation de privilèges vers l'administrateur système (root) sur l'appliance SDDC Manager.",
+      "**CVE-2026-123894** : contournement de la signature des jetons SAML dans VMware Tools pour Windows, exploitable seulement si l'association d'alias d'invité est configurée."
+     ]
+    },
+    {
+     "type": "usecases",
+     "title": "Exemples d'utilisation",
+     "items": [
+      {
+       "icon": "🏥",
+       "title": "Hôpital ou collectivité avec vSphere 8",
+       "text": "L'équipe place le correctif en tête de sa liste de maintenance et restreint l'accès réseau à l'interface vCenter aux seuls postes d'administration, faute de contournement officiel."
+      },
+      {
+       "icon": "🏢",
+       "title": "PME hébergée chez un infogéreur",
+       "text": "Elle demande par écrit à son prestataire la date d'application du correctif et la confirmation que l'interface de gestion n'est pas joignable depuis internet."
+      },
+      {
+       "icon": "🔎",
+       "title": "Équipe de détection",
+       "text": "Elle surveille les connexions inhabituelles au service d'annuaire et les créations de comptes depuis le 29 juillet, date des précédents correctifs, et conserve les journaux le temps de l'enquête."
+      }
+     ]
+    },
+    {
+     "type": "timeline",
+     "title": "D'où l'on vient, où l'on va",
+     "items": [
+      {
+       "label": "29 juillet 2026",
+       "text": "Correctifs de CVE-2026-59309 (9,8, contournement dans le même composant) et CVE-2026-59310 (traversée de répertoire)."
+      },
+      {
+       "label": "Août 2026",
+       "text": "Une société d'intervention allemande, QUIRSO, estime avec une confiance modérée que des attaques sur CVE-2026-59310 ont commencé cinq jours après la divulgation, attribuées à un acteur soupçonné d'être lié à la Chine ; environ 361 adresses IP dans 47 pays auraient été compromises, avec déploiement d'un rançongiciel dérivé de Babuk sur des hôtes ESXi."
+      },
+      {
+       "label": "19 novembre 2026",
+       "text": "Nouvel avis : CVE-2026-123890 et quatre autres failles."
+      }
+     ]
+    },
+    {
+     "type": "opinion",
+     "title": "Notre avis",
+     "paragraphs": [
+      "Le précédent de l'été est la meilleure raison de ne pas attendre : en août, des attaques auraient débuté en quelques jours. Que l'éditeur n'observe aucune exploitation aujourd'hui ne dit rien de la semaine prochaine, d'autant que les correctifs sont publics et peuvent être comparés aux versions précédentes.",
+      "Le vrai sujet est structurel : un composant d'annuaire fusionné dans la console d'administration devient un point de défaillance unique. À un horizon de un à trois ans, on peut s'attendre à voir les entreprises isoler davantage les réseaux de gestion et réduire le nombre de consoles accessibles, ce qui reste une analyse et non un fait."
+     ],
+     "verdict": "Pas d'exploitation connue, pas de contournement : le correctif est la seule vraie protection."
+    },
+    {
+     "type": "callout",
+     "title": "À retenir",
+     "text": "Avant de corriger, vérifiez la contrainte avec VMware Cloud Foundation 9.1.1 : une mise à jour mal choisie peut bloquer la suite du parcours."
+    }
+   ],
+   "publishedAt": "2026-11-19T18:17:31+01:00"
+  },
+  {
+   "id": "ruby2shell-debordement-casse-ruby-rails",
+   "category": "cybersecurite",
+   "icon": "💎",
+   "title": "Ruby2Shell : un seul octet de trop dans la conversion de casse suffit à menacer Rails, GitLab et GitHub Enterprise",
+   "summary": "Ruby 4.0.10, 3.4.13 et 3.3.14 corrigent sept défauts mémoire ; l'un d'eux, dans les majuscules des encodages hérités, est atteignable sans authentification dans Rails par défaut.",
+   "tags": [
+    "Ruby",
+    "Rails",
+    "GitLab",
+    "débordement de tampon",
+    "correctif"
+   ],
+   "importance": 4,
+   "readingMinutes": 5,
+   "sourceDate": "2026-11-19",
+   "illustration": {
+    "svg": "<svg xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"0 0 640 360\"><defs><linearGradient id=\"g\" x1=\"0\" y1=\"0\" x2=\"1\" y2=\"1\"><stop offset=\"0\" stop-color=\"hsl(175,65%,38%)\"/><stop offset=\"1\" stop-color=\"hsl(215,70%,22%)\"/></linearGradient></defs><rect width=\"640\" height=\"360\" fill=\"url(#g)\"/><circle cx=\"90\" cy=\"300\" r=\"120\" fill=\"#fff\" opacity=\".07\"/><circle cx=\"560\" cy=\"60\" r=\"90\" fill=\"#fff\" opacity=\".08\"/><g fill=\"none\" stroke=\"#fff\" stroke-width=\"16\" stroke-linecap=\"round\" stroke-linejoin=\"round\"><path d=\"M250 110l-80 70 80 70\"/><path d=\"M390 110l80 70-80 70\"/><path d=\"M350 90l-60 180\" opacity=\".8\"/></g><text x=\"560\" y=\"320\" font-size=\"44\" text-anchor=\"middle\">💎</text></svg>"
+   },
+   "sources": [
+    {
+     "url": "https://verialabs.com/ruby2shell/",
+     "title": "Ruby2Shell : pre-authentication RCE on stock Rails",
+     "publisher": "Veria Labs"
+    },
+    {
+     "url": "https://thehackernews.com/2026/11/ruby-releases-fixes-for-7-regex-and.html",
+     "title": "Ruby Releases Fixes for 7 Regex and String Flaws",
+     "publisher": "The Hacker News"
+    }
+   ],
+   "blocks": [
+    {
+     "type": "paragraph",
+     "text": "Le 19 novembre 2026, les mainteneurs de Ruby ont publié **4.0.10, 3.4.13 et 3.3.14**. Ces versions corrigent sept défauts de sûreté mémoire dans le traitement des expressions régulières et des conversions de casse. D'après The Hacker News, cinq d'entre eux disposent d'une preuve de concept permettant d'exécuter du code. Le plus remarqué a reçu le nom de **Ruby2Shell** (avis GHSA-34m4-m9fh-gqp5) ; le laboratoire Veria Labs, qui l'a décrit, ne donne pas d'identifiant CVE."
+    },
+    {
+     "type": "heading",
+     "text": "Un octet de trop"
+    },
+    {
+     "type": "paragraph",
+     "text": "Le défaut est un débordement d'un seul octet dans la conversion de casse de certains encodages mono-octet hérités. La plupart de ces encodages n'ont pas de « ß » majuscule : mettre en majuscules ce caractère produit deux octets (« SS »), alors que la boucle ne vérifie la place disponible que pour un seul. Le tampon de sortie fait la taille de l'entrée plus 20 octets : 21 caractères « ß » suffisent donc à déborder. L'écriture dépose un « S » (ou un « s » en repli de casse) juste après le tampon, dont l'attaquant maîtrise la taille grâce à la longueur de son entrée."
+    },
+    {
+     "type": "paragraph",
+     "text": "Les méthodes `upcase`, `swapcase`, `downcase(:fold)` et `casecmp?` peuvent déclencher le bogue, présent depuis Ruby 2.4.0. Les chaînes UTF-8 empruntent un autre chemin de code et ne sont pas concernées : l'enjeu est donc l'entrée traitée dans un encodage hérité."
+    },
+    {
+     "type": "keyvalue",
+     "items": [
+      {
+       "label": "Ruby 4.0",
+       "value": "4.0.0 à 4.0.9, corrigé en 4.0.10"
+      },
+      {
+       "label": "Ruby 3.4",
+       "value": "3.4.0 à 3.4.12, corrigé en 3.4.13"
+      },
+      {
+       "label": "Ruby 3.3",
+       "value": "3.3.0 à 3.3.13, corrigé en 3.3.14"
+      },
+      {
+       "label": "Ruby 3.2 et antérieur",
+       "value": "Fin de vie jusqu'à 2.4.0, aucun correctif prévu"
+      },
+      {
+       "label": "Frameworks",
+       "value": "Rails et Sinatra en style classique exposés par défaut ; Rack seul et d'autres frameworks non exposés par défaut"
+      }
+     ]
+    },
+    {
+     "type": "heading",
+     "text": "Logiciels déjà identifiés"
+    },
+    {
+     "type": "paragraph",
+     "text": "Veria Labs cite **GitLab 19.6.0** (Ruby 3.3.13 embarqué), **GitHub Enterprise Server 3.22.5** (Ruby 4.0.9) et **Chatwoot 4.20.0** (Ruby 3.4.4) comme touchés. Mastodon 4.7.6, OpenProject 17.9.8 et l'image de base de Discourse sont indiqués comme corrigés. La preuve de concept n'est pas publiée : les auteurs disent qu'ils la diffuseront environ une semaine après le correctif, pour laisser le temps de déployer."
+    },
+    {
+     "type": "usecases",
+     "title": "Exemples d'utilisation",
+     "items": [
+      {
+       "icon": "🏗️",
+       "title": "Équipe produit sur Rails 8",
+       "text": "Elle vérifie la version de Ruby de sa production et de ses images de conteneurs, puis reconstruit celles-ci avec 3.4.13 ou 4.0.10 plutôt que de corriger à la main."
+      },
+      {
+       "icon": "🏛️",
+       "title": "DSI qui héberge GitLab en interne",
+       "text": "Elle contacte l'éditeur pour connaître la date de la version embarquant un Ruby corrigé et limite l'exposition publique de l'instance en attendant."
+      },
+      {
+       "icon": "📦",
+       "title": "Mainteneur de bibliothèque",
+       "text": "Il passe en revue les endroits où le code met en majuscules des chaînes dans un encodage hérité (ISO-8859 par exemple) et les convertit en UTF-8 à l'entrée."
+      }
+     ]
+    },
+    {
+     "type": "timeline",
+     "title": "D'où l'on vient, où l'on va",
+     "items": [
+      {
+       "label": "2.4.0",
+       "text": "Le défaut existe depuis cette version de Ruby."
+      },
+      {
+       "label": "Avant le 19 novembre 2026",
+       "text": "Le correctif est intégré au dépôt Ruby (commit `d582f8f`)."
+      },
+      {
+       "label": "19 novembre 2026",
+       "text": "Publication de 4.0.10, 3.4.13 et 3.3.14, et de l'analyse de Veria Labs."
+      },
+      {
+       "label": "Vers fin novembre",
+       "text": "Publication annoncée de la preuve de concept, environ une semaine après le correctif."
+      }
+     ]
+    },
+    {
+     "type": "opinion",
+     "title": "Notre avis",
+     "paragraphs": [
+      "Un octet paraît dérisoire, et c'est pourtant l'illustration classique de ce que la sûreté mémoire d'un langage ne protège pas : le moteur de Ruby est écrit en C, et c'est lui qui déborde. Le fait que Rails soit atteignable par défaut, sans authentification, transforme un défaut de bibliothèque en risque de production.",
+      "La fenêtre qui s'ouvre avant la publication de la preuve de concept est courte. À un horizon d'un à trois ans, la tendance est à la généralisation des analyses assistées par outils automatiques sur les moteurs de langages, ce qui devrait faire émerger davantage de cas de ce genre ; c'est une projection, non un constat."
+     ],
+     "verdict": "Le correctif est simple ; la difficulté sera de retrouver tous les Ruby embarqués."
+    },
+    {
+     "type": "callout",
+     "title": "À retenir",
+     "text": "Les versions 3.2 et antérieures n'ont pas de correctif : leur seule issue est la migration."
+    }
+   ],
+   "publishedAt": "2026-11-19T18:17:31+01:00"
+  },
+  {
+   "id": "bases-de-donnees-rce-comptes-faibles-privileges",
+   "category": "cybersecurite",
+   "icon": "🗄️",
+   "title": "PostgreSQL, MySQL, Oracle, ClickHouse : un chercheur montre qu'un compte à faibles droits peut exécuter du code sur le serveur",
+   "summary": "Zheng Yu, de Depthfirst, publie des exploits pour quatre failles corrigées et une cinquième sans correctif confirmé. Aucune attaque réelle n'est signalée.",
+   "tags": [
+    "PostgreSQL",
+    "MySQL",
+    "Oracle",
+    "ClickHouse",
+    "Depthfirst"
+   ],
+   "importance": 4,
+   "readingMinutes": 5,
+   "sourceDate": "2026-11-19",
+   "illustration": {
+    "svg": "<svg xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"0 0 640 360\"><defs><linearGradient id=\"g\" x1=\"0\" y1=\"0\" x2=\"1\" y2=\"1\"><stop offset=\"0\" stop-color=\"hsl(175,65%,38%)\"/><stop offset=\"1\" stop-color=\"hsl(215,70%,22%)\"/></linearGradient></defs><rect width=\"640\" height=\"360\" fill=\"url(#g)\"/><circle cx=\"90\" cy=\"300\" r=\"120\" fill=\"#fff\" opacity=\".07\"/><circle cx=\"560\" cy=\"60\" r=\"90\" fill=\"#fff\" opacity=\".08\"/><g fill=\"#fff\"><ellipse cx=\"320\" cy=\"110\" rx=\"100\" ry=\"30\"/><path d=\"M220 110v130c0 17 45 30 100 30s100-13 100-30V110c0 17-45 30-100 30s-100-13-100-30z\" opacity=\".85\"/></g><g stroke=\"#fff\" stroke-width=\"0\"/><path d=\"M220 175c0 17 45 30 100 30s100-13 100-30\" fill=\"none\" stroke=\"rgba(0,0,0,.25)\" stroke-width=\"4\"/><text x=\"560\" y=\"320\" font-size=\"44\" text-anchor=\"middle\">🗄️</text></svg>"
+   },
+   "sources": [
+    {
+     "url": "https://thehackernews.com/2026/11/researcher-demonstrates-database-rce.html",
+     "title": "Researcher Demonstrates Database RCE Exploits Affecting PostgreSQL, MySQL and Oracle",
+     "publisher": "The Hacker News"
+    }
+   ],
+   "blocks": [
+    {
+     "type": "paragraph",
+     "text": "Les droits d'une base de données décident qui lit quelle table ; ils ne protègent pas le code qui analyse, planifie et exécute les requêtes. C'est l'argument central de **Zheng Yu**, chercheur chez Depthfirst, qui a publié la veille du 19 novembre 2026 des exploits visant quatre moteurs : PostgreSQL, MySQL, Oracle (avec son serveur REST) et ClickHouse. La source précise qu'aucune de ces techniques n'a été observée dans une attaque réelle."
+    },
+    {
+     "type": "paragraph",
+     "text": "Le moteur d'une base de données est écrit en C ou en C++, langages où une erreur de gestion mémoire peut transformer une requête en prise de contrôle du serveur. Les comptes à faibles privilèges, ceux que l'on distribue aux applications ou aux analystes, y accèdent pourtant tous."
+    },
+    {
+     "type": "diagram",
+     "svg": "<svg xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"0 0 640 270\" font-family=\"system-ui,sans-serif\" font-size=\"14\"><rect width=\"640\" height=\"270\" rx=\"14\" fill=\"#f3f5f9\" stroke=\"#c9d1e0\"/><g fill=\"#1c2640\" text-anchor=\"middle\"><text x=\"320\" y=\"30\" font-weight=\"600\">Ce que contrôlent les droits SQL… et ce qu'ils ne contrôlent pas</text></g><rect x=\"30\" y=\"50\" width=\"270\" height=\"190\" rx=\"12\" fill=\"#e6f4ea\" stroke=\"#2e7d4f\"/><rect x=\"340\" y=\"50\" width=\"270\" height=\"190\" rx=\"12\" fill=\"#fde8e8\" stroke=\"#c0392b\"/><g fill=\"#1c2640\" text-anchor=\"middle\"><text x=\"165\" y=\"80\" font-weight=\"600\">Couche contrôlée</text><text x=\"165\" y=\"110\">Tables et schémas</text><text x=\"165\" y=\"134\">Lectures et écritures</text><text x=\"165\" y=\"158\">Rôles et privilèges</text><text x=\"475\" y=\"80\" font-weight=\"600\">Couche non contrôlée</text><text x=\"475\" y=\"110\">Analyse des requêtes</text><text x=\"475\" y=\"134\">Optimiseur, formats binaires</text><text x=\"475\" y=\"158\">Code C/C++ de l'engin</text><text x=\"475\" y=\"198\" font-size=\"12\">Un compte à bas privilège peut l'atteindre</text><text x=\"165\" y=\"198\" font-size=\"12\">Le principe du moindre privilège agit ici</text></g></svg>",
+     "alt": "Deux colonnes : à gauche, la couche contrôlée par les droits SQL ; à droite, le code du moteur que les droits ne contrôlent pas.",
+     "caption": "Les privilèges SQL protègent les données, mais pas le code du moteur qui traite les requêtes."
+    },
+    {
+     "type": "heading",
+     "text": "Cas par cas"
+    },
+    {
+     "type": "list",
+     "items": [
+      "**PostgreSQL (CVE-2026-116331)** : une confusion de type permet, à un compte capable de créer des objets (privilège TEMPORARY, accordé par défaut), d'exécuter du code avec les droits de l'utilisateur système du serveur. Touche les versions antérieures à 18.7, 17.12, 16.16, 15.20 et 14.25 ; correctif du 12 novembre.",
+      "**MySQL (CVE-2026-101786)** : bogue de l'optimiseur de requêtes exploitable avec les seuls droits de création de tables temporaires, sur les versions 26.7.0 à 26.7.1 ; correctif du 20 octobre. Oracle juge qu'il demande des privilèges élevés ; le chercheur a obtenu l'exécution de code avec un droit plus étroit.",
+      "**Oracle Database (CVE-2026-114819, noté 9,9)** : composant Oracle Text, enchaîné avec une faille d'Oracle REST Data Services (CVE-2026-91609). C'est le seul cas qui ne demande aucun compte. Correctifs des 17 novembre et 20 octobre.",
+      "**ClickHouse** : écriture par dépassement d'entier lors de la lecture du format binaire de lignes, déclenchée si l'utilisateur règle `format_binary_max_string_size` à zéro. Pas d'identifiant CVE, correctif non confirmé (testé sur 26.7.5.10)."
+     ]
+    },
+    {
+     "type": "paragraph",
+     "text": "Les chaînes d'attaque complètes n'ont pas été reproduites de façon indépendante, ce qui incite à la prudence sur leur portée exacte. Quatre failles disposent d'un identifiant et d'un correctif."
+    },
+    {
+     "type": "usecases",
+     "title": "Exemples d'utilisation",
+     "items": [
+      {
+       "icon": "📊",
+       "title": "Entreprise avec un entrepôt PostgreSQL",
+       "text": "Elle retire le privilège TEMPORARY des rôles d'analyse qui n'en ont pas besoin, puis planifie la montée vers 17.12 ou 18.7."
+      },
+      {
+       "icon": "🌐",
+       "title": "Application web avec Oracle REST",
+       "text": "Elle vérifie que les terminaux ORDS ne sont pas exposés à internet et que les correctifs d'octobre et de novembre sont posés, seule parade pour le chemin sans compte."
+      },
+      {
+       "icon": "🧮",
+       "title": "Équipe de données sous ClickHouse",
+       "text": "Elle limite le droit de modifier les paramètres de format et interroge l'éditeur sur la disponibilité d'un correctif."
+      }
+     ]
+    },
+    {
+     "type": "timeline",
+     "title": "D'où l'on vient, où l'on va",
+     "items": [
+      {
+       "label": "20 octobre 2026",
+       "text": "Correctifs MySQL et Oracle REST Data Services."
+      },
+      {
+       "label": "12 novembre 2026",
+       "text": "Correctifs PostgreSQL."
+      },
+      {
+       "label": "17 novembre 2026",
+       "text": "Correctif Oracle Text."
+      },
+      {
+       "label": "18 novembre 2026",
+       "text": "Publication des exploits par le chercheur."
+      }
+     ]
+    },
+    {
+     "type": "opinion",
+     "title": "Notre avis",
+     "paragraphs": [
+      "L'enseignement le plus utile est conceptuel : le principe du moindre privilège ne couvre que les données. Passer en revue ce que peut faire un compte, pas seulement ce qu'il peut lire, devient une exigence d'architecture.",
+      "Dans un à trois ans, la multiplication des outils d'analyse automatique de code devrait faire remonter davantage de défauts dans les moteurs de bases de données ; il reste à voir si les éditeurs raccourciront leurs délais de correction. C'est une opinion argumentée, non un fait."
+     ],
+     "verdict": "Les droits SQL ne remplacent pas les correctifs : appliquer les deux."
+    },
+    {
+     "type": "callout",
+     "title": "À retenir",
+     "text": "Retirer TEMPORARY et les droits de création de tables temporaires n'est pas efficace contre le chemin Oracle sans compte."
+    }
+   ],
+   "publishedAt": "2026-11-19T18:17:31+01:00"
+  },
+  {
+   "id": "cisa-kev-synology-litellm-axis-redcap",
+   "category": "cybersecurite",
+   "icon": "🛡️",
+   "title": "CISA : quatre failles activement exploitées, de Synology DSM à LiteLLM, pour du rançongiciel, du minage et du « LLMjacking »",
+   "summary": "Le catalogue des vulnérabilités exploitées s'enrichit de Synology DSM, Apache Axis 1.x, REDCap et du proxy d'IA LiteLLM, avec des échéances au 21 novembre et au 2 décembre pour les agences fédérales américaines.",
+   "tags": [
+    "CISA",
+    "KEV",
+    "LiteLLM",
+    "Synology",
+    "LLMjacking"
+   ],
+   "importance": 3,
+   "readingMinutes": 5,
+   "sourceDate": "2026-11-18",
+   "illustration": {
+    "svg": "<svg xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"0 0 640 360\"><defs><linearGradient id=\"g\" x1=\"0\" y1=\"0\" x2=\"1\" y2=\"1\"><stop offset=\"0\" stop-color=\"hsl(175,65%,38%)\"/><stop offset=\"1\" stop-color=\"hsl(215,70%,22%)\"/></linearGradient></defs><rect width=\"640\" height=\"360\" fill=\"url(#g)\"/><circle cx=\"90\" cy=\"300\" r=\"120\" fill=\"#fff\" opacity=\".07\"/><circle cx=\"560\" cy=\"60\" r=\"90\" fill=\"#fff\" opacity=\".08\"/><g fill=\"#fff\"><rect x=\"220\" y=\"90\" width=\"200\" height=\"54\" rx=\"10\" opacity=\".95\"/><rect x=\"220\" y=\"158\" width=\"200\" height=\"54\" rx=\"10\" opacity=\".8\"/><rect x=\"220\" y=\"226\" width=\"200\" height=\"54\" rx=\"10\" opacity=\".65\"/></g><g fill=\"currentColor\"><circle cx=\"248\" cy=\"117\" r=\"8\" fill=\"#fc4\"/><circle cx=\"248\" cy=\"185\" r=\"8\" fill=\"#fc4\"/><circle cx=\"248\" cy=\"253\" r=\"8\" fill=\"#fc4\"/></g><text x=\"560\" y=\"320\" font-size=\"44\" text-anchor=\"middle\">🛡️</text></svg>"
+   },
+   "sources": [
+    {
+     "url": "https://thehackernews.com/2026/11/cisa-warns-of-4-exploited-flaws-linked.html",
+     "title": "CISA Warns of 4 Exploited Flaws Linked to Ransomware, Cryptomining, and LLMjacking Attacks",
+     "publisher": "The Hacker News"
+    }
+   ],
+   "blocks": [
+    {
+     "type": "paragraph",
+     "text": "Le 18 novembre 2026, l'agence américaine CISA a ajouté quatre vulnérabilités à son catalogue des failles connues comme exploitées (KEV). La liste intéresse bien au-delà des administrations américaines : elle sert de référence de priorisation à de nombreuses équipes de sécurité, car elle ne contient que des défauts pour lesquels une exploitation réelle est avérée."
+    },
+    {
+     "type": "heading",
+     "text": "Les quatre failles"
+    },
+    {
+     "type": "keyvalue",
+     "items": [
+      {
+       "label": "Apache Axis 1.x · CVE-2026-90436 (9,8)",
+       "value": "Réflexion non sécurisée permettant l'exécution de code à distance sans authentification. La branche 1.x est en fin de vie et non corrigée ; exploitée contre Atlassian Confluence Data Center lorsque l'API distante est activée, et aux côtés de failles de N-able N-central pour déployer des mineurs de cryptomonnaie. Recommandation : migrer vers Axis 2/Java ou appliquer le commit du 12 juillet 2026."
+      },
+      {
+       "label": "Vanderbilt REDCap · CVE-2026-90817 (9,8)",
+       "value": "Injection de code sans authentification, qui suppose un condensat valide d'enquête publique. Un acteur inconnu l'a utilisée pour installer le mineur XMRig."
+      },
+      {
+       "label": "BerriAI LiteLLM · CVE-2026-40217 (8,8)",
+       "value": "Canal alternatif non protégé : le point d'accès `/guardrails/test_custom_code` permet d'exécuter du code. Selon Google Threat Intelligence Group, des attaquants s'en sont servis pour transformer de simples clés d'inférence en identifiants d'administrateur et s'installer durablement."
+      },
+      {
+       "label": "Synology DSM · CVE-2024-10441 (9,8)",
+       "value": "Défaut d'encodage de sortie conduisant à l'exécution de code à distance ; exploité dans des attaques contre des NAS avec le rançongiciel C3RB3R."
+      }
+     ]
+    },
+    {
+     "type": "heading",
+     "text": "Le cas LiteLLM et le « LLMjacking »"
+    },
+    {
+     "type": "paragraph",
+     "text": "Le terme « LLMjacking » désigne le détournement de l'accès à des modèles de langage pour consommer des ressources aux frais de la victime ou pour atteindre ses données. LiteLLM est un serveur mandataire que de nombreuses entreprises placent devant plusieurs fournisseurs de modèles : en prendre le contrôle revient à obtenir les clés et les budgets de tout un parc d'applications. Google rapporte des attaques visant des organisations de la finance, du commerce, du transport et de la technologie en Amérique du Nord, en Amérique du Sud et en Asie-Pacifique."
+    },
+    {
+     "type": "paragraph",
+     "text": "L'échéance imposée aux agences fédérales américaines est fixée au **21 novembre 2026** pour DSM, REDCap et Axis, et au **2 décembre 2026** pour LiteLLM. Pour les organisations françaises, l'échéance n'a pas de valeur réglementaire, mais elle fournit un ordre de priorité utile."
+    },
+    {
+     "type": "usecases",
+     "title": "Exemples d'utilisation",
+     "items": [
+      {
+       "icon": "🗂️",
+       "title": "Cabinet avec un NAS Synology",
+       "text": "Il met à jour DSM, coupe l'accès depuis internet au profit d'un VPN et vérifie que ses sauvegardes sont hors ligne."
+      },
+      {
+       "icon": "🤖",
+       "title": "Équipe qui expose un proxy LiteLLM",
+       "text": "Elle fait tourner les clés, restreint l'accès à l'interface d'administration et surveille les consommations anormales par clé."
+      },
+      {
+       "icon": "🔬",
+       "title": "Laboratoire utilisant REDCap",
+       "text": "Il applique le correctif de l'éditeur et vérifie les journaux d'enquêtes publiques à la recherche de condensats inhabituels."
+      }
+     ]
+    },
+    {
+     "type": "timeline",
+     "title": "D'où l'on vient, où l'on va",
+     "items": [
+      {
+       "label": "12 juillet 2026",
+       "text": "Commit de correction pour Axis 1.x signalé par la source."
+      },
+      {
+       "label": "18 novembre 2026",
+       "text": "Ajout des quatre failles au catalogue KEV."
+      },
+      {
+       "label": "21 novembre et 2 décembre 2026",
+       "text": "Échéances pour les agences fédérales américaines."
+      }
+     ]
+    },
+    {
+     "type": "opinion",
+     "title": "Notre avis",
+     "paragraphs": [
+      "Le cas Axis 1.x rappelle un problème durable : un composant abandonné reste embarqué dans des produits qui le masquent. L'inventaire des dépendances, plus que le correctif, devient la mesure décisive.",
+      "Les proxys d'IA sont en train de devenir un nouvel actif critique, avec des clés puissantes et peu de pratiques de sécurité éprouvées. D'ici un à trois ans, il est probable qu'ils entrent dans les audits au même titre que les passerelles d'API, ce qui reste une projection."
+     ],
+     "verdict": "Quatre failles, quatre profils de risque : aucune ne doit rester en production."
+    },
+    {
+     "type": "callout",
+     "title": "À retenir",
+     "text": "Le catalogue KEV ne contient que des failles réellement exploitées : c'est la meilleure liste de départ pour prioriser les correctifs."
+    }
+   ],
+   "publishedAt": "2026-11-19T18:17:31+01:00"
+  },
+  {
+   "id": "php-8-6-application-partielle-duration-poll",
+   "category": "dev",
+   "icon": "🐘",
+   "title": "PHP 8.6 : application partielle de fonctions, classe Duration, API de scrutation et sessions plus strictes par défaut",
+   "summary": "La nouvelle version, publiée le 19 novembre 2026, apporte des fonctionnalités de confort et de performance, mais aussi plusieurs dépréciations et changements de comportement à vérifier avant la migration.",
+   "tags": [
+    "PHP",
+    "PHP 8.6",
+    "langages",
+    "migration"
+   ],
+   "importance": 4,
+   "readingMinutes": 6,
+   "sourceDate": "2026-11-19",
+   "illustration": {
+    "svg": "<svg xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"0 0 640 360\"><defs><linearGradient id=\"g\" x1=\"0\" y1=\"0\" x2=\"1\" y2=\"1\"><stop offset=\"0\" stop-color=\"hsl(265,65%,38%)\"/><stop offset=\"1\" stop-color=\"hsl(305,70%,22%)\"/></linearGradient></defs><rect width=\"640\" height=\"360\" fill=\"url(#g)\"/><circle cx=\"90\" cy=\"300\" r=\"120\" fill=\"#fff\" opacity=\".07\"/><circle cx=\"560\" cy=\"60\" r=\"90\" fill=\"#fff\" opacity=\".08\"/><g fill=\"none\" stroke=\"#fff\" stroke-width=\"16\" stroke-linecap=\"round\" stroke-linejoin=\"round\"><path d=\"M250 110l-80 70 80 70\"/><path d=\"M390 110l80 70-80 70\"/><path d=\"M350 90l-60 180\" opacity=\".8\"/></g><text x=\"560\" y=\"320\" font-size=\"44\" text-anchor=\"middle\">🐘</text></svg>"
+   },
+   "sources": [
+    {
+     "url": "https://www.php.net/releases/8.6/en.php",
+     "title": "PHP 8.6 : points forts de la version",
+     "publisher": "php.net"
+    },
+    {
+     "url": "https://lwn.net/Articles/1108555/",
+     "title": "PHP 8.6.0 released",
+     "publisher": "LWN.net"
+    }
+   ],
+   "blocks": [
+    {
+     "type": "paragraph",
+     "text": "**PHP 8.6.0** est sortie le 19 novembre 2026, le jour même des versions de sécurité des branches précédentes. La version ajoute plusieurs fonctionnalités attendues par les développeurs de bibliothèques, durcit certains réglages par défaut et prépare le terrain à de futures suppressions. Elle embarque aussi les correctifs de sécurité détaillés par ailleurs."
+    },
+    {
+     "type": "heading",
+     "text": "Les nouveautés principales"
+    },
+    {
+     "type": "list",
+     "items": [
+      "**Application partielle de fonctions** : avec un `?` comme espace réservé, on obtient une fermeture qui attend les arguments restants, par exemple `version_compare(?, '8.6', '>=')` passé à `array_filter()`.",
+      "**Classe `\\Time\\Duration`** : représente une durée indépendante des fuseaux horaires, à la nanoseconde, sur plus de 250 ans ; les durées sont comparables et `min()` fonctionne directement.",
+      "**API de scrutation `Io\\Poll`** : surveille de nombreux flux via epoll, kqueue, ports d'événements ou WSAPoll, sans la limite de 1 024 connexions de `stream_select()`. Elle sert de base aux boucles d'événements comme ReactPHP ou AMPHP.",
+      "**Gestion des erreurs de flux** : les opérations sur flux peuvent lever une `StreamException` au lieu d'émettre des avertissements, avec des objets `StreamError` structurés.",
+      "**`clamp()`** limite une valeur à un intervalle, y compris pour des `Duration`.",
+      "**Énumération `SortDirection`**, commentaires de documentation sur les paramètres (lisibles par réflexion), valeurs par défaut pour les propriétés en lecture seule."
+     ]
+    },
+    {
+     "type": "paragraph",
+     "text": "Autres ajouts : `#[\\Override]` sur les constantes de classe et les cas d'énumération, nouveaux constructeurs d'URI (`UriBuilder`, `UrlBuilder`), extension Sodium avec X-Wing et ML-KEM-768 pour l'encapsulation de clés, reprise de session TLS, premières données TLS 1.3, `mysqli::quote_string()`, et des gains de performance pour `array_map()`, `printf()` et l'encodage JSON."
+    },
+    {
+     "type": "heading",
+     "text": "Ce qui peut casser en migration"
+    },
+    {
+     "type": "paragraph",
+     "text": "Plusieurs changements de comportement méritent un test avant la mise en production. Le réglage `session.use_strict_mode` et le drapeau `session.cookie_httponly` sont désormais activés par défaut, et `session.cookie_samesite` vaut `Lax`. `trim()`, `ltrim()` et `rtrim()` retirent maintenant aussi le saut de page (`\\f`). `fclose()`, `file_put_contents()` et `copy()` renvoient `false` en cas d'échec au vidage ou à la fermeture, au lieu de l'ignorer. De nombreuses fonctions lèvent désormais une `ValueError` pour des valeurs hors plage, des drapeaux invalides ou des chaînes contenant un octet nul."
+    },
+    {
+     "type": "paragraph",
+     "text": "Côté dépréciations : `return` dans un bloc `finally`, les fonctions `mb_ereg()` et `mb_split()` (la bibliothèque Oniguruma n'étant plus maintenue, on utilisera PCRE avec le modificateur `u`), les alias `is_double()`, `is_long()`, `is_integer()` et `doubleval()`, `spl_object_hash()` au profit de `spl_object_id()`, `strcoll()` et `SORT_LOCALE_STRING` (à remplacer par `Collator`), ainsi que les noms `let` et `is` pour des classes ou fonctions."
+    },
+    {
+     "type": "usecases",
+     "title": "Exemples d'utilisation",
+     "items": [
+      {
+       "icon": "⚙️",
+       "title": "Bibliothèque de file de messages",
+       "text": "Elle s'appuie sur `Io\\Poll` pour dépasser la limite de 1 024 connexions et exploite `Duration` pour calculer des délais de nouvelle tentative sans manipuler de nanosecondes à la main."
+      },
+      {
+       "icon": "🧹",
+       "title": "Équipe de maintenance d'un monolithe",
+       "text": "Elle exécute sa suite de tests sous 8.6 avec les avertissements d'obsolescence activés pour dresser la liste des alias et des fonctions mbstring à remplacer."
+      },
+      {
+       "icon": "🔐",
+       "title": "Application avec sessions personnalisées",
+       "text": "Elle vérifie que ses gestionnaires de session implémentent `create_sid()` et `validateId()`, sans quoi ils sont dépréciés."
+      }
+     ]
+    },
+    {
+     "type": "timeline",
+     "title": "D'où l'on vient, où l'on va",
+     "items": [
+      {
+       "label": "Novembre 2026",
+       "text": "Sortie de PHP 8.6.0."
+      },
+      {
+       "label": "À venir",
+       "text": "Les dépréciations annoncées devraient devenir des erreurs dans une version majeure ultérieure ; la source ne donne pas de calendrier."
+      }
+     ]
+    },
+    {
+     "type": "opinion",
+     "title": "Notre avis",
+     "paragraphs": [
+      "Cette version est plus sobre qu'éclatante, et c'est une qualité : l'application partielle et `Duration` corrigent des irritations quotidiennes, alors que `Io\\Poll` prépare une meilleure base pour la programmation asynchrone en PHP. Le durcissement des sessions par défaut va dans le bon sens, mais il peut surprendre les applications anciennes.",
+      "Dans un à trois ans, on peut espérer que les frameworks s'appuient sur ces briques pour réduire leur code de compatibilité ; c'est une prévision d'opinion. La migration proprement dite dépendra surtout de la vitesse à laquelle les extensions tierces suivront."
+     ],
+     "verdict": "Une montée de version à planifier, avec les failles corrigées comme motif supplémentaire."
+    },
+    {
+     "type": "callout",
+     "title": "À retenir",
+     "text": "Les branches 8.2 à 8.5 reçoivent séparément des correctifs de sécurité ; la migration vers 8.6 n'est pas obligatoire pour être protégé."
+    }
+   ],
+   "publishedAt": "2026-11-19T18:17:31+01:00"
+  },
+  {
+   "id": "nadella-agents-ia-economie-du-web",
+   "category": "ia",
+   "icon": "🛒",
+   "title": "Satya Nadella : les agents d'IA vont rebattre l'économie du web, et les sites qui les refusent risquent d'y perdre",
+   "summary": "Au DealBook Summit du New York Times, le patron de Microsoft compare l'arrivée des agents au passage des portails aux moteurs de recherche et cite Amazon et Shopify.",
+   "tags": [
+    "agents",
+    "Microsoft",
+    "Nadella",
+    "commerce",
+    "publicité"
+   ],
+   "importance": 3,
+   "readingMinutes": 5,
+   "sourceDate": "2026-11-18",
+   "illustration": {
+    "svg": "<svg xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"0 0 640 360\"><defs><linearGradient id=\"g\" x1=\"0\" y1=\"0\" x2=\"1\" y2=\"1\"><stop offset=\"0\" stop-color=\"hsl(320,65%,38%)\"/><stop offset=\"1\" stop-color=\"hsl(0,70%,22%)\"/></linearGradient></defs><rect width=\"640\" height=\"360\" fill=\"url(#g)\"/><circle cx=\"90\" cy=\"300\" r=\"120\" fill=\"#fff\" opacity=\".07\"/><circle cx=\"560\" cy=\"60\" r=\"90\" fill=\"#fff\" opacity=\".08\"/><g fill=\"#fff\"><rect x=\"230\" y=\"110\" width=\"180\" height=\"130\" rx=\"26\" opacity=\".94\"/><circle cx=\"285\" cy=\"170\" r=\"17\" fill=\"rgba(0,0,0,.3)\"/><circle cx=\"355\" cy=\"170\" r=\"17\" fill=\"rgba(0,0,0,.3)\"/><rect x=\"300\" y=\"205\" width=\"40\" height=\"10\" rx=\"5\" fill=\"rgba(0,0,0,.3)\"/><rect x=\"312\" y=\"78\" width=\"16\" height=\"34\"/><circle cx=\"320\" cy=\"72\" r=\"12\"/></g><text x=\"560\" y=\"320\" font-size=\"44\" text-anchor=\"middle\">🛒</text></svg>"
+   },
+   "sources": [
+    {
+     "url": "https://techcrunch.com/2026/11/18/satya-nadella-predicts-ai-agents-will-reshuffle-the-economics-of-the-web/",
+     "title": "Satya Nadella predicts AI agents will reshuffle the economics of the web",
+     "publisher": "TechCrunch"
+    }
+   ],
+   "blocks": [
+    {
+     "type": "paragraph",
+     "text": "Le 18 novembre 2026, lors d'un entretien public au sommet DealBook du New York Times, **Satya Nadella**, directeur général de Microsoft, a livré sa lecture de l'effet des agents d'IA sur l'économie d'internet. Il ne s'agissait pas d'une annonce de produit mais d'une prise de position, que TechCrunch résume dans une brève. Ses propos méritent d'être lus comme ceux d'un dirigeant dont l'entreprise vend précisément des agents."
+    },
+    {
+     "type": "heading",
+     "text": "Ce que dit Nadella"
+    },
+    {
+     "type": "list",
+     "items": [
+      "Le web « humain » et ses agrégateurs seront réorganisés par le web « agentique », comme le passage des portails de type Yahoo aux moteurs de recherche comme Google a changé les flux de paiement du trafic.",
+      "Les modèles publicitaires fondés sur le nombre de visiteurs pourraient évoluer vers des revenus au clic ou transactionnels : « maybe it's more transactional », selon la citation rapportée.",
+      "Refuser les agents est un pari risqué : « if you don't accept the agent, somebody else will »."
+     ]
+    },
+    {
+     "type": "paragraph",
+     "text": "Il a pris l'exemple d'Amazon, qui interdit aux agents d'IA de parcourir son catalogue et d'acheter pour le compte d'utilisateurs, et suggéré que cette position pourrait ouvrir un espace à des concurrents plus accueillants, Shopify étant cité comme plateforme qui pourrait en profiter. La brève ne contient ni réponse d'Amazon, ni chiffre sur le trafic ou les revenus, ni calendrier : il s'agit d'une prévision, non d'un résultat mesuré."
+    },
+    {
+     "type": "heading",
+     "text": "Pourquoi cela compte, côté français"
+    },
+    {
+     "type": "paragraph",
+     "text": "Pour un commerçant ou un éditeur français, la question est concrète : que faire quand un assistant lit la fiche produit à la place du client ? Les règles ne sont pas fixées. Sur le plan juridique, les conditions d'accès des robots, le règlement général sur la protection des données (RGPD) et les droits d'auteur restent applicables ; ces éléments relèvent du contexte général, pas de la brève citée."
+    },
+    {
+     "type": "usecases",
+     "title": "Exemples d'utilisation",
+     "items": [
+      {
+       "icon": "🛍️",
+       "title": "Petit e-commerçant",
+       "text": "Il expose un flux produit propre et un moyen de paiement utilisable par un assistant, en s'assurant que les mentions légales et les conditions de vente restent visibles."
+      },
+      {
+       "icon": "📰",
+       "title": "Éditeur financé par la publicité",
+       "text": "Il teste des offres d'accès payant pour les agents, car une lecture automatisée ne génère pas d'impressions publicitaires."
+      },
+      {
+       "icon": "🧾",
+       "title": "Agence de voyages en ligne",
+       "text": "Elle propose à un assistant de comparer et réserver, en conservant le suivi de la relation client dans ses propres canaux."
+      }
+     ]
+    },
+    {
+     "type": "timeline",
+     "title": "D'où l'on vient, où l'on va",
+     "items": [
+      {
+       "label": "Années 1990 et 2000",
+       "text": "Les portails dominent l'accès au web, puis les moteurs de recherche redistribuent le trafic."
+      },
+      {
+       "label": "18 novembre 2026",
+       "text": "Nadella annonce un basculement comparable avec les agents."
+      },
+      {
+       "label": "À venir",
+       "text": "L'ampleur du phénomène reste à mesurer : la source ne fournit pas de données."
+      }
+     ]
+    },
+    {
+     "type": "opinion",
+     "title": "Notre avis",
+     "paragraphs": [
+      "L'analogie est séduisante mais elle sert aussi les intérêts de celui qui la formule : si les agents sont inévitables, tout refus devient une erreur stratégique. Or aucune donnée de la brève ne montre que les consommateurs délèguent déjà massivement leurs achats. Le risque de dépendance vis-à-vis de quelques plateformes d'agents, lui, n'est pas abordé.",
+      "À un horizon d'un à trois ans, on peut raisonnablement attendre davantage de contrats entre commerçants et fournisseurs d'agents, et des débats sur la rémunération des contenus. C'est une opinion argumentée : l'issue dépendra de l'adoption réelle et de la régulation européenne."
+     ],
+     "verdict": "Un pronostic de dirigeant, utile pour saisir les enjeux, à ne pas confondre avec une mesure."
+    },
+    {
+     "type": "callout",
+     "title": "À retenir",
+     "text": "Les propos de Nadella sont des prévisions rapportées par TechCrunch, sans chiffres à l'appui."
+    }
+   ],
+   "publishedAt": "2026-11-19T18:17:31+01:00"
+  },
+  {
+   "id": "moniteur-hub-limite-debit-ethernet-tampon",
+   "category": "electronique",
+   "icon": "🔌",
+   "title": "Un moniteur-concentrateur bride le débit : le tampon d'un adaptateur Ethernet 2,5 Gbit/s déborde, un modèle 5 Gbit/s règle le problème",
+   "summary": "Sur une connexion symétrique de 2,5 Gbit/s, le téléchargement plafonnait vers 600 Mbit/s dès que l'adaptateur passait par le moniteur ; le mécanisme tient aux trames perdues avant le système d'exploitation.",
+   "tags": [
+    "Ethernet",
+    "USB-C",
+    "matériel",
+    "dépannage",
+    "Hackaday"
+   ],
+   "importance": 2,
+   "readingMinutes": 4,
+   "sourceDate": "2026-11-19",
+   "illustration": {
+    "svg": "<svg xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"0 0 640 360\"><defs><linearGradient id=\"g\" x1=\"0\" y1=\"0\" x2=\"1\" y2=\"1\"><stop offset=\"0\" stop-color=\"hsl(30,65%,38%)\"/><stop offset=\"1\" stop-color=\"hsl(70,70%,22%)\"/></linearGradient></defs><rect width=\"640\" height=\"360\" fill=\"url(#g)\"/><circle cx=\"90\" cy=\"300\" r=\"120\" fill=\"#fff\" opacity=\".07\"/><circle cx=\"560\" cy=\"60\" r=\"90\" fill=\"#fff\" opacity=\".08\"/><rect x=\"240\" y=\"100\" width=\"160\" height=\"160\" rx=\"16\" fill=\"#fff\" opacity=\".93\"/><rect x=\"280\" y=\"140\" width=\"80\" height=\"80\" rx=\"8\" fill=\"rgba(0,0,0,.25)\"/><g stroke=\"#fff\" stroke-width=\"10\" stroke-linecap=\"round\"><path d=\"M270 80v20M320 80v20M370 80v20M270 260v20M320 260v20M370 260v20M220 130h20M220 180h20M220 230h20M400 130h20M400 180h20M400 230h20\"/></g><text x=\"560\" y=\"320\" font-size=\"44\" text-anchor=\"middle\">🔌</text></svg>"
+   },
+   "cover": {
+    "url": "https://hackaday.com/wp-content/uploads/2026/11/monitor-network-main.png",
+    "alt": "Schéma de Hackaday illustrant un moniteur qui limite le débit réseau d'un adaptateur Ethernet",
+    "credit": "hackaday.com"
+   },
+   "sources": [
+    {
+     "url": "https://hackaday.com/2026/11/19/monitors-that-throttle-downloads/",
+     "title": "Monitors That Throttle Downloads",
+     "publisher": "Hackaday"
+    },
+    {
+     "url": "https://blog.tymscar.com/posts/studiodisplayethernet/",
+     "title": "Billet de Oscar sur l'adaptateur Ethernet et le moniteur",
+     "publisher": "blog.tymscar.com"
+    }
+   ],
+   "blocks": [
+    {
+     "type": "paragraph",
+     "text": "Un diagnostic réseau peut parfois conduire à un coupable inattendu : l'écran posé sur le bureau. Hackaday rapporte le cas d'un utilisateur nommé Oscar, équipé d'une connexion symétrique de **2,5 Gbit/s**. L'envoi atteignait bien le débit annoncé, mais le téléchargement plafonnait autour de **600 Mbit/s** dès que l'adaptateur USB-C vers Ethernet 2,5 Gbit/s était branché sur le moniteur, qui sert de concentrateur. Relié directement à l'ordinateur, le même adaptateur retrouvait sa pleine vitesse."
+    },
+    {
+     "type": "paragraph",
+     "text": "Le moniteur n'est pas nommé dans l'article de Hackaday ; les adresses des billets liés laissent penser à un Studio Display d'Apple, sans que ce soit confirmé. L'intérêt du cas dépasse le modèle : il concerne tous les écrans qui jouent le rôle de station d'accueil."
+    },
+    {
+     "type": "heading",
+     "text": "Ce qui se passe réellement"
+    },
+    {
+     "type": "paragraph",
+     "text": "Selon l'analyse rapportée, le tampon de réception de la carte 2,5 Gbit/s se remplit plus vite que les données ne peuvent traverser le concentrateur jusqu'à l'ordinateur. Lorsqu'il déborde, des trames sont perdues. Le système d'exploitation ne signale rien : la perte survient avant que les données n'atteignent le système, ce qui rend le diagnostic traître, puisque les compteurs d'erreurs habituels restent à zéro."
+    },
+    {
+     "type": "diagram",
+     "svg": "<svg xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"0 0 640 250\" font-family=\"system-ui,sans-serif\" font-size=\"14\"><rect width=\"640\" height=\"250\" rx=\"14\" fill=\"#f3f5f9\" stroke=\"#c9d1e0\"/><g fill=\"#fff\" stroke=\"#6b7a99\" stroke-width=\"2\"><rect x=\"24\" y=\"90\" width=\"150\" height=\"70\" rx=\"10\"/><rect x=\"245\" y=\"90\" width=\"150\" height=\"70\" rx=\"10\"/><rect x=\"466\" y=\"90\" width=\"150\" height=\"70\" rx=\"10\"/></g><g fill=\"#1c2640\" text-anchor=\"middle\"><text x=\"99\" y=\"120\">Réseau 2,5 Gbit/s</text><text x=\"99\" y=\"140\" font-size=\"12\">arrive sans perte</text><text x=\"320\" y=\"120\">Adaptateur USB-C</text><text x=\"320\" y=\"140\" font-size=\"12\">tampon qui se remplit</text><text x=\"541\" y=\"120\">Moniteur, puis Mac</text><text x=\"541\" y=\"140\" font-size=\"12\">le concentrateur est trop lent</text></g><g stroke=\"#6b7a99\" stroke-width=\"3\" fill=\"none\"><path d=\"M176 125h67\"/><path d=\"M397 125h67\"/></g><rect x=\"130\" y=\"190\" width=\"380\" height=\"40\" rx=\"8\" fill=\"#fde8e8\" stroke=\"#c0392b\"/><text x=\"320\" y=\"215\" text-anchor=\"middle\" fill=\"#7a1f16\">Débordement du tampon : trames perdues, environ 600 Mbit/s en réception</text></svg>",
+     "alt": "Chaîne en trois étapes : réseau 2,5 Gbit/s, adaptateur USB-C dont le tampon se remplit, moniteur-concentrateur trop lent vers l'ordinateur ; débordement et trames perdues.",
+     "caption": "Le goulot se situe entre l'adaptateur et l'ordinateur, derrière le concentrateur intégré au moniteur."
+    },
+    {
+     "type": "paragraph",
+     "text": "Ce type de défaut se repère mal : l'interface réseau annonce un lien à 2,5 Gbit/s, les mesures en envoi sont normales, et seul le sens descendant souffre. Une comparaison entre le branchement direct et le passage par l'écran est donc le test le plus rapide pour isoler la cause, avant de soupçonner le fournisseur d'accès, le routeur ou le câble. L'article insiste sur ce point méthodologique plus que sur le modèle d'écran concerné."
+    },
+    {
+     "type": "heading",
+     "text": "Les pistes essayées"
+    },
+    {
+     "type": "list",
+     "items": [
+      "**Mise à jour du pilote** : le débit passe à environ 1,1 Gbit/s, mais le problème subsiste.",
+      "**Contrôle de flux Ethernet** : demande à l'émetteur de faire une pause quand des trames sont perdues. Cela améliore encore la situation sans la régler entièrement ; Oscar le tient pour un contournement.",
+      "**Adaptateur 5 Gbit/s à tampon plus grand** : les pertes disparaissent."
+     ]
+    },
+    {
+     "type": "usecases",
+     "title": "Exemples d'utilisation",
+     "items": [
+      {
+       "icon": "🏠",
+       "title": "Télétravailleur en fibre 2,5 Gbit/s",
+       "text": "Il teste son débit avec l'adaptateur branché directement sur l'ordinateur, puis sur l'écran, pour savoir si le concentrateur est en cause."
+      },
+      {
+       "icon": "🛠️",
+       "title": "Technicien de parc informatique",
+       "text": "Il note, dans sa procédure de diagnostic, de comparer le débit avant et après le passage par une station d'accueil ou un écran."
+      },
+      {
+       "icon": "🛒",
+       "title": "Acheteur de matériel",
+       "text": "Il choisit un adaptateur dont le débit dépasse celui de la liaison réelle, afin de disposer d'une marge de tampon."
+      }
+     ]
+    },
+    {
+     "type": "timeline",
+     "title": "D'où l'on vient, où l'on va",
+     "items": [
+      {
+       "label": "Avant l'article",
+       "text": "Oscar publie sur son blog l'analyse du plafonnement de débit."
+      },
+      {
+       "label": "19 novembre 2026",
+       "text": "Hackaday relaie l'analyse d'Oscar."
+      },
+      {
+       "label": "À venir",
+       "text": "Les fabricants pourraient annoncer le débit réel de leurs ports Ethernet ; aucune annonce de ce type n'est mentionnée."
+      }
+     ]
+    },
+    {
+     "type": "opinion",
+     "title": "Notre avis",
+     "paragraphs": [
+      "L'astuce à retenir n'est pas de racheter du matériel, mais de tester par élimination : changer un seul maillon de la chaîne et mesurer. Un débit qui plafonne sans compteur d'erreurs est un indice de perte en amont du système.",
+      "La multiplication des écrans qui jouent aussi les stations d'accueil laisse penser que ces cas se répéteront, à mesure que les débits domestiques montent. C'est une opinion : aucune statistique n'est fournie."
+     ],
+     "verdict": "Un petit mystère qui rappelle de tester la chaîne complète."
+    },
+    {
+     "type": "callout",
+     "title": "À retenir",
+     "text": "Un tampon plus grand ou un débit supérieur à la liaison utile sont les deux marges à vérifier."
+    }
+   ],
+   "publishedAt": "2026-11-19T18:17:31+01:00"
+  }
+ ]
+}
