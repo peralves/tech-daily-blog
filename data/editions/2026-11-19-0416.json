@@ -1,0 +1,808 @@
+{
+ "schemaVersion": "1.0",
+ "date": "2026-11-19",
+ "generatedAt": "2026-11-19T04:16:16+01:00",
+ "title": "Tech : failles F5 BIG-IP, Cold Relic, Gemini 4 Neon, PowerShell 7 et agent-framework",
+ "summary": "Cette édition suit les failles critiques de F5 BIG-IP, une campagne d'espionnage liée à la Russie, le lancement de Gemini 4 Neon, l'arrivée de PowerShell 7 dans Windows et les suites de l'incident agent-framework.",
+ "highlights": [
+  "F5 publie six correctifs d'ingénierie pour des failles critiques de BIG-IP",
+  "Cold Relic détourne de faux appareils MFA et des clés d'accès pour rebondir",
+  "Gemini 4 Neon : 3 $ le million de jetons en entrée selon Google",
+  "PowerShell 7 sera intégré à la prochaine version de Windows",
+  "agent-framework : un compte administrateur GitHub de Microsoft serait en cause"
+ ],
+ "meta": {
+  "generator": "claude-scheduled-task"
+ },
+ "posts": [
+  {
+   "id": "f5-big-ip-six-failles-critiques-tmm",
+   "category": "cybersecurite",
+   "icon": "🛡️",
+   "importance": 5,
+   "title": "F5 BIG-IP : six failles critiques de la couche de données, corrigées seulement par des correctifs d'ingénierie",
+   "summary": "Six débordements de pile notés 9,8 permettent de faire tomber le micronoyau de trafic TMM, et peut-être d'exécuter du code. Aucun contournement n'existe et aucune exploitation n'est signalée.",
+   "tags": [
+    "F5",
+    "BIG-IP",
+    "TMM",
+    "iRules",
+    "CVE",
+    "correctif"
+   ],
+   "sourceDate": "2026-11-18",
+   "illustration": {
+    "svg": "<svg xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"0 0 640 360\"><defs><linearGradient id=\"g\" x1=\"0\" y1=\"0\" x2=\"1\" y2=\"1\"><stop offset=\"0\" stop-color=\"hsl(175,65%,38%)\"/><stop offset=\"1\" stop-color=\"hsl(215,70%,22%)\"/></linearGradient></defs><rect width=\"640\" height=\"360\" fill=\"url(#g)\"/><circle cx=\"560\" cy=\"60\" r=\"110\" fill=\"#fff\" opacity=\".07\"/><circle cx=\"70\" cy=\"320\" r=\"130\" fill=\"#fff\" opacity=\".06\"/><path d=\"M320 90 L420 125 V200 Q420 260 320 290 Q220 260 220 200 V125 Z\" fill=\"#fff\" opacity=\".93\"/><path d=\"M280 195 l30 30 l55 -65\" stroke=\"hsl(175,60%,35%)\" stroke-width=\"14\" fill=\"none\"/></svg>"
+   },
+   "sources": [
+    {
+     "title": "F5 Warns 6 Critical BIG-IP Flaws Can Crash Traffic in Specific Setups, May Allow RCE",
+     "url": "https://thehackernews.com/2026/11/f5-warns-6-critical-big-ip-flaws-can.html",
+     "publisher": "The Hacker News"
+    },
+    {
+     "title": "Notification de sécurité F5 (K000164058)",
+     "url": "https://my.f5.com/manage/s/article/K000164058",
+     "publisher": "F5"
+    }
+   ],
+   "readingMinutes": 4,
+   "blocks": [
+    {
+     "type": "paragraph",
+     "text": "Le 18 novembre 2026, F5 a publié un lot de 22 avis de sécurité dont six concernent des failles jugées **critiques** dans ses équipements et logiciels **BIG-IP**, très répandus comme répartiteurs de charge, pare-feu applicatifs et passerelles d'accès. Toutes touchent la couche de données, c'est-à-dire le *Traffic Management Microkernel* (TMM), le composant qui traite effectivement le trafic des clients. Un attaquant non authentifié peut, en envoyant un trafic spécialement construit, provoquer un plantage du TMM et interrompre le trafic jusqu'à son redémarrage. F5 indique aussi qu'une exécution de code à distance ne peut pas être exclue."
+    },
+    {
+     "type": "paragraph",
+     "text": "Le contexte rend ces publications sensibles : une faille de même famille, un débordement de tas dans le module APM divulgué le 22 septembre 2026, a déjà été exploitée et inscrite le jour même au catalogue des vulnérabilités exploitées de la CISA. F5 précise toutefois que les six failles du jour sont distinctes. Aucun avis ne fait état d'exploitation à ce stade."
+    },
+    {
+     "type": "heading",
+     "level": 2,
+     "text": "Ce que l'on sait des six failles"
+    },
+    {
+     "type": "paragraph",
+     "text": "Chacune est un débordement de tampon sur la pile, noté 9,8 sur l'échelle CVSS 3.1 et 9,3 sur l'échelle CVSS 4.0. L'interface de gestion n'est pas exposée : c'est le trafic traité par le plan de données qui déclenche le défaut. Quatre failles ont été signalées par Sina Kheirkhah, de watchTowr, et deux ont été trouvées par F5 elle-même. Point important : chaque faille n'est atteignable que si une configuration précise de serveur virtuel est en place."
+    },
+    {
+     "type": "keyvalue",
+     "items": [
+      {
+       "label": "CVE-2026-123637",
+       "value": "Politique APM par requête combinant les agents « Client Information » et « Endpoint Security » ; APM uniquement"
+      },
+      {
+       "label": "CVE-2026-121805",
+       "value": "iRule utilisant PEM::subscriber sur le trafic client ; BIG-IP PEM, BNK et CNF"
+      },
+      {
+       "label": "CVE-2026-120292",
+       "value": "Profil HTTP et iRule utilisant MR::message route ; tous les modules et BNK"
+      },
+      {
+       "label": "CVE-2026-120285",
+       "value": "Profil HTTP et iRule utilisant PSC::ip_address ; tous les modules, BNK et CNF"
+      },
+      {
+       "label": "CVE-2026-116953",
+       "value": "iRule utilisant GENERICMESSAGE::route sur le trafic client ; tous les modules et BNK"
+      },
+      {
+       "label": "CVE-2026-120722",
+       "value": "iRule utilisant DNS::scrape sur le trafic client ; BIG-IP DNS et BNK"
+      }
+     ]
+    },
+    {
+     "type": "paragraph",
+     "text": "Une incohérence est à noter : l'avis F5 indique que CNF n'est pas concerné par CVE-2026-120722, alors que la fiche CVE, mise à jour le même jour, le liste comme affecté. En cas de doute, mieux vaut traiter CNF comme exposé."
+    },
+    {
+     "type": "heading",
+     "level": 2,
+     "text": "Un correctif atypique"
+    },
+    {
+     "type": "paragraph",
+     "text": "Les six failles critiques ne sont corrigées que par des **correctifs d'ingénierie** (*engineering hotfixes*, EHF) et non par une version planifiée. Pour BIG-IP Next pour Kubernetes (BNK), il s'agit des builds BNK-2.4.2-EHF1, BNK-2.3.4-EHF1 et BNK-2.2.5-EHF1 ; pour CNF, des builds CNF-2.4.2-EHF1, CNF-2.3.4-EHF1 et CNF-2.2.5-EHF1, valables pour deux des failles. F5 prévient elle-même que ces correctifs ne passent pas par l'assurance qualité étendue des versions programmées. Aucun contournement n'est proposé."
+    },
+    {
+     "type": "paragraph",
+     "text": "Six failles de moindre gravité, notées de 7,5 à 8,8, sont traitées dans le même lot : SOAP et REST d'iControl, politiques APM, SAML, et SSL Orchestrator. Elles sont corrigées par les versions 21.1.0.3, 17.5.1.10 et 17.1.3.6 ou par les mêmes correctifs. F5 ne teste que les versions prises en charge : l'absence d'une version dans les tableaux ne prouve pas qu'elle soit saine."
+    },
+    {
+     "type": "usecases",
+     "title": "Exemples d'utilisation",
+     "items": [
+      {
+       "icon": "🏦",
+       "title": "Banque avec BIG-IP en frontal",
+       "text": "Une équipe réseau recense les iRules utilisant les commandes citées (DNS::scrape, PSC::ip_address) et mesure son exposition avant de demander le correctif à F5."
+      },
+      {
+       "icon": "☸️",
+       "title": "Plateforme Kubernetes avec BNK",
+       "text": "Une équipe plateforme planifie le passage aux builds EHF1 sur une fenêtre de maintenance et teste d'abord sur une grappe de préproduction."
+      },
+      {
+       "icon": "🏥",
+       "title": "Hôpital avec accès distant APM",
+       "text": "Le RSSI vérifie si la politique par requête combine les deux agents concernés, puis surveille les redémarrages inattendus du TMM comme signal d'alerte."
+      }
+     ]
+    },
+    {
+     "type": "timeline",
+     "title": "D'où l'on vient, où l'on va",
+     "items": [
+      {
+       "label": "22 septembre 2026",
+       "text": "Divulgation d'un débordement de tas dans APM, exploité et inscrit au catalogue CISA le jour même"
+      },
+      {
+       "label": "18 novembre 2026",
+       "text": "Publication de 22 avis F5, dont six failles critiques de la couche de données"
+      },
+      {
+       "label": "Prochaines semaines",
+       "text": "Aucune version planifiée annoncée : seuls les correctifs d'ingénierie sont disponibles"
+      }
+     ]
+    },
+    {
+     "type": "opinion",
+     "title": "Notre avis",
+     "paragraphs": [
+      "Ce lot illustre un problème récurrent : les équipements de bordure concentrent beaucoup de trafic et de privilèges, et leurs défauts de mémoire restent attractifs pour les attaquants. Le fait que chaque faille exige une configuration précise limite la surface réelle, mais cette limite se mesure vite : les iRules sont courantes dans les grands parcs.",
+      "À un à trois ans, la pression devrait pousser les éditeurs à réécrire en langages sûrs les composants exposés et à publier des correctifs plus rapidement. Pour les exploitants, la leçon est de conserver un inventaire fin des fonctions activées, car c'est lui qui permet de trier l'urgence."
+     ],
+     "verdict": "Un correctif d'ingénierie sans contournement impose d'agir vite, mais en testant."
+    },
+    {
+     "type": "callout",
+     "title": "À retenir",
+     "text": "Vérifiez l'exposition réelle de vos serveurs virtuels (iRules, profils, politiques APM), appliquez les correctifs d'ingénierie F5 après test et surveillez les redémarrages du TMM. Les montants et numéros de version sont ceux de l'avis du 18 novembre 2026."
+    }
+   ],
+   "publishedAt": "2026-11-19T04:16:16+01:00"
+  },
+  {
+   "id": "cold-relic-google-workspace-faux-appareils-mfa",
+   "category": "cybersecurite",
+   "icon": "🕵️",
+   "importance": 4,
+   "title": "Cold Relic : un groupe lié à la Russie transforme une intrusion cloud en tremplin vers une seconde organisation américaine",
+   "summary": "Selon Google, les attaquants ont enregistré de faux appareils d'authentification, des clés d'accès et des codes de secours pour rester dans les comptes, puis usurpé des employés pour rebondir.",
+   "tags": [
+    "Cold Relic",
+    "COLDRIVER",
+    "Google Workspace",
+    "MFA",
+    "Entra ID",
+    "GTIG"
+   ],
+   "sourceDate": "2026-11-18",
+   "illustration": {
+    "svg": "<svg xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"0 0 640 360\"><defs><linearGradient id=\"g\" x1=\"0\" y1=\"0\" x2=\"1\" y2=\"1\"><stop offset=\"0\" stop-color=\"hsl(175,65%,38%)\"/><stop offset=\"1\" stop-color=\"hsl(215,70%,22%)\"/></linearGradient></defs><rect width=\"640\" height=\"360\" fill=\"url(#g)\"/><circle cx=\"560\" cy=\"60\" r=\"110\" fill=\"#fff\" opacity=\".07\"/><circle cx=\"70\" cy=\"320\" r=\"130\" fill=\"#fff\" opacity=\".06\"/><rect x=\"170\" y=\"140\" width=\"130\" height=\"80\" rx=\"40\" fill=\"none\" stroke=\"#fff\" stroke-width=\"16\"/><rect x=\"340\" y=\"140\" width=\"130\" height=\"80\" rx=\"40\" fill=\"none\" stroke=\"#fff\" stroke-width=\"16\"/><path d=\"M270 180 H370\" stroke=\"#fff\" stroke-width=\"16\"/><path d=\"M300 100 l40 -30 M330 280 l-30 30\" stroke=\"#fff\" stroke-width=\"10\" opacity=\".7\"/></svg>"
+   },
+   "sources": [
+    {
+     "title": "Russian COLD RELIC Hackers Use Stolen Google Workspace Data to Breach Second U.S. Organization",
+     "url": "https://thehackernews.com/2026/11/russian-cold-relic-hackers-use-stolen.html",
+     "publisher": "The Hacker News"
+    },
+    {
+     "title": "Cold Relic : a case study in impersonation and compromise",
+     "url": "https://cloud.google.com/blog/topics/threat-intelligence/cold-relic-a-case-study-in-impersonation-and-compromise",
+     "publisher": "Google Cloud / GTIG"
+    }
+   ],
+   "readingMinutes": 4,
+   "blocks": [
+    {
+     "type": "paragraph",
+     "text": "Le groupe d'espionnage lié à la Russie **Cold Relic**, aussi connu sous les noms COLDRIVER, UNC4057, Callisto, Gossamer Bear ou Star Blizzard, a utilisé les données volées lors d'une première intrusion pour en réussir une seconde. Le récit provient du Google Threat Intelligence Group (GTIG) et de Mandiant, relayé le 18 novembre 2026. Il montre moins une faille technique qu'une chaîne d'abus d'identité, de l'authentification multifacteur aux messageries."
+    },
+    {
+     "type": "heading",
+     "level": 2,
+     "text": "Première victime : fin 2025"
+    },
+    {
+     "type": "paragraph",
+     "text": "L'accès initial s'est fait par un réseau de proxys résidentiels situé près de la victime, avec des identifiants de super-administrateur déjà volés. Les attaquants ont ensuite lancé une attaque par **fatigue de notifications** : à force de demandes d'approbation, un employé a fini par en accepter une. Ils ont alors enregistré leur propre appareil dans le locataire Google Workspace."
+    },
+    {
+     "type": "list",
+     "items": [
+      "partage massif de fichiers vers une boîte contrôlée par les attaquants et téléchargement du contenu du stockage cloud ;",
+      "consultation des journaux d'audit, puis modification ou suppression de notifications du Centre d'alertes pour masquer l'intrusion ;",
+      "export de listes d'employés et de données de domaine avec Google Takeout ;",
+      "maintien de l'accès pendant des mois par synchronisation du courriel via OAuth et par des clés d'accès non révoquées."
+     ]
+    },
+    {
+     "type": "heading",
+     "level": 2,
+     "text": "Seconde victime : 2026"
+    },
+    {
+     "type": "paragraph",
+     "text": "Une fois chassés, les attaquants ont réutilisé des comptes d'employés usurpés dans une nouvelle campagne d'ingénierie sociale. Une deuxième organisation américaine, qui utilisait Microsoft Entra ID comme fournisseur d'authentification unique pour Google Workspace, a été visée. Se faisant passer pour un employé de la première victime, l'attaquant a contacté sa cible via une messagerie sécurisée et envoyé un lien présenté comme un document sur un problème technique. Le lien servait à récupérer identifiants et jetons Entra ID. Après connexion, un nouvel appareil d'authentification a été enregistré et des fichiers ont été téléchargés en masse. Le profil de la messagerie a ensuite été renommé, ce qui laisse penser que d'autres cibles du même réseau étaient visées."
+    },
+    {
+     "type": "paragraph",
+     "text": "Cold Relic aurait déjà compromis des responsables gouvernementaux, des sous-traitants de la défense et des organisations non gouvernementales en Europe et en Amérique du Nord. L'article source ne détaille pas de recommandations ; les pratiques ci-dessous sont des déductions des techniques décrites, non des consignes de Google."
+    },
+    {
+     "type": "usecases",
+     "title": "Exemples d'utilisation",
+     "items": [
+      {
+       "icon": "🔑",
+       "title": "Administrateur d'un domaine Workspace",
+       "text": "Il limite les comptes de super-administrateur, impose des clés de sécurité physiques et revoit régulièrement les appareils, clés d'accès et codes de secours enregistrés."
+      },
+      {
+       "icon": "📨",
+       "title": "Association ou cabinet de conseil",
+       "text": "Une consigne simple : toute demande de document reçue par messagerie, même d'un contact connu, se vérifie par un autre canal."
+      },
+      {
+       "icon": "🚨",
+       "title": "Équipe de sécurité d'une PME",
+       "text": "Elle crée des alertes sur les exports Takeout, les partages massifs et les nouvelles autorisations OAuth, et protège les journaux contre la suppression."
+      }
+     ]
+    },
+    {
+     "type": "timeline",
+     "title": "D'où l'on vient, où l'on va",
+     "items": [
+      {
+       "label": "Fin 2025",
+       "text": "Première intrusion : fatigue MFA, appareil rogue, exfiltration"
+      },
+      {
+       "label": "Mois suivants",
+       "text": "Accès maintenu par OAuth et clés d'accès non révoquées"
+      },
+      {
+       "label": "2026",
+       "text": "Rebond vers une organisation utilisant Entra ID, via un faux employé"
+      },
+      {
+       "label": "18 novembre 2026",
+       "text": "Publication du cas d'école par Google"
+      }
+     ]
+    },
+    {
+     "type": "opinion",
+     "title": "Notre avis",
+     "paragraphs": [
+      "Le point marquant est la persistance : chasser un attaquant ne suffit pas si ses appareils d'authentification, ses jetons OAuth et ses codes de secours restent valides. Beaucoup d'incidents se closent trop tôt faute de revue de ces objets.",
+      "Dans les un à trois ans à venir, l'usurpation de collègues compromis comme vecteur de phishing devrait se généraliser, car les messages viennent d'un contact réel. Les organisations qui s'y préparent ont intérêt à adopter l'authentification résistante à l'hameçonnage et à traiter l'enregistrement d'un nouvel appareil comme un événement sensible."
+     ],
+     "verdict": "La vraie remédiation commence après l'expulsion : révoquer tout ce que l'attaquant a pu enregistrer."
+    },
+    {
+     "type": "callout",
+     "title": "À retenir",
+     "text": "Après un incident sur un compte, révoquez appareils MFA, clés d'accès, codes de secours et jetons OAuth, puis surveillez les exports massifs de données."
+    }
+   ],
+   "publishedAt": "2026-11-19T04:16:16+01:00"
+  },
+  {
+   "id": "gemini-4-neon-google-prix-benchmarks",
+   "category": "ia",
+   "icon": "✨",
+   "importance": 5,
+   "title": "Gemini 4 Neon : Google propose un modèle intermédiaire à 3 dollars le million de jetons en entrée",
+   "summary": "Placé entre Carbon et Hydrogen, Neon vise le code, le travail de bureau et la science, avec un million de jetons de contexte et quatre niveaux de réflexion. Les performances citées sont celles annoncées par Google.",
+   "tags": [
+    "Google",
+    "Gemini 4 Neon",
+    "modèles de langage",
+    "agents",
+    "tarification"
+   ],
+   "sourceDate": "2026-11-18",
+   "illustration": {
+    "svg": "<svg xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"0 0 640 360\"><defs><linearGradient id=\"g\" x1=\"0\" y1=\"0\" x2=\"1\" y2=\"1\"><stop offset=\"0\" stop-color=\"hsl(320,65%,38%)\"/><stop offset=\"1\" stop-color=\"hsl(0,70%,22%)\"/></linearGradient></defs><rect width=\"640\" height=\"360\" fill=\"url(#g)\"/><circle cx=\"560\" cy=\"60\" r=\"110\" fill=\"#fff\" opacity=\".07\"/><circle cx=\"70\" cy=\"320\" r=\"130\" fill=\"#fff\" opacity=\".06\"/><circle cx=\"320\" cy=\"180\" r=\"90\" fill=\"#fff\" opacity=\".93\"/><path d=\"M320 100 Q330 170 400 180 Q330 190 320 260 Q310 190 240 180 Q310 170 320 100 Z\" fill=\"hsl(320,60%,35%)\"/></svg>"
+   },
+   "sources": [
+    {
+     "title": "Introducing Gemini 4 Neon",
+     "url": "https://blog.google/innovation-and-ai/models-and-research/gemini-models/introducing-gemini-4-neon/",
+     "publisher": "Google"
+    }
+   ],
+   "readingMinutes": 5,
+   "blocks": [
+    {
+     "type": "paragraph",
+     "text": "Le 18 novembre 2026, Google a présenté **Gemini 4 Neon** dans un billet signé de Koray Kavukcuoglu, de Google DeepMind. Dans la famille Gemini 4, Neon se place entre **Carbon**, destiné aux projets de longue haleine les plus difficiles, et **Hydrogen**, conçu pour l'exécution rapide du quotidien. Google le décrit comme offrant une intelligence « de niveau frontière » pour le génie logiciel, le travail intellectuel et les flux scientifiques. Tous les chiffres qui suivent sont des résultats publiés par Google, pas des mesures indépendantes."
+    },
+    {
+     "type": "heading",
+     "level": 2,
+     "text": "Tarifs et caractéristiques"
+    },
+    {
+     "type": "keyvalue",
+     "items": [
+      {
+       "label": "Entrée",
+       "value": "3 $ par million de jetons"
+      },
+      {
+       "label": "Entrée en cache",
+       "value": "0,15 $ par million de jetons, soit 95 % de réduction"
+      },
+      {
+       "label": "Sortie",
+       "value": "15 $ par million de jetons"
+      },
+      {
+       "label": "Contexte",
+       "value": "1 million de jetons"
+      },
+      {
+       "label": "Réflexion",
+       "value": "quatre niveaux, « high » par défaut et « xhigh » au maximum"
+      }
+     ]
+    },
+    {
+     "type": "paragraph",
+     "text": "Le modèle est disponible dans l'API Gemini (offre payante) via Google AI Studio et Android Studio, ainsi que pour les entreprises par l'API, le sélecteur de modèles de Gemini pour le travail et Google Antigravity. Dans l'application Gemini, les abonnés Pro et Ultra peuvent le choisir. Une variante orientée cybersécurité sera proposée dans les prochains jours aux membres du programme Fairwind, via leur interlocuteur Cloud. La page ne précise ni limites d'usage ni date de coupure des connaissances."
+    },
+    {
+     "type": "heading",
+     "level": 2,
+     "text": "Ce que Google met en avant"
+    },
+    {
+     "type": "list",
+     "items": [
+      "indice Artificial Analysis Intelligence : 61 au niveau xhigh, troisième rang ;",
+      "indice Vals : deuxième rang avec 70,9 % ;",
+      "indice Coding Agent d'Artificial Analysis : premier rang avec 58,6 ;",
+      "Terminal-Bench 4.1 : 65,2 % ; FrontierCode 2.0 : 46,2 % au niveau par défaut ;",
+      "Humanity's Last Exam (HLE-Diamond) : 71,3 % ; RiemannBench : 84,0 % ;",
+      "SEC-bench Pro : 90,5 % ; CWE-bench v2 : 70,7 %, soit 3,4 points de plus que Carbon."
+     ]
+    },
+    {
+     "type": "paragraph",
+     "text": "Côté coûts, Google affirme que Neon revient 32 % moins cher par tâche que Carbon au niveau par défaut, et au moins 36 % moins cher que des concurrents à leur réglage maximal. Sur la sécurité, le modèle aurait un taux d'actions non alignées de 0,09 % et passerait 99,2 % d'une évaluation d'honnêteté d'agent ; ces chiffres sont des auto-évaluations."
+    },
+    {
+     "type": "usecases",
+     "title": "Exemples d'utilisation",
+     "items": [
+      {
+       "icon": "💻",
+       "title": "Développeuse sur un grand dépôt",
+       "text": "Elle confie à Neon un débogage multi-fichiers : le modèle propose des modifications ciblées et compacte le contexte de la session au fil de l'eau."
+      },
+      {
+       "icon": "📊",
+       "title": "Analyste en entreprise",
+       "text": "Il fournit tableurs, PDF et graphiques dans une seule fenêtre de contexte pour obtenir une synthèse, puis délègue des tâches annexes à des sous-agents Hydrogen."
+      },
+      {
+       "icon": "🔬",
+       "title": "Laboratoire de recherche",
+       "text": "Une équipe compare les niveaux de réflexion sur des problèmes scientifiques pour trouver le meilleur compromis coût-qualité avant de généraliser."
+      }
+     ]
+    },
+    {
+     "type": "timeline",
+     "title": "D'où l'on vient, où l'on va",
+     "items": [
+      {
+       "label": "Famille Gemini 4",
+       "text": "Lancement de Carbon et d'Hydrogen avant Neon, selon les mentions de la page"
+      },
+      {
+       "label": "18 novembre 2026",
+       "text": "Présentation de Neon, tarification à 3 $ et 15 $ le million de jetons"
+      },
+      {
+       "label": "Prochains jours",
+       "text": "Accès de la variante cyber pour les membres de Fairwind"
+      }
+     ]
+    },
+    {
+     "type": "opinion",
+     "title": "Notre avis",
+     "paragraphs": [
+      "Le message est surtout économique : offrir un modèle proche du haut de gamme à un coût par tâche inférieur à celui de Carbon. Pour les entreprises qui déploient des agents, c'est la facture à l'échelle, et non le meilleur score, qui décide. Les résultats annoncés restent à confirmer par des tests indépendants, d'autant que les classements cités sont proches.",
+      "À un ou deux ans, la segmentation en trois tailles devrait devenir la norme, avec un grand modèle qui planifie et des modèles légers qui exécutent. Le risque est de dépendre d'un fournisseur unique pour toute la chaîne."
+     ],
+     "verdict": "Un bon rapport coût-performance annoncé, à vérifier sur ses propres cas d'usage."
+    },
+    {
+     "type": "callout",
+     "title": "À retenir",
+     "text": "Les scores cités viennent de Google ; testez le modèle sur vos tâches réelles avant de migrer, en surveillant le coût par tâche et non seulement le prix au jeton."
+    }
+   ],
+   "publishedAt": "2026-11-19T04:16:16+01:00"
+  },
+  {
+   "id": "powershell-7-integre-windows-fin-5-1",
+   "category": "dev",
+   "icon": "⌨️",
+   "importance": 4,
+   "title": "PowerShell 7 sera livré avec Windows : PowerShell 5.1 entame sa retraite progressive",
+   "summary": "Microsoft inclura PowerShell 7 dans la prochaine version de Windows. La version 5.1 restera disponible, mais deviendra une fonctionnalité à la demande avant son retrait.",
+   "tags": [
+    "PowerShell",
+    "Windows",
+    "Microsoft",
+    "administration",
+    "scripts"
+   ],
+   "sourceDate": "2026-11-18",
+   "illustration": {
+    "svg": "<svg xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"0 0 640 360\"><defs><linearGradient id=\"g\" x1=\"0\" y1=\"0\" x2=\"1\" y2=\"1\"><stop offset=\"0\" stop-color=\"hsl(265,65%,38%)\"/><stop offset=\"1\" stop-color=\"hsl(305,70%,22%)\"/></linearGradient></defs><rect width=\"640\" height=\"360\" fill=\"url(#g)\"/><circle cx=\"560\" cy=\"60\" r=\"110\" fill=\"#fff\" opacity=\".07\"/><circle cx=\"70\" cy=\"320\" r=\"130\" fill=\"#fff\" opacity=\".06\"/><rect x=\"140\" y=\"95\" width=\"360\" height=\"190\" rx=\"14\" fill=\"#fff\" opacity=\".93\"/><rect x=\"140\" y=\"95\" width=\"360\" height=\"34\" rx=\"14\" fill=\"#fff\"/><path d=\"M180 170 l36 28 l-36 28\" stroke=\"hsl(265,60%,35%)\" stroke-width=\"12\" fill=\"none\"/><rect x=\"236\" y=\"218\" width=\"110\" height=\"12\" rx=\"5\" fill=\"hsl(265,60%,35%)\"/><rect x=\"236\" y=\"176\" width=\"190\" height=\"10\" rx=\"5\" fill=\"hsl(265,60%,35%)\" opacity=\".45\"/></svg>"
+   },
+   "sources": [
+    {
+     "title": "PowerShell 7 heading into Windows as 5.1 hits the end of the road",
+     "url": "https://www.theregister.com/os-platforms/2026/11/18/powershell-7-heading-into-windows-as-51-hits-the-end-of-the-road/5310791",
+     "publisher": "The Register"
+    }
+   ],
+   "readingMinutes": 4,
+   "blocks": [
+    {
+     "type": "paragraph",
+     "text": "Microsoft a annoncé que **PowerShell 7** sera fourni avec Windows. La version historique, PowerShell 5.1, bâtie sur le .NET Framework et peu enrichie ces dernières années, commence son retrait progressif. Selon The Register, qui cite l'équipe PowerShell, Windows Server 2025 et Windows 11 26H2 seront les dernières versions de Windows à activer PowerShell 5.1 par défaut. La prochaine version de Windows, dont le nom n'est pas précisé, embarquera la version 7."
+    },
+    {
+     "type": "heading",
+     "level": 2,
+     "text": "Ce qui change pour les administrateurs"
+    },
+    {
+     "type": "list",
+     "items": [
+      "PowerShell 5.1 sera retiré d'une version future de Windows ;",
+      "après la fin de l'activation par défaut, il sera proposé comme fonctionnalité à la demande (*Feature On Demand*) ;",
+      "le retrait effectif sera décidé selon les données d'usage, avec un préavis annoncé par Microsoft ;",
+      "d'ici là, la version 5.1 continuera de recevoir des mises à jour liées au cycle de vie de la version de Windows concernée."
+     ]
+    },
+    {
+     "type": "paragraph",
+     "text": "Les deux versions pourront coexister, de sorte que les scripts existants n'ont pas à migrer immédiatement. Mais PowerShell 7, version multiplateforme et open source où se développent désormais les nouveautés, n'est pas un remplaçant transparent. Microsoft doit encore finir le travail sur le paquet MSIX de la version intégrée : exécution sous le compte SYSTEM, cmdlets DISM et paramètres à l'échelle de la machine figurent parmi les lacunes citées. Elles pèsent surtout sur les tâches planifiées, les services et les scripts de gestion."
+    },
+    {
+     "type": "paragraph",
+     "text": "Le document de support KB5137172 détaille la dépréciation. L'inventaire des scripts et leurs tests ne se feront pas tout seuls : il faudra repérer ceux qui fonctionnent tels quels, ceux à adapter et ceux qui dépendent encore de la version 5.1."
+    },
+    {
+     "type": "usecases",
+     "title": "Exemples d'utilisation",
+     "items": [
+      {
+       "icon": "🧰",
+       "title": "Administrateur système d'une PME",
+       "text": "Il recense ses scripts de sauvegarde et de maintenance, puis les teste sous PowerShell 7 pour séparer ceux qui passent de ceux à adapter."
+      },
+      {
+       "icon": "🏢",
+       "title": "Équipe d'exploitation d'un parc Windows",
+       "text": "Elle prévoit une période de coexistence, avec des tâches planifiées qui appellent explicitement 5.1 ou 7 plutôt que de dépendre du réglage par défaut."
+      },
+      {
+       "icon": "🚀",
+       "title": "Équipe DevOps multiplateforme",
+       "text": "Elle unifie ses scripts de déploiement sur PowerShell 7, qui fonctionne aussi sous Linux et macOS, et abandonne les modules propres à 5.1."
+      }
+     ]
+    },
+    {
+     "type": "timeline",
+     "title": "D'où l'on vient, où l'on va",
+     "items": [
+      {
+       "label": "Années 2000",
+       "text": "Création de PowerShell pour apporter l'automatisation par script à Windows"
+      },
+      {
+       "label": "Ces dernières années",
+       "text": "PowerShell 7 devient la version où arrivent les nouveautés"
+      },
+      {
+       "label": "18 novembre 2026",
+       "text": "Annonce de l'intégration de PowerShell 7 à la prochaine version de Windows"
+      },
+      {
+       "label": "Version future",
+       "text": "Retrait de PowerShell 5.1 après préavis"
+      }
+     ]
+    },
+    {
+     "type": "opinion",
+     "title": "Notre avis",
+     "paragraphs": [
+      "La décision est logique et attendue : maintenir deux moteurs coûte cher, et la version 5.1 ne bénéficie plus d'innovation. Le risque porte sur les environnements qui ont des années de scripts propres à la version 5.1, notamment ceux qui dépendent de modules liés au .NET Framework.",
+      "À un à trois ans, la migration deviendra un chantier ordinaire d'exploitation, comme celle de Python 2. Le calendrier annoncé laisse du temps, mais il vaut mieux l'utiliser que le subir."
+     ],
+     "verdict": "Une migration annoncée de longue date, à préparer plutôt qu'à subir."
+    },
+    {
+     "type": "callout",
+     "title": "À retenir",
+     "text": "Commencez par inventorier vos scripts et tâches planifiées, testez-les sous PowerShell 7, et ne retirez 5.1 que lorsque les lacunes de MSIX sont comblées."
+    }
+   ],
+   "publishedAt": "2026-11-19T04:16:16+01:00"
+  },
+  {
+   "id": "agent-framework-compte-admin-github-onnx-runtime",
+   "category": "devops",
+   "icon": "📦",
+   "importance": 5,
+   "title": "agent-framework : un compte administrateur GitHub de Microsoft serait en cause, ONNX Runtime passe hors ligne",
+   "summary": "Un nouveau développement dans l'affaire du paquet PyPI piégé : la version 1.26.2 est parue après le retour en arrière, et plusieurs dépôts Microsoft ont été rendus privés.",
+   "tags": [
+    "supply chain",
+    "PyPI",
+    "GitHub",
+    "Microsoft",
+    "ONNX Runtime",
+    "CI/CD"
+   ],
+   "sourceDate": "2026-11-18",
+   "illustration": {
+    "svg": "<svg xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"0 0 640 360\"><defs><linearGradient id=\"g\" x1=\"0\" y1=\"0\" x2=\"1\" y2=\"1\"><stop offset=\"0\" stop-color=\"hsl(160,65%,38%)\"/><stop offset=\"1\" stop-color=\"hsl(200,70%,22%)\"/></linearGradient></defs><rect width=\"640\" height=\"360\" fill=\"url(#g)\"/><circle cx=\"560\" cy=\"60\" r=\"110\" fill=\"#fff\" opacity=\".07\"/><circle cx=\"70\" cy=\"320\" r=\"130\" fill=\"#fff\" opacity=\".06\"/><path d=\"M320 85 L450 140 V260 L320 315 L190 260 V140 Z\" fill=\"#fff\" opacity=\".93\"/><path d=\"M190 140 L320 195 L450 140 M320 195 V315\" stroke=\"hsl(160,60%,35%)\" stroke-width=\"10\" fill=\"none\"/><path d=\"M255 112 L385 168\" stroke=\"hsl(160,60%,35%)\" stroke-width=\"8\"/></svg>"
+   },
+   "sources": [
+    {
+     "title": "Microsoft's official Python agent framework hijacked to distribute malware",
+     "url": "https://www.theregister.com/security/2026/11/18/microsofts-official-python-agent-framework-hijacked-to-distribute-malware/5310858",
+     "publisher": "The Register"
+    },
+    {
+     "title": "Attackers Compromise Microsoft's Agent Framework PyPI Package to Steal Cloud Credentials",
+     "url": "https://thehackernews.com/2026/11/attackers-compromise-microsofts-agent.html",
+     "publisher": "The Hacker News"
+    }
+   ],
+   "readingMinutes": 5,
+   "blocks": [
+    {
+     "type": "paragraph",
+     "text": "Une précédente édition, le 18 novembre, signalait que deux versions du paquet Python `agent-framework` de Microsoft, 1.26.1 et 1.26.2, contenaient un voleur d'identifiants. Depuis, les détails publiés par The Register changent la lecture de l'affaire : la cause probable ne serait pas une faille dans le code, mais l'accès non autorisé à un **compte d'administrateur de l'organisation GitHub** de Microsoft. Le paquet compte près de 200 000 téléchargements mensuels. La cause exacte n'est pas confirmée par Microsoft."
+    },
+    {
+     "type": "heading",
+     "level": 2,
+     "text": "Ce que fait le code malveillant"
+    },
+    {
+     "type": "list",
+     "items": [
+      "il s'exécute dès que le paquet est installé dans le dossier site-packages, sans même être importé ;",
+      "il installe la vraie version 1.26.0 pour que le paquet continue de sembler normal ;",
+      "il collecte variables d'environnement et fichiers d'identifiants pour Azure, Git, Docker et Hugging Face ;",
+      "il demande activement de nouveaux jetons d'identité à GitHub Actions, Azure DevOps et Azure ;",
+      "il envoie les données, encodées en JSON base64, vers une adresse webhook.site codée en dur ;",
+      "il n'est pas persistant : il agit vite et cesse avec le retrait de la version."
+     ]
+    },
+    {
+     "type": "diagram",
+     "svg": "<svg xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"0 0 640 260\" font-family=\"system-ui,sans-serif\"><rect width=\"640\" height=\"260\" rx=\"16\" fill=\"#eef2f7\"/><text x=\"320\" y=\"36\" text-anchor=\"middle\" font-size=\"18\" font-weight=\"700\" fill=\"#1b2430\">Chaîne d&#x27;attaque contre agent-framework</text><rect x=\"40\" y=\"70\" width=\"116\" height=\"120\" rx=\"12\" fill=\"#ffffff\" stroke=\"#3b5b8c\" stroke-width=\"2\"/><text x=\"98.0\" y=\"100\" text-anchor=\"middle\" font-size=\"22\" fill=\"#3b5b8c\" font-weight=\"700\">1</text><text x=\"98.0\" y=\"125\" text-anchor=\"middle\" font-size=\"14\" font-weight=\"600\" fill=\"#1b2430\">Compte</text><text x=\"98.0\" y=\"143\" text-anchor=\"middle\" font-size=\"14\" font-weight=\"600\" fill=\"#1b2430\">administrateur</text><text x=\"98.0\" y=\"161\" text-anchor=\"middle\" font-size=\"14\" font-weight=\"600\" fill=\"#1b2430\">compromis</text><path d=\"M159 130 l18 0\" stroke=\"#3b5b8c\" stroke-width=\"3\"/><path d=\"M170 123 l9 7 l-9 7\" stroke=\"#3b5b8c\" stroke-width=\"3\" fill=\"none\"/><text x=\"98.0\" y=\"212\" text-anchor=\"middle\" font-size=\"12\" fill=\"#3a4656\">GitHub de</text><text x=\"98.0\" y=\"227\" text-anchor=\"middle\" font-size=\"12\" fill=\"#3a4656\">Microsoft</text><rect x=\"180\" y=\"70\" width=\"116\" height=\"120\" rx=\"12\" fill=\"#ffffff\" stroke=\"#3b5b8c\" stroke-width=\"2\"/><text x=\"238.0\" y=\"100\" text-anchor=\"middle\" font-size=\"22\" fill=\"#3b5b8c\" font-weight=\"700\">2</text><text x=\"238.0\" y=\"125\" text-anchor=\"middle\" font-size=\"14\" font-weight=\"600\" fill=\"#1b2430\">Publication</text><text x=\"238.0\" y=\"143\" text-anchor=\"middle\" font-size=\"14\" font-weight=\"600\" fill=\"#1b2430\">des versions</text><text x=\"238.0\" y=\"161\" text-anchor=\"middle\" font-size=\"14\" font-weight=\"600\" fill=\"#1b2430\">piégées</text><path d=\"M299 130 l18 0\" stroke=\"#3b5b8c\" stroke-width=\"3\"/><path d=\"M310 123 l9 7 l-9 7\" stroke=\"#3b5b8c\" stroke-width=\"3\" fill=\"none\"/><text x=\"238.0\" y=\"212\" text-anchor=\"middle\" font-size=\"12\" fill=\"#3a4656\">1.26.1 puis</text><text x=\"238.0\" y=\"227\" text-anchor=\"middle\" font-size=\"12\" fill=\"#3a4656\">1.26.2 sur PyPI</text><rect x=\"320\" y=\"70\" width=\"116\" height=\"120\" rx=\"12\" fill=\"#ffffff\" stroke=\"#3b5b8c\" stroke-width=\"2\"/><text x=\"378.0\" y=\"100\" text-anchor=\"middle\" font-size=\"22\" fill=\"#3b5b8c\" font-weight=\"700\">3</text><text x=\"378.0\" y=\"125\" text-anchor=\"middle\" font-size=\"14\" font-weight=\"600\" fill=\"#1b2430\">Vol de secrets</text><path d=\"M439 130 l18 0\" stroke=\"#3b5b8c\" stroke-width=\"3\"/><path d=\"M450 123 l9 7 l-9 7\" stroke=\"#3b5b8c\" stroke-width=\"3\" fill=\"none\"/><text x=\"378.0\" y=\"212\" text-anchor=\"middle\" font-size=\"12\" fill=\"#3a4656\">Azure, Git,</text><text x=\"378.0\" y=\"227\" text-anchor=\"middle\" font-size=\"12\" fill=\"#3a4656\">Docker, Hugging</text><text x=\"378.0\" y=\"242\" text-anchor=\"middle\" font-size=\"12\" fill=\"#3a4656\">Face</text><rect x=\"460\" y=\"70\" width=\"116\" height=\"120\" rx=\"12\" fill=\"#ffffff\" stroke=\"#3b5b8c\" stroke-width=\"2\"/><text x=\"518.0\" y=\"100\" text-anchor=\"middle\" font-size=\"22\" fill=\"#3b5b8c\" font-weight=\"700\">4</text><text x=\"518.0\" y=\"125\" text-anchor=\"middle\" font-size=\"14\" font-weight=\"600\" fill=\"#1b2430\">Retrait et</text><text x=\"518.0\" y=\"143\" text-anchor=\"middle\" font-size=\"14\" font-weight=\"600\" fill=\"#1b2430\">enquête</text><text x=\"518.0\" y=\"212\" text-anchor=\"middle\" font-size=\"12\" fill=\"#3a4656\">Dépôts privés,</text><text x=\"518.0\" y=\"227\" text-anchor=\"middle\" font-size=\"12\" fill=\"#3a4656\">versions mises</text><text x=\"518.0\" y=\"242\" text-anchor=\"middle\" font-size=\"12\" fill=\"#3a4656\">en quarantaine</text></svg>",
+     "alt": "Quatre étapes de l'attaque : compromission d'un compte, publication piégée, vol de secrets, retrait.",
+     "caption": "Chronologie simplifiée de l'incident du 17 et 18 novembre 2026, d'après The Register."
+    },
+    {
+     "type": "heading",
+     "level": 2,
+     "text": "Chronologie et réaction"
+    },
+    {
+     "type": "paragraph",
+     "text": "Les chercheurs d'OX Security et d'OpenSourceMalware ont signalé le problème le 17 novembre et au matin du 18. La version 1.26.1 a été remplacée par une version saine, mais l'attaquant a ensuite publié la 1.26.2 via le compte officiel de publication PyPI de Microsoft, ce qui suggère que les accès n'avaient pas été verrouillés. Au moment de la rédaction de The Register, le dépôt GitHub d'**ONNX Runtime** était hors ligne ; d'autres dépôts restaient accessibles. Ni Microsoft ni les chercheurs n'ont lié cette disparition à la campagne. Un porte-parole a seulement indiqué que certains dépôts avaient été rendus privés « pendant l'enquête sur du contenu malveillant »."
+    },
+    {
+     "type": "paragraph",
+     "text": "Ce que cela implique pour les utilisateurs est clair : si une machine, un conteneur ou un pipeline a installé les versions 1.26.1 ou 1.26.2, il faut considérer que les secrets accessibles ont pu fuiter. Les recommandations ci-dessous sont des déductions des comportements décrits, non une liste officielle."
+    },
+    {
+     "type": "list",
+     "items": [
+      "rechercher ces deux versions dans les environnements et les journaux d'installation ;",
+      "renouveler les secrets cloud, Git, du registre de conteneurs et du hub de modèles ;",
+      "revoir les jetons de CI/CD et les droits des comptes de publication ;",
+      "épingler les dépendances sur des empreintes et exiger des jetons de publication à courte durée."
+     ]
+    },
+    {
+     "type": "usecases",
+     "title": "Exemples d'utilisation",
+     "items": [
+      {
+       "icon": "🔍",
+       "title": "Équipe plateforme",
+       "text": "Elle interroge son inventaire de dépendances (SBOM) pour savoir quels projets ont tiré les versions concernées, puis déclenche la rotation des secrets."
+      },
+      {
+       "icon": "🧪",
+       "title": "Développeur d'agents IA",
+       "text": "Il bascule ses installations sur une version vérifiée par empreinte et active le verrouillage strict des dépendances."
+      },
+      {
+       "icon": "🛡️",
+       "title": "Responsable de dépôt open source",
+       "text": "Il impose l'authentification forte, limite le nombre d'administrateurs et passe à la publication de confiance sans jeton longue durée."
+      }
+     ]
+    },
+    {
+     "type": "timeline",
+     "title": "D'où l'on vient, où l'on va",
+     "items": [
+      {
+       "label": "17 novembre 2026",
+       "text": "Premiers signalements par OX Security et OpenSourceMalware"
+      },
+      {
+       "label": "18 novembre 2026",
+       "text": "Retour arrière de 1.26.1, puis publication de 1.26.2 ; dépôts Microsoft rendus privés"
+      },
+      {
+       "label": "À venir",
+       "text": "Conclusions de l'enquête de Microsoft attendues"
+      }
+     ]
+    },
+    {
+     "type": "opinion",
+     "title": "Notre avis",
+     "paragraphs": [
+      "L'affaire rappelle que la chaîne d'approvisionnement logicielle est aussi une affaire d'identités : un seul compte administrateur suffit à publier du code piégé sous le nom d'un éditeur de confiance. La publication de 1.26.2 après le retour arrière indique un confinement incomplet, un enseignement classique des réponses à incident.",
+      "À un à trois ans, les registres comme PyPI devraient généraliser la publication de confiance, sans jeton réutilisable, et exiger des validations à deux personnes pour les paquets critiques. Les équipes n'ont pas à attendre ces évolutions pour verrouiller leurs propres pipelines."
+     ],
+     "verdict": "Un seul compte compromis a suffi : l'identité est le nouveau maillon faible."
+    },
+    {
+     "type": "callout",
+     "title": "À retenir",
+     "text": "Si vous avez installé agent-framework 1.26.1 ou 1.26.2, traitez la machine comme compromise : renouvelez les secrets exposés et auditez les accès."
+    }
+   ],
+   "publishedAt": "2026-11-19T04:16:16+01:00"
+  },
+  {
+   "id": "windows-server-2028-apercu-durcissement",
+   "category": "devops",
+   "icon": "🖥️",
+   "importance": 3,
+   "title": "Windows Server 2028 en préversion : un Server Core durci par défaut, au risque de casser des charges existantes",
+   "summary": "Microsoft active des centaines de paramètres de sécurité dès le premier démarrage et active NVMe en natif. Les équipes qui comptent sur des réglages permissifs devront tester.",
+   "tags": [
+    "Windows Server",
+    "Microsoft",
+    "durcissement",
+    "NVMe",
+    "administration"
+   ],
+   "sourceDate": "2026-11-18",
+   "illustration": {
+    "svg": "<svg xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"0 0 640 360\"><defs><linearGradient id=\"g\" x1=\"0\" y1=\"0\" x2=\"1\" y2=\"1\"><stop offset=\"0\" stop-color=\"hsl(160,65%,38%)\"/><stop offset=\"1\" stop-color=\"hsl(200,70%,22%)\"/></linearGradient></defs><rect width=\"640\" height=\"360\" fill=\"url(#g)\"/><circle cx=\"560\" cy=\"60\" r=\"110\" fill=\"#fff\" opacity=\".07\"/><circle cx=\"70\" cy=\"320\" r=\"130\" fill=\"#fff\" opacity=\".06\"/><rect x=\"200\" y=\"85\" width=\"240\" height=\"60\" rx=\"10\" fill=\"#fff\" opacity=\".93\"/><rect x=\"200\" y=\"165\" width=\"240\" height=\"60\" rx=\"10\" fill=\"#fff\" opacity=\".93\"/><rect x=\"200\" y=\"245\" width=\"240\" height=\"60\" rx=\"10\" fill=\"#fff\" opacity=\".93\"/><circle cx=\"240\" cy=\"115\" r=\"9\" fill=\"hsl(160,60%,35%)\"/><circle cx=\"240\" cy=\"195\" r=\"9\" fill=\"hsl(160,60%,35%)\"/><circle cx=\"240\" cy=\"275\" r=\"9\" fill=\"hsl(160,60%,35%)\"/><rect x=\"290\" y=\"108\" width=\"110\" height=\"14\" rx=\"6\" fill=\"hsl(160,60%,35%)\" opacity=\".5\"/><rect x=\"290\" y=\"188\" width=\"110\" height=\"14\" rx=\"6\" fill=\"hsl(160,60%,35%)\" opacity=\".5\"/><rect x=\"290\" y=\"268\" width=\"110\" height=\"14\" rx=\"6\" fill=\"hsl(160,60%,35%)\" opacity=\".5\"/></svg>"
+   },
+   "sources": [
+    {
+     "title": "Windows Server 2028 won't be compatible by default",
+     "url": "https://www.theregister.com/os-platforms/2026/11/18/windows-server-2028-wont-be-compatible-by-default/5310766",
+     "publisher": "The Register"
+    }
+   ],
+   "readingMinutes": 4,
+   "blocks": [
+    {
+     "type": "paragraph",
+     "text": "Le 18 novembre 2026, Microsoft a ouvert la préversion publique de **Windows Server 2028**. La nouveauté la plus visible est un Server Core durci dès l'installation, à partir de la préversion Windows Server Insider build 29706. Selon Christina Curlette, de Microsoft, des centaines de paramètres de sécurité sont actifs dès le premier démarrage. Aucune date de disponibilité générale n'est donnée. Windows Server 2025 reste pris en charge jusqu'en 2034."
+    },
+    {
+     "type": "heading",
+     "level": 2,
+     "text": "Les changements par défaut"
+    },
+    {
+     "type": "list",
+     "items": [
+      "**sécurité** : nouvelle base de référence, Trusted Launch étendu aux machines virtuelles et prise en charge initiale des machines virtuelles confidentielles ;",
+      "**stockage** : NVMe natif activé par défaut, avec NVMe over TCP et RDMA ; le démarrage sur ReFS est planifié ;",
+      "**IA** : le système est positionné pour exécuter des modèles en local, avec des accélérateurs comme l'AMD Instinct MI350P ;",
+      "**gestion** : gestion Intune pour Windows Server en préversion, Azure Arc restant disponible."
+     ]
+    },
+    {
+     "type": "heading",
+     "level": 2,
+     "text": "Ce qui peut casser"
+    },
+    {
+     "type": "paragraph",
+     "text": "Les anciens protocoles, l'authentification héritée et certains outils ou scripts d'administration qui fonctionnent sous Windows Server 2025 pourraient demander des adaptations. Réussir les tests sur 2025 ne garantit donc pas une migration sans heurt. Esben Dochy, de Lansweeper, rapporte que Microsoft a indiqué que le durcissement ne s'applique qu'aux nouvelles installations : si cela se confirme, les mises à niveau sur place seront plus simples, mais ces serveurs n'hériteront pas des nouveaux réglages. À confirmer à la sortie de la version finale."
+    },
+    {
+     "type": "paragraph",
+     "text": "Côté adoption, les chiffres de Lansweeper d'octobre 2026 donnent 33 % pour Windows Server 2019 et 7 % pour 2025. Le même expert s'attend à une adoption qui suivra les cycles de vie, comme pour 2025."
+    },
+    {
+     "type": "usecases",
+     "title": "Exemples d'utilisation",
+     "items": [
+      {
+       "icon": "🧱",
+       "title": "Administrateur d'un parc de serveurs",
+       "text": "Il installe une préversion en laboratoire et liste les protocoles hérités encore utilisés avant de prévoir le durcissement."
+      },
+      {
+       "icon": "🏭",
+       "title": "Éditeur d'un logiciel métier",
+       "text": "Il teste son installation sur Server Core durci et documente les réglages à ouvrir, plutôt que de demander de désactiver la sécurité."
+      },
+      {
+       "icon": "🗄️",
+       "title": "Équipe stockage",
+       "text": "Elle évalue NVMe natif et NVMe over TCP sur du matériel compatible pour mesurer le gain avant toute commande."
+      }
+     ]
+    },
+    {
+     "type": "timeline",
+     "title": "D'où l'on vient, où l'on va",
+     "items": [
+      {
+       "label": "2019",
+       "text": "Windows Server 2019 encore à 33 % du parc selon Lansweeper en octobre 2026"
+      },
+      {
+       "label": "2025",
+       "text": "Windows Server 2025, 7 % du parc, pris en charge jusqu'en 2034"
+      },
+      {
+       "label": "18 novembre 2026",
+       "text": "Préversion publique de Windows Server 2028"
+      },
+      {
+       "label": "À venir",
+       "text": "Date de disponibilité générale non annoncée"
+      }
+     ]
+    },
+    {
+     "type": "opinion",
+     "title": "Notre avis",
+     "paragraphs": [
+      "Le durcissement par défaut va dans le bon sens : la plupart des compromissions exploitent des réglages permissifs hérités. Mais il déplace le coût sur les équipes d'exploitation, qui devront justifier chaque exception, et sur les éditeurs dont les logiciels supposaient un système ouvert.",
+      "À deux ou trois ans, les installations neuves seront plus sûres, tandis que les serveurs mis à niveau resteront le maillon faible s'ils ne reçoivent pas les mêmes réglages. L'enjeu est d'éviter deux flottes aux niveaux de sécurité différents."
+     ],
+     "verdict": "Plus sûr dès le départ, mais un chantier de compatibilité à anticiper."
+    },
+    {
+     "type": "callout",
+     "title": "À retenir",
+     "text": "Il s'agit d'une préversion sans date de sortie : testez sans engager de calendrier de production."
+    }
+   ],
+   "publishedAt": "2026-11-19T04:16:16+01:00"
+  }
+ ]
+}
