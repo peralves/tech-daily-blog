@@ -1,0 +1,1263 @@
+{
+ "schemaVersion": "1.0",
+ "date": "2026-11-19",
+ "generatedAt": "2026-11-19T10:18:55+01:00",
+ "title": "Tech : ScreenConnect piégé, secrets CI volés, Fable 5.2 contre Carbon, Rust 1.100 et Flipper One",
+ "summary": "Cette édition suit l'attaque SCKit contre les prestataires qui utilisent ScreenConnect, la campagne de vol de secrets dans les pipelines GitHub, le comparatif entre Claude Fable 5.2 et Gemini 4 Carbon, la sortie de Rust 1.100, le Patch Tuesday de novembre, une zero-day Chrome, le Flipper One et Bluetooth 7.0.",
+ "highlights": [
+  "ScreenConnect : SCKit vise les prestataires d'infogérance, correctif 26.6.5 disponible",
+  "4 837 comptes GitHub détournés pour voler les secrets de plus de 1 800 dépôts",
+  "Fable 5.2 domine six des sept tests communs face à Gemini 4 Carbon, réservé au programme Fairwind",
+  "Rust 1.100 stabilise enfin le type never après dix ans",
+  "Flipper One : près de 10 millions de dollars en douze heures sur Kickstarter"
+ ],
+ "meta": {
+  "generator": "claude-scheduled-task"
+ },
+ "posts": [
+  {
+   "id": "screenconnect-sckit-cve-2026-84869-prestataires-infogerance",
+   "category": "cybersecurite",
+   "icon": "🧰",
+   "importance": 5,
+   "title": "ScreenConnect : SCKit cible les prestataires d'infogérance et ConnectWise corrige une faille notée 9,9",
+   "summary": "ConnectWise a terminé son enquête sur les accès non autorisés aux environnements ScreenConnect de ses partenaires : cinq extensions tierces sont désactivées, et la faille CVE-2026-84869 est corrigée dans le client technicien 26.6.5.",
+   "tags": [
+    "ScreenConnect",
+    "ConnectWise",
+    "SCKit",
+    "MSP",
+    "CVE-2026-84869",
+    "RMM"
+   ],
+   "readingMinutes": 5,
+   "sourceDate": "2026-11-17",
+   "illustration": {
+    "svg": "<svg xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"0 0 640 360\"><defs><linearGradient id=\"g\" x1=\"0\" y1=\"0\" x2=\"1\" y2=\"1\"><stop offset=\"0\" stop-color=\"hsl(175,65%,38%)\"/><stop offset=\"1\" stop-color=\"hsl(215,70%,22%)\"/></linearGradient></defs><rect width=\"640\" height=\"360\" fill=\"url(#g)\"/><circle cx=\"560\" cy=\"60\" r=\"110\" fill=\"#fff\" opacity=\".07\"/><circle cx=\"70\" cy=\"320\" r=\"130\" fill=\"#fff\" opacity=\".06\"/><rect x=\"150\" y=\"150\" width=\"130\" height=\"60\" rx=\"30\" fill=\"none\" stroke=\"#fff\" stroke-width=\"18\" opacity=\".92\"/><rect x=\"360\" y=\"150\" width=\"130\" height=\"60\" rx=\"30\" fill=\"none\" stroke=\"#fff\" stroke-width=\"18\" opacity=\".92\"/><path d=\"M255 180 H385\" stroke=\"#ff6b6b\" stroke-width=\"16\" stroke-dasharray=\"14 12\"/></svg>"
+   },
+   "sources": [
+    {
+     "title": "ConnectWise Warns ScreenConnect Attacks Continue as SCKit Targets Unpatched Systems",
+     "url": "https://thehackernews.com/2026/11/connectwise-warns-screenconnect-attacks.html",
+     "publisher": "The Hacker News"
+    },
+    {
+     "title": "ScreenConnect Attacks Target at Least 288 Endpoints Across 48 Organizations With Rogue Clients",
+     "url": "https://thehackernews.com/2026/11/screenconnect-attacks-target-at-least.html",
+     "publisher": "The Hacker News"
+    }
+   ],
+   "blocks": [
+    {
+     "type": "paragraph",
+     "text": "Les outils de prise en main à distance sont un maillon sensible de la chaîne informatique : un prestataire d'infogérance (MSP) s'en sert pour dépanner des dizaines de clients, et celui qui en prend le contrôle hérite d'un accès à tous ces réseaux. C'est précisément ce que visent des attaques observées autour de **ScreenConnect**, le logiciel de ConnectWise. Le lundi 16 novembre 2026, l'éditeur a annoncé avoir terminé son enquête sur les accès non autorisés touchant les environnements de ses partenaires."
+    },
+    {
+     "type": "heading",
+     "level": 2,
+     "text": "Ce que dit ConnectWise"
+    },
+    {
+     "type": "paragraph",
+     "text": "Selon l'éditeur, l'infrastructure de ConnectWise elle-même n'a pas été compromise. Le point d'entrée présumé est une faille d'authentification dans l'extension tierce **RMM+**, versions 1.0.31 et 1.0.32, qui permettrait d'exécuter des commandes en contournant les contrôles d'authentification de ScreenConnect. Huntress et Blackpoint Cyber l'avaient signalée la semaine précédente. ConnectWise a désactivé **cinq extensions tierces** dans environ 400 environnements de partenaires : Labtech Plus, RMM Plus, RMM+, RMM Plus Password Link et RMM+ Password Link."
+    },
+    {
+     "type": "paragraph",
+     "text": "La présence de ces extensions ne signifie pas qu'un environnement a été compromis, précise l'éditeur, qui demande de ne pas les réactiver ni les réinstaller avant nouvel ordre."
+    },
+    {
+     "type": "heading",
+     "level": 2,
+     "text": "SCKit et la faille CVE-2026-84869"
+    },
+    {
+     "type": "paragraph",
+     "text": "Les chercheurs décrivent une boîte à outils baptisée **SCKit**, composée de plusieurs modules. Elle installe un faux client ScreenConnect sur les appareils visés, avec une persistance qui imite un composant système : un service nommé « Windows Update Agent » exécute `UpdateConnect.ClientService.exe` avec le compte LocalSystem. Le faux client était servi depuis l'adresse 185.241.211.197, rattachée à un hébergeur « bulletproof » connu, 1337 Services GmbH."
+    },
+    {
+     "type": "paragraph",
+     "text": "Le volet le plus inquiétant tient à un comportement de type ver. Un module C# nommé RelayTrap exploite la faille **CVE-2026-84869**, notée **9,9** sur l'échelle CVSS : dans certaines circonstances, des fichiers peuvent être transférés et exécutés pendant une session distante active, sans autorisation ni confirmation de l'hôte. Concrètement, lorsqu'un technicien se connecte à une machine infectée pour la dépanner, du code peut s'exécuter sur *son* poste, puis servir de rebond vers d'autres réseaux gérés. L'article de The Hacker News précise que rien n'indique que ce comportement de ver ait réussi lors de la dernière campagne."
+    },
+    {
+     "type": "diagram",
+     "svg": "<svg xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"0 0 640 300\" font-family=\"system-ui,sans-serif\"><rect width=\"640\" height=\"300\" rx=\"18\" fill=\"#f4f6f8\"/><g fill=\"#1b2733\" font-size=\"14\" text-anchor=\"middle\"><rect x=\"24\" y=\"100\" width=\"150\" height=\"90\" rx=\"12\" fill=\"#dbe9f6\" stroke=\"#2b6aa5\"/><text x=\"99\" y=\"130\" font-weight=\"700\">Poste client</text><text x=\"99\" y=\"152\">infecté par SCKit</text><text x=\"99\" y=\"172\">(faux client)</text><rect x=\"245\" y=\"100\" width=\"150\" height=\"90\" rx=\"12\" fill=\"#fde7d4\" stroke=\"#c46a1a\"/><text x=\"320\" y=\"130\" font-weight=\"700\">Technicien MSP</text><text x=\"320\" y=\"152\">se connecte pour</text><text x=\"320\" y=\"172\">dépanner</text><rect x=\"466\" y=\"100\" width=\"150\" height=\"90\" rx=\"12\" fill=\"#f9d6d6\" stroke=\"#b32d2d\"/><text x=\"541\" y=\"130\" font-weight=\"700\">Autres clients</text><text x=\"541\" y=\"152\">réseaux gérés</text><text x=\"541\" y=\"172\">par le prestataire</text></g><g stroke=\"#1b2733\" stroke-width=\"3\" fill=\"none\"><path d=\"M176 145 H243\"/><path d=\"M397 145 H464\"/></g><g fill=\"#1b2733\"><path d=\"M243 145 l-10 -6 v12z\"/><path d=\"M464 145 l-10 -6 v12z\"/></g><g font-size=\"13\" fill=\"#1b2733\" text-anchor=\"middle\"><text x=\"210\" y=\"125\">session distante</text><text x=\"430\" y=\"125\">accès rebond</text><text x=\"320\" y=\"240\" font-weight=\"700\">CVE-2026-84869 (CVSS 9,9) : exécution de fichiers sans confirmation</text><text x=\"320\" y=\"262\">Correctif : client technicien 26.6.5 ou ultérieur</text></g></svg>",
+     "alt": "Schéma de propagation de SCKit : du poste client infecté vers le technicien du prestataire, puis vers d'autres clients.",
+     "caption": "Propagation théorique de SCKit via la faille CVE-2026-84869, d'après la description de ConnectWise et des chercheurs."
+    },
+    {
+     "type": "keyvalue",
+     "items": [
+      {
+       "label": "Pic d'activité du 13 novembre 2026",
+       "value": "205 hôtes dans 41 organisations (Huntress)"
+      },
+      {
+       "label": "Extensions désactivées",
+       "value": "5, dans environ 400 environnements partenaires"
+      },
+      {
+       "label": "Faille critique",
+       "value": "CVE-2026-84869, CVSS 9,9"
+      },
+      {
+       "label": "Version corrigée",
+       "value": "client technicien 26.6.5 et suivantes"
+      }
+     ]
+    },
+    {
+     "type": "heading",
+     "level": 2,
+     "text": "Les mesures recommandées"
+    },
+    {
+     "type": "list",
+     "items": [
+      "vérifier que le client technicien est en version 26.6.5 ou ultérieure et mettre à jour ScreenConnect vers la dernière version prise en charge ;",
+      "désactiver sans délai les extensions identifiées dans les installations hébergées en interne ;",
+      "rechercher le service « Windows Update Agent » suspect et les connexions vers l'adresse mentionnée ;",
+      "ne pas considérer l'incident comme clos après la mise à jour : elle ne supprime ni un accès non autorisé ni une persistance déjà installés."
+     ]
+    },
+    {
+     "type": "paragraph",
+     "text": "Cette dernière précision est essentielle. Corriger la faille empêche de nouvelles exploitations, mais un attaquant déjà installé conserve son accès tant que les appareils concernés n'ont pas été examinés et nettoyés."
+    },
+    {
+     "type": "usecases",
+     "title": "Exemples d'utilisation",
+     "items": [
+      {
+       "icon": "🏢",
+       "title": "Un prestataire d'infogérance",
+       "text": "Il dépanne une trentaine de PME avec ScreenConnect. Avant de rouvrir une session, il contrôle la version du client technicien et la liste des extensions installées."
+      },
+      {
+       "icon": "🏥",
+       "title": "Un cabinet de santé",
+       "text": "Son informaticien externe se connecte à un poste de l'accueil. Le cabinet demande à son prestataire de confirmer par écrit la mise à jour et l'absence du service suspect."
+      },
+      {
+       "icon": "🔎",
+       "title": "Une équipe de sécurité",
+       "text": "Elle cherche dans ses journaux les installations de clients ScreenConnect non déployées par ses soins, par exemple un service au nom trompeur dans ProgramData."
+      }
+     ]
+    },
+    {
+     "type": "timeline",
+     "title": "D'où l'on vient, où l'on va",
+     "items": [
+      {
+       "label": "Semaine du 9 novembre 2026",
+       "text": "Huntress et Blackpoint Cyber signalent la faille d'authentification de l'extension RMM+ et des attaques avec de faux clients."
+      },
+      {
+       "label": "13 novembre 2026",
+       "text": "Nouveau pic d'activité SCKit : 205 hôtes dans 41 organisations."
+      },
+      {
+       "label": "16 novembre 2026",
+       "text": "ConnectWise annonce la fin de son enquête et la désactivation de cinq extensions."
+      },
+      {
+       "label": "À venir",
+       "text": "Des investigations restent nécessaires dans les environnements touchés ; l'éditeur n'a pas annoncé d'autre calendrier."
+      }
+     ]
+    },
+    {
+     "type": "opinion",
+     "title": "Notre avis",
+     "paragraphs": [
+      "Cet épisode illustre un risque désormais classique : la sécurité d'un outil central dépend aussi de son écosystème d'extensions. ConnectWise affirme que son propre cœur n'est pas en cause, mais pour un client final, la nuance compte peu si l'accès distant est détourné. Le fait qu'une faille notée 9,9 serve de levier de rebond montre aussi que le technicien, lui-même disposant de droits étendus, est une cible de choix.",
+      "D'ici un à trois ans, on peut s'attendre à ce que les éditeurs d'outils d'administration à distance durcissent le contrôle de leurs places de marché d'extensions (signature, revue, isolation des privilèges) et que les prestataires exigent de leurs fournisseurs une visibilité fine sur ce qui s'exécute dans leurs consoles. Il s'agit d'une projection, non d'un fait annoncé."
+     ],
+     "verdict": "Un outil d'accès distant se protège autant par ses extensions que par son cœur : mettre à jour ne suffit pas, il faut aussi vérifier."
+    },
+    {
+     "type": "callout",
+     "title": "À retenir",
+     "text": "ScreenConnect : mettre le client technicien en version 26.6.5 ou plus, laisser désactivées les cinq extensions listées par ConnectWise et examiner les machines déjà exposées, car le correctif n'efface pas une persistance existante."
+    }
+   ],
+   "publishedAt": "2026-11-19T10:18:55+01:00"
+  },
+  {
+   "id": "4837-comptes-github-voleur-secrets-ci",
+   "category": "devops",
+   "icon": "🔑",
+   "importance": 5,
+   "title": "GitHub Actions : 4 837 comptes détournés ont servi à injecter un voleur de secrets dans les pipelines de plus de 1 800 dépôts",
+   "summary": "Une campagne débutée vers le 10 novembre 2026 a utilisé des comptes GitHub volés pour ajouter un voleur dans des workflows CI et des scripts npm. Les secrets exposés doivent être renouvelés, et pas seulement les jetons GitHub.",
+   "tags": [
+    "GitHub Actions",
+    "CI/CD",
+    "chaîne d'approvisionnement",
+    "npm",
+    "OIDC",
+    "secrets"
+   ],
+   "readingMinutes": 6,
+   "sourceDate": "2026-11-12",
+   "illustration": {
+    "svg": "<svg xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"0 0 640 360\"><defs><linearGradient id=\"g\" x1=\"0\" y1=\"0\" x2=\"1\" y2=\"1\"><stop offset=\"0\" stop-color=\"hsl(160,65%,38%)\"/><stop offset=\"1\" stop-color=\"hsl(200,70%,22%)\"/></linearGradient></defs><rect width=\"640\" height=\"360\" fill=\"url(#g)\"/><circle cx=\"560\" cy=\"60\" r=\"110\" fill=\"#fff\" opacity=\".07\"/><circle cx=\"70\" cy=\"320\" r=\"130\" fill=\"#fff\" opacity=\".06\"/><rect x=\"110\" y=\"140\" width=\"110\" height=\"80\" rx=\"14\" fill=\"#fff\" opacity=\".92\"/><rect x=\"265\" y=\"140\" width=\"110\" height=\"80\" rx=\"14\" fill=\"#fff\" opacity=\".92\"/><rect x=\"420\" y=\"140\" width=\"110\" height=\"80\" rx=\"14\" fill=\"#fff\" opacity=\".92\"/><path d=\"M225 180 H260 M380 180 H415\" stroke=\"#fff\" stroke-width=\"10\" stroke-linecap=\"round\"/><circle cx=\"475\" cy=\"180\" r=\"18\" fill=\"#ff6b6b\"/></svg>"
+   },
+   "sources": [
+    {
+     "title": "Attacker Used 4,837 Hijacked GitHub Accounts to Run a CI Secret Stealer in 1,806+ Repositories",
+     "url": "https://thehackernews.com/2026/11/4837-hijacked-github-accounts-ran-ci.html",
+     "publisher": "The Hacker News"
+    }
+   ],
+   "blocks": [
+    {
+     "type": "paragraph",
+     "text": "Les pipelines d'intégration continue concentrent des secrets précieux : clés cloud, jetons de publication, identifiants de registres. Une campagne repérée en novembre 2026 en a fait sa cible. Selon The Hacker News, qui s'appuie sur l'analyse d'Aikido Security et sur celle de SafeDep, un attaquant a utilisé **4 837 comptes GitHub compromis** pour injecter un voleur de secrets dans des workflows CI. L'attaque a commencé un mardi, probablement le 10 novembre 2026."
+    },
+    {
+     "type": "heading",
+     "level": 2,
+     "text": "Un mode opératoire en quatre temps"
+    },
+    {
+     "type": "list",
+     "items": [
+      "**Test d'accès** : une pull request intitulée « docs: dependency audit notes » est ouverte depuis une branche `wfx-docs`, pour vérifier si le compte peut écrire dans le dépôt ;",
+      "**Injection** : si l'écriture est possible, le voleur est poussé dans un workflow CI ou dans un script npm ;",
+      "**Exécution** : il s'exécute dans les *runners* de l'intégration continue ;",
+      "**Dissimulation** : le commit est généralement annulé en quelques minutes et les journaux d'exécution sont supprimés."
+     ]
+    },
+    {
+     "type": "paragraph",
+     "text": "Les données partent par requêtes HTTP POST vers des adresses IP sur le port 8080, ou vers un canal Telegram. Les cibles sont nombreuses : secrets et variables GitHub Actions, `GITHUB_TOKEN`, jetons OIDC, clés de services d'IA, fichiers d'identifiants AWS, Azure, GCP, Kubernetes, npm, PyPI et SSH, ainsi que, sur les runners auto-hébergés, des métadonnées d'instance et l'état des conteneurs."
+    },
+    {
+     "type": "diagram",
+     "svg": "<svg xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"0 0 640 300\" font-family=\"system-ui,sans-serif\"><rect width=\"640\" height=\"300\" rx=\"18\" fill=\"#f4f6f8\"/><g fill=\"#1b2733\" font-size=\"13\" text-anchor=\"middle\"><rect x=\"16\" y=\"95\" width=\"110\" height=\"80\" rx=\"12\" fill=\"#dbe9f6\" stroke=\"#2b6aa5\"/><text x=\"71\" y=\"125\" font-weight=\"700\">Compte GitHub</text><text x=\"71\" y=\"145\">volé</text><text x=\"71\" y=\"163\">(4 837)</text><rect x=\"150\" y=\"95\" width=\"110\" height=\"80\" rx=\"12\" fill=\"#fde7d4\" stroke=\"#c46a1a\"/><text x=\"205\" y=\"125\" font-weight=\"700\">Pull request</text><text x=\"205\" y=\"145\">« docs: dependency</text><text x=\"205\" y=\"163\">audit notes »</text><rect x=\"284\" y=\"95\" width=\"110\" height=\"80\" rx=\"12\" fill=\"#f9e9a8\" stroke=\"#a88a10\"/><text x=\"339\" y=\"125\" font-weight=\"700\">Workflow CI</text><text x=\"339\" y=\"145\">ou hook npm</text><text x=\"339\" y=\"163\">modifié</text><rect x=\"418\" y=\"95\" width=\"100\" height=\"80\" rx=\"12\" fill=\"#f9d6d6\" stroke=\"#b32d2d\"/><text x=\"468\" y=\"125\" font-weight=\"700\">Voleur de</text><text x=\"468\" y=\"145\">secrets</text><text x=\"468\" y=\"163\">(runner)</text><rect x=\"540\" y=\"95\" width=\"88\" height=\"80\" rx=\"12\" fill=\"#e2d4f2\" stroke=\"#6b3fa0\"/><text x=\"584\" y=\"125\" font-weight=\"700\">Cloud</text><text x=\"584\" y=\"145\">AWS, Azure,</text><text x=\"584\" y=\"163\">GCP</text></g><g stroke=\"#1b2733\" stroke-width=\"3\"><path d=\"M128 135H146M262 135H280M396 135H414M520 135H538\"/></g><g font-size=\"13\" fill=\"#1b2733\" text-anchor=\"middle\"><text x=\"320\" y=\"225\" font-weight=\"700\">Premier test d'accès, puis injection, exfiltration et persistance cloud</text><text x=\"320\" y=\"248\">Commit annulé en quelques minutes, journaux d'exécution supprimés</text></g></svg>",
+     "alt": "Schéma de la chaîne d'attaque : compte volé, pull request de test, workflow modifié, voleur de secrets, accès cloud.",
+     "caption": "Chaîne d'attaque décrite par les chercheurs ; les maillons en bout de chaîne servent à la persistance."
+    },
+    {
+     "type": "keyvalue",
+     "items": [
+      {
+       "label": "Comptes compromis",
+       "value": "4 837"
+      },
+      {
+       "label": "Dépôts ayant reçu une pull request de test",
+       "value": "61 764"
+      },
+      {
+       "label": "Dépôts avec commits malveillants (SafeDep)",
+       "value": "8 093"
+      },
+      {
+       "label": "Dépôts où le voleur s'est exécuté (Aikido)",
+       "value": "1 806 ou plus"
+      },
+      {
+       "label": "Voleur ajouté à un workflow existant",
+       "value": "7 309 dépôts"
+      },
+      {
+       "label": "Inséré comme hook `postinstall` npm",
+       "value": "771 dépôts"
+      }
+     ]
+    },
+    {
+     "type": "heading",
+     "level": 2,
+     "text": "Persistance dans le cloud"
+    },
+    {
+     "type": "paragraph",
+     "text": "L'attaque ne s'arrête pas au vol : les jetons OIDC de GitHub sont échangés contre des sessions AWS, GCP et Azure. L'attaquant crée des clés d'accès AWS de longue durée, réécrit la politique de confiance d'un rôle AWS pour l'ouvrir à n'importe quel compte, et ajoute des identifiants fédérés préfixés `wfx-ci-` à des applications Azure AD, qui survivent à la rotation des jetons. Un paquet Packagist (`digitalelvis/neuronai-studio`, version 3.14.3) et un module Go ont aussi été publiés avec le voleur."
+    },
+    {
+     "type": "heading",
+     "level": 2,
+     "text": "Que faire"
+    },
+    {
+     "type": "list",
+     "items": [
+      "révoquer les jetons, autorisations OAuth, clés SSH et sessions de l'auteur du commit, et activer l'authentification à deux facteurs ;",
+      "faire tourner tous les secrets et variables lisibles par le dépôt, et traiter comme compromise toute machine ayant exécuté `npm install` sur un commit concerné ;",
+      "chercher les branches `wfx-docs`, la pull request « docs: dependency audit notes » et les identifiants `wfx-ci-*` dans Entra ID ;",
+      "contrôler AWS CloudTrail (`CreateAccessKey`, `UpdateAssumeRolePolicy`), les appels GCP `GenerateAccessToken` et les connexions JWT dans Vault ;",
+      "épingler le paquet Packagist en version 3.14.2 ou antérieure."
+     ]
+    },
+    {
+     "type": "usecases",
+     "title": "Exemples d'utilisation",
+     "items": [
+      {
+       "icon": "🏗️",
+       "title": "Une équipe plateforme",
+       "text": "Elle recherche dans l'organisation toute branche `wfx-docs` et toute pull request au titre suspect, puis fait tourner les secrets des dépôts touchés."
+      },
+      {
+       "icon": "☁️",
+       "title": "Un responsable cloud",
+       "text": "Il examine les politiques de confiance des rôles AWS et les identifiants fédérés Azure à la recherche d'entrées qu'il n'a pas créées."
+      },
+      {
+       "icon": "🔐",
+       "title": "Une équipe de sécurité",
+       "text": "Elle impose l'authentification forte sur tous les comptes qui contribuent aux dépôts et restreint les droits d'écriture au minimum."
+      }
+     ]
+    },
+    {
+     "type": "timeline",
+     "title": "D'où l'on vient, où l'on va",
+     "items": [
+      {
+       "label": "Habituellement",
+       "text": "Les voleurs de secrets de CI passent par des paquets piégés ou des actions compromises."
+      },
+      {
+       "label": "10 novembre 2026 (probable)",
+       "text": "Début de la campagne utilisant des comptes volés."
+      },
+      {
+       "label": "12 novembre 2026",
+       "text": "Publication des analyses d'Aikido Security et de SafeDep."
+      },
+      {
+       "label": "À venir",
+       "text": "D'autres dépôts peuvent encore être découverts, les décomptes variant selon les chercheurs."
+      }
+     ]
+    },
+    {
+     "type": "opinion",
+     "title": "Notre avis",
+     "paragraphs": [
+      "Cette campagne montre que l'identité du contributeur est devenue le maillon faible : un compte légitime, même modeste, suffit à franchir la première porte d'un pipeline. La suppression des journaux et l'annulation rapide des commits compliquent la détection, et la persistance dans le cloud rend la simple rotation des jetons GitHub insuffisante.",
+      "D'ici un à trois ans, on peut prévoir un recours plus large aux secrets de courte durée (OIDC) assortis de conditions strictes, à la protection obligatoire des fichiers de workflow et aux cooldowns de dépendances. Il s'agit d'une projection argumentée, non d'un fait."
+     ],
+     "verdict": "Un voleur de secrets de CI ne vole pas qu'un jeton : il emporte la porte d'entrée du cloud, d'où l'importance de tout renouveler."
+    },
+    {
+     "type": "callout",
+     "title": "À retenir",
+     "text": "En cas de doute sur un dépôt : traiter tout secret accessible aux workflows comme compromis, chercher les identifiants `wfx-ci-*` côté cloud et ne pas se limiter au renouvellement des jetons GitHub."
+    }
+   ],
+   "publishedAt": "2026-11-19T10:18:55+01:00"
+  },
+  {
+   "id": "claude-fable-5-2-contre-gemini-4-carbon-comparatif",
+   "category": "ia",
+   "icon": "⚖️",
+   "importance": 4,
+   "title": "Claude Fable 5.2 face à Gemini 4 Carbon : l'un est disponible partout, l'autre coûte quatre fois moins mais reste réservé",
+   "summary": "Un comparatif détaille les résultats publiés, les prix et l'accès des deux modèles : Fable 5.2 domine six des sept tests communs, tandis que Carbon n'est ouvert qu'à des défenseurs vérifiés du programme Fairwind.",
+   "tags": [
+    "Claude Fable 5.2",
+    "Gemini 4 Carbon",
+    "benchmarks",
+    "tarifs",
+    "agents de code"
+   ],
+   "readingMinutes": 5,
+   "sourceDate": "2026-11-12",
+   "illustration": {
+    "svg": "<svg xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"0 0 640 360\"><defs><linearGradient id=\"g\" x1=\"0\" y1=\"0\" x2=\"1\" y2=\"1\"><stop offset=\"0\" stop-color=\"hsl(320,65%,38%)\"/><stop offset=\"1\" stop-color=\"hsl(0,70%,22%)\"/></linearGradient></defs><rect width=\"640\" height=\"360\" fill=\"url(#g)\"/><circle cx=\"560\" cy=\"60\" r=\"110\" fill=\"#fff\" opacity=\".07\"/><circle cx=\"70\" cy=\"320\" r=\"130\" fill=\"#fff\" opacity=\".06\"/><circle cx=\"270\" cy=\"160\" r=\"70\" fill=\"#fff\" opacity=\".92\"/><circle cx=\"360\" cy=\"190\" r=\"65\" fill=\"#fff\" opacity=\".85\"/><circle cx=\"320\" cy=\"130\" r=\"50\" fill=\"#fff\" opacity=\".9\"/><path d=\"M270 160 L320 130 L360 190 M270 160 L360 190\" stroke=\"hsl(320,60%,35%)\" stroke-width=\"8\"/><circle cx=\"270\" cy=\"160\" r=\"12\" fill=\"hsl(320,60%,35%)\"/><circle cx=\"320\" cy=\"130\" r=\"12\" fill=\"hsl(320,60%,35%)\"/><circle cx=\"360\" cy=\"190\" r=\"12\" fill=\"hsl(320,60%,35%)\"/></svg>"
+   },
+   "sources": [
+    {
+     "title": "Claude Fable 5.2 vs Gemini 4 Carbon: Benchmarks, Pricing, and Access",
+     "url": "https://www.datacamp.com/blog/claude-fable-5-2-vs-gemini-4-carbon",
+     "publisher": "DataCamp"
+    },
+    {
+     "title": "Everything AI Released in November 2026",
+     "url": "https://thursdai.news/releases/2026-11",
+     "publisher": "ThursdAI"
+    }
+   ],
+   "blocks": [
+    {
+     "type": "paragraph",
+     "text": "Deux modèles occupent le haut du classement de novembre 2026 : **Claude Fable 5.2**, d'Anthropic, et **Gemini 4 Carbon**, de Google DeepMind. Un comparatif de DataCamp compare leurs résultats publiés, leurs tarifs et leur accès. Précaution d'usage : les sources ne s'accordent pas toutes sur les dates de lancement, et la plupart des scores sont publiés par les éditeurs eux-mêmes."
+    },
+    {
+     "type": "heading",
+     "level": 2,
+     "text": "Deux calendriers très différents"
+    },
+    {
+     "type": "paragraph",
+     "text": "Google a présenté Gemini 4 Carbon le 28 octobre 2026, en accès restreint. Anthropic a sorti Fable 5.2 le 9 novembre ; d'autres relevés datent son annonce du 12 novembre. Fable 5.2 est disponible dès le lancement dans les applications Claude (forfaits payants éligibles), sur la plateforme Claude, Amazon Bedrock, Google Cloud Vertex AI, Microsoft Foundry, GitHub Copilot et OpenRouter, avec l'identifiant d'API `claude-fable-5-2`. Carbon, lui, est réservé à un petit groupe de défenseurs en cybersécurité vérifiés, dans le programme Fairwind : aucun identifiant d'API public ni intégration publique n'est recensé à ce stade, alors que certaines sources évoquent une ouverture plus large."
+    },
+    {
+     "type": "heading",
+     "level": 2,
+     "text": "Ce que montrent les résultats"
+    },
+    {
+     "type": "paragraph",
+     "text": "Sur les sept tests communs, Fable 5.2 en domine six, selon le comparatif : 69,9 % contre 61,2 % sur FrontierSWE v2 (code agentique), 89,3 % contre 81,5 % sur OSWorld 2.1 (usage d'un ordinateur) ou 74,6 % contre 64,8 % sur Terminal-Bench-Science. Carbon garde l'avantage sur AutomationBench, consacré aux flux de travail d'entreprise : 53,9 % contre 51,4 %. Google publie en outre, pour Carbon seul, des scores en cybersécurité (88,2 % sur SEC-bench Pro, 71,0 % sur CWE-bench) et en long contexte (96,2 % sur GraphWalks entre 256 000 et un million de jetons). Aucun comparatif direct n'existe sur un même test de cybersécurité."
+    },
+    {
+     "type": "diagram",
+     "svg": "<svg xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"0 0 640 310\" font-family=\"system-ui,sans-serif\"><rect width=\"640\" height=\"310\" rx=\"18\" fill=\"#f4f6f8\"/><text x=\"20\" y=\"30\" font-size=\"15\" font-weight=\"700\" fill=\"#1b2733\">Résultats communs publiés</text><rect x=\"400\" y=\"16\" width=\"14\" height=\"14\" rx=\"3\" fill=\"#8a3ab9\"/><text x=\"420\" y=\"28\" font-size=\"12\" fill=\"#1b2733\">Fable 5.2</text><rect x=\"500\" y=\"16\" width=\"14\" height=\"14\" rx=\"3\" fill=\"#e8a33a\"/><text x=\"520\" y=\"28\" font-size=\"12\" fill=\"#1b2733\">Gemini 4 Carbon</text><text x=\"20\" y=\"76\" font-size=\"13\" fill=\"#1b2733\">FrontierSWE v2</text><rect x=\"190\" y=\"62\" width=\"279.6\" height=\"16\" rx=\"4\" fill=\"#8a3ab9\"/><text x=\"475.6\" y=\"75\" font-size=\"12\" fill=\"#1b2733\">69,9 %</text><rect x=\"190\" y=\"82\" width=\"244.8\" height=\"16\" rx=\"4\" fill=\"#e8a33a\"/><text x=\"440.8\" y=\"95\" font-size=\"12\" fill=\"#1b2733\">61,2 %</text><text x=\"20\" y=\"128\" font-size=\"13\" fill=\"#1b2733\">OSWorld 2.1</text><rect x=\"190\" y=\"114\" width=\"357.2\" height=\"16\" rx=\"4\" fill=\"#8a3ab9\"/><text x=\"553.2\" y=\"127\" font-size=\"12\" fill=\"#1b2733\">89,3 %</text><rect x=\"190\" y=\"134\" width=\"326.0\" height=\"16\" rx=\"4\" fill=\"#e8a33a\"/><text x=\"522.0\" y=\"147\" font-size=\"12\" fill=\"#1b2733\">81,5 %</text><text x=\"20\" y=\"180\" font-size=\"13\" fill=\"#1b2733\">Terminal-Bench-Science</text><rect x=\"190\" y=\"166\" width=\"298.4\" height=\"16\" rx=\"4\" fill=\"#8a3ab9\"/><text x=\"494.4\" y=\"179\" font-size=\"12\" fill=\"#1b2733\">74,6 %</text><rect x=\"190\" y=\"186\" width=\"259.2\" height=\"16\" rx=\"4\" fill=\"#e8a33a\"/><text x=\"455.2\" y=\"199\" font-size=\"12\" fill=\"#1b2733\">64,8 %</text><text x=\"20\" y=\"232\" font-size=\"13\" fill=\"#1b2733\">AutomationBench</text><rect x=\"190\" y=\"218\" width=\"205.6\" height=\"16\" rx=\"4\" fill=\"#8a3ab9\"/><text x=\"401.6\" y=\"231\" font-size=\"12\" fill=\"#1b2733\">51,4 %</text><rect x=\"190\" y=\"238\" width=\"215.6\" height=\"16\" rx=\"4\" fill=\"#e8a33a\"/><text x=\"411.6\" y=\"251\" font-size=\"12\" fill=\"#1b2733\">53,9 %</text><text x=\"20\" y=\"288\" font-size=\"11\" fill=\"#44505c\">Scores de la comparaison DataCamp ; la plupart sont mesurés par les éditeurs eux-mêmes.</text></svg>",
+     "alt": "Barres comparant Fable 5.2 et Gemini 4 Carbon sur quatre tests : Fable devant sur trois, Carbon devant sur AutomationBench.",
+     "caption": "Quatre des sept résultats communs publiés dans le comparatif DataCamp."
+    },
+    {
+     "type": "heading",
+     "level": 2,
+     "text": "Prix et contraintes"
+    },
+    {
+     "type": "keyvalue",
+     "items": [
+      {
+       "label": "Fable 5.2",
+       "value": "8 $ en entrée et 40 $ en sortie par million de jetons ; mode rapide à 16 $ / 80 $ ; remise de 50 % via l'API par lots"
+      },
+      {
+       "label": "Gemini 4 Carbon",
+       "value": "2 $ / 10 $ en tarif de lancement, puis 4 $ / 20 $ (selon les sources, jusqu'au 30 novembre)"
+      },
+      {
+       "label": "Contexte",
+       "value": "1 million de jetons en entrée pour les deux ; sortie maximale de 128 000 pour Fable 5.2"
+      }
+     ]
+    },
+    {
+     "type": "paragraph",
+     "text": "Le comparatif relève aussi des limites. Les classificateurs de sécurité de Fable 5.2 bloquent la plupart des tests d'intrusion et des travaux sur les exploits, et certains paramètres (`temperature`, `top_p`, `top_k`) ou le forçage d'outils renvoient une erreur 400. Carbon est nettement moins cher, mais ce tarif n'est accessible à personne en dehors du programme Fairwind, et il n'existe pas de date de disponibilité générale."
+    },
+    {
+     "type": "usecases",
+     "title": "Exemples d'utilisation",
+     "items": [
+      {
+       "icon": "🧑‍💻",
+       "title": "Une équipe de développement",
+       "text": "Elle confie à Fable 5.2 des tâches de refactorisation sur un dépôt entier, et mesure le coût par ticket avant d'étendre l'usage."
+      },
+      {
+       "icon": "🛡️",
+       "title": "Une équipe de défense cyber",
+       "text": "Si elle est admise au programme Fairwind, elle teste Carbon pour trier des vulnérabilités ; sinon, elle attend l'ouverture publique."
+      },
+      {
+       "icon": "📊",
+       "title": "Une direction financière",
+       "text": "Elle compare les deux modèles sur ses propres flux de rapprochement, plutôt que de se fier à des scores publiés par les éditeurs."
+      }
+     ]
+    },
+    {
+     "type": "timeline",
+     "title": "D'où l'on vient, où l'on va",
+     "items": [
+      {
+       "label": "28 octobre 2026",
+       "text": "Google présente Gemini 4 Carbon en accès restreint."
+      },
+      {
+       "label": "9-12 novembre 2026",
+       "text": "Anthropic sort Claude Fable 5.2 en disponibilité générale (dates variables selon les sources)."
+      },
+      {
+       "label": "30 novembre 2026",
+       "text": "Fin annoncée du tarif de lancement de Carbon, qui doublerait ensuite."
+      },
+      {
+       "label": "À venir",
+       "text": "Aucune date de disponibilité générale n'est annoncée pour Carbon."
+      }
+     ]
+    },
+    {
+     "type": "opinion",
+     "title": "Notre avis",
+     "paragraphs": [
+      "Ce duel illustre deux stratégies : une disponibilité immédiate et large pour Anthropic, un déploiement contrôlé pour Google, justifié par les capacités en cybersécurité du modèle. Les chiffres doivent toutefois être lus avec prudence : des tests choisis et mesurés par chaque éditeur n'équivalent pas à une évaluation indépendante.",
+      "À un horizon de un à trois ans, la différenciation devrait se jouer davantage sur le coût par tâche réussie, la fiabilité des agents et les garde-fous que sur un classement de benchmarks. C'est une opinion argumentée, non un fait établi."
+     ],
+     "verdict": "Le meilleur modèle sera celui que l'on peut réellement utiliser, au prix supportable, sur ses propres tâches."
+    },
+    {
+     "type": "callout",
+     "title": "À retenir",
+     "text": "Fable 5.2 est utilisable aujourd'hui, Carbon est moins cher mais réservé. Avant de choisir, tester sur ses propres cas d'usage : la plupart des scores cités sont publiés par les éditeurs."
+    }
+   ],
+   "publishedAt": "2026-11-19T10:18:55+01:00"
+  },
+  {
+   "id": "rust-1-100-type-never-allocator-cargo-cooldown",
+   "category": "dev",
+   "icon": "🦀",
+   "importance": 4,
+   "title": "Rust 1.100 : le type never est enfin stable, avec l'API Allocator et des « cooldowns » dans Cargo",
+   "summary": "Après dix ans et cinq tentatives, Rust 1.100.0 stabilise le type `!`. La version apporte aussi le trait Allocator, le type DropGuard et un délai minimal de publication pour les dépendances dans Cargo.",
+   "tags": [
+    "Rust",
+    "Cargo",
+    "type never",
+    "Allocator",
+    "chaîne d'approvisionnement"
+   ],
+   "readingMinutes": 5,
+   "sourceDate": "2026-11-12",
+   "illustration": {
+    "svg": "<svg xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"0 0 640 360\"><defs><linearGradient id=\"g\" x1=\"0\" y1=\"0\" x2=\"1\" y2=\"1\"><stop offset=\"0\" stop-color=\"hsl(265,65%,38%)\"/><stop offset=\"1\" stop-color=\"hsl(305,70%,22%)\"/></linearGradient></defs><rect width=\"640\" height=\"360\" fill=\"url(#g)\"/><circle cx=\"560\" cy=\"60\" r=\"110\" fill=\"#fff\" opacity=\".07\"/><circle cx=\"70\" cy=\"320\" r=\"130\" fill=\"#fff\" opacity=\".06\"/><rect x=\"160\" y=\"80\" width=\"320\" height=\"200\" rx=\"18\" fill=\"#fff\" opacity=\".93\"/><path d=\"M200 140 L240 175 L200 210\" stroke=\"hsl(265,60%,35%)\" stroke-width=\"16\" fill=\"none\" stroke-linecap=\"round\" stroke-linejoin=\"round\"/><rect x=\"265\" y=\"198\" width=\"90\" height=\"14\" rx=\"7\" fill=\"hsl(265,60%,35%)\"/></svg>"
+   },
+   "sources": [
+    {
+     "title": "Announcing Rust 1.100.0",
+     "url": "https://blog.rust-lang.org/2026/11/12/Rust-1.100.0/",
+     "publisher": "Rust Blog"
+    }
+   ],
+   "blocks": [
+    {
+     "type": "paragraph",
+     "text": "Le 12 novembre 2026, l'équipe Rust a publié la version **1.100.0** du langage. Ce numéro rond est surtout marqué par une stabilisation attendue depuis plus de dix ans : celle du **type never**, noté `!`. La mise à jour s'installe avec `rustup update stable`."
+    },
+    {
+     "type": "heading",
+     "level": 2,
+     "text": "Le type never, enfin nommable partout"
+    },
+    {
+     "type": "paragraph",
+     "text": "Le type `!` désigne le type d'une expression qui ne retourne jamais : un `panic!`, un `loop {}` infini ou un appel à `std::process::exit`. Rust l'utilisait en interne, mais on ne pouvait pas l'écrire dans la plupart des positions. La stabilisation permet désormais de le nommer partout, par exemple dans `Result<T, !>`, pour exprimer au niveau du type qu'une erreur est impossible. Le type `Infallible`, qui jouait ce rôle jusqu'ici, devient un alias de `!`."
+    },
+    {
+     "type": "paragraph",
+     "text": "Ce chemin a été long : l'annonce évoque dix ans et cinq tentatives de stabilisation échouées. La difficulté principale concerne le *fallback* du type never. Pour rendre le changement possible, ce repli passe de `()` à `!` dans les éditions antérieures à 2024. Dans de rares cas, cela peut casser du code existant ; il convient donc de tester ses projets avant de basculer en production."
+    },
+    {
+     "type": "heading",
+     "level": 2,
+     "text": "Autres nouveautés du langage et de la bibliothèque"
+    },
+    {
+     "type": "list",
+     "items": [
+      "**API `Allocator`** stabilisée : on peut définir des allocateurs personnalisés utilisables avec `Vec` et `Box`. Ce n'est qu'une première étape du projet « Allocators 1.0 » ;",
+      "**`DropGuard`** dans `core::mem` : un type qui exécute une fermeture à la sortie de portée. La méthode `dismiss` annule l'exécution, ce qui sert à écrire des transactions avec retour en arrière ;",
+      "**`conjure_zst`** : une fonction `unsafe` dédiée à la création de types de taille nulle ;",
+      "de nouvelles API stables, dont `bool::toggle`, `Box::take`, `Box::map`, `Rc::map`, `Arc::map`, `Vec::from_fn`, `trim_prefix` et `trim_suffix`."
+     ]
+    },
+    {
+     "type": "heading",
+     "level": 2,
+     "text": "Cargo : un délai avant d'adopter les nouvelles versions"
+    },
+    {
+     "type": "paragraph",
+     "text": "Côté outillage, Cargo gagne un avertissement pour les dépendances inutilisées, via la table `[lints.cargo]`, et organise le `build-dir` par étape de compilation, ce qui réduit les collisions de cache. Surtout, l'option **`min-publish-age`** (les « cooldowns ») permet d'ignorer les versions publiées récemment. Par exemple, `global-min-publish-age = \"3 days\"` n'autorise que les versions vieilles d'au moins trois jours ; `cargo install` ne tient pas compte de cette règle. L'idée est simple : la plupart des paquets piégés sont repérés et retirés dans les heures ou les jours qui suivent leur publication, et attendre un peu réduit l'exposition."
+    },
+    {
+     "type": "keyvalue",
+     "items": [
+      {
+       "label": "Date de sortie",
+       "value": "12 novembre 2026"
+      },
+      {
+       "label": "Fonction phare",
+       "value": "type `!` stable"
+      },
+      {
+       "label": "Cargo",
+       "value": "`min-publish-age`, avertissement de dépendances inutilisées"
+      },
+      {
+       "label": "Mise à jour",
+       "value": "`rustup update stable`"
+      }
+     ]
+    },
+    {
+     "type": "usecases",
+     "title": "Exemples d'utilisation",
+     "items": [
+      {
+       "icon": "🧩",
+       "title": "Une bibliothèque d'analyse",
+       "text": "Elle déclare `Result<T, !>` pour un analyseur dont l'erreur est impossible, et le compilateur supprime les cas d'erreur inutiles à gérer."
+      },
+      {
+       "icon": "🗄️",
+       "title": "Un moteur de base de données",
+       "text": "Il branche un allocateur par arène sur ses `Vec` grâce au trait `Allocator`, afin de libérer toute la mémoire d'une requête d'un coup."
+      },
+      {
+       "icon": "🔒",
+       "title": "Une équipe produit",
+       "text": "Elle active `global-min-publish-age = \"3 days\"` pour ne pas intégrer immédiatement une version fraîchement publiée d'une dépendance."
+      }
+     ]
+    },
+    {
+     "type": "timeline",
+     "title": "D'où l'on vient, où l'on va",
+     "items": [
+      {
+       "label": "Il y a dix ans",
+       "text": "Le type never est proposé pour la première fois à la stabilisation."
+      },
+      {
+       "label": "Cinq tentatives",
+       "text": "Les essais successifs achoppent sur le comportement de repli et sur la compatibilité."
+      },
+      {
+       "label": "12 novembre 2026",
+       "text": "Rust 1.100.0 stabilise `!` et l'API `Allocator`."
+      },
+      {
+       "label": "À venir",
+       "text": "Le projet « Allocators 1.0 » se poursuit ; les étapes suivantes ne sont pas datées dans l'annonce."
+      }
+     ]
+    },
+    {
+     "type": "opinion",
+     "title": "Notre avis",
+     "paragraphs": [
+      "La stabilisation du type never est plus qu'une curiosité théorique : elle donne aux auteurs de bibliothèques un moyen précis d'exprimer l'impossible et d'alléger les chemins d'erreur. Le coût, en revanche, est réel pour les bases de code anciennes, puisque le changement de repli peut surprendre. Quant aux cooldowns de Cargo, ils traduisent une prise de conscience : la chaîne d'approvisionnement logicielle est devenue un sujet de gestion au quotidien.",
+      "D'ici un à trois ans, on peut attendre que les allocateurs personnalisés rendent Rust plus attractif pour les systèmes embarqués et les moteurs de bases de données, et que les délais de publication deviennent une pratique courante dans les gestionnaires de paquets. Cette lecture est une projection, non une annonce."
+     ],
+     "verdict": "Une version discrète en apparence, mais qui règle une dette de dix ans et encadre mieux les dépendances."
+    },
+    {
+     "type": "callout",
+     "title": "À retenir",
+     "text": "Rust 1.100.0 : type `!` stable, trait `Allocator`, `DropGuard` et cooldowns Cargo. Avant la mise à jour, lancer la suite de tests des projets en édition antérieure à 2024 à cause du changement de repli."
+    }
+   ],
+   "publishedAt": "2026-11-19T10:18:55+01:00"
+  },
+  {
+   "id": "chrome-157-zero-day-xml-cve-2026-125350",
+   "category": "web",
+   "icon": "🧭",
+   "importance": 4,
+   "title": "Chrome 157 : une faille use-after-free dans le composant XML est exploitée, la huitième zero-day de l'année",
+   "summary": "Google a publié Chrome 157.0.8103.50 pour corriger neuf failles, dont CVE-2026-125350, déjà exploitée. Aucun détail technique ni acteur n'a été rendu public ; un redémarrage du navigateur est nécessaire.",
+   "tags": [
+    "Chrome",
+    "zero-day",
+    "CVE-2026-125350",
+    "navigateur",
+    "XML",
+    "V8"
+   ],
+   "readingMinutes": 4,
+   "sourceDate": "2026-11-10",
+   "illustration": {
+    "svg": "<svg xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"0 0 640 360\"><defs><linearGradient id=\"g\" x1=\"0\" y1=\"0\" x2=\"1\" y2=\"1\"><stop offset=\"0\" stop-color=\"hsl(210,65%,38%)\"/><stop offset=\"1\" stop-color=\"hsl(250,70%,22%)\"/></linearGradient></defs><rect width=\"640\" height=\"360\" fill=\"url(#g)\"/><circle cx=\"560\" cy=\"60\" r=\"110\" fill=\"#fff\" opacity=\".07\"/><circle cx=\"70\" cy=\"320\" r=\"130\" fill=\"#fff\" opacity=\".06\"/><circle cx=\"320\" cy=\"180\" r=\"100\" fill=\"#fff\" opacity=\".92\"/><ellipse cx=\"320\" cy=\"180\" rx=\"45\" ry=\"100\" fill=\"none\" stroke=\"hsl(210,60%,35%)\" stroke-width=\"8\"/><path d=\"M220 180H420M236 130H404M236 230H404\" stroke=\"hsl(210,60%,35%)\" stroke-width=\"8\"/><circle cx=\"395\" cy=\"120\" r=\"22\" fill=\"#ff6b6b\"/></svg>"
+   },
+   "sources": [
+    {
+     "title": "Google patches eighth Chrome zero-day exploited in attacks this year",
+     "url": "https://www.bleepingcomputer.com/news/security/google-patches-eighth-chrome-zero-day-exploited-in-attacks-this-year/",
+     "publisher": "BleepingComputer"
+    },
+    {
+     "title": "Chrome Update Patches Exploited XML Zero-Day, Eighth This Year",
+     "url": "https://securityweek.com/chrome-update-patches-exploited-xml-zero-day-eighth-this-year",
+     "publisher": "SecurityWeek"
+    },
+    {
+     "title": "November 2026 Patch Tuesday : 63 critical Microsoft fixes",
+     "url": "https://www.csoonline.com/article/4247015/november-2026-patch-tuesday-63-critical-microsoft-fixes-plus-an-outlook-zero-day-that-allows-theft-of-hashed-credentials.html",
+     "publisher": "CSO Online"
+    }
+   ],
+   "blocks": [
+    {
+     "type": "paragraph",
+     "text": "Chaque navigateur moderne exécute en permanence du code venu d'Internet : c'est ce qui en fait une cible de premier choix. Avec **Chrome 157**, Google corrige une faille que des attaquants exploitaient déjà avant la publication du correctif. Il s'agit de la huitième *zero-day* de Chrome corrigée en 2026."
+    },
+    {
+     "type": "heading",
+     "level": 2,
+     "text": "Ce que l'on sait"
+    },
+    {
+     "type": "paragraph",
+     "text": "La faille, référencée **CVE-2026-125350**, est une erreur de type *use-after-free* (utilisation d'une zone mémoire après sa libération) dans le composant XML du navigateur. Google la classe en gravité « élevée » et indique avoir connaissance d'une exploitation dans la nature. Un chercheur anonyme l'a signalée le 6 novembre. Les versions corrigées sont la 157.0.8103.50 et la 157.0.8103.51 pour Windows et macOS, et la 157.0.8103.50 pour Linux. La mise à jour corrige neuf failles au total, dont une confusion de types dans V8, le moteur JavaScript."
+    },
+    {
+     "type": "paragraph",
+     "text": "Google n'a publié ni description technique, ni méthode d'exploitation, ni indicateurs de compromission. Aucun acteur n'est publiquement associé aux attaques. Selon les sources consultées, un code d'exécution dans le bac à sable du navigateur serait possible ; une évasion du bac à sable n'a pas été confirmée publiquement. Les sources divergent sur la date exacte de l'avis (9 ou 10 novembre) et sur le moment où l'agence américaine CISA a inscrit la faille à son catalogue des vulnérabilités exploitées : à vérifier sur le site de l'agence."
+    },
+    {
+     "type": "keyvalue",
+     "items": [
+      {
+       "label": "Identifiant",
+       "value": "CVE-2026-125350"
+      },
+      {
+       "label": "Nature",
+       "value": "use-after-free dans le composant XML"
+      },
+      {
+       "label": "Gravité",
+       "value": "élevée (classement Google)"
+      },
+      {
+       "label": "Versions corrigées",
+       "value": "157.0.8103.50 / .51 (Windows, macOS), .50 (Linux)"
+      },
+      {
+       "label": "Rang en 2026",
+       "value": "8e zero-day exploitée de Chrome"
+      }
+     ]
+    },
+    {
+     "type": "heading",
+     "level": 2,
+     "text": "Pourquoi cette catégorie de faille revient sans cesse"
+    },
+    {
+     "type": "paragraph",
+     "text": "Les erreurs de gestion mémoire restent la première source de failles exploitables dans les navigateurs, écrits en grande partie en C++. Un use-after-free survient quand le programme continue d'utiliser un objet déjà libéré : un attaquant qui parvient à placer des données de son choix à cet emplacement peut détourner le déroulement du programme. Les analyseurs XML, qui traitent des documents parfois très complexes, offrent une surface d'attaque étendue. Le même jour, Microsoft corrigeait de son côté plus de mille failles, dont une exploitée dans Outlook : l'actualité de novembre rappelle que la mise à jour rapide demeure le geste de défense le plus rentable."
+    },
+    {
+     "type": "heading",
+     "level": 2,
+     "text": "Que faire"
+    },
+    {
+     "type": "list",
+     "items": [
+      "ouvrir le menu de Chrome, puis « Aide » et « À propos de Google Chrome » pour lancer la mise à jour ;",
+      "**redémarrer le navigateur** : tant qu'il reste ouvert avec ses anciens processus, le correctif n'est pas appliqué ;",
+      "vérifier aussi les navigateurs fondés sur Chromium (Edge, Brave, Opera…), qui reprennent les correctifs avec un léger décalage ;",
+      "dans un parc d'entreprise, forcer le redémarrage via la gestion centralisée."
+     ]
+    },
+    {
+     "type": "usecases",
+     "title": "Exemples d'utilisation",
+     "items": [
+      {
+       "icon": "🏢",
+       "title": "Une entreprise de 200 postes",
+       "text": "Son équipe informatique impose le redémarrage de Chrome sous 48 heures via sa console de gestion, plutôt que d'attendre le rythme habituel."
+      },
+      {
+       "icon": "👨‍👩‍👧",
+       "title": "Un particulier",
+       "text": "Il laisse Chrome ouvert des semaines avec des dizaines d'onglets. Un redémarrage manuel après la mise à jour est ici indispensable."
+      },
+      {
+       "icon": "🛠️",
+       "title": "Un développeur web",
+       "text": "Il met à jour son navigateur de test et ceux de son intégration continue, afin que les essais se déroulent sur la version corrigée."
+      }
+     ]
+    },
+    {
+     "type": "timeline",
+     "title": "D'où l'on vient, où l'on va",
+     "items": [
+      {
+       "label": "Depuis janvier 2026",
+       "text": "Sept autres failles de Chrome exploitées avant correctif ont été corrigées, selon les sources consultées."
+      },
+      {
+       "label": "6 novembre 2026",
+       "text": "Un chercheur anonyme signale la faille à Google."
+      },
+      {
+       "label": "9-10 novembre 2026",
+       "text": "Publication de Chrome 157.0.8103.50 et de l'avis de sécurité."
+      },
+      {
+       "label": "À venir",
+       "text": "Google pourrait publier des détails après que la majorité des utilisateurs aura mis à jour ; rien n'est annoncé."
+      }
+     ]
+    },
+    {
+     "type": "opinion",
+     "title": "Notre avis",
+     "paragraphs": [
+      "Huit zero-days exploitées en moins d'un an montrent que le modèle du navigateur à mises à jour rapides fonctionne, mais aussi que la pression des attaquants ne faiblit pas. La publication minimale de détails protège les utilisateurs au prix d'un manque de transparence pour les défenseurs, qui doivent se contenter d'un conseil : mettre à jour.",
+      "À un horizon de un à trois ans, le recours croissant à des langages sûrs pour la mémoire dans les composants de parsing, déjà amorcé par plusieurs projets, devrait réduire la proportion de failles de ce type. C'est une perspective, pas une garantie : les bases de code existantes resteront longtemps en C++."
+     ],
+     "verdict": "La meilleure défense contre une zero-day déjà corrigée tient en deux gestes : mettre à jour, puis redémarrer."
+    },
+    {
+     "type": "callout",
+     "title": "À retenir",
+     "text": "Chrome 157.0.8103.50 corrige CVE-2026-125350, une faille XML exploitée dans la nature. Mettre à jour et redémarrer le navigateur ; aucun détail d'attaque n'est public à ce jour."
+    }
+   ],
+   "publishedAt": "2026-11-19T10:18:55+01:00"
+  },
+  {
+   "id": "patch-tuesday-novembre-2026-zero-day-outlook-ntlm",
+   "category": "cybersecurite",
+   "icon": "📧",
+   "importance": 4,
+   "title": "Patch Tuesday de novembre : une faille Outlook exploitée expose les empreintes NTLM, malgré un score de 6,5",
+   "summary": "Microsoft a corrigé 1 094 failles le 10 novembre 2026, dont une faille Outlook exploitée qui fait fuiter le hash NTLMv2 de l'utilisateur. Les failles critiques d'Exchange et du service LDAP, notées 9,8, passent en priorité.",
+   "tags": [
+    "Patch Tuesday",
+    "Outlook",
+    "NTLM",
+    "Exchange",
+    "LDAP",
+    "SAP"
+   ],
+   "readingMinutes": 5,
+   "sourceDate": "2026-11-10",
+   "illustration": {
+    "svg": "<svg xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"0 0 640 360\"><defs><linearGradient id=\"g\" x1=\"0\" y1=\"0\" x2=\"1\" y2=\"1\"><stop offset=\"0\" stop-color=\"hsl(175,65%,38%)\"/><stop offset=\"1\" stop-color=\"hsl(215,70%,22%)\"/></linearGradient></defs><rect width=\"640\" height=\"360\" fill=\"url(#g)\"/><circle cx=\"560\" cy=\"60\" r=\"110\" fill=\"#fff\" opacity=\".07\"/><circle cx=\"70\" cy=\"320\" r=\"130\" fill=\"#fff\" opacity=\".06\"/><rect x=\"190\" y=\"100\" width=\"260\" height=\"170\" rx=\"16\" fill=\"#fff\" opacity=\".92\"/><path d=\"M190 120 L320 215 L450 120\" stroke=\"hsl(175,60%,35%)\" stroke-width=\"14\" fill=\"none\"/><circle cx=\"450\" cy=\"100\" r=\"30\" fill=\"#ffd54a\"/><rect x=\"443\" y=\"82\" width=\"14\" height=\"26\" rx=\"4\" fill=\"#333\"/><circle cx=\"450\" cy=\"116\" r=\"7\" fill=\"#333\"/></svg>"
+   },
+   "sources": [
+    {
+     "title": "November 2026 Patch Tuesday: 63 critical Microsoft fixes plus an Outlook zero-day",
+     "url": "https://www.csoonline.com/article/4247015/november-2026-patch-tuesday-63-critical-microsoft-fixes-plus-an-outlook-zero-day-that-allows-theft-of-hashed-credentials.html",
+     "publisher": "CSO Online"
+    }
+   ],
+   "blocks": [
+    {
+     "type": "paragraph",
+     "text": "Le Patch Tuesday du 10 novembre 2026 est l'un des plus volumineux de l'année : Microsoft y corrige **1 094 failles**, dont 63 classées critiques. Un seul défaut est signalé comme déjà exploité, et il porte un score modeste de 6,5 sur l'échelle CVSS. Les spécialistes préviennent pourtant qu'il ne faut pas se fier à ce chiffre : la faille permet de voler les empreintes de mots de passe de ses victimes."
+    },
+    {
+     "type": "heading",
+     "level": 2,
+     "text": "La faille Outlook exploitée : CVE-2026-124194"
+    },
+    {
+     "type": "paragraph",
+     "text": "La faille **CVE-2026-124194** touche Microsoft 365 Apps for Enterprise, Office LTSC 2021 et Office LTSC 2024. Le scénario exige qu'un utilisateur ouvre un fichier Office piégé. Outlook se connecte alors à un emplacement réseau contrôlé par l'attaquant, **sans afficher l'avertissement habituel** sur les contenus externes. Cette connexion expose le *hash* NTLMv2 de la session de l'utilisateur. L'attaquant peut s'en servir pour une attaque par relais (se faire passer pour la victime auprès d'un autre service) ou tenter de le craquer hors ligne afin de retrouver le mot de passe."
+    },
+    {
+     "type": "paragraph",
+     "text": "Microsoft a crédité pour cette découverte un chercheur d'Anthropic qui utilisait Claude, un détail qui illustre l'essor de la recherche de failles assistée par l'IA. Un expert de Nightwing cité par CSO Online met en garde : un score faible ne doit pas rassurer, car la valeur d'un hash volé dépend de ce que l'attaquant peut en faire dans le réseau de l'entreprise."
+    },
+    {
+     "type": "heading",
+     "level": 2,
+     "text": "Les autres corrections à traiter en priorité"
+    },
+    {
+     "type": "list",
+     "items": [
+      "**CVE-2026-119958** (CVSS 9,8) : exécution de code à distance sans authentification dans le service LDAP de Windows, avec en ligne de mire les contrôleurs de domaine et Active Directory exposés ;",
+      "**CVE-2026-118207** (CVSS 9,8) : exécution de code à distance dans Exchange Server, déclenchable par l'envoi d'un courriel ;",
+      "**CVE-2026-112967** (CVSS 9,8) : exécution de code à distance dans le service Xbox Live Networking, depuis le même réseau ;",
+      "**CVE-2026-119990** (CVSS 9,8) : élévation de privilèges dans Azure OpenAI, corrigée automatiquement par Microsoft."
+     ]
+    },
+    {
+     "type": "paragraph",
+     "text": "Le même jour, d'autres éditeurs ont publié leurs correctifs : Adobe a livré 9 bulletins totalisant 110 CVE dont 22 critiques, sans exploitation connue ; Mozilla a corrigé 99 CVE dans Firefox 160 ; Google a publié Chrome 157.0.8103.50 contre 9 failles, dont une exploitée. SAP a aussi corrigé deux failles notées 10, surnommées « ICM2Shell » par Onapsis, dans la gestion du trafic WebSocket : elles permettent une exécution de code à distance sans authentification, et WebSocket est activé par défaut."
+    },
+    {
+     "type": "keyvalue",
+     "items": [
+      {
+       "label": "Date du Patch Tuesday",
+       "value": "10 novembre 2026"
+      },
+      {
+       "label": "Failles corrigées par Microsoft",
+       "value": "1 094, dont 63 critiques"
+      },
+      {
+       "label": "Faille exploitée",
+       "value": "CVE-2026-124194 (Outlook), CVSS 6,5"
+      },
+      {
+       "label": "Données exposées",
+       "value": "hash NTLMv2 de l'utilisateur"
+      }
+     ]
+    },
+    {
+     "type": "heading",
+     "level": 2,
+     "text": "Que faire concrètement"
+    },
+    {
+     "type": "paragraph",
+     "text": "CSO Online recommande de traiter d'abord Exchange et les contrôleurs de domaine, puis les services exposés à des réseaux non fiables (IIS, Schannel, RPC). Les serveurs où Message Queuing est activé doivent être inventoriés : on le désactive là où aucune application n'en a besoin. Pour Outlook, dans l'attente du correctif, il s'agit de sensibiliser les utilisateurs aux fichiers Office reçus et de renforcer la passerelle de messagerie. Côté navigateur, Chrome doit être redémarré après sa mise à jour pour que le correctif soit effectif."
+    },
+    {
+     "type": "usecases",
+     "title": "Exemples d'utilisation",
+     "items": [
+      {
+       "icon": "🏛️",
+       "title": "Une mairie",
+       "text": "Son service informatique met à jour d'abord les contrôleurs de domaine et le serveur Exchange, puis planifie les postes bureautiques pendant le week-end."
+      },
+      {
+       "icon": "🏭",
+       "title": "Une PME industrielle",
+       "text": "Elle bloque les connexions SMB sortantes vers Internet au pare-feu, ce qui limite la fuite de hash NTLM même si un fichier piégé est ouvert."
+      },
+      {
+       "icon": "🧑‍💻",
+       "title": "Un administrateur système",
+       "text": "Il inventorie les serveurs avec Message Queuing activé et désactive le service sur ceux où aucune application ne l'utilise."
+      }
+     ]
+    },
+    {
+     "type": "timeline",
+     "title": "D'où l'on vient, où l'on va",
+     "items": [
+      {
+       "label": "Jusqu'ici",
+       "text": "Le vol de hash NTLM par des fichiers qui déclenchent une connexion réseau est une technique connue depuis des années, régulièrement corrigée par Microsoft."
+      },
+      {
+       "label": "10 novembre 2026",
+       "text": "Patch Tuesday : 1 094 failles corrigées, une seule exploitée."
+      },
+      {
+       "label": "À venir",
+       "text": "La suite dépendra des mises à jour d'Outlook évoquées par Microsoft ; aucune date supplémentaire n'a été annoncée dans la source."
+      }
+     ]
+    },
+    {
+     "type": "opinion",
+     "title": "Notre avis",
+     "paragraphs": [
+      "Le contraste entre un score de 6,5 et une exploitation réelle rappelle que le CVSS mesure une gravité technique, pas le risque pour une organisation donnée. Un hash NTLM volé peut suffire pour pénétrer un réseau où le relais est possible. Le volume de 1 094 correctifs pose en outre un problème d'organisation : sans priorisation, les équipes noient l'essentiel.",
+      "À un horizon de un à trois ans, on peut attendre une montée de la découverte de failles par des modèles d'IA, côté défense comme côté attaque, et donc des cycles de correctifs encore plus denses. Cette lecture est une projection ; elle suppose que les éditeurs sauront trier ce flux sans fatiguer les administrateurs."
+     ],
+     "verdict": "Un correctif « modéré » exploité vaut mieux qu'un correctif critique théorique : la priorité se décide sur le risque réel, pas sur le score."
+    },
+    {
+     "type": "callout",
+     "title": "À retenir",
+     "text": "Patch Tuesday du 10 novembre 2026 : appliquer en priorité les correctifs Exchange et LDAP, traiter la faille Outlook CVE-2026-124194 malgré son score de 6,5 et limiter les connexions SMB sortantes pour réduire l'impact d'un vol de hash NTLM."
+    }
+   ],
+   "publishedAt": "2026-11-19T10:18:55+01:00"
+  },
+  {
+   "id": "flipper-one-kickstarter-rk3576-linux-reseau",
+   "category": "electronique",
+   "icon": "🐬",
+   "importance": 4,
+   "title": "Flipper One : un ordinateur Linux de poche pour le réseau, financé à près de 10 millions de dollars en douze heures",
+   "summary": "Flipper Devices lance sur Kickstarter une plateforme Linux Arm à base de Rockchip RK3576, avec double Ethernet, Wi-Fi 6, LoRa et radio logicielle en options. Livraison prévue en juillet 2027, dès 399 dollars.",
+   "tags": [
+    "Flipper One",
+    "Rockchip RK3576",
+    "Linux",
+    "Kickstarter",
+    "LoRa",
+    "open source"
+   ],
+   "readingMinutes": 5,
+   "sourceDate": "2026-11-18",
+   "illustration": {
+    "svg": "<svg xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"0 0 640 360\"><defs><linearGradient id=\"g\" x1=\"0\" y1=\"0\" x2=\"1\" y2=\"1\"><stop offset=\"0\" stop-color=\"hsl(30,65%,38%)\"/><stop offset=\"1\" stop-color=\"hsl(70,70%,22%)\"/></linearGradient></defs><rect width=\"640\" height=\"360\" fill=\"url(#g)\"/><circle cx=\"560\" cy=\"60\" r=\"110\" fill=\"#fff\" opacity=\".07\"/><circle cx=\"70\" cy=\"320\" r=\"130\" fill=\"#fff\" opacity=\".06\"/><rect x=\"230\" y=\"100\" width=\"180\" height=\"160\" rx=\"18\" fill=\"#fff\" opacity=\".93\"/><rect x=\"270\" y=\"140\" width=\"100\" height=\"80\" rx=\"8\" fill=\"hsl(30,60%,35%)\"/><path d=\"M255 100V70M295 100V70M335 100V70M375 100V70M255 260V290M295 260V290M335 260V290M375 260V290M230 140H200M230 180H200M230 220H200M410 140H440M410 180H440M410 220H440\" stroke=\"#fff\" stroke-width=\"10\" stroke-linecap=\"round\"/></svg>"
+   },
+   "sources": [
+    {
+     "title": "Flipper One – A Rockchip RK3576-powered portable Arm Linux computer and networking multi-tool",
+     "url": "https://www.cnx-software.com/2026/11/18/flipper-one-a-rockchip-rk3576-powered-portable-arm-linux-computer-and-networking-multi-tool/",
+     "publisher": "CNX Software"
+    }
+   ],
+   "blocks": [
+    {
+     "type": "paragraph",
+     "text": "Le **Flipper One**, présenté le 18 novembre 2026 par Flipper Devices, n'est pas une suite du Flipper Zero : le fabricant insiste sur ce point. Il s'agit d'une plateforme Linux Arm portable, ouverte, pensée pour les tâches réseau et l'IA en périphérie. Sa campagne Kickstarter a recueilli près de **10 millions de dollars auprès d'environ 19 000 contributeurs** environ douze heures après le lancement."
+    },
+    {
+     "type": "heading",
+     "level": 2,
+     "text": "Une fiche technique d'ordinateur compact"
+    },
+    {
+     "type": "keyvalue",
+     "items": [
+      {
+       "label": "Processeur",
+       "value": "Rockchip RK3576 : 4 cœurs Cortex-A72 à 2,2 GHz et 4 cœurs Cortex-A53 à 1,8 GHz, GPU Mali-G52, NPU de 6 TOPS (INT8)"
+      },
+      {
+       "label": "Microcontrôleur",
+       "value": "Raspberry Pi RP2350 pour le contrôle bas niveau et l'écran"
+      },
+      {
+       "label": "Mémoire et stockage",
+       "value": "8 Go de LPDDR5, 64 Go d'UFS 2.2, lecteur microSD"
+      },
+      {
+       "label": "Écran",
+       "value": "256 × 144 pixels, 64 niveaux de gris"
+      },
+      {
+       "label": "Batterie",
+       "value": "7 000 mAh, charge jusqu'à 3,32 A"
+      },
+      {
+       "label": "Dimensions",
+       "value": "155 × 67 × 40 mm"
+      }
+     ]
+    },
+    {
+     "type": "paragraph",
+     "text": "La connectique est généreuse pour un appareil de cette taille : HDMI 2.1 jusqu'à 4K à 120 Hz, DisplayPort 1.4 par USB-C, deux ports Gigabit Ethernet, un USB 3.1 Type-A, deux USB-C, une prise audio 3,5 mm, un emplacement Nano SIM, un connecteur M.2 Key-B et un en-tête GPIO de 20 broches. Côté sans-fil : Wi-Fi 6 en 2×2 MIMO et Bluetooth 5.2, avec en option un modem 4G ou 5G, un module LoRa (Meshtastic, MeshCore, Reticulum) et un module de radio logicielle couvrant 24 à 1 700 MHz, dont les caractéristiques ne sont pas finalisées."
+    },
+    {
+     "type": "heading",
+     "level": 2,
+     "text": "Du logiciel libre, avec des réserves"
+    },
+    {
+     "type": "paragraph",
+     "text": "L'appareil fonctionne sous une distribution Debian baptisée Flipper OS, dotée de l'interface FlipCTL. L'objectif est d'utiliser un noyau Linux principal sans blobs binaires ni pilotes propriétaires, avec l'aide de Collabora. Le fabricant reconnaît néanmoins que le Wi-Fi et le cellulaire nécessiteront probablement des blobs pour des raisons réglementaires. La documentation et les dépôts sont accessibles sur le portail développeur et sur GitHub."
+    },
+    {
+     "type": "heading",
+     "level": 2,
+     "text": "Prix, calendrier et points de vigilance"
+    },
+    {
+     "type": "list",
+     "items": [
+      "**399 $** pour l'offre « Kickstarter Special » ; 439 $ avec LoRa, 539 $ avec radio logicielle, 599 $ avec 5G et 759 $ avec tous les modules ;",
+      "livraison prévue en **juillet 2027** « si tout se déroule comme prévu » ;",
+      "frais d'expédition non inclus, vers les États-Unis, le Canada, le Royaume-Uni, l'Australie, l'Union européenne, la Suisse, la Norvège, Singapour et Hong Kong ;",
+      "comme toute campagne de financement participatif, il s'agit d'une précommande : le risque de retard ou de modification des caractéristiques existe."
+     ]
+    },
+    {
+     "type": "usecases",
+     "title": "Exemples d'utilisation",
+     "items": [
+      {
+       "icon": "🛰️",
+       "title": "Un passionné de radio",
+       "text": "Il combine LoRa et Meshtastic pour monter un réseau maillé de messagerie hors connexion pour ses randonnées."
+      },
+      {
+       "icon": "🧪",
+       "title": "Un auditeur en sécurité réseau",
+       "text": "Il utilise les deux ports Ethernet et le Wi-Fi 6 pour analyser et cartographier un réseau lors d'une mission autorisée."
+      },
+      {
+       "icon": "🏠",
+       "title": "Un bricoleur de domotique",
+       "text": "Il en fait une passerelle portable entre le terrain et son serveur domestique, avec le GPIO et le port M.2."
+      }
+     ]
+    },
+    {
+     "type": "timeline",
+     "title": "D'où l'on vient, où l'on va",
+     "items": [
+      {
+       "label": "Avant",
+       "text": "Le Flipper Zero a popularisé les multi-outils de poche pour la radio et l'accès physique."
+      },
+      {
+       "label": "18 novembre 2026",
+       "text": "Lancement du Flipper One sur Kickstarter, près de 10 millions de dollars en douze heures."
+      },
+      {
+       "label": "Juillet 2027",
+       "text": "Livraison prévue aux contributeurs, selon le fabricant."
+      },
+      {
+       "label": "Plus tard",
+       "text": "Intégration du noyau Linux principal, sans blobs, visée avec Collabora mais non datée."
+      }
+     ]
+    },
+    {
+     "type": "opinion",
+     "title": "Notre avis",
+     "paragraphs": [
+      "L'engouement montre qu'il existe un public pour des machines ouvertes, modulaires et orientées réseau. La promesse d'un noyau principal sans pilotes propriétaires est ambitieuse, mais les fabricants admettent eux-mêmes ses limites pour le sans-fil. Il faudra surveiller la tenue du calendrier, car le matériel complexe déjà financé par du participatif accumule souvent des retards.",
+      "D'ici un à trois ans, de tels appareils pourraient devenir des plateformes de référence pour l'expérimentation en réseaux maillés et en IA embarquée, à condition que la communauté logicielle suive. C'est une projection, non une promesse."
+     ],
+     "verdict": "Un bel objet pour les bidouilleurs, à acheter en connaissance des risques d'un financement participatif."
+    },
+    {
+     "type": "callout",
+     "title": "À retenir",
+     "text": "Flipper One : Linux Arm de poche, RK3576, deux ports Ethernet, LoRa et radio logicielle en option, dès 399 $, livraison visée en juillet 2027 ; précommande Kickstarter, donc sujette aux aléas."
+    }
+   ],
+   "publishedAt": "2026-11-19T10:18:55+01:00"
+  },
+  {
+   "id": "bluetooth-7-0-hdt-7-5-mbit-s",
+   "category": "electronique",
+   "icon": "📶",
+   "importance": 3,
+   "title": "Bluetooth 7.0 : le mode HDT vise 7,5 Mbit/s, mais reste optionnel et peu adapté aux appareils sobres",
+   "summary": "Le Bluetooth SIG a ratifié la version 7.0 le 3 novembre 2026. Elle ajoute une couche physique à haut débit (HDT), de nouvelles fonctions de chiffrement et un mécanisme de mise à jour des flux isochrones.",
+   "tags": [
+    "Bluetooth 7.0",
+    "HDT",
+    "BLE",
+    "Nordic",
+    "Realtek"
+   ],
+   "readingMinutes": 4,
+   "sourceDate": "2026-11-18",
+   "illustration": {
+    "svg": "<svg xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"0 0 640 360\"><defs><linearGradient id=\"g\" x1=\"0\" y1=\"0\" x2=\"1\" y2=\"1\"><stop offset=\"0\" stop-color=\"hsl(30,65%,38%)\"/><stop offset=\"1\" stop-color=\"hsl(70,70%,22%)\"/></linearGradient></defs><rect width=\"640\" height=\"360\" fill=\"url(#g)\"/><circle cx=\"560\" cy=\"60\" r=\"110\" fill=\"#fff\" opacity=\".07\"/><circle cx=\"70\" cy=\"320\" r=\"130\" fill=\"#fff\" opacity=\".06\"/><rect x=\"230\" y=\"100\" width=\"180\" height=\"160\" rx=\"18\" fill=\"#fff\" opacity=\".93\"/><rect x=\"270\" y=\"140\" width=\"100\" height=\"80\" rx=\"8\" fill=\"hsl(30,60%,35%)\"/><path d=\"M255 100V70M295 100V70M335 100V70M375 100V70M255 260V290M295 260V290M335 260V290M375 260V290M230 140H200M230 180H200M230 220H200M410 140H440M410 180H440M410 220H440\" stroke=\"#fff\" stroke-width=\"10\" stroke-linecap=\"round\"/></svg>"
+   },
+   "sources": [
+    {
+     "title": "Bluetooth 7.0 specification ratified with HDT (High Data Throughput) support",
+     "url": "https://www.cnx-software.com/2026/11/18/bluetooth-7-0-specification-ratified-with-hdt-high-data-throughput-support/",
+     "publisher": "CNX Software"
+    }
+   ],
+   "blocks": [
+    {
+     "type": "paragraph",
+     "text": "Le Bluetooth SIG, l'organisme qui définit la norme, a ratifié la spécification **Bluetooth 7.0** le 3 novembre 2026. La nouveauté la plus visible est le **HDT** (*High Data Throughput*), une couche physique pour Bluetooth Low Energy qui annonce jusqu'à **7,5 Mbit/s**, contre 2 Mbit/s pour le mode LE 2M."
+    },
+    {
+     "type": "heading",
+     "level": 2,
+     "text": "Comment fonctionne le HDT"
+    },
+    {
+     "type": "paragraph",
+     "text": "Le gain de débit provient de modulations d'ordre supérieur, d'un codage de correction d'erreurs convolutif, de meilleures méthodes de synchronisation, d'une sélection adaptative du débit et de nouvelles architectures de paquets. Cinq débits sont définis, de HDT2 à HDT7.5 ; certains sont obligatoires et d'autres optionnels pour les appareils qui implémentent le mode. Le HDT touche la plupart de la pile LE, à l'exception du bloc de gestion de la sécurité (SMP). Il s'agit d'une fonction **optionnelle** : un produit peut annoncer Bluetooth 7.0 sans l'embarquer."
+    },
+    {
+     "type": "paragraph",
+     "text": "Le HDT n'est pas totalement nouveau sur le marché : il avait été introduit en 2025 avec la propriété intellectuelle Links200 de Ceva-Waves, puis en septembre 2026 avec le microcontrôleur Realtek RTL8773J. Une démonstration de Nordic Semiconductor, citée par CNX Software, transfère un fichier de 2 Mo en environ 4 secondes en HDT7.5 (environ 3,8 Mbit/s en moyenne), contre 12 secondes en LE 2M et 22 secondes en LE 1M."
+    },
+    {
+     "type": "heading",
+     "level": 2,
+     "text": "Les autres nouveautés"
+    },
+    {
+     "type": "list",
+     "items": [
+      "**IPU** (*Isochronous Parameter Update*) : modifie les paramètres d'un flux isochrone actif sans recréer le groupe ;",
+      "**EKS** (*Encryption Key Schedule*) : nouvelle gestion des clés de chiffrement, combinant ECDH et une hiérarchie de dérivation fondée sur CMAC, base du HDT mais utilisable ailleurs ;",
+      "**TAK** (*Transient Application Key*) : chiffrement d'une connexion BLE sans appairage ni liaison, l'authentification étant confiée à une application de niveau supérieur ;",
+      "**EPD** (*Encryption Production Debugging*) : permet à l'hôte de recevoir les identifiants de chiffrement actifs, afin de faciliter l'analyse de protocole et le débogage."
+     ]
+    },
+    {
+     "type": "keyvalue",
+     "items": [
+      {
+       "label": "Ratification",
+       "value": "3 novembre 2026"
+      },
+      {
+       "label": "Débit maximal HDT",
+       "value": "7,5 Mbit/s"
+      },
+      {
+       "label": "Statut du HDT",
+       "value": "optionnel"
+      },
+      {
+       "label": "Comparaison Nordic (2 Mo)",
+       "value": "≈ 4 s en HDT7.5 ; 12 s en LE 2M ; 22 s en LE 1M"
+      }
+     ]
+    },
+    {
+     "type": "heading",
+     "level": 2,
+     "text": "Limites et calendrier"
+    },
+    {
+     "type": "paragraph",
+     "text": "Le HDT exige des modifications importantes de la pile Bluetooth, ce qui laisse penser que l'adoption prendra du temps. L'article source ne donne ni calendrier de disponibilité grand public, ni mesure de portée ou de consommation en mode HDT. Pour les capteurs et les objets sobres, le LE 1M et le LE 2M restent préférables. Les usages cités concernent la synchronisation de données de fitness depuis des montres, les périphériques de PC dotés d'un petit écran, et le traitement d'IA déporté vers un smartphone pour des lunettes connectées."
+    },
+    {
+     "type": "usecases",
+     "title": "Exemples d'utilisation",
+     "items": [
+      {
+       "icon": "⌚",
+       "title": "Une montre connectée",
+       "text": "Elle synchronise plusieurs jours de données d'activité en quelques secondes au lieu de plusieurs dizaines."
+      },
+      {
+       "icon": "👓",
+       "title": "Des lunettes connectées",
+       "text": "Elles envoient des images à un smartphone pour un traitement d'IA, avec un débit supérieur au LE 2M."
+      },
+      {
+       "icon": "⌨️",
+       "title": "Un clavier à petit écran",
+       "text": "Il met à jour son affichage plus rapidement sans passer par un câble."
+      }
+     ]
+    },
+    {
+     "type": "timeline",
+     "title": "D'où l'on vient, où l'on va",
+     "items": [
+      {
+       "label": "2025",
+       "text": "Première apparition du HDT dans la propriété intellectuelle Links200 de Ceva-Waves."
+      },
+      {
+       "label": "Septembre 2026",
+       "text": "Le microcontrôleur Realtek RTL8773J introduit le HDT."
+      },
+      {
+       "label": "3 novembre 2026",
+       "text": "Ratification de Bluetooth 7.0."
+      },
+      {
+       "label": "À venir",
+       "text": "Produits grand public : aucune date publiée dans la source."
+      }
+     ]
+    },
+    {
+     "type": "opinion",
+     "title": "Notre avis",
+     "paragraphs": [
+      "Un débit de 7,5 Mbit/s reste modeste face au Wi-Fi, mais il élargit le champ du BLE aux échanges de fichiers et d'images sans activer une seconde radio. L'intérêt réel dépendra de la consommation et de la portée, deux données encore absentes. Le caractère optionnel du HDT fait aussi craindre un marquage « 7.0 » qui ne dit pas grand-chose du produit.",
+      "D'ici un à trois ans, le HDT devrait surtout apparaître dans quelques accessoires haut de gamme avant de se généraliser, si les puces le proposent à coût réduit. C'est une projection prudente."
+     ],
+     "verdict": "Une avancée utile mais incomplète : tant que la consommation n'est pas mesurée, le LE 2M garde l'avantage pour les objets sobres."
+    },
+    {
+     "type": "callout",
+     "title": "À retenir",
+     "text": "Bluetooth 7.0 (ratifié le 3 novembre 2026) apporte le HDT optionnel jusqu'à 7,5 Mbit/s, de nouvelles clés de chiffrement et la mise à jour des flux isochrones ; vérifier la prise en charge du HDT avant d'acheter, car « Bluetooth 7.0 » ne la garantit pas."
+    }
+   ],
+   "publishedAt": "2026-11-19T10:18:55+01:00"
+  }
+ ]
+}
