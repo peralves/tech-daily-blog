@@ -1,0 +1,1037 @@
+{
+ "schemaVersion": "1.0",
+ "date": "2026-11-20",
+ "generatedAt": "2026-11-20T09:16:47+00:00",
+ "title": "Tech : zero-day vCenter exploité par Armory Castle, cyberattaque assistée par IA contre la Commission, FastUnlock et ClickFix",
+ "summary": "Les correctifs VMware du 19 novembre arrivent après des semaines d'exploitation par un groupe lié à la Chine. La Commission européenne subit une attaque conduite avec l'outil ARTEX, un zero-day Windows non corrigé touche l'écran verrouillé, et le marché de la mémoire flash devrait se détendre en 2027.",
+ "highlights": [
+  "VMware vCenter : la faille 9,8 était exploitée comme zero-day depuis début septembre par Armory Castle.",
+  "Commission européenne : plus de dix jours de perturbations après une attaque avec l'outil ARTEX piloté par IA.",
+  "FastUnlock : un zero-day Windows non corrigé permet de lancer des programmes depuis l'écran verrouillé.",
+  "Palo Alto Networks rachète Applied Compute pour 4,5 milliards de dollars et mise sur les modèles ouverts.",
+  "NAND : TrendForce prévoit une baisse des prix en 2027, mais pas de répit pour la DRAM."
+ ],
+ "meta": {
+  "generator": "claude-scheduled-task"
+ },
+ "posts": [
+  {
+   "id": "vcenter-zero-day-armory-castle",
+   "category": "cybersecurite",
+   "icon": "🛡️",
+   "title": "VMware vCenter : un groupe lié à la Chine exploitait la faille 9,8 comme zero-day depuis début septembre",
+   "summary": "Google et Mandiant attribuent à Armory Castle, ex-UNC5221, l'exploitation de CVE-2026-123890 avant la publication des correctifs du 19 novembre. La faille sert de maillon dans une chaîne qui part d'un zero-day BeyondTrust.",
+   "tags": [
+    "VMware",
+    "vCenter",
+    "zero-day",
+    "Mandiant",
+    "espionnage"
+   ],
+   "importance": 5,
+   "sources": [
+    {
+     "title": "China-Linked Hackers Exploit Critical VMware vCenter Zero-Day to Gain Admin Access and Steal Data",
+     "url": "https://thehackernews.com/2026/11/china-linked-hackers-exploit-critical.html",
+     "publisher": "The Hacker News"
+    },
+    {
+     "title": "Critical VMware vCenter Zero-Day Flaw Lets Network Attackers Bypass Authentication",
+     "url": "https://thehackernews.com/2026/11/critical-vmware-vcenter-flaw-cvss-98.html",
+     "publisher": "The Hacker News"
+    },
+    {
+     "title": "Flaws in VMware and KVM need attention",
+     "url": "https://www.theregister.com/security/2026/11/20/flaws-in-vmware-and-kvm-need-attention-if-you-have-time-while-fixing-java-php-and-everything-else/5311193",
+     "publisher": "The Register"
+    }
+   ],
+   "blocks": [
+    {
+     "type": "paragraph",
+     "text": "La faille d'authentification de VMware vCenter, publiée le 19 novembre 2026 avec un score de 9,8, n'était pas seulement un risque théorique. Selon les travaux du Google Threat Intelligence Group et de Mandiant, relayés le 20 novembre par The Hacker News, un groupe soupçonné d'agir pour la Chine l'exploitait déjà comme zero-day depuis le début de septembre. Le groupe, suivi sous le nom d'Armory Castle (anciennement UNC5221), s'en serait servi pour obtenir un accès administrateur, exécuter des commandes, dérober des données et circuler dans l'environnement virtualisé de sa victime. L'attribution reste présentée comme probable et non comme établie."
+    },
+    {
+     "type": "paragraph",
+     "text": "Cette actualité prolonge celle de la veille : Broadcom avait publié le correctif et le bulletin VMSA-2026-0009 pour CVE-2026-123890, une faille de contournement d'authentification dans VMware Directory Service, sans solution de contournement. Ce qui change aujourd'hui, c'est la confirmation d'une exploitation active avant le correctif, ce qui renforce l'urgence pour tous les exploitants de vCenter."
+    },
+    {
+     "type": "heading",
+     "text": "Ce que l'on sait de la faille"
+    },
+    {
+     "type": "keyvalue",
+     "items": [
+      {
+       "label": "Référence",
+       "value": "CVE-2026-123890"
+      },
+      {
+       "label": "Gravité",
+       "value": "9,8 sur 10 (critique)"
+      },
+      {
+       "label": "Nature",
+       "value": "divulgation d'une clé de session SRP-6a via DCE/RPC, menant à un contournement d'authentification"
+      },
+      {
+       "label": "Résultat pour l'attaquant",
+       "value": "une session sous le compte administrator@vsphere.local, sans authentification préalable"
+      },
+      {
+       "label": "Correctifs publiés",
+       "value": "19 novembre 2026"
+      }
+     ]
+    },
+    {
+     "type": "paragraph",
+     "text": "Selon l'article, les versions corrigées sont les suivantes : 9.1.1.0200 pour la branche 9.1 de VMware Cloud Foundation et de vSphere Foundation, 9.0.2.0200 pour la branche 9.0, vCenter 8.0 U3m pour vCenter 8.0 et pour les plateformes Telco, et la version 5.2.5 pour VMware Cloud Foundation 5.2. Pour vCenter 7.0, aucun correctif n'est indiqué : les clients sous support étendu doivent contacter Broadcom."
+    },
+    {
+     "type": "heading",
+     "text": "Une chaîne d'attaque en plusieurs étapes"
+    },
+    {
+     "type": "paragraph",
+     "text": "La faille vCenter n'est pas le point d'entrée. L'opération a débuté par un autre zero-day, dans BeyondTrust Remote Support (CVE-2026-102764, score de 9,3). À partir de là, les attaquants ont procédé par étapes, que Mandiant reconstitue ainsi :"
+    },
+    {
+     "type": "list",
+     "items": [
+      "Reconnaissance, prise de contrôle administrateur et persistance sur l'appliance de support à distance, avec un outil de tunnel nommé BARECLAW.",
+      "Déplacement latéral vers une appliance Linux interne, puis élévation de privilèges jusqu'à root.",
+      "Balayage du réseau avec nmap, à la recherche des ports 9080, 5480 et 2012 ; ce dernier correspond à l'interface RPC de contrôle du service d'authentification unique de vCenter.",
+      "Exploitation de la faille avec BONESAW : exfiltration de la base LMDB (fichier data.mdb), détournement du service de jetons SAML et création d'un compte administrateur SSO.",
+      "Ouverture d'un écouteur sur le port TCP 33992 avec la porte dérobée BEARBONES, activation du SSH par l'API VAMI, puis ajout d'une clé SSH au compte root des hôtes ESXi.",
+      "Archivage des données volées et extraction par des requêtes HTTP GET passant par l'appliance de support à distance."
+     ]
+    },
+    {
+     "type": "diagram",
+     "svg": "<svg xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"0 0 640 350\" font-family=\"system-ui,sans-serif\"><rect width=\"640\" height=\"350\" rx=\"14\" fill=\"#f3f5f9\"/><text x=\"320\" y=\"30\" font-size=\"17\" font-weight=\"700\" text-anchor=\"middle\" fill=\"#1b2433\">Chaîne d'attaque d'Armory Castle</text><rect x=\"30\" y=\"48\" width=\"580\" height=\"44\" rx=\"10\" fill=\"#fff\" stroke=\"#3b5bdb\" stroke-width=\"1.5\"/><circle cx=\"58\" cy=\"70\" r=\"14\" fill=\"#3b5bdb\"/><text x=\"58\" y=\"75\" font-size=\"14\" font-weight=\"700\" text-anchor=\"middle\" fill=\"#fff\">1</text><text x=\"84\" y=\"67\" font-size=\"14\" font-weight=\"700\" fill=\"#1b2433\">Zero-day BeyondTrust</text><text x=\"84\" y=\"84\" font-size=\"12\" fill=\"#3a4658\">Accès à l'appliance de support à distance</text><path d=\"M320 92 v11\" stroke=\"#3b5bdb\" stroke-width=\"2\"/><path d=\"M314 100 l6 6 l6 -6\" fill=\"none\" stroke=\"#3b5bdb\" stroke-width=\"2\"/><rect x=\"30\" y=\"106\" width=\"580\" height=\"44\" rx=\"10\" fill=\"#fff\" stroke=\"#3b5bdb\" stroke-width=\"1.5\"/><circle cx=\"58\" cy=\"128\" r=\"14\" fill=\"#3b5bdb\"/><text x=\"58\" y=\"133\" font-size=\"14\" font-weight=\"700\" text-anchor=\"middle\" fill=\"#fff\">2</text><text x=\"84\" y=\"125\" font-size=\"14\" font-weight=\"700\" fill=\"#1b2433\">Appliance Linux interne</text><text x=\"84\" y=\"142\" font-size=\"12\" fill=\"#3a4658\">Élévation de privilèges jusqu'à root</text><path d=\"M320 150 v11\" stroke=\"#3b5bdb\" stroke-width=\"2\"/><path d=\"M314 158 l6 6 l6 -6\" fill=\"none\" stroke=\"#3b5bdb\" stroke-width=\"2\"/><rect x=\"30\" y=\"164\" width=\"580\" height=\"44\" rx=\"10\" fill=\"#fff\" stroke=\"#3b5bdb\" stroke-width=\"1.5\"/><circle cx=\"58\" cy=\"186\" r=\"14\" fill=\"#3b5bdb\"/><text x=\"58\" y=\"191\" font-size=\"14\" font-weight=\"700\" text-anchor=\"middle\" fill=\"#fff\">3</text><text x=\"84\" y=\"183\" font-size=\"14\" font-weight=\"700\" fill=\"#1b2433\">Balayage réseau</text><text x=\"84\" y=\"200\" font-size=\"12\" fill=\"#3a4658\">Ports 9080, 5480 et 2012 visés</text><path d=\"M320 208 v11\" stroke=\"#3b5bdb\" stroke-width=\"2\"/><path d=\"M314 216 l6 6 l6 -6\" fill=\"none\" stroke=\"#3b5bdb\" stroke-width=\"2\"/><rect x=\"30\" y=\"222\" width=\"580\" height=\"44\" rx=\"10\" fill=\"#fff\" stroke=\"#3b5bdb\" stroke-width=\"1.5\"/><circle cx=\"58\" cy=\"244\" r=\"14\" fill=\"#3b5bdb\"/><text x=\"58\" y=\"249\" font-size=\"14\" font-weight=\"700\" text-anchor=\"middle\" fill=\"#fff\">4</text><text x=\"84\" y=\"241\" font-size=\"14\" font-weight=\"700\" fill=\"#1b2433\">BONESAW contre vCenter</text><text x=\"84\" y=\"258\" font-size=\"12\" fill=\"#3a4658\">Session administrateur, compte SSO créé</text><path d=\"M320 266 v11\" stroke=\"#3b5bdb\" stroke-width=\"2\"/><path d=\"M314 274 l6 6 l6 -6\" fill=\"none\" stroke=\"#3b5bdb\" stroke-width=\"2\"/><rect x=\"30\" y=\"280\" width=\"580\" height=\"44\" rx=\"10\" fill=\"#fff\" stroke=\"#3b5bdb\" stroke-width=\"1.5\"/><circle cx=\"58\" cy=\"302\" r=\"14\" fill=\"#3b5bdb\"/><text x=\"58\" y=\"307\" font-size=\"14\" font-weight=\"700\" text-anchor=\"middle\" fill=\"#fff\">5</text><text x=\"84\" y=\"299\" font-size=\"14\" font-weight=\"700\" fill=\"#1b2433\">ESXi et exfiltration</text><text x=\"84\" y=\"316\" font-size=\"12\" fill=\"#3a4658\">Clé SSH root, données sorties en HTTP</text></svg>",
+     "alt": "Schéma en cinq étapes de la chaîne d'attaque, du zero-day BeyondTrust jusqu'à l'exfiltration depuis ESXi",
+     "caption": "Les cinq étapes reconstituées par Mandiant, d'après The Hacker News."
+    },
+    {
+     "type": "heading",
+     "text": "Les outils et les traces à rechercher"
+    },
+    {
+     "type": "paragraph",
+     "text": "Mandiant recense plusieurs familles de code malveillant : deux webshells JSP (SLIMSAVAGE et CAGEMATCH) sur l'appliance Linux, SAWSNAKE (un portage en Go d'un script public de connexion SAML), BEARBONES (une porte dérobée en C fondée sur Dropbear) et LAZYBONES, une porte dérobée en Go qui utilise Slack comme canal de commande et qu'on avait déjà vue lors d'une intrusion Ivanti en 2025. SAWSNAKE permet de forger des jetons, ce qui ouvre la voie à des attaques « Golden SAML » capables de contourner l'authentification multifacteur. Google y voit « une expansion significative » vers l'usage de zero-days après la compromission initiale."
+    },
+    {
+     "type": "paragraph",
+     "text": "Les indicateurs cités sont des comptes locaux de la forme sps-…@vsphere.local, le port 33992, un fichier data.mdb sorti du serveur, une activation inattendue du SSH par un appel PUT sur /rest/appliance/access/ssh, des clés inconnues dans le fichier authorized_keys de root et du trafic sortant vers Slack depuis des appliances Linux. L'article ne fournit pas de condensats de fichiers."
+    },
+    {
+     "type": "callout",
+     "title": "À retenir",
+     "text": "Appliquer les correctifs du 19 novembre ne suffit pas si l'intrusion a eu lieu avant : il faut aussi vérifier les comptes SSO, l'activation du SSH et les clés root, et traiter les appliances BeyondTrust comme des points de rebond possibles."
+    },
+    {
+     "type": "usecases",
+     "title": "Exemples d'utilisation",
+     "items": [
+      {
+       "icon": "🏢",
+       "title": "Une DSI qui exploite vCenter 8.0",
+       "text": "Elle planifie l'installation de la version 8.0 U3m en priorité, puis exporte les journaux SSO pour rechercher des comptes en sps-…@vsphere.local créés depuis septembre."
+      },
+      {
+       "icon": "🔎",
+       "title": "Une équipe de détection",
+       "text": "Elle ajoute des règles sur le port 33992, sur les appels PUT vers l'API VAMI et sur les connexions sortantes vers Slack émises par des serveurs qui n'en ont pas l'usage."
+      },
+      {
+       "icon": "🏥",
+       "title": "Un hébergeur sous vCenter 7.0",
+       "text": "Faute de correctif indiqué, il contacte Broadcom, restreint l'accès réseau aux ports du service d'authentification unique et à l'interface VAMI, et prépare une migration."
+      }
+     ]
+    },
+    {
+     "type": "timeline",
+     "title": "D'où l'on vient, où l'on va",
+     "items": [
+      {
+       "label": "Début septembre 2026",
+       "text": "Début de l'exploitation du zero-day, selon Google et Mandiant."
+      },
+      {
+       "label": "Octobre 2026",
+       "text": "CrowdStrike signale Armory Castle abusant d'une autre faille VMware (CVE-2026-41709, score de 2,7) pour réduire la visibilité des journaux ESX."
+      },
+      {
+       "label": "19 novembre 2026",
+       "text": "Broadcom publie les correctifs et le bulletin VMSA-2026-0009."
+      },
+      {
+       "label": "20 novembre 2026",
+       "text": "Publication de l'analyse attribuant l'exploitation à Armory Castle."
+      }
+     ]
+    },
+    {
+     "type": "opinion",
+     "title": "Notre avis",
+     "paragraphs": [
+      "Cette affaire illustre un déplacement du risque : l'hyperviseur et son annuaire d'authentification deviennent la cible finale, parce qu'une seule session administrateur donne accès à toutes les machines virtuelles. Que la faille ait servi comme maillon d'une chaîne partie d'un outil de support à distance rappelle aussi qu'un composant d'administration exposé ou peu surveillé suffit à ouvrir tout le reste. Les mesures d'hygiène classiques, comme l'isolement réseau des interfaces de gestion, auraient réduit la portée de l'attaque.",
+      "À un horizon d'un à trois ans, on peut raisonnablement s'attendre à ce que les groupes étatiques réservent davantage de zero-days à l'après-compromission, là où le gain est maximal et la détection la plus faible. Pour les défenseurs, la surveillance des composants d'identité (SAML, SSO) devrait devenir aussi prioritaire que celle des postes de travail. Cela reste une analyse, pas un fait établi."
+     ],
+     "verdict": "Un correctif tardif de dix semaines après l'exploitation : l'enjeu est désormais la chasse aux traces, pas seulement la mise à jour."
+    }
+   ],
+   "sourceDate": "2026-11-20",
+   "illustration": {
+    "svg": "<svg xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"0 0 640 360\"><defs><linearGradient id=\"g\" x1=\"0\" y1=\"0\" x2=\"1\" y2=\"1\"><stop offset=\"0\" stop-color=\"hsl(175,65%,38%)\"/><stop offset=\"1\" stop-color=\"hsl(215,70%,22%)\"/></linearGradient></defs><rect width=\"640\" height=\"360\" fill=\"url(#g)\"/><circle cx=\"526\" cy=\"108\" r=\"53\" fill=\"#fff\" opacity=\"0.08\"/><rect x=\"348\" y=\"165\" width=\"76\" height=\"38\" rx=\"10\" fill=\"#fff\" opacity=\"0.18\" transform=\"rotate(-24 348 165)\"/><path d=\"M517 198 l40 20 l-20 40 z\" fill=\"none\" stroke=\"#fff\" stroke-width=\"3\" opacity=\".3\"/><circle cx=\"86\" cy=\"222\" r=\"47\" fill=\"#fff\" opacity=\"0.12\"/><rect x=\"191\" y=\"186\" width=\"116\" height=\"58\" rx=\"10\" fill=\"#fff\" opacity=\"0.08\" transform=\"rotate(7 191 186)\"/><path d=\"M113 104 l39 19 l-19 39 z\" fill=\"none\" stroke=\"#fff\" stroke-width=\"3\" opacity=\".3\"/><circle cx=\"47\" cy=\"236\" r=\"27\" fill=\"#fff\" opacity=\"0.08\"/><path d=\"M40 300 Q180 220 320 270 T600 200\" fill=\"none\" stroke=\"#fff\" stroke-width=\"4\" opacity=\".35\"/><circle cx=\"320\" cy=\"180\" r=\"84\" fill=\"#fff\" opacity=\".18\"/><circle cx=\"320\" cy=\"180\" r=\"84\" fill=\"none\" stroke=\"#fff\" stroke-width=\"4\" opacity=\".7\"/><text x=\"320\" y=\"214\" font-size=\"92\" text-anchor=\"middle\">🛡️</text></svg>"
+   },
+   "publishedAt": "2026-11-20T09:16:47+00:00",
+   "cover": {
+    "url": "https://blogger.googleusercontent.com/img/b/R29vZ2xl/AVvXsEjTSAI-N-DRII1YA3I98ZVnKnG0SMgm97oEAqyiSXZB23DPwzvTk3figFLsTCKsMJRxRhjKEPFblxfcOuB_UXc_OAXJRiVI07Jxjn-CebJVHiRQ5sc43AifBpUPNfU5-LRD6QEGbX7Vnt_HAmJZiLojS32PtNWwIWeideJZnIpgjrstJ0Iy84lYd47bePk/s1600/chinese-vmware.jpg",
+    "alt": "VMware vCenter : un groupe lié à la Chine exploitait la faille 9,8 comme zero-day depuis début septembre",
+    "credit": "thehackernews.com"
+   },
+   "readingMinutes": 5
+  },
+  {
+   "id": "commission-europeenne-cyberattaque-artex",
+   "category": "cybersecurite",
+   "icon": "🇪🇺",
+   "title": "Commission européenne : une cyberattaque menée avec l'outil d'intrusion ARTEX perturbe les systèmes internes depuis plus de dix jours",
+   "summary": "Les applications de paie, de congés et de remboursement médical ont été touchées. L'institution n'a pas dit si des données personnelles d'agents ont été consultées.",
+   "tags": [
+    "Commission européenne",
+    "ARTEX",
+    "IA",
+    "CERT-EU",
+    "intrusion"
+   ],
+   "importance": 4,
+   "sources": [
+    {
+     "title": "European Commission scrambles to contain AI-assisted cyberattack",
+     "url": "https://www.theregister.com/cyber-crime/2026/11/19/european-commission-scrambles-to-contain-ai-assisted-cyberattack/5311103",
+     "publisher": "The Register"
+    }
+   ],
+   "blocks": [
+    {
+     "type": "paragraph",
+     "text": "La Commission européenne tente de contenir une cyberattaque dont les auteurs auraient utilisé ARTEX, un cadre de test d'intrusion fondé sur l'intelligence artificielle. D'après The Register, qui s'appuie sur une enquête de Politico, les perturbations durent depuis plus de dix jours et touchent des applications du quotidien : Sysper, qui sert aux fiches de paie, aux feuilles de temps et aux demandes de congés, ainsi que MyPMO, dédiée aux remboursements médicaux. Les services de traduction de l'institution ont également été affectés."
+    },
+    {
+     "type": "paragraph",
+     "text": "Le point central reste sans réponse : des données personnelles d'agents ont-elles été consultées ? La Commission n'a pas répondu aux questions de The Register avant publication, et n'a pas précisé si les applications avaient été coupées par simple précaution."
+    },
+    {
+     "type": "heading",
+     "text": "Ce que la Commission a déclaré"
+    },
+    {
+     "type": "paragraph",
+     "text": "Le porte-parole Thomas Regnier a indiqué que l'institution avait pris les mesures nécessaires face à une campagne détectée, que des systèmes précis étaient visés et que, conformément aux pratiques habituelles, les personnes concernées avaient été informées. Selon Politico, les équipes de cybersécurité de la Commission ont repéré les pirates en train d'utiliser ARTEX. Une réunion d'urgence du conseil de gestion de l'institution s'est tenue début novembre, et la commissaire chargée de la technologie, Henna Virkkunen, a informé ses collègues mercredi."
+    },
+    {
+     "type": "paragraph",
+     "text": "Côté agents, certains n'ont pas pu poser de congés ni remettre leurs feuilles de temps pendant la panne, mais les salaires ont été versés à la date prévue. Sysper et MyPMO avaient été rétablis en début de semaine, puis Sysper est de nouveau tombé mercredi."
+    },
+    {
+     "type": "heading",
+     "text": "ARTEX : un outil public devenu arme"
+    },
+    {
+     "type": "list",
+     "items": [
+      "ARTEX est un cadre de test d'intrusion piloté par IA, accessible publiquement. Son développeur a retiré le dépôt GitHub en octobre après des signalements d'usages malveillants, mais plusieurs copies (forks) circulaient déjà.",
+      "Le CERT-EU, qui protège les institutions de l'Union, avait averti le 5 novembre qu'il observait des attaques soupçonnées d'être assistées par ARTEX contre des organisations placées sous sa surveillance.",
+      "Le FBI a émis une alerte la semaine précédente : plus de 1 600 consoles ARTEX étaient exposées sur Internet, et dans certaines attaques décrites, le délai entre l'identification d'une cible et l'obtention d'un accès privilégié était inférieur à trois heures.",
+      "Les auteurs de l'attaque contre la Commission n'ont pas été identifiés."
+     ]
+    },
+    {
+     "type": "paragraph",
+     "text": "Pour Snehal Antani, dirigeant de Horizon3.ai, un travail qui exigeait autrefois « des jours ou des semaines » d'enchaînement par un opérateur expérimenté se réalise désormais en quelques heures, car ces cadres permettent à un seul acteur de piloter une flotte d'agents avec très peu d'intervention humaine. Il note aussi que l'attribution devient plus difficile, puisque groupes étatiques et cybercriminels emploient les mêmes outils."
+    },
+    {
+     "type": "diagram",
+     "svg": "<svg xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"0 0 640 184\" font-family=\"system-ui,sans-serif\"><rect width=\"640\" height=\"184\" rx=\"14\" fill=\"#f3f5f9\"/><text x=\"320\" y=\"30\" font-size=\"17\" font-weight=\"700\" text-anchor=\"middle\" fill=\"#1b2433\">Ce que l'on sait des signaux d'alerte (chiffres du FBI et de la presse)</text><text x=\"20\" y=\"70\" font-size=\"13\" fill=\"#1b2433\">Consoles ARTEX exposées</text><rect x=\"250\" y=\"54\" width=\"300\" height=\"22\" rx=\"5\" fill=\"#3b5bdb\"/><text x=\"556\" y=\"70\" font-size=\"13\" font-weight=\"700\" fill=\"#1b2433\">1600</text><text x=\"20\" y=\"110\" font-size=\"13\" fill=\"#1b2433\">Jours de perturbation (au moins)</text><rect x=\"250\" y=\"94\" width=\"2\" height=\"22\" rx=\"5\" fill=\"#3b5bdb\"/><text x=\"257\" y=\"110\" font-size=\"13\" font-weight=\"700\" fill=\"#1b2433\">10</text><text x=\"20\" y=\"150\" font-size=\"13\" fill=\"#1b2433\">Heures pour un accès privilégié (maximum)</text><rect x=\"250\" y=\"134\" width=\"2\" height=\"22\" rx=\"5\" fill=\"#3b5bdb\"/><text x=\"256\" y=\"150\" font-size=\"13\" font-weight=\"700\" fill=\"#1b2433\">3</text></svg>",
+     "alt": "Trois chiffres clés : plus de 1 600 consoles exposées, plus de 10 jours de perturbation, moins de 3 heures pour obtenir un accès privilégié",
+     "caption": "Chiffres rapportés par The Register ; les valeurs sont des seuils (plus de, moins de), non des mesures exactes."
+    },
+    {
+     "type": "callout",
+     "title": "À retenir",
+     "text": "Les faits établis se limitent à une perturbation prolongée et à l'usage d'ARTEX selon Politico. L'ampleur d'une éventuelle fuite de données personnelles n'est pas connue."
+    },
+    {
+     "type": "usecases",
+     "title": "Exemples d'utilisation",
+     "items": [
+      {
+       "icon": "🏛️",
+       "title": "Une administration publique",
+       "text": "Elle recense les applications de ressources humaines exposées, car ce type de service, très utilisé et rarement prioritaire, a servi ici de cible."
+      },
+      {
+       "icon": "🧪",
+       "title": "Une équipe de test d'intrusion",
+       "text": "Elle vérifie que ses propres consoles d'outils offensifs ne sont pas accessibles depuis Internet, comme les 1 600 recensées par le FBI."
+      },
+      {
+       "icon": "👩‍💼",
+       "title": "Un agent concerné",
+       "text": "Il surveille les messages officiels de l'institution et se montre prudent face aux courriels d'hameçonnage qui exploiteraient l'incident."
+      }
+     ]
+    },
+    {
+     "type": "timeline",
+     "title": "D'où l'on vient, où l'on va",
+     "items": [
+      {
+       "label": "Octobre 2026",
+       "text": "Le développeur d'ARTEX retire son dépôt GitHub après des signalements d'usages malveillants."
+      },
+      {
+       "label": "5 novembre 2026",
+       "text": "Le CERT-EU met en garde contre des attaques assistées par ARTEX."
+      },
+      {
+       "label": "Début novembre 2026",
+       "text": "Réunion d'urgence du conseil de gestion de la Commission."
+      },
+      {
+       "label": "19 novembre 2026",
+       "text": "Sysper retombe en panne ; la Commission n'a pas encore répondu aux questions de la presse."
+      }
+     ]
+    },
+    {
+     "type": "opinion",
+     "title": "Notre avis",
+     "paragraphs": [
+      "Cet épisode montre que les outils d'attaque pilotés par IA ne sont plus réservés à quelques équipes spécialisées. Retirer un dépôt public arrive trop tard quand des copies existent déjà, et l'enjeu, pour une institution comme la Commission, n'est pas seulement technique : des services de paie et de remboursement touchent directement la vie des agents. Le manque de précisions sur les données concernées alimente les inquiétudes.",
+      "À un horizon d'un à trois ans, il est probable que le délai entre la découverte d'une faille et son exploitation continue de se raccourcir, ce qui plaide pour une supervision permanente et des correctifs plus rapides plutôt que pour des campagnes ponctuelles. Les institutions européennes devront aussi montrer plus de transparence sur leurs incidents. Il s'agit d'une opinion argumentée, non d'un fait."
+     ],
+     "verdict": "Un incident d'abord révélateur : la vitesse des attaques assistées par IA dépasse les réflexes de communication des institutions."
+    }
+   ],
+   "sourceDate": "2026-11-19",
+   "illustration": {
+    "svg": "<svg xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"0 0 640 360\"><defs><linearGradient id=\"g\" x1=\"0\" y1=\"0\" x2=\"1\" y2=\"1\"><stop offset=\"0\" stop-color=\"hsl(175,65%,38%)\"/><stop offset=\"1\" stop-color=\"hsl(215,70%,22%)\"/></linearGradient></defs><rect width=\"640\" height=\"360\" fill=\"url(#g)\"/><circle cx=\"526\" cy=\"108\" r=\"53\" fill=\"#fff\" opacity=\"0.08\"/><rect x=\"348\" y=\"165\" width=\"76\" height=\"38\" rx=\"10\" fill=\"#fff\" opacity=\"0.18\" transform=\"rotate(-24 348 165)\"/><path d=\"M517 198 l40 20 l-20 40 z\" fill=\"none\" stroke=\"#fff\" stroke-width=\"3\" opacity=\".3\"/><circle cx=\"86\" cy=\"222\" r=\"47\" fill=\"#fff\" opacity=\"0.12\"/><rect x=\"191\" y=\"186\" width=\"116\" height=\"58\" rx=\"10\" fill=\"#fff\" opacity=\"0.08\" transform=\"rotate(7 191 186)\"/><path d=\"M113 104 l39 19 l-19 39 z\" fill=\"none\" stroke=\"#fff\" stroke-width=\"3\" opacity=\".3\"/><circle cx=\"47\" cy=\"236\" r=\"27\" fill=\"#fff\" opacity=\"0.08\"/><path d=\"M40 300 Q180 220 320 270 T600 200\" fill=\"none\" stroke=\"#fff\" stroke-width=\"4\" opacity=\".35\"/><circle cx=\"320\" cy=\"180\" r=\"84\" fill=\"#fff\" opacity=\".18\"/><circle cx=\"320\" cy=\"180\" r=\"84\" fill=\"none\" stroke=\"#fff\" stroke-width=\"4\" opacity=\".7\"/><text x=\"320\" y=\"214\" font-size=\"92\" text-anchor=\"middle\">🇪🇺</text></svg>"
+   },
+   "publishedAt": "2026-11-20T09:16:47+00:00",
+   "cover": {
+    "url": "https://image.theregister.com/5311112.jpg?imageId=5311112&x=0&y=0&cropw=100&croph=84.87&panox=0&panoy=0&panow=100&panoh=84.87&width=1200&height=683",
+    "alt": "Commission européenne : une cyberattaque menée avec l'outil d'intrusion ARTEX perturbe les systèmes internes depuis plus de dix jours",
+    "credit": "theregister.com"
+   },
+   "readingMinutes": 4
+  },
+  {
+   "id": "fastunlock-windows-ecran-verrouille",
+   "category": "cybersecurite",
+   "icon": "🔓",
+   "title": "FastUnlock : un zero-day Windows non corrigé permet de lancer des programmes depuis l'écran verrouillé",
+   "summary": "La méthode exige un accès physique et un compte Microsoft joignable depuis l'écran de verrouillage. Elle ne casse pas BitLocker et s'exécute sous un compte limité, mais Microsoft n'a pas encore publié de correctif.",
+   "tags": [
+    "Windows",
+    "zero-day",
+    "BitLocker",
+    "accès physique",
+    "Narrator"
+   ],
+   "importance": 3,
+   "sources": [
+    {
+     "title": "New Unpatched Windows 0-Day FastUnlock Lets Someone Holding a Locked PC Run Programs on It",
+     "url": "https://thehackernews.com/2026/11/new-unpatched-windows-0-day-fastunlock.html",
+     "publisher": "The Hacker News"
+    }
+   ],
+   "blocks": [
+    {
+     "type": "paragraph",
+     "text": "Un chercheur connu sous les pseudonymes MSNightmare et Nightmare Eclipse a publié, le 19 novembre 2026 ou aux alentours, une technique baptisée FastUnlock. Elle permet à une personne qui tient entre ses mains un ordinateur Windows verrouillé d'y lancer des programmes sans ouvrir de session. L'éditeur de sécurité ThreatLocker a testé la méthode le jour même et confirmé qu'elle fonctionne, selon The Hacker News. À la date de publication, Microsoft n'avait pas livré de correctif, et rien n'indiquait un usage dans une attaque réelle."
+    },
+    {
+     "type": "heading",
+     "text": "Ce que la technique permet, et ce qu'elle ne permet pas"
+    },
+    {
+     "type": "paragraph",
+     "text": "La divulgation prend la forme d'un court billet sur GitHub accompagné d'une vidéo, avec peu d'explications écrites. L'article s'appuie donc sur l'essai de ThreatLocker. Celui-ci a réussi à exécuter un programme depuis l'écran de verrouillage, sous un compte limité nommé WSIAccount, qui n'est pas un compte administrateur. La méthode s'appuie sur Narrator, le lecteur d'écran intégré de Windows, pour naviguer dans l'interface verrouillée."
+    },
+    {
+     "type": "list",
+     "items": [
+      "Elle suppose un accès physique à la machine.",
+      "Elle suppose un compte Microsoft joignable depuis les options de récupération de l'écran de verrouillage ; elle ne fonctionne donc pas sur tous les ordinateurs.",
+      "Elle n'accorde pas de droits d'administrateur.",
+      "Aucun identifiant CVE ni liste officielle de versions de Windows concernées n'a été publié à ce stade."
+     ]
+    },
+    {
+     "type": "heading",
+     "text": "Le lien avec BitLocker"
+    },
+    {
+     "type": "paragraph",
+     "text": "Beaucoup d'ordinateurs Windows chiffrent leur disque avec BitLocker. Dans la configuration la plus répandue, le module TPM déverrouille le disque automatiquement au démarrage, sans code PIN. Quand l'écran de verrouillage s'affiche, le disque est donc déjà lisible, et c'est à ce stade que la technique agit. L'article insiste : FastUnlock ne brise pas le chiffrement et ne récupère pas la clé. C'est un problème plus étroit que le contournement d'un disque chiffré, mais il reste réel pour tout appareil dont une autre personne a le contrôle physique."
+    },
+    {
+     "type": "diagram",
+     "svg": "<svg xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"0 0 640 292\" font-family=\"system-ui,sans-serif\"><rect width=\"640\" height=\"292\" rx=\"14\" fill=\"#f3f5f9\"/><text x=\"320\" y=\"30\" font-size=\"17\" font-weight=\"700\" text-anchor=\"middle\" fill=\"#1b2433\">Où se situe la faille</text><rect x=\"30\" y=\"48\" width=\"580\" height=\"44\" rx=\"10\" fill=\"#fff\" stroke=\"#3b5bdb\" stroke-width=\"1.5\"/><circle cx=\"58\" cy=\"70\" r=\"14\" fill=\"#3b5bdb\"/><text x=\"58\" y=\"75\" font-size=\"14\" font-weight=\"700\" text-anchor=\"middle\" fill=\"#fff\">1</text><text x=\"84\" y=\"67\" font-size=\"14\" font-weight=\"700\" fill=\"#1b2433\">Démarrage de l'ordinateur</text><text x=\"84\" y=\"84\" font-size=\"12\" fill=\"#3a4658\">Le TPM déverrouille le disque sans PIN</text><path d=\"M320 92 v11\" stroke=\"#3b5bdb\" stroke-width=\"2\"/><path d=\"M314 100 l6 6 l6 -6\" fill=\"none\" stroke=\"#3b5bdb\" stroke-width=\"2\"/><rect x=\"30\" y=\"106\" width=\"580\" height=\"44\" rx=\"10\" fill=\"#fff\" stroke=\"#3b5bdb\" stroke-width=\"1.5\"/><circle cx=\"58\" cy=\"128\" r=\"14\" fill=\"#3b5bdb\"/><text x=\"58\" y=\"133\" font-size=\"14\" font-weight=\"700\" text-anchor=\"middle\" fill=\"#fff\">2</text><text x=\"84\" y=\"125\" font-size=\"14\" font-weight=\"700\" fill=\"#1b2433\">Écran de verrouillage</text><text x=\"84\" y=\"142\" font-size=\"12\" fill=\"#3a4658\">Le disque est déjà lisible</text><path d=\"M320 150 v11\" stroke=\"#3b5bdb\" stroke-width=\"2\"/><path d=\"M314 158 l6 6 l6 -6\" fill=\"none\" stroke=\"#3b5bdb\" stroke-width=\"2\"/><rect x=\"30\" y=\"164\" width=\"580\" height=\"44\" rx=\"10\" fill=\"#fff\" stroke=\"#3b5bdb\" stroke-width=\"1.5\"/><circle cx=\"58\" cy=\"186\" r=\"14\" fill=\"#3b5bdb\"/><text x=\"58\" y=\"191\" font-size=\"14\" font-weight=\"700\" text-anchor=\"middle\" fill=\"#fff\">3</text><text x=\"84\" y=\"183\" font-size=\"14\" font-weight=\"700\" fill=\"#1b2433\">Navigation avec Narrator</text><text x=\"84\" y=\"200\" font-size=\"12\" fill=\"#3a4658\">Accès aux options de récupération du compte Microsoft</text><path d=\"M320 208 v11\" stroke=\"#3b5bdb\" stroke-width=\"2\"/><path d=\"M314 216 l6 6 l6 -6\" fill=\"none\" stroke=\"#3b5bdb\" stroke-width=\"2\"/><rect x=\"30\" y=\"222\" width=\"580\" height=\"44\" rx=\"10\" fill=\"#fff\" stroke=\"#3b5bdb\" stroke-width=\"1.5\"/><circle cx=\"58\" cy=\"244\" r=\"14\" fill=\"#3b5bdb\"/><text x=\"58\" y=\"249\" font-size=\"14\" font-weight=\"700\" text-anchor=\"middle\" fill=\"#fff\">4</text><text x=\"84\" y=\"241\" font-size=\"14\" font-weight=\"700\" fill=\"#1b2433\">Programme lancé</text><text x=\"84\" y=\"258\" font-size=\"12\" fill=\"#3a4658\">Exécution sous un compte limité, sans droits d'administrateur</text></svg>",
+     "alt": "Schéma en quatre étapes montrant que la technique intervient après le déverrouillage automatique du disque par le TPM",
+     "caption": "Étapes décrites par The Hacker News d'après l'essai de ThreatLocker."
+    },
+    {
+     "type": "heading",
+     "text": "Que faire en attendant un correctif"
+    },
+    {
+     "type": "list",
+     "items": [
+      "Contrôler l'accès physique aux portables, aux postes partagés et aux ordinateurs d'accueil.",
+      "Ajouter un code PIN de démarrage à BitLocker sur les machines sensibles, afin que le disque ne se déverrouille plus tout seul.",
+      "Éteindre ou mettre en veille prolongée les appareils qui quittent le contrôle de leur propriétaire : un PIN de démarrage protège un ordinateur éteint, pas un ordinateur déjà arrivé à l'écran de verrouillage.",
+      "Ne pas considérer l'écran de verrouillage comme une frontière de sécurité suffisante."
+     ]
+    },
+    {
+     "type": "paragraph",
+     "text": "Ces recommandations rejoignent les contre-mesures publiées par Microsoft contre les attaquants disposant d'un accès matériel : code PIN au démarrage, arrêt ou hibernation de la machine."
+    },
+    {
+     "type": "callout",
+     "title": "À retenir",
+     "text": "Pas de CVE, pas de correctif et pas de liste de versions à ce jour : les informations viennent d'un essai de ThreatLocker et du billet du chercheur. Elles seront à confirmer auprès de Microsoft."
+    },
+    {
+     "type": "usecases",
+     "title": "Exemples d'utilisation",
+     "items": [
+      {
+       "icon": "💼",
+       "title": "Un commercial en déplacement",
+       "text": "Il éteint son portable au lieu de le laisser verrouillé dans une chambre d'hôtel ou un véhicule."
+      },
+      {
+       "icon": "🖥️",
+       "title": "Un accueil ou un poste partagé",
+       "text": "L'administrateur retire du poste les comptes Microsoft joignables depuis l'écran de verrouillage quand cela n'est pas indispensable."
+      },
+      {
+       "icon": "🛠️",
+       "title": "Un responsable sécurité",
+       "text": "Il généralise le PIN de démarrage BitLocker sur les flottes d'ordinateurs portables qui contiennent des données sensibles."
+      }
+     ]
+    },
+    {
+     "type": "timeline",
+     "title": "D'où l'on vient, où l'on va",
+     "items": [
+      {
+       "label": "19 novembre 2026",
+       "text": "Le chercheur publie FastUnlock ; ThreatLocker confirme le fonctionnement le même jour."
+      },
+      {
+       "label": "20 novembre 2026",
+       "text": "The Hacker News signale l'absence de correctif de Microsoft."
+      },
+      {
+       "label": "Suite",
+       "text": "La date d'un correctif et la liste des versions concernées ne sont pas connues."
+      }
+     ]
+    },
+    {
+     "type": "opinion",
+     "title": "Notre avis",
+     "paragraphs": [
+      "L'attaque est limitée : elle demande un accès physique, un compte Microsoft particulier et ne donne pas les droits d'administrateur. Elle n'en rappelle pas moins une réalité souvent oubliée : le chiffrement du disque protège surtout un appareil éteint, et le TPM sans PIN privilégie la commodité. Il faut éviter à la fois la minimisation et l'alarmisme.",
+      "À un horizon d'un à trois ans, la pression devrait augmenter pour que le PIN de démarrage ou des méthodes équivalentes deviennent la valeur par défaut des appareils professionnels. Cette évolution reste une opinion : elle dépendra de ce que Microsoft décidera de corriger, et de la tolérance des utilisateurs à une étape de plus au démarrage."
+     ],
+     "verdict": "Une faille d'ampleur modeste, mais un bon rappel : un ordinateur verrouillé n'est pas un ordinateur éteint."
+    }
+   ],
+   "sourceDate": "2026-11-20",
+   "illustration": {
+    "svg": "<svg xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"0 0 640 360\"><defs><linearGradient id=\"g\" x1=\"0\" y1=\"0\" x2=\"1\" y2=\"1\"><stop offset=\"0\" stop-color=\"hsl(175,65%,38%)\"/><stop offset=\"1\" stop-color=\"hsl(215,70%,22%)\"/></linearGradient></defs><rect width=\"640\" height=\"360\" fill=\"url(#g)\"/><circle cx=\"451\" cy=\"279\" r=\"54\" fill=\"#fff\" opacity=\"0.16\"/><rect x=\"591\" y=\"316\" width=\"70\" height=\"35\" rx=\"10\" fill=\"#fff\" opacity=\"0.18\" transform=\"rotate(23 591 316)\"/><path d=\"M116 306 l51 25 l-25 51 z\" fill=\"none\" stroke=\"#fff\" stroke-width=\"3\" opacity=\".3\"/><circle cx=\"502\" cy=\"96\" r=\"22\" fill=\"#fff\" opacity=\"0.16\"/><rect x=\"366\" y=\"46\" width=\"40\" height=\"20\" rx=\"10\" fill=\"#fff\" opacity=\"0.08\" transform=\"rotate(16 366 46)\"/><path d=\"M188 312 l28 14 l-14 28 z\" fill=\"none\" stroke=\"#fff\" stroke-width=\"3\" opacity=\".3\"/><circle cx=\"180\" cy=\"225\" r=\"48\" fill=\"#fff\" opacity=\"0.16\"/><path d=\"M40 300 Q180 220 320 270 T600 200\" fill=\"none\" stroke=\"#fff\" stroke-width=\"4\" opacity=\".35\"/><circle cx=\"320\" cy=\"180\" r=\"84\" fill=\"#fff\" opacity=\".18\"/><circle cx=\"320\" cy=\"180\" r=\"84\" fill=\"none\" stroke=\"#fff\" stroke-width=\"4\" opacity=\".7\"/><text x=\"320\" y=\"214\" font-size=\"92\" text-anchor=\"middle\">🔓</text></svg>"
+   },
+   "publishedAt": "2026-11-20T09:16:47+00:00",
+   "cover": {
+    "url": "https://blogger.googleusercontent.com/img/b/R29vZ2xl/AVvXsEhRnUdcazdCteyaE1EC_aLit8CioDaJ5yvsWnawFVWQrJvYFktNRJXlW9MOJLimG_-aS1IZChVHJbjPI4CXjIbNFLjn5W686xynepfC0oWyEG81NX5CxdS-9ayumfRljgy32e2bYXDD72T6VpIFFzeCcPKwG48RDKiZExwNdF-4XDFicISSaaRtT3W2dt0/s1600/windows-lockscreen.jpg",
+    "alt": "FastUnlock : un zero-day Windows non corrigé permet de lancer des programmes depuis l'écran verrouillé",
+    "credit": "thehackernews.com"
+   },
+   "readingMinutes": 3
+  },
+  {
+   "id": "romulus-clickfix-nouveau-rat",
+   "category": "cybersecurite",
+   "icon": "📋",
+   "title": "ROMULUS : la plateforme de diffusion ClickFix distribue désormais un nouveau cheval de Troie d'accès à distance",
+   "summary": "Blackpoint Cyber décrit un service qui livre le trojan apparenté à CNCMachineRMS et le chargeur Legion Loader, avec des leurres où la victime colle elle-même la commande malveillante.",
+   "tags": [
+    "ClickFix",
+    "RAT",
+    "Blackpoint Cyber",
+    "ingénierie sociale",
+    "Windows"
+   ],
+   "importance": 3,
+   "sources": [
+    {
+     "title": "ROMULUS ClickFix Attacks Deliver RAT That Can Spy on Users and Control PCs",
+     "url": "https://thehackernews.com/2026/11/romulus-clickfix-attacks-deliver-rat.html",
+     "publisher": "The Hacker News"
+    }
+   ],
+   "blocks": [
+    {
+     "type": "paragraph",
+     "text": "Les attaques de type ClickFix continuent de se professionnaliser. Les chercheurs de Blackpoint Cyber (Sam Decker, Nevan Beal et Andi Ursry) estiment que ROMULUS fonctionne comme un service de diffusion : il distribue, par des chaînes d'infection distinctes, un cheval de Troie d'accès à distance jusqu'ici non documenté, proche de CNCMachineRMS, ainsi que le chargeur Legion Loader. Forescout Research avait décrit ROMULUS le mois précédent, comme une plateforme de type « logiciel malveillant en tant que service » qui emploie des leurres ClickFix."
+    },
+    {
+     "type": "heading",
+     "text": "Comment fonctionne un leurre ClickFix"
+    },
+    {
+     "type": "paragraph",
+     "text": "Le principe est simple et efficace : une fausse page de vérification ou d'erreur, par exemple une fausse vérification Cloudflare, invite l'utilisateur à copier une commande puis à la coller dans la boîte de dialogue Exécuter, dans PowerShell ou dans un terminal. La manipulation du presse-papiers place souvent la commande à l'insu de la victime. Comme c'est l'utilisateur qui lance la commande, le code malveillant échappe à de nombreuses défenses fondées sur le téléchargement de fichiers."
+    },
+    {
+     "type": "heading",
+     "text": "La chaîne ROMULUS décrite par Blackpoint"
+    },
+    {
+     "type": "list",
+     "items": [
+      "Une commande PowerShell exécute, via msiexec.exe, un installeur MSI nommé IconEdit2Turb.msi, déguisé en outil de la société Stardock.",
+      "L'installeur lance un chargement de bibliothèque piégée (sideloading) : la DLL I++u.dll décode et exécute du code embarqué qui démarre le cheval de Troie.",
+      "ROMULUS a aussi utilisé des GPT personnalisés de ChatGPT pour orienter des victimes vers des sites contenant des leurres ClickFix.",
+      "Le trojan sait contrôler le bureau à distance, diffuser l'écran, capturer micro et caméra, gérer des fichiers, faire de la reconnaissance et exécuter d'autres charges à la demande. Ses communications passent par DNS over HTTPS, ce qui les fond dans le trafic web chiffré."
+     ]
+    },
+    {
+     "type": "diagram",
+     "svg": "<svg xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"0 0 640 292\" font-family=\"system-ui,sans-serif\"><rect width=\"640\" height=\"292\" rx=\"14\" fill=\"#f3f5f9\"/><text x=\"320\" y=\"30\" font-size=\"17\" font-weight=\"700\" text-anchor=\"middle\" fill=\"#1b2433\">Une infection ClickFix de bout en bout</text><rect x=\"30\" y=\"48\" width=\"580\" height=\"44\" rx=\"10\" fill=\"#fff\" stroke=\"#3b5bdb\" stroke-width=\"1.5\"/><circle cx=\"58\" cy=\"70\" r=\"14\" fill=\"#3b5bdb\"/><text x=\"58\" y=\"75\" font-size=\"14\" font-weight=\"700\" text-anchor=\"middle\" fill=\"#fff\">1</text><text x=\"84\" y=\"67\" font-size=\"14\" font-weight=\"700\" fill=\"#1b2433\">Fausse page de vérification</text><text x=\"84\" y=\"84\" font-size=\"12\" fill=\"#3a4658\">L'utilisateur est invité à copier une commande</text><path d=\"M320 92 v11\" stroke=\"#3b5bdb\" stroke-width=\"2\"/><path d=\"M314 100 l6 6 l6 -6\" fill=\"none\" stroke=\"#3b5bdb\" stroke-width=\"2\"/><rect x=\"30\" y=\"106\" width=\"580\" height=\"44\" rx=\"10\" fill=\"#fff\" stroke=\"#3b5bdb\" stroke-width=\"1.5\"/><circle cx=\"58\" cy=\"128\" r=\"14\" fill=\"#3b5bdb\"/><text x=\"58\" y=\"133\" font-size=\"14\" font-weight=\"700\" text-anchor=\"middle\" fill=\"#fff\">2</text><text x=\"84\" y=\"125\" font-size=\"14\" font-weight=\"700\" fill=\"#1b2433\">Commande collée par la victime</text><text x=\"84\" y=\"142\" font-size=\"12\" fill=\"#3a4658\">PowerShell lance msiexec avec le MSI piégé</text><path d=\"M320 150 v11\" stroke=\"#3b5bdb\" stroke-width=\"2\"/><path d=\"M314 158 l6 6 l6 -6\" fill=\"none\" stroke=\"#3b5bdb\" stroke-width=\"2\"/><rect x=\"30\" y=\"164\" width=\"580\" height=\"44\" rx=\"10\" fill=\"#fff\" stroke=\"#3b5bdb\" stroke-width=\"1.5\"/><circle cx=\"58\" cy=\"186\" r=\"14\" fill=\"#3b5bdb\"/><text x=\"58\" y=\"191\" font-size=\"14\" font-weight=\"700\" text-anchor=\"middle\" fill=\"#fff\">3</text><text x=\"84\" y=\"183\" font-size=\"14\" font-weight=\"700\" fill=\"#1b2433\">Chargement de DLL signée détournée</text><text x=\"84\" y=\"200\" font-size=\"12\" fill=\"#3a4658\">I++u.dll décode le code embarqué</text><path d=\"M320 208 v11\" stroke=\"#3b5bdb\" stroke-width=\"2\"/><path d=\"M314 216 l6 6 l6 -6\" fill=\"none\" stroke=\"#3b5bdb\" stroke-width=\"2\"/><rect x=\"30\" y=\"222\" width=\"580\" height=\"44\" rx=\"10\" fill=\"#fff\" stroke=\"#3b5bdb\" stroke-width=\"1.5\"/><circle cx=\"58\" cy=\"244\" r=\"14\" fill=\"#3b5bdb\"/><text x=\"58\" y=\"249\" font-size=\"14\" font-weight=\"700\" text-anchor=\"middle\" fill=\"#fff\">4</text><text x=\"84\" y=\"241\" font-size=\"14\" font-weight=\"700\" fill=\"#1b2433\">Trojan d'accès à distance</text><text x=\"84\" y=\"258\" font-size=\"12\" fill=\"#3a4658\">Contrôle du poste, canal DNS over HTTPS</text></svg>",
+     "alt": "Schéma en quatre étapes d'une infection ClickFix, de la fausse page au cheval de Troie",
+     "caption": "Chaîne décrite par Blackpoint Cyber, d'après The Hacker News."
+    },
+    {
+     "type": "heading",
+     "text": "Un écosystème plus large"
+    },
+    {
+     "type": "paragraph",
+     "text": "Le rapport cite d'autres campagnes qui exploitent la même idée : plus de 70 000 sites compromis interrogent un contrat intelligent sur la blockchain Polygon pour récupérer du code (technique « EtherHiding ») ; de fausses pages d'avis sur des appartements diffusent le logiciel NetSupport ; la chaîne TRUST#GRAFT cible les administrateurs WordPress pour installer une extension malveillante ; une annonce sponsorisée pour « amazon business » mène à une fausse page de connexion qui déploie NetSupport RMM et le voleur Lumma ; et de fausses pages de téléchargement de Claude, atteintes par des publicités, poussent des utilisateurs de Mac à coller des commandes dans le Terminal qui installent le voleur AMOS. Huntress observe de son côté des chaînes en plusieurs étapes qui cachent des charges dans des fichiers PNG."
+    },
+    {
+     "type": "paragraph",
+     "text": "Indicateurs cités, sous forme neutralisée : les fichiers IconEdit2Turb.msi et I++u.dll, les domaines veriffication-redirect[.]com, login.microsoftofice[.]cz, updates.howclens[.]com et orders-amazon[.]com[.]advancedfences[.]com, ainsi qu'une extension nommée « Web Media Optimizer » copiée dans le dossier mu-plugins de WordPress."
+    },
+    {
+     "type": "callout",
+     "title": "À retenir",
+     "text": "Le rapport ne contient pas de section de défense. Les mesures ci-dessous sont des pistes générales, non des recommandations de Blackpoint : limiter le collage de commandes dans la boîte Exécuter et les terminaux, surveiller msiexec et PowerShell, repérer les chargements de DLL par des binaires signés."
+    },
+    {
+     "type": "usecases",
+     "title": "Exemples d'utilisation",
+     "items": [
+      {
+       "icon": "🧑‍💻",
+       "title": "Un administrateur Windows",
+       "text": "Il désactive la boîte de dialogue Exécuter par stratégie de groupe pour les utilisateurs qui n'en ont pas besoin et alerte sur les lancements de msiexec depuis PowerShell."
+      },
+      {
+       "icon": "🎓",
+       "title": "Une équipe de sensibilisation",
+       "text": "Elle apprend aux collaborateurs une règle simple : aucune page web légitime ne demande de copier une commande dans le terminal."
+      },
+      {
+       "icon": "🌐",
+       "title": "Un responsable de site WordPress",
+       "text": "Il vérifie le dossier mu-plugins à la recherche d'extensions inconnues et limite les comptes administrateurs."
+      }
+     ]
+    },
+    {
+     "type": "timeline",
+     "title": "D'où l'on vient, où l'on va",
+     "items": [
+      {
+       "label": "Octobre 2026",
+       "text": "Forescout Research documente ROMULUS comme plateforme de diffusion fondée sur ClickFix."
+      },
+      {
+       "label": "Novembre 2026",
+       "text": "Blackpoint Cyber relie ROMULUS à un nouveau trojan proche de CNCMachineRMS."
+      },
+      {
+       "label": "Suite",
+       "text": "Les chercheurs notent que l'architecture commune des logiciels malveillants aide à relier des activités qui changent souvent de chargeur."
+      }
+     ]
+    },
+    {
+     "type": "opinion",
+     "title": "Notre avis",
+     "paragraphs": [
+      "ClickFix réussit parce qu'il contourne la technique : il convainc l'humain de faire le travail du pirate. Les défenses reposant sur l'analyse de fichiers téléchargés sont mal placées pour l'arrêter, et le recours à des GPT personnalisés ou à des annonces sponsorisées montre que les attaquants vont chercher les utilisateurs là où la confiance est la plus forte.",
+      "À un horizon d'un à trois ans, on peut s'attendre à ce que les systèmes d'exploitation et les navigateurs ajoutent des garde-fous plus visibles contre le collage de commandes, et à ce que la sensibilisation passe de « ne cliquez pas » à « ne collez pas ». Il s'agit d'une opinion, pas d'une certitude."
+     ],
+     "verdict": "Quand l'utilisateur lance lui-même la commande, la meilleure défense reste de supprimer le geste, pas de l'expliquer une fois de plus."
+    }
+   ],
+   "sourceDate": "2026-11-20",
+   "illustration": {
+    "svg": "<svg xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"0 0 640 360\"><defs><linearGradient id=\"g\" x1=\"0\" y1=\"0\" x2=\"1\" y2=\"1\"><stop offset=\"0\" stop-color=\"hsl(175,65%,38%)\"/><stop offset=\"1\" stop-color=\"hsl(215,70%,22%)\"/></linearGradient></defs><rect width=\"640\" height=\"360\" fill=\"url(#g)\"/><circle cx=\"249\" cy=\"58\" r=\"59\" fill=\"#fff\" opacity=\"0.12\"/><rect x=\"43\" y=\"84\" width=\"74\" height=\"37\" rx=\"10\" fill=\"#fff\" opacity=\"0.18\" transform=\"rotate(-24 43 84)\"/><path d=\"M30 263 l42 21 l-21 42 z\" fill=\"none\" stroke=\"#fff\" stroke-width=\"3\" opacity=\".3\"/><circle cx=\"516\" cy=\"289\" r=\"37\" fill=\"#fff\" opacity=\"0.08\"/><rect x=\"367\" y=\"105\" width=\"102\" height=\"51\" rx=\"10\" fill=\"#fff\" opacity=\"0.08\" transform=\"rotate(-19 367 105)\"/><path d=\"M401 35 l38 19 l-19 38 z\" fill=\"none\" stroke=\"#fff\" stroke-width=\"3\" opacity=\".3\"/><circle cx=\"332\" cy=\"60\" r=\"20\" fill=\"#fff\" opacity=\"0.08\"/><path d=\"M40 300 Q180 220 320 270 T600 200\" fill=\"none\" stroke=\"#fff\" stroke-width=\"4\" opacity=\".35\"/><circle cx=\"320\" cy=\"180\" r=\"84\" fill=\"#fff\" opacity=\".18\"/><circle cx=\"320\" cy=\"180\" r=\"84\" fill=\"none\" stroke=\"#fff\" stroke-width=\"4\" opacity=\".7\"/><text x=\"320\" y=\"214\" font-size=\"92\" text-anchor=\"middle\">📋</text></svg>"
+   },
+   "publishedAt": "2026-11-20T09:16:47+00:00",
+   "cover": {
+    "url": "https://blogger.googleusercontent.com/img/b/R29vZ2xl/AVvXsEjugg63OPJwZuh94vDIg7MkA4YoeLKr5sjiqI6CEgjvDjUvJ-pBJOfUrUBxPUTbartqVwdldczbKSYo6lpkcVic1EDQYIDyWq12zMdMONjpDtK4NKCgkppAWvnOJpXe7prfmRG8WNpH0RrQ0bhX2nZKGpRy33y0OMZraBjEPoDorp9h3kNJSa-IQrJC7Nl5/s1600/cf.jpg",
+    "alt": "ROMULUS : la plateforme de diffusion ClickFix distribue désormais un nouveau cheval de Troie d'accès à distance",
+    "credit": "thehackernews.com"
+   },
+   "readingMinutes": 4
+  },
+  {
+   "id": "kvm-imbrique-amd-digitalocean",
+   "category": "devops",
+   "icon": "🧱",
+   "title": "KVM : une faille de virtualisation imbriquée sur processeurs AMD a donné accès à 127 Go de mémoire d'un hôte DigitalOcean",
+   "summary": "Autre faille de la semaine, CVE-2026-99312 touche le noyau Linux. Son score est modeste (5,5), mais un chercheur dit avoir lu 127 Go de mémoire hôte sur une instance « Droplet ».",
+   "tags": [
+    "Linux",
+    "KVM",
+    "virtualisation",
+    "DigitalOcean",
+    "AMD"
+   ],
+   "importance": 3,
+   "sources": [
+    {
+     "title": "Flaws in VMware and KVM need attention",
+     "url": "https://www.theregister.com/security/2026/11/20/flaws-in-vmware-and-kvm-need-attention-if-you-have-time-while-fixing-java-php-and-everything-else/5311193",
+     "publisher": "The Register"
+    }
+   ],
+   "blocks": [
+    {
+     "type": "paragraph",
+     "text": "Parmi les correctifs de la semaine, la faille CVE-2026-99312 de Linux KVM mérite l'attention des exploitants de plateformes de virtualisation. Selon The Register, elle permet à un attaquant installé dans une machine virtuelle invitée d'agir sur l'hôte : déni de service, ou corruption de mémoire, avec une menace pour les machines virtuelles voisines. Son score CVSS v3 n'est que de 5,5, parce qu'elle est plus étroite qu'une évasion complète de machine virtuelle, mais le chercheur Oren Tomtov, d'Accomplish.ai, affirme avoir accédé à 127 Go de mémoire vive de l'hôte sur une instance « Droplet » de DigitalOcean. L'article orthographie son nom de deux façons (Tomtov et Yomtov)."
+    },
+    {
+     "type": "heading",
+     "text": "Une faille réservée à un cas précis"
+    },
+    {
+     "type": "list",
+     "items": [
+      "Elle ne concerne que les processeurs AMD qui font tourner de la virtualisation imbriquée, c'est-à-dire un hyperviseur à l'intérieur d'une machine virtuelle.",
+      "L'article note que les entreprises l'utilisent rarement, mais que les clouds s'en servent par exemple pour exécuter des émulateurs de systèmes d'exploitation.",
+      "L'exploitation peut provoquer un déni de service ou une corruption de mémoire sur l'hôte."
+     ]
+    },
+    {
+     "type": "paragraph",
+     "text": "Selon l'analyse de Terra Security citée par l'article, le défaut a été introduit dans KVM en 2022, lors de l'écriture du correctif de CVE-2022-3344. Terra estime que 3,2 % des CVE du noyau Linux proviennent de correctifs d'autres CVE ; l'article rapporte ce chiffre comme une estimation de cette société."
+    },
+    {
+     "type": "diagram",
+     "svg": "<svg xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"0 0 640 292\" font-family=\"system-ui,sans-serif\"><rect width=\"640\" height=\"292\" rx=\"14\" fill=\"#f3f5f9\"/><text x=\"320\" y=\"30\" font-size=\"17\" font-weight=\"700\" text-anchor=\"middle\" fill=\"#1b2433\">Calendrier de divulgation de CVE-2026-99312</text><rect x=\"30\" y=\"48\" width=\"580\" height=\"44\" rx=\"10\" fill=\"#fff\" stroke=\"#3b5bdb\" stroke-width=\"1.5\"/><circle cx=\"58\" cy=\"70\" r=\"14\" fill=\"#3b5bdb\"/><text x=\"58\" y=\"75\" font-size=\"14\" font-weight=\"700\" text-anchor=\"middle\" fill=\"#fff\">1</text><text x=\"84\" y=\"67\" font-size=\"14\" font-weight=\"700\" fill=\"#1b2433\">Octobre 2026</text><text x=\"84\" y=\"84\" font-size=\"12\" fill=\"#3a4658\">Signalement à DigitalOcean et à l'équipe de sécurité du noyau</text><path d=\"M320 92 v11\" stroke=\"#3b5bdb\" stroke-width=\"2\"/><path d=\"M314 100 l6 6 l6 -6\" fill=\"none\" stroke=\"#3b5bdb\" stroke-width=\"2\"/><rect x=\"30\" y=\"106\" width=\"580\" height=\"44\" rx=\"10\" fill=\"#fff\" stroke=\"#3b5bdb\" stroke-width=\"1.5\"/><circle cx=\"58\" cy=\"128\" r=\"14\" fill=\"#3b5bdb\"/><text x=\"58\" y=\"133\" font-size=\"14\" font-weight=\"700\" text-anchor=\"middle\" fill=\"#fff\">2</text><text x=\"84\" y=\"125\" font-size=\"14\" font-weight=\"700\" fill=\"#1b2433\">2 novembre 2026</text><text x=\"84\" y=\"142\" font-size=\"12\" fill=\"#3a4658\">Correctif livré dans le noyau principal</text><path d=\"M320 150 v11\" stroke=\"#3b5bdb\" stroke-width=\"2\"/><path d=\"M314 158 l6 6 l6 -6\" fill=\"none\" stroke=\"#3b5bdb\" stroke-width=\"2\"/><rect x=\"30\" y=\"164\" width=\"580\" height=\"44\" rx=\"10\" fill=\"#fff\" stroke=\"#3b5bdb\" stroke-width=\"1.5\"/><circle cx=\"58\" cy=\"186\" r=\"14\" fill=\"#3b5bdb\"/><text x=\"58\" y=\"191\" font-size=\"14\" font-weight=\"700\" text-anchor=\"middle\" fill=\"#fff\">3</text><text x=\"84\" y=\"183\" font-size=\"14\" font-weight=\"700\" fill=\"#1b2433\">17 novembre 2026</text><text x=\"84\" y=\"200\" font-size=\"12\" fill=\"#3a4658\">Correctifs complets intégrés</text><path d=\"M320 208 v11\" stroke=\"#3b5bdb\" stroke-width=\"2\"/><path d=\"M314 216 l6 6 l6 -6\" fill=\"none\" stroke=\"#3b5bdb\" stroke-width=\"2\"/><rect x=\"30\" y=\"222\" width=\"580\" height=\"44\" rx=\"10\" fill=\"#fff\" stroke=\"#3b5bdb\" stroke-width=\"1.5\"/><circle cx=\"58\" cy=\"244\" r=\"14\" fill=\"#3b5bdb\"/><text x=\"58\" y=\"249\" font-size=\"14\" font-weight=\"700\" text-anchor=\"middle\" fill=\"#fff\">4</text><text x=\"84\" y=\"241\" font-size=\"14\" font-weight=\"700\" fill=\"#1b2433\">18 novembre 2026</text><text x=\"84\" y=\"258\" font-size=\"12\" fill=\"#3a4658\">Publication du CVE ; analyses techniques retirées en quelques heures</text></svg>",
+     "alt": "Schéma en quatre étapes du calendrier de divulgation de la faille KVM",
+     "caption": "Calendrier rapporté par The Register."
+    },
+    {
+     "type": "heading",
+     "text": "Des analyses retirées à la demande de l'hébergeur"
+    },
+    {
+     "type": "paragraph",
+     "text": "Le chercheur et Terra Security ont publié une analyse technique peu après la publication du CVE, puis l'ont retirée en quelques heures. The Register croit comprendre que DigitalOcean a demandé ce retrait pour disposer de plus de temps afin de mettre à jour ses déploiements Linux. DigitalOcean n'a pas répondu aux demandes de commentaire."
+    },
+    {
+     "type": "heading",
+     "text": "Se protéger sans attendre"
+    },
+    {
+     "type": "paragraph",
+     "text": "L'article indique qu'une atténuation simple existe : désactiver la virtualisation imbriquée dans KVM. Il ne précise pas les versions du noyau corrigées, seulement les dates ci-dessus. Les exploitants doivent donc vérifier l'état du correctif auprès de leur distribution. La même chronique mentionne un autre bulletin de Broadcom, VMSA-2026-0010, pour une faille d'exécution de code à distance notée 9,8 dans un composant Apache (CVE-2026-119618) qui touche Cloud Foundation, Aria Operations, VCF Operations et HCX ; les produits corrigés ne sont pas encore disponibles et la solution temporaire consiste à désactiver HTTP/2."
+    },
+    {
+     "type": "callout",
+     "title": "À retenir",
+     "text": "Désactiver la virtualisation imbriquée suffit à écarter cette faille, mais seulement si vos charges n'en ont pas besoin. Vérifiez les versions de noyau corrigées auprès de votre distribution : l'article ne les précise pas."
+    },
+    {
+     "type": "usecases",
+     "title": "Exemples d'utilisation",
+     "items": [
+      {
+       "icon": "☁️",
+       "title": "Un hébergeur de machines virtuelles",
+       "text": "Il désactive la virtualisation imbriquée sur ses hôtes AMD qui n'en ont pas l'usage, puis planifie la mise à jour du noyau."
+      },
+      {
+       "icon": "🧪",
+       "title": "Une équipe de développement",
+       "text": "Elle fait tourner des émulateurs dans des machines virtuelles ; elle évalue si l'imbrication est indispensable avant de la couper."
+      },
+      {
+       "icon": "🔍",
+       "title": "Un auditeur de sécurité",
+       "text": "Il inscrit au référentiel que les correctifs de sécurité peuvent eux-mêmes introduire des défauts, et prévoit des tests de non-régression ciblés."
+      }
+     ]
+    },
+    {
+     "type": "timeline",
+     "title": "D'où l'on vient, où l'on va",
+     "items": [
+      {
+       "label": "2022",
+       "text": "Introduction du défaut dans KVM lors du correctif de CVE-2022-3344, selon Terra Security."
+      },
+      {
+       "label": "Octobre 2026",
+       "text": "Signalement du chercheur."
+      },
+      {
+       "label": "18 novembre 2026",
+       "text": "Publication du CVE-2026-99312."
+      },
+      {
+       "label": "Suite",
+       "text": "Les versions de noyau corrigées restent à confirmer auprès des distributions."
+      }
+     ]
+    },
+    {
+     "type": "opinion",
+     "title": "Notre avis",
+     "paragraphs": [
+      "Cette faille n'est pas la plus grave de la semaine, mais elle rappelle que l'isolation entre locataires dans le cloud repose sur des couches de code très complexes, et que la virtualisation imbriquée élargit la surface d'attaque. Retirer rapidement une analyse technique peut protéger des clients, mais réduit la transparence dont dépendent les défenseurs.",
+      "À un horizon d'un à trois ans, on peut raisonnablement imaginer que les fournisseurs désactivent par défaut les fonctions rarement utilisées, comme l'imbrication, et fassent évoluer leurs processus de divulgation pour concilier délai de correction et information publique. C'est une opinion argumentée."
+     ],
+     "verdict": "Un score modeste ne dispense pas d'agir : 127 Go de mémoire d'hôte lus depuis une instance, cela vaut une vérification."
+    }
+   ],
+   "sourceDate": "2026-11-20",
+   "illustration": {
+    "svg": "<svg xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"0 0 640 360\"><defs><linearGradient id=\"g\" x1=\"0\" y1=\"0\" x2=\"1\" y2=\"1\"><stop offset=\"0\" stop-color=\"hsl(160,65%,38%)\"/><stop offset=\"1\" stop-color=\"hsl(200,70%,22%)\"/></linearGradient></defs><rect width=\"640\" height=\"360\" fill=\"url(#g)\"/><circle cx=\"507\" cy=\"78\" r=\"58\" fill=\"#fff\" opacity=\"0.16\"/><rect x=\"433\" y=\"289\" width=\"38\" height=\"19\" rx=\"10\" fill=\"#fff\" opacity=\"0.08\" transform=\"rotate(-8 433 289)\"/><path d=\"M226 90 l23 11 l-11 23 z\" fill=\"none\" stroke=\"#fff\" stroke-width=\"3\" opacity=\".3\"/><circle cx=\"446\" cy=\"240\" r=\"30\" fill=\"#fff\" opacity=\"0.16\"/><rect x=\"45\" y=\"57\" width=\"86\" height=\"43\" rx=\"10\" fill=\"#fff\" opacity=\"0.18\" transform=\"rotate(-25 45 57)\"/><path d=\"M85 104 l24 12 l-12 24 z\" fill=\"none\" stroke=\"#fff\" stroke-width=\"3\" opacity=\".3\"/><circle cx=\"66\" cy=\"316\" r=\"34\" fill=\"#fff\" opacity=\"0.08\"/><path d=\"M40 300 Q180 220 320 270 T600 200\" fill=\"none\" stroke=\"#fff\" stroke-width=\"4\" opacity=\".35\"/><circle cx=\"320\" cy=\"180\" r=\"84\" fill=\"#fff\" opacity=\".18\"/><circle cx=\"320\" cy=\"180\" r=\"84\" fill=\"none\" stroke=\"#fff\" stroke-width=\"4\" opacity=\".7\"/><text x=\"320\" y=\"214\" font-size=\"92\" text-anchor=\"middle\">🧱</text></svg>"
+   },
+   "publishedAt": "2026-11-20T09:16:47+00:00",
+   "cover": {
+    "url": "https://image.theregister.com/262623.jpg?imageId=262623&x=0&y=0&cropw=100&croph=100&panox=0&panoy=0&panow=100&panoh=100&width=1200&height=683",
+    "alt": "KVM : une faille de virtualisation imbriquée sur processeurs AMD a donné accès à 127 Go de mémoire d'un hôte DigitalOcean",
+    "credit": "theregister.com"
+   },
+   "readingMinutes": 3
+  },
+  {
+   "id": "palo-alto-applied-compute-modeles-ouverts",
+   "category": "ia",
+   "icon": "🧠",
+   "title": "Palo Alto Networks rachète Applied Compute pour 4,5 milliards de dollars et parie sur les modèles à poids ouverts",
+   "summary": "L'éditeur de cybersécurité achète en actions une plateforme d'entraînement et d'inférence, convaincu que les entreprises mêleront modèles ouverts et fermés, et qu'ils devront tous être sécurisés.",
+   "tags": [
+    "Palo Alto Networks",
+    "Applied Compute",
+    "poids ouverts",
+    "acquisition",
+    "IA en entreprise"
+   ],
+   "importance": 3,
+   "sources": [
+    {
+     "title": "Palo Alto Networks opens wallet for open-weight training biz",
+     "url": "https://www.theregister.com/ai-and-ml/2026/11/19/palo-alto-networks-opens-wallet-for-open-weight-training-biz/5311168",
+     "publisher": "The Register"
+    }
+   ],
+   "blocks": [
+    {
+     "type": "paragraph",
+     "text": "Palo Alto Networks, géant de la cybersécurité, a annoncé le 19 novembre 2026, lors de la présentation de ses résultats du premier trimestre de son exercice 2027, l'acquisition d'Applied Compute, une plateforme d'entraînement de modèles d'IA. Selon The Register, l'opération représente 4,5 milliards de dollars, entièrement payés en actions. Palo Alto en attend plus d'un milliard de dollars de chiffre d'affaires supplémentaire dans son activité de sécurité de nouvelle génération d'ici l'exercice 2029, et prévoit de bâtir une capacité d'inférence de plus de 100 mégawatts, pour un investissement qu'il qualifie de « modeste », inférieur à 3 milliards de dollars d'ici l'exercice 2030."
+    },
+    {
+     "type": "heading",
+     "text": "Les arguments du dirigeant"
+    },
+    {
+     "type": "paragraph",
+     "text": "Le président-directeur général, Nikesh Arora, relie l'opération à deux tendances. D'une part, de grandes pannes survenues dans des entreprises et des administrations auraient été en partie provoquées par des correctifs et des changements de configuration : les équipes informatiques ne peuvent pas corriger les vulnérabilités assez vite sans risquer leurs environnements de production. D'autre part, les cyberattaques assistées par IA se multiplient. L'article y voit une façon d'utiliser l'IA pour traiter des problèmes de sécurité que l'IA a contribué à créer."
+    },
+    {
+     "type": "paragraph",
+     "text": "Palo Alto estime que l'avenir de l'IA en entreprise sera hybride, avec des modèles ouverts ou à poids ouverts adaptés aux données, aux coûts et aux exigences de contrôle de chaque organisation. M. Arora affirme que chaque entreprise exploitera un mélange de modèles ouverts et fermés et que chacun devra être sécurisé ; il qualifie la technologie d'Applied Compute de meilleure plateforme de post-entraînement et d'inférence qu'il ait vue."
+    },
+    {
+     "type": "keyvalue",
+     "items": [
+      {
+       "label": "Montant",
+       "value": "4,5 milliards de dollars, en actions"
+      },
+      {
+       "label": "Annonce",
+       "value": "19 novembre 2026, lors des résultats du premier trimestre de l'exercice 2027"
+      },
+      {
+       "label": "Revenu attendu",
+       "value": "plus d'un milliard de dollars d'ici l'exercice 2029"
+      },
+      {
+       "label": "Capacité visée",
+       "value": "plus de 100 mégawatts d'inférence, moins de 3 milliards de dollars d'investissement d'ici l'exercice 2030"
+      }
+     ]
+    },
+    {
+     "type": "heading",
+     "text": "Un chiffre à manier avec prudence"
+    },
+    {
+     "type": "paragraph",
+     "text": "M. Arora cite une progression de la part des modèles à poids ouverts dans le trafic de jetons, de moins de 5 % à plus de 60 % sur un an. Il s'agit d'une affirmation du dirigeant d'une entreprise qui vend ce type de service : l'article la rapporte sans la vérifier de façon indépendante, et la méthode de mesure n'est pas précisée."
+    },
+    {
+     "type": "diagram",
+     "svg": "<svg xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"0 0 640 144\" font-family=\"system-ui,sans-serif\"><rect width=\"640\" height=\"144\" rx=\"14\" fill=\"#f3f5f9\"/><text x=\"320\" y=\"30\" font-size=\"17\" font-weight=\"700\" text-anchor=\"middle\" fill=\"#1b2433\">Part des modèles à poids ouverts dans le trafic de jetons, selon Palo Alto</text><text x=\"20\" y=\"70\" font-size=\"13\" fill=\"#1b2433\">Il y a un an (au plus)</text><rect x=\"250\" y=\"54\" width=\"25\" height=\"22\" rx=\"5\" fill=\"#3b5bdb\"/><text x=\"281\" y=\"70\" font-size=\"13\" font-weight=\"700\" fill=\"#1b2433\">5 %</text><text x=\"20\" y=\"110\" font-size=\"13\" fill=\"#1b2433\">Aujourd'hui (au moins)</text><rect x=\"250\" y=\"94\" width=\"300\" height=\"22\" rx=\"5\" fill=\"#3b5bdb\"/><text x=\"556\" y=\"110\" font-size=\"13\" font-weight=\"700\" fill=\"#1b2433\">60 %</text></svg>",
+     "alt": "Deux barres comparant moins de 5 % il y a un an et plus de 60 % aujourd'hui pour la part des modèles à poids ouverts",
+     "caption": "Chiffres avancés par Nikesh Arora et rapportés par The Register ; non vérifiés de façon indépendante."
+    },
+    {
+     "type": "heading",
+     "text": "Le contexte politique et industriel"
+    },
+    {
+     "type": "paragraph",
+     "text": "L'article rappelle que le cofondateur de Nvidia, Jensen Huang, avait défendu les modèles à poids ouverts en juillet, comme contrepoids aux modèles fermés d'Anthropic, de Google, de Microsoft et d'OpenAI, et indique qu'il a depuis quitté la direction générale de Nvidia, ce qui fait craindre une perte d'influence pour l'écosystème ouvert. Les États-Unis restent par ailleurs méfiants envers les modèles d'origine chinoise, ce qui ajoute de l'incertitude."
+    },
+    {
+     "type": "callout",
+     "title": "À retenir",
+     "text": "Les performances d'un modèle à poids ouverts ne sont pas celles d'un modèle fermé de pointe, et les chiffres de part de trafic proviennent de l'acquéreur. L'opération reste une annonce : la finalisation dépendra des autorisations habituelles."
+    },
+    {
+     "type": "usecases",
+     "title": "Exemples d'utilisation",
+     "items": [
+      {
+       "icon": "🏦",
+       "title": "Une banque",
+       "text": "Elle ajuste un modèle ouvert sur ses propres données dans son infrastructure, afin de ne pas confier ses documents à un fournisseur externe."
+      },
+      {
+       "icon": "🛡️",
+       "title": "Un éditeur de sécurité",
+       "text": "Il propose de surveiller les modèles et leurs interactions comme un nouveau type de charge de travail, avec ses propres règles d'accès."
+      },
+      {
+       "icon": "🏭",
+       "title": "Une industrie",
+       "text": "Elle compare le coût d'un modèle fermé payé au jeton avec celui d'un modèle ouvert hébergé, selon ses volumes."
+      }
+     ]
+    },
+    {
+     "type": "timeline",
+     "title": "D'où l'on vient, où l'on va",
+     "items": [
+      {
+       "label": "Juillet 2026",
+       "text": "Jensen Huang défend les modèles à poids ouverts."
+      },
+      {
+       "label": "19 novembre 2026",
+       "text": "Annonce du rachat d'Applied Compute."
+      },
+      {
+       "label": "D'ici l'exercice 2029",
+       "text": "Objectif de plus d'un milliard de dollars de revenu supplémentaire."
+      }
+     ]
+    },
+    {
+     "type": "opinion",
+     "title": "Notre avis",
+     "paragraphs": [
+      "Le rachat dit quelque chose d'important : la sécurité cherche à se placer au cœur de la chaîne de l'IA, pas seulement autour. Reste à savoir si un éditeur de pare-feu peut devenir crédible sur l'entraînement de modèles, un métier très différent, et si la promesse d'une sécurisation des modèles ouverts se traduira par des produits utiles ou par un argument de vente.",
+      "À un horizon d'un à trois ans, la convergence entre sécurité et plateformes d'IA devrait se poursuivre, avec d'autres rachats. Les entreprises européennes soumises au règlement sur l'IA et au RGPD y trouveront peut-être un intérêt pour la maîtrise des données, mais cela reste une hypothèse. C'est une opinion argumentée, non un fait."
+     ],
+     "verdict": "Un pari stratégique plausible, mais encore très dépendant des affirmations de l'acquéreur."
+    }
+   ],
+   "sourceDate": "2026-11-19",
+   "illustration": {
+    "svg": "<svg xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"0 0 640 360\"><defs><linearGradient id=\"g\" x1=\"0\" y1=\"0\" x2=\"1\" y2=\"1\"><stop offset=\"0\" stop-color=\"hsl(320,65%,38%)\"/><stop offset=\"1\" stop-color=\"hsl(0,70%,22%)\"/></linearGradient></defs><rect width=\"640\" height=\"360\" fill=\"url(#g)\"/><circle cx=\"475\" cy=\"242\" r=\"36\" fill=\"#fff\" opacity=\"0.12\"/><rect x=\"515\" y=\"59\" width=\"84\" height=\"42\" rx=\"10\" fill=\"#fff\" opacity=\"0.18\" transform=\"rotate(-20 515 59)\"/><path d=\"M97 118 l36 18 l-18 36 z\" fill=\"none\" stroke=\"#fff\" stroke-width=\"3\" opacity=\".3\"/><circle cx=\"95\" cy=\"172\" r=\"57\" fill=\"#fff\" opacity=\"0.08\"/><rect x=\"247\" y=\"80\" width=\"78\" height=\"39\" rx=\"10\" fill=\"#fff\" opacity=\"0.08\" transform=\"rotate(-8 247 80)\"/><path d=\"M50 32 l56 28 l-28 56 z\" fill=\"none\" stroke=\"#fff\" stroke-width=\"3\" opacity=\".3\"/><circle cx=\"186\" cy=\"131\" r=\"57\" fill=\"#fff\" opacity=\"0.16\"/><path d=\"M40 300 Q180 220 320 270 T600 200\" fill=\"none\" stroke=\"#fff\" stroke-width=\"4\" opacity=\".35\"/><circle cx=\"320\" cy=\"180\" r=\"84\" fill=\"#fff\" opacity=\".18\"/><circle cx=\"320\" cy=\"180\" r=\"84\" fill=\"none\" stroke=\"#fff\" stroke-width=\"4\" opacity=\".7\"/><text x=\"320\" y=\"214\" font-size=\"92\" text-anchor=\"middle\">🧠</text></svg>"
+   },
+   "publishedAt": "2026-11-20T09:16:47+00:00",
+   "cover": {
+    "url": "https://image.theregister.com/5311172.jpg?imageId=5311172&x=0&y=0&cropw=100&croph=100&panox=0&panoy=0&panow=100&panoh=100&width=1200&height=683",
+    "alt": "Palo Alto Networks rachète Applied Compute pour 4,5 milliards de dollars et parie sur les modèles à poids ouverts",
+    "credit": "theregister.com"
+   },
+   "readingMinutes": 4
+  },
+  {
+   "id": "nand-prix-2027-baisse-trendforce",
+   "category": "electronique",
+   "icon": "💾",
+   "title": "NAND : TrendForce anticipe une baisse des prix en 2027, mais la pénurie de DRAM, elle, continue",
+   "summary": "Les fournisseurs de cloud chinois réduisent leurs commandes de SSD d'entreprise, ce qui pourrait créer un excès d'offre ; les ménages et les acheteurs de PC n'en profiteront pas pour autant.",
+   "tags": [
+    "NAND",
+    "SSD",
+    "TrendForce",
+    "DRAM",
+    "mémoire"
+   ],
+   "importance": 3,
+   "sources": [
+    {
+     "title": "NAND prices tipped to fall as Chinese cloud giants cut SSD orders",
+     "url": "https://www.theregister.com/systems/2026/11/19/nand-prices-tipped-to-fall-as-chinese-cloud-giants-cut-ssd-orders/5311116",
+     "publisher": "The Register"
+    }
+   ],
+   "blocks": [
+    {
+     "type": "paragraph",
+     "text": "Après une période de prix soutenus, le marché de la mémoire flash NAND pourrait se retourner. Le cabinet taïwanais TrendForce, cité par The Register le 19 novembre 2026, prévoit que les prix commencent à baisser en 2027, parce que les fournisseurs de cloud chinois réduisent leurs commandes de SSD d'entreprise. Cette réduction pourrait faire basculer le marché vers la surproduction."
+    },
+    {
+     "type": "heading",
+     "text": "Pourquoi les Chinois réduisent leurs commandes"
+    },
+    {
+     "type": "paragraph",
+     "text": "Selon TrendForce, les fournisseurs de cloud chinois subissent plusieurs pressions : une pénurie de processeurs graphiques (GPU), des stocks élevés et une concurrence intense sur le prix des jetons d'IA. Ils ont donc abaissé de façon sensible leurs commandes totales de SSD d'entreprise pour 2027. Le cabinet ne publie pas de chiffre précis, mais juge ces réductions assez fortes pour compenser la demande supplémentaire des opérateurs américains."
+    },
+    {
+     "type": "paragraph",
+     "text": "Le contexte réglementaire pèse aussi : le Bureau de l'industrie et de la sécurité (BIS) du département américain du Commerce a ajouté des restrictions sur les ventes de GPU et sur leur accès à distance par le cloud. L'article indique que Tencent a décrit ces mesures comme un recul pour « tout le monde en Chine »."
+    },
+    {
+     "type": "heading",
+     "text": "Les prévisions chiffrées"
+    },
+    {
+     "type": "keyvalue",
+     "items": [
+      {
+       "label": "Début 2027",
+       "value": "prix des contrats NAND en baisse de 0 à 5 % d'un trimestre sur l'autre"
+      },
+      {
+       "label": "À partir du deuxième trimestre 2027",
+       "value": "toutes les catégories de produits entreraient dans une phase de baisse"
+      },
+      {
+       "label": "Production mondiale 2027",
+       "value": "croissance de 25 à 30 % en capacité de stockage"
+      }
+     ]
+    },
+    {
+     "type": "paragraph",
+     "text": "L'offre continue d'augmenter : les fabricants accroissent leur production et passent à des procédés plus récents, le recours à la technologie à quatre bits par cellule (QLC) progresse et le nombre de couches des puces augmente, ce qui fait croître le volume de bits produits. Des ventes d'électronique grand public plus faibles pourraient aussi réduire la demande, et certains fournisseurs pourraient ralentir leurs extensions."
+    },
+    {
+     "type": "diagram",
+     "svg": "<svg xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"0 0 640 144\" font-family=\"system-ui,sans-serif\"><rect width=\"640\" height=\"144\" rx=\"14\" fill=\"#f3f5f9\"/><text x=\"320\" y=\"30\" font-size=\"17\" font-weight=\"700\" text-anchor=\"middle\" fill=\"#1b2433\">Prévisions TrendForce pour 2027 (fourchette haute)</text><text x=\"20\" y=\"70\" font-size=\"13\" fill=\"#1b2433\">Baisse des prix NAND, début 2027 (T/T)</text><rect x=\"250\" y=\"54\" width=\"50\" height=\"22\" rx=\"5\" fill=\"#3b5bdb\"/><text x=\"306\" y=\"70\" font-size=\"13\" font-weight=\"700\" fill=\"#1b2433\">5 %</text><text x=\"20\" y=\"110\" font-size=\"13\" fill=\"#1b2433\">Hausse de la production de bits (max.)</text><rect x=\"250\" y=\"94\" width=\"300\" height=\"22\" rx=\"5\" fill=\"#3b5bdb\"/><text x=\"556\" y=\"110\" font-size=\"13\" font-weight=\"700\" fill=\"#1b2433\">30 %</text></svg>",
+     "alt": "Deux barres : baisse des prix de 0 à 5 % début 2027 et hausse de la production de 25 à 30 % en 2027",
+     "caption": "Chiffres de TrendForce rapportés par The Register ; les valeurs affichées sont les bornes hautes des fourchettes."
+    },
+    {
+     "type": "heading",
+     "text": "Ce que cela ne résout pas : la DRAM"
+    },
+    {
+     "type": "paragraph",
+     "text": "Des SSD moins chers ne règlent pas la pénurie de DRAM, causée par les fabricants qui préfèrent produire des puces à forte marge pour l'IA plutôt que des composants grand public. Selon l'article, elle a entraîné des hausses de prix à deux chiffres pour les PC en Europe, les acheteurs ont réduit leurs achats et les livraisons de PC ont reculé."
+    },
+    {
+     "type": "paragraph",
+     "text": "TrendForce rappelle que ses prévisions dépendent du rythme d'écoulement des stocks par les fournisseurs chinois, de nouvelles évolutions des restrictions d'achat de GPU à l'étranger et de la poursuite, ou non, de la baisse des capacités de stockage des appareils par leurs fabricants en 2028."
+    },
+    {
+     "type": "callout",
+     "title": "À retenir",
+     "text": "Il s'agit d'une prévision d'un cabinet d'analyse, sensible à plusieurs hypothèses. Une baisse de 0 à 5 % d'un trimestre sur l'autre reste modeste, et ne concerne que les contrats NAND, pas les prix de détail des PC."
+    },
+    {
+     "type": "usecases",
+     "title": "Exemples d'utilisation",
+     "items": [
+      {
+       "icon": "🗄️",
+       "title": "Un responsable d'infrastructure",
+       "text": "Il peut différer certains achats de SSD d'entreprise vers 2027 et renégocier ses contrats, sans compter sur une chute brutale."
+      },
+      {
+       "icon": "💻",
+       "title": "Un acheteur de PC portable",
+       "text": "Il ne doit pas attendre une baisse des prix des ordinateurs : la DRAM, plus rare, reste le principal facteur de hausse."
+      },
+      {
+       "icon": "🏭",
+       "title": "Un fabricant de produits électroniques",
+       "text": "Il surveille l'évolution des capacités de stockage proposées, car la tentation de les réduire influence la demande de NAND."
+      }
+     ]
+    },
+    {
+     "type": "timeline",
+     "title": "D'où l'on vient, où l'on va",
+     "items": [
+      {
+       "label": "2026",
+       "text": "Hausse des prix des mémoires, avec une pénurie de DRAM détournée vers l'IA."
+      },
+      {
+       "label": "Début 2027",
+       "text": "Baisse attendue de 0 à 5 % des prix des contrats NAND."
+      },
+      {
+       "label": "À partir du deuxième trimestre 2027",
+       "text": "Baisse attendue dans toutes les catégories."
+      },
+      {
+       "label": "2028",
+       "text": "La poursuite de la baisse des capacités de stockage par les fabricants est une inconnue citée par TrendForce."
+      }
+     ]
+    },
+    {
+     "type": "opinion",
+     "title": "Notre avis",
+     "paragraphs": [
+      "Ce signal est utile parce qu'il montre un lien direct entre les contrôles d'exportation de GPU, les stratégies des clouds chinois et le prix d'un composant aussi banal qu'un SSD. Il montre aussi les limites d'une lecture simple : une mémoire peut baisser pendant que l'autre continue de renchérir, et les consommateurs subissent surtout la seconde.",
+      "À un horizon d'un à trois ans, l'équilibre dépendra de la capacité des fabricants à réorienter leurs lignes de production et de la demande réelle en IA. Un excès d'offre de NAND pourrait profiter aux acheteurs de stockage, mais il faudra attendre pour voir si la DRAM suit. Cela relève de l'opinion, non d'un fait."
+     ],
+     "verdict": "Une accalmie possible pour le stockage en 2027, pas pour le prix de la mémoire vive."
+    }
+   ],
+   "sourceDate": "2026-11-19",
+   "illustration": {
+    "svg": "<svg xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"0 0 640 360\"><defs><linearGradient id=\"g\" x1=\"0\" y1=\"0\" x2=\"1\" y2=\"1\"><stop offset=\"0\" stop-color=\"hsl(30,65%,38%)\"/><stop offset=\"1\" stop-color=\"hsl(70,70%,22%)\"/></linearGradient></defs><rect width=\"640\" height=\"360\" fill=\"url(#g)\"/><circle cx=\"298\" cy=\"228\" r=\"49\" fill=\"#fff\" opacity=\"0.12\"/><rect x=\"103\" y=\"170\" width=\"78\" height=\"39\" rx=\"10\" fill=\"#fff\" opacity=\"0.08\" transform=\"rotate(-21 103 170)\"/><path d=\"M515 20 l25 12 l-12 25 z\" fill=\"none\" stroke=\"#fff\" stroke-width=\"3\" opacity=\".3\"/><circle cx=\"310\" cy=\"75\" r=\"37\" fill=\"#fff\" opacity=\"0.16\"/><rect x=\"56\" y=\"49\" width=\"52\" height=\"26\" rx=\"10\" fill=\"#fff\" opacity=\"0.12\" transform=\"rotate(25 56 49)\"/><path d=\"M177 123 l45 22 l-22 45 z\" fill=\"none\" stroke=\"#fff\" stroke-width=\"3\" opacity=\".3\"/><circle cx=\"96\" cy=\"223\" r=\"27\" fill=\"#fff\" opacity=\"0.16\"/><path d=\"M40 300 Q180 220 320 270 T600 200\" fill=\"none\" stroke=\"#fff\" stroke-width=\"4\" opacity=\".35\"/><circle cx=\"320\" cy=\"180\" r=\"84\" fill=\"#fff\" opacity=\".18\"/><circle cx=\"320\" cy=\"180\" r=\"84\" fill=\"none\" stroke=\"#fff\" stroke-width=\"4\" opacity=\".7\"/><text x=\"320\" y=\"214\" font-size=\"92\" text-anchor=\"middle\">💾</text></svg>"
+   },
+   "publishedAt": "2026-11-20T09:16:47+00:00",
+   "cover": {
+    "url": "https://image.theregister.com/229944.jpg?imageId=229944&x=0&y=8.13&cropw=100&croph=77.71&panox=0&panoy=8.13&panow=100&panoh=77.71&width=1200&height=683",
+    "alt": "NAND : TrendForce anticipe une baisse des prix en 2027, mais la pénurie de DRAM, elle, continue",
+    "credit": "theregister.com"
+   },
+   "readingMinutes": 4
+  }
+ ]
+}
