@@ -1,0 +1,1349 @@
+{
+ "schemaVersion": "1.0",
+ "date": "2026-11-20",
+ "generatedAt": "2026-11-20T17:18:15+00:00",
+ "title": "Tech : Cisco Expressway exploité, fin des correctifs SonicWall Gen 6, hotpatch Windows, physique par IA, Mozilla sur iOS et pénurie de circuits imprimés",
+ "summary": "Une faille critique de Cisco Expressway est exploitée, SonicWall demande le retrait de ses pare-feu Gen 6 et le hotpatch de novembre de Windows 11 pose problème. Côté IA, Anthropic annonce deux résultats de physique des trous noirs ; Mozilla dénonce les règles d'Apple sur iOS, et les circuits imprimés pourraient manquer à cause de l'IA.",
+ "highlights": [
+  "Cisco Expressway : la faille CVE-2026-76466 (CVSS 9,8) est exploitée, quatre équipements compromis chez une organisation russe.",
+  "SonicWall : plus aucun correctif pour les pare-feu Gen 6, l'éditeur conseille de les retirer.",
+  "Windows 11 : le hotpatch KB5132043 fait échouer des applications ; un contournement par le Registre est proposé.",
+  "IA : Anthropic annonce deux problèmes ouverts de physique théorique résolus, vérifiés en Lean.",
+  "Électronique : une pénurie de circuits imprimés menace, sans répit avant mi-2028."
+ ],
+ "meta": {
+  "generator": "claude-scheduled-task"
+ },
+ "posts": [
+  {
+   "id": "cisco-expressway-cve-2026-76466-exploitee",
+   "category": "cybersecurite",
+   "icon": "📡",
+   "title": "Cisco Expressway : une faille notée 9,8 exploitée après la publication d'une preuve de concept, quatre équipements compromis",
+   "summary": "La vulnérabilité CVE-2026-76466 permet d'exécuter des commandes en tant que root sans authentification. Corrigée le 21 octobre 2026, elle a été exploitée contre une organisation russe peu après la mise en ligne d'un code de démonstration.",
+   "tags": [
+    "Cisco",
+    "Expressway",
+    "CVE-2026-76466",
+    "exploitation",
+    "segmentation"
+   ],
+   "importance": 5,
+   "sourceDate": "2026-11-20",
+   "sources": [
+    {
+     "title": "Hackers Exploit Critical Cisco Expressway Flaw, Breach Four Devices and Reach Internal Network",
+     "url": "https://thehackernews.com/2026/11/hackers-exploit-critical-cisco.html",
+     "publisher": "The Hacker News"
+    }
+   ],
+   "illustration": {
+    "svg": "<svg xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"0 0 640 360\"><defs><linearGradient id=\"g\" x1=\"0\" y1=\"0\" x2=\"1\" y2=\"1\"><stop offset=\"0\" stop-color=\"hsl(175,70%,38%)\"/><stop offset=\"1\" stop-color=\"hsl(205,75%,22%)\"/></linearGradient></defs><rect width=\"640\" height=\"360\" fill=\"url(#g)\"/><circle cx=\"560\" cy=\"60\" r=\"70\" fill=\"#fff\" opacity=\".07\"/><circle cx=\"80\" cy=\"310\" r=\"90\" fill=\"#fff\" opacity=\".06\"/><path d=\"M320 70 L420 105 V190 C420 245 375 280 320 300 C265 280 220 245 220 190 V105 Z\" fill=\"none\" stroke=\"#fff\" stroke-width=\"10\"/><path d=\"M280 185 l30 30 l55 -60\" fill=\"none\" stroke=\"#fff\" stroke-width=\"12\" stroke-linecap=\"round\"/></svg>"
+   },
+   "blocks": [
+    {
+     "type": "paragraph",
+     "text": "Les passerelles de collaboration placées en bordure de réseau figurent parmi les cibles favorites des attaquants : elles sont exposées à Internet, rarement surveillées de près et disposent d'accès profonds vers l'intérieur de l'entreprise. Le 20 novembre 2026, The Hacker News rapporte qu'une faille critique de Cisco Expressway, référencée **CVE-2026-76466** et notée 9,8 sur l'échelle CVSS, est désormais exploitée dans la nature. Selon l'éditeur, un attaquant distant et non authentifié ayant un accès réseau à l'équipement peut y exécuter des commandes du système d'exploitation avec les droits de l'administrateur système (root)."
+    },
+    {
+     "type": "heading",
+     "text": "Une faille née de cookies persistants et d'une validation insuffisante"
+    },
+    {
+     "type": "paragraph",
+     "text": "Cisco attribue le défaut à deux éléments combinés : des cookies persistants et une validation insuffisante des certificats clients lorsque le mode « TLS Verify » est activé pour la mise en grappe (clustering). Un attaquant qui dispose de ces cookies peut joindre le service de base de données de l'équipement et y invoquer des appels de procédure à distance (RPC), ce qui ouvre la voie à l'exécution de commandes. Les correctifs ont été publiés le 21 octobre 2026 ; l'avis de sécurité de l'éditeur date donc de près d'un mois."
+    },
+    {
+     "type": "keyvalue",
+     "items": [
+      {
+       "label": "Référence",
+       "value": "CVE-2026-76466, CVSS 9,8"
+      },
+      {
+       "label": "Produit concerné",
+       "value": "Cisco Expressway, notamment en grappe"
+      },
+      {
+       "label": "Versions",
+       "value": "X14 et antérieures : migration vers une version corrigée ; X15.5.3 et antérieures : passage à X15.5.20"
+      },
+      {
+       "label": "Correctifs",
+       "value": "Publiés le 21 octobre 2026"
+      },
+      {
+       "label": "Exploitation",
+       "value": "Constatée après la publication d'une preuve de concept sur GitHub"
+      }
+     ]
+    },
+    {
+     "type": "heading",
+     "text": "Ce que les attaquants ont fait une fois à l'intérieur"
+    },
+    {
+     "type": "paragraph",
+     "text": "L'entreprise russe F6 a décrit ce qui semble être la première exploitation active, visant des équipements en version X15.5.3. Les assaillants ont d'abord compromis deux Expressway exposés sur Internet. À partir de l'un d'eux, ils ont atteint deux autres nœuds de la grappe, situés sur le réseau interne. Avec les droits root, ils ont ensuite déployé des scripts Python sur mesure pour cartographier le réseau, repérer des partages SMB accessibles, dialoguer avec des serveurs SQL Server et WinRM, et consulter des dépôts GitLab afin de dérober des identifiants et des données sensibles. Les commentaires et les descriptions de correctifs présents dans ces scripts laissent penser que des outils d'IA ont pu aider à les écrire, hypothèse à prendre avec prudence."
+    },
+    {
+     "type": "list",
+     "items": [
+      "**Indicateurs de compromission** : les adresses IP 66.179.31.32 et 18.130.47.116 ; la chaîne « wombat@127.0.0.1 » dans le fichier erlang.log ; des scripts Python stockés sous /mnt/harddisk/.",
+      "**Victime connue** : une organisation russe. Aucun groupe d'attaquants n'a été identifié à ce stade.",
+      "**Recommandations de F6** : mettre à jour vers la dernière version prise en charge, rechercher une compromission, isoler les systèmes touchés, déterminer l'étendue de l'attaque et bloquer les chemins de déplacement latéral."
+     ]
+    },
+    {
+     "type": "diagram",
+     "svg": "<svg xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"0 0 640 250\" font-family=\"system-ui,sans-serif\"><rect width=\"640\" height=\"250\" rx=\"14\" fill=\"#f3f5f9\"/><text x=\"320\" y=\"32\" font-size=\"17\" font-weight=\"700\" text-anchor=\"middle\" fill=\"#1b2433\">De la faille au réseau interne</text><rect x=\"20\" y=\"55\" width=\"134\" height=\"175\" rx=\"10\" fill=\"#fff\" stroke=\"hsl(175,60%,45%)\" stroke-width=\"1.6\"/><circle cx=\"87\" cy=\"80\" r=\"13\" fill=\"hsl(175,60%,45%)\"/><text x=\"87\" y=\"85\" font-size=\"13\" font-weight=\"700\" text-anchor=\"middle\" fill=\"#fff\">1</text><text x=\"87\" y=\"108\" font-size=\"13\" font-weight=\"700\" text-anchor=\"middle\" fill=\"#1b2433\">Preuve de concept</text><text x=\"87\" y=\"148\" font-size=\"11.5\" text-anchor=\"middle\" fill=\"#3a4658\">Un code de</text><text x=\"87\" y=\"163\" font-size=\"11.5\" text-anchor=\"middle\" fill=\"#3a4658\">démonstration est</text><text x=\"87\" y=\"178\" font-size=\"11.5\" text-anchor=\"middle\" fill=\"#3a4658\">publié sur GitHub</text><path d=\"M156 142 h16 m-6 -6 l6 6 l-6 6\" fill=\"none\" stroke=\"hsl(175,60%,45%)\" stroke-width=\"2\"/><rect x=\"176\" y=\"55\" width=\"134\" height=\"175\" rx=\"10\" fill=\"#fff\" stroke=\"hsl(175,60%,45%)\" stroke-width=\"1.6\"/><circle cx=\"242\" cy=\"80\" r=\"13\" fill=\"hsl(175,60%,45%)\"/><text x=\"242\" y=\"85\" font-size=\"13\" font-weight=\"700\" text-anchor=\"middle\" fill=\"#fff\">2</text><text x=\"242\" y=\"108\" font-size=\"13\" font-weight=\"700\" text-anchor=\"middle\" fill=\"#1b2433\">Premier accès</text><text x=\"242\" y=\"148\" font-size=\"11.5\" text-anchor=\"middle\" fill=\"#3a4658\">Deux Expressway</text><text x=\"242\" y=\"163\" font-size=\"11.5\" text-anchor=\"middle\" fill=\"#3a4658\">exposés sont</text><text x=\"242\" y=\"178\" font-size=\"11.5\" text-anchor=\"middle\" fill=\"#3a4658\">compromis</text><path d=\"M312 142 h16 m-6 -6 l6 6 l-6 6\" fill=\"none\" stroke=\"hsl(175,60%,45%)\" stroke-width=\"2\"/><rect x=\"331\" y=\"55\" width=\"134\" height=\"175\" rx=\"10\" fill=\"#fff\" stroke=\"hsl(175,60%,45%)\" stroke-width=\"1.6\"/><circle cx=\"398\" cy=\"80\" r=\"13\" fill=\"hsl(175,60%,45%)\"/><text x=\"398\" y=\"85\" font-size=\"13\" font-weight=\"700\" text-anchor=\"middle\" fill=\"#fff\">3</text><text x=\"398\" y=\"108\" font-size=\"13\" font-weight=\"700\" text-anchor=\"middle\" fill=\"#1b2433\">Rebond</text><text x=\"398\" y=\"148\" font-size=\"11.5\" text-anchor=\"middle\" fill=\"#3a4658\">Deux nœuds internes</text><text x=\"398\" y=\"163\" font-size=\"11.5\" text-anchor=\"middle\" fill=\"#3a4658\">de la grappe sont</text><text x=\"398\" y=\"178\" font-size=\"11.5\" text-anchor=\"middle\" fill=\"#3a4658\">atteints</text><path d=\"M468 142 h16 m-6 -6 l6 6 l-6 6\" fill=\"none\" stroke=\"hsl(175,60%,45%)\" stroke-width=\"2\"/><rect x=\"486\" y=\"55\" width=\"134\" height=\"175\" rx=\"10\" fill=\"#fff\" stroke=\"hsl(175,60%,45%)\" stroke-width=\"1.6\"/><circle cx=\"553\" cy=\"80\" r=\"13\" fill=\"hsl(175,60%,45%)\"/><text x=\"553\" y=\"85\" font-size=\"13\" font-weight=\"700\" text-anchor=\"middle\" fill=\"#fff\">4</text><text x=\"553\" y=\"108\" font-size=\"13\" font-weight=\"700\" text-anchor=\"middle\" fill=\"#1b2433\">Vol de données</text><text x=\"553\" y=\"148\" font-size=\"11.5\" text-anchor=\"middle\" fill=\"#3a4658\">Scripts Python : SMB,</text><text x=\"553\" y=\"163\" font-size=\"11.5\" text-anchor=\"middle\" fill=\"#3a4658\">SQL Server, WinRM,</text><text x=\"553\" y=\"178\" font-size=\"11.5\" text-anchor=\"middle\" fill=\"#3a4658\">GitLab</text></svg>",
+     "alt": "Schéma en quatre étapes décrivant la chaîne d'attaque contre Cisco Expressway.",
+     "caption": "Chaîne d'attaque décrite par F6, d'après The Hacker News."
+    },
+    {
+     "type": "usecases",
+     "title": "Exemples d'utilisation",
+     "items": [
+      {
+       "icon": "🏢",
+       "title": "Administrateur d'une PME avec visioconférence",
+       "text": "Il vérifie dès aujourd'hui la version de son Expressway, applique le correctif et contrôle les journaux à la recherche des indicateurs publiés."
+      },
+      {
+       "icon": "🛡️",
+       "title": "Équipe de sécurité d'un grand groupe",
+       "text": "Elle sépare le réseau de gestion des équipements de bordure du reste du système d'information, afin qu'un rebond depuis la passerelle ne mène pas aux dépôts de code."
+      },
+      {
+       "icon": "🧾",
+       "title": "Prestataire d'infogérance",
+       "text": "Il dresse l'inventaire des clients utilisant des Expressway en grappe et priorise ceux dont la version est antérieure à X15.5.20."
+      }
+     ]
+    },
+    {
+     "type": "timeline",
+     "title": "D'où l'on vient, où l'on va",
+     "items": [
+      {
+       "label": "21 octobre 2026",
+       "text": "Cisco publie les correctifs de CVE-2026-76466."
+      },
+      {
+       "label": "Après la publication d'une preuve de concept",
+       "text": "Premières exploitations observées par F6 contre une organisation russe."
+      },
+      {
+       "label": "20 novembre 2026",
+       "text": "L'exploitation est rendue publique ; aucune attribution à un groupe connu."
+      }
+     ]
+    },
+    {
+     "type": "opinion",
+     "title": "Notre avis",
+     "paragraphs": [
+      "L'épisode illustre un délai désormais classique : entre un correctif et sa mise en œuvre, un code de démonstration public suffit à déclencher des attaques. Plus d'un mois s'est écoulé entre la publication du correctif et les premières exploitations rapportées, ce qui laissait une marge raisonnable aux équipes organisées. Les perdants sont les structures qui ne surveillent pas les avis des éditeurs pour leurs équipements de bordure.",
+      "À un horizon d'un à trois ans, la tendance devrait se renforcer : l'écart entre la divulgation et l'exploitation continue de se réduire, et les équipements périmétriques deviendront des cibles prioritaires. Seule la combinaison d'une mise à jour rapide, d'une segmentation stricte et d'une supervision des rebonds limitera les dégâts ; il s'agit d'une analyse, non d'un fait établi."
+     ],
+     "verdict": "Un équipement exposé à Internet doit être patché vite et segmenté, car sa compromission ouvre la porte du réseau interne."
+    },
+    {
+     "type": "callout",
+     "title": "À retenir",
+     "text": "Cisco Expressway : vérifier la version (X15.5.20 ou supérieure pour la branche X15), rechercher les indicateurs de compromission et isoler la gestion de l'équipement."
+    }
+   ],
+   "publishedAt": "2026-11-20T17:18:15+00:00",
+   "cover": {
+    "url": "https://blogger.googleusercontent.com/img/b/R29vZ2xl/AVvXsEgrMm7M_HyuVDt9NknngHSgyfGKu0DR8VTc_GYL-tr_hMhTmi3EAZnM8x5byJQRYEqcUAZlDTR_Xi4RcMm4lidmk9UR_iyTWpDa5Mn6xRBoNwAf3auen2u6guKxnvoIrcQOfq7Mm1clmsyBMYVcjaOqVFYiN4mXgYSyR5_DUSrmVOLDK5mQeAS8BBB3X5-5/s1600/cisco-cyberattacks.jpg",
+    "alt": "Cisco Expressway : une faille notée 9,8 exploitée après la publication d'une preuve de concept, quatre équipements compromis",
+    "credit": "thehackernews.com"
+   },
+   "readingMinutes": 4
+  },
+  {
+   "id": "sonicwall-gen6-fin-des-correctifs",
+   "category": "cybersecurite",
+   "icon": "🧱",
+   "title": "SonicWall : les pare-feu Gen 6 ne recevront plus de correctifs, même critiques, et l'éditeur demande leur retrait",
+   "summary": "Le 20 novembre 2026, SonicWall presse ses clients de remplacer les pare-feu de génération 6 et de ne plus les exposer à Internet, en évoquant des attaques accélérées par l'IA.",
+   "tags": [
+    "SonicWall",
+    "pare-feu",
+    "fin de support",
+    "SonicOS",
+    "bordure"
+   ],
+   "importance": 4,
+   "sourceDate": "2026-11-20",
+   "sources": [
+    {
+     "title": "SonicWall Warns Gen 6 Firewalls Won't Get Security Patches, Even for Critical Flaws",
+     "url": "https://thehackernews.com/2026/11/sonicwall-warns-gen-6-firewalls-wont.html",
+     "publisher": "The Hacker News"
+    }
+   ],
+   "illustration": {
+    "svg": "<svg xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"0 0 640 360\"><defs><linearGradient id=\"g\" x1=\"0\" y1=\"0\" x2=\"1\" y2=\"1\"><stop offset=\"0\" stop-color=\"hsl(175,70%,38%)\"/><stop offset=\"1\" stop-color=\"hsl(205,75%,22%)\"/></linearGradient></defs><rect width=\"640\" height=\"360\" fill=\"url(#g)\"/><circle cx=\"560\" cy=\"60\" r=\"70\" fill=\"#fff\" opacity=\".07\"/><circle cx=\"80\" cy=\"310\" r=\"90\" fill=\"#fff\" opacity=\".06\"/><rect x=\"230\" y=\"90\" width=\"180\" height=\"48\" rx=\"9\" fill=\"none\" stroke=\"#fff\" stroke-width=\"8\"/><circle cx=\"262\" cy=\"114\" r=\"8\" fill=\"#fff\"/><rect x=\"230\" y=\"156\" width=\"180\" height=\"48\" rx=\"9\" fill=\"none\" stroke=\"#fff\" stroke-width=\"8\"/><circle cx=\"262\" cy=\"180\" r=\"8\" fill=\"#fff\"/><rect x=\"230\" y=\"222\" width=\"180\" height=\"48\" rx=\"9\" fill=\"none\" stroke=\"#fff\" stroke-width=\"8\"/><circle cx=\"262\" cy=\"246\" r=\"8\" fill=\"#fff\"/></svg>"
+   },
+   "blocks": [
+    {
+     "type": "paragraph",
+     "text": "Un avertissement rare : un éditeur de sécurité demande publiquement à ses clients de débrancher une partie de son propre parc. Le 20 novembre 2026, SonicWall a invité tous les utilisateurs de pare-feu de **génération 6** à les retirer du service et à cesser de les exposer à Internet, car ces équipements ne bénéficient plus de correctifs de sécurité, y compris pour les failles critiques."
+    },
+    {
+     "type": "heading",
+     "text": "Les modèles concernés"
+    },
+    {
+     "type": "paragraph",
+     "text": "L'avis couvre les appareils fonctionnant sous SonicOS 6.x. La liste comprend la série TZ (TZ300, TZ400, TZ500 et TZ600, avec leurs variantes sans fil et « P »), les SOHO, les NSA et NSa de la gamme 2600 à 9650, les SuperMassive 9200 à 9800, les NSsp 12400 et 12800, ainsi que les appareils virtuels NSv, de NSv 10 à NSv 1600. L'éditeur recommande une migration vers un pare-feu de génération 8 sous SonicOS 8, via un partenaire agréé."
+    },
+    {
+     "type": "heading",
+     "text": "Pourquoi maintenant : une exploitation de plus en plus rapide"
+    },
+    {
+     "type": "paragraph",
+     "text": "SonicWall justifie son message par la montée des attaques assistées par l'IA, qui permettent de repérer et d'exploiter rapidement des équipements de bordure non pris en charge. L'article cite plusieurs repères : le rapport M-Trends 2026 de Google Mandiant estime le délai moyen d'exploitation à moins sept jours, c'est-à-dire que l'exploitation commence souvent avant même la publication d'un correctif ; Cisco Talos relève que 23 % des failles de 2025 touchaient des équipements réseau ; et le catalogue KEV de la CISA montre que ces appareils sont des cibles constantes, parce qu'ils sont joignables depuis Internet et souvent mis à jour tardivement. L'article ne mentionne ni nombre d'appareils encore en ligne, ni date de fin de vie précise, ni campagne d'exploitation déjà documentée contre la génération 6."
+    },
+    {
+     "type": "keyvalue",
+     "items": [
+      {
+       "label": "Produits",
+       "value": "Pare-feu SonicWall sous SonicOS 6.x (génération 6)"
+      },
+      {
+       "label": "Statut",
+       "value": "Plus aucun correctif de sécurité, même critique"
+      },
+      {
+       "label": "Remplacement conseillé",
+       "value": "Génération 8 sous SonicOS 8"
+      },
+      {
+       "label": "Source de l'avis",
+       "value": "SonicWall, 20 novembre 2026"
+      }
+     ]
+    },
+    {
+     "type": "heading",
+     "text": "Les mesures transitoires recommandées"
+    },
+    {
+     "type": "list",
+     "items": [
+      "Inventorier tous les pare-feu de génération 6, en commençant par ceux exposés ou servant à l'accès distant.",
+      "Désactiver la gestion depuis l'interface WAN (HTTPS, SSH, SNMP).",
+      "Désactiver le VPN SSL ou le limiter à des adresses sources connues.",
+      "Imposer l'authentification multifacteur sur tous les comptes d'administration et d'accès distant, et changer les mots de passe locaux.",
+      "Couper les services et interfaces inutiles, puis surveiller les journaux : connexions inhabituelles, changements de configuration, trafic anormal."
+     ]
+    },
+    {
+     "type": "diagram",
+     "svg": "<svg xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"0 0 640 250\" font-family=\"system-ui,sans-serif\"><rect width=\"640\" height=\"250\" rx=\"14\" fill=\"#f3f5f9\"/><text x=\"320\" y=\"32\" font-size=\"17\" font-weight=\"700\" text-anchor=\"middle\" fill=\"#1b2433\">Que faire d'un pare-feu Gen 6 ?</text><rect x=\"20\" y=\"55\" width=\"134\" height=\"175\" rx=\"10\" fill=\"#fff\" stroke=\"hsl(175,60%,45%)\" stroke-width=\"1.6\"/><circle cx=\"87\" cy=\"80\" r=\"13\" fill=\"hsl(175,60%,45%)\"/><text x=\"87\" y=\"85\" font-size=\"13\" font-weight=\"700\" text-anchor=\"middle\" fill=\"#fff\">1</text><text x=\"87\" y=\"108\" font-size=\"13\" font-weight=\"700\" text-anchor=\"middle\" fill=\"#1b2433\">Inventorier</text><text x=\"87\" y=\"148\" font-size=\"11.5\" text-anchor=\"middle\" fill=\"#3a4658\">Repérer tous les</text><text x=\"87\" y=\"163\" font-size=\"11.5\" text-anchor=\"middle\" fill=\"#3a4658\">appareils SonicOS</text><text x=\"87\" y=\"178\" font-size=\"11.5\" text-anchor=\"middle\" fill=\"#3a4658\">6.x, d'abord ceux</text><text x=\"87\" y=\"193\" font-size=\"11.5\" text-anchor=\"middle\" fill=\"#3a4658\">exposés</text><path d=\"M156 142 h16 m-6 -6 l6 6 l-6 6\" fill=\"none\" stroke=\"hsl(175,60%,45%)\" stroke-width=\"2\"/><rect x=\"176\" y=\"55\" width=\"134\" height=\"175\" rx=\"10\" fill=\"#fff\" stroke=\"hsl(175,60%,45%)\" stroke-width=\"1.6\"/><circle cx=\"242\" cy=\"80\" r=\"13\" fill=\"hsl(175,60%,45%)\"/><text x=\"242\" y=\"85\" font-size=\"13\" font-weight=\"700\" text-anchor=\"middle\" fill=\"#fff\">2</text><text x=\"242\" y=\"108\" font-size=\"13\" font-weight=\"700\" text-anchor=\"middle\" fill=\"#1b2433\">Réduire</text><text x=\"242\" y=\"124\" font-size=\"13\" font-weight=\"700\" text-anchor=\"middle\" fill=\"#1b2433\">l'exposition</text><text x=\"242\" y=\"148\" font-size=\"11.5\" text-anchor=\"middle\" fill=\"#3a4658\">Couper gestion WAN,</text><text x=\"242\" y=\"163\" font-size=\"11.5\" text-anchor=\"middle\" fill=\"#3a4658\">SSH, SNMP et VPN SSL</text><path d=\"M312 142 h16 m-6 -6 l6 6 l-6 6\" fill=\"none\" stroke=\"hsl(175,60%,45%)\" stroke-width=\"2\"/><rect x=\"331\" y=\"55\" width=\"134\" height=\"175\" rx=\"10\" fill=\"#fff\" stroke=\"hsl(175,60%,45%)\" stroke-width=\"1.6\"/><circle cx=\"398\" cy=\"80\" r=\"13\" fill=\"hsl(175,60%,45%)\"/><text x=\"398\" y=\"85\" font-size=\"13\" font-weight=\"700\" text-anchor=\"middle\" fill=\"#fff\">3</text><text x=\"398\" y=\"108\" font-size=\"13\" font-weight=\"700\" text-anchor=\"middle\" fill=\"#1b2433\">Renforcer</text><text x=\"398\" y=\"148\" font-size=\"11.5\" text-anchor=\"middle\" fill=\"#3a4658\">MFA, mots de passe</text><text x=\"398\" y=\"163\" font-size=\"11.5\" text-anchor=\"middle\" fill=\"#3a4658\">changés, services</text><text x=\"398\" y=\"178\" font-size=\"11.5\" text-anchor=\"middle\" fill=\"#3a4658\">inutiles coupés</text><path d=\"M468 142 h16 m-6 -6 l6 6 l-6 6\" fill=\"none\" stroke=\"hsl(175,60%,45%)\" stroke-width=\"2\"/><rect x=\"486\" y=\"55\" width=\"134\" height=\"175\" rx=\"10\" fill=\"#fff\" stroke=\"hsl(175,60%,45%)\" stroke-width=\"1.6\"/><circle cx=\"553\" cy=\"80\" r=\"13\" fill=\"hsl(175,60%,45%)\"/><text x=\"553\" y=\"85\" font-size=\"13\" font-weight=\"700\" text-anchor=\"middle\" fill=\"#fff\">4</text><text x=\"553\" y=\"108\" font-size=\"13\" font-weight=\"700\" text-anchor=\"middle\" fill=\"#1b2433\">Remplacer</text><text x=\"553\" y=\"148\" font-size=\"11.5\" text-anchor=\"middle\" fill=\"#3a4658\">Passer à la</text><text x=\"553\" y=\"163\" font-size=\"11.5\" text-anchor=\"middle\" fill=\"#3a4658\">génération 8 sous</text><text x=\"553\" y=\"178\" font-size=\"11.5\" text-anchor=\"middle\" fill=\"#3a4658\">SonicOS 8</text></svg>",
+     "alt": "Quatre étapes pour gérer un pare-feu SonicWall de génération 6 sans correctifs.",
+     "caption": "Démarche déduite des recommandations de SonicWall."
+    },
+    {
+     "type": "usecases",
+     "title": "Exemples d'utilisation",
+     "items": [
+      {
+       "icon": "🏪",
+       "title": "Commerce multi-sites",
+       "text": "Un réseau de boutiques remplace son TZ300 de chaque site lors d'une fenêtre de maintenance, et ferme d'abord le VPN SSL en attendant."
+      },
+      {
+       "icon": "🏭",
+       "title": "Industriel avec site distant",
+       "text": "Le responsable informatique limite l'accès VPN aux adresses fixes des techniciens et active l'authentification multifacteur pour tous les comptes."
+      },
+      {
+       "icon": "🧑‍💻",
+       "title": "Prestataire d'infogérance",
+       "text": "Il extrait de sa base de gestion la liste des clients encore équipés de SonicOS 6.x et leur propose un plan de migration chiffré."
+      }
+     ]
+    },
+    {
+     "type": "timeline",
+     "title": "D'où l'on vient, où l'on va",
+     "items": [
+      {
+       "label": "2025",
+       "text": "Les équipements de bordure représentent 23 % des failles recensées par Cisco Talos."
+      },
+      {
+       "label": "2026",
+       "text": "Mandiant estime que l'exploitation précède souvent le correctif."
+      },
+      {
+       "label": "20 novembre 2026",
+       "text": "SonicWall demande le retrait des pare-feu de génération 6."
+      }
+     ]
+    },
+    {
+     "type": "opinion",
+     "title": "Notre avis",
+     "paragraphs": [
+      "Le message est courageux mais coûteux : remplacer un pare-feu représente un budget et une opération de migration que de nombreuses petites structures n'avaient pas prévus. En contrepartie, l'éditeur dit clairement ce que beaucoup d'équipements non maintenus laissent sous-entendre : sans correctifs, chaque jour d'exposition aggrave le risque.",
+      "D'ici un à trois ans, on peut s'attendre à ce que les dates de fin de support deviennent un critère d'achat au même titre que les performances, et que les assureurs en cybersécurité en tiennent compte. C'est une projection, pas un fait."
+     ],
+     "verdict": "Un équipement sans correctifs est une dette qu'il faut solder avant que les attaquants ne la réclament."
+    },
+    {
+     "type": "callout",
+     "title": "À retenir",
+     "text": "Tout pare-feu SonicWall sous SonicOS 6.x est à traiter comme un risque élevé : réduire son exposition immédiatement et planifier son remplacement."
+    }
+   ],
+   "publishedAt": "2026-11-20T17:18:15+00:00",
+   "cover": {
+    "url": "https://blogger.googleusercontent.com/img/b/R29vZ2xl/AVvXsEiGn5oji8gd4l_d6wKemSflqTX-q-eiuu4CbbV2ROvzK6Gzpeq8zPsQyGb-UO80f_M8L2pDNNyNqF1ZIdyMPGReyW0KmPb7uuAuRu1M-ZVyNu-GJvx1CRaBsaEOVjV-asFG0P__0MK0Jp3WPJmcNxATiSd6NeBzcCmy-6dLvS5yvpen0cRrwLZvgVpYAvn0/s1600/sonicwall.jpg",
+    "alt": "SonicWall : les pare-feu Gen 6 ne recevront plus de correctifs, même critiques, et l'éditeur demande leur retrait",
+    "credit": "thehackernews.com"
+   },
+   "readingMinutes": 3
+  },
+  {
+   "id": "openssl-evp-encodeblock-debordement-entier",
+   "category": "dev",
+   "icon": "🔢",
+   "title": "OpenSSL : un dépassement d'entier dans EVP_EncodeBlock() reçoit une CVE, mais le débat sur le correctif n'est pas clos",
+   "summary": "CVE-2026-121481 concerne le calcul de la taille d'une sortie en base64. Le projet la classe en gravité faible, faute de chemin d'attaque connu ; la correction, elle, fait encore l'objet de discussions.",
+   "tags": [
+    "OpenSSL",
+    "CVE-2026-121481",
+    "base64",
+    "C",
+    "revue de code"
+   ],
+   "importance": 3,
+   "sourceDate": "2026-11-20",
+   "sources": [
+    {
+     "title": "Buffer overflow in EVP_EncodeBlock() (CVE-2026-121481)",
+     "url": "https://github.com/openssl/openssl/pull/33652",
+     "publisher": "GitHub, projet OpenSSL"
+    }
+   ],
+   "illustration": {
+    "svg": "<svg xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"0 0 640 360\"><defs><linearGradient id=\"g\" x1=\"0\" y1=\"0\" x2=\"1\" y2=\"1\"><stop offset=\"0\" stop-color=\"hsl(265,70%,38%)\"/><stop offset=\"1\" stop-color=\"hsl(295,75%,22%)\"/></linearGradient></defs><rect width=\"640\" height=\"360\" fill=\"url(#g)\"/><circle cx=\"560\" cy=\"60\" r=\"70\" fill=\"#fff\" opacity=\".07\"/><circle cx=\"80\" cy=\"310\" r=\"90\" fill=\"#fff\" opacity=\".06\"/><path d=\"M270 120 L210 180 L270 240 M370 120 L430 180 L370 240\" fill=\"none\" stroke=\"#fff\" stroke-width=\"14\" stroke-linecap=\"round\" stroke-linejoin=\"round\"/><path d=\"M345 100 L295 260\" stroke=\"#fff\" stroke-width=\"10\" stroke-linecap=\"round\"/></svg>"
+   },
+   "blocks": [
+    {
+     "type": "paragraph",
+     "text": "Quand une bibliothèque de cryptographie utilisée par une grande partie d'Internet reçoit un identifiant de vulnérabilité noté 9,8, le chiffre alarme. Celui de **CVE-2026-121481**, cité sur la page de discussion du correctif, est pourtant trompeur : le projet OpenSSL lui-même juge le défaut de gravité faible. Le dossier, ouvert le 10 novembre 2026 sur GitHub, est instructif pour comprendre comment un correctif minuscule peut devenir un casse-tête de conception."
+    },
+    {
+     "type": "heading",
+     "text": "Le défaut"
+    },
+    {
+     "type": "paragraph",
+     "text": "La fonction `EVP_EncodeBlock()`, située dans `crypto/evp/encode.c`, calcule la taille de la sortie en base64 à partir de la longueur de l'entrée. Pour des entrées très volumineuses, ce calcul peut dépasser la capacité d'un entier `int`. Un relecteur du projet nuance le titre de la proposition : il s'agit surtout d'un dépassement d'entier sur la longueur renvoyée. Un vrai écrasement mémoire ne serait possible que si la longueur d'entrée vaut exactement `INT_MAX`, cas où une boucle pourrait écrire au-delà du tampon."
+    },
+    {
+     "type": "heading",
+     "text": "Pourquoi la gravité est jugée faible"
+    },
+    {
+     "type": "paragraph",
+     "text": "La base NVD retient une gravité faible parce qu'aucun chemin contrôlable par un attaquant n'est connu : l'appelant doit déjà disposer d'un tampon d'environ deux gigaoctets avant que le défaut soit atteignable. L'auteur du correctif indique qu'on peut toutefois atteindre ce code avec la commande `openssl s_client` et un mot de passe de proxy très long, fourni par une variable d'environnement (`env:VAR`), la ligne de commande étant trop courte pour cela ; selon lui, GOST accepte aussi de tels mots de passe. Le projet précise que tous les CVE traités publiquement sont considérés comme de gravité faible."
+    },
+    {
+     "type": "keyvalue",
+     "items": [
+      {
+       "label": "Référence",
+       "value": "CVE-2026-121481, avis GHSA-83xj-7xh4-4p7x"
+      },
+      {
+       "label": "Branches concernées",
+       "value": "master, openssl-4.0 et openssl-4.1 (étiquettes du dossier)"
+      },
+      {
+       "label": "État",
+       "value": "Proposition de correctif ouverte, non fusionnée, étiquette « hold: discussion »"
+      },
+      {
+       "label": "Dates",
+       "value": "Ouverture le 10 novembre 2026, étiquette « bogue » le 11, revues jusqu'au 20"
+      }
+     ]
+    },
+    {
+     "type": "heading",
+     "text": "Le débat sur le bon correctif"
+    },
+    {
+     "type": "paragraph",
+     "text": "La première version renvoyait `-1` en cas de pointeur nul, de longueur négative ou de sortie trop grande. Des relecteurs ont objecté que des appelants tiers ne vérifient pas les valeurs négatives, et que `0` est une valeur de succès légitime. Plusieurs ont aussi refusé le recours à `OPENSSL_assert()`, qui peut transformer un bogue en déni de service ; un mainteneur souhaite que ces contrôles renvoient une erreur plutôt que d'interrompre le programme, même en mode débogage. La dernière version appelle tout de même `OPENSSL_assert()` quand la longueur de sortie déborderait, renvoie `0` pour une entrée vide dans `EVP_DecodeBlock()`, `-1` pour une longueur négative, et fait refuser par `base64encode()` (dans `http_client.c`) toute longueur dont l'encodage ne tiendrait pas dans un `int`. Une demande de suivi, la n° 33812, prévoit de déplacer le contrôle dans des fonctions internes capables de renvoyer une erreur."
+    },
+    {
+     "type": "diagram",
+     "svg": "<svg xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"0 0 640 180\" font-family=\"system-ui,sans-serif\"><rect width=\"640\" height=\"180\" rx=\"14\" fill=\"#f3f5f9\"/><text x=\"320\" y=\"32\" font-size=\"17\" font-weight=\"700\" text-anchor=\"middle\" fill=\"#1b2433\">Taille de sortie base64 pour une entrée de n octets (rapport 4/3)</text><text x=\"20\" y=\"71\" font-size=\"12.5\" fill=\"#1b2433\">Entrée 1 Go</text><rect x=\"215\" y=\"55\" width=\"223\" height=\"22\" rx=\"5\" fill=\"hsl(265,60%,45%)\"/><text x=\"446\" y=\"71\" font-size=\"12.5\" font-weight=\"700\" fill=\"#1b2433\">1,33 Go</text><text x=\"20\" y=\"111\" font-size=\"12.5\" fill=\"#1b2433\">Entrée 1,5 Go</text><rect x=\"215\" y=\"95\" width=\"335\" height=\"22\" rx=\"5\" fill=\"hsl(265,60%,45%)\"/><text x=\"558\" y=\"111\" font-size=\"12.5\" font-weight=\"700\" fill=\"#1b2433\">2,0 Go</text><text x=\"20\" y=\"151\" font-size=\"12.5\" fill=\"#1b2433\">Limite d'un int (≈ 2,15 Go)</text><rect x=\"215\" y=\"135\" width=\"360\" height=\"22\" rx=\"5\" fill=\"hsl(265,60%,45%)\"/><text x=\"583\" y=\"151\" font-size=\"12.5\" font-weight=\"700\" fill=\"#1b2433\">2,15 Go</text></svg>",
+     "alt": "Diagramme à barres comparant la taille en base64 de plusieurs entrées à la limite d'un entier signé de 32 bits.",
+     "caption": "Le base64 grossit les données d'environ un tiers : une entrée d'environ 1,5 Go produit une sortie proche des 2 Gio qu'un `int` ne peut pas dépasser."
+    },
+    {
+     "type": "usecases",
+     "title": "Exemples d'utilisation",
+     "items": [
+      {
+       "icon": "🧑‍💻",
+       "title": "Développeur d'une bibliothèque tierce",
+       "text": "Il vérifie les valeurs de retour de `EVP_EncodeBlock()` et plafonne la taille des entrées qu'il accepte, sans attendre le correctif amont."
+      },
+      {
+       "icon": "📦",
+       "title": "Mainteneur de distribution",
+       "text": "Il suit les rétroportages : une distribution a déjà intégré les garde-fous dans sa version 3.6.5, sans que ce soit une version amont."
+      },
+      {
+       "icon": "🔍",
+       "title": "Équipe d'audit",
+       "text": "Elle utilise ce dossier comme exemple de revue : un correctif de quelques lignes soulève des questions de compatibilité de l'API."
+      }
+     ]
+    },
+    {
+     "type": "timeline",
+     "title": "D'où l'on vient, où l'on va",
+     "items": [
+      {
+       "label": "10 novembre 2026",
+       "text": "Ouverture du dossier de correction."
+      },
+      {
+       "label": "11 novembre 2026",
+       "text": "Étiquette « bogue » ajoutée."
+      },
+      {
+       "label": "20 novembre 2026",
+       "text": "Revues approbatrices et demande de modifications ; le correctif n'est pas fusionné."
+      }
+     ]
+    },
+    {
+     "type": "opinion",
+     "title": "Notre avis",
+     "paragraphs": [
+      "Le cas montre la distance entre un score et un risque réel : une note élevée peut s'afficher sans qu'aucune exploitation pratique existe. L'essentiel est ailleurs, dans l'arbitrage entre sûreté et compatibilité : renvoyer une erreur casse des appelants, interrompre le programme crée un déni de service.",
+      "Dans les prochaines années, les bibliothèques de bas niveau auront intérêt à faire évoluer leurs API vers des tailles non signées et des retours d'erreur explicites. C'est une opinion : le projet OpenSSL n'a rien annoncé dans ce sens."
+     ],
+     "verdict": "Une gravité faible ne rend pas le sujet anodin : c'est la conception de l'API qui est en jeu."
+    },
+    {
+     "type": "callout",
+     "title": "À retenir",
+     "text": "Aucune version corrigée d'OpenSSL n'est publiée à ce jour pour ce défaut : le correctif est en discussion et n'est pas fusionné."
+    }
+   ],
+   "publishedAt": "2026-11-20T17:18:15+00:00",
+   "readingMinutes": 3
+  },
+  {
+   "id": "windows-11-hotpatch-novembre-erreurs-msi",
+   "category": "devops",
+   "icon": "🩹",
+   "title": "Windows 11 : le correctif à chaud de novembre provoque des erreurs d'applications, Microsoft propose une clé de Registre",
+   "summary": "Le hotpatch KB5132043 du 10 novembre 2026 fait échouer des applications chargeant msi.dll en 32 bits. Microsoft confirme et suggère de porter HotPatchTableSize à 2000 avant un redémarrage.",
+   "tags": [
+    "Windows 11",
+    "hotpatch",
+    "Autopatch",
+    "Registre",
+    "administration"
+   ],
+   "importance": 3,
+   "sourceDate": "2026-11-20",
+   "sources": [
+    {
+     "title": "Microsoft suggests Registry hack to work around hotpatch woes",
+     "url": "https://www.theregister.com/os-platforms/2026/11/20/microsoft-suggests-registry-hack-to-work-around-hotpatch-woes/5311279",
+     "publisher": "The Register"
+    }
+   ],
+   "illustration": {
+    "svg": "<svg xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"0 0 640 360\"><defs><linearGradient id=\"g\" x1=\"0\" y1=\"0\" x2=\"1\" y2=\"1\"><stop offset=\"0\" stop-color=\"hsl(160,70%,38%)\"/><stop offset=\"1\" stop-color=\"hsl(190,75%,22%)\"/></linearGradient></defs><rect width=\"640\" height=\"360\" fill=\"url(#g)\"/><circle cx=\"560\" cy=\"60\" r=\"70\" fill=\"#fff\" opacity=\".07\"/><circle cx=\"80\" cy=\"310\" r=\"90\" fill=\"#fff\" opacity=\".06\"/><rect x=\"230\" y=\"90\" width=\"180\" height=\"48\" rx=\"9\" fill=\"none\" stroke=\"#fff\" stroke-width=\"8\"/><circle cx=\"262\" cy=\"114\" r=\"8\" fill=\"#fff\"/><rect x=\"230\" y=\"156\" width=\"180\" height=\"48\" rx=\"9\" fill=\"none\" stroke=\"#fff\" stroke-width=\"8\"/><circle cx=\"262\" cy=\"180\" r=\"8\" fill=\"#fff\"/><rect x=\"230\" y=\"222\" width=\"180\" height=\"48\" rx=\"9\" fill=\"none\" stroke=\"#fff\" stroke-width=\"8\"/><circle cx=\"262\" cy=\"246\" r=\"8\" fill=\"#fff\"/></svg>"
+   },
+   "blocks": [
+    {
+     "type": "paragraph",
+     "text": "Appliquer des correctifs de sécurité sans redémarrer les machines est la promesse du hotpatch de Windows : moins d'interruptions, une conformité plus rapide. Mais, comme le rapporte The Register le 20 novembre 2026, le correctif à chaud de novembre pour Windows 11 provoque des erreurs d'applications, et Microsoft a confirmé que les signalements des administrateurs étaient exacts."
+    },
+    {
+     "type": "heading",
+     "text": "Ce qui s'est passé"
+    },
+    {
+     "type": "paragraph",
+     "text": "Le correctif en cause, **KB5132043**, publié le 10 novembre 2026, nécessitait l'installation préalable de la base du 13 octobre (KB5127648). Les hotpatchs sont des mises à jour de sécurité qui s'installent en général sans redémarrage ; dans ce cas précis, un redémarrage est nécessaire pour résoudre les erreurs. Le hotpatch exige Windows 11 en version 24H2 ou ultérieure, un abonnement éligible et une configuration de gestion et de sécurité adaptée. Microsoft en avait fait le mode par défaut de Windows Autopatch plus tôt en 2026."
+    },
+    {
+     "type": "paragraph",
+     "text": "Les applications touchées peuvent échouer à l'installation, au lancement ou en cours d'utilisation, avec des messages tels que « ERROR_ALLOTTED_SPACE_EXCEEDED (0xC0000099) ». Des logiciels peu répandus, mais aussi Outlook, sont concernés. L'enquête de Microsoft pointe les programmes qui chargent la bibliothèque 32 bits du Windows Installer, `msi.dll`. Le problème est plus fréquent pour les logiciels 32 bits, mais des applications 64 bits peuvent aussi être touchées « dans certaines circonstances ». Les appareils ayant installé la mise à jour cumulative mensuelle standard de novembre 2026 ne devraient pas être concernés : le défaut est propre au hotpatch."
+    },
+    {
+     "type": "heading",
+     "text": "Le contournement proposé"
+    },
+    {
+     "type": "keyvalue",
+     "items": [
+      {
+       "label": "Correctif en cause",
+       "value": "KB5132043, publié le 10 novembre 2026"
+      },
+      {
+       "label": "Clé à modifier",
+       "value": "HotPatchTableSize, sous HKLM\\SYSTEM\\CurrentControlSet\\Control\\Session Manager\\Memory Management"
+      },
+      {
+       "label": "Valeur proposée",
+       "value": "2000"
+      },
+      {
+       "label": "Étape finale",
+       "value": "Redémarrer l'appareil"
+      }
+     ]
+    },
+    {
+     "type": "paragraph",
+     "text": "Les administrateurs peuvent donc modifier une valeur du Registre sur les appareils touchés, puis redémarrer. Par prudence, il convient de sauvegarder le Registre avant toute modification. Microsoft rappelle que les paquets de hotpatch sont nettement plus petits que les mises à jour cumulatives classiques, ce qui doit simplifier l'installation et améliorer l'efficacité de la mise en conformité."
+    },
+    {
+     "type": "diagram",
+     "svg": "<svg xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"0 0 640 250\" font-family=\"system-ui,sans-serif\"><rect width=\"640\" height=\"250\" rx=\"14\" fill=\"#f3f5f9\"/><text x=\"320\" y=\"32\" font-size=\"17\" font-weight=\"700\" text-anchor=\"middle\" fill=\"#1b2433\">Que faire sur un parc touché ?</text><rect x=\"20\" y=\"55\" width=\"134\" height=\"175\" rx=\"10\" fill=\"#fff\" stroke=\"hsl(160,60%,45%)\" stroke-width=\"1.6\"/><circle cx=\"87\" cy=\"80\" r=\"13\" fill=\"hsl(160,60%,45%)\"/><text x=\"87\" y=\"85\" font-size=\"13\" font-weight=\"700\" text-anchor=\"middle\" fill=\"#fff\">1</text><text x=\"87\" y=\"108\" font-size=\"13\" font-weight=\"700\" text-anchor=\"middle\" fill=\"#1b2433\">Identifier</text><text x=\"87\" y=\"148\" font-size=\"11.5\" text-anchor=\"middle\" fill=\"#3a4658\">Rechercher les postes</text><text x=\"87\" y=\"163\" font-size=\"11.5\" text-anchor=\"middle\" fill=\"#3a4658\">avec KB5132043 et des</text><text x=\"87\" y=\"178\" font-size=\"11.5\" text-anchor=\"middle\" fill=\"#3a4658\">erreurs</text><text x=\"87\" y=\"193\" font-size=\"11.5\" text-anchor=\"middle\" fill=\"#3a4658\">d'applications</text><path d=\"M156 142 h16 m-6 -6 l6 6 l-6 6\" fill=\"none\" stroke=\"hsl(160,60%,45%)\" stroke-width=\"2\"/><rect x=\"176\" y=\"55\" width=\"134\" height=\"175\" rx=\"10\" fill=\"#fff\" stroke=\"hsl(160,60%,45%)\" stroke-width=\"1.6\"/><circle cx=\"242\" cy=\"80\" r=\"13\" fill=\"hsl(160,60%,45%)\"/><text x=\"242\" y=\"85\" font-size=\"13\" font-weight=\"700\" text-anchor=\"middle\" fill=\"#fff\">2</text><text x=\"242\" y=\"108\" font-size=\"13\" font-weight=\"700\" text-anchor=\"middle\" fill=\"#1b2433\">Sauvegarder</text><text x=\"242\" y=\"148\" font-size=\"11.5\" text-anchor=\"middle\" fill=\"#3a4658\">Exporter la clé de</text><text x=\"242\" y=\"163\" font-size=\"11.5\" text-anchor=\"middle\" fill=\"#3a4658\">Registre avant</text><text x=\"242\" y=\"178\" font-size=\"11.5\" text-anchor=\"middle\" fill=\"#3a4658\">modification</text><path d=\"M312 142 h16 m-6 -6 l6 6 l-6 6\" fill=\"none\" stroke=\"hsl(160,60%,45%)\" stroke-width=\"2\"/><rect x=\"331\" y=\"55\" width=\"134\" height=\"175\" rx=\"10\" fill=\"#fff\" stroke=\"hsl(160,60%,45%)\" stroke-width=\"1.6\"/><circle cx=\"398\" cy=\"80\" r=\"13\" fill=\"hsl(160,60%,45%)\"/><text x=\"398\" y=\"85\" font-size=\"13\" font-weight=\"700\" text-anchor=\"middle\" fill=\"#fff\">3</text><text x=\"398\" y=\"108\" font-size=\"13\" font-weight=\"700\" text-anchor=\"middle\" fill=\"#1b2433\">Modifier</text><text x=\"398\" y=\"148\" font-size=\"11.5\" text-anchor=\"middle\" fill=\"#3a4658\">Porter</text><text x=\"398\" y=\"163\" font-size=\"11.5\" text-anchor=\"middle\" fill=\"#3a4658\">HotPatchTableSize à</text><text x=\"398\" y=\"178\" font-size=\"11.5\" text-anchor=\"middle\" fill=\"#3a4658\">2000</text><path d=\"M468 142 h16 m-6 -6 l6 6 l-6 6\" fill=\"none\" stroke=\"hsl(160,60%,45%)\" stroke-width=\"2\"/><rect x=\"486\" y=\"55\" width=\"134\" height=\"175\" rx=\"10\" fill=\"#fff\" stroke=\"hsl(160,60%,45%)\" stroke-width=\"1.6\"/><circle cx=\"553\" cy=\"80\" r=\"13\" fill=\"hsl(160,60%,45%)\"/><text x=\"553\" y=\"85\" font-size=\"13\" font-weight=\"700\" text-anchor=\"middle\" fill=\"#fff\">4</text><text x=\"553\" y=\"108\" font-size=\"13\" font-weight=\"700\" text-anchor=\"middle\" fill=\"#1b2433\">Redémarrer</text><text x=\"553\" y=\"148\" font-size=\"11.5\" text-anchor=\"middle\" fill=\"#3a4658\">Le redémarrage</text><text x=\"553\" y=\"163\" font-size=\"11.5\" text-anchor=\"middle\" fill=\"#3a4658\">applique la valeur</text></svg>",
+     "alt": "Schéma en quatre étapes pour appliquer le contournement proposé par Microsoft.",
+     "caption": "Procédure résumée d'après les indications de Microsoft rapportées par The Register."
+    },
+    {
+     "type": "usecases",
+     "title": "Exemples d'utilisation",
+     "items": [
+      {
+       "icon": "🏢",
+       "title": "Service informatique d'une PME",
+       "text": "Il repère les postes dont Outlook échoue au lancement, vérifie la présence de KB5132043 et applique la valeur de Registre par stratégie de groupe."
+      },
+      {
+       "icon": "🏥",
+       "title": "Responsable d'un parc géré par Autopatch",
+       "text": "Il met en pause l'anneau de déploiement suivant en attendant un correctif de Microsoft, pour éviter d'étendre l'incident."
+      },
+      {
+       "icon": "🧑‍💻",
+       "title": "Packager d'applications",
+       "text": "Il teste ses installateurs 32 bits sur une machine ayant reçu le hotpatch, car ce sont eux qui chargent `msi.dll` et déclenchent l'erreur."
+      }
+     ]
+    },
+    {
+     "type": "timeline",
+     "title": "D'où l'on vient, où l'on va",
+     "items": [
+      {
+       "label": "13 octobre 2026",
+       "text": "Mise à jour de base KB5127648, prérequis du hotpatch."
+      },
+      {
+       "label": "10 novembre 2026",
+       "text": "Publication du hotpatch KB5132043."
+      },
+      {
+       "label": "20 novembre 2026",
+       "text": "Confirmation de Microsoft et proposition d'une clé de Registre."
+      }
+     ]
+    },
+    {
+     "type": "opinion",
+     "title": "Notre avis",
+     "paragraphs": [
+      "Le hotpatch résout un vrai problème : redémarrer des milliers de postes est coûteux et retarde les correctifs. Cet incident rappelle toutefois que corriger du code en mémoire est plus délicat que remplacer des fichiers au redémarrage, et que la taille réduite des paquets a un revers. Il touche en priorité les organisations qui avaient adopté le mode par défaut sans anneau de test.",
+      "Les prochaines années verront probablement davantage de mises à jour sans redémarrage ; pour qu'elles inspirent confiance, Microsoft devra publier plus vite des corrections et des notes détaillées. C'est une opinion argumentée, non un fait."
+     ],
+     "verdict": "Le correctif sans redémarrage reste utile, à condition de le déployer par vagues et de garder un plan de repli."
+    },
+    {
+     "type": "callout",
+     "title": "À retenir",
+     "text": "En attendant une correction, la valeur HotPatchTableSize à 2000 et un redémarrage constituent le contournement proposé ; l'installation de la mise à jour cumulative standard n'est pas concernée."
+    }
+   ],
+   "publishedAt": "2026-11-20T17:18:15+00:00",
+   "cover": {
+    "url": "https://image.theregister.com/5311310.jpg?imageId=5311310&x=0&y=0&cropw=100&croph=100&panox=0&panoy=0&panow=100&panoh=100&width=1200&height=683",
+    "alt": "Windows 11 : le correctif à chaud de novembre provoque des erreurs d'applications, Microsoft propose une clé de Registre",
+    "credit": "theregister.com"
+   },
+   "readingMinutes": 3
+  },
+  {
+   "id": "ubuntu-core-desktop-cap-sur-28-04",
+   "category": "dev",
+   "icon": "🐧",
+   "title": "Ubuntu Core Desktop : Canonical vise la version 28.04 LTS pour un bureau immuable, et rêve d'en faire la 30.04 par défaut",
+   "summary": "Au Ubuntu Summit 26.10, Jon Seager a présenté la feuille de route d'un Ubuntu entièrement empaqueté en snaps, atomique et attestable. Pour l'instant, l'essentiel reste un plan.",
+   "tags": [
+    "Ubuntu",
+    "Canonical",
+    "Linux",
+    "snap",
+    "système immuable"
+   ],
+   "importance": 3,
+   "sourceDate": "2026-11-20",
+   "sources": [
+    {
+     "title": "Ubuntu Core Desktop targets 28.04 debut, with default status in its sights",
+     "url": "https://www.theregister.com/os-platforms/2026/11/20/ubuntu-core-desktop-targets-2804-debut-with-default-status-in-its-sights/5310837",
+     "publisher": "The Register"
+    }
+   ],
+   "illustration": {
+    "svg": "<svg xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"0 0 640 360\"><defs><linearGradient id=\"g\" x1=\"0\" y1=\"0\" x2=\"1\" y2=\"1\"><stop offset=\"0\" stop-color=\"hsl(265,70%,38%)\"/><stop offset=\"1\" stop-color=\"hsl(295,75%,22%)\"/></linearGradient></defs><rect width=\"640\" height=\"360\" fill=\"url(#g)\"/><circle cx=\"560\" cy=\"60\" r=\"70\" fill=\"#fff\" opacity=\".07\"/><circle cx=\"80\" cy=\"310\" r=\"90\" fill=\"#fff\" opacity=\".06\"/><rect x=\"250\" y=\"110\" width=\"140\" height=\"140\" rx=\"14\" fill=\"none\" stroke=\"#fff\" stroke-width=\"10\"/><rect x=\"288\" y=\"148\" width=\"64\" height=\"64\" rx=\"6\" fill=\"#fff\" opacity=\".85\"/><path d=\"M280 110 v-30 M280 250 v30 M250 140 h-30 M390 140 h30\" stroke=\"#fff\" stroke-width=\"8\"/><path d=\"M320 110 v-30 M320 250 v30 M250 180 h-30 M390 180 h30\" stroke=\"#fff\" stroke-width=\"8\"/><path d=\"M360 110 v-30 M360 250 v30 M250 220 h-30 M390 220 h30\" stroke=\"#fff\" stroke-width=\"8\"/></svg>"
+   },
+   "blocks": [
+    {
+     "type": "paragraph",
+     "text": "Ubuntu, la distribution Linux la plus répandue sur les postes de travail, prépare une version dont le système ne peut presque plus être modifié une fois démarré. Dans sa conférence d'ouverture de l'Ubuntu Summit 26.10, Jon Seager, vice-président de l'ingénierie de Canonical, a détaillé le calendrier d'**Ubuntu Core Desktop**, compte rendu publié par The Register le 20 novembre 2026."
+    },
+    {
+     "type": "heading",
+     "text": "Un système entier empaqueté en snaps"
+    },
+    {
+     "type": "paragraph",
+     "text": "Ubuntu Core fonctionne déjà sur de nombreux objets connectés ; la version pour poste de travail en est le chaînon manquant. L'idée est d'empaqueter tout le système d'exploitation Linux sous forme de snaps, de sorte que l'essentiel du système ne puisse pas être modifié à l'exécution. L'approche n'est pas neuve : Core 16 a près de dix ans et Core 22 a ajouté les mises à niveau de version sur place. Canonical reste attachée au format snap, alors que Red Hat soutient Flatpak. L'auteur de l'article juge l'implémentation de snap plus propre et plus simple, tout en notant que snap comme le futur Flatpak NG dépendent de systemd."
+    },
+    {
+     "type": "heading",
+     "text": "Composable, attestable, atomique"
+    },
+    {
+     "type": "list",
+     "items": [
+      "**Composable** : le système est assemblé à partir de composants empaquetés séparément, si bien que l'installation d'un élément n'entraîne pas de dépendances sans rapport.",
+      "**Attestable** : la confiance dans le système repose sur une racine de confiance matérielle, dans le prolongement du chiffrement de disque adossé au TPM arrivé avec Ubuntu 26.04.",
+      "**Atomique** : les mises à jour s'appliquent entièrement ou pas du tout, avec retour en arrière possible en cas de problème."
+     ]
+    },
+    {
+     "type": "paragraph",
+     "text": "Trois usages ont été esquissés : une machine centrée sur le navigateur, comparable à ChromeOS, que Jon Seager dit pratiquement prête ; une machine de jeu démarrant directement sur Steam, en réponse à SteamOS ; et un poste de développement immuable, qui évite aux développeurs de casser leur système avec des dépendances anciennes ou non maintenues."
+    },
+    {
+     "type": "keyvalue",
+     "items": [
+      {
+       "label": "Cible principale",
+       "value": "Ubuntu 28.04 LTS"
+      },
+      {
+       "label": "Objectif « très extensible »",
+       "value": "Téléchargement par défaut pour la 30.04"
+      },
+      {
+       "label": "Images de prévisualisation",
+       "value": "Quotidiennes, en GNOME et en KDE, attendues prochainement"
+      },
+      {
+       "label": "Ubuntu classique",
+       "value": "Maintenu, aucun retrait prévu"
+      }
+     ]
+    },
+    {
+     "type": "diagram",
+     "svg": "<svg xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"0 0 640 250\" font-family=\"system-ui,sans-serif\"><rect width=\"640\" height=\"250\" rx=\"14\" fill=\"#f3f5f9\"/><text x=\"320\" y=\"32\" font-size=\"17\" font-weight=\"700\" text-anchor=\"middle\" fill=\"#1b2433\">Du système classique au système immuable</text><rect x=\"20\" y=\"55\" width=\"134\" height=\"175\" rx=\"10\" fill=\"#fff\" stroke=\"hsl(265,60%,45%)\" stroke-width=\"1.6\"/><circle cx=\"87\" cy=\"80\" r=\"13\" fill=\"hsl(265,60%,45%)\"/><text x=\"87\" y=\"85\" font-size=\"13\" font-weight=\"700\" text-anchor=\"middle\" fill=\"#fff\">1</text><text x=\"87\" y=\"108\" font-size=\"13\" font-weight=\"700\" text-anchor=\"middle\" fill=\"#1b2433\">Aujourd'hui</text><text x=\"87\" y=\"148\" font-size=\"11.5\" text-anchor=\"middle\" fill=\"#3a4658\">Ubuntu classique et</text><text x=\"87\" y=\"163\" font-size=\"11.5\" text-anchor=\"middle\" fill=\"#3a4658\">Core pour l'IoT</text><path d=\"M156 142 h16 m-6 -6 l6 6 l-6 6\" fill=\"none\" stroke=\"hsl(265,60%,45%)\" stroke-width=\"2\"/><rect x=\"176\" y=\"55\" width=\"134\" height=\"175\" rx=\"10\" fill=\"#fff\" stroke=\"hsl(265,60%,45%)\" stroke-width=\"1.6\"/><circle cx=\"242\" cy=\"80\" r=\"13\" fill=\"hsl(265,60%,45%)\"/><text x=\"242\" y=\"85\" font-size=\"13\" font-weight=\"700\" text-anchor=\"middle\" fill=\"#fff\">2</text><text x=\"242\" y=\"108\" font-size=\"13\" font-weight=\"700\" text-anchor=\"middle\" fill=\"#1b2433\">Bientôt</text><text x=\"242\" y=\"148\" font-size=\"11.5\" text-anchor=\"middle\" fill=\"#3a4658\">Images quotidiennes</text><text x=\"242\" y=\"163\" font-size=\"11.5\" text-anchor=\"middle\" fill=\"#3a4658\">GNOME et KDE en</text><text x=\"242\" y=\"178\" font-size=\"11.5\" text-anchor=\"middle\" fill=\"#3a4658\">préversion</text><path d=\"M312 142 h16 m-6 -6 l6 6 l-6 6\" fill=\"none\" stroke=\"hsl(265,60%,45%)\" stroke-width=\"2\"/><rect x=\"331\" y=\"55\" width=\"134\" height=\"175\" rx=\"10\" fill=\"#fff\" stroke=\"hsl(265,60%,45%)\" stroke-width=\"1.6\"/><circle cx=\"398\" cy=\"80\" r=\"13\" fill=\"hsl(265,60%,45%)\"/><text x=\"398\" y=\"85\" font-size=\"13\" font-weight=\"700\" text-anchor=\"middle\" fill=\"#fff\">3</text><text x=\"398\" y=\"108\" font-size=\"13\" font-weight=\"700\" text-anchor=\"middle\" fill=\"#1b2433\">28.04 LTS</text><text x=\"398\" y=\"148\" font-size=\"11.5\" text-anchor=\"middle\" fill=\"#3a4658\">Débuts annoncés</text><text x=\"398\" y=\"163\" font-size=\"11.5\" text-anchor=\"middle\" fill=\"#3a4658\">d'Ubuntu Core Desktop</text><path d=\"M468 142 h16 m-6 -6 l6 6 l-6 6\" fill=\"none\" stroke=\"hsl(265,60%,45%)\" stroke-width=\"2\"/><rect x=\"486\" y=\"55\" width=\"134\" height=\"175\" rx=\"10\" fill=\"#fff\" stroke=\"hsl(265,60%,45%)\" stroke-width=\"1.6\"/><circle cx=\"553\" cy=\"80\" r=\"13\" fill=\"hsl(265,60%,45%)\"/><text x=\"553\" y=\"85\" font-size=\"13\" font-weight=\"700\" text-anchor=\"middle\" fill=\"#fff\">4</text><text x=\"553\" y=\"108\" font-size=\"13\" font-weight=\"700\" text-anchor=\"middle\" fill=\"#1b2433\">30.04</text><text x=\"553\" y=\"148\" font-size=\"11.5\" text-anchor=\"middle\" fill=\"#3a4658\">Objectif : en faire</text><text x=\"553\" y=\"163\" font-size=\"11.5\" text-anchor=\"middle\" fill=\"#3a4658\">le choix par défaut</text></svg>",
+     "alt": "Frise des étapes annoncées pour Ubuntu Core Desktop.",
+     "caption": "Calendrier présenté par Canonical, d'après The Register ; la dernière étape est un objectif, pas un engagement ferme."
+    },
+    {
+     "type": "usecases",
+     "title": "Exemples d'utilisation",
+     "items": [
+      {
+       "icon": "🖥️",
+       "title": "Poste en libre-service",
+       "text": "Une bibliothèque déploie un système quasi inaltérable : un redémarrage remet la machine dans son état d'origine."
+      },
+      {
+       "icon": "🧑‍💻",
+       "title": "Développeur",
+       "text": "Il garde un poste stable tout en travaillant dans des conteneurs, sans risquer de casser son système avec une dépendance obsolète."
+      },
+      {
+       "icon": "🎮",
+       "title": "Joueur sur salon",
+       "text": "Il installe une machine qui démarre sur Steam et se met à jour de façon atomique, avec retour arrière si une mise à jour pose problème."
+      }
+     ]
+    },
+    {
+     "type": "timeline",
+     "title": "D'où l'on vient, où l'on va",
+     "items": [
+      {
+       "label": "2016",
+       "text": "Ubuntu Core 16, première étape de l'immuabilité."
+      },
+      {
+       "label": "2023",
+       "text": "Canonical annonce un bureau Core pour 2024, promesse non tenue selon The Register."
+      },
+      {
+       "label": "2026",
+       "text": "Ubuntu 26.04 apporte le chiffrement de disque adossé au TPM ; annonce de la feuille de route au Summit 26.10."
+      },
+      {
+       "label": "28.04 LTS",
+       "text": "Cible de la première version stable de Core Desktop."
+      }
+     ]
+    },
+    {
+     "type": "opinion",
+     "title": "Notre avis",
+     "paragraphs": [
+      "Le calendrier est crédible sur le papier : les briques existent sur l'embarqué, et l'immuabilité répond à de vrais besoins de fiabilité. Mais la promesse de 2023 d'un bureau Core pour 2024 n'a pas été tenue, et Jon Seager a prévenu que les premières images viendraient avec leurs « dragons ». La polémique autour des snaps, souvent fondée sur des désaccords d'ouverture, accompagnera le projet.",
+      "À un horizon de deux ans, la bonne mesure sera la facilité de mise à jour pour les entreprises, qui évitent souvent les mises à niveau sur place. Si Canonical y parvient, l'immuabilité deviendra un argument ; sinon, elle restera un mode parmi d'autres. Il s'agit d'une analyse, non d'un fait."
+     ],
+     "verdict": "Une feuille de route ambitieuse, à juger sur pièces dès les premières images quotidiennes."
+    },
+    {
+     "type": "callout",
+     "title": "À retenir",
+     "text": "Ubuntu Core Desktop n'est pas encore disponible : la 28.04 LTS est la cible, la 30.04 par défaut un objectif très incertain. Ubuntu classique reste maintenu."
+    }
+   ],
+   "publishedAt": "2026-11-20T17:18:15+00:00",
+   "cover": {
+    "url": "https://image.theregister.com/5252431.jpg?imageId=5252431&x=0&y=0&cropw=100&croph=100&panox=0&panoy=0&panow=100&panoh=100&width=1200&height=683",
+    "alt": "Ubuntu Core Desktop : Canonical vise la version 28.04 LTS pour un bureau immuable, et rêve d'en faire la 30.04 par défaut",
+    "credit": "theregister.com"
+   },
+   "readingMinutes": 3
+  },
+  {
+   "id": "claude-problemes-ouverts-physique-trous-noirs",
+   "category": "ia",
+   "icon": "🕳️",
+   "title": "Claude résout deux problèmes ouverts de physique des trous noirs : ce qu'Anthropic affirme, et comment c'est vérifié",
+   "summary": "Anthropic dit qu'un groupe d'agents a tranché la transition de Hawking-Page à faible couplage et démontré une borne optimale du bootstrap modulaire en gravité 3D. Les preuves ont été vérifiées en Lean et par un physicien.",
+   "tags": [
+    "Anthropic",
+    "Claude",
+    "physique théorique",
+    "trous noirs",
+    "Lean"
+   ],
+   "importance": 5,
+   "sourceDate": "2026-11-17",
+   "sources": [
+    {
+     "title": "Claude solves two open problems in the physics of black holes",
+     "url": "https://www.anthropic.com/research/claude-black-hole-physics",
+     "publisher": "Anthropic"
+    }
+   ],
+   "illustration": {
+    "svg": "<svg xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"0 0 640 360\"><defs><linearGradient id=\"g\" x1=\"0\" y1=\"0\" x2=\"1\" y2=\"1\"><stop offset=\"0\" stop-color=\"hsl(320,70%,38%)\"/><stop offset=\"1\" stop-color=\"hsl(350,75%,22%)\"/></linearGradient></defs><rect width=\"640\" height=\"360\" fill=\"url(#g)\"/><circle cx=\"560\" cy=\"60\" r=\"70\" fill=\"#fff\" opacity=\".07\"/><circle cx=\"80\" cy=\"310\" r=\"90\" fill=\"#fff\" opacity=\".06\"/><circle cx=\"250\" cy=\"180\" r=\"22\" fill=\"#fff\"/><circle cx=\"390\" cy=\"120\" r=\"22\" fill=\"#fff\"/><circle cx=\"390\" cy=\"240\" r=\"22\" fill=\"#fff\"/><circle cx=\"320\" cy=\"180\" r=\"30\" fill=\"#fff\" opacity=\".9\"/><path d=\"M250 180 L320 180 L390 120 M320 180 L390 240\" stroke=\"#fff\" stroke-width=\"7\" fill=\"none\"/></svg>"
+   },
+   "blocks": [
+    {
+     "type": "paragraph",
+     "text": "Dans un billet publié le 17 novembre 2026, Anthropic affirme que son modèle Claude a résolu deux problèmes ouverts de la physique théorique des trous noirs. Il s'agit d'une annonce de l'éditeur, accompagnée de deux préprints : les conclusions doivent donc être lues comme telles, en attendant l'examen de la communauté. Le billet précise lui-même qu'aucun des deux résultats ne décrit directement notre univers et qu'ils n'ont pas d'application pratique."
+    },
+    {
+     "type": "heading",
+     "text": "Premier problème : la transition de Hawking-Page"
+    },
+    {
+     "type": "paragraph",
+     "text": "La question est de savoir si le passage entre un gaz chaud de particules et un trou noir est abrupt, comme Hawking et Page l'ont montré en 1983, dans un régime où l'espace-temps devient flou, celui de la théorie N=4 super Yang-Mills à faible couplage. En 2003, Ofer Aharony et ses collègues avaient décrit un calcul censé trancher, reposant sur un seul nombre apparaissant à trois boucles et sur des milliers de termes ; il n'avait jamais été achevé. Selon Anthropic, Claude a trouvé que la transition est abrupte, en accord avec la prédiction du côté gravitationnel, à faible comme à fort couplage ; il est naturel de penser qu'elle le reste entre les deux. Les auteurs signalent des questions ouvertes, par exemple la persistance du gaz surchauffé jusqu'à la transition de Hagedorn."
+    },
+    {
+     "type": "heading",
+     "text": "Second problème : le bootstrap modulaire en gravité 3D"
+    },
+    {
+     "type": "paragraph",
+     "text": "Il s'agit de la masse maximale du trou noir le plus léger dans une théorie cohérente de gravité quantique à trois dimensions, dans la version la plus simple de la méthode, qui ignore le spin. Hellerman avait fixé un plafond de c/6 en 2009, puis Hartman, Mazáč et Rastelli avaient démontré c/8,5, alors que les calculs numériques suggéraient un optimum voisin de c/9,1. Claude aurait démontré une borne M₁ ≤ c/Λ, où Λ, donné par une formule exacte, vaut environ 9,1266, et prouvé qu'elle est optimale pour cette version de la méthode. Il a repéré dans les résultats numériques une régularité que les physiciens avaient manquée, puis employé une courbe spectrale. La méthode ne peut pas, seule, atteindre c/12, la masse à partir de laquelle apparaissent les trous noirs."
+    },
+    {
+     "type": "keyvalue",
+     "items": [
+      {
+       "label": "Annonce",
+       "value": "17 novembre 2026, Anthropic"
+      },
+      {
+       "label": "Préprints",
+       "value": "2611.00175v1 (Hawking-Page) et 2611.00174v1 (bootstrap modulaire)"
+      },
+      {
+       "label": "Vérification",
+       "value": "Formalisation en Lean en septembre ; relecture par un physicien"
+      },
+      {
+       "label": "Portée",
+       "value": "Aucune application pratique, ne décrit pas directement notre univers"
+      }
+     ]
+    },
+    {
+     "type": "heading",
+     "text": "Comment les résultats ont été vérifiés"
+    },
+    {
+     "type": "list",
+     "items": [
+      "Le chercheur Hongbin Chen a testé les capacités de Claude en août, comme projet annexe : Claude a proposé 22 problèmes ouverts, chacun confié pendant environ six semaines à des agents travaillant en arrière-plan.",
+      "Pour Hawking-Page, deux solutions par des méthodes différentes se sont recoupées, et un physicien ayant utilisé Claude de son côté a partagé un résultat concordant.",
+      "Pour le bootstrap, un agent avait échoué lors de 61 tentatives parallèles ; deux autres sont parvenus indépendamment à la même réponse, et la moitié de la preuve reprend la stratégie d'une récente démonstration d'OpenAI sur l'empilement de sphères.",
+      "Les résultats ont été vérifiés formellement dans Lean, un assistant de preuve ; Claude a rédigé les articles et un physicien a contrôlé chaque résultat principal."
+     ]
+    },
+    {
+     "type": "diagram",
+     "svg": "<svg xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"0 0 640 250\" font-family=\"system-ui,sans-serif\"><rect width=\"640\" height=\"250\" rx=\"14\" fill=\"#f3f5f9\"/><text x=\"320\" y=\"32\" font-size=\"17\" font-weight=\"700\" text-anchor=\"middle\" fill=\"#1b2433\">Du problème ouvert à la preuve vérifiée</text><rect x=\"20\" y=\"55\" width=\"134\" height=\"175\" rx=\"10\" fill=\"#fff\" stroke=\"hsl(320,60%,45%)\" stroke-width=\"1.6\"/><circle cx=\"87\" cy=\"80\" r=\"13\" fill=\"hsl(320,60%,45%)\"/><text x=\"87\" y=\"85\" font-size=\"13\" font-weight=\"700\" text-anchor=\"middle\" fill=\"#fff\">1</text><text x=\"87\" y=\"108\" font-size=\"13\" font-weight=\"700\" text-anchor=\"middle\" fill=\"#1b2433\">Proposition</text><text x=\"87\" y=\"148\" font-size=\"11.5\" text-anchor=\"middle\" fill=\"#3a4658\">Claude propose 22</text><text x=\"87\" y=\"163\" font-size=\"11.5\" text-anchor=\"middle\" fill=\"#3a4658\">problèmes ouverts</text><path d=\"M156 142 h16 m-6 -6 l6 6 l-6 6\" fill=\"none\" stroke=\"hsl(320,60%,45%)\" stroke-width=\"2\"/><rect x=\"176\" y=\"55\" width=\"134\" height=\"175\" rx=\"10\" fill=\"#fff\" stroke=\"hsl(320,60%,45%)\" stroke-width=\"1.6\"/><circle cx=\"242\" cy=\"80\" r=\"13\" fill=\"hsl(320,60%,45%)\"/><text x=\"242\" y=\"85\" font-size=\"13\" font-weight=\"700\" text-anchor=\"middle\" fill=\"#fff\">2</text><text x=\"242\" y=\"108\" font-size=\"13\" font-weight=\"700\" text-anchor=\"middle\" fill=\"#1b2433\">Travail d'agents</text><text x=\"242\" y=\"148\" font-size=\"11.5\" text-anchor=\"middle\" fill=\"#3a4658\">Environ six semaines</text><text x=\"242\" y=\"163\" font-size=\"11.5\" text-anchor=\"middle\" fill=\"#3a4658\">en arrière-plan par</text><text x=\"242\" y=\"178\" font-size=\"11.5\" text-anchor=\"middle\" fill=\"#3a4658\">problème</text><path d=\"M312 142 h16 m-6 -6 l6 6 l-6 6\" fill=\"none\" stroke=\"hsl(320,60%,45%)\" stroke-width=\"2\"/><rect x=\"331\" y=\"55\" width=\"134\" height=\"175\" rx=\"10\" fill=\"#fff\" stroke=\"hsl(320,60%,45%)\" stroke-width=\"1.6\"/><circle cx=\"398\" cy=\"80\" r=\"13\" fill=\"hsl(320,60%,45%)\"/><text x=\"398\" y=\"85\" font-size=\"13\" font-weight=\"700\" text-anchor=\"middle\" fill=\"#fff\">3</text><text x=\"398\" y=\"108\" font-size=\"13\" font-weight=\"700\" text-anchor=\"middle\" fill=\"#1b2433\">Recoupement</text><text x=\"398\" y=\"148\" font-size=\"11.5\" text-anchor=\"middle\" fill=\"#3a4658\">Solutions</text><text x=\"398\" y=\"163\" font-size=\"11.5\" text-anchor=\"middle\" fill=\"#3a4658\">indépendantes</text><text x=\"398\" y=\"178\" font-size=\"11.5\" text-anchor=\"middle\" fill=\"#3a4658\">comparées</text><path d=\"M468 142 h16 m-6 -6 l6 6 l-6 6\" fill=\"none\" stroke=\"hsl(320,60%,45%)\" stroke-width=\"2\"/><rect x=\"486\" y=\"55\" width=\"134\" height=\"175\" rx=\"10\" fill=\"#fff\" stroke=\"hsl(320,60%,45%)\" stroke-width=\"1.6\"/><circle cx=\"553\" cy=\"80\" r=\"13\" fill=\"hsl(320,60%,45%)\"/><text x=\"553\" y=\"85\" font-size=\"13\" font-weight=\"700\" text-anchor=\"middle\" fill=\"#fff\">4</text><text x=\"553\" y=\"108\" font-size=\"13\" font-weight=\"700\" text-anchor=\"middle\" fill=\"#1b2433\">Vérification</text><text x=\"553\" y=\"148\" font-size=\"11.5\" text-anchor=\"middle\" fill=\"#3a4658\">Formalisation en</text><text x=\"553\" y=\"163\" font-size=\"11.5\" text-anchor=\"middle\" fill=\"#3a4658\">Lean, relecture par</text><text x=\"553\" y=\"178\" font-size=\"11.5\" text-anchor=\"middle\" fill=\"#3a4658\">un physicien</text></svg>",
+     "alt": "Schéma du processus de recherche et de vérification décrit par Anthropic.",
+     "caption": "Processus décrit dans le billet d'Anthropic du 17 novembre 2026."
+    },
+    {
+     "type": "usecases",
+     "title": "Exemples d'utilisation",
+     "items": [
+      {
+       "icon": "🔬",
+       "title": "Laboratoire de physique théorique",
+       "text": "Une équipe confie à un groupe d'agents un calcul de plusieurs milliers de termes laissé inachevé, puis demande une double résolution indépendante."
+      },
+      {
+       "icon": "🧮",
+       "title": "Mathématicien",
+       "text": "Il utilise un assistant de preuve comme Lean pour valider un résultat produit par un modèle, avant de le soumettre à relecture."
+      },
+      {
+       "icon": "🏭",
+       "title": "Éditeur de revue",
+       "text": "Il définit une politique de relecture : preuve formalisée, code fourni, vérification humaine des énoncés principaux."
+      }
+     ]
+    },
+    {
+     "type": "timeline",
+     "title": "D'où l'on vient, où l'on va",
+     "items": [
+      {
+       "label": "1983",
+       "text": "Hawking et Page décrivent la transition côté gravité."
+      },
+      {
+       "label": "2003",
+       "text": "Aharony et al. proposent un calcul à faible couplage, jamais achevé."
+      },
+      {
+       "label": "2009",
+       "text": "Hellerman fixe le plafond c/6."
+      },
+      {
+       "label": "Août - septembre 2026",
+       "text": "Projet interne d'Anthropic, vérification en Lean."
+      },
+      {
+       "label": "17 novembre 2026",
+       "text": "Publication du billet et des préprints."
+      }
+     ]
+    },
+    {
+     "type": "opinion",
+     "title": "Notre avis",
+     "paragraphs": [
+      "Si les résultats tiennent, l'intérêt est double : deux questions anciennes tranchées, et surtout une méthode, des agents qui se recoupent plus un vérificateur formel, qui réduit la part de confiance placée dans le modèle. La précaution reste de mise : la source est l'éditeur du modèle, et les préprints n'ont pas encore subi d'examen par les pairs.",
+      "À un horizon de un à trois ans, ce type de collaboration pourrait devenir courant pour les calculs longs et vérifiables, tandis que les questions demandant des idées neuves resteront plus difficiles à évaluer. C'est une projection."
+     ],
+     "verdict": "Une démonstration prometteuse de la recherche assistée par IA, dont la portée dépendra de l'examen indépendant des préprints."
+    },
+    {
+     "type": "callout",
+     "title": "À retenir",
+     "text": "Annonce d'éditeur : les deux résultats sont des préprints non encore évalués par des pairs, mais vérifiés en Lean et relus par un physicien selon Anthropic."
+    }
+   ],
+   "publishedAt": "2026-11-20T17:18:15+00:00",
+   "cover": {
+    "url": "https://assets.claude.com/57a443b51d13727573b7c1290130d09c5f434b2c.jpg",
+    "alt": "Claude résout deux problèmes ouverts de physique des trous noirs : ce qu'Anthropic affirme, et comment c'est vérifié",
+    "credit": "anthropic.com"
+   },
+   "readingMinutes": 4
+  },
+  {
+   "id": "mozilla-ios-moteurs-alternatifs-porte-piege",
+   "category": "web",
+   "icon": "🦊",
+   "title": "iPhone : aucun navigateur non-WebKit près de trois ans après les conditions d'Apple dans l'UE, Mozilla dénonce des conditions d'Apple « inapplicables »",
+   "summary": "Le 20 novembre 2026, Mozilla affirme que les règles imposées par Apple aux moteurs de navigateur alternatifs, dans l'Union européenne comme au Japon, ont empêché tout lancement d'un navigateur non-WebKit sur iOS.",
+   "tags": [
+    "Mozilla",
+    "Firefox",
+    "Gecko",
+    "Apple",
+    "DMA",
+    "iOS"
+   ],
+   "importance": 4,
+   "sourceDate": "2026-11-20",
+   "sources": [
+    {
+     "title": "Why there are still no non-WebKit browsers on iOS",
+     "url": "https://blog.mozilla.org/en/mozilla/internet-policy/apple-ios-browser-engine-rules/",
+     "publisher": "Mozilla"
+    }
+   ],
+   "illustration": {
+    "svg": "<svg xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"0 0 640 360\"><defs><linearGradient id=\"g\" x1=\"0\" y1=\"0\" x2=\"1\" y2=\"1\"><stop offset=\"0\" stop-color=\"hsl(210,70%,38%)\"/><stop offset=\"1\" stop-color=\"hsl(240,75%,22%)\"/></linearGradient></defs><rect width=\"640\" height=\"360\" fill=\"url(#g)\"/><circle cx=\"560\" cy=\"60\" r=\"70\" fill=\"#fff\" opacity=\".07\"/><circle cx=\"80\" cy=\"310\" r=\"90\" fill=\"#fff\" opacity=\".06\"/><circle cx=\"320\" cy=\"180\" r=\"100\" fill=\"none\" stroke=\"#fff\" stroke-width=\"9\"/><ellipse cx=\"320\" cy=\"180\" rx=\"45\" ry=\"100\" fill=\"none\" stroke=\"#fff\" stroke-width=\"7\"/><path d=\"M220 180 H420 M235 135 H405 M235 225 H405\" stroke=\"#fff\" stroke-width=\"6\"/></svg>"
+   },
+   "blocks": [
+    {
+     "type": "paragraph",
+     "text": "Sur iPhone et iPad, tous les navigateurs reposent sur le moteur WebKit d'Apple, Firefox et Chrome compris. Dans un billet publié le 20 novembre 2026, Mozilla explique pourquoi cette situation perdure, malgré l'ouverture théorique du marché européen puis japonais. Il s'agit de la position de Mozilla, partie prenante du dossier, et non d'un constat indépendant : la réponse d'Apple ne figure pas dans le billet."
+    },
+    {
+     "type": "heading",
+     "text": "Un cadre juridique qui s'ouvre, une pratique qui ne suit pas"
+    },
+    {
+     "type": "list",
+     "items": [
+      "**Union européenne** : depuis 2024, le règlement sur les marchés numériques (DMA) oblige Apple à proposer un choix du navigateur par défaut. Selon Mozilla, des millions d'utilisateurs ont choisi Firefox, et l'usage quotidien de Firefox sur iOS a doublé.",
+      "**Moteurs alternatifs** : toujours sous le DMA, Apple autorise des moteurs autres que WebKit dans l'UE, mais a publié des conditions que les développeurs doivent remplir. Mozilla estime qu'elles rendent la création d'une alternative aussi difficile que possible.",
+      "**Japon** : un texte national impose lui aussi l'ouverture, depuis près d'un an ; Apple y applique des conditions très proches de celles de l'UE."
+     ]
+    },
+    {
+     "type": "paragraph",
+     "text": "Près de trois ans après les conditions européennes, aucun développeur n'a lancé de navigateur non-WebKit sur iOS, ni dans l'UE ni au Japon. Mozilla juge qu'une règle se mesure à son effet réel, pas à sa seule conformité formelle."
+    },
+    {
+     "type": "heading",
+     "text": "L'exemple concret donné par Mozilla"
+    },
+    {
+     "type": "paragraph",
+     "text": "D'après Mozilla, les conditions actuelles ne permettent pas de mettre à jour l'application Firefox que les utilisateurs possèdent déjà : il faudrait construire une seconde application Firefox. Les utilisateurs devraient la télécharger, transférer leurs favoris, mots de passe et historique, puis basculer manuellement, par une série d'étapes confuses. Beaucoup abandonneraient en chemin, y compris certains qui avaient choisi Firefox sur l'écran de choix européen. Mozilla ajoute que cette friction serait inacceptable pour Apple elle-même, que ses démarches discrètes pour faire évoluer les conditions ont largement échoué, et qu'une condition l'empêche de divulguer certains détails non publics. Sa métaphore : une porte ouverte qui ressemble à une trappe."
+    },
+    {
+     "type": "keyvalue",
+     "items": [
+      {
+       "label": "Moteur imposé",
+       "value": "WebKit, sur tous les navigateurs iOS hors dérogations"
+      },
+      {
+       "label": "Règles européennes",
+       "value": "Depuis 2024 : choix du navigateur et moteurs alternatifs sous conditions"
+      },
+      {
+       "label": "Bilan selon Mozilla",
+       "value": "Aucun navigateur non-WebKit lancé dans l'UE ni au Japon"
+      },
+      {
+       "label": "Moteur de Mozilla",
+       "value": "Gecko, dernier grand moteur non développé par une grande entreprise du numérique, selon Mozilla"
+      }
+     ]
+    },
+    {
+     "type": "diagram",
+     "svg": "<svg xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"0 0 640 250\" font-family=\"system-ui,sans-serif\"><rect width=\"640\" height=\"250\" rx=\"14\" fill=\"#f3f5f9\"/><text x=\"320\" y=\"32\" font-size=\"17\" font-weight=\"700\" text-anchor=\"middle\" fill=\"#1b2433\">Mise à jour de Firefox : ce que décrit Mozilla</text><rect x=\"20\" y=\"55\" width=\"134\" height=\"175\" rx=\"10\" fill=\"#fff\" stroke=\"hsl(210,60%,45%)\" stroke-width=\"1.6\"/><circle cx=\"87\" cy=\"80\" r=\"13\" fill=\"hsl(210,60%,45%)\"/><text x=\"87\" y=\"85\" font-size=\"13\" font-weight=\"700\" text-anchor=\"middle\" fill=\"#fff\">1</text><text x=\"87\" y=\"108\" font-size=\"13\" font-weight=\"700\" text-anchor=\"middle\" fill=\"#1b2433\">Aujourd'hui</text><text x=\"87\" y=\"148\" font-size=\"11.5\" text-anchor=\"middle\" fill=\"#3a4658\">Une seule app Firefox</text><text x=\"87\" y=\"163\" font-size=\"11.5\" text-anchor=\"middle\" fill=\"#3a4658\">sur iOS, moteur</text><text x=\"87\" y=\"178\" font-size=\"11.5\" text-anchor=\"middle\" fill=\"#3a4658\">WebKit</text><path d=\"M156 142 h16 m-6 -6 l6 6 l-6 6\" fill=\"none\" stroke=\"hsl(210,60%,45%)\" stroke-width=\"2\"/><rect x=\"176\" y=\"55\" width=\"134\" height=\"175\" rx=\"10\" fill=\"#fff\" stroke=\"hsl(210,60%,45%)\" stroke-width=\"1.6\"/><circle cx=\"242\" cy=\"80\" r=\"13\" fill=\"hsl(210,60%,45%)\"/><text x=\"242\" y=\"85\" font-size=\"13\" font-weight=\"700\" text-anchor=\"middle\" fill=\"#fff\">2</text><text x=\"242\" y=\"108\" font-size=\"13\" font-weight=\"700\" text-anchor=\"middle\" fill=\"#1b2433\">Avec Gecko</text><text x=\"242\" y=\"148\" font-size=\"11.5\" text-anchor=\"middle\" fill=\"#3a4658\">Une seconde</text><text x=\"242\" y=\"163\" font-size=\"11.5\" text-anchor=\"middle\" fill=\"#3a4658\">application Firefox à</text><text x=\"242\" y=\"178\" font-size=\"11.5\" text-anchor=\"middle\" fill=\"#3a4658\">construire</text><path d=\"M312 142 h16 m-6 -6 l6 6 l-6 6\" fill=\"none\" stroke=\"hsl(210,60%,45%)\" stroke-width=\"2\"/><rect x=\"331\" y=\"55\" width=\"134\" height=\"175\" rx=\"10\" fill=\"#fff\" stroke=\"hsl(210,60%,45%)\" stroke-width=\"1.6\"/><circle cx=\"398\" cy=\"80\" r=\"13\" fill=\"hsl(210,60%,45%)\"/><text x=\"398\" y=\"85\" font-size=\"13\" font-weight=\"700\" text-anchor=\"middle\" fill=\"#fff\">3</text><text x=\"398\" y=\"108\" font-size=\"13\" font-weight=\"700\" text-anchor=\"middle\" fill=\"#1b2433\">Pour l'utilisateur</text><text x=\"398\" y=\"148\" font-size=\"11.5\" text-anchor=\"middle\" fill=\"#3a4658\">Télécharger,</text><text x=\"398\" y=\"163\" font-size=\"11.5\" text-anchor=\"middle\" fill=\"#3a4658\">transférer favoris et</text><text x=\"398\" y=\"178\" font-size=\"11.5\" text-anchor=\"middle\" fill=\"#3a4658\">mots de passe</text><path d=\"M468 142 h16 m-6 -6 l6 6 l-6 6\" fill=\"none\" stroke=\"hsl(210,60%,45%)\" stroke-width=\"2\"/><rect x=\"486\" y=\"55\" width=\"134\" height=\"175\" rx=\"10\" fill=\"#fff\" stroke=\"hsl(210,60%,45%)\" stroke-width=\"1.6\"/><circle cx=\"553\" cy=\"80\" r=\"13\" fill=\"hsl(210,60%,45%)\"/><text x=\"553\" y=\"85\" font-size=\"13\" font-weight=\"700\" text-anchor=\"middle\" fill=\"#fff\">4</text><text x=\"553\" y=\"108\" font-size=\"13\" font-weight=\"700\" text-anchor=\"middle\" fill=\"#1b2433\">Risque</text><text x=\"553\" y=\"148\" font-size=\"11.5\" text-anchor=\"middle\" fill=\"#3a4658\">Abandon en cours de</text><text x=\"553\" y=\"163\" font-size=\"11.5\" text-anchor=\"middle\" fill=\"#3a4658\">route, selon Mozilla</text></svg>",
+     "alt": "Schéma des étapes que devrait suivre un utilisateur pour passer à une version de Firefox sur Gecko sur iPhone.",
+     "caption": "Description fournie par Mozilla ; Apple n'a pas été interrogée dans le billet source."
+    },
+    {
+     "type": "usecases",
+     "title": "Exemples d'utilisation",
+     "items": [
+      {
+       "icon": "🧑‍💻",
+       "title": "Développeur web",
+       "text": "Il teste son site avec Gecko sur d'autres systèmes, mais ne peut pas encore le faire sur iPhone : les écarts de comportement de WebKit restent à vérifier sur un appareil Apple."
+      },
+      {
+       "icon": "🏛️",
+       "title": "Régulateur ou association",
+       "text": "Elle examine non seulement le texte de la règle, mais aussi le nombre de navigateurs réellement lancés, comme Mozilla propose de le faire."
+      },
+      {
+       "icon": "📱",
+       "title": "Utilisateur de Firefox sur iPhone",
+       "text": "Il constate que son navigateur partage le moteur de Safari, et que des fonctions propres à Gecko ne seront pas disponibles tant que la situation ne change pas."
+      }
+     ]
+    },
+    {
+     "type": "timeline",
+     "title": "D'où l'on vient, où l'on va",
+     "items": [
+      {
+       "label": "2024",
+       "text": "Le DMA impose le choix du navigateur par défaut et ouvre l'iPhone aux moteurs alternatifs, sous conditions."
+      },
+      {
+       "label": "Fin 2025",
+       "text": "Le Japon introduit ses propres règles, avec des conditions très proches."
+      },
+      {
+       "label": "20 novembre 2026",
+       "text": "Mozilla constate qu'aucun navigateur non-WebKit n'a été lancé et réclame de vraies conditions de concurrence."
+      }
+     ]
+    },
+    {
+     "type": "opinion",
+     "title": "Notre avis",
+     "paragraphs": [
+      "L'argument de Mozilla porte sur un point juridique central : une ouverture théorique n'a de valeur que si elle produit du changement. Le coût d'une seconde application et la perte du transfert d'historique forment une friction que personne n'accepterait pour une application d'Apple. L'avis de Mozilla est toutefois celui d'un acteur concerné, et la réponse d'Apple manque dans la source.",
+      "Dans les deux ans à venir, le test viendra des autorités de la concurrence : mesureront-elles la conformité aux textes ou leurs résultats ? C'est une opinion, non un fait."
+     ],
+     "verdict": "L'ouverture annoncée n'a, pour l'heure, produit aucun navigateur concurrent de WebKit sur iPhone."
+    },
+    {
+     "type": "callout",
+     "title": "À retenir",
+     "text": "Fait rapporté : aucun navigateur non-WebKit n'est lancé sur iOS. Position de Mozilla : les conditions d'Apple sont inapplicables. Réponse d'Apple : non fournie dans la source."
+    }
+   ],
+   "publishedAt": "2026-11-20T17:18:15+00:00",
+   "readingMinutes": 3
+  },
+  {
+   "id": "circuits-imprimes-penurie-ia-2028",
+   "category": "electronique",
+   "icon": "🧩",
+   "title": "Circuits imprimés : l'essor de l'IA menace une pénurie comparable à celle des puces, sans répit avant mi-2028",
+   "summary": "Un rapport de la Global Electronics Association signale des commandes en hausse de 56 % contre 13 % d'expéditions en Amérique du Nord, des délais allongés et des prix en forte hausse pour les stratifiés et le tissu de verre.",
+   "tags": [
+    "PCB",
+    "circuits imprimés",
+    "serveurs IA",
+    "pénurie",
+    "chaîne d'approvisionnement"
+   ],
+   "importance": 5,
+   "sourceDate": "2026-11-20",
+   "sources": [
+    {
+     "title": "AI boom threatens circuit board crunch to rival pandemic-era chip shortage",
+     "url": "https://www.theregister.com/systems/2026/11/20/ai-boom-threatens-circuit-board-crunch-to-rival-pandemic-era-chip-shortage/5311335",
+     "publisher": "The Register"
+    }
+   ],
+   "illustration": {
+    "svg": "<svg xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"0 0 640 360\"><defs><linearGradient id=\"g\" x1=\"0\" y1=\"0\" x2=\"1\" y2=\"1\"><stop offset=\"0\" stop-color=\"hsl(30,70%,38%)\"/><stop offset=\"1\" stop-color=\"hsl(60,75%,22%)\"/></linearGradient></defs><rect width=\"640\" height=\"360\" fill=\"url(#g)\"/><circle cx=\"560\" cy=\"60\" r=\"70\" fill=\"#fff\" opacity=\".07\"/><circle cx=\"80\" cy=\"310\" r=\"90\" fill=\"#fff\" opacity=\".06\"/><rect x=\"250\" y=\"110\" width=\"140\" height=\"140\" rx=\"14\" fill=\"none\" stroke=\"#fff\" stroke-width=\"10\"/><rect x=\"288\" y=\"148\" width=\"64\" height=\"64\" rx=\"6\" fill=\"#fff\" opacity=\".85\"/><path d=\"M280 110 v-30 M280 250 v30 M250 140 h-30 M390 140 h30\" stroke=\"#fff\" stroke-width=\"8\"/><path d=\"M320 110 v-30 M320 250 v30 M250 180 h-30 M390 180 h30\" stroke=\"#fff\" stroke-width=\"8\"/><path d=\"M360 110 v-30 M360 250 v30 M250 220 h-30 M390 220 h30\" stroke=\"#fff\" stroke-width=\"8\"/></svg>"
+   },
+   "blocks": [
+    {
+     "type": "paragraph",
+     "text": "Après les puces et la mémoire, c'est un composant plus discret qui inquiète l'industrie électronique : le circuit imprimé. Dans un rapport intitulé « The PCB Squeeze: A Wake-Up Call for Global Electronics », cité par The Register le 20 novembre 2026, la Global Electronics Association avertit qu'une pénurie de cartes pourrait rivaliser avec la crise des semi-conducteurs de la pandémie. Le facteur déclenchant est l'infrastructure d'IA, qui absorbe une capacité rare : la demande arrive « à une échelle que la chaîne d'approvisionnement n'était pas conçue pour absorber »."
+    },
+    {
+     "type": "heading",
+     "text": "Pourquoi les serveurs d'IA pèsent autant"
+    },
+    {
+     "type": "paragraph",
+     "text": "Une carte de PC compte typiquement une douzaine de couches de pistes. Les cartes de serveurs d'IA en comptent 40 à 60, voire davantage, et chaque couche supplémentaire exige de la résine, de la feuille de cuivre et du stratifié. Ces cartes sont aussi plus longues à produire et laissent moins de temps de ligne aux cartes traditionnelles, confirme Cori Masters, analyste chez Gartner, pour qui les contraintes sur les matières amont sont visibles depuis plusieurs trimestres."
+    },
+    {
+     "type": "heading",
+     "text": "Les chiffres du rapport"
+    },
+    {
+     "type": "keyvalue",
+     "items": [
+      {
+       "label": "Commandes (Amérique du Nord, 9 premiers mois 2026)",
+       "value": "+56,1 % sur un an"
+      },
+      {
+       "label": "Expéditions (même période)",
+       "value": "+13,3 %"
+      },
+      {
+       "label": "Stratifié FR-4 standard",
+       "value": "6 à 8 semaines de délai, contre 2 à 3 un an plus tôt"
+      },
+      {
+       "label": "Stratifiés à faibles pertes",
+       "value": "14 à 18 semaines"
+      },
+      {
+       "label": "Stratifié (septembre)",
+       "value": "+30 % de hausse de prix par les fournisseurs"
+      },
+      {
+       "label": "Tissu de verre E-glass",
+       "value": "Jusqu'à +300 % pour certains types"
+      },
+      {
+       "label": "Cuivre",
+       "value": "+37 % sur un an"
+      }
+     ]
+    },
+    {
+     "type": "paragraph",
+     "text": "L'approvisionnement en matières devrait rester contraint au moins jusqu'au premier semestre 2027, et un vrai soulagement n'est pas attendu avant mi-2028. L'Asie produit plus de 90 % des cartes du monde ; environ 10 milliards de dollars ont été investis dans de nouvelles usines en Asie du Sud-Est, et au moins autant en Chine ces trois dernières années. Selon le rapport, ces capacités arrivent tard et par petites tranches, aussitôt absorbées par l'IA, les matières premières demeurant le goulot d'étranglement. Les programmes de l'automobile, de l'industrie, du médical et de la défense sont évincés."
+    },
+    {
+     "type": "diagram",
+     "svg": "<svg xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"0 0 640 140\" font-family=\"system-ui,sans-serif\"><rect width=\"640\" height=\"140\" rx=\"14\" fill=\"#f3f5f9\"/><text x=\"320\" y=\"32\" font-size=\"17\" font-weight=\"700\" text-anchor=\"middle\" fill=\"#1b2433\">Amérique du Nord : commandes et expéditions de PCB (9 premiers mois 2026)</text><text x=\"20\" y=\"71\" font-size=\"12.5\" fill=\"#1b2433\">Commandes (+56,1 %)</text><rect x=\"215\" y=\"55\" width=\"360\" height=\"22\" rx=\"5\" fill=\"hsl(30,60%,45%)\"/><text x=\"583\" y=\"71\" font-size=\"12.5\" font-weight=\"700\" fill=\"#1b2433\">56,1 %</text><text x=\"20\" y=\"111\" font-size=\"12.5\" fill=\"#1b2433\">Expéditions (+13,3 %)</text><rect x=\"215\" y=\"95\" width=\"85\" height=\"22\" rx=\"5\" fill=\"hsl(30,60%,45%)\"/><text x=\"308\" y=\"111\" font-size=\"12.5\" font-weight=\"700\" fill=\"#1b2433\">13,3 %</text></svg>",
+     "alt": "Diagramme à barres comparant la hausse des commandes de circuits imprimés à celle des expéditions.",
+     "caption": "Hausse sur un an des commandes et des expéditions en Amérique du Nord, d'après le rapport cité par The Register."
+    },
+    {
+     "type": "usecases",
+     "title": "Ce que cela change concrètement",
+     "items": [
+      {
+       "icon": "🚗",
+       "title": "Équipementier automobile",
+       "text": "Il commande ses cartes plus tôt, partage des prévisions réalistes avec ses fournisseurs et évite les doubles réservations, comme le conseille le rapport."
+      },
+      {
+       "icon": "🏥",
+       "title": "Fabricant de dispositifs médicaux",
+       "text": "Il qualifie des fournisseurs alternatifs de stratifiés avant d'être en rupture, pour protéger un programme déjà homologué."
+      },
+      {
+       "icon": "🏭",
+       "title": "Petit fabricant de cartes",
+       "text": "Il cherche un second approvisionnement en feuille de cuivre et compare les délais, sachant que les aides publiques demandées visent aussi les petites unités."
+      }
+     ]
+    },
+    {
+     "type": "timeline",
+     "title": "D'où l'on vient, où l'on va",
+     "items": [
+      {
+       "label": "Septembre 2026",
+       "text": "Les fournisseurs relèvent de 30 % le prix des stratifiés."
+      },
+      {
+       "label": "20 novembre 2026",
+       "text": "Le rapport de la Global Electronics Association alerte sur la pénurie."
+      },
+      {
+       "label": "Premier semestre 2027",
+       "text": "Les matières devraient rester contraintes au moins jusque-là."
+      },
+      {
+       "label": "Mi-2028",
+       "text": "Date avant laquelle aucun soulagement n'est attendu."
+      }
+     ]
+    },
+    {
+     "type": "opinion",
+     "title": "Notre avis",
+     "paragraphs": [
+      "Le message du rapport est cohérent avec ce que l'on observe sur la mémoire : l'IA déplace les capacités vers les produits les plus rentables, et les autres secteurs paient la facture, avec des retards et des surcoûts. L'écart entre 56 % de commandes en plus et 13 % d'expéditions en plus résume le déséquilibre. La source est cependant une association professionnelle, qui plaide aussi pour des aides publiques.",
+      "D'ici un à trois ans, les fabricants qui auront diversifié leurs matières et lissé leurs commandes s'en sortiront mieux ; les autres subiront des allongements de délais qui pèseront sur les prix des produits finis. C'est une analyse, non un fait établi."
+     ],
+     "verdict": "Après les puces et la mémoire, la carte imprimée devient un maillon critique de l'électronique."
+    },
+    {
+     "type": "callout",
+     "title": "À retenir",
+     "text": "Chiffres relatifs à l'Amérique du Nord pour les commandes et expéditions ; les délais et prix proviennent du même rapport cité par The Register."
+    }
+   ],
+   "publishedAt": "2026-11-20T17:18:15+00:00",
+   "cover": {
+    "url": "https://image.theregister.com/247172.jpg?imageId=247172&x=0&y=0&cropw=100&croph=100&panox=0&panoy=0&panow=100&panoh=100&width=1200&height=683",
+    "alt": "Circuits imprimés : l'essor de l'IA menace une pénurie comparable à celle des puces, sans répit avant mi-2028",
+    "credit": "theregister.com"
+   },
+   "readingMinutes": 3
+  },
+  {
+   "id": "frostbite-processeur-concu-par-ia-reseaux-interaction",
+   "category": "electronique",
+   "icon": "🧊",
+   "title": "Frostbite : un processeur « découvert, conçu et vérifié par l'IA » annonce 4,59 fois la performance par watt d'une référence, avant le silicium",
+   "summary": "Architect Labs présente un processeur fondé sur les réseaux d'interaction. Les chiffres, obtenus avant fabrication et face à une référence non nommée, sont encourageants mais loin d'une validation complète.",
+   "tags": [
+    "Frostbite",
+    "processeur",
+    "Architect Labs",
+    "réseaux d'interaction",
+    "conception assistée par IA"
+   ],
+   "importance": 4,
+   "sourceDate": "2026-11-18",
+   "sources": [
+    {
+     "title": "Frostbite: A new CPU architecture discovered, designed and verified by AI",
+     "url": "https://architectlabs.com/blog/frostbite",
+     "publisher": "Architect Labs"
+    }
+   ],
+   "illustration": {
+    "svg": "<svg xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"0 0 640 360\"><defs><linearGradient id=\"g\" x1=\"0\" y1=\"0\" x2=\"1\" y2=\"1\"><stop offset=\"0\" stop-color=\"hsl(30,70%,38%)\"/><stop offset=\"1\" stop-color=\"hsl(60,75%,22%)\"/></linearGradient></defs><rect width=\"640\" height=\"360\" fill=\"url(#g)\"/><circle cx=\"560\" cy=\"60\" r=\"70\" fill=\"#fff\" opacity=\".07\"/><circle cx=\"80\" cy=\"310\" r=\"90\" fill=\"#fff\" opacity=\".06\"/><rect x=\"250\" y=\"110\" width=\"140\" height=\"140\" rx=\"14\" fill=\"none\" stroke=\"#fff\" stroke-width=\"10\"/><rect x=\"288\" y=\"148\" width=\"64\" height=\"64\" rx=\"6\" fill=\"#fff\" opacity=\".85\"/><path d=\"M280 110 v-30 M280 250 v30 M250 140 h-30 M390 140 h30\" stroke=\"#fff\" stroke-width=\"8\"/><path d=\"M320 110 v-30 M320 250 v30 M250 180 h-30 M390 180 h30\" stroke=\"#fff\" stroke-width=\"8\"/><path d=\"M360 110 v-30 M360 250 v30 M250 220 h-30 M390 220 h30\" stroke=\"#fff\" stroke-width=\"8\"/></svg>"
+   },
+   "blocks": [
+    {
+     "type": "paragraph",
+     "text": "Concevoir un processeur est l'un des chantiers les plus lourds de l'informatique. Le 18 novembre 2026, Architect Labs a annoncé **Frostbite**, un processeur généraliste doté d'un nouveau jeu d'instructions que des systèmes d'IA auraient découvert, conçu et vérifié de bout en bout, du compilateur et de l'architecture jusqu'à la description matérielle (RTL) et au dessin final (GDS). Les résultats viennent de l'entreprise elle-même et sont issus de simulations avant fabrication : ils sont à lire comme tels."
+    },
+    {
+     "type": "heading",
+     "text": "Une architecture fondée sur les réseaux d'interaction"
+    },
+    {
+     "type": "paragraph",
+     "text": "Frostbite repose sur les réseaux d'interaction, un modèle de calcul où les programmes sont des graphes de nœuds qui se réécrivent localement. Selon l'entreprise, la propriété « chaque valeur a un seul propriétaire », combinée à des étapes locales et à des dépendances explicites, permet au matériel de trouver directement le parallélisme dans le programme, sans fils d'exécution, verrous ni logique d'exécution dans le désordre. Les données résident dans de petites mémoires locales, près de leur lieu d'usage, ce qui réduit les grands caches et la logique de cohérence des multicœurs classiques. Les programmes s'écrivent en Vine, un langage proche de Rust, compilé vers une représentation intermédiaire appelée Ivy."
+    },
+    {
+     "type": "heading",
+     "text": "Comment l'IA a conçu la puce"
+    },
+    {
+     "type": "paragraph",
+     "text": "Architect Labs a décrit le processeur dans un langage de spécification formelle, ASL. Son modèle de système, Arcmodel, a été aligné avec le RTL, ce qui a ramené une erreur d'estimation de puissance d'environ 250 % à moins de 5 %. Les contrats ASL ont été traduits en plus de 800 000 lignes de Lean pour la preuve de théorèmes. Des essaims d'agents ont testé 58 idées d'architecture et en ont retenu 37. Aucun ordonnanceur central n'existe : chaque tuile exécute son travail en attente, en vole à une voisine si elle est inactive, sinon se met en veille ; l'entreprise affirme qu'aucun humain n'a spécifié ce comportement."
+    },
+    {
+     "type": "heading",
+     "text": "Les résultats annoncés"
+    },
+    {
+     "type": "keyvalue",
+     "items": [
+      {
+       "label": "Performance par watt",
+       "value": "4,59 fois la référence (moyenne géométrique sur 25 charges)"
+      },
+      {
+       "label": "Jeu de recherche / jeu retenu",
+       "value": "6,02 fois / 3,83 fois"
+      },
+      {
+       "label": "Extrêmes",
+       "value": "23,12 fois sur conv2d, 1,15 fois sur fib"
+      },
+      {
+       "label": "Performance par surface",
+       "value": "8,77 fois en moyenne"
+      },
+      {
+       "label": "Fréquence",
+       "value": "800 MHz à la synthèse, 500 MHz après le dessin final"
+      },
+      {
+       "label": "Procédé",
+       "value": "7 nm, quad de 0,792 mm² contre un cœur de 0,895 mm²"
+      }
+     ]
+    },
+    {
+     "type": "paragraph",
+     "text": "Les 25 charges de travail comprennent gemm, FFT, tri par base, analyse de JSON, codage de Huffman et arbres k-d. Dix ont servi à la conception et quinze, retenues, à l'évaluation finale. La répartition de l'énergie évolue : la référence consacre 57 % à la mémoire et 27 % à la recherche, au décodage et à l'émission des instructions, contre 38 % et 6 % pour Frostbite, qui dépense 26 % dans son réseau et son ordonnanceur."
+    },
+    {
+     "type": "heading",
+     "text": "Les limites reconnues"
+    },
+    {
+     "type": "list",
+     "items": [
+      "La référence est un processeur à double émission, dans l'ordre, que l'entreprise ne nomme pas pour des raisons juridiques.",
+      "La comparaison oppose un quad (quatre tuiles) à un seul cœur, et non deux systèmes multicœurs complets.",
+      "Les chiffres de puissance sont antérieurs à la fabrication du silicium.",
+      "Aucun test face à SPEC, PARSEC ou à de plus gros processeurs dans le désordre n'a été fait ; ils sont prévus dans les prochains mois."
+     ]
+    },
+    {
+     "type": "diagram",
+     "svg": "<svg xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"0 0 640 220\" font-family=\"system-ui,sans-serif\"><rect width=\"640\" height=\"220\" rx=\"14\" fill=\"#f3f5f9\"/><text x=\"320\" y=\"32\" font-size=\"17\" font-weight=\"700\" text-anchor=\"middle\" fill=\"#1b2433\">Performance par watt, par rapport à la référence</text><text x=\"20\" y=\"71\" font-size=\"12.5\" fill=\"#1b2433\">Jeu de recherche</text><rect x=\"215\" y=\"55\" width=\"360\" height=\"22\" rx=\"5\" fill=\"hsl(30,60%,45%)\"/><text x=\"583\" y=\"71\" font-size=\"12.5\" font-weight=\"700\" fill=\"#1b2433\">6,02 ×</text><text x=\"20\" y=\"111\" font-size=\"12.5\" fill=\"#1b2433\">Toutes les charges</text><rect x=\"215\" y=\"95\" width=\"274\" height=\"22\" rx=\"5\" fill=\"hsl(30,60%,45%)\"/><text x=\"497\" y=\"111\" font-size=\"12.5\" font-weight=\"700\" fill=\"#1b2433\">4,59 ×</text><text x=\"20\" y=\"151\" font-size=\"12.5\" fill=\"#1b2433\">Jeu retenu</text><rect x=\"215\" y=\"135\" width=\"229\" height=\"22\" rx=\"5\" fill=\"hsl(30,60%,45%)\"/><text x=\"452\" y=\"151\" font-size=\"12.5\" font-weight=\"700\" fill=\"#1b2433\">3,83 ×</text><text x=\"20\" y=\"191\" font-size=\"12.5\" fill=\"#1b2433\">Pire cas (fib)</text><rect x=\"215\" y=\"175\" width=\"69\" height=\"22\" rx=\"5\" fill=\"hsl(30,60%,45%)\"/><text x=\"292\" y=\"191\" font-size=\"12.5\" font-weight=\"700\" fill=\"#1b2433\">1,15 ×</text></svg>",
+     "alt": "Diagramme à barres des gains de performance par watt annoncés pour Frostbite.",
+     "caption": "Gains annoncés par Architect Labs, avant fabrication et face à une référence non nommée."
+    },
+    {
+     "type": "usecases",
+     "title": "Exemples d'utilisation",
+     "items": [
+      {
+       "icon": "🧪",
+       "title": "Laboratoire d'architecture",
+       "text": "Il utilise la méthode comme banc d'essai : spécification formelle, modèle aligné sur le RTL, exploration par agents, avant tout travail de fabrication."
+      },
+      {
+       "icon": "📟",
+       "title": "Concepteur de systèmes embarqués",
+       "text": "Il suit le projet pour juger si un parallélisme déduit du programme peut réduire la consommation sur ses charges de calcul."
+      },
+      {
+       "icon": "🎓",
+       "title": "Enseignant",
+       "text": "Il fait étudier la preuve en Lean et la traduction des contrats comme exemple de vérification matérielle à grande échelle."
+      }
+     ]
+    },
+    {
+     "type": "timeline",
+     "title": "D'où l'on vient, où l'on va",
+     "items": [
+      {
+       "label": "18 novembre 2026",
+       "text": "Annonce de Frostbite."
+      },
+      {
+       "label": "Prochains mois",
+       "text": "Comparaisons prévues avec SPEC, PARSEC et de plus gros processeurs."
+      },
+      {
+       "label": "À venir",
+       "text": "Bac à sable sur FPGA, système d'exploitation préliminaire, publication du RTL et du jeu d'instructions."
+      }
+     ]
+    },
+    {
+     "type": "opinion",
+     "title": "Notre avis",
+     "paragraphs": [
+      "Ce qui compte le plus n'est pas le chiffre de 4,59 fois, mais la chaîne de vérification : alignement du modèle de puissance, preuve formelle et exploration par essaims. Un facteur 23 sur une charge convolutive côtoie 1,15 sur Fibonacci, ce qui montre un gain dépendant du type de programme. Rien n'est prouvé en silicium.",
+      "Si les chiffres se confirment en FPGA puis en fabrication, des architectures non conventionnelles pourraient sortir plus vite des laboratoires ; sinon, ce restera une belle démonstration de méthode. C'est une opinion, non un fait."
+     ],
+     "verdict": "Une démonstration de méthode intéressante, dont les performances restent à confirmer sur silicium."
+    },
+    {
+     "type": "callout",
+     "title": "À retenir",
+     "text": "Chiffres de l'éditeur, avant fabrication, face à une référence non nommée : à confirmer par des mesures indépendantes."
+    }
+   ],
+   "publishedAt": "2026-11-20T17:18:15+00:00",
+   "cover": {
+    "url": "https://main--gleeful-begonia-6bb5f3.netlify.app/_next/static/media/frostbite-cover.3n9ytugnquhlr.jpg",
+    "alt": "Frostbite : un processeur « découvert, conçu et vérifié par l'IA » annonce 4,59 fois la performance par watt d'une référence, avant le silicium",
+    "credit": "architectlabs.com"
+   },
+   "readingMinutes": 4
+  }
+ ]
+}
