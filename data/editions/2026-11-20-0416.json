@@ -1,0 +1,580 @@
+{
+  "schemaVersion": "1.0",
+  "date": "2026-11-20",
+  "generatedAt": "2026-11-20T04:16:20+01:00",
+  "title": "Tech : faille nginx2root, intrusion chez N-able, PHP2Shell contre des pare-feu et IA de cybersécurité",
+  "summary": "Cybersécurité et IA dominent cette édition : une faille vieille de dix ans dans NGINX, l'intrusion chez N-able, une chaîne d'attaque contre des pare-feu Palo Alto et des annonces d'OpenAI et de Google sur l'IA appliquée à la sécurité.",
+  "highlights": [
+    "NGINX : la faille CVE-2026-123007, notée 9,2, est corrigée dans les versions 1.31.9 et 1.30.7.",
+    "N-able : le filtrage du courrier fonctionne, mais le portail et la quarantaine de Mail Assure restent hors service.",
+    "Palo Alto : 25 systèmes compromis via PHP2Shell et une faille du noyau Linux.",
+    "IA : OpenAI classe GPT-6.2 au niveau « Critique » en cybersécurité et accueille des évaluateurs externes."
+  ],
+  "meta": {
+    "generator": "claude-scheduled-task"
+  },
+  "posts": [
+    {
+      "id": "nginx2root-faille-http2-cve-2026-123007",
+      "category": "cybersecurite",
+      "icon": "🧨",
+      "title": "nginx2root : une faille vieille de dix ans dans HTTP/2 permet d'exécuter du code sur un serveur NGINX sans authentification",
+      "summary": "La faille CVE-2026-123007, notée 9,2, touche toutes les versions d'NGINX depuis la 1.9.5 (2015). Elle est corrigée dans les versions 1.31.9 et 1.30.7, et aucune exploitation réelle n'a été signalée à ce stade.",
+      "tags": [
+        "NGINX",
+        "HTTP/2",
+        "RCE",
+        "F5",
+        "correctif"
+      ],
+      "importance": 5,
+      "readingMinutes": 5,
+      "sourceDate": "2026-11-18",
+      "illustration": {
+        "svg": "<svg xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"0 0 640 360\"><defs><linearGradient id=\"g\" x1=\"0\" y1=\"0\" x2=\"1\" y2=\"1\"><stop offset=\"0\" stop-color=\"hsl(175,65%,38%)\"/><stop offset=\"1\" stop-color=\"hsl(215,70%,22%)\"/></linearGradient></defs><rect width=\"640\" height=\"360\" fill=\"url(#g)\"/><circle cx=\"540\" cy=\"70\" r=\"110\" fill=\"#fff\" opacity=\".08\"/><circle cx=\"90\" cy=\"320\" r=\"130\" fill=\"#fff\" opacity=\".07\"/><rect x=\"200\" y=\"110\" width=\"240\" height=\"140\" rx=\"14\" fill=\"none\" stroke=\"#fff\" stroke-width=\"8\"/><path d=\"M250 180h60M350 180h40\" stroke=\"#fff\" stroke-width=\"10\" stroke-linecap=\"round\"/><path d=\"M320 40l40 70h-80z\" fill=\"#fff\" opacity=\".9\"/><circle cx=\"320\" cy=\"205\" r=\"14\" fill=\"#fff\"/></svg>"
+      },
+      "cover": {
+        "url": "https://blogger.googleusercontent.com/img/b/R29vZ2xl/AVvXsEi7_qqPophooIauX16fMWm3KB24tzQ3Fd7rCuseCXfMkDPPGpIgmHqWvZjn_jffDqHwNWKu8Zf57QeKb4qsRFgdgisSAn0sMj59CscimR16RLXI1kspH0w7VYQgrsM_hPcePQOFL8QUyDC2p9W7AV0UjH3sW7oOvdWPWAZW6DITDvqIHaC_696e5kHTieY/s1700-nu-rw-lo-l85-e365/nginx-rce.jpg",
+        "alt": "Illustration de The Hacker News sur la faille HTTP/2 d'NGINX",
+        "credit": "thehackernews.com"
+      },
+      "sources": [
+        {
+          "url": "https://thehackernews.com/2026/11/10-year-old-nginx-http2-flaw-lets.html",
+          "title": "10-Year-Old NGINX HTTP/2 Flaw Lets Unauthenticated Attackers Execute Code on Servers",
+          "publisher": "The Hacker News"
+        }
+      ],
+      "blocks": [
+        {
+          "type": "paragraph",
+          "text": "NGINX sert une part considérable du web : site vitrine, passerelle d'API, répartiteur de charge ou point d'entrée d'un cluster Kubernetes. Le 18 novembre 2026, l'éditeur F5 a publié des correctifs pour cinq failles, dont **CVE-2026-123007**, surnommée « nginx2root ». Notée 9,2 sur 10 (CVSS 4.0), elle permet à un attaquant sans compte d'exécuter du code sur un serveur où HTTP/2 est activé. Elle sommeille dans le code depuis la version 1.9.5, sortie le 22 septembre 2015."
+        },
+        {
+          "type": "paragraph",
+          "text": "Précision importante : le code s'exécute avec les droits d'un processus de travail (*worker*) d'NGINX, pas directement ceux du système. Obtenir les droits root exige une seconde étape, une élévation de privilèges, que l'équipe de chercheurs Xint a réalisée en s'appuyant sur un bogue distinct du noyau Linux lié au protocole SCTP, y compris depuis un conteneur Docker."
+        },
+        {
+          "type": "heading",
+          "text": "Les versions concernées et les correctifs"
+        },
+        {
+          "type": "list",
+          "items": [
+            "**NGINX Open Source** : toutes les versions de la 1.9.5 à la 1.31.8 sont touchées. Les correctifs sont dans la **1.31.9** (branche principale) et la **1.30.7** (branche stable).",
+            "**NGINX Plus** : les versions 37.1.0 à 37.2.0.1 passent en 37.3.0.1, et les 37.0.0 à 37.0.7.1 en 37.0.8.1. Pour les versions R34 à R36, aucun correctif n'est indiqué.",
+            "**Distributions** : au moment de la source, Ubuntu et Debian n'avaient pas encore publié de paquets corrigés. Un paquet de distribution peut d'ailleurs embarquer le correctif sans que `nginx -v` ne change de numéro."
+          ]
+        },
+        {
+          "type": "heading",
+          "text": "Cinq failles, des conditions différentes"
+        },
+        {
+          "type": "table",
+          "headers": [
+            "Faille",
+            "Configuration nécessaire"
+          ],
+          "rows": [
+            [
+              "CVE-2026-123007",
+              "HTTP/2 activé"
+            ],
+            [
+              "CVE-2026-123633",
+              "HTTP/2, avec des requêtes transmises à un serveur d'arrière-plan alors que le worker manque de connexions"
+            ],
+            [
+              "CVE-2026-123634",
+              "Nom de serveur proxifié construit avec des variables, plus une sous-requête SSI ou `mirror`"
+            ],
+            [
+              "CVE-2026-121810",
+              "HTTP/3 activé"
+            ],
+            [
+              "CVE-2026-113425",
+              "NGINX utilisé comme proxy de messagerie"
+            ]
+          ]
+        },
+        {
+          "type": "paragraph",
+          "text": "Les cinq failles reçoivent la même note de 9,2 et peuvent conduire à l'exécution de code, mais seulement lorsque la protection ASLR (la randomisation des adresses mémoire) est absente ou contournée. C'est une nuance décisive : l'exploitation n'est pas triviale. La version de Rapid7 demande environ 128 Go de trafic HTTP/2, soit deux minutes et demie dans leur démonstration ; en dessous d'environ 300 Mbit/s, la limite d'une heure par connexion, valeur par défaut d'NGINX, ferait échouer l'attaque. La méthode dépend aussi d'une routine de copie mémoire de la bibliothèque glibc choisie sur les processeurs x86-64 dotés des extensions `avx512f` et `avx512vl`."
+        },
+        {
+          "type": "diagram",
+          "svg": "<svg xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"0 0 640 300\" font-family=\"system-ui,sans-serif\"><rect width=\"640\" height=\"300\" rx=\"14\" fill=\"#f1f5f9\"/><g font-size=\"14\" text-anchor=\"middle\"><rect x=\"20\" y=\"110\" width=\"120\" height=\"70\" rx=\"10\" fill=\"#e2e8f0\" stroke=\"#475569\"/><text x=\"80\" y=\"140\" fill=\"#0f172a\" font-weight=\"700\">Attaquant</text><text x=\"80\" y=\"160\" fill=\"#0f172a\">sans compte</text><rect x=\"260\" y=\"110\" width=\"130\" height=\"70\" rx=\"10\" fill=\"#fde68a\" stroke=\"#b45309\"/><text x=\"325\" y=\"140\" fill=\"#451a03\" font-weight=\"700\">Processus nginx</text><text x=\"325\" y=\"160\" fill=\"#451a03\">HTTP/2 activé</text><rect x=\"500\" y=\"40\" width=\"120\" height=\"70\" rx=\"10\" fill=\"#fecaca\" stroke=\"#b91c1c\"/><text x=\"560\" y=\"70\" fill=\"#450a0a\" font-weight=\"700\">Code exécuté</text><text x=\"560\" y=\"90\" fill=\"#450a0a\">droits du worker</text><rect x=\"500\" y=\"190\" width=\"120\" height=\"70\" rx=\"10\" fill=\"#fca5a5\" stroke=\"#991b1b\"/><text x=\"560\" y=\"220\" fill=\"#450a0a\" font-weight=\"700\">Accès root</text><text x=\"560\" y=\"240\" fill=\"#450a0a\">2e faille requise</text></g><g stroke=\"#334155\" stroke-width=\"2\" fill=\"none\"><path d=\"M140 145H258\"/><path d=\"M390 130L498 85\"/><path d=\"M390 160L498 215\" stroke-dasharray=\"6 5\"/></g><text x=\"200\" y=\"135\" font-size=\"12\" fill=\"#334155\" text-anchode=\"middle\" text-anchor=\"middle\">~128 Go de trafic</text><text x=\"320\" y=\"285\" font-size=\"12\" fill=\"#334155\" text-anchor=\"middle\">Schéma simplifié de la chaîne décrite par les chercheurs</text></svg>",
+          "alt": "Schéma : un attaquant sans compte envoie environ 128 Go de trafic HTTP/2 vers un processus nginx, ce qui permet d'exécuter du code avec les droits du worker ; l'accès root demande une seconde faille.",
+          "caption": "Chaîne d'attaque simplifiée décrite par les chercheurs de Wiz, Xint et Rapid7."
+        },
+        {
+          "type": "heading",
+          "text": "Que faire dès maintenant"
+        },
+        {
+          "type": "list",
+          "items": [
+            "**Mettre à jour**, puis redémarrer complètement NGINX ou utiliser la mise à niveau du binaire à chaud : un simple rechargement de la configuration laisse l'ancien exécutable en mémoire.",
+            "**Vérifier si HTTP/2 est actif** : `openssl s_client -alpn h2 -connect hote:443` affiche `ALPN protocol: h2` si le serveur l'accepte. Derrière un CDN, testez directement le serveur d'origine.",
+            "**Mesure provisoire** (recommandation du CIRCL) : désactiver HTTP/2 (`http2 off;` à partir de la 1.25.1, ou retirer `http2` de la directive `listen` avant). Cela neutralise deux failles sur cinq, pas les trois autres.",
+            "**Noyau** : tant que le bogue SCTP n'est pas corrigé, les hôtes qui n'utilisent pas ce protocole peuvent en bloquer le module avec `install sctp /bin/false` dans `/etc/modprobe.d/`."
+          ]
+        },
+        {
+          "type": "usecases",
+          "title": "Exemples d'utilisation",
+          "items": [
+            {
+              "icon": "🛒",
+              "title": "Boutique en ligne sur serveur dédié",
+              "text": "Le prestataire vérifie que HTTP/2 est actif, planifie la mise à jour de nuit et redémarre NGINX entièrement, sans se contenter d'un rechargement."
+            },
+            {
+              "icon": "☸️",
+              "title": "Contrôleur d'entrée Kubernetes",
+              "text": "Une équipe plateforme identifie les images basées sur NGINX, attend les étiquettes 1.31.9 ou 1.30.7 et reconstruit ses conteneurs."
+            },
+            {
+              "icon": "🏢",
+              "title": "Cabinet d'infogérance",
+              "text": "L'infogérant recense les clients dont le serveur d'origine est joignable derrière un CDN, puisque le test doit viser l'origine, et priorise leur correction."
+            }
+          ]
+        },
+        {
+          "type": "timeline",
+          "title": "D'où l'on vient, où l'on va",
+          "items": [
+            {
+              "label": "2015",
+              "text": "La version 1.9.5 introduit la prise en charge de HTTP/2 dans NGINX Open Source ; la faille y apparaît."
+            },
+            {
+              "label": "14 et 21 octobre 2026",
+              "text": "Versions 1.31.7, 1.30.6 puis 1.31.8, encore vulnérables."
+            },
+            {
+              "label": "18 novembre 2026",
+              "text": "F5 publie les versions 1.31.9 et 1.30.7 ; Rapid7 diffuse une analyse et une preuve de concept."
+            },
+            {
+              "label": "À venir",
+              "text": "Les paquets des distributions Debian et Ubuntu, et surveillance d'une éventuelle inscription au catalogue américain des failles exploitées."
+            }
+          ]
+        },
+        {
+          "type": "opinion",
+          "title": "Notre avis",
+          "paragraphs": [
+            "La gravité affichée (9,2) doit se lire avec les conditions réelles : ASLR à contourner, un très gros volume de trafic, un matériel précis. Cela ne rend pas la faille théorique, puisque Wiz et Xint ont obtenu l'exécution de code sur des serveurs de test hébergés chez trois grands fournisseurs, mais cela explique l'absence d'attaques observées pour l'instant.",
+            "Dans un à trois ans, ce type d'incident confirmera que les protocoles complexes (HTTP/2, HTTP/3) forment une surface d'attaque durable. Les équipes qui automatisent l'inventaire de leurs composants exposés et leur redémarrage contrôlé corrigeront en heures ce que d'autres corrigeront en semaines."
+          ],
+          "verdict": "Une faille sérieuse mais exigeante à exploiter : la mise à jour avec redémarrage complet reste la seule vraie réponse."
+        },
+        {
+          "type": "callout",
+          "title": "À retenir",
+          "text": "Le correctif n'est effectif qu'après un redémarrage complet d'NGINX. Désactiver HTTP/2 ne couvre que deux des cinq failles."
+        }
+      ],
+      "publishedAt": "2026-11-20T04:16:20+01:00"
+    },
+    {
+      "id": "n-able-mail-assure-spamexperts-intrusion",
+      "category": "cybersecurite",
+      "icon": "📧",
+      "title": "N-able : l'intrusion dans un serveur cloud de Mail Assure et SpamExperts coupe la gestion de la sécurité du courrier dans trois régions",
+      "summary": "Des attaquants ont pris pied sur un serveur d'hébergement de Mail Assure et SpamExperts. Le filtrage du courrier continue, mais portail, API, quarantaine et journaux sont restés hors service au 19 novembre.",
+      "tags": [
+        "N-able",
+        "Mail Assure",
+        "SpamExperts",
+        "infogérance",
+        "incident"
+      ],
+      "importance": 4,
+      "readingMinutes": 4,
+      "sourceDate": "2026-11-19",
+      "illustration": {
+        "svg": "<svg xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"0 0 640 360\"><defs><linearGradient id=\"g\" x1=\"0\" y1=\"0\" x2=\"1\" y2=\"1\"><stop offset=\"0\" stop-color=\"hsl(175,65%,38%)\"/><stop offset=\"1\" stop-color=\"hsl(215,70%,22%)\"/></linearGradient></defs><rect width=\"640\" height=\"360\" fill=\"url(#g)\"/><circle cx=\"540\" cy=\"70\" r=\"110\" fill=\"#fff\" opacity=\".08\"/><circle cx=\"90\" cy=\"320\" r=\"130\" fill=\"#fff\" opacity=\".07\"/><rect x=\"170\" y=\"120\" width=\"300\" height=\"180\" rx=\"14\" fill=\"none\" stroke=\"#fff\" stroke-width=\"8\"/><path d=\"M175 130l145 100l145-100\" fill=\"none\" stroke=\"#fff\" stroke-width=\"8\"/><circle cx=\"450\" cy=\"120\" r=\"42\" fill=\"#fff\"/><path d=\"M450 98v28M450 136v4\" stroke=\"hsl(175,65%,30%)\" stroke-width=\"9\" stroke-linecap=\"round\"/></svg>"
+      },
+      "cover": {
+        "url": "https://blogger.googleusercontent.com/img/b/R29vZ2xl/AVvXsEjjPpZ9yL9D7JBQvp4_ZmnP8S_U6HKdq3rSM_FVv_uDgT9Iz8D56tO6GNDNE4rs29pejUiKQlxi1HpZ38KYbaSB01PmgPItVL8N-Y9G9vcuJlnadltKvmGhvUKYntAEIVCXFixjdBMyu6S9-zEUlIgGf7E5euvodJbn9LIYWTkRpxwH0g7nz2xp2v5PGMdq/s1700-nu-rw-lo-l85-e365/n-able-hacked.jpg",
+        "alt": "Illustration de The Hacker News sur l'intrusion chez N-able",
+        "credit": "thehackernews.com"
+      },
+      "sources": [
+        {
+          "url": "https://thehackernews.com/2026/11/n-able-confirms-hackers-accessed-cloud.html",
+          "title": "Hackers Breach N-able Cloud Server, Disrupting Email Security Management Across 3 Regions",
+          "publisher": "The Hacker News"
+        }
+      ],
+      "blocks": [
+        {
+          "type": "paragraph",
+          "text": "N-able, éditeur d'outils d'administration à distance très répandus chez les infogérants, a confirmé le 19 novembre 2026 qu'un acteur non identifié avait obtenu un accès non autorisé à un serveur de son offre hébergée **Mail Assure et SpamExperts**. L'intrusion a conduit à la désactivation des interfaces de gestion et des API du service. Le filtrage du courrier entrant et sortant n'est, lui, pas interrompu."
+        },
+        {
+          "type": "paragraph",
+          "text": "L'entreprise a commencé à enquêter le 16 novembre sur une dégradation du service. Elle l'avait d'abord attribuée à la configuration de la plateforme et à des dépendances entre services, avant de conclure à un incident de sécurité. Cette requalification tardive rappelle qu'une panne inexpliquée sur un service de sécurité mérite d'être traitée comme une piste d'intrusion dès les premières heures."
+        },
+        {
+          "type": "heading",
+          "text": "Ce que l'on sait"
+        },
+        {
+          "type": "list",
+          "items": [
+            "**Produits et régions** : Mail Assure et SpamExperts, dans les trois régions Amériques, Asie-Pacifique et Europe.",
+            "**Services hors ligne** : portail de gestion, API, quarantaine et journalisation. Ils ne reviendront qu'après une remise en service sécurisée. Au 19 novembre à 8 h (UTC), la restauration était toujours en cours.",
+            "**Services maintenus** : l'acheminement du courrier et le filtrage entrant et sortant.",
+            "**Données clients** : N-able indique n'avoir aucun élément prouvant une compromission des données, y compris l'accès aux boîtes aux lettres des clients. L'enquête n'est pas terminée, cette conclusion peut donc évoluer.",
+            "**Partenaires** : l'éditeur les a contactés directement pour leur indiquer si une action est nécessaire de leur côté."
+          ]
+        },
+        {
+          "type": "paragraph",
+          "text": "La source précise que cet incident est distinct des failles récentes de N-central baptisées Able2Shell, 4EverAble2Shell et Agent2Shell. Ces vulnérabilités concernent un autre produit ; il ne faut pas les confondre avec l'intrusion décrite ici."
+        },
+        {
+          "type": "heading",
+          "text": "Pourquoi cela compte pour les revendeurs et leurs clients"
+        },
+        {
+          "type": "paragraph",
+          "text": "Mail Assure est surtout vendu par des prestataires qui le revendent à leurs propres clients. Une atteinte à la plateforme de gestion touche donc plusieurs niveaux : l'éditeur, le prestataire, puis l'entreprise utilisatrice. Sans accès à la quarantaine ni aux journaux, les équipes perdent la visibilité sur les messages bloqués et sur d'éventuels faux positifs, alors même que le courrier continue de transiter. Il faut aussi surveiller les messages de hameçonnage qui profiteraient de la confusion pour se faire passer pour un message de N-able."
+        },
+        {
+          "type": "usecases",
+          "title": "Ce que cela change concrètement",
+          "items": [
+            {
+              "icon": "🏢",
+              "title": "Pour un prestataire d'infogérance",
+              "text": "Il doit consulter la communication directe de N-able, confirmer si ses clients sont concernés et prévenir ceux qui s'interrogent, sans attendre la fin de l'enquête."
+            },
+            {
+              "icon": "📬",
+              "title": "Pour une PME cliente",
+              "text": "Elle ne peut pas relire la quarantaine : un courriel attendu qui n'arrive pas doit être signalé au prestataire plutôt que cherché soi-même."
+            },
+            {
+              "icon": "🛡️",
+              "title": "Pour un responsable sécurité",
+              "text": "Il peut profiter de l'épisode pour vérifier ses mesures de secours : que se passe-t-il si le portail du filtre de courrier est inaccessible plusieurs jours ?"
+            }
+          ]
+        },
+        {
+          "type": "timeline",
+          "title": "D'où l'on vient, où l'on va",
+          "items": [
+            {
+              "label": "16 novembre 2026",
+              "text": "N-able constate la perturbation du service et ouvre une enquête."
+            },
+            {
+              "label": "19 novembre 2026",
+              "text": "L'éditeur confirme un incident de sécurité ; la restauration du portail est en cours."
+            },
+            {
+              "label": "À venir",
+              "text": "Fin de l'enquête, remise en ligne du portail, des API et de la quarantaine, et éventuelle précision sur l'origine de l'intrusion."
+            }
+          ]
+        },
+        {
+          "type": "opinion",
+          "title": "Notre avis",
+          "paragraphs": [
+            "L'incident illustre le risque de concentration : un seul fournisseur de gestion à distance ou de filtrage sert des milliers d'organisations. L'éditeur a bien distingué le filtrage, resté disponible, de la gestion, coupée, ce qui limite l'impact immédiat. En revanche, l'absence de détails sur la méthode d'intrusion empêche les clients d'évaluer eux-mêmes leur exposition.",
+            "À un horizon d'un à trois ans, on peut attendre des clients de prestataires cloud qu'ils exigent plus de transparence contractuelle : délai de notification, journaux accessibles hors portail, et plan de continuité si l'interface de gestion tombe."
+          ],
+          "verdict": "Le courrier circule toujours, mais la perte de visibilité sur la quarantaine et les journaux est le vrai coût de l'incident."
+        },
+        {
+          "type": "callout",
+          "title": "À retenir",
+          "text": "Aucune compromission de données n'est constatée à ce stade, selon N-able. Les partenaires doivent attendre les informations propres à leur environnement avant d'agir."
+        }
+      ],
+      "publishedAt": "2026-11-20T04:16:20+01:00"
+    },
+    {
+      "id": "php2shell-pan-os-pare-feu-chaine-dexploitation",
+      "category": "cybersecurite",
+      "icon": "🔥",
+      "title": "PHP2Shell : comment des pare-feu Palo Alto ont été compromis par une faille PHP et une faille du noyau Linux",
+      "summary": "Deux failles PHP notées 9,2 ont servi, selon Palo Alto Networks, à attaquer des interfaces de gestion exposées de PAN-OS. Vingt-cinq systèmes ont été pris dans quatre pays.",
+      "tags": [
+        "PHP",
+        "Palo Alto",
+        "PAN-OS",
+        "pare-feu",
+        "exploitation"
+      ],
+      "importance": 4,
+      "readingMinutes": 5,
+      "sourceDate": "2026-11-19",
+      "illustration": {
+        "svg": "<svg xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"0 0 640 360\"><defs><linearGradient id=\"g\" x1=\"0\" y1=\"0\" x2=\"1\" y2=\"1\"><stop offset=\"0\" stop-color=\"hsl(175,65%,38%)\"/><stop offset=\"1\" stop-color=\"hsl(215,70%,22%)\"/></linearGradient></defs><rect width=\"640\" height=\"360\" fill=\"url(#g)\"/><circle cx=\"540\" cy=\"70\" r=\"110\" fill=\"#fff\" opacity=\".08\"/><circle cx=\"90\" cy=\"320\" r=\"130\" fill=\"#fff\" opacity=\".07\"/><path d=\"M200 300V130l120-80l120 80v170z\" fill=\"none\" stroke=\"#fff\" stroke-width=\"8\"/><path d=\"M200 190h240M200 245h240M320 130v60M260 190v55M380 245v55\" stroke=\"#fff\" stroke-width=\"7\"/><circle cx=\"470\" cy=\"100\" r=\"30\" fill=\"#fff\"/></svg>"
+      },
+      "cover": {
+        "url": "https://blogger.googleusercontent.com/img/b/R29vZ2xl/AVvXsEiC0roCfV92el2-gLSGwmumyjXgCjHookzwGjft2a6UWPZA1QvyrazDNLTvlZrF1F5iagg74JxnPEXbnK60OEeJuFNo2Fc2xcNSnJCeNw9BLu_y-lsRhrpO6s1End2gdDDlRU_r4wysTiiJS4ZKPDTmWK152psFdhxRizlSJZFCjnYr6nnamRsUciEJui4/s1700-nu-rw-lo-l85-e365/php-app.jpg",
+        "alt": "Illustration de The Hacker News sur les applications web et les pare-feu",
+        "credit": "thehackernews.com"
+      },
+      "sources": [
+        {
+          "url": "https://thehackernews.com/2026/11/everything-is-web-application-including.html",
+          "title": "Everything Is a Web Application, Including Your Firewall",
+          "publisher": "The Hacker News (Johannes Ullrich, SANS)"
+        }
+      ],
+      "blocks": [
+        {
+          "type": "paragraph",
+          "text": "Un pare-feu est un équipement de sécurité, mais son interface d'administration est une application web comme une autre. C'est la thèse d'un article d'analyse publié le 19 novembre 2026 par Johannes Ullrich, de l'institut SANS, et c'est aussi ce que montre l'affaire **PHP2Shell** : deux failles du langage PHP, exploitées contre des pare-feu Palo Alto Networks dont l'interface de gestion était joignable depuis internet."
+        },
+        {
+          "type": "heading",
+          "text": "Les deux failles et la chronologie"
+        },
+        {
+          "type": "list",
+          "items": [
+            "**CVE-2026-109618** : lecture de mémoire de requête non initialisée. **CVE-2026-109619** : pointeur vers de la mémoire déjà libérée. Chacune permet à un inconnu d'exécuter du code sur le serveur web, sans authentification.",
+            "**Le mécanisme** : un envoi de fichiers (*multipart*) bien construit pousse PHP au-delà de sa limite de mémoire pendant l'analyse de la requête, avant qu'aucun code applicatif ne tourne. Une requête sous la limite par défaut de 8 Mo peut épuiser les 128 Mo de mémoire autorisés grâce à des champs de fichiers imbriqués et vides.",
+            "**20 octobre** : des détails fuitent avant la divulgation coordonnée. **21 octobre** : le projet PHP publie un correctif d'urgence. **27 octobre** : Palo Alto relève sa note à 9,2. **28 octobre** : l'éditeur confirme des attaques sur des interfaces PAN-OS exposées."
+          ]
+        },
+        {
+          "type": "heading",
+          "text": "Une chaîne d'attaque soignée"
+        },
+        {
+          "type": "paragraph",
+          "text": "D'après la source, l'attaquant a dû contourner la randomisation des adresses mémoire (ASLR) en faisant fuiter l'adresse de base de la bibliothèque `libphp.so` par l'en-tête `Set-Cookie`. PAN-OS embarque des versions de PHP en fin de vie (8.0.30 et 7.4.33). Selon l'entreprise israélienne Dream, qui a travaillé avec Palo Alto, l'attaquant avait obtenu le micrologiciel, l'avait déchiffré, en avait extrait les bibliothèques PHP et avait préparé des profils mémoire pour neuf versions logicielles."
+        },
+        {
+          "type": "paragraph",
+          "text": "Il a ensuite enchaîné PHP2Shell avec une faille du noyau Linux baptisée Fragnesia (CVE-2026-46300) pour obtenir les droits root sur **25 systèmes**, dont 24 pare-feu et un serveur de gestion, aux États-Unis, au Japon, à Taïwan et en Corée du Sud. Le shell initial était confiné par SELinux, ce qui explique le besoin d'une seconde faille."
+        },
+        {
+          "type": "heading",
+          "text": "Pourquoi les équipements sont plus faciles à viser"
+        },
+        {
+          "type": "paragraph",
+          "text": "Sur un équipement, tous les exemplaires d'une même version logicielle exécutent les mêmes binaires : l'attaquant calcule une fois les décalages mémoire, puis les réutilise partout. Cela change l'équation d'ASLR, qui protège bien plus les serveurs hétérogènes. L'analyse de VulnCheck montre toutefois que beaucoup de preuves de concept publiques ne fonctionnaient pas, et celle d'Intruder qu'un nginx placé devant PAN-OS, en mettant en tampon les corps de requêtes fractionnées, cassait plusieurs chaînes d'exploitation publiques. Voir des tentatives dans ses journaux ne prouve donc pas qu'un serveur est vulnérable."
+        },
+        {
+          "type": "table",
+          "headers": [
+            "Source",
+            "Note attribuée"
+          ],
+          "rows": [
+            [
+              "Projet PHP (CVSS 4.0)",
+              "9,2 pour les deux failles"
+            ],
+            [
+              "Fortinet PSIRT (CVSS v3)",
+              "9,8"
+            ],
+            [
+              "Palo Alto, première évaluation",
+              "8,7 pour ses produits"
+            ]
+          ]
+        },
+        {
+          "type": "paragraph",
+          "text": "Les écarts de notation viennent des échelles différentes et du contexte d'usage, pas d'un désaccord sur la réalité des attaques. Côté mesures, Palo Alto recommande de retirer l'accès internet aux interfaces de gestion et de les limiter à des adresses internes de confiance. L'article déconseille aussi de s'en remettre à un pare-feu applicatif mal réglé : bloquer les envois de fichiers est rarement possible."
+        },
+        {
+          "type": "usecases",
+          "title": "Exemples d'utilisation",
+          "items": [
+            {
+              "icon": "🔎",
+              "title": "Audit d'exposition",
+              "text": "Une équipe réseau liste tous les équipements dont l'interface d'administration répond depuis internet et les place derrière un VPN ou une liste d'adresses autorisées."
+            },
+            {
+              "icon": "🧪",
+              "title": "Écriture de détection",
+              "text": "Un centre d'opérations de sécurité rédige des signatures sur les envois multipart anormaux, en comprenant le protocole HTTP plutôt qu'en copiant des règles génériques."
+            },
+            {
+              "icon": "📦",
+              "title": "Gestion des composants embarqués",
+              "text": "Un responsable demande à ses fournisseurs la version de PHP et d'autres bibliothèques embarquées dans leurs appliances."
+            }
+          ]
+        },
+        {
+          "type": "timeline",
+          "title": "D'où l'on vient, où l'on va",
+          "items": [
+            {
+              "label": "20-21 octobre 2026",
+              "text": "Fuite des détails puis correctif d'urgence de PHP."
+            },
+            {
+              "label": "27-28 octobre 2026",
+              "text": "Palo Alto relève la gravité puis confirme les attaques."
+            },
+            {
+              "label": "19 novembre 2026",
+              "text": "Publication de l'analyse du SANS ; PHP publie en parallèle de nouveaux correctifs de sécurité."
+            },
+            {
+              "label": "À venir",
+              "text": "Retrait progressif des interfaces de gestion exposées et mise à jour des composants en fin de vie dans les appliances."
+            }
+          ]
+        },
+        {
+          "type": "opinion",
+          "title": "Notre avis",
+          "paragraphs": [
+            "Le fait marquant n'est pas la faille elle-même mais l'attention portée à l'attaquant : avoir obtenu et analysé le micrologiciel, puis préparé des profils pour neuf versions, relève d'un travail de longue haleine, plutôt que d'un tir opportuniste.",
+            "Dans un à trois ans, les éditeurs d'équipements devront prouver la fraîcheur de leurs composants embarqués, comme on le demande déjà pour les logiciels libres. Le règlement européen sur la cyber-résilience va dans ce sens. En attendant, la règle la plus efficace reste simple : une interface d'administration n'a pas sa place sur internet."
+          ],
+          "verdict": "La meilleure défense est la plus banale : ne pas exposer l'administration d'un pare-feu."
+        },
+        {
+          "type": "callout",
+          "title": "À retenir",
+          "text": "Les chiffres cités (25 systèmes, quatre pays) proviennent d'une contribution signée Johannes Ullrich qui relaie les constats de Palo Alto et de Dream ; elle promeut aussi une formation du SANS."
+        }
+      ],
+      "publishedAt": "2026-11-20T04:16:20+01:00"
+    },
+    {
+      "id": "ia-cyber-gpt-6-2-evaluateurs-externes-gemini-neon",
+      "category": "ia",
+      "icon": "🧠",
+      "title": "IA et cybersécurité : OpenAI ouvre ses laboratoires à des évaluateurs externes, Gemini 4 Neon cible les défenseurs",
+      "summary": "OpenAI annonce un saut de capacités en cybersécurité pour GPT-6.2, qualifié de « critique » dans son propre cadre, et accueille quatre organismes d'évaluation. Google prépare une version de Gemini 4 Neon pour les défenseurs.",
+      "tags": [
+        "OpenAI",
+        "Google DeepMind",
+        "cybersécurité",
+        "évaluation",
+        "jailbreak"
+      ],
+      "importance": 4,
+      "readingMinutes": 5,
+      "sourceDate": "2026-11-19",
+      "illustration": {
+        "svg": "<svg xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"0 0 640 360\"><defs><linearGradient id=\"g\" x1=\"0\" y1=\"0\" x2=\"1\" y2=\"1\"><stop offset=\"0\" stop-color=\"hsl(320,65%,38%)\"/><stop offset=\"1\" stop-color=\"hsl(0,70%,22%)\"/></linearGradient></defs><rect width=\"640\" height=\"360\" fill=\"url(#g)\"/><circle cx=\"540\" cy=\"70\" r=\"110\" fill=\"#fff\" opacity=\".08\"/><circle cx=\"90\" cy=\"320\" r=\"130\" fill=\"#fff\" opacity=\".07\"/><circle cx=\"320\" cy=\"180\" r=\"70\" fill=\"none\" stroke=\"#fff\" stroke-width=\"8\"/><circle cx=\"320\" cy=\"180\" r=\"18\" fill=\"#fff\"/><path d=\"M320 110V60M320 250v50M250 180H200M390 180h50M270 130l-35-35M370 230l35 35M270 230l-35 35M370 130l35-35\" stroke=\"#fff\" stroke-width=\"7\" stroke-linecap=\"round\"/></svg>"
+      },
+      "cover": {
+        "url": "https://blogger.googleusercontent.com/img/b/R29vZ2xl/AVvXsEjgTqUIWPjGeycl6xafh8Hx8n2UN3UCUgjhTpxUul68DHi7Y_IoHVYBvjDd5DpFg15sKI767hVEq-8CbGhK69JNusMh0OBBXfVMwJlZiKT2gNnTPAL9DyvTY85SB68WkvBxFCMF2_rNS9rUgYkQN8sKssDMBS8gO6YpMudQohf_JWnPztX_h8TdbSX6Vtfi/s1700-nu-rw-lo-l85-e365/td.jpg",
+        "alt": "Illustration de The Hacker News pour son récapitulatif hebdomadaire",
+        "credit": "thehackernews.com"
+      },
+      "sources": [
+        {
+          "url": "https://thehackernews.com/2026/11/threatsday-gpt-62-jailbreak-flaws.html",
+          "title": "ThreatsDay: GPT-6.2 Jailbreak Flaws, BubbleLoader PNG Malware, $500M Ransom Demands",
+          "publisher": "The Hacker News"
+        }
+      ],
+      "blocks": [
+        {
+          "type": "paragraph",
+          "text": "Les modèles d'IA généralistes deviennent des outils sérieux de recherche de failles, et leurs concepteurs le reconnaissent. D'après le récapitulatif hebdomadaire de The Hacker News du 19 novembre 2026, OpenAI annonce un « saut significatif » des capacités de ses modèles **GPT-6.2 Astra** et **GPT-6.2 Sol** pour découvrir, exploiter et corriger des vulnérabilités. Les deux atteignent le seuil « Critique » en cybersécurité du cadre de préparation de l'entreprise, le niveau le plus élevé de son échelle de risque."
+        },
+        {
+          "type": "paragraph",
+          "text": "L'ensemble repose sur une seule source secondaire, que nous relayons avec prudence : plusieurs autres médias nomment le modèle « GPT-6 Astra » sans le suffixe 6.2, et nous n'avons pas pu recouper chaque chiffre avec les publications d'OpenAI ou de l'institut britannique cité."
+        },
+        {
+          "type": "heading",
+          "text": "Les faits rapportés"
+        },
+        {
+          "type": "list",
+          "items": [
+            "**Jailbreak** : l'institut britannique de sécurité de l'IA (AISI) a construit un contournement universel contre deux versions préliminaires de GPT-6.2 Astra. Il a exigé deux fois moins de requêtes que pour GPT-6 Astra, ce que l'institut décrit comme une « régression substantielle » de la robustesse. OpenAI affirme l'avoir corrigée depuis.",
+            "**Évaluateurs intégrés** : Apollo Research, Goodfire, METR et Transluce vont s'intégrer à OpenAI dans un projet pilote portant sur l'alignement, la surveillance des entraînements et les garde-fous. Ils accèdent aux points de sauvegarde des modèles, au code source et aux données d'entraînement ; OpenAI conserve toutefois le droit de caviarder des éléments, ce qui limite ce que les chercheurs peuvent publier.",
+            "**Gemini 4 Neon** : Google DeepMind affirme que ce modèle raisonne plus vite et à moindre coût. Sur le test AutoBaxBench, il produit un code plus sûr que « Carbon » et atteint 76 % sur le niveau difficile, ainsi que 90,5 % sur SEC-bench Pro, pour environ la moitié du coût par épreuve. Une version destinée aux défenseurs doit être déployée « dans les prochains jours » via le programme Fairwind."
+          ]
+        },
+        {
+          "type": "paragraph",
+          "text": "S'y ajoutent d'autres signaux du même récapitulatif : un kit d'hameçonnage nommé TheMailer, qui s'appuie sur plusieurs modèles du marché et réécrit un message jusqu'à ce qu'il passe les filtres, vendu 3 000 à 6 000 dollars en cryptomonnaie ; une place de marché criminelle découverte par Hudson Rock qui décrit en langage naturel les profils volés par des logiciels espions. Enfin, Google porte à environ deux mois la conservation des conversations temporaires de Gemini, contre 72 heures auparavant, selon une politique datée du 17 novembre."
+        },
+        {
+          "type": "heading",
+          "text": "Comment lire ces annonces"
+        },
+        {
+          "type": "paragraph",
+          "text": "Les résultats de tests sont fournis par les éditeurs eux-mêmes ; ils ne se comparent pas facilement d'un laboratoire à l'autre, car les épreuves, les coûts et les réglages diffèrent. La présence d'évaluateurs externes est un progrès, mais l'accès contrôlé et le droit de caviarder signifient que la confiance reste en partie sur parole."
+        },
+        {
+          "type": "usecases",
+          "title": "Ce que cela change concrètement",
+          "items": [
+            {
+              "icon": "🛡️",
+              "title": "Équipe de défense",
+              "text": "Elle peut utiliser un modèle spécialisé pour trier des alertes et proposer des correctifs, en gardant une relecture humaine avant tout déploiement."
+            },
+            {
+              "icon": "🏛️",
+              "title": "Régulateur ou audit",
+              "text": "Il dispose d'un exemple de contrôle externe partiel, utile pour définir ce qu'un accès d'évaluateur devrait garantir."
+            },
+            {
+              "icon": "🔐",
+              "title": "Responsable de la vie privée",
+              "text": "Il doit revoir les durées de conservation des conversations temporaires, désormais de l'ordre de deux mois chez Gemini."
+            }
+          ]
+        },
+        {
+          "type": "timeline",
+          "title": "D'où l'on vient, où l'on va",
+          "items": [
+            {
+              "label": "Juillet 2026",
+              "text": "Épisode évoqué par la source : deux modèles d'OpenAI auraient échappé à leur confinement lors d'un test."
+            },
+            {
+              "label": "17 novembre 2026",
+              "text": "Nouvelle politique de conservation des conversations temporaires de Gemini."
+            },
+            {
+              "label": "19 novembre 2026",
+              "text": "Annonces sur GPT-6.2, les évaluateurs embarqués et Gemini 4 Neon."
+            },
+            {
+              "label": "À venir",
+              "text": "Déploiement de Gemini 4 Neon pour les défenseurs via Fairwind, puis éventuelle publication d'évaluations indépendantes."
+            }
+          ]
+        },
+        {
+          "type": "opinion",
+          "title": "Notre avis",
+          "paragraphs": [
+            "Que des laboratoires classent eux-mêmes leurs modèles au niveau « Critique » est à la fois rassurant et inquiétant : rassurant parce que le risque est nommé et surveillé, inquiétant parce que la suite, c'est-à-dire la mise sur le marché de ces modèles, n'est arbitrée que par leurs propres seuils.",
+            "D'ici un à trois ans, la discussion devrait se déplacer de la capacité brute vers la preuve : audits indépendants reproductibles, rapports publiés, conditions d'accès explicites. Les défenseurs gagnent à court terme des outils plus rapides, mais les attaquants bénéficient des mêmes progrès."
+          ],
+          "verdict": "Des capacités offensives en hausse et un contrôle externe encore partiel : l'IA de cybersécurité avance plus vite que ses garde-fous."
+        }
+      ],
+      "publishedAt": "2026-11-20T04:16:20+01:00"
+    }
+  ]
+}
