@@ -1,0 +1,1095 @@
+{
+ "schemaVersion": "1.0",
+ "date": "2026-11-21",
+ "generatedAt": "2026-11-21T04:13:00+01:00",
+ "title": "Tech : agents d'IA offensifs, Signal contre les assistants de l'écran, Valkey sans liste à sauts, Drupal et WhatsApp corrigent des failles",
+ "summary": "Des agents d'IA ont trouvé seuls un zero-day dans MONAI Label, Signal bloque la lecture de ses messages par les assistants des téléphones et Amazon ouvre AWS Marketplace aux agents d'achat tout en bloquant ceux de sa boutique. Côté technique : Valkey 9.2 abandonne la liste à sauts, Drupal et WhatsApp publient des correctifs et Nvidia détaille son processeur Vera.",
+ "highlights": [
+  "Cybersécurité : selon Amazon, des agents d'IA ont découvert et exploité un zero-day de MONAI Label contre une université.",
+  "IA : Signal bloque par défaut la lecture de ses messages par les agents d'IA des systèmes, et une prépublication montre un modèle réécrivant ses propres poids.",
+  "Web : AWS Marketplace accepte les agents d'achat via x402 pendant qu'Amazon.com les bloque ; Drupal corrige une faille d'installateur.",
+  "Informatique : Valkey 9.2 remplace la liste à sauts par un arbre B+ et réduit la mémoire jusqu'à 43 %.",
+  "Électronique : Nvidia détaille Vera, son processeur de 88 cœurs en référence unique."
+ ],
+ "meta": {
+  "generator": "claude-scheduled-task"
+ },
+ "posts": [
+  {
+   "id": "agents-ia-zero-day-monai-label",
+   "category": "cybersecurite",
+   "icon": "🕵️",
+   "title": "Cairn : des agents d'IA ont trouvé et exploité seuls un zero-day dans MONAI Label pour prendre un serveur universitaire",
+   "summary": "Selon Amazon, des attaquants soupçonnés d'être liés à la Chine ont lancé en septembre des agents d'IA qui ont tenté près d'une journée de forcer des serveurs universitaires, avant d'exploiter une faille de traversée de chemin dans MONAI Label.",
+   "tags": [
+    "agents d'IA",
+    "zero-day",
+    "MONAI Label",
+    "Cairn",
+    "Amazon",
+    "universités"
+   ],
+   "importance": 5,
+   "publishedAt": "2026-11-21T04:13:00+01:00",
+   "sourceDate": "2026-11-20",
+   "sources": [
+    {
+     "title": "China attackers deployed AI agents that autonomously found and exploited a 0-day to take over a university server",
+     "url": "https://www.theregister.com/security/2026/11/20/china-attackers-deployed-ai-agents-that-autonomously-found-and-exploited-a-0-day-to-take-over-a-university-server/5311382",
+     "publisher": "The Register"
+    }
+   ],
+   "illustration": {
+    "svg": "<svg xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"0 0 640 360\"><defs><linearGradient id=\"g\" x1=\"0\" y1=\"0\" x2=\"1\" y2=\"1\"><stop offset=\"0\" stop-color=\"hsl(175,70%,38%)\"/><stop offset=\"1\" stop-color=\"hsl(215,65%,22%)\"/></linearGradient></defs><rect width=\"640\" height=\"360\" fill=\"url(#g)\"/><circle cx=\"320\" cy=\"180\" r=\"70\" fill=\"none\" stroke=\"#fff\" stroke-width=\"6\"/><circle cx=\"320\" cy=\"180\" r=\"14\" fill=\"#fff\"/><path d=\"M320 80V110M320 250V280M220 180H250M390 180H420\" stroke=\"#fff\" stroke-width=\"6\"/><rect x=\"90\" y=\"120\" width=\"90\" height=\"120\" rx=\"10\" fill=\"#fff\" opacity=\".85\"/><rect x=\"460\" y=\"120\" width=\"90\" height=\"120\" rx=\"10\" fill=\"#fff\" opacity=\".85\"/></svg>"
+   },
+   "blocks": [
+    {
+     "type": "paragraph",
+     "text": "Les craintes sur l'usage offensif de l'intelligence artificielle prennent un tour concret. D'après un rapport de l'équipe de renseignement sur les menaces d'Amazon, partagé avec The Register par le responsable de la sécurité du groupe, CJ Moses, des attaquants soupçonnés d'être liés à la Chine ont employé des agents d'IA qui ont, pendant près d'une journée, cherché puis exploité une faille inédite pour prendre le contrôle d'un serveur universitaire. Les conclusions ont été publiées le 20 novembre 2026, mais la campagne date de septembre."
+    },
+    {
+     "type": "paragraph",
+     "text": "L'outil employé s'appelle Cairn, un cadre open source de tests d'intrusion que les cybercriminels utilisent de plus en plus pour enchaîner plusieurs étapes d'une attaque avec peu, voire sans, intervention humaine. Selon Amazon, les consignes données aux agents étaient rédigées en chinois simplifié et les horodatages des scripts étaient réglés sur l'heure de la Chine. L'article ne précise toutefois pas comment l'attribution a été établie : elle reste présentée comme un soupçon."
+    },
+    {
+     "type": "heading",
+     "level": 2,
+     "text": "Ce que les agents ont tenté, puis réussi"
+    },
+    {
+     "type": "paragraph",
+     "text": "L'équipe d'Amazon a découvert le 10 septembre un serveur hébergeant publiquement une instance de Cairn, ce qui lui a donné une vue directe sur une campagne visant des universités d'Asie de l'Est situées hors de Chine continentale. L'opération avait débuté le 8 septembre et a duré environ 48 heures."
+    },
+    {
+     "type": "list",
+     "items": [
+      "**Redis** : environ 16 heures et 148 actions successives contre une première université, avec détournement de la réplication pour charger du code non autorisé, évasion du bac à sable de script, écriture dans des fichiers de configuration et corruption de mémoire. Aucune n'a abouti.",
+      "**Autres tentatives** : injection Log4Shell contre un autre service, falsification de requête côté serveur (SSRF) visant une instance Qdrant voisine, puis attaques par essais de mots de passe contre PostgreSQL, SSH et d'autres services. Toutes ont échoué.",
+      "**Serveur GPU** : plus de six heures d'essais sur un serveur de calcul graphique, avec 80 identifiants réels collectés sur les sites publics de l'établissement, des articles scientifiques et d'autres documents. Sans succès non plus.",
+      "**La réussite** : les agents ont identifié le cadriciel de l'application, cartographié ses points d'accès et trouvé un point de téléversement dont le paramètre de nom de fichier était vulnérable à une traversée de chemin. Environ onze minutes se sont écoulées entre la cartographie de l'API et l'écriture de fichiers arbitraires, puis un shell inversé en Python a été lancé avec les droits root."
+     ]
+    },
+    {
+     "type": "diagram",
+     "svg": "<svg xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"0 0 640 300\"><rect width=\"640\" height=\"300\" rx=\"14\" fill=\"#f3f6fb\"/><text x=\"320\" y=\"30\" text-anchor=\"middle\" font-family=\"system-ui,sans-serif\" font-size=\"17\" font-weight=\"700\" fill=\"#1b2a4a\">Une campagne menée par agents, de l'échec à la prise de contrôle</text><rect x=\"20\" y=\"60\" width=\"180\" height=\"64\" rx=\"10\" fill=\"#fde8e8\" stroke=\"#c92a2a\" stroke-width=\"2\"/><text x=\"110.0\" y=\"97.0\" text-anchor=\"middle\" font-family=\"system-ui,sans-serif\" font-size=\"14\" fill=\"#4a1b1b\">Redis : 16 h, 148 actions</text><rect x=\"230\" y=\"60\" width=\"180\" height=\"64\" rx=\"10\" fill=\"#fde8e8\" stroke=\"#c92a2a\" stroke-width=\"2\"/><text x=\"320.0\" y=\"97.0\" text-anchor=\"middle\" font-family=\"system-ui,sans-serif\" font-size=\"14\" fill=\"#4a1b1b\">Log4Shell, SSRF, mots de passe</text><rect x=\"440\" y=\"60\" width=\"180\" height=\"64\" rx=\"10\" fill=\"#fde8e8\" stroke=\"#c92a2a\" stroke-width=\"2\"/><text x=\"530.0\" y=\"97.0\" text-anchor=\"middle\" font-family=\"system-ui,sans-serif\" font-size=\"14\" fill=\"#4a1b1b\">Serveur GPU : 80 comptes testés</text><text x=\"320\" y=\"152\" text-anchor=\"middle\" font-family=\"system-ui,sans-serif\" font-size=\"14\" fill=\"#444\">Aucune de ces tentatives n'a abouti</text><path d=\"M320 162 L320 190\" stroke=\"#3b5bdb\" stroke-width=\"3\"/><polygon points=\"310,188 330,188 320,202\" fill=\"#3b5bdb\"/><rect x=\"60\" y=\"206\" width=\"230\" height=\"70\" rx=\"10\" fill=\"#e8f7ee\" stroke=\"#2b8a3e\" stroke-width=\"2\"/><text x=\"175.0\" y=\"246.0\" text-anchor=\"middle\" font-family=\"system-ui,sans-serif\" font-size=\"14\" fill=\"#123d1f\">API cartographiée, 11 minutes : écriture de fichiers</text><rect x=\"330\" y=\"206\" width=\"250\" height=\"70\" rx=\"10\" fill=\"#e8f7ee\" stroke=\"#2b8a3e\" stroke-width=\"2\"/><text x=\"455.0\" y=\"246.0\" text-anchor=\"middle\" font-family=\"system-ui,sans-serif\" font-size=\"14\" fill=\"#123d1f\">Faille MONAI Label : shell inversé en root</text></svg>",
+     "alt": "Schéma : trois séries de tentatives échouées contre des universités, puis l'exploitation réussie d'une faille de MONAI Label en onze minutes.",
+     "caption": "Chronologie simplifiée de la campagne d'après le rapport d'Amazon relayé par The Register."
+    },
+    {
+     "type": "paragraph",
+     "text": "La faille exploitée est une traversée de chemin inédite dans MONAI Label, une application open source d'imagerie médicale assistée par IA. Ses mainteneurs, prévenus, ont publié un correctif et un avis de sécurité (GHSA-qc22-rmgc-vg94). L'article ne donne ni numéro de CVE, ni versions concernées, ni numéro de version corrigée : il faut donc se reporter à l'avis du projet. Dans une autre session, un opérateur humain a fourni aux agents un accès par rebond vers le réseau d'une seconde université, où ils ont atteint un serveur exécutant le même code vulnérable."
+    },
+    {
+     "type": "heading",
+     "level": 2,
+     "text": "Un autre opérateur, des chiffres plus larges"
+    },
+    {
+     "type": "paragraph",
+     "text": "La société Gambit Security a rapporté de son côté un opérateur utilisant Cairn et deux autres cadres d'IA open source. Selon l'article, il aurait mené au moins 105 attaques et compromis, à des degrés divers, au moins 27 organisations, dont une entreprise américaine d'hôtellerie du classement Fortune 500 et une grande compagnie aérienne américaine, avec vol de données de cartes bancaires. Ces chiffres proviennent d'un rapport distinct et n'ont pas été vérifiés indépendamment. CJ Moses en conclut que ce type d'outil sert à la fois à l'espionnage et à la criminalité."
+    },
+    {
+     "type": "usecases",
+     "title": "Exemples d'utilisation",
+     "items": [
+      {
+       "icon": "🏫",
+       "title": "Une université qui expose des outils de recherche",
+       "text": "Un laboratoire publie sur Internet une application d'imagerie ou de calcul sans mise à jour régulière. Un agent capable de cartographier l'API en quelques minutes trouvera la moindre faille de validation de nom de fichier."
+      },
+      {
+       "icon": "🛡️",
+       "title": "Une équipe de sécurité en sous-effectif",
+       "text": "Les tentatives d'un agent peuvent durer des heures et se répéter à bas bruit. Une supervision fondée sur des alertes ponctuelles, plutôt que sur les volumes et les enchaînements, laisse passer ce profil d'attaque."
+      },
+      {
+       "icon": "🧪",
+       "title": "Un éditeur de logiciel libre scientifique",
+       "text": "Un mainteneur bénévole reçoit un signalement de zero-day. Disposer d'un contact de sécurité clair et d'un processus de correctif rapide devient décisif face à des attaquants qui automatisent la recherche de failles."
+      }
+     ]
+    },
+    {
+     "type": "timeline",
+     "title": "D'où l'on vient, où l'on va",
+     "items": [
+      {
+       "label": "8 septembre 2026",
+       "text": "Début de la campagne, qui dure environ 48 heures."
+      },
+      {
+       "label": "10 septembre 2026",
+       "text": "L'équipe d'Amazon repère l'instance Cairn publique et observe la campagne."
+      },
+      {
+       "label": "20 novembre 2026",
+       "text": "Publication des conclusions et du correctif côté MONAI Label."
+      },
+      {
+       "label": "À venir",
+       "text": "Selon le rapport, ces cadres open source servent à l'espionnage comme à la fraude : leur usage devrait continuer à se banaliser, sans calendrier annoncé."
+      }
+     ]
+    },
+    {
+     "type": "opinion",
+     "title": "Notre avis",
+     "paragraphs": [
+      "L'enseignement principal n'est pas que les agents soient infaillibles : presque toutes leurs tentatives ont échoué. C'est qu'ils persistent sans fatigue, s'adaptent et finissent par trouver la brèche que personne n'avait testée. Le coût d'une recherche de faille baisse, et l'asymétrie entre attaque et défense s'accroît pour les organisations dépourvues de moyens, comme les universités.",
+      "À un horizon de un à trois ans, il est plausible que la défense dépende elle aussi d'agents, pour corriger et tester en continu, et que les logiciels exposés à Internet soient conçus avec une validation stricte des entrées par défaut. Il s'agit d'une analyse, non d'un fait : le rapport d'Amazon décrit un cas, pas une tendance mesurée."
+     ],
+     "verdict": "Le vrai signal est la rapidité de l'exploitation, pas l'autonomie totale, que le rapport lui-même nuance."
+    },
+    {
+     "type": "callout",
+     "title": "À retenir",
+     "text": "Faits rapportés par The Register d'après Amazon ; attribution à la Chine présentée comme un soupçon, chiffres de Gambit Security non vérifiés. Pour se protéger : mettre à jour MONAI Label selon l'avis GHSA-qc22-rmgc-vg94 et limiter l'exposition des services internes."
+    }
+   ],
+   "cover": {
+    "url": "https://image.theregister.com/5311400.jpg?imageId=5311400&x=0&y=0&cropw=100&croph=100&panox=0&panoy=0&panow=100&panoh=100&width=1200&height=683",
+    "alt": "Illustration de The Register sur des agents d'IA utilisés dans une attaque contre un serveur universitaire",
+    "credit": "theregister.com"
+   },
+   "readingMinutes": 5
+  },
+  {
+   "id": "whatsapp-trois-failles-corrigees",
+   "category": "cybersecurite",
+   "icon": "💬",
+   "title": "WhatsApp corrige trois failles, dont un bogue Android qui a pu servir à des arnaques pour révéler l'adresse IP",
+   "summary": "WhatsApp publie des correctifs pour trois vulnérabilités : une validation d'URL incomplète possiblement détournée dans des messages d'arnaque, une injection SQL dans les messages de commande et un défaut de vérification de certificat de l'infrastructure d'IA confidentielle de Meta.",
+   "tags": [
+    "WhatsApp",
+    "Android",
+    "iOS",
+    "CVE-2026-23871",
+    "injection SQL",
+    "Meta AI"
+   ],
+   "importance": 3,
+   "publishedAt": "2026-11-21T04:13:00+01:00",
+   "sourceDate": "2026-11-20",
+   "sources": [
+    {
+     "title": "WhatsApp Patches 3 Security Flaws, Including Android Bug Suspected of Use in Scams",
+     "url": "https://thehackernews.com/2026/11/whatsapp-patches-3-security-flaws.html",
+     "publisher": "The Hacker News"
+    }
+   ],
+   "illustration": {
+    "svg": "<svg xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"0 0 640 360\"><defs><linearGradient id=\"g\" x1=\"0\" y1=\"0\" x2=\"1\" y2=\"1\"><stop offset=\"0\" stop-color=\"hsl(175,70%,38%)\"/><stop offset=\"1\" stop-color=\"hsl(215,65%,22%)\"/></linearGradient></defs><rect width=\"640\" height=\"360\" fill=\"url(#g)\"/><rect x=\"210\" y=\"70\" width=\"220\" height=\"220\" rx=\"40\" fill=\"#fff\" opacity=\".9\"/><path d=\"M270 150Q320 110 370 150Q370 210 320 240L300 262L305 232Q270 215 270 150Z\" fill=\"hsl(175,70%,32%)\"/><circle cx=\"470\" cy=\"100\" r=\"28\" fill=\"none\" stroke=\"#fff\" stroke-width=\"6\"/><path d=\"M458 100L468 110L486 90\" stroke=\"#fff\" stroke-width=\"6\" fill=\"none\"/></svg>"
+   },
+   "blocks": [
+    {
+     "type": "paragraph",
+     "text": "WhatsApp a publié le 20 novembre 2026 des correctifs pour trois vulnérabilités, d'après The Hacker News. Aucune n'a reçu de score CVSS dans l'article et les dates exactes des avis ne sont pas précisées. Elles touchent des mécanismes très différents : le rendu de messages publicitaires, les messages de commande et la vérification de certificats d'une infrastructure d'IA. Le cas le plus notable concerne un bogue Android qui a possiblement été utilisé dans des campagnes d'arnaque."
+    },
+    {
+     "type": "heading",
+     "level": 2,
+     "text": "Les trois failles en détail"
+    },
+    {
+     "type": "keyvalue",
+     "items": [
+      {
+       "label": "CVE-2026-23871",
+       "value": "Validation incomplète des URL de réponse à des publicités « Click to WhatsApp ». Android et WhatsApp Business pour Android avant la version 2.26.17.4."
+      },
+      {
+       "label": "CVE-2026-102769",
+       "value": "Injection SQL dans les messages de détails de commande. WhatsApp pour Android avant la version 2.26.35.74."
+      },
+      {
+       "label": "CVE-2026-44908",
+       "value": "Défaut de validation de confiance des certificats de l'informatique confidentielle de Meta AI. Plusieurs applications iOS, macOS et Android concernées, dont iOS avant la version 2.26.24.72."
+      }
+     ]
+    },
+    {
+     "type": "paragraph",
+     "text": "**CVE-2026-23871.** Lorsqu'un message de réponse à une publicité, spécialement construit, est affiché, une URL contrôlée par l'attaquant dans un média envoyé peut amener l'appareil de la cible à révéler son adresse IP. L'avis a été établi par les chercheurs internes de WhatsApp. Un porte-parole a indiqué que le défaut avait été trouvé en perturbant une campagne d'arnaque et qu'un escroc l'utilisait probablement pour rendre ses messages plus crédibles. L'entreprise n'a pas précisé l'ampleur de l'activité."
+    },
+    {
+     "type": "paragraph",
+     "text": "**CVE-2026-102769.** Un destinataire qui touche un message de détails de commande forgé, envoyé depuis un client non officiel, peut voir des fichiers locaux de WhatsApp supprimés. Si la personne est en ligne à ce moment, la faille peut aussi divulguer un bit d'information sur sa base de discussions, par un canal auxiliaire fondé sur les temps d'envoi des accusés de réception. WhatsApp affirme n'avoir aucun élément indiquant une exploitation réelle."
+    },
+    {
+     "type": "paragraph",
+     "text": "**CVE-2026-44908.** Elle concerne la vérification des certificats utilisés par l'infrastructure d'informatique confidentielle de Meta AI. Un attaquant placé à l'intérieur de l'infrastructure de Meta aurait pu présenter un certificat de clé d'endossement de puce qui n'était pas signé par le fabricant, contournant ainsi la racine de confiance matérielle. WhatsApp explique que tout certificat de ce type devrait être publié dans un registre de transparence tiers et que ce registre confirme que chacun remonte bien à la racine matérielle : aucune exploitation n'a donc eu lieu."
+    },
+    {
+     "type": "usecases",
+     "title": "Exemples d'utilisation",
+     "items": [
+      {
+       "icon": "📱",
+       "title": "Un particulier qui reçoit des publicités suspectes",
+       "text": "Un message d'apparence commerciale, ouvert sur Android, peut révéler son adresse IP à un escroc. Mettre l'application à jour limite ce risque de repérage préalable à une arnaque ciblée."
+      },
+      {
+       "icon": "🏪",
+       "title": "Un commerçant qui utilise WhatsApp Business",
+       "text": "Une application professionnelle non mise à jour reste dans les versions concernées. Vérifier le numéro de version sur chaque téléphone de l'équipe fait partie de la routine de sécurité."
+      },
+      {
+       "icon": "🧑‍💼",
+       "title": "Un responsable informatique en PME",
+       "text": "Quand des collaborateurs utilisent des messageries sur des téléphones personnels, une consigne simple (mises à jour automatiques activées) vaut mieux qu'un contrôle manuel parc par parc."
+      }
+     ]
+    },
+    {
+     "type": "timeline",
+     "title": "D'où l'on vient, où l'on va",
+     "items": [
+      {
+       "label": "Avant le 20 novembre 2026",
+       "text": "Les versions antérieures aux seuils indiqués restent vulnérables selon l'avis."
+      },
+      {
+       "label": "20 novembre 2026",
+       "text": "Publication des correctifs et de l'article, avec un conseil de mise à jour des applications et des appareils."
+      },
+      {
+       "label": "À venir",
+       "text": "Les avis complets, avec scores et crédits des chercheurs, se trouvent sur la page des avis de sécurité de WhatsApp."
+      }
+     ]
+    },
+    {
+     "type": "opinion",
+     "title": "Notre avis",
+     "paragraphs": [
+      "Le plus instructif n'est pas la gravité technique, jugée modérée, mais l'usage : une faille minime sert de tremplin à l'ingénierie sociale. Connaître l'adresse IP d'une cible ne vole rien, mais cela aide à la localiser, à adapter un faux message ou à préparer une attaque ultérieure. Les arnaques exploitent la chaîne entière, pas seulement l'erreur de code.",
+      "La troisième faille montre aussi que l'IA confidentielle, présentée comme une garantie matérielle, repose sur des vérifications de certificats aussi banales que fragiles. Les registres de transparence publics, qui ont permis ici d'écarter l'exploitation, devraient se généraliser : c'est un avis, pas un constat."
+     ],
+     "verdict": "Mettre à jour reste le geste le plus efficace, et la transparence publique des certificats a ici prouvé son utilité."
+    },
+    {
+     "type": "callout",
+     "title": "À retenir",
+     "text": "Aucun score CVSS ni date précise d'avis n'est donné par la source. Vérifier les versions installées et consulter les avis officiels de WhatsApp."
+    }
+   ],
+   "readingMinutes": 3
+  },
+  {
+   "id": "drupal-installateur-faille-critique",
+   "category": "web",
+   "icon": "🧱",
+   "title": "Drupal : le fichier d'installation laissé en place permet de tenter de réinstaller un site, avec prise de contrôle à la clé",
+   "summary": "Drupal corrige une faille critique de l'installateur (CVE-2026-132165) qui, dans des configurations peu courantes, permet à un attaquant non authentifié de tenter de réinstaller un site. Un code de démonstration existe déjà.",
+   "tags": [
+    "Drupal",
+    "CMS",
+    "CVE-2026-132165",
+    "install.php",
+    "correctif"
+   ],
+   "importance": 4,
+   "publishedAt": "2026-11-21T04:13:00+01:00",
+   "sourceDate": "2026-11-19",
+   "sources": [
+    {
+     "title": "Drupal Patches Critical Installer Flaw That Could Give Unauthenticated Attackers Control of Sites",
+     "url": "https://thehackernews.com/2026/11/drupal-patches-critical-installer-flaw.html",
+     "publisher": "The Hacker News"
+    }
+   ],
+   "illustration": {
+    "svg": "<svg xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"0 0 640 360\"><defs><linearGradient id=\"g\" x1=\"0\" y1=\"0\" x2=\"1\" y2=\"1\"><stop offset=\"0\" stop-color=\"hsl(210,70%,38%)\"/><stop offset=\"1\" stop-color=\"hsl(250,65%,22%)\"/></linearGradient></defs><rect width=\"640\" height=\"360\" fill=\"url(#g)\"/><rect x=\"150\" y=\"90\" width=\"340\" height=\"190\" rx=\"14\" fill=\"#fff\" opacity=\".9\"/><rect x=\"150\" y=\"90\" width=\"340\" height=\"36\" rx=\"14\" fill=\"#fff\"/><circle cx=\"175\" cy=\"108\" r=\"6\" fill=\"hsl(210,70%,40%)\"/><circle cx=\"195\" cy=\"108\" r=\"6\" fill=\"hsl(210,70%,40%)\"/><rect x=\"180\" y=\"150\" width=\"130\" height=\"16\" rx=\"8\" fill=\"hsl(210,60%,45%)\"/><rect x=\"180\" y=\"180\" width=\"280\" height=\"12\" rx=\"6\" fill=\"hsl(210,30%,70%)\"/><rect x=\"180\" y=\"205\" width=\"230\" height=\"12\" rx=\"6\" fill=\"hsl(210,30%,70%)\"/><path d=\"M420 170l28-28 28 28v34a28 28 0 0 1-56 0z\" fill=\"hsl(0,70%,50%)\"/></svg>"
+   },
+   "blocks": [
+    {
+     "type": "paragraph",
+     "text": "Le projet Drupal a publié des versions correctives pour une faille critique de son installateur, référencée CVE-2026-132165 et décrite dans l'avis SA-CORE-2026-017. Dans des conditions précises, un attaquant sans compte peut utiliser le programme d'installation intégré au cœur du CMS pour tenter de réinstaller un site existant. Selon l'avis relayé par The Hacker News, une réussite peut mener à la prise de contrôle du site, voire à l'exécution de code à distance."
+    },
+    {
+     "type": "heading",
+     "level": 2,
+     "text": "Un fichier resté après l'installation"
+    },
+    {
+     "type": "paragraph",
+     "text": "Chaque copie du cœur de Drupal embarque le fichier `/core/install.php`, qui subsiste une fois le site installé. Les règles `.htaccess` fournies par défaut ne le bloquent pas : c'est à chaque exploitant d'interdire l'accès. L'équipe de sécurité juge les configurations vulnérables peu courantes et précise que les chemins d'exploitation sont fermés quand le serveur web ne peut ni écrire dans `settings.php` ni en modifier les droits. Elle note aussi que l'exploitation est complexe, mais qu'un code de démonstration existe déjà. Aucune attaque n'est rapportée à ce jour."
+    },
+    {
+     "type": "keyvalue",
+     "items": [
+      {
+       "label": "Gravité",
+       "value": "Critique, 18 sur 25 sur l'échelle propre à Drupal (aucun score CVSS dans l'article)"
+      },
+      {
+       "label": "Versions touchées",
+       "value": "Drupal inférieur à 10.6.22 ; 11.0.0 à 11.3.21 ; 11.4.0 à 11.4.12"
+      },
+      {
+       "label": "Versions corrigées",
+       "value": "10.6.22, 11.3.22 et 11.4.13"
+      },
+      {
+       "label": "Branches sans correctif",
+       "value": "11.2 et antérieures, 10.5 et antérieures, Drupal 8 et 9 (fin de vie)"
+      }
+     ]
+    },
+    {
+     "type": "heading",
+     "level": 2,
+     "text": "Que faire"
+    },
+    {
+     "type": "list",
+     "items": [
+      "Mettre à jour vers une version corrigée, puis continuer à bloquer l'installateur.",
+      "Si la mise à jour est impossible tout de suite : règle de refus au niveau du serveur web, règle `.htaccess`, ou suppression du fichier maintenue par des scripts Composer.",
+      "Les sites protégés par le service Drupal Steward sont couverts contre les vecteurs connus, mais l'équipe recommande de mettre à jour malgré tout."
+     ]
+    },
+    {
+     "type": "paragraph",
+     "text": "La faille a été trouvée par l'outil d'analyse open source d'Anthropic, dont les résultats sont transmis aux mainteneurs sans relecture humaine, d'après l'article. C'est la deuxième faille critique d'exécution de code corrigée dans le cœur de Drupal en deux mois, après un défaut du module Field UI traité le 14 octobre. L'équipe de sécurité a aussi indiqué que le volume de rapports attribués à l'IA dépasse son financement actuel : la couverture de sécurité des versions mineures passera de 12 à 8 mois à partir de 2027, et les branches 11.3 et 10 perdront toute couverture en décembre."
+    },
+    {
+     "type": "usecases",
+     "title": "Exemples d'utilisation",
+     "items": [
+      {
+       "icon": "🏛️",
+       "title": "Un service public qui gère son site avec Drupal",
+       "text": "Une mairie ou un ministère dont le site date de plusieurs années vérifie d'abord la branche utilisée : une version de fin de vie ne recevra aucun correctif et impose une migration."
+      },
+      {
+       "icon": "🧑‍💻",
+       "title": "Une agence web qui héberge dix sites clients",
+       "text": "Elle ajoute une règle de refus de `/core/install.php` dans le modèle de configuration du serveur, ce qui protège d'un coup tous les sites, y compris ceux qu'elle n'a pas encore pu mettre à jour."
+      },
+      {
+       "icon": "🏗️",
+       "title": "Un administrateur qui automatise ses déploiements",
+       "text": "Un script Composer qui supprime le fichier à chaque déploiement évite de dépendre d'une règle oubliée lors d'une migration de serveur."
+      }
+     ]
+    },
+    {
+     "type": "timeline",
+     "title": "D'où l'on vient, où l'on va",
+     "items": [
+      {
+       "label": "14 octobre 2026",
+       "text": "Correctif d'une première faille critique d'exécution de code dans le module Field UI."
+      },
+      {
+       "label": "Semaine du 19 novembre 2026",
+       "text": "Avis préalable annonçant des exploits possibles en quelques heures, puis publication des correctifs de l'installateur."
+      },
+      {
+       "label": "Décembre 2026",
+       "text": "Fin de la couverture de sécurité des branches 11.3 et 10."
+      },
+      {
+       "label": "2027",
+       "text": "Réduction de 12 à 8 mois de la couverture de sécurité des versions mineures."
+      }
+     ]
+    },
+    {
+     "type": "opinion",
+     "title": "Notre avis",
+     "paragraphs": [
+      "La leçon pratique est simple et ancienne : tout ce qui sert à l'installation doit disparaître ou être bloqué en production. Ici, un comportement par défaut a laissé ce travail aux exploitants, ce qui garantit des oublis dans un parc de sites aussi large que celui de Drupal.",
+      "Plus largement, l'annonce du financement dépassé par le flux de rapports générés par IA annonce un tournant pour les projets open source : les découvertes de failles s'accélèrent, la capacité à les trier et à les corriger non. Sans moyens supplémentaires, la durée de support réduite devrait devenir la norme. Cette lecture est une opinion, non une certitude."
+     ],
+     "verdict": "Un correctif à appliquer vite, mais surtout un rappel : bloquer l'installateur doit être une règle par défaut."
+    },
+    {
+     "type": "callout",
+     "title": "À retenir",
+     "text": "Faille jugée de configuration peu courante, mais avec preuve de concept connue. Mettre à jour vers 10.6.22, 11.3.22 ou 11.4.13 et bloquer l'accès à /core/install.php."
+    }
+   ],
+   "cover": {
+    "url": "https://blogger.googleusercontent.com/img/b/R29vZ2xl/AVvXsEi4kxIzi1B-GPdS7pbaOI823BHxteL-8FbODKnAoDkr8tGhhjGYuRU9KIEAvOQ6kBZFQPCly3BIhQo6vkjxJy13zL7CxlRXsez_G_otFVaja2H5ObmzNMMilbewaweqqO5Paa0H49yaZdWB09xAIqeo7YLG0uyd05qjdbh2aLIRZd73_jwVGH26YexA3l8/s1600/drupal-flaws.jpg",
+    "alt": "Illustration de The Hacker News sur les failles de Drupal",
+    "credit": "thehackernews.com"
+   },
+   "readingMinutes": 4
+  },
+  {
+   "id": "amazon-aws-agents-achat-ecart",
+   "category": "web",
+   "icon": "🛒",
+   "title": "Agents d'achat : Amazon bloque les robots sur sa boutique, mais AWS Marketplace leur ouvre grand la porte",
+   "summary": "AWS Marketplace permet désormais à des agents d'IA d'acheter des logiciels et des données avec le protocole de paiement x402, alors que le site marchand d'Amazon bloque ces mêmes robots et poursuit Perplexity.",
+   "tags": [
+    "agents d'IA",
+    "x402",
+    "AWS Marketplace",
+    "commerce",
+    "Amazon"
+   ],
+   "importance": 4,
+   "publishedAt": "2026-11-21T04:13:00+01:00",
+   "sourceDate": "2026-11-20",
+   "sources": [
+    {
+     "title": "Amazon's split personality: AWS embraces bot commerce while main site enforces bans",
+     "url": "https://www.theregister.com/ai-and-ml/2026/11/20/amazons-split-personality-aws-embraces-bot-commerce-while-main-site-enforces-bans/5311493",
+     "publisher": "The Register"
+    },
+    {
+     "title": "Signal slams door on prying AI agents to protect privacy",
+     "url": "https://www.theregister.com/security/2026/11/20/signal-slams-door-on-prying-ai-agents-to-protect-privacy/5311466",
+     "publisher": "The Register"
+    }
+   ],
+   "illustration": {
+    "svg": "<svg xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"0 0 640 360\"><defs><linearGradient id=\"g\" x1=\"0\" y1=\"0\" x2=\"1\" y2=\"1\"><stop offset=\"0\" stop-color=\"hsl(210,70%,38%)\"/><stop offset=\"1\" stop-color=\"hsl(250,65%,22%)\"/></linearGradient></defs><rect width=\"640\" height=\"360\" fill=\"url(#g)\"/><rect x=\"170\" y=\"130\" width=\"300\" height=\"130\" rx=\"14\" fill=\"#fff\" opacity=\".9\"/><path d=\"M200 130L225 70H415L440 130\" fill=\"none\" stroke=\"#fff\" stroke-width=\"8\"/><circle cx=\"250\" cy=\"285\" r=\"16\" fill=\"#fff\"/><circle cx=\"390\" cy=\"285\" r=\"16\" fill=\"#fff\"/><rect x=\"290\" y=\"160\" width=\"60\" height=\"50\" rx=\"8\" fill=\"hsl(210,70%,40%)\"/><circle cx=\"320\" cy=\"185\" r=\"10\" fill=\"#fff\"/></svg>"
+   },
+   "blocks": [
+    {
+     "type": "paragraph",
+     "text": "Amazon tient deux discours face aux agents d'achat. D'un côté, le site de vente en ligne bloque depuis un moment les assistants d'IA qui voudraient commander à la place des clients : l'article de The Register indique qu'il a aussi écarté des robots de Google, Meta et OpenAI et poursuivi Perplexity en justice à propos de son navigateur Comet. De l'autre, AWS Marketplace, la place de marché de logiciels du même groupe, ouvre désormais l'achat aux agents. Amazon n'a pas répondu à la demande d'explication du journaliste sur cette apparente contradiction."
+    },
+    {
+     "type": "heading",
+     "level": 2,
+     "text": "Comment un agent achète sur AWS Marketplace"
+    },
+    {
+     "type": "paragraph",
+     "text": "L'annonce, rédigée par Mya Papolu, responsable marketing produit d'AWS Marketplace, est liée à la conférence re:Invent 2026. Les agents peuvent acheter certains logiciels dans le cloud avec x402, un protocole de paiement conçu pour les agents, introduit par Coinbase et Cloudflare puis confié à la Linux Foundation plus tôt en 2026. Google, Stripe, AWS et plusieurs réseaux de chaînes de blocs le prennent aussi en charge. Il est pris en charge par les paiements d'Amazon Bedrock AgentCore."
+    },
+    {
+     "type": "list",
+     "items": [
+      "Les vendeurs doivent s'inscrire sur AWS Marketplace et intégrer le kit de développement x402 correspondant.",
+      "Les transactions sont réglées en dollars américains via la facturation AWS : les contrôles de dépenses existants peuvent donc s'appliquer.",
+      "Aux États-Unis, certains logiciels peuvent être achetés sans compte AWS, avec une connexion par courriel ou réseau social et une carte bancaire."
+     ]
+    },
+    {
+     "type": "diagram",
+     "svg": "<svg xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"0 0 640 280\"><rect width=\"640\" height=\"280\" rx=\"14\" fill=\"#f3f6fb\"/><text x=\"320\" y=\"30\" text-anchor=\"middle\" font-family=\"system-ui,sans-serif\" font-size=\"17\" font-weight=\"700\" fill=\"#1b2a4a\">Un même groupe, deux attitudes face aux agents</text><rect x=\"30\" y=\"60\" width=\"170\" height=\"60\" rx=\"10\" fill=\"#fff3bf\" stroke=\"#e67700\" stroke-width=\"2\"/><text x=\"115.0\" y=\"95.0\" text-anchor=\"middle\" font-family=\"system-ui,sans-serif\" font-size=\"15\" fill=\"#4a3000\">Agent d'achat IA</text><path d=\"M200 90 L270 60\" stroke=\"#c92a2a\" stroke-width=\"3\"/><path d=\"M200 90 L270 190\" stroke=\"#2b8a3e\" stroke-width=\"3\"/><rect x=\"270\" y=\"40\" width=\"170\" height=\"56\" rx=\"10\" fill=\"#fde8e8\" stroke=\"#c92a2a\" stroke-width=\"2\"/><text x=\"355.0\" y=\"73.0\" text-anchor=\"middle\" font-family=\"system-ui,sans-serif\" font-size=\"15\" fill=\"#4a1b1b\">Amazon.com</text><text x=\"530\" y=\"74\" text-anchor=\"middle\" font-family=\"system-ui,sans-serif\" font-size=\"15\" font-weight=\"700\" fill=\"#c92a2a\">Bloqué</text><rect x=\"270\" y=\"170\" width=\"170\" height=\"56\" rx=\"10\" fill=\"#e8f7ee\" stroke=\"#2b8a3e\" stroke-width=\"2\"/><text x=\"355.0\" y=\"203.0\" text-anchor=\"middle\" font-family=\"system-ui,sans-serif\" font-size=\"15\" fill=\"#123d1f\">AWS Marketplace</text><text x=\"530\" y=\"204\" text-anchor=\"middle\" font-family=\"system-ui,sans-serif\" font-size=\"15\" font-weight=\"700\" fill=\"#2b8a3e\">Accueilli (x402)</text><text x=\"320\" y=\"262\" text-anchor=\"middle\" font-family=\"system-ui,sans-serif\" font-size=\"13\" fill=\"#444\">Paiement en USD via la facturation AWS</text></svg>",
+     "alt": "Schéma : un agent d'achat est bloqué par Amazon.com mais accepté par AWS Marketplace, avec paiement x402 réglé en dollars par la facturation AWS.",
+     "caption": "Deux politiques opposées au sein d'Amazon, d'après The Register."
+    },
+    {
+     "type": "paragraph",
+     "text": "AWS propose aussi de la « donnée en tant que service » : des fournisseurs publient des offres accessibles par un site, des API et un serveur MCP. L'article cite le serveur MCP de crédit de Moody's, des reportages géopolitiques structurés par IA de Reuters, des données américaines de permis de construire de Shovels et un corpus acoustique de conversations d'Uber AI Solutions. Le mode Agent de la place de marché, disponible depuis environ un an, permet d'interroger le catalogue par requête en langage naturel et sera étendu à des questions plus fines sur la sécurité des vendeurs et les besoins de projet."
+    },
+    {
+     "type": "paragraph",
+     "text": "Les zones d'ombre sont notables : l'article ne dit pas quels logiciels précis acceptent les achats d'agents, ni les frais éventuels, ni l'issue du procès contre Perplexity. Il situe cette divergence dans un mouvement plus large : United Airlines interdit les transactions par robots non autorisés, tandis que Walmart invite des agents tiers via sa passerelle d'IA ; une industrie de détection de robots (Cloudflare, Akamai, DataDome) prospère."
+    },
+    {
+     "type": "usecases",
+     "title": "Exemples d'utilisation",
+     "items": [
+      {
+       "icon": "🧑‍💻",
+       "title": "Une équipe de développement qui automatise ses achats",
+       "text": "Un agent trouve une licence logicielle, vérifie la sécurité du vendeur grâce au mode Agent, puis règle l'achat dans les limites d'un budget défini par la finance."
+      },
+      {
+       "icon": "📊",
+       "title": "Un analyste qui a besoin de données externes",
+       "text": "Via un serveur MCP, son agent interroge un fournisseur de données financières et facture l'usage sur le compte AWS existant, sans négocier un contrat séparé."
+      },
+      {
+       "icon": "🛍️",
+       "title": "Un commerçant en ligne",
+       "text": "Il doit décider s'il autorise ou bloque les agents d'achat sur sa boutique, en pesant le trafic gagné contre le risque de fraude et de perte de la relation client."
+      }
+     ]
+    },
+    {
+     "type": "timeline",
+     "title": "D'où l'on vient, où l'on va",
+     "items": [
+      {
+       "label": "Plus tôt en 2026",
+       "text": "x402, créé par Coinbase et Cloudflare, est confié à la Linux Foundation."
+      },
+      {
+       "label": "Il y a environ un an",
+       "text": "Lancement du mode Agent d'AWS Marketplace."
+      },
+      {
+       "label": "Novembre 2026",
+       "text": "Ouverture des achats d'agents via x402, liée à re:Invent 2026."
+      },
+      {
+       "label": "À venir",
+       "text": "Extension du mode Agent aux questions de sécurité des vendeurs ; aucune date annoncée."
+      }
+     ]
+    },
+    {
+     "type": "opinion",
+     "title": "Notre avis",
+     "paragraphs": [
+      "L'écart d'Amazon n'est pas une incohérence mais un calcul : la vente de logiciels aux entreprises profite d'agents qui achètent à la chaîne, alors que la boutique grand public vit de la publicité et de la relation avec le client, que des assistants tiers court-circuiteraient. La question n'est pas technique mais de contrôle de l'interface.",
+      "D'ici un à trois ans, il est vraisemblable que chaque grande plateforme se dote de deux régimes, l'un pour les agents de confiance payants, l'autre pour les robots indésirables. Reste un risque, celui d'une fragmentation où les protocoles de paiement et d'identité d'agents diffèrent d'un site à l'autre. Cette projection est une opinion."
+     ],
+     "verdict": "Les agents ne sont ni bannis ni acceptés : chaque plateforme décide selon ce qu'elle gagne ou perd."
+    },
+    {
+     "type": "callout",
+     "title": "À retenir",
+     "text": "Faits rapportés par The Register d'après le blog d'AWS Marketplace ; l'article ne donne pas les frais ni la liste des produits concernés."
+    }
+   ],
+   "cover": {
+    "url": "https://image.theregister.com/5311499.jpg?imageId=5311499&x=0&y=0&cropw=100&croph=100&panox=0&panoy=0&panow=100&panoh=100&width=1200&height=683",
+    "alt": "Illustration de The Register sur les agents d'achat d'Amazon et d'AWS",
+    "credit": "theregister.com"
+   },
+   "readingMinutes": 4
+  },
+  {
+   "id": "valkey-fbtree-remplace-liste-a-sauts",
+   "category": "dev",
+   "icon": "🗃️",
+   "title": "Valkey 9.2 remplace la liste à sauts des ensembles triés par un arbre B+ et réduit la mémoire jusqu'à 43 %",
+   "summary": "Dans la version 9.2 de Valkey, en phase de candidate à la publication, l'index des grands ensembles triés passe d'une liste à sauts à un arbre B+ à grand facteur de branchement, avec moins de mémoire et des mises à jour jusqu'à deux fois plus rapides.",
+   "tags": [
+    "Valkey",
+    "base de données",
+    "arbre B+",
+    "performance",
+    "ensembles triés"
+   ],
+   "importance": 4,
+   "publishedAt": "2026-11-21T04:13:00+01:00",
+   "sourceDate": "2026-11-16",
+   "sources": [
+    {
+     "title": "Valkey 9.2 : de la liste à sauts à l'arbre B+",
+     "url": "https://valkey.io/blog/from-skiplist-to-b+tree/",
+     "publisher": "Valkey"
+    }
+   ],
+   "illustration": {
+    "svg": "<svg xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"0 0 640 360\"><defs><linearGradient id=\"g\" x1=\"0\" y1=\"0\" x2=\"1\" y2=\"1\"><stop offset=\"0\" stop-color=\"hsl(265,70%,38%)\"/><stop offset=\"1\" stop-color=\"hsl(305,65%,22%)\"/></linearGradient></defs><rect width=\"640\" height=\"360\" fill=\"url(#g)\"/><g fill=\"#fff\"><circle cx=\"320\" cy=\"90\" r=\"26\"/><circle cx=\"220\" cy=\"180\" r=\"22\"/><circle cx=\"420\" cy=\"180\" r=\"22\"/><circle cx=\"160\" cy=\"270\" r=\"18\"/><circle cx=\"260\" cy=\"270\" r=\"18\"/><circle cx=\"380\" cy=\"270\" r=\"18\"/><circle cx=\"480\" cy=\"270\" r=\"18\"/></g><path d=\"M320 116L220 158M320 116L420 158M220 202L160 252M220 202L260 252M420 202L380 252M420 202L480 252\" stroke=\"#fff\" stroke-width=\"5\"/></svg>"
+   },
+   "blocks": [
+    {
+     "type": "paragraph",
+     "text": "Les ensembles triés sont l'une des structures les plus utilisées de Redis et de ses dérivés : classements de jeux, files de tâches planifiées, fenêtres de temps pour la limitation de débit. Dans la prochaine version 9.2 de Valkey, qui était en phase de candidate à la publication au moment de la rédaction de l'article, leur index interne change en profondeur. Selon un billet de Rain Valentine et Dragos Andriciuc daté du 16 novembre 2026, la liste à sauts cède la place à « fbtree », une variante d'arbre B+ à grand facteur de branchement."
+    },
+    {
+     "type": "heading",
+     "level": 2,
+     "text": "Pourquoi abandonner la liste à sauts"
+    },
+    {
+     "type": "paragraph",
+     "text": "Une liste à sauts alloue un nœud par membre, avec des niveaux tirés au hasard qui ajoutent environ 37 octets de surcoût par nœud avant même de stocker la chaîne du membre. Chaque nœud est une allocation distincte : parcourir la structure impose donc des lectures mémoire dépendantes les unes des autres. Le billet cite une étude de 2025, menée sur un autre système que Valkey, montrant davantage d'échecs de cache pour une liste à sauts que pour un arbre B comparable."
+    },
+    {
+     "type": "paragraph",
+     "text": "L'arbre fbtree adopte un facteur de branchement de 61. Les nœuds internes et les feuilles sont dimensionnés pour correspondre aux classes d'allocation de jemalloc. Les feuilles stockent le score et le membre ensemble, dans une valeur compacte, ce qui évite une indirection de pointeur. Les nœuds internes conservent une « signature » de 4 octets par enfant, que des instructions vectorielles comparent pour choisir un enfant, souvent sans lire le nœud lui-même. Les feuilles sont chaînées dans les deux sens, ce qui accélère les parcours d'intervalles, et les feuilles extrêmes sont mises en cache pour garder des retraits en temps constant aux deux bouts."
+    },
+    {
+     "type": "diagram",
+     "svg": "<svg xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"0 0 640 260\"><rect width=\"640\" height=\"260\" rx=\"14\" fill=\"#f3f6fb\"/><text x=\"320\" y=\"30\" text-anchor=\"middle\" font-family=\"system-ui,sans-serif\" font-size=\"17\" font-weight=\"700\" fill=\"#1b2a4a\">Surcoût mémoire de l'index trié, par membre (5 M de membres)</text><text x=\"40\" y=\"82\" font-family=\"system-ui,sans-serif\" font-size=\"14\" fill=\"#1b2a4a\">Liste à sauts</text><rect x=\"170\" y=\"62\" width=\"402\" height=\"28\" rx=\"6\" fill=\"#868e96\"/><text x=\"580\" y=\"82\" font-family=\"system-ui,sans-serif\" font-size=\"14\" fill=\"#1b2a4a\">50,3 o</text><text x=\"40\" y=\"132\" font-family=\"system-ui,sans-serif\" font-size=\"14\" fill=\"#1b2a4a\">fbtree, séquentiel</text><rect x=\"170\" y=\"112\" width=\"228\" height=\"28\" rx=\"6\" fill=\"#3b5bdb\"/><text x=\"406\" y=\"132\" font-family=\"system-ui,sans-serif\" font-size=\"14\" fill=\"#1b2a4a\">28,5 o (−43 %)</text><text x=\"40\" y=\"182\" font-family=\"system-ui,sans-serif\" font-size=\"14\" fill=\"#1b2a4a\">fbtree, aléatoire</text><rect x=\"170\" y=\"162\" width=\"256\" height=\"28\" rx=\"6\" fill=\"#4c6ef5\"/><text x=\"434\" y=\"182\" font-family=\"system-ui,sans-serif\" font-size=\"14\" fill=\"#1b2a4a\">32,0 o (−36 %)</text><text x=\"320\" y=\"236\" text-anchor=\"middle\" font-family=\"system-ui,sans-serif\" font-size=\"12\" fill=\"#555\">Index ordonné seul, membres de 20 octets, d'après l'équipe Valkey</text></svg>",
+     "alt": "Graphique à barres : surcoût de 50,3 octets par membre pour la liste à sauts, 28,5 pour fbtree en insertion séquentielle et 32,0 en insertion aléatoire.",
+     "caption": "Surcoût mémoire de l'index ordonné seul, d'après le billet de l'équipe Valkey."
+    },
+    {
+     "type": "heading",
+     "level": 2,
+     "text": "Les mesures annoncées"
+    },
+    {
+     "type": "paragraph",
+     "text": "Pour 5 millions de membres de 20 octets, le surcoût de l'index ordonné tombe de 50,3 à 28,5 octets par membre en insertion séquentielle (43 % de moins, environ 109 Mo économisés) et à 32,0 octets en insertion aléatoire (36 % de moins, environ 92 Mo), car l'ordre aléatoire laisse plus de nœuds partiellement remplis. Côté débit, sur un ensemble de 3 millions de membres et une machine Graviton3 à 64 cœurs avec un pipeline de profondeur 10, la commande ZADD en mise à jour de score gagne 105 %, ZREM 76 %, ZCOUNT 27 % et ZRANK 19 %. D'autres commandes évoluent peu, comme ZRANGE sur 100 éléments (6 %) ou ZSCORE (2 %), qui passent par la table de hachage et non par l'index."
+    },
+    {
+     "type": "paragraph",
+     "text": "Les auteurs signalent des limites : ces chiffres ne portent que sur l'index ordonné, pas sur la table de hachage ni sur l'intégration des membres ; les mesures de commandes ont été prises sur la branche de la demande de fusion et non sur le code fusionné ; elles viennent d'une seule configuration matérielle. Ils recommandent de tester la candidate avec des charges réelles avant la version finale."
+    },
+    {
+     "type": "keyvalue",
+     "items": [
+      {
+       "label": "Compatibilité",
+       "value": "Commandes et comportement inchangés pour les ensembles triés"
+      },
+      {
+       "label": "Changement visible",
+       "value": "`OBJECT ENCODING` renvoie `btree` au lieu de `skiplist` pour les grands ensembles"
+      },
+      {
+       "label": "Petits ensembles",
+       "value": "Les ensembles sous le seuil de listpack ne sont pas concernés"
+      }
+     ]
+    },
+    {
+     "type": "usecases",
+     "title": "Exemples d'utilisation",
+     "items": [
+      {
+       "icon": "🎮",
+       "title": "Un classement de jeu en ligne",
+       "text": "Des millions de scores sont mis à jour en continu. Un gain de 105 % sur les mises à jour de score et un index plus léger permettent de loger davantage de joueurs sur la même instance."
+      },
+      {
+       "icon": "⏱️",
+       "title": "Une file de tâches planifiées",
+       "text": "Les tâches sont triées par date d'exécution. Les retraits aux extrémités restent en temps constant, tandis que l'ajout et la suppression de tâches deviennent plus rapides."
+      },
+      {
+       "icon": "📈",
+       "title": "Un tableau de bord de supervision",
+       "text": "Un script qui surveille la chaîne `skiplist` dans `OBJECT ENCODING` doit être mis à jour avant la migration, sous peine de fausses alertes."
+      }
+     ]
+    },
+    {
+     "type": "timeline",
+     "title": "D'où l'on vient, où l'on va",
+     "items": [
+      {
+       "label": "2025",
+       "text": "Une étude sur un autre système compare les échecs de cache entre liste à sauts et arbre B."
+      },
+      {
+       "label": "16 novembre 2026",
+       "text": "Publication du billet : fbtree est intégré à Valkey 9.2, en candidate à la publication."
+      },
+      {
+       "label": "À venir",
+       "text": "Version finale de Valkey 9.2 : le billet n'en donne pas la date."
+      }
+     ]
+    },
+    {
+     "type": "opinion",
+     "title": "Notre avis",
+     "paragraphs": [
+      "Remplacer une structure classique par un arbre plus respectueux du cache illustre un mouvement de fond : à l'échelle des bases en mémoire, la localité des données compte davantage que la complexité théorique. La liste à sauts était élégante, mais chaque pointeur coûte de la mémoire et des attentes du processeur.",
+      "À un horizon de un à trois ans, d'autres structures de ces moteurs devraient suivre la même voie, avec des optimisations vectorielles et un dimensionnement calé sur l'allocateur. C'est une opinion : les gains annoncés restent à confirmer sur des charges de production variées."
+     ],
+     "verdict": "Une évolution surtout mémoire, prometteuse mais à valider sur vos propres charges."
+    },
+    {
+     "type": "callout",
+     "title": "À retenir",
+     "text": "Valkey 9.2 était en candidate à la publication ; les chiffres viennent des auteurs et restent à reproduire sur vos charges."
+    }
+   ],
+   "cover": {
+    "url": "https://valkey.io/img/valkey-logo-og.png",
+    "alt": "Logo de Valkey",
+    "credit": "valkey.io"
+   },
+   "readingMinutes": 4
+  },
+  {
+   "id": "signal-bloque-agents-ia-captures-ecran",
+   "category": "ia",
+   "icon": "🙈",
+   "title": "Signal bloque par défaut la lecture de ses messages par les agents d'IA des téléphones et appelle Apple, Google et Microsoft à agir",
+   "summary": "Signal active par défaut le blocage des captures d'écran sur iOS et Android pour empêcher des agents comme Siri ou Gemini de lire les conversations, tout en reconnaissant une protection partielle et en demandant de vrais contrôles aux fabricants de systèmes.",
+   "tags": [
+    "Signal",
+    "agents d'IA",
+    "vie privée",
+    "Apple",
+    "Google"
+   ],
+   "importance": 4,
+   "publishedAt": "2026-11-21T04:13:00+01:00",
+   "sourceDate": "2026-11-20",
+   "sources": [
+    {
+     "title": "Signal slams door on prying AI agents to protect privacy",
+     "url": "https://www.theregister.com/security/2026/11/20/signal-slams-door-on-prying-ai-agents-to-protect-privacy/5311466",
+     "publisher": "The Register"
+    }
+   ],
+   "illustration": {
+    "svg": "<svg xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"0 0 640 360\"><defs><linearGradient id=\"g\" x1=\"0\" y1=\"0\" x2=\"1\" y2=\"1\"><stop offset=\"0\" stop-color=\"hsl(320,70%,38%)\"/><stop offset=\"1\" stop-color=\"hsl(0,65%,22%)\"/></linearGradient></defs><rect width=\"640\" height=\"360\" fill=\"url(#g)\"/><rect x=\"230\" y=\"60\" width=\"180\" height=\"240\" rx=\"26\" fill=\"#fff\" opacity=\".9\"/><circle cx=\"320\" cy=\"150\" r=\"42\" fill=\"none\" stroke=\"hsl(320,60%,35%)\" stroke-width=\"8\"/><circle cx=\"320\" cy=\"150\" r=\"10\" fill=\"hsl(320,60%,35%)\"/><path d=\"M290 135Q320 110 350 135\" stroke=\"hsl(320,60%,35%)\" stroke-width=\"8\" fill=\"none\"/><path d=\"M270 240H370\" stroke=\"hsl(320,40%,55%)\" stroke-width=\"10\"/><path d=\"M110 110L190 190M190 110L110 190\" stroke=\"#fff\" stroke-width=\"10\"/></svg>"
+   },
+   "blocks": [
+    {
+     "type": "paragraph",
+     "text": "Le 20 novembre 2026, Signal a annoncé qu'il bloquerait par défaut la lecture de ses messages par les agents d'IA intégrés aux systèmes d'exploitation. Dans un billet de sa présidente, Meredith Whittaker, la messagerie répond à la montée d'assistants comme Gemini de Google ou Siri d'Apple, capables d'analyser ce qui s'affiche à l'écran. Signal rappelle un précédent : le blocage des captures d'écran ajouté en 2025 pour se défendre contre Microsoft Recall."
+    },
+    {
+     "type": "heading",
+     "level": 2,
+     "text": "Ce que Signal a changé"
+    },
+    {
+     "type": "list",
+     "items": [
+      "Les applications iOS et Android mises à jour interdisent les captures d'écran par défaut, ce qui empêche un agent d'extraire le texte des messages par reconnaissance optique de caractères.",
+      "L'utilisateur peut désactiver cette protection dans les réglages, mais Signal l'avertit qu'il expose alors ses propres messages et ceux de ses contacts aux agents.",
+      "Signal admet que la protection est partielle : un agent peut toujours atteindre les données de l'application par le système de fichiers de l'appareil.",
+      "Rien n'est mis en place sur macOS, faute d'outils offerts par la plateforme."
+     ]
+    },
+    {
+     "type": "paragraph",
+     "text": "La demande centrale est adressée aux fabricants de systèmes : Whittaker estime que les développeurs ont besoin d'outils solides pour restreindre l'accès des IA à leurs données sans dégrader l'expérience, et que Apple, Google et Microsoft ne les offrent pas aujourd'hui. Ces descriptions proviennent du billet de Signal, que l'article n'a pas vérifié de manière indépendante."
+    },
+    {
+     "type": "heading",
+     "level": 2,
+     "text": "La réponse d'Apple et le contexte"
+    },
+    {
+     "type": "paragraph",
+     "text": "Apple prépare dans macOS 27.3, actuellement en bêta publique, des contrôles plus fins sur le contrôle de l'appareil et l'accès aux données, ainsi que sur l'accès complet au disque. Les logiciels de sauvegarde et d'assistance devront obtenir une autorisation d'Apple pour cet accès. L'entreprise reconnaît que les risques liés aux agents grandiront à mesure qu'ils gagneront en autonomie. L'article remarque toutefois que ces changements protègent surtout contre les tiers, sans limiter Siri lui-même, qui se désactive séparément. Selon Bloomberg, cité par l'article, Apple développerait son propre agent pour concurrencer Anthropic et OpenAI."
+    },
+    {
+     "type": "paragraph",
+     "text": "La tension dépasse la messagerie : Amazon a bloqué l'assistant d'achat de Meta sur son site marchand mais pas sur AWS Marketplace, Walmart invite des agents tiers, United Airlines interdit les transactions par robots non autorisés et de grandes banques américaines posent des limites. Anthropic a aussi empêché ses abonnés d'utiliser des harnais tiers. Chaque acteur arbitre selon son intérêt."
+    },
+    {
+     "type": "usecases",
+     "title": "Exemples d'utilisation",
+     "items": [
+      {
+       "icon": "🗣️",
+       "title": "Un journaliste ou un militant",
+       "text": "Ses conversations sensibles ne sont plus lisibles par l'assistant du téléphone qui analyse l'écran. Il évite d'activer la capture d'écran, sauf besoin précis."
+      },
+      {
+       "icon": "👨‍👩‍👧",
+       "title": "Une famille qui échange des documents",
+       "text": "Photos de pièces d'identité et ordonnances partagées sur Signal restent à l'abri d'un agent qui résumerait l'écran à des fins d'assistance."
+      },
+      {
+       "icon": "🏢",
+       "title": "Une PME qui impose une messagerie sécurisée",
+       "text": "Le service informatique vérifie que le paramètre n'est pas désactivé et rédige une consigne claire pour les téléphones professionnels."
+      }
+     ]
+    },
+    {
+     "type": "timeline",
+     "title": "D'où l'on vient, où l'on va",
+     "items": [
+      {
+       "label": "2025",
+       "text": "Signal bloque les captures d'écran pour se protéger de Microsoft Recall."
+      },
+      {
+       "label": "20 novembre 2026",
+       "text": "Signal étend le blocage aux agents d'IA sur iOS et Android."
+      },
+      {
+       "label": "Bêta de macOS 27.3",
+       "text": "Apple teste de nouveaux contrôles d'accès aux données ; aucune date de sortie n'est donnée."
+      }
+     ]
+    },
+    {
+     "type": "opinion",
+     "title": "Notre avis",
+     "paragraphs": [
+      "La démarche est courageuse, mais elle ressemble à un pansement : bloquer les captures d'écran est un levier détourné, car aucune interface officielle ne permet à une application de déclarer « ces données ne doivent pas être lues par des IA ». Signal le reconnaît lui-même. Le débat porte donc sur la gouvernance des systèmes, pas sur une messagerie.",
+      "À un horizon de un à trois ans, il est probable que les systèmes d'exploitation adoptent des permissions dédiées aux agents, comme ils l'ont fait pour la caméra et la localisation, sous la pression des développeurs et des régulateurs. Rien ne garantit qu'elles s'appliquent aussi aux agents des fabricants. Il s'agit d'une opinion."
+     ],
+     "verdict": "Utile mais partiel : sans permissions officielles pour les agents, la vie privée se bricole application par application."
+    },
+    {
+     "type": "callout",
+     "title": "À retenir",
+     "text": "Description de la protection tirée du billet de Signal ; limites reconnues par l'éditeur (accès par le système de fichiers, pas de protection sur macOS)."
+    }
+   ],
+   "cover": {
+    "url": "https://image.theregister.com/227546.jpg?imageId=227546&x=0&y=0&cropw=100&croph=100&panox=0&panoy=0&panow=100&panoh=100&width=1200&height=683",
+    "alt": "Illustration de The Register sur la protection de la vie privée face aux agents d'IA",
+    "credit": "theregister.com"
+   },
+   "readingMinutes": 3
+  },
+  {
+   "id": "modeles-reecrivent-leurs-poids",
+   "category": "ia",
+   "icon": "🧬",
+   "title": "Des chercheurs montrent un modèle de 27 milliards de paramètres qui réécrit lui-même ses poids, sans gradient ni entraînement",
+   "summary": "Une prépublication du 16 novembre 2026 décrit une méthode d'« auto-réécriture » : un modèle ouvert modifie ses propres poids en raisonnant sur ses erreurs, gagne 6,6 points de précision et répare une copie endommagée, mais seulement à grande taille.",
+   "tags": [
+    "auto-amélioration",
+    "modèles de langage",
+    "arXiv",
+    "poids",
+    "recherche"
+   ],
+   "importance": 3,
+   "publishedAt": "2026-11-21T04:13:00+01:00",
+   "sourceDate": "2026-11-16",
+   "sources": [
+    {
+     "title": "Language Models Can Rewrite Their Own Weights",
+     "url": "https://arxiv.org/abs/2611.21885",
+     "publisher": "arXiv"
+    }
+   ],
+   "illustration": {
+    "svg": "<svg xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"0 0 640 360\"><defs><linearGradient id=\"g\" x1=\"0\" y1=\"0\" x2=\"1\" y2=\"1\"><stop offset=\"0\" stop-color=\"hsl(320,70%,38%)\"/><stop offset=\"1\" stop-color=\"hsl(0,65%,22%)\"/></linearGradient></defs><rect width=\"640\" height=\"360\" fill=\"url(#g)\"/><path d=\"M320 70C240 70 190 120 190 180S240 290 320 290S450 240 450 180S400 70 320 70Z\" fill=\"none\" stroke=\"#fff\" stroke-width=\"6\"/><path d=\"M250 120Q290 170 250 220M390 120Q350 170 390 220M300 90Q330 180 300 270\" stroke=\"#fff\" stroke-width=\"5\" fill=\"none\"/><circle cx=\"320\" cy=\"180\" r=\"16\" fill=\"#fff\"/><path d=\"M500 110a40 40 0 1 1-10 60\" stroke=\"#fff\" stroke-width=\"7\" fill=\"none\"/><polygon points=\"478,162 500,182 506,152\" fill=\"#fff\"/></svg>"
+   },
+   "blocks": [
+    {
+     "type": "paragraph",
+     "text": "Une prépublication déposée sur arXiv le 16 novembre 2026, puis révisée le 18, propose une idée à la fois simple à énoncer et vertigineuse : laisser un modèle de langage modifier ses propres poids par le raisonnement, sans calcul de gradient ni phase d'entraînement. Les onze auteurs, parmi lesquels Jiajun Fan et Ge Liu, appellent la méthode « auto-réécriture ». Il s'agit d'un article non évalué par des pairs : ses résultats sont ceux des auteurs et n'ont pas été reproduits."
+    },
+    {
+     "type": "heading",
+     "level": 2,
+     "text": "Le principe"
+    },
+    {
+     "type": "paragraph",
+     "text": "Un modèle ouvert de 27 milliards de paramètres reçoit ses propres poids, ses réponses notées et la possibilité de s'exécuter lui-même. Il diagnostique ses échecs, puis réécrit les poids pour les corriger. Les auteurs présentent cette approche comme une troisième voie, entre le réentraînement, coûteux, et les méthodes qui jouent uniquement au moment de l'inférence, comme les consignes ou le calcul supplémentaire. Ils y voient une étape possible vers l'auto-amélioration récursive, une notion débattue en sécurité de l'IA."
+    },
+    {
+     "type": "keyvalue",
+     "items": [
+      {
+       "label": "Gain mesuré",
+       "value": "+6,6 points de précision sur des problèmes jamais vus, grâce à la modification opérée par le modèle"
+      },
+      {
+       "label": "Sur la durée",
+       "value": "Sur huit sessions consécutives, la précision n'a fait qu'augmenter : le modèle teste ses modifications sur des exercices d'entraînement et ne soumet que celles qui fonctionnent"
+      },
+      {
+       "label": "Auto-réparation",
+       "value": "Une copie endommagée, qui ne résolvait presque rien, a retrouvé plus de 80 % de la précision d'origine sur des tâches d'images inédites, sans réentraînement ni accès aux poids d'origine"
+      },
+      {
+       "label": "Effet d'échelle",
+       "value": "Au sein d'une même famille, les petits modèles n'ont soit rien modifié, soit dégradé leurs propres poids : seul le plus grand progresse"
+      }
+     ]
+    },
+    {
+     "type": "paragraph",
+     "text": "Le dernier point est peut-être le plus important. Il suggère que la capacité à se corriger ne se décrète pas : elle apparaît avec la taille. Les modèles trop petits ne savent pas modifier leur propre fonctionnement sans le casser. La méthode, pour l'instant, reste donc réservée à de grands modèles, ce qui limite son usage à des équipes qui disposent déjà de gros moyens de calcul."
+    },
+    {
+     "type": "heading",
+     "level": 2,
+     "text": "Ce que l'article ne démontre pas"
+    },
+    {
+     "type": "list",
+     "items": [
+      "Le gain de 6,6 points est mesuré sur un jeu de problèmes précis, et ne dit rien d'une amélioration générale.",
+      "Les résultats portent sur un seul modèle ouvert et une seule famille : leur portée reste à établir.",
+      "Le résumé disponible ne détaille ni le coût de calcul de chaque session, ni les protections contre une dérive du comportement."
+     ]
+    },
+    {
+     "type": "usecases",
+     "title": "Exemples d'utilisation",
+     "items": [
+      {
+       "icon": "🔧",
+       "title": "Un laboratoire qui maintient un modèle interne",
+       "text": "Plutôt que de relancer un réentraînement complet pour une famille d'erreurs précise, l'équipe testerait une session de correction automatique, validée sur des exercices de contrôle avant déploiement."
+      },
+      {
+       "icon": "🩹",
+       "title": "Un hébergeur qui récupère un modèle corrompu",
+       "text": "Si un fichier de poids est partiellement altéré, une procédure d'auto-réparation pourrait restaurer l'essentiel des performances sans retrouver la sauvegarde d'origine."
+      },
+      {
+       "icon": "🛡️",
+       "title": "Une équipe de sécurité de l'IA",
+       "text": "Un modèle qui modifie ses poids pose la question du contrôle : il faudrait journaliser chaque modification et la soumettre à une validation indépendante."
+      }
+     ]
+    },
+    {
+     "type": "timeline",
+     "title": "D'où l'on vient, où l'on va",
+     "items": [
+      {
+       "label": "16 novembre 2026",
+       "text": "Dépôt de la première version de la prépublication."
+      },
+      {
+       "label": "18 novembre 2026",
+       "text": "Seconde version."
+      },
+      {
+       "label": "À venir",
+       "text": "Évaluation par les pairs et reproductions : aucune date n'est annoncée."
+      }
+     ]
+    },
+    {
+     "type": "opinion",
+     "title": "Notre avis",
+     "paragraphs": [
+      "L'intérêt est réel, mais le vocabulaire invite à la prudence : « réécrire ses propres poids » n'équivaut pas à s'auto-améliorer de façon ouverte. Ici, le modèle opère dans un cadre fixé, avec des exercices et une validation, et ne choisit ni ses objectifs ni ses outils. Le risque d'une auto-amélioration incontrôlée n'est pas démontré par cet article.",
+      "Pour les un à trois ans à venir, on peut imaginer des cycles de maintenance où les modèles proposent eux-mêmes des correctifs, soumis à une validation humaine ou automatique. C'est une projection argumentée, non un fait. Le point décisif sera la capacité à vérifier qu'une modification ne dégrade pas d'autres compétences, ce que le résumé n'aborde pas."
+     ],
+     "verdict": "Une piste de recherche sérieuse, à lire comme une preuve de concept et non comme une rupture."
+    },
+    {
+     "type": "callout",
+     "title": "À retenir",
+     "text": "Prépublication non évaluée par des pairs ; chiffres tirés du résumé publié par les auteurs sur arXiv (2611.21885)."
+    }
+   ],
+   "readingMinutes": 3
+  },
+  {
+   "id": "nvidia-vera-processeur-sku-unique",
+   "category": "electronique",
+   "icon": "🧠",
+   "title": "Nvidia Vera : un processeur Arm de 88 cœurs vendu en une seule référence, pensé pour la latence sous charge",
+   "summary": "Nvidia détaille la conception de Vera, un processeur de centre de données à 88 cœurs Olympus et multithreading simultané, décliné en une seule référence et présenté comme équilibré entre latence et débit, avec des performances annoncées non vérifiées.",
+   "tags": [
+    "Nvidia",
+    "Vera",
+    "processeur",
+    "Arm",
+    "centre de données"
+   ],
+   "importance": 3,
+   "publishedAt": "2026-11-21T04:13:00+01:00",
+   "sourceDate": "2026-11-20",
+   "sources": [
+    {
+     "title": "Nvidia's journey to forge the one CPU SKU to rule them all",
+     "url": "https://www.theregister.com/systems/2026/11/20/nvidias-journey-to-forge-the-one-cpu-sku-to-rule-them-all/5311438",
+     "publisher": "The Register"
+    }
+   ],
+   "illustration": {
+    "svg": "<svg xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"0 0 640 360\"><defs><linearGradient id=\"g\" x1=\"0\" y1=\"0\" x2=\"1\" y2=\"1\"><stop offset=\"0\" stop-color=\"hsl(30,70%,38%)\"/><stop offset=\"1\" stop-color=\"hsl(70,65%,22%)\"/></linearGradient></defs><rect width=\"640\" height=\"360\" fill=\"url(#g)\"/><rect x=\"200\" y=\"90\" width=\"240\" height=\"180\" rx=\"16\" fill=\"#fff\" opacity=\".92\"/><g fill=\"hsl(30,70%,40%)\"><rect x=\"225\" y=\"115\" width=\"36\" height=\"36\" rx=\"5\"/><rect x=\"274\" y=\"115\" width=\"36\" height=\"36\" rx=\"5\"/><rect x=\"323\" y=\"115\" width=\"36\" height=\"36\" rx=\"5\"/><rect x=\"372\" y=\"115\" width=\"36\" height=\"36\" rx=\"5\"/><rect x=\"225\" y=\"165\" width=\"36\" height=\"36\" rx=\"5\"/><rect x=\"274\" y=\"165\" width=\"36\" height=\"36\" rx=\"5\"/><rect x=\"323\" y=\"165\" width=\"36\" height=\"36\" rx=\"5\"/><rect x=\"372\" y=\"165\" width=\"36\" height=\"36\" rx=\"5\"/><rect x=\"225\" y=\"215\" width=\"183\" height=\"30\" rx=\"5\" opacity=\".6\"/></g><path d=\"M170 130H200M170 180H200M170 230H200M440 130H470M440 180H470M440 230H470\" stroke=\"#fff\" stroke-width=\"8\"/></svg>"
+   },
+   "blocks": [
+    {
+     "type": "paragraph",
+     "text": "Nvidia ne vend pas ses processeurs comme AMD ou Intel, qui déclinent chaque génération en dizaines de références. Pour Vera, son processeur de centre de données, l'entreprise a fait un autre choix : une seule référence, avec 88 cœurs. The Register a interrogé Ian Finder, qui dirige le développement des processeurs de centre de données de Nvidia, sur les raisons de ce pari. Les performances avancées sont celles de Nvidia et n'ont pas été testées de façon indépendante."
+    },
+    {
+     "type": "heading",
+     "level": 2,
+     "text": "Ce que l'on sait de Vera"
+    },
+    {
+     "type": "keyvalue",
+     "items": [
+      {
+       "label": "Cœurs",
+       "value": "88 cœurs Olympus conçus par Nvidia, vendus en une seule référence, avec une fréquence de 3,3 GHz citée « sur le papier »"
+      },
+      {
+       "label": "Multithreading",
+       "value": "Prise en charge du multithreading simultané, inhabituelle pour une puce Arm : activé, il découpe les 88 cœurs en environ 176 fils plus étroits"
+      },
+      {
+       "label": "Architecture",
+       "value": "Chiplets distincts pour le calcul, la mémoire et les entrées-sorties"
+      },
+      {
+       "label": "Chiffres d'août",
+       "value": "88 cœurs, 176 fils, 1,5 To de mémoire et 1,8 To/s d'interconnexion NVLink ; débit mémoire, consommation et finesse de gravure ne sont pas précisés"
+      }
+     ]
+    },
+    {
+     "type": "paragraph",
+     "text": "Vera apparaît dans les superpuces Vera-Rubin, mais aussi dans des baies dédiées au processeur, au stockage et à la mémoire de contexte. Nvidia a annoncé une baie de 192 processeurs Vera pour le calcul haute performance, dont les charges, selon l'article, se prêtent mal aux cartes graphiques."
+    },
+    {
+     "type": "heading",
+     "level": 2,
+     "text": "Un pari sur la latence sous charge"
+    },
+    {
+     "type": "paragraph",
+     "text": "Selon Ian Finder, la plupart des processeurs de centres de données fonctionnent peu chargés : la latence à vide a donc été l'axe principal d'optimisation du secteur, alors que multiplier les cœurs dégrade souvent la latence sous charge. Nvidia dit avoir visé un équilibre : une faible latence et un grand débit quand les 88 cœurs sont occupés. Le compromis assumé est une unité vectorielle moins puissante, ce qui compterait moins quand les cartes graphiques traitent le code vectorisé."
+    },
+    {
+     "type": "paragraph",
+     "text": "Finder affirme que Vera atteint la performance par cœur des processeurs x86 optimisés pour la fréquence et le débit par watt de ceux optimisés pour la densité, en citant l'intégration continue, les charges d'agents, le génie logiciel, les bases de données et l'analyse de données. Pour mémoire, Grace, la génération précédente lancée en 2023, a connu une adoption limitée au-delà des nœuds de tête d'IA, de certaines cartes réseau haut de gamme et de quelques déploiements autonomes comme celui de Meta."
+    },
+    {
+     "type": "paragraph",
+     "text": "L'analyste Ian Cutress reconnaît le compromis entre nombre de cœurs et latence et estime que Nvidia pourrait viser le marché de masse. AMD répond que les charges d'agents varient et qu'une gamme plus large laisse plus de choix. Cutress soupçonne aussi des variantes non annoncées, triées en usine, par exemple à 72 cœurs : c'est une spéculation, non confirmée."
+    },
+    {
+     "type": "usecases",
+     "title": "Exemples d'utilisation",
+     "items": [
+      {
+       "icon": "🤖",
+       "title": "Un opérateur de plateformes d'agents",
+       "text": "Des milliers de petits processus d'agents, lancés en parallèle, profitent d'un processeur qui garde une latence stable sous forte charge."
+      },
+      {
+       "icon": "🧪",
+       "title": "Une équipe d'intégration continue",
+       "text": "Des compilations et des tests lancés en grappe tirent parti de nombreux cœurs sans que le temps de réponse de chaque tâche se dégrade."
+      },
+      {
+       "icon": "🔬",
+       "title": "Un centre de calcul scientifique",
+       "text": "Une baie de 192 processeurs Vera vise des simulations peu adaptées aux cartes graphiques, à comparer avec des processeurs concurrents sur ses propres charges."
+      }
+     ]
+    },
+    {
+     "type": "timeline",
+     "title": "D'où l'on vient, où l'on va",
+     "items": [
+      {
+       "label": "2023",
+       "text": "Lancement de Grace, premier processeur de centre de données de Nvidia, à l'adoption limitée."
+      },
+      {
+       "label": "Août 2026",
+       "text": "Présentation détaillée de Vera : 88 cœurs, 176 fils, 1,5 To de mémoire."
+      },
+      {
+       "label": "20 novembre 2026",
+       "text": "Entretien sur les choix de conception, avec la référence unique."
+      },
+      {
+       "label": "À venir",
+       "text": "Mesures indépendantes face à AMD et Intel : aucune n'est citée à ce stade."
+      }
+     ]
+    },
+    {
+     "type": "opinion",
+     "title": "Notre avis",
+     "paragraphs": [
+      "Vendre une seule référence est un choix de simplicité qui ressemble à celui d'Apple pour ses puces : moins de confusion, une chaîne d'approvisionnement plus lisible, mais moins de souplesse pour les clients qui veulent peu de cœurs très rapides ou beaucoup de cœurs sobres. Le succès dépendra des performances réelles et du prix, pas de l'argument de conception.",
+      "Dans un à trois ans, la question sera de savoir si Nvidia s'impose au-delà des machines d'IA, face à des concurrents installés. L'absence d'unité vectorielle puissante est un pari sur la prédominance des accélérateurs. Cette appréciation est une opinion."
+     ],
+     "verdict": "Un pari de simplification cohérent, mais encore sans mesure indépendante."
+    },
+    {
+     "type": "callout",
+     "title": "À retenir",
+     "text": "Chiffres de performance fournis par Nvidia et non vérifiés ; débit mémoire, consommation et finesse de gravure non précisés dans l'article."
+    }
+   ],
+   "cover": {
+    "url": "https://image.theregister.com/5228929.jpg?imageId=5228929&x=0&y=0&cropw=100&croph=100&panox=0&panoy=0&panow=100&panoh=100&width=1200&height=683",
+    "alt": "Illustration de The Register sur le processeur Nvidia Vera",
+    "credit": "theregister.com"
+   },
+   "readingMinutes": 4
+  }
+ ]
+}
