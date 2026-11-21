@@ -1,0 +1,1250 @@
+{
+ "schemaVersion": "1.0",
+ "date": "2026-11-21",
+ "generatedAt": "2026-11-21T18:17:19+01:00",
+ "title": "Tech : Optimizely piégé, Java4Shell, GPGME et Muse sous le feu des chercheurs",
+ "summary": "Cette édition revient sur un script tiers piégé chez 178 organisations, une faille du décodeur Base64 d'OpenJDK, une bibliothèque GnuPG à corriger, l'agent Meta Muse détourné en laboratoire, des délais de divulgation raccourcis, une panne AWS discrète et deux projets de passionnés : ChatGPT sur Super Nintendo et HDMI vers CSI.",
+ "highlights": [
+  "Optimizely : du code malveillant dans 188 fichiers JavaScript, environ 34 millions de visites exposées",
+  "Java4Shell : faille du décodeur Base64 d'OpenJDK sur processeurs AVX-512, correctifs publiés le 17 novembre",
+  "GPGME 2.3.1 : double libération de mémoire déclenchée par une clé OpenPGP piégée",
+  "Project Zero passe à « Full 90 », puis à 60 et 30 jours de délai de divulgation"
+ ],
+ "meta": {
+  "generator": "claude-scheduled-task"
+ },
+ "posts": [
+  {
+   "id": "optimizely-fichiers-javascript-compromis-178-organisations",
+   "category": "web",
+   "icon": "🕸️",
+   "title": "Optimizely : du code malveillant dans 188 fichiers JavaScript de 178 organisations, environ 34 millions de visites exposées",
+   "summary": "Le 16 novembre 2026, un chercheur a repéré un code de vol de cartes bancaires et de détournement de portefeuilles crypto dans des scripts d'un fournisseur de tests A/B. Une politique de sécurité des contenus (CSP) stricte aurait bloqué la charge malveillante.",
+   "tags": [
+    "Optimizely",
+    "chaîne d'approvisionnement",
+    "JavaScript",
+    "CSP",
+    "skimming"
+   ],
+   "importance": 5,
+   "readingMinutes": 4,
+   "publishedAt": "2026-11-21T18:17:19+01:00",
+   "sourceDate": "2026-11-20",
+   "sources": [
+    {
+     "title": "This Week in Security : Java4Shell, Optimizely malware…",
+     "url": "https://hackaday.com/2026/11/20/this-week-in-security-java4shell-optimizely-malware-shrinking-disclosure-deadlines-unpatchable-freezers/",
+     "publisher": "Hackaday"
+    }
+   ],
+   "illustration": {
+    "svg": "<svg xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"0 0 640 360\"><defs><linearGradient id=\"g\" x1=\"0\" y1=\"0\" x2=\"1\" y2=\"1\"><stop offset=\"0\" stop-color=\"hsl(210,70%,38%)\"/><stop offset=\"1\" stop-color=\"hsl(250,65%,22%)\"/></linearGradient></defs><rect width=\"640\" height=\"360\" fill=\"url(#g)\"/><circle cx=\"90\" cy=\"300\" r=\"70\" fill=\"#fff\" opacity=\".08\"/><circle cx=\"560\" cy=\"60\" r=\"50\" fill=\"#fff\" opacity=\".08\"/><circle cx=\"320\" cy=\"180\" r=\"100\" fill=\"none\" stroke=\"#fff\" stroke-width=\"8\"/><ellipse cx=\"320\" cy=\"180\" rx=\"45\" ry=\"100\" fill=\"none\" stroke=\"#fff\" stroke-width=\"6\"/><path d=\"M220 180H420M235 135H405M235 225H405\" stroke=\"#fff\" stroke-width=\"6\"/></svg>"
+   },
+   "blocks": [
+    {
+     "type": "paragraph",
+     "text": "Une grande partie du web moderne charge des scripts tiers : mesure d'audience, publicité, tests A/B, widgets de discussion. Chacun d'eux s'exécute avec les mêmes droits que le site qui l'inclut. Lorsqu'un fournisseur est compromis, ce sont donc des centaines de sites qui le sont en même temps, sans que leurs propres serveurs aient été touchés. C'est exactement ce que décrit la chronique de sécurité de Hackaday publiée le 20 novembre 2026 à propos d'Optimizely, éditeur d'une plateforme d'expérimentation et de tests A/B."
+    },
+    {
+     "type": "heading",
+     "level": 2,
+     "text": "Ce que le chercheur a découvert"
+    },
+    {
+     "type": "paragraph",
+     "text": "Le 16 novembre, Scott Helme, de la société Report URI, a repéré du code malveillant dans 188 fichiers JavaScript distribués par Optimizely. Ces fichiers appartenaient à 178 organisations, parmi lesquelles, selon la source, Zoom, CNN, la BBC, Salesforce, GitLab et HSBC. Le chercheur estime qu'environ 34 millions de visites de pages ont été exposées pendant la période concernée."
+    },
+    {
+     "type": "paragraph",
+     "text": "La charge utile combinait plusieurs fonctions. Elle remplaçait des adresses de portefeuilles de crypto-actifs par celles de l'attaquant, collectait des numéros de cartes bancaires saisis sur les pages de paiement (technique dite de « skimming »), et récupérait des cookies ainsi que des captures d'écran. Les visiteurs équipés d'anciens iPhone et iPad étaient en outre redirigés vers les kits d'exploitation Coruna et DarkSword, qui ciblent des versions d'iOS publiées entre 2018 et 2023."
+    },
+    {
+     "type": "keyvalue",
+     "items": [
+      {
+       "label": "Fichiers touchés",
+       "value": "188 fichiers JavaScript"
+      },
+      {
+       "label": "Organisations concernées",
+       "value": "178"
+      },
+      {
+       "label": "Visites exposées (estimation de Scott Helme)",
+       "value": "environ 34 millions"
+      },
+      {
+       "label": "Gains observés par l'attaquant",
+       "value": "environ 7 000 dollars en crypto-actifs"
+      },
+      {
+       "label": "Date de la découverte",
+       "value": "16 novembre 2026"
+      }
+     ]
+    },
+    {
+     "type": "heading",
+     "level": 2,
+     "text": "La réponse de l'éditeur et le rôle de la CSP"
+    },
+    {
+     "type": "paragraph",
+     "text": "Optimizely indique qu'un attaquant a exploité une vulnérabilité de son produit d'expérimentation et que le problème est désormais corrigé. Les détails techniques de la faille ne sont pas précisés dans la source citée."
+    },
+    {
+     "type": "paragraph",
+     "text": "Le point le plus instructif pour les équipes web concerne la politique de sécurité des contenus, ou *Content Security Policy* (CSP). Cette directive, envoyée par le serveur dans un en-tête HTTP, liste les domaines depuis lesquels le navigateur a le droit de charger des scripts ou d'envoyer des données. Ici, la charge malveillante était chargée depuis le propre domaine de l'attaquant. Une CSP stricte l'aurait donc bloquée. Or, parmi les sites touchés, 68 n'avaient aucune CSP, 50 en avaient une trop permissive pour arrêter la charge, et seulement 24 l'ont effectivement bloquée."
+    },
+    {
+     "type": "diagram",
+     "svg": "<svg xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"0 0 640 230\"><rect width=\"640\" height=\"230\" rx=\"14\" fill=\"#f3f6fb\"/><text x=\"320\" y=\"34\" text-anchor=\"middle\" font-family=\"system-ui,sans-serif\" font-size=\"16\" font-weight=\"700\" fill=\"#1b2a4a\">Une attaque par un script tiers</text><rect x=\"20\" y=\"64\" width=\"129\" height=\"130\" rx=\"10\" fill=\"#fff\" stroke=\"#9db0cf\" stroke-width=\"2\"/><text x=\"84.5\" y=\"92\" text-anchor=\"middle\" font-family=\"system-ui,sans-serif\" font-size=\"13\" font-weight=\"700\" fill=\"#1b2a4a\">Éditeur</text><text x=\"84.5\" y=\"118\" text-anchor=\"middle\" font-family=\"system-ui,sans-serif\" font-size=\"12\" fill=\"#33415c\">vulnérabilité</text><text x=\"84.5\" y=\"138\" text-anchor=\"middle\" font-family=\"system-ui,sans-serif\" font-size=\"12\" fill=\"#33415c\">dans le produit</text><path d=\"M153 129H173M166 122L173 129L166 136\" stroke=\"#5b6f94\" stroke-width=\"2.5\" fill=\"none\"/><rect x=\"177\" y=\"64\" width=\"129\" height=\"130\" rx=\"10\" fill=\"#fff\" stroke=\"#9db0cf\" stroke-width=\"2\"/><text x=\"241.5\" y=\"92\" text-anchor=\"middle\" font-family=\"system-ui,sans-serif\" font-size=\"13\" font-weight=\"700\" fill=\"#1b2a4a\">Fichiers JS</text><text x=\"241.5\" y=\"118\" text-anchor=\"middle\" font-family=\"system-ui,sans-serif\" font-size=\"12\" fill=\"#33415c\">188 scripts</text><text x=\"241.5\" y=\"138\" text-anchor=\"middle\" font-family=\"system-ui,sans-serif\" font-size=\"12\" fill=\"#33415c\">modifiés</text><path d=\"M310 129H330M323 122L330 129L323 136\" stroke=\"#5b6f94\" stroke-width=\"2.5\" fill=\"none\"/><rect x=\"334\" y=\"64\" width=\"129\" height=\"130\" rx=\"10\" fill=\"#fff\" stroke=\"#9db0cf\" stroke-width=\"2\"/><text x=\"398.5\" y=\"92\" text-anchor=\"middle\" font-family=\"system-ui,sans-serif\" font-size=\"13\" font-weight=\"700\" fill=\"#1b2a4a\">Sites clients</text><text x=\"398.5\" y=\"118\" text-anchor=\"middle\" font-family=\"system-ui,sans-serif\" font-size=\"12\" fill=\"#33415c\">178 organisations</text><text x=\"398.5\" y=\"138\" text-anchor=\"middle\" font-family=\"system-ui,sans-serif\" font-size=\"12\" fill=\"#33415c\">chargent le script</text><path d=\"M467 129H487M480 122L487 129L480 136\" stroke=\"#5b6f94\" stroke-width=\"2.5\" fill=\"none\"/><rect x=\"491\" y=\"64\" width=\"129\" height=\"130\" rx=\"10\" fill=\"#fff\" stroke=\"#9db0cf\" stroke-width=\"2\"/><text x=\"555.5\" y=\"92\" text-anchor=\"middle\" font-family=\"system-ui,sans-serif\" font-size=\"13\" font-weight=\"700\" fill=\"#1b2a4a\">Visiteurs</text><text x=\"555.5\" y=\"118\" text-anchor=\"middle\" font-family=\"system-ui,sans-serif\" font-size=\"12\" fill=\"#33415c\">cartes, cookies,</text><text x=\"555.5\" y=\"138\" text-anchor=\"middle\" font-family=\"system-ui,sans-serif\" font-size=\"12\" fill=\"#33415c\">portefeuilles ciblés</text></svg>",
+     "alt": "Schéma : un éditeur compromis diffuse des scripts modifiés à ses clients, dont les visiteurs sont ciblés.",
+     "caption": "Le script piégé hérite des droits du site qui l'inclut : un seul fournisseur touché suffit à exposer des centaines de sites."
+    },
+    {
+     "type": "usecases",
+     "title": "Exemples d'utilisation",
+     "items": [
+      {
+       "icon": "🛒",
+       "title": "Site marchand",
+       "text": "Une boutique en ligne qui charge un script de test A/B sur sa page de paiement doit se demander si ce script peut lire les champs de carte. Isoler le formulaire de paiement dans un cadre hébergé par le prestataire de paiement limite le risque."
+      },
+      {
+       "icon": "🏢",
+       "title": "Équipe sécurité d'une entreprise",
+       "text": "Inventorier tous les domaines de scripts tiers chargés par les pages sensibles, puis déployer une CSP en mode « rapport seul » avant de la rendre bloquante, permet de repérer les chargements inattendus."
+      },
+      {
+       "icon": "🧑‍💻",
+       "title": "Développeur front-end",
+       "text": "Ajouter l'attribut d'intégrité (SRI) aux scripts figés et surveiller les changements de fichiers servis par un fournisseur aide à détecter une altération, même si cela ne convient pas aux scripts qui changent volontairement."
+      }
+     ]
+    },
+    {
+     "type": "timeline",
+     "title": "D'où l'on vient, où l'on va",
+     "items": [
+      {
+       "label": "2024",
+       "text": "L'attaque contre polyfill.io touche plus de 100 000 sites, selon la source : un précédent comparable."
+      },
+      {
+       "label": "16 novembre 2026",
+       "text": "Scott Helme repère le code malveillant dans les fichiers d'Optimizely."
+      },
+      {
+       "label": "Depuis",
+       "text": "L'éditeur affirme avoir corrigé la vulnérabilité ; le bilan complet des victimes reste à établir."
+      }
+     ]
+    },
+    {
+     "type": "opinion",
+     "title": "Notre avis",
+     "paragraphs": [
+      "L'affaire rappelle une évidence souvent ignorée : un script tiers n'est pas une simple ressource, c'est du code exécuté avec la confiance du site. Les grandes marques touchées disposent pourtant d'équipes de sécurité nombreuses, ce qui montre que la dépendance à un fournisseur d'expérimentation reste un angle mort fréquent. Le chiffre le plus parlant est celui de la CSP : seuls 24 sites sur 178 ont été protégés par un mécanisme standard, gratuit et connu depuis des années.",
+      "À un horizon de un à trois ans, on peut raisonnablement s'attendre à ce que la CSP stricte et la surveillance des scripts sur les pages de paiement deviennent des exigences contractuelles ou réglementaires, notamment dans le secteur des paiements. C'est une projection, pas un fait établi : mais l'enchaînement polyfill.io puis Optimizely rend difficile de continuer à traiter ce risque comme théorique."
+     ],
+     "verdict": "Charger du code tiers sans CSP stricte revient à laisser un inconnu écrire sur ses pages de paiement."
+    },
+    {
+     "type": "callout",
+     "title": "À retenir",
+     "text": "Une CSP stricte, interdisant les domaines inconnus, aurait suffi à bloquer cette charge. Vérifiez la vôtre, en mode rapport d'abord."
+    }
+   ],
+   "cover": {
+    "url": "https://hackaday.com/wp-content/uploads/2016/01/darkarts.jpg",
+    "alt": "Illustration de la chronique de sécurité de Hackaday",
+    "credit": "hackaday.com"
+   }
+  },
+  {
+   "id": "java4shell-openjdk-decodeur-base64-avx512",
+   "category": "dev",
+   "icon": "☕",
+   "title": "Java4Shell : un dépassement de tampon dans le décodeur Base64 accéléré d'OpenJDK, corrigé en urgence après une fuite",
+   "summary": "La faille CVE-2026-114938 touche OpenJDK 17.0.6 et suivants sur les processeurs x86-64 dotés d'AVX-512 VBMI. Les correctifs sont sortis le 17 novembre ; une option de la JVM sert de contournement provisoire.",
+   "tags": [
+    "Java",
+    "OpenJDK",
+    "CVE-2026-114938",
+    "Base64",
+    "AVX-512"
+   ],
+   "importance": 4,
+   "readingMinutes": 3,
+   "publishedAt": "2026-11-21T18:17:19+01:00",
+   "sourceDate": "2026-11-20",
+   "sources": [
+    {
+     "title": "This Week in Security : Java4Shell, Optimizely malware…",
+     "url": "https://hackaday.com/2026/11/20/this-week-in-security-java4shell-optimizely-malware-shrinking-disclosure-deadlines-unpatchable-freezers/",
+     "publisher": "Hackaday"
+    }
+   ],
+   "illustration": {
+    "svg": "<svg xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"0 0 640 360\"><defs><linearGradient id=\"g\" x1=\"0\" y1=\"0\" x2=\"1\" y2=\"1\"><stop offset=\"0\" stop-color=\"hsl(265,70%,38%)\"/><stop offset=\"1\" stop-color=\"hsl(305,65%,22%)\"/></linearGradient></defs><rect width=\"640\" height=\"360\" fill=\"url(#g)\"/><circle cx=\"90\" cy=\"300\" r=\"70\" fill=\"#fff\" opacity=\".08\"/><circle cx=\"560\" cy=\"60\" r=\"50\" fill=\"#fff\" opacity=\".08\"/><ellipse cx=\"320\" cy=\"190\" rx=\"55\" ry=\"75\" fill=\"#fff\"/><circle cx=\"320\" cy=\"105\" r=\"28\" fill=\"#fff\"/><path d=\"M265 150L215 120M265 200L205 200M265 250L215 285M375 150L425 120M375 200L435 200M375 250L425 285\" stroke=\"#fff\" stroke-width=\"8\" fill=\"none\"/></svg>"
+   },
+   "blocks": [
+    {
+     "type": "paragraph",
+     "text": "Le 17 novembre 2026, la société Calif a publié plus tôt que prévu les détails d'une faille baptisée « Java4Shell », après une fuite de l'information. Oracle et OpenJDK ont diffusé des correctifs dans l'après-midi même. La vulnérabilité, suivie sous la référence CVE-2026-114938, se trouve dans la machine virtuelle elle-même et non dans une bibliothèque tierce, ce qui change la manière de la traiter."
+    },
+    {
+     "type": "heading",
+     "level": 2,
+     "text": "Le mécanisme"
+    },
+    {
+     "type": "paragraph",
+     "text": "Le défaut concerne le décodeur Base64 accéléré matériellement d'OpenJDK. Il touche les versions 17.0.6 et ultérieures lorsqu'elles s'exécutent sur des processeurs x86-64 prenant en charge l'extension AVX-512 VBMI, c'est-à-dire, selon la source, les serveurs Intel de génération Ice Lake ou plus récents et les processeurs AMD Zen 4 ou plus récents. Les serveurs ARM ne sont pas concernés."
+    },
+    {
+     "type": "paragraph",
+     "text": "Le bogue se déclenche quand le décodeur reçoit un dernier bloc mal formé, terminé par des caractères de remplissage « = ». La longueur de sortie calculée devient négative par débordement vers le bas ; le décodeur écrit alors 64 octets là où deux au plus devraient l'être, ce qui écrase 62 octets au-delà de la fin du tampon. L'attaquant maîtrise le moment de l'écriture, mais pas son contenu. Calif a néanmoins construit une preuve d'exploitation qui écrase le champ de longueur d'un tableau, relit la mémoire du tas dans les réponses et aboutit à une exécution de code. L'entreprise ne diffuse pas d'exploits propres à des applications précises."
+    },
+    {
+     "type": "keyvalue",
+     "items": [
+      {
+       "label": "Référence",
+       "value": "CVE-2026-114938"
+      },
+      {
+       "label": "Versions concernées",
+       "value": "OpenJDK 17.0.6 et suivantes"
+      },
+      {
+       "label": "Matériel concerné",
+       "value": "x86-64 avec AVX-512 VBMI (Intel Ice Lake et plus récents, AMD Zen 4 et plus récents)"
+      },
+      {
+       "label": "Matériel non concerné",
+       "value": "serveurs ARM"
+      },
+      {
+       "label": "Contournement",
+       "value": "option JVM -XX:-UseBASE64Intrinsics"
+      }
+     ]
+    },
+    {
+     "type": "heading",
+     "level": 2,
+     "text": "Qui est réellement exposé"
+    },
+    {
+     "type": "paragraph",
+     "text": "Le décodeur doit d'abord avoir été compilé à la volée (JIT), ce qui, d'après l'analyse d'Upwind, demande environ 10 000 décodages : les serveurs très sollicités sont donc les plus exposés. Upwind a aussi relevé que la gestion de l'authentification HTTP Basic dans Spring Security, Tomcat et Jetty, ainsi que la bibliothèque java-jwt d'Auth0, transmettent des données non fiables au décodeur avant de vérifier les identifiants. Un attaquant non authentifié pourrait ainsi atteindre le code vulnérable."
+    },
+    {
+     "type": "diagram",
+     "svg": "<svg xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"0 0 640 230\"><rect width=\"640\" height=\"230\" rx=\"14\" fill=\"#f3f6fb\"/><text x=\"320\" y=\"34\" text-anchor=\"middle\" font-family=\"system-ui,sans-serif\" font-size=\"16\" font-weight=\"700\" fill=\"#1b2a4a\">Java4Shell : du Base64 mal formé à l'exécution de code</text><rect x=\"20\" y=\"64\" width=\"129\" height=\"130\" rx=\"10\" fill=\"#fff\" stroke=\"#9db0cf\" stroke-width=\"2\"/><text x=\"84.5\" y=\"92\" text-anchor=\"middle\" font-family=\"system-ui,sans-serif\" font-size=\"13\" font-weight=\"700\" fill=\"#1b2a4a\">Entrée</text><text x=\"84.5\" y=\"118\" text-anchor=\"middle\" font-family=\"system-ui,sans-serif\" font-size=\"12\" fill=\"#33415c\">dernier bloc</text><text x=\"84.5\" y=\"138\" text-anchor=\"middle\" font-family=\"system-ui,sans-serif\" font-size=\"12\" fill=\"#33415c\">avec « = » mal formé</text><path d=\"M153 129H173M166 122L173 129L166 136\" stroke=\"#5b6f94\" stroke-width=\"2.5\" fill=\"none\"/><rect x=\"177\" y=\"64\" width=\"129\" height=\"130\" rx=\"10\" fill=\"#fff\" stroke=\"#9db0cf\" stroke-width=\"2\"/><text x=\"241.5\" y=\"92\" text-anchor=\"middle\" font-family=\"system-ui,sans-serif\" font-size=\"13\" font-weight=\"700\" fill=\"#1b2a4a\">Décodeur</text><text x=\"241.5\" y=\"118\" text-anchor=\"middle\" font-family=\"system-ui,sans-serif\" font-size=\"12\" fill=\"#33415c\">longueur négative</text><text x=\"241.5\" y=\"138\" text-anchor=\"middle\" font-family=\"system-ui,sans-serif\" font-size=\"12\" fill=\"#33415c\">(débordement)</text><path d=\"M310 129H330M323 122L330 129L323 136\" stroke=\"#5b6f94\" stroke-width=\"2.5\" fill=\"none\"/><rect x=\"334\" y=\"64\" width=\"129\" height=\"130\" rx=\"10\" fill=\"#fff\" stroke=\"#9db0cf\" stroke-width=\"2\"/><text x=\"398.5\" y=\"92\" text-anchor=\"middle\" font-family=\"system-ui,sans-serif\" font-size=\"13\" font-weight=\"700\" fill=\"#1b2a4a\">Écriture</text><text x=\"398.5\" y=\"118\" text-anchor=\"middle\" font-family=\"system-ui,sans-serif\" font-size=\"12\" fill=\"#33415c\">64 octets au lieu</text><text x=\"398.5\" y=\"138\" text-anchor=\"middle\" font-family=\"system-ui,sans-serif\" font-size=\"12\" fill=\"#33415c\">de 2 : 62 écrasés</text><path d=\"M467 129H487M480 122L487 129L480 136\" stroke=\"#5b6f94\" stroke-width=\"2.5\" fill=\"none\"/><rect x=\"491\" y=\"64\" width=\"129\" height=\"130\" rx=\"10\" fill=\"#fff\" stroke=\"#9db0cf\" stroke-width=\"2\"/><text x=\"555.5\" y=\"92\" text-anchor=\"middle\" font-family=\"system-ui,sans-serif\" font-size=\"13\" font-weight=\"700\" fill=\"#1b2a4a\">Impact</text><text x=\"555.5\" y=\"118\" text-anchor=\"middle\" font-family=\"system-ui,sans-serif\" font-size=\"12\" fill=\"#33415c\">lecture du tas,</text><text x=\"555.5\" y=\"138\" text-anchor=\"middle\" font-family=\"system-ui,sans-serif\" font-size=\"12\" fill=\"#33415c\">exécution de code</text></svg>",
+     "alt": "Schéma en quatre étapes de la faille du décodeur Base64.",
+     "caption": "Le défaut est un calcul de longueur qui devient négatif ; il n'est exploitable qu'après compilation JIT du décodeur."
+    },
+    {
+     "type": "heading",
+     "level": 2,
+     "text": "Pourquoi les scanners de dépendances passeront à côté"
+    },
+    {
+     "type": "paragraph",
+     "text": "Comme la faille est dans l'environnement d'exécution, un outil qui inspecte les dépendances d'un projet ne la verra pas. Il faut mettre à jour chaque runtime Java, y compris ceux embarqués dans des images de conteneurs, ce qui suppose un inventaire des JDK réellement déployés."
+    },
+    {
+     "type": "usecases",
+     "title": "Exemples d'utilisation",
+     "items": [
+      {
+       "icon": "🖥️",
+       "title": "Administrateur d'une plateforme Java",
+       "text": "Inventorier les JDK en production, identifier ceux qui tournent sur du matériel AVX-512, puis les mettre à jour en priorité ; l'option -XX:-UseBASE64Intrinsics sert de rustine le temps du déploiement."
+      },
+      {
+       "icon": "📦",
+       "title": "Équipe conteneurs",
+       "text": "Reconstruire les images de base contenant un JDK concerné : mettre à jour le code applicatif ne suffit pas, puisque le défaut est dans le runtime."
+      },
+      {
+       "icon": "🔎",
+       "title": "Équipe de réponse aux incidents",
+       "text": "Rechercher dans les journaux des requêtes d'authentification Basic ou des jetons JWT au Base64 mal formé, qui seraient un indice d'essais d'exploitation."
+      }
+     ]
+    },
+    {
+     "type": "timeline",
+     "title": "D'où l'on vient, où l'on va",
+     "items": [
+      {
+       "label": "17 novembre 2026",
+       "text": "Calif publie les détails après une fuite ; Oracle et OpenJDK livrent les correctifs le jour même."
+      },
+      {
+       "label": "Maintenant",
+       "text": "Mise à jour des runtimes, y compris dans les images de conteneurs."
+      },
+      {
+       "label": "À suivre",
+       "text": "Des exploits propres à des applications précises pourraient apparaître : Calif dit ne pas les publier."
+      }
+     ]
+    },
+    {
+     "type": "opinion",
+     "title": "Notre avis",
+     "paragraphs": [
+      "Java4Shell illustre un phénomène de fond : les optimisations matérielles des runtimes, écrites pour la vitesse, créent des surfaces d'attaque que peu de personnes auditent. Le fait que l'exploitation exige environ 10 000 décodages préalables rassure peu : un serveur d'authentification en reçoit bien plus en quelques secondes.",
+      "À un horizon de un à trois ans, la question de savoir quels chemins de code « intrinsèques » sont activés en production deviendra probablement un sujet d'audit à part entière. C'est une projection : la source ne dit rien sur d'éventuelles exploitations en cours."
+     ],
+     "verdict": "Une faille de runtime se corrige en remplaçant le runtime, pas en scannant les dépendances."
+    },
+    {
+     "type": "callout",
+     "title": "À retenir",
+     "text": "Priorité : serveurs Java 17.0.6 et plus, sur processeurs AVX-512 VBMI, exposés à de l'authentification HTTP Basic ou JWT."
+    }
+   ],
+   "cover": {
+    "url": "https://hackaday.com/wp-content/uploads/2016/01/darkarts.jpg",
+    "alt": "Illustration Hackaday",
+    "credit": "hackaday.com"
+   }
+  },
+  {
+   "id": "chatgpt-super-nintendo-modele-2-2-millions-parametres",
+   "category": "dev",
+   "icon": "🎮",
+   "title": "ChatGPT sur Super Nintendo : un modèle de 2,2 millions de paramètres tient dans une cartouche de 4 Mo",
+   "summary": "Le journaliste Benj Edwards a distillé un modèle à partir de GPT-OSS-120b pour le faire tourner sur la console de 1990, avec le coprocesseur Super FX. Il reconnaît lui-même que le résultat « n'est pas un assistant utile ».",
+   "tags": [
+    "rétro-informatique",
+    "Super Nintendo",
+    "IA embarquée",
+    "GPT-OSS",
+    "Super FX"
+   ],
+   "importance": 3,
+   "readingMinutes": 4,
+   "publishedAt": "2026-11-21T18:17:19+01:00",
+   "sourceDate": "2026-11-21",
+   "sources": [
+    {
+     "title": "ChatGPT shrunk down to run on a Super Nintendo",
+     "url": "https://www.theregister.com/offbeat/2026/11/21/chatgpt-shrunk-down-to-run-on-a-super-nintendo/5311418",
+     "publisher": "The Register"
+    }
+   ],
+   "illustration": {
+    "svg": "<svg xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"0 0 640 360\"><defs><linearGradient id=\"g\" x1=\"0\" y1=\"0\" x2=\"1\" y2=\"1\"><stop offset=\"0\" stop-color=\"hsl(265,70%,38%)\"/><stop offset=\"1\" stop-color=\"hsl(305,65%,22%)\"/></linearGradient></defs><rect width=\"640\" height=\"360\" fill=\"url(#g)\"/><circle cx=\"90\" cy=\"300\" r=\"70\" fill=\"#fff\" opacity=\".08\"/><circle cx=\"560\" cy=\"60\" r=\"50\" fill=\"#fff\" opacity=\".08\"/><rect x=\"190\" y=\"130\" width=\"260\" height=\"130\" rx=\"50\" fill=\"#fff\"/><path d=\"M245 165V225M220 195H270\" stroke=\"hsl(0,0%,30%)\" stroke-width=\"12\"/><circle cx=\"385\" cy=\"175\" r=\"13\" fill=\"hsl(0,0%,30%)\"/><circle cx=\"415\" cy=\"210\" r=\"13\" fill=\"hsl(0,0%,30%)\"/></svg>"
+   },
+   "blocks": [
+    {
+     "type": "paragraph",
+     "text": "Faire tourner un modèle de langage sur une console de salon vieille de plus de trente ans relève du défi plus que de l'utilité. C'est pourtant ce que propose le projet « ChatGPT for SNES », que The Register a présenté le 21 novembre 2026. Son auteur, Benj Edwards, journaliste spécialisé et amateur de technologies anciennes, en a fait une démonstration de ce que l'on peut tirer d'un matériel minuscule."
+    },
+    {
+     "type": "heading",
+     "level": 2,
+     "text": "Un modèle réduit à l'extrême"
+    },
+    {
+     "type": "paragraph",
+     "text": "Le modèle compte environ 2,2 millions de paramètres, soit à peu près cinquante mille fois moins que le modèle dont il est issu. Il s'agit d'une version distillée de GPT-OSS-120b, le modèle à poids ouverts d'OpenAI, utilisé pour produire les conversations d'entraînement. Son vocabulaire est d'environ 8 000 mots. L'auteur décrit le projet comme une collaboration entre humain et IA : il a fixé le périmètre, le choix des puces, l'interface et même les bruits de frappe, tandis que des agents de programmation ont écrit le code."
+    },
+    {
+     "type": "paragraph",
+     "text": "Deux versions existent. La première, dite « modèle pur », génère chaque réponse avec le seul modèle. La seconde ajoute un « recueil de faits » construit à partir des premières phrases d'environ 150 000 articles de la Wikipédia en anglais simple ; l'auteur prévient que ce recueil peut lui aussi contenir des erreurs."
+    },
+    {
+     "type": "keyvalue",
+     "items": [
+      {
+       "label": "Taille du modèle",
+       "value": "environ 2,2 millions de paramètres"
+      },
+      {
+       "label": "Vocabulaire",
+       "value": "environ 8 000 mots"
+      },
+      {
+       "label": "ROM, version de base",
+       "value": "environ 4 Mo"
+      },
+      {
+       "label": "ROM, version avec recueil de faits",
+       "value": "environ 19 Mo"
+      },
+      {
+       "label": "Matériel requis",
+       "value": "coprocesseur Super FX ; la version avec recueil exige aussi le module MSU-1"
+      },
+      {
+       "label": "Cartouches flash compatibles",
+       "value": "FXPak Pro, SD2SNES"
+      }
+     ]
+    },
+    {
+     "type": "heading",
+     "level": 2,
+     "text": "Ce que la machine permet, et ce qu'elle ne permet pas"
+    },
+    {
+     "type": "paragraph",
+     "text": "Le coprocesseur graphique Super FX est nécessaire pour obtenir des performances correctes ; la version pure peut fonctionner sans lui, mais avec des réponses plus pauvres. Quant à la version enrichie, elle a besoin de l'extension MSU-1, que prennent en charge les deux cartouches flash citées. Un exemplaire sur cartouche dédiée reste possible pour qui maîtrise la fabrication matérielle. La source ne détaille ni le processeur ni la mémoire vive de la console."
+    },
+    {
+     "type": "paragraph",
+     "text": "Les limites sont assumées. Edwards déclare que l'ensemble « n'est pas un assistant utile » : le modèle se trompe souvent, parfois avec assurance, et ses réponses incohérentes font partie de l'attrait de la démonstration. Les agents de programmation ont conclu que le projet avait atteint ce que le matériel peut supporter ; l'auteur n'est pas d'accord et cherche des pistes pour améliorer la cohérence. Il a aussi réalisé « Séance », une ROM pour NES embarquant un modèle encore plus petit, qui simule une conversation avec un fantôme."
+    },
+    {
+     "type": "diagram",
+     "svg": "<svg xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"0 0 640 230\"><rect width=\"640\" height=\"230\" rx=\"14\" fill=\"#f3f6fb\"/><text x=\"320\" y=\"34\" text-anchor=\"middle\" font-family=\"system-ui,sans-serif\" font-size=\"16\" font-weight=\"700\" fill=\"#1b2a4a\">De GPT-OSS-120b à la cartouche</text><rect x=\"20\" y=\"64\" width=\"129\" height=\"130\" rx=\"10\" fill=\"#fff\" stroke=\"#9db0cf\" stroke-width=\"2\"/><text x=\"84.5\" y=\"92\" text-anchor=\"middle\" font-family=\"system-ui,sans-serif\" font-size=\"13\" font-weight=\"700\" fill=\"#1b2a4a\">Modèle source</text><text x=\"84.5\" y=\"118\" text-anchor=\"middle\" font-family=\"system-ui,sans-serif\" font-size=\"12\" fill=\"#33415c\">GPT-OSS-120b</text><text x=\"84.5\" y=\"138\" text-anchor=\"middle\" font-family=\"system-ui,sans-serif\" font-size=\"12\" fill=\"#33415c\">poids ouverts</text><path d=\"M153 129H173M166 122L173 129L166 136\" stroke=\"#5b6f94\" stroke-width=\"2.5\" fill=\"none\"/><rect x=\"177\" y=\"64\" width=\"129\" height=\"130\" rx=\"10\" fill=\"#fff\" stroke=\"#9db0cf\" stroke-width=\"2\"/><text x=\"241.5\" y=\"92\" text-anchor=\"middle\" font-family=\"system-ui,sans-serif\" font-size=\"13\" font-weight=\"700\" fill=\"#1b2a4a\">Distillation</text><text x=\"241.5\" y=\"118\" text-anchor=\"middle\" font-family=\"system-ui,sans-serif\" font-size=\"12\" fill=\"#33415c\">conversations</text><text x=\"241.5\" y=\"138\" text-anchor=\"middle\" font-family=\"system-ui,sans-serif\" font-size=\"12\" fill=\"#33415c\">d'entraînement</text><path d=\"M310 129H330M323 122L330 129L323 136\" stroke=\"#5b6f94\" stroke-width=\"2.5\" fill=\"none\"/><rect x=\"334\" y=\"64\" width=\"129\" height=\"130\" rx=\"10\" fill=\"#fff\" stroke=\"#9db0cf\" stroke-width=\"2\"/><text x=\"398.5\" y=\"92\" text-anchor=\"middle\" font-family=\"system-ui,sans-serif\" font-size=\"13\" font-weight=\"700\" fill=\"#1b2a4a\">Petit modèle</text><text x=\"398.5\" y=\"118\" text-anchor=\"middle\" font-family=\"system-ui,sans-serif\" font-size=\"12\" fill=\"#33415c\">2,2 M de paramètres</text><text x=\"398.5\" y=\"138\" text-anchor=\"middle\" font-family=\"system-ui,sans-serif\" font-size=\"12\" fill=\"#33415c\">8 000 mots</text><path d=\"M467 129H487M480 122L487 129L480 136\" stroke=\"#5b6f94\" stroke-width=\"2.5\" fill=\"none\"/><rect x=\"491\" y=\"64\" width=\"129\" height=\"130\" rx=\"10\" fill=\"#fff\" stroke=\"#9db0cf\" stroke-width=\"2\"/><text x=\"555.5\" y=\"92\" text-anchor=\"middle\" font-family=\"system-ui,sans-serif\" font-size=\"13\" font-weight=\"700\" fill=\"#1b2a4a\">Console</text><text x=\"555.5\" y=\"118\" text-anchor=\"middle\" font-family=\"system-ui,sans-serif\" font-size=\"12\" fill=\"#33415c\">ROM de 4 à 19 Mo</text><text x=\"555.5\" y=\"138\" text-anchor=\"middle\" font-family=\"system-ui,sans-serif\" font-size=\"12\" fill=\"#33415c\">Super FX</text></svg>",
+     "alt": "Schéma de la distillation d'un grand modèle vers une cartouche de Super Nintendo.",
+     "caption": "Un grand modèle fournit les conversations d'entraînement, un modèle minuscule les apprend, puis le tout est empaqueté en ROM."
+    },
+    {
+     "type": "usecases",
+     "title": "Exemples d'utilisation",
+     "items": [
+      {
+       "icon": "🎓",
+       "title": "Enseignement",
+       "text": "Montrer à des étudiants qu'un modèle de langage est d'abord une suite de calculs sur des tableaux de nombres, en le faisant tourner sur une machine dont on voit tous les rouages."
+      },
+      {
+       "icon": "🕹️",
+       "title": "Communauté rétro",
+       "text": "Les passionnés de rétro-informatique y trouvent un banc d'essai pour pousser les limites de la console et des extensions comme le Super FX ou le MSU-1."
+      },
+      {
+       "icon": "🧪",
+       "title": "Recherche sur la compression",
+       "text": "La distillation extrême sert de laboratoire : que reste-t-il d'un comportement de dialogue quand on retire presque tous les paramètres ?"
+      }
+     ]
+    },
+    {
+     "type": "timeline",
+     "title": "D'où l'on vient, où l'on va",
+     "items": [
+      {
+       "label": "1990",
+       "text": "Sortie de la Super Nintendo, dont le Super FX viendra étendre les capacités graphiques."
+      },
+      {
+       "label": "21 novembre 2026",
+       "text": "Présentation de ChatGPT for SNES et de la version enrichie d'un recueil de faits."
+      },
+      {
+       "label": "À suivre",
+       "text": "Edwards dit travailler à des pistes pour rendre le modèle plus cohérent."
+      }
+     ]
+    },
+    {
+     "type": "opinion",
+     "title": "Notre avis",
+     "paragraphs": [
+      "Le projet vaut moins par ses réponses que par ce qu'il révèle : la « magie » d'un assistant tient à l'échelle, et retirer l'échelle laisse apparaître la mécanique. Une cartouche de 4 Mo produit du texte plausible mais peu fiable, ce qui rappelle utilement que la fluidité d'une phrase ne garantit pas son exactitude.",
+      "À un horizon de un à trois ans, on peut imaginer que la distillation vers des modèles minuscules, utiles sur des microcontrôleurs, progresse, mais cette ROM ne le prouve pas : c'est une curiosité, pas une feuille de route."
+     ],
+     "verdict": "Un jouet instructif : il montre l'ingénierie derrière les modèles, pas un avenir pour la Super Nintendo."
+    },
+    {
+     "type": "callout",
+     "title": "À retenir",
+     "text": "Projet : bxfoundry.com/chatgpt_snes. Matériel : cartouche flash FXPak Pro ou SD2SNES, Super FX, MSU-1 pour la version enrichie."
+    }
+   ],
+   "cover": {
+    "url": "https://image.theregister.com/5311423.jpg?imageId=5311423&x=0&y=0&cropw=100&croph=100&panox=0&panoy=0&panow=100&panoh=100&width=1200&height=683",
+    "alt": "Illustration The Register",
+    "credit": "www.theregister.com"
+   }
+  },
+  {
+   "id": "meta-muse-page-web-malveillante-conversations-privees",
+   "category": "ia",
+   "icon": "🕶️",
+   "title": "Meta Muse : une simple page web a permis, en laboratoire, d'extraire des conversations privées de l'agent d'IA",
+   "summary": "Des chercheurs de NebuSec ont enchaîné une faille du navigateur intégré de l'agent et une faille du noyau Linux pour prendre le contrôle de la machine cloud d'un utilisateur. Les failles sont corrigées, selon eux ; Meta n'a pas commenté.",
+   "tags": [
+    "Meta Muse",
+    "agents d'IA",
+    "injection de prompt",
+    "sécurité du cloud",
+    "NebuSec"
+   ],
+   "importance": 4,
+   "readingMinutes": 4,
+   "publishedAt": "2026-11-21T18:17:19+01:00",
+   "sourceDate": "2026-11-21",
+   "sources": [
+    {
+     "title": "A Single Malicious Webpage Let Researchers Hijack Meta Muse",
+     "url": "https://thehackernews.com/2026/11/a-single-malicious-webpage-let.html",
+     "publisher": "The Hacker News"
+    }
+   ],
+   "illustration": {
+    "svg": "<svg xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"0 0 640 360\"><defs><linearGradient id=\"g\" x1=\"0\" y1=\"0\" x2=\"1\" y2=\"1\"><stop offset=\"0\" stop-color=\"hsl(320,70%,38%)\"/><stop offset=\"1\" stop-color=\"hsl(0,65%,22%)\"/></linearGradient></defs><rect width=\"640\" height=\"360\" fill=\"url(#g)\"/><circle cx=\"90\" cy=\"300\" r=\"70\" fill=\"#fff\" opacity=\".08\"/><circle cx=\"560\" cy=\"60\" r=\"50\" fill=\"#fff\" opacity=\".08\"/><circle cx=\"320\" cy=\"180\" r=\"70\" fill=\"none\" stroke=\"#fff\" stroke-width=\"8\"/><circle cx=\"320\" cy=\"180\" r=\"14\" fill=\"#fff\"/><path d=\"M320 110V60M320 250V300M250 180H200M390 180H440M270 130L235 95M370 130L405 95M270 230L235 265M370 230L405 265\" stroke=\"#fff\" stroke-width=\"7\"/><circle cx=\"320\" cy=\"55\" r=\"10\" fill=\"#fff\"/><circle cx=\"200\" cy=\"180\" r=\"10\" fill=\"#fff\"/><circle cx=\"440\" cy=\"180\" r=\"10\" fill=\"#fff\"/></svg>"
+   },
+   "blocks": [
+    {
+     "type": "paragraph",
+     "text": "Les agents d'IA personnels promettent d'agir à la place de leur utilisateur : consulter ses comptes, faire des achats, organiser son quotidien. Cette autonomie suppose de leur confier des accès sensibles, ce qui en fait des cibles de choix. Le 20 novembre 2026, la société de sécurité NebuSec a publié une étude montrant qu'une seule page web malveillante suffisait, en conditions de laboratoire, à extraire les conversations privées d'un utilisateur de Meta Muse."
+    },
+    {
+     "type": "heading",
+     "level": 2,
+     "text": "Ce qu'est Muse et comment il devait se protéger"
+    },
+    {
+     "type": "paragraph",
+     "text": "Muse est l'agent d'IA personnel de Meta, lancé le 8 septembre 2026. Il fonctionne à travers les comptes en ligne que l'utilisateur lui connecte et peut effectuer des achats en son nom. Chaque agent s'exécute sur sa propre machine dans le cloud. La conception repose sur deux protections : une couche de surveillance appelée Sentinel, censée être l'unique point de passage de tout ce que l'agent envoie vers l'extérieur, et un stockage des mots de passe et jetons des comptes connectés, supposé inaccessible à l'agent. Les concepteurs avaient annoncé partir du principe que l'agent peut être attaqué et chercher à limiter les dégâts."
+    },
+    {
+     "type": "heading",
+     "level": 2,
+     "text": "La chaîne d'attaque"
+    },
+    {
+     "type": "paragraph",
+     "text": "Dans la démonstration, une page malveillante ouverte par l'agent pouvait envoyer vers un serveur externe l'historique des conversations et les souvenirs enregistrés, et même les modifier, sans qu'aucune demande de confirmation ne s'affiche. Les chercheurs sont ensuite allés plus loin en combinant une faille du navigateur intégré de Muse, que l'assistant utilise par exemple pour créer des PDF, avec une faille du noyau Linux. Ils ont ainsi obtenu le contrôle complet de la machine cloud de l'utilisateur."
+    },
+    {
+     "type": "paragraph",
+     "text": "Ce contrôle donnait accès au stockage des identifiants, aux fichiers enregistrés et à Sentinel lui-même, que l'architecture devait pourtant isoler de l'agent. NebuSec précise que chacune des protections de Muse a fonctionné comme prévu et que l'attaque est tout de même passée à travers l'ensemble. L'attaque est restée confinée à une seule machine : les chercheurs n'ont pas franchi la frontière vers le serveur partagé en dessous, ni vers d'autres utilisateurs."
+    },
+    {
+     "type": "keyvalue",
+     "items": [
+      {
+       "label": "Produit",
+       "value": "Meta Muse, agent d'IA personnel lancé le 8 septembre 2026"
+      },
+      {
+       "label": "Découvreur",
+       "value": "NebuSec, publication vers le 20 novembre 2026"
+      },
+      {
+       "label": "Données exposées en démonstration",
+       "value": "conversations, souvenirs, fichiers, identifiants de comptes connectés"
+      },
+      {
+       "label": "Portée",
+       "value": "une seule machine cloud d'utilisateur"
+      },
+      {
+       "label": "État",
+       "value": "corrigé avant publication selon NebuSec ; Meta n'a pas commenté"
+      }
+     ]
+    },
+    {
+     "type": "diagram",
+     "svg": "<svg xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"0 0 640 230\"><rect width=\"640\" height=\"230\" rx=\"14\" fill=\"#f3f6fb\"/><text x=\"320\" y=\"34\" text-anchor=\"middle\" font-family=\"system-ui,sans-serif\" font-size=\"16\" font-weight=\"700\" fill=\"#1b2a4a\">De la page web à la machine de l'utilisateur</text><rect x=\"20\" y=\"64\" width=\"129\" height=\"130\" rx=\"10\" fill=\"#fff\" stroke=\"#9db0cf\" stroke-width=\"2\"/><text x=\"84.5\" y=\"92\" text-anchor=\"middle\" font-family=\"system-ui,sans-serif\" font-size=\"13\" font-weight=\"700\" fill=\"#1b2a4a\">Page piégée</text><text x=\"84.5\" y=\"118\" text-anchor=\"middle\" font-family=\"system-ui,sans-serif\" font-size=\"12\" fill=\"#33415c\">ouverte par</text><text x=\"84.5\" y=\"138\" text-anchor=\"middle\" font-family=\"system-ui,sans-serif\" font-size=\"12\" fill=\"#33415c\">l'agent</text><path d=\"M153 129H173M166 122L173 129L166 136\" stroke=\"#5b6f94\" stroke-width=\"2.5\" fill=\"none\"/><rect x=\"177\" y=\"64\" width=\"129\" height=\"130\" rx=\"10\" fill=\"#fff\" stroke=\"#9db0cf\" stroke-width=\"2\"/><text x=\"241.5\" y=\"92\" text-anchor=\"middle\" font-family=\"system-ui,sans-serif\" font-size=\"13\" font-weight=\"700\" fill=\"#1b2a4a\">Navigateur</text><text x=\"241.5\" y=\"118\" text-anchor=\"middle\" font-family=\"system-ui,sans-serif\" font-size=\"12\" fill=\"#33415c\">faille du</text><text x=\"241.5\" y=\"138\" text-anchor=\"middle\" font-family=\"system-ui,sans-serif\" font-size=\"12\" fill=\"#33415c\">navigateur intégré</text><path d=\"M310 129H330M323 122L330 129L323 136\" stroke=\"#5b6f94\" stroke-width=\"2.5\" fill=\"none\"/><rect x=\"334\" y=\"64\" width=\"129\" height=\"130\" rx=\"10\" fill=\"#fff\" stroke=\"#9db0cf\" stroke-width=\"2\"/><text x=\"398.5\" y=\"92\" text-anchor=\"middle\" font-family=\"system-ui,sans-serif\" font-size=\"13\" font-weight=\"700\" fill=\"#1b2a4a\">Noyau Linux</text><text x=\"398.5\" y=\"118\" text-anchor=\"middle\" font-family=\"system-ui,sans-serif\" font-size=\"12\" fill=\"#33415c\">élévation</text><text x=\"398.5\" y=\"138\" text-anchor=\"middle\" font-family=\"system-ui,sans-serif\" font-size=\"12\" fill=\"#33415c\">de privilèges</text><path d=\"M467 129H487M480 122L487 129L480 136\" stroke=\"#5b6f94\" stroke-width=\"2.5\" fill=\"none\"/><rect x=\"491\" y=\"64\" width=\"129\" height=\"130\" rx=\"10\" fill=\"#fff\" stroke=\"#9db0cf\" stroke-width=\"2\"/><text x=\"555.5\" y=\"92\" text-anchor=\"middle\" font-family=\"system-ui,sans-serif\" font-size=\"13\" font-weight=\"700\" fill=\"#1b2a4a\">Machine cloud</text><text x=\"555.5\" y=\"118\" text-anchor=\"middle\" font-family=\"system-ui,sans-serif\" font-size=\"12\" fill=\"#33415c\">identifiants, fichiers,</text><text x=\"555.5\" y=\"138\" text-anchor=\"middle\" font-family=\"system-ui,sans-serif\" font-size=\"12\" fill=\"#33415c\">Sentinel</text></svg>",
+     "alt": "Schéma de la chaîne d'attaque contre Meta Muse.",
+     "caption": "Deux failles enchaînées contournent des protections qui, prises isolément, fonctionnaient comme prévu."
+    },
+    {
+     "type": "paragraph",
+     "text": "Une première faille de Muse avait été signalée en septembre : elle ne permettait de détourner l'assistant que depuis un Mac déjà infecté. L'étude de NebuSec vise un autre niveau, le système cloud qui sert l'assistant. La source ne dit pas si des données d'utilisateurs ont été consultées avant les correctifs, et Meta n'a pas confirmé publiquement les corrections."
+    },
+    {
+     "type": "usecases",
+     "title": "Exemples d'utilisation",
+     "items": [
+      {
+       "icon": "🛍️",
+       "title": "Utilisateur qui délègue ses achats",
+       "text": "Il convient de ne confier à un agent que des moyens de paiement plafonnés et de vérifier régulièrement les connexions autorisées, puisque l'agent détient des accès qu'un navigateur ordinaire n'a pas."
+      },
+      {
+       "icon": "🏢",
+       "title": "Entreprise qui déploie des agents",
+       "text": "Elle doit traiter chaque page consultée par un agent comme une entrée non fiable, et isoler la machine de l'agent de tout secret non indispensable."
+      },
+      {
+       "icon": "🔬",
+       "title": "Équipe de sécurité",
+       "text": "Les tests d'intrusion d'agents gagnent à combiner injection de prompt et failles classiques du navigateur ou du noyau, car c'est l'enchaînement qui fait le dégât."
+      }
+     ]
+    },
+    {
+     "type": "timeline",
+     "title": "D'où l'on vient, où l'on va",
+     "items": [
+      {
+       "label": "8 septembre 2026",
+       "text": "Lancement de Muse ; une première faille, limitée aux Mac infectés, est signalée peu après."
+      },
+      {
+       "label": "Vers le 20 novembre 2026",
+       "text": "NebuSec publie son étude et un détail technique de la chaîne d'exploitation."
+      },
+      {
+       "label": "À suivre",
+       "text": "Une confirmation publique de Meta sur les correctifs et sur l'absence éventuelle d'accès réels."
+      }
+     ]
+    },
+    {
+     "type": "opinion",
+     "title": "Notre avis",
+     "paragraphs": [
+      "L'étude confirme que la sécurité d'un agent ne se résume pas à un filtre sur ses sorties : si la machine qui l'héberge est compromise, tous les garde-fous logiques tombent avec elle. Le fait que chaque protection ait « fonctionné » et que l'attaque ait réussi montre que l'on a testé des composants, pas leur enchaînement.",
+      "À un horizon de un à trois ans, on peut s'attendre à des agents plus cloisonnés, avec des secrets jamais présents dans l'environnement qui navigue sur le web. C'est une projection argumentée, non un fait : elle dépend de l'arbitrage entre sécurité et commodité."
+     ],
+     "verdict": "Un agent qui navigue sur le web doit être traité comme un poste de travail exposé, pas comme un simple chatbot."
+    },
+    {
+     "type": "callout",
+     "title": "À retenir",
+     "text": "Faits limités à une démonstration de laboratoire ; aucune exploitation réelle n'est rapportée par la source."
+    }
+   ],
+   "cover": {
+    "url": "https://blogger.googleusercontent.com/img/b/R29vZ2xl/AVvXsEiYiVrbfn3FWfI_uNyjj8q9SZ38d2mHKu2ehdtYYKPwyg-05yKJBYUAPEaVxJq5KDGwU11X2tmEKNUKPIHQY9s67e1K9w_8NRdEOxVCDJqqMbQ6F27kfOj3GKjcQ3-0WHFNg7uYT6QeIU90qX1YW_Zvyn7WhZwpV41i5Pj6watQsF7Ti8NN1GIQLxw-jPc/s1600/muse-ai.jpg",
+    "alt": "Illustration The Hacker News",
+    "credit": "thehackernews.com"
+   }
+  },
+  {
+   "id": "gpgme-double-liberation-cle-openpgp-cve-2026-129975",
+   "category": "cybersecurite",
+   "icon": "🔑",
+   "title": "GPGME : une double libération de mémoire déclenchée par une clé OpenPGP piégée, à corriger avec la version 2.3.1",
+   "summary": "Le projet GnuPG juge « critique » la faille CVE-2026-129975, qui touche la bibliothèque utilisée par la plupart des clients de messagerie. Aucune attaque n'est signalée, mais l'exécution de code ne peut être exclue.",
+   "tags": [
+    "GnuPG",
+    "GPGME",
+    "OpenPGP",
+    "CVE-2026-129975",
+    "double free"
+   ],
+   "importance": 4,
+   "readingMinutes": 3,
+   "publishedAt": "2026-11-21T18:17:19+01:00",
+   "sourceDate": "2026-11-21",
+   "sources": [
+    {
+     "title": "GnuPG Warns Critical GPGME Flaw Could Expose App Data",
+     "url": "https://thehackernews.com/2026/11/gnupg-warns-critical-gpgme-flaw-could.html",
+     "publisher": "The Hacker News"
+    }
+   ],
+   "illustration": {
+    "svg": "<svg xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"0 0 640 360\"><defs><linearGradient id=\"g\" x1=\"0\" y1=\"0\" x2=\"1\" y2=\"1\"><stop offset=\"0\" stop-color=\"hsl(175,70%,38%)\"/><stop offset=\"1\" stop-color=\"hsl(215,65%,22%)\"/></linearGradient></defs><rect width=\"640\" height=\"360\" fill=\"url(#g)\"/><circle cx=\"90\" cy=\"300\" r=\"70\" fill=\"#fff\" opacity=\".08\"/><circle cx=\"560\" cy=\"60\" r=\"50\" fill=\"#fff\" opacity=\".08\"/><path d=\"M320 80L420 115V190C420 245 375 280 320 300C265 280 220 245 220 190V115Z\" fill=\"none\" stroke=\"#fff\" stroke-width=\"8\"/><path d=\"M280 190L310 220L365 160\" fill=\"none\" stroke=\"#fff\" stroke-width=\"10\"/></svg>"
+   },
+   "blocks": [
+    {
+     "type": "paragraph",
+     "text": "GPGME est la bibliothèque qui permet à d'autres logiciels d'utiliser GnuPG sans en piloter manuellement la ligne de commande. Elle est donc présente dans beaucoup d'applications : le projet cite la plupart des clients de messagerie, de nombreux clients XMPP, Samba, ainsi que les distributions Gpg4win, GnuPG Desktop et GnuPG VS-Desktop. Le 21 novembre 2026, GnuPG a averti qu'une faille critique de mémoire, référencée CVE-2026-129975, pouvait faire fuiter des données de ces applications."
+    },
+    {
+     "type": "heading",
+     "level": 2,
+     "text": "Une double libération de mémoire"
+    },
+    {
+     "type": "paragraph",
+     "text": "Le défaut est de type « double free » : la même zone de mémoire est libérée deux fois. Il se trouve dans deux routines, read_status() et read_colon_line(), qui traitent les lignes d'état et les listes de clés renvoyées par GnuPG. Lorsque la donnée est longue, elles la déplacent vers un tampon plus grand mais n'enregistrent la nouvelle adresse que si tout se passe sans erreur. Une erreur survenant entre-temps laisse un pointeur vers une zone déjà libérée, que le nettoyage libère alors une seconde fois."
+    },
+    {
+     "type": "paragraph",
+     "text": "Une clé OpenPGP malveillante dotée d'un identifiant d'utilisateur anormalement long peut provoquer cette situation. Comme exemple de scénario, le projet cite des données signées envoyées à une application. On ne sait pas précisément quels programmes transmettent de telles données à la bibliothèque sans import manuel de la clé. Le projet n'a rapporté aucune exploitation et précise que l'exécution de code à distance ne peut pas être écartée. La source ne donne pas de score CVSS."
+    },
+    {
+     "type": "keyvalue",
+     "items": [
+      {
+       "label": "Référence",
+       "value": "CVE-2026-129975"
+      },
+      {
+       "label": "Versions concernées",
+       "value": "toutes les versions de GPGME antérieures à 2.3.0, en bibliothèque partagée, DLL Windows ou liaison statique"
+      },
+      {
+       "label": "Version corrigée",
+       "value": "GPGME 2.3.1 (la 2.3.0 n'a jamais été publiée)"
+      },
+      {
+       "label": "Branche ancienne",
+       "value": "1.24.4"
+      },
+      {
+       "label": "Windows",
+       "value": "Gpg4win 5.1.2 embarque la bibliothèque corrigée"
+      }
+     ]
+    },
+    {
+     "type": "heading",
+     "level": 2,
+     "text": "Découverte, divulgation et correctifs"
+    },
+    {
+     "type": "paragraph",
+     "text": "La faille a été trouvée par Johan Carlsson et signalée au projet par GitLab la semaine précédant l'avis. La divulgation était prévue le 25 novembre ; elle a été avancée parce qu'un autre bogue, nommé Ruby2Shell, a obligé GitLab à publier plus tôt sa mise à jour. Le correctif est la version 2.3.1, publiée la semaine de l'avis. Le projet fournit également un correctif de code pour les systèmes qui ne peuvent pas migrer, et une version 1.24.4 pour l'ancienne branche, tout en précisant qu'il ne garantit pas que cette branche recevra tous les correctifs de sécurité futurs. GPGMEPP et GPGMEQT n'ont pas besoin de mise à jour."
+    },
+    {
+     "type": "paragraph",
+     "text": "Le piège principal tient aux copies embarquées ou liées statiquement dans des applications : mettre à jour la bibliothèque partagée du système ne les corrige pas, et il faut attendre des versions reconstruites par les éditeurs. Aucune solution de contournement n'est proposée pour les logiciels impossibles à mettre à jour."
+    },
+    {
+     "type": "diagram",
+     "svg": "<svg xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"0 0 640 230\"><rect width=\"640\" height=\"230\" rx=\"14\" fill=\"#f3f6fb\"/><text x=\"320\" y=\"34\" text-anchor=\"middle\" font-family=\"system-ui,sans-serif\" font-size=\"16\" font-weight=\"700\" fill=\"#1b2a4a\">Où se cache la faille</text><rect x=\"20\" y=\"64\" width=\"129\" height=\"130\" rx=\"10\" fill=\"#fff\" stroke=\"#9db0cf\" stroke-width=\"2\"/><text x=\"84.5\" y=\"92\" text-anchor=\"middle\" font-family=\"system-ui,sans-serif\" font-size=\"13\" font-weight=\"700\" fill=\"#1b2a4a\">Clé piégée</text><text x=\"84.5\" y=\"118\" text-anchor=\"middle\" font-family=\"system-ui,sans-serif\" font-size=\"12\" fill=\"#33415c\">identifiant</text><text x=\"84.5\" y=\"138\" text-anchor=\"middle\" font-family=\"system-ui,sans-serif\" font-size=\"12\" fill=\"#33415c\">très long</text><path d=\"M153 129H173M166 122L173 129L166 136\" stroke=\"#5b6f94\" stroke-width=\"2.5\" fill=\"none\"/><rect x=\"177\" y=\"64\" width=\"129\" height=\"130\" rx=\"10\" fill=\"#fff\" stroke=\"#9db0cf\" stroke-width=\"2\"/><text x=\"241.5\" y=\"92\" text-anchor=\"middle\" font-family=\"system-ui,sans-serif\" font-size=\"13\" font-weight=\"700\" fill=\"#1b2a4a\">GPGME</text><text x=\"241.5\" y=\"118\" text-anchor=\"middle\" font-family=\"system-ui,sans-serif\" font-size=\"12\" fill=\"#33415c\">lecture des lignes</text><text x=\"241.5\" y=\"138\" text-anchor=\"middle\" font-family=\"system-ui,sans-serif\" font-size=\"12\" fill=\"#33415c\">d'état et de clés</text><path d=\"M310 129H330M323 122L330 129L323 136\" stroke=\"#5b6f94\" stroke-width=\"2.5\" fill=\"none\"/><rect x=\"334\" y=\"64\" width=\"129\" height=\"130\" rx=\"10\" fill=\"#fff\" stroke=\"#9db0cf\" stroke-width=\"2\"/><text x=\"398.5\" y=\"92\" text-anchor=\"middle\" font-family=\"system-ui,sans-serif\" font-size=\"13\" font-weight=\"700\" fill=\"#1b2a4a\">Erreur</text><text x=\"398.5\" y=\"118\" text-anchor=\"middle\" font-family=\"system-ui,sans-serif\" font-size=\"12\" fill=\"#33415c\">pointeur laissé</text><text x=\"398.5\" y=\"138\" text-anchor=\"middle\" font-family=\"system-ui,sans-serif\" font-size=\"12\" fill=\"#33415c\">vers mémoire libérée</text><path d=\"M467 129H487M480 122L487 129L480 136\" stroke=\"#5b6f94\" stroke-width=\"2.5\" fill=\"none\"/><rect x=\"491\" y=\"64\" width=\"129\" height=\"130\" rx=\"10\" fill=\"#fff\" stroke=\"#9db0cf\" stroke-width=\"2\"/><text x=\"555.5\" y=\"92\" text-anchor=\"middle\" font-family=\"system-ui,sans-serif\" font-size=\"13\" font-weight=\"700\" fill=\"#1b2a4a\">Double libération</text><text x=\"555.5\" y=\"118\" text-anchor=\"middle\" font-family=\"system-ui,sans-serif\" font-size=\"12\" fill=\"#33415c\">fuite de données,</text><text x=\"555.5\" y=\"138\" text-anchor=\"middle\" font-family=\"system-ui,sans-serif\" font-size=\"12\" fill=\"#33415c\">code possible</text></svg>",
+     "alt": "Schéma du déclenchement du double free dans GPGME.",
+     "caption": "Une erreur survenant pendant l'agrandissement du tampon laisse un pointeur périmé, libéré une seconde fois au nettoyage."
+    },
+    {
+     "type": "usecases",
+     "title": "Exemples d'utilisation",
+     "items": [
+      {
+       "icon": "📧",
+       "title": "Administrateur de messagerie",
+       "text": "Recenser les clients qui utilisent GPGME (messagerie, XMPP, Samba) et planifier la mise à jour vers la 2.3.1, en vérifiant les paquets de la distribution."
+      },
+      {
+       "icon": "🪟",
+       "title": "Parc Windows",
+       "text": "Déployer Gpg4win 5.1.2 sur les postes qui utilisent le chiffrement de courriels."
+      },
+      {
+       "icon": "🧱",
+       "title": "Éditeur de logiciel",
+       "text": "Reconstruire et republier les applications qui lient GPGME en statique : sans cela, la mise à jour système est sans effet."
+      }
+     ]
+    },
+    {
+     "type": "timeline",
+     "title": "D'où l'on vient, où l'on va",
+     "items": [
+      {
+       "label": "Semaine précédant l'avis",
+       "text": "GitLab signale la faille au projet, découverte par Johan Carlsson."
+      },
+      {
+       "label": "21 novembre 2026",
+       "text": "Avis public de GnuPG et sortie de GPGME 2.3.1, divulgation avancée de la date du 25 novembre."
+      },
+      {
+       "label": "À suivre",
+       "text": "Les versions reconstruites des applications qui embarquent la bibliothèque."
+      }
+     ]
+    },
+    {
+     "type": "opinion",
+     "title": "Notre avis",
+     "paragraphs": [
+      "Les bibliothèques d'intermédiation comme GPGME sont des maillons discrets mais très répandus : une seule erreur de gestion de mémoire se retrouve dans des dizaines de produits. Le plus difficile n'est pas de publier un correctif, mais de retrouver toutes les copies embarquées, que les scanners système ignorent.",
+      "À un horizon de un à trois ans, la généralisation de langages sûrs pour la mémoire dans ce type de composant réduirait ces défauts, mais le chantier est long ; c'est une projection et non un engagement du projet."
+     ],
+     "verdict": "Une faille de bibliothèque se mesure à son nombre de copies, pas à sa ligne de code fautive."
+    },
+    {
+     "type": "callout",
+     "title": "À retenir",
+     "text": "Mettre à jour vers GPGME 2.3.1 ; vérifier aussi les applications qui embarquent la bibliothèque en statique."
+    }
+   ],
+   "cover": {
+    "url": "https://blogger.googleusercontent.com/img/b/R29vZ2xl/AVvXsEiTmX4ayWzvM0EzPttZ610B2837FppeU5AEmQmztLH2lai78EDQtjrp4wVI_bubSe2c2NGBE5sqBT9Py1mKkHQKN2faBkOzU70d7FntrpYD7Et2eeBxLNy2gzByAo1i8Aaw_VMBZD62RnBMY2md3iNfegK9M_NR5qTRDBw8s0uwKy1w7JoTV0zkDS_17Lse/s1600/pgp.jpg",
+    "alt": "Illustration The Hacker News",
+    "credit": "thehackernews.com"
+   }
+  },
+  {
+   "id": "project-zero-full-90-delais-divulgation-raccourcis",
+   "category": "cybersecurite",
+   "icon": "⏳",
+   "title": "Project Zero abandonne « 90 + 30 » pour « Full 90 » et annonce des délais de divulgation de 60 puis 30 jours",
+   "summary": "Face aux outils d'IA qui accélèrent la découverte de failles, Google Project Zero publiera ses détails 90 jours après le signalement quel que soit l'état du correctif. Anthropic raccourcit aussi son délai à partir de 2027.",
+   "tags": [
+    "divulgation",
+    "Project Zero",
+    "Anthropic",
+    "vulnérabilités",
+    "IA"
+   ],
+   "importance": 3,
+   "readingMinutes": 4,
+   "publishedAt": "2026-11-21T18:17:19+01:00",
+   "sourceDate": "2026-11-20",
+   "sources": [
+    {
+     "title": "This Week in Security : Java4Shell, Optimizely malware…",
+     "url": "https://hackaday.com/2026/11/20/this-week-in-security-java4shell-optimizely-malware-shrinking-disclosure-deadlines-unpatchable-freezers/",
+     "publisher": "Hackaday"
+    }
+   ],
+   "illustration": {
+    "svg": "<svg xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"0 0 640 360\"><defs><linearGradient id=\"g\" x1=\"0\" y1=\"0\" x2=\"1\" y2=\"1\"><stop offset=\"0\" stop-color=\"hsl(175,70%,38%)\"/><stop offset=\"1\" stop-color=\"hsl(215,65%,22%)\"/></linearGradient></defs><rect width=\"640\" height=\"360\" fill=\"url(#g)\"/><circle cx=\"90\" cy=\"300\" r=\"70\" fill=\"#fff\" opacity=\".08\"/><circle cx=\"560\" cy=\"60\" r=\"50\" fill=\"#fff\" opacity=\".08\"/><rect x=\"245\" y=\"75\" width=\"150\" height=\"210\" rx=\"12\" fill=\"#fff\"/><path d=\"M270 120H370M270 155H370M270 190H370M270 225H335\" stroke=\"hsl(0,0%,35%)\" stroke-width=\"9\"/></svg>"
+   },
+   "blocks": [
+    {
+     "type": "paragraph",
+     "text": "Entre le signalement d'une faille à l'éditeur et sa publication, il existe un délai de divulgation : assez long pour permettre un correctif, assez court pour que l'éditeur ne traîne pas. La chronique de sécurité de Hackaday du 20 novembre 2026 signale que ces délais se resserrent, sous l'effet d'une même cause : la vitesse à laquelle des outils d'IA trouvent des vulnérabilités."
+    },
+    {
+     "type": "heading",
+     "level": 2,
+     "text": "Project Zero : de « 90 + 30 » à « Full 90 »"
+    },
+    {
+     "type": "paragraph",
+     "text": "Google Project Zero remplace sa politique dite « 90 + 30 » par « Full 90 ». Dans l'ancien modèle, les détails étaient publiés 90 jours après le signalement, avec un supplément de 30 jours si un correctif était disponible mais pas encore largement déployé. Désormais, les détails sont publiés 90 jours après le rapport, quel que soit l'état du correctif. Le calendrier prévoit ensuite 60 jours à partir de février 2027, puis 30 jours à partir de janvier 2028."
+    },
+    {
+     "type": "paragraph",
+     "text": "Project Zero justifie cette évolution par les outils d'IA qui permettent aux attaquants de trouver des bogues rapidement. L'équipe affirme découvrir désormais plusieurs vulnérabilités par semaine, là où elle en trouvait quelques-unes par an. Un défaut connu de plusieurs acteurs peut être redécouvert ou exploité vite : prolonger le silence profite alors moins aux défenseurs."
+    },
+    {
+     "type": "keyvalue",
+     "items": [
+      {
+       "label": "Politique actuelle de Project Zero",
+       "value": "Full 90 : publication à 90 jours, correctif ou non"
+      },
+      {
+       "label": "Février 2027",
+       "value": "délai ramené à 60 jours"
+      },
+      {
+       "label": "Janvier 2028",
+       "value": "délai ramené à 30 jours"
+      },
+      {
+       "label": "Anthropic",
+       "value": "pour les rapports à compter du 1er janvier 2027 : 30 jours pour les failles hautes et critiques, 45 jours pour les autres"
+      },
+      {
+       "label": "Rapports déjà anciens chez Anthropic",
+       "value": "30 jours supplémentaires pour ceux qui dépassent déjà 90 jours"
+      }
+     ]
+    },
+    {
+     "type": "heading",
+     "level": 2,
+     "text": "Anthropic suit le mouvement"
+    },
+    {
+     "type": "paragraph",
+     "text": "Anthropic raccourcit lui aussi son délai pour les rapports effectués à partir du 1er janvier 2027 : 30 jours pour les failles de gravité haute et critique, 45 jours pour les autres. Les rapports plus anciens qui ont déjà dépassé 90 jours bénéficient d'un délai supplémentaire de 30 jours avant publication."
+    },
+    {
+     "type": "heading",
+     "level": 2,
+     "text": "À l'opposé : publier sans prévenir"
+    },
+    {
+     "type": "paragraph",
+     "text": "La même chronique mentionne une tendance inverse, celle de chercheurs qui publient sans aucun préavis. Un chercheur nommé Nightmare Eclipse a diffusé « SignDrop », une faille Windows non corrigée qui abuse du système de journalisation CLFS pour obtenir les droits SYSTEM en local ; Microsoft indique n'avoir constaté aucune exploitation. Un projet GitHub distinct, FastUnlock, affirme contourner BitLocker sur un Windows 11 26H2 à jour avec un accès physique, mais cette affirmation n'est pas confirmée de façon indépendante."
+    },
+    {
+     "type": "diagram",
+     "svg": "<svg xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"0 0 640 230\"><rect width=\"640\" height=\"230\" rx=\"14\" fill=\"#f3f6fb\"/><text x=\"320\" y=\"34\" text-anchor=\"middle\" font-family=\"system-ui,sans-serif\" font-size=\"16\" font-weight=\"700\" fill=\"#1b2a4a\">Le resserrement du délai de divulgation</text><rect x=\"20\" y=\"64\" width=\"129\" height=\"130\" rx=\"10\" fill=\"#fff\" stroke=\"#9db0cf\" stroke-width=\"2\"/><text x=\"84.5\" y=\"92\" text-anchor=\"middle\" font-family=\"system-ui,sans-serif\" font-size=\"13\" font-weight=\"700\" fill=\"#1b2a4a\">Avant</text><text x=\"84.5\" y=\"118\" text-anchor=\"middle\" font-family=\"system-ui,sans-serif\" font-size=\"12\" fill=\"#33415c\">90 jours</text><text x=\"84.5\" y=\"138\" text-anchor=\"middle\" font-family=\"system-ui,sans-serif\" font-size=\"12\" fill=\"#33415c\">+ 30 si correctif</text><path d=\"M153 129H173M166 122L173 129L166 136\" stroke=\"#5b6f94\" stroke-width=\"2.5\" fill=\"none\"/><rect x=\"177\" y=\"64\" width=\"129\" height=\"130\" rx=\"10\" fill=\"#fff\" stroke=\"#9db0cf\" stroke-width=\"2\"/><text x=\"241.5\" y=\"92\" text-anchor=\"middle\" font-family=\"system-ui,sans-serif\" font-size=\"13\" font-weight=\"700\" fill=\"#1b2a4a\">Aujourd'hui</text><text x=\"241.5\" y=\"118\" text-anchor=\"middle\" font-family=\"system-ui,sans-serif\" font-size=\"12\" fill=\"#33415c\">« Full 90 » :</text><text x=\"241.5\" y=\"138\" text-anchor=\"middle\" font-family=\"system-ui,sans-serif\" font-size=\"12\" fill=\"#33415c\">90 jours fermes</text><path d=\"M310 129H330M323 122L330 129L323 136\" stroke=\"#5b6f94\" stroke-width=\"2.5\" fill=\"none\"/><rect x=\"334\" y=\"64\" width=\"129\" height=\"130\" rx=\"10\" fill=\"#fff\" stroke=\"#9db0cf\" stroke-width=\"2\"/><text x=\"398.5\" y=\"92\" text-anchor=\"middle\" font-family=\"system-ui,sans-serif\" font-size=\"13\" font-weight=\"700\" fill=\"#1b2a4a\">Février 2027</text><text x=\"398.5\" y=\"118\" text-anchor=\"middle\" font-family=\"system-ui,sans-serif\" font-size=\"12\" fill=\"#33415c\">60 jours</text><path d=\"M467 129H487M480 122L487 129L480 136\" stroke=\"#5b6f94\" stroke-width=\"2.5\" fill=\"none\"/><rect x=\"491\" y=\"64\" width=\"129\" height=\"130\" rx=\"10\" fill=\"#fff\" stroke=\"#9db0cf\" stroke-width=\"2\"/><text x=\"555.5\" y=\"92\" text-anchor=\"middle\" font-family=\"system-ui,sans-serif\" font-size=\"13\" font-weight=\"700\" fill=\"#1b2a4a\">Janvier 2028</text><text x=\"555.5\" y=\"118\" text-anchor=\"middle\" font-family=\"system-ui,sans-serif\" font-size=\"12\" fill=\"#33415c\">30 jours</text></svg>",
+     "alt": "Calendrier de réduction des délais de divulgation de Project Zero.",
+     "caption": "Calendrier annoncé par Project Zero ; les 30 jours d'Anthropic s'appliquent aux rapports à partir du 1er janvier 2027."
+    },
+    {
+     "type": "usecases",
+     "title": "Exemples d'utilisation",
+     "items": [
+      {
+       "icon": "🏭",
+       "title": "Éditeur de logiciel",
+       "text": "Prévoir des cycles de correction et de test compatibles avec 60, puis 30 jours : cela suppose des équipes d'astreinte et des chaînes de publication rapides."
+      },
+      {
+       "icon": "🛡️",
+       "title": "Responsable de la sécurité",
+       "text": "Considérer que le délai entre l'avis et l'exploitation se réduit, donc préparer un processus de correction d'urgence plutôt que mensuel."
+      },
+      {
+       "icon": "🔍",
+       "title": "Chercheur indépendant",
+       "text": "Adapter sa politique de signalement et vérifier la politique de chaque programme avant d'envoyer un rapport."
+      }
+     ]
+    },
+    {
+     "type": "timeline",
+     "title": "D'où l'on vient, où l'on va",
+     "items": [
+      {
+       "label": "Jusqu'ici",
+       "text": "Politique « 90 + 30 » de Project Zero."
+      },
+      {
+       "label": "Novembre 2026",
+       "text": "Annonce de « Full 90 » ; Anthropic annonce ses nouveaux délais."
+      },
+      {
+       "label": "1er janvier 2027",
+       "text": "Entrée en vigueur du nouveau délai d'Anthropic pour les rapports à partir de cette date."
+      },
+      {
+       "label": "Février 2027",
+       "text": "60 jours chez Project Zero."
+      },
+      {
+       "label": "Janvier 2028",
+       "text": "30 jours chez Project Zero."
+      }
+     ]
+    },
+    {
+     "type": "opinion",
+     "title": "Notre avis",
+     "paragraphs": [
+      "Le raisonnement est cohérent : si une même faille peut être trouvée par plusieurs acteurs en quelques jours, un secret prolongé ne protège plus grand-monde. Mais le coût retombe sur les éditeurs, surtout les petits, qui devront corriger plus vite sans disposer des mêmes moyens. Le risque est une publication de détails avant que le correctif n'atteigne les utilisateurs, notamment pour les logiciels embarqués ou industriels dont la mise à jour est lente.",
+      "À un horizon de un à trois ans, on peut anticiper que d'autres programmes de signalement alignent leurs délais, et que la correction automatisée devienne une condition de survie pour les éditeurs : c'est une projection argumentée, non un fait."
+     ],
+     "verdict": "Des délais plus courts protègent à condition que les correctifs suivent : ils exigent d'investir dans la vitesse de réponse."
+    },
+    {
+     "type": "callout",
+     "title": "À retenir",
+     "text": "Calendrier annoncé : 90 jours maintenant, 60 jours en février 2027, 30 jours en janvier 2028 chez Project Zero."
+    }
+   ],
+   "cover": {
+    "url": "https://hackaday.com/wp-content/uploads/2016/01/darkarts.jpg",
+    "alt": "Illustration Hackaday",
+    "credit": "hackaday.com"
+   }
+  },
+  {
+   "id": "aws-us-east-1-panne-15-novembre-centralisation",
+   "category": "devops",
+   "icon": "☁️",
+   "title": "AWS us-east-1 : une panne passée presque inaperçue le 15 novembre, et ce qu'elle dit de la centralisation",
+   "summary": "Un incident de près de quatre heures a touché l'authentification et la connectivité de la plus ancienne région d'AWS, un dimanche avant l'aube. Une chronique de The Register y voit moins un recul des pannes que leur concentration chez quelques fournisseurs.",
+   "tags": [
+    "AWS",
+    "us-east-1",
+    "panne",
+    "IAM Identity Center",
+    "fiabilité"
+   ],
+   "importance": 3,
+   "readingMinutes": 4,
+   "publishedAt": "2026-11-21T18:17:19+01:00",
+   "sourceDate": "2026-11-21",
+   "sources": [
+    {
+     "title": "AWS got hit by an outage too. Here's why you didn't hear about it",
+     "url": "https://www.theregister.com/columnists/2026/11/21/aws-got-hit-by-an-outage-too-heres-why-you-didnt-hear-about-it/5311511",
+     "publisher": "The Register"
+    }
+   ],
+   "illustration": {
+    "svg": "<svg xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"0 0 640 360\"><defs><linearGradient id=\"g\" x1=\"0\" y1=\"0\" x2=\"1\" y2=\"1\"><stop offset=\"0\" stop-color=\"hsl(160,70%,38%)\"/><stop offset=\"1\" stop-color=\"hsl(200,65%,22%)\"/></linearGradient></defs><rect width=\"640\" height=\"360\" fill=\"url(#g)\"/><circle cx=\"90\" cy=\"300\" r=\"70\" fill=\"#fff\" opacity=\".08\"/><circle cx=\"560\" cy=\"60\" r=\"50\" fill=\"#fff\" opacity=\".08\"/><path d=\"M230 250H420A60 60 0 0 0 420 130A80 80 0 0 0 270 120A65 65 0 0 0 230 250Z\" fill=\"#fff\"/><path d=\"M290 290L350 230M350 290L290 230\" stroke=\"hsl(0,0%,25%)\" stroke-width=\"0\" /></svg>"
+   },
+   "blocks": [
+    {
+     "type": "paragraph",
+     "text": "Une panne chez un grand fournisseur de cloud fait en général la une. Celle du 15 novembre 2026 sur la région us-east-1 d'AWS, la plus ancienne et la plus importante, est pourtant passée presque inaperçue. Dans une chronique publiée le 21 novembre par The Register, Corey Quinn s'interroge sur les raisons de ce silence, et en tire une réflexion sur ce que mesurent réellement les outils de suivi des pannes."
+    },
+    {
+     "type": "heading",
+     "level": 2,
+     "text": "Le déroulé de l'incident"
+    },
+    {
+     "type": "paragraph",
+     "text": "Selon la chronique, AWS a confirmé un incident dans us-east-1. Les premières erreurs sont apparues à 3 h 05, heure du Pacifique : erreurs d'inscription, problèmes d'authentification et de connectivité. Les ingénieurs d'AWS ont été mobilisés cinq minutes plus tard. La page d'état publique n'a fait état de l'incident que 93 minutes après le début, et la fin de l'incident a été annoncée à 6 h 53. Le service le plus touché était IAM Identity Center, par lequel les ingénieurs se connectent à leurs comptes AWS. L'auteur indique que 11 des quelque 12 services qu'il juge de bonne qualité ont été perturbés. La chronique ne décrit aucune cause racine."
+    },
+    {
+     "type": "keyvalue",
+     "items": [
+      {
+       "label": "Région",
+       "value": "us-east-1"
+      },
+      {
+       "label": "Début",
+       "value": "15 novembre, 3 h 05 (heure du Pacifique)"
+      },
+      {
+       "label": "Mobilisation des ingénieurs",
+       "value": "cinq minutes après le début"
+      },
+      {
+       "label": "Première mention sur la page d'état",
+       "value": "93 minutes après le début"
+      },
+      {
+       "label": "Fin de l'incident",
+       "value": "6 h 53"
+      },
+      {
+       "label": "Service le plus touché",
+       "value": "IAM Identity Center"
+      }
+     ]
+    },
+    {
+     "type": "heading",
+     "level": 2,
+     "text": "Pourquoi presque personne ne l'a remarqué"
+    },
+    {
+     "type": "list",
+     "items": [
+      "L'incident a eu lieu un dimanche avant l'aube, heure du Pacifique, quand la plupart des utilisateurs dormaient.",
+      "Il a surtout touché des ingénieurs, pas les utilisateurs finaux : les applications grand public paraissaient fonctionner.",
+      "Une panne de plus d'une journée de Microsoft 365 et un arrêt national de quatre heures des vols aux États-Unis, la semaine précédente, avaient relevé le seuil de ce qui paraît notable.",
+      "Downdetector, qui mesure les signalements de consommateurs, n'a presque pas bougé."
+     ]
+    },
+    {
+     "type": "paragraph",
+     "text": "L'auteur relève qu'un porte-parole d'AWS s'est plaint auprès d'un journaliste que Downdetector indiquait AWS comme touché. Selon lui, Downdetector et la page d'état officielle ne répondent pas à la même question : l'un demande si un événement mondial se produit, l'autre si un service précis fonctionne. L'auteur, qui exploite un outil nommé stop.lying.cloud réécrivant la page d'état d'AWS selon l'expérience des utilisateurs, reconnaît l'ironie de la situation."
+    },
+    {
+     "type": "heading",
+     "level": 2,
+     "text": "L'argument central : la centralisation"
+    },
+    {
+     "type": "paragraph",
+     "text": "D'après Downdetector, les pannes auraient diminué depuis environ 2022. L'auteur soutient que le vrai changement est la centralisation : les entreprises dépendent désormais de quelques grands fournisseurs, pour la messagerie par exemple, de sorte qu'une panne unique touche beaucoup de clients à la fois et se remarque dans le monde entier. Les défaillances qui frappaient autrefois les entreprises une à une étaient considérées comme de banals incidents informatiques. Il note aussi que 34 régions commerciales d'AWS sont en service, dont deux sont décrites comme gravement endommagées à cause du conflit en Iran, avec une perte de données permanente divulguée en septembre."
+    },
+    {
+     "type": "diagram",
+     "svg": "<svg xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"0 0 640 230\"><rect width=\"640\" height=\"230\" rx=\"14\" fill=\"#f3f6fb\"/><text x=\"320\" y=\"34\" text-anchor=\"middle\" font-family=\"system-ui,sans-serif\" font-size=\"16\" font-weight=\"700\" fill=\"#1b2a4a\">Deux outils, deux questions</text><rect x=\"20\" y=\"64\" width=\"181\" height=\"130\" rx=\"10\" fill=\"#fff\" stroke=\"#9db0cf\" stroke-width=\"2\"/><text x=\"110.5\" y=\"92\" text-anchor=\"middle\" font-family=\"system-ui,sans-serif\" font-size=\"13\" font-weight=\"700\" fill=\"#1b2a4a\">Page d'état AWS</text><text x=\"110.5\" y=\"118\" text-anchor=\"middle\" font-family=\"system-ui,sans-serif\" font-size=\"12\" fill=\"#33415c\">un service</text><text x=\"110.5\" y=\"138\" text-anchor=\"middle\" font-family=\"system-ui,sans-serif\" font-size=\"12\" fill=\"#33415c\">précis fonctionne-t-il ?</text><path d=\"M205 129H225M218 122L225 129L218 136\" stroke=\"#5b6f94\" stroke-width=\"2.5\" fill=\"none\"/><rect x=\"229\" y=\"64\" width=\"181\" height=\"130\" rx=\"10\" fill=\"#fff\" stroke=\"#9db0cf\" stroke-width=\"2\"/><text x=\"319.5\" y=\"92\" text-anchor=\"middle\" font-family=\"system-ui,sans-serif\" font-size=\"13\" font-weight=\"700\" fill=\"#1b2a4a\">Downdetector</text><text x=\"319.5\" y=\"118\" text-anchor=\"middle\" font-family=\"system-ui,sans-serif\" font-size=\"12\" fill=\"#33415c\">un événement</text><text x=\"319.5\" y=\"138\" text-anchor=\"middle\" font-family=\"system-ui,sans-serif\" font-size=\"12\" fill=\"#33415c\">touche-t-il le public ?</text><path d=\"M414 129H434M427 122L434 129L427 136\" stroke=\"#5b6f94\" stroke-width=\"2.5\" fill=\"none\"/><rect x=\"438\" y=\"64\" width=\"181\" height=\"130\" rx=\"10\" fill=\"#fff\" stroke=\"#9db0cf\" stroke-width=\"2\"/><text x=\"528.5\" y=\"92\" text-anchor=\"middle\" font-family=\"system-ui,sans-serif\" font-size=\"13\" font-weight=\"700\" fill=\"#1b2a4a\">Cette panne</text><text x=\"528.5\" y=\"118\" text-anchor=\"middle\" font-family=\"system-ui,sans-serif\" font-size=\"12\" fill=\"#33415c\">ingénieurs touchés,</text><text x=\"528.5\" y=\"138\" text-anchor=\"middle\" font-family=\"system-ui,sans-serif\" font-size=\"12\" fill=\"#33415c\">public épargné</text></svg>",
+     "alt": "Schéma comparant la page d'état et Downdetector.",
+     "caption": "L'incident du 15 novembre a surtout concerné des ingénieurs : il est resté presque invisible pour les outils de signalements publics."
+    },
+    {
+     "type": "usecases",
+     "title": "Exemples d'utilisation",
+     "items": [
+      {
+       "icon": "🧑‍🔧",
+       "title": "Équipe d'exploitation",
+       "text": "Prévoir un accès de secours aux comptes cloud indépendant du service d'identité principal, puisque l'authentification peut tomber en premier."
+      },
+      {
+       "icon": "🏗️",
+       "title": "Architecte cloud",
+       "text": "Ne pas supposer que la région la plus ancienne est la plus fiable : tester la bascule vers une autre région pour les services critiques."
+      },
+      {
+       "icon": "📣",
+       "title": "Responsable de la communication de crise",
+       "text": "Ne pas se fier à la seule page d'état du fournisseur pour informer ses clients : surveiller ses propres mesures de bout en bout."
+      }
+     ]
+    },
+    {
+     "type": "timeline",
+     "title": "D'où l'on vient, où l'on va",
+     "items": [
+      {
+       "label": "Septembre 2026",
+       "text": "AWS divulgue une perte de données permanente dans deux régions endommagées, selon la chronique."
+      },
+      {
+       "label": "15 novembre 2026",
+       "text": "Incident de près de quatre heures sur us-east-1."
+      },
+      {
+       "label": "21 novembre 2026",
+       "text": "Publication de la chronique de The Register."
+      }
+     ]
+    },
+    {
+     "type": "opinion",
+     "title": "Notre avis",
+     "paragraphs": [
+      "La chronique a le mérite de poser la bonne question : une panne se mesure-t-elle à son impact réel ou à son écho médiatique ? Ici l'impact était concentré sur ceux qui administrent les comptes, ce qui est précisément la catégorie la moins bien servie par les indicateurs grand public. Reste une limite : l'article est un billet d'opinion et ne donne aucune cause technique.",
+      "À un horizon de un à trois ans, la dépendance à quelques fournisseurs devrait pousser les grands clients à exiger des tableaux de bord de disponibilité indépendants et des garanties plus fines que des pourcentages mensuels. C'est une opinion argumentée et non un fait établi."
+     ],
+     "verdict": "La centralisation fait moins de pannes visibles, mais chacune pèse plus lourd."
+    },
+    {
+     "type": "callout",
+     "title": "À retenir",
+     "text": "Source : une chronique d'opinion ; la cause racine de l'incident n'y est pas détaillée."
+    }
+   ],
+   "cover": {
+    "url": "https://image.theregister.com/5311515.jpg?imageId=5311515&x=0&y=0&cropw=100&croph=100&panox=0&panoy=0&panow=100&panoh=100&width=1200&height=683",
+    "alt": "Illustration The Register",
+    "credit": "www.theregister.com"
+   }
+  },
+  {
+   "id": "hdmi-vers-csi-cartes-rk628-warpkvm-raspberry-pi",
+   "category": "electronique",
+   "icon": "📹",
+   "title": "HDMI vers CSI pour tous : les cartes RK628 de WarpKVM numérisent la vidéo pour Raspberry Pi et autres cartes",
+   "summary": "Le projet WarpKVM publie sous licence CERN OHL des cartes à base de Rockchip RK628, en trois variantes (Luckfox Aura, Raspberry Pi 4 et CM4, Firefly ROC-RK3576-PC), jusqu'à 4K à 30 images par seconde.",
+   "tags": [
+    "HDMI",
+    "CSI",
+    "RK628",
+    "Raspberry Pi",
+    "matériel libre"
+   ],
+   "importance": 3,
+   "readingMinutes": 3,
+   "publishedAt": "2026-11-21T18:17:19+01:00",
+   "sourceDate": "2026-11-21",
+   "sources": [
+    {
+     "title": "HDMI To CSI For Anyone",
+     "url": "https://hackaday.com/2026/11/21/hdmi-to-csi-for-anyone/",
+     "publisher": "Hackaday"
+    }
+   ],
+   "illustration": {
+    "svg": "<svg xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"0 0 640 360\"><defs><linearGradient id=\"g\" x1=\"0\" y1=\"0\" x2=\"1\" y2=\"1\"><stop offset=\"0\" stop-color=\"hsl(30,70%,38%)\"/><stop offset=\"1\" stop-color=\"hsl(70,65%,22%)\"/></linearGradient></defs><rect width=\"640\" height=\"360\" fill=\"url(#g)\"/><circle cx=\"90\" cy=\"300\" r=\"70\" fill=\"#fff\" opacity=\".08\"/><circle cx=\"560\" cy=\"60\" r=\"50\" fill=\"#fff\" opacity=\".08\"/><rect x=\"250\" y=\"120\" width=\"140\" height=\"140\" rx=\"14\" fill=\"#fff\"/><rect x=\"285\" y=\"155\" width=\"70\" height=\"70\" rx=\"8\" fill=\"none\" stroke=\"hsl(0,0%,30%)\" stroke-width=\"6\"/><path d=\"M280 120V85M320 120V85M360 120V85M280 260V295M320 260V295M360 260V295M250 150H215M250 190H215M250 230H215M390 150H425M390 190H425M390 230H425\" stroke=\"#fff\" stroke-width=\"8\"/></svg>"
+   },
+   "blocks": [
+    {
+     "type": "paragraph",
+     "text": "Numériser une source vidéo HDMI est un besoin courant : capturer un poste de travail, piloter un serveur à distance, alimenter un traitement d'image. Les interfaces de capture habituelles déçoivent souvent par leur prix, leurs pilotes ou leur latence. Jenny List présente sur Hackaday, le 21 novembre 2026, une autre voie : convertir le signal HDMI en CSI, l'interface caméra (MIPI Camera Serial Interface) que l'on trouve sur de nombreux systèmes sur puce."
+    },
+    {
+     "type": "heading",
+     "level": 2,
+     "text": "Le principe"
+    },
+    {
+     "type": "paragraph",
+     "text": "La conversion est assurée par une puce passerelle, le Rockchip RK628. Le projet WarpKVM a publié des cartes bâties autour de cette puce, dont les plans et le logiciel sont disponibles dans le dépôt GitHub rk628-bridge-boards. Comme les cartes monocarte (SBC) n'utilisent pas toutes le même connecteur, le projet propose trois variantes, chacune adaptée à un hôte précis : la Luckfox Aura, le Raspberry Pi 4 et le Compute Module 4, et la Firefly ROC-RK3576-PC. Chacune existe en version à une voie et à deux voies."
+    },
+    {
+     "type": "keyvalue",
+     "items": [
+      {
+       "label": "Puce passerelle",
+       "value": "Rockchip RK628"
+      },
+      {
+       "label": "Sortie",
+       "value": "CSI (MIPI Camera Serial Interface)"
+      },
+      {
+       "label": "Variantes",
+       "value": "Luckfox Aura ; Raspberry Pi 4 et CM4 ; Firefly ROC-RK3576-PC"
+      },
+      {
+       "label": "Performances maximales",
+       "value": "4K à 30 images/s ou 1080p à 120 images/s"
+      },
+      {
+       "label": "Licence",
+       "value": "CERN Open Hardware Licence"
+      },
+      {
+       "label": "Dépôt",
+       "value": "rk628-bridge-boards sur GitHub"
+      }
+     ]
+    },
+    {
+     "type": "heading",
+     "level": 2,
+     "text": "Performances et limites"
+    },
+    {
+     "type": "paragraph",
+     "text": "Selon l'article, les plafonds sont de 4K à 30 images par seconde ou de 1080p à 120 images par seconde, ce qui suffit à la plupart des usages. Le projet fournit aussi des configurations logicielles pour ses cartes. En contrepartie, chaque carte est liée à un hôte : les brochages diffèrent, et les variantes ne sont donc pas interchangeables. L'article ne parle ni de prix ni de disponibilité."
+    },
+    {
+     "type": "paragraph",
+     "text": "Les cartes ont été pensées pour des applications KVM (clavier, vidéo, souris) qui permettent de contrôler un ordinateur à distance, mais l'auteure suggère qu'elles conviennent à toute personne travaillant sur de la vidéo numérique. Elle mentionne aussi un projet antérieur, fondé sur un microcontrôleur ESP32-P4 : son interface caméra est électriquement la même que celle du Raspberry Pi, de sorte que les pilotes de ce projet pourraient aider à faire fonctionner ces cartes sur un P4."
+    },
+    {
+     "type": "paragraph",
+     "text": "Dans les commentaires, des lecteurs observent que le NanoKVM reposait sur une approche voisine, avec une carte HDMI vers CSI empilée sur un Compute Module. D'autres rappellent que CSI est une norme MIPI dont la spécification complète est payante, et que l'interface d'affichage DSI n'est pas compatible avec CSI : une sortie d'écran ne peut donc pas alimenter facilement une entrée caméra."
+    },
+    {
+     "type": "diagram",
+     "svg": "<svg xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"0 0 640 230\"><rect width=\"640\" height=\"230\" rx=\"14\" fill=\"#f3f6fb\"/><text x=\"320\" y=\"34\" text-anchor=\"middle\" font-family=\"system-ui,sans-serif\" font-size=\"16\" font-weight=\"700\" fill=\"#1b2a4a\">De la source HDMI au Raspberry Pi</text><rect x=\"20\" y=\"64\" width=\"129\" height=\"130\" rx=\"10\" fill=\"#fff\" stroke=\"#9db0cf\" stroke-width=\"2\"/><text x=\"84.5\" y=\"92\" text-anchor=\"middle\" font-family=\"system-ui,sans-serif\" font-size=\"13\" font-weight=\"700\" fill=\"#1b2a4a\">Source</text><text x=\"84.5\" y=\"118\" text-anchor=\"middle\" font-family=\"system-ui,sans-serif\" font-size=\"12\" fill=\"#33415c\">ordinateur, console,</text><text x=\"84.5\" y=\"138\" text-anchor=\"middle\" font-family=\"system-ui,sans-serif\" font-size=\"12\" fill=\"#33415c\">serveur</text><path d=\"M153 129H173M166 122L173 129L166 136\" stroke=\"#5b6f94\" stroke-width=\"2.5\" fill=\"none\"/><rect x=\"177\" y=\"64\" width=\"129\" height=\"130\" rx=\"10\" fill=\"#fff\" stroke=\"#9db0cf\" stroke-width=\"2\"/><text x=\"241.5\" y=\"92\" text-anchor=\"middle\" font-family=\"system-ui,sans-serif\" font-size=\"13\" font-weight=\"700\" fill=\"#1b2a4a\">HDMI</text><text x=\"241.5\" y=\"118\" text-anchor=\"middle\" font-family=\"system-ui,sans-serif\" font-size=\"12\" fill=\"#33415c\">signal vidéo</text><text x=\"241.5\" y=\"138\" text-anchor=\"middle\" font-family=\"system-ui,sans-serif\" font-size=\"12\" fill=\"#33415c\">numérique</text><path d=\"M310 129H330M323 122L330 129L323 136\" stroke=\"#5b6f94\" stroke-width=\"2.5\" fill=\"none\"/><rect x=\"334\" y=\"64\" width=\"129\" height=\"130\" rx=\"10\" fill=\"#fff\" stroke=\"#9db0cf\" stroke-width=\"2\"/><text x=\"398.5\" y=\"92\" text-anchor=\"middle\" font-family=\"system-ui,sans-serif\" font-size=\"13\" font-weight=\"700\" fill=\"#1b2a4a\">RK628</text><text x=\"398.5\" y=\"118\" text-anchor=\"middle\" font-family=\"system-ui,sans-serif\" font-size=\"12\" fill=\"#33415c\">puce passerelle</text><text x=\"398.5\" y=\"138\" text-anchor=\"middle\" font-family=\"system-ui,sans-serif\" font-size=\"12\" fill=\"#33415c\">HDMI vers CSI</text><path d=\"M467 129H487M480 122L487 129L480 136\" stroke=\"#5b6f94\" stroke-width=\"2.5\" fill=\"none\"/><rect x=\"491\" y=\"64\" width=\"129\" height=\"130\" rx=\"10\" fill=\"#fff\" stroke=\"#9db0cf\" stroke-width=\"2\"/><text x=\"555.5\" y=\"92\" text-anchor=\"middle\" font-family=\"system-ui,sans-serif\" font-size=\"13\" font-weight=\"700\" fill=\"#1b2a4a\">SBC</text><text x=\"555.5\" y=\"118\" text-anchor=\"middle\" font-family=\"system-ui,sans-serif\" font-size=\"12\" fill=\"#33415c\">entrée caméra CSI,</text><text x=\"555.5\" y=\"138\" text-anchor=\"middle\" font-family=\"system-ui,sans-serif\" font-size=\"12\" fill=\"#33415c\">1 ou 2 voies</text></svg>",
+     "alt": "Schéma de la conversion HDMI vers CSI avec la puce RK628.",
+     "caption": "La puce RK628 convertit le flux HDMI en flux caméra CSI, directement exploitable par une carte monocarte."
+    },
+    {
+     "type": "usecases",
+     "title": "Exemples d'utilisation",
+     "items": [
+      {
+       "icon": "🖧",
+       "title": "Baie de serveurs domestique",
+       "text": "Fabriquer un KVM sur IP à bas coût pour voir l'écran d'un serveur au démarrage, avant même que le système d'exploitation ne soit lancé."
+      },
+      {
+       "icon": "🎥",
+       "title": "Capture vidéo embarquée",
+       "text": "Utiliser un Raspberry Pi comme enregistreur ou comme entrée d'un traitement d'image, avec une latence plus faible que celle de nombreux adaptateurs USB."
+      },
+      {
+       "icon": "🎓",
+       "title": "Atelier d'électronique",
+       "text": "Étudier comment une puce passerelle traduit un protocole vidéo en un autre, grâce à des plans ouverts publiés sous licence CERN OHL."
+      }
+     ]
+    },
+    {
+     "type": "timeline",
+     "title": "D'où l'on vient, où l'on va",
+     "items": [
+      {
+       "label": "Avant",
+       "text": "Des projets comme le NanoKVM ou une carte à base d'ESP32-P4 explorent déjà l'HDMI vers CSI."
+      },
+      {
+       "label": "21 novembre 2026",
+       "text": "Hackaday présente les cartes RK628 de WarpKVM."
+      },
+      {
+       "label": "À suivre",
+       "text": "Prix, disponibilité et pilotes pour d'autres cartes, que l'article ne détaille pas."
+      }
+     ]
+    },
+    {
+     "type": "opinion",
+     "title": "Notre avis",
+     "paragraphs": [
+      "L'intérêt est dans l'ouverture : des plans publiés sous licence libre et un composant courant permettent à chacun d'adapter la conception à sa carte. L'inconvénient est le morcellement : un modèle par hôte, avec des brochages différents, empêche tout standard.",
+      "À un horizon de un à trois ans, on peut s'attendre à plus de cartes monocartes avec entrée vidéo native, ce qui réduirait le besoin de telles passerelles ; c'est une projection, pas un fait annoncé par le projet."
+     ],
+     "verdict": "Une brique utile et ouverte, mais dont chaque variante reste liée à un seul hôte."
+    },
+    {
+     "type": "callout",
+     "title": "À retenir",
+     "text": "Plafonds annoncés : 4K à 30 images par seconde ou 1080p à 120 images par seconde."
+    }
+   ],
+   "cover": {
+    "url": "https://hackaday.com/wp-content/uploads/2026/11/hdmi-csi-featured.jpg",
+    "alt": "Illustration Hackaday",
+    "credit": "hackaday.com"
+   }
+  }
+ ]
+}
