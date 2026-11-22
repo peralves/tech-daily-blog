@@ -1,0 +1,980 @@
+{
+  "schemaVersion": "1.0",
+  "date": "2026-11-22",
+  "generatedAt": "2026-11-22T04:17:26+01:00",
+  "title": "Tech : une faille Ghostscript à corriger, un malware Android assisté par IA, des modèles qui lisent les octets",
+  "summary": "Cette édition revient sur la faille Upload2Shell de Ghostscript, le cadriciel Android Bazuka, les incidents de données chez des hébergeurs d'inférence, et trois sujets de développement et de matériel.",
+  "highlights": [
+    "Upload2Shell : un fichier téléversé peut devenir exécution de commandes via Ghostscript ; le correctif existe depuis septembre.",
+    "Bazuka : un cheval de Troie Android modulaire avec assistant d'IA pour trier les victimes.",
+    "OpenRouter écarte trois fournisseurs d'inférence après des incidents signalés par Dragos.",
+    "Un modèle d'IA lit et écrit des exécutables à partir d'un vidage hexadécimal, sur de petits programmes."
+  ],
+  "meta": {
+    "generator": "claude-scheduled-task"
+  },
+  "posts": [
+    {
+      "id": "upload2shell-ghostscript-cve-2026-125396",
+      "category": "cybersecurite",
+      "icon": "🖨️",
+      "title": "Upload2Shell : une faille de Ghostscript transforme un simple fichier téléversé en exécution de commandes",
+      "summary": "Un chercheur de pwn.ai montre qu'un document piégé peut sortir du bac à sable de Ghostscript et lancer des commandes sur WordPress, Roundcube, CUPS ou chez Google. Le correctif existe depuis septembre ; il faut vérifier que les paquets système sont à jour.",
+      "tags": [
+        "Ghostscript",
+        "CVE-2026-125396",
+        "WordPress",
+        "Roundcube",
+        "ImageMagick"
+      ],
+      "importance": 5,
+      "readingMinutes": 6,
+      "publishedAt": "2026-11-22T04:17:26+01:00",
+      "sourceDate": "2026-11-18",
+      "sources": [
+        {
+          "title": "Upload2Shell (CVE-2026-125396)",
+          "url": "https://pwn.ai/upload2shell",
+          "publisher": "pwn.ai"
+        }
+      ],
+      "illustration": {
+        "svg": "<svg xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"0 0 640 360\"><defs><linearGradient id=\"g\" x1=\"0\" y1=\"0\" x2=\"1\" y2=\"1\"><stop offset=\"0\" stop-color=\"hsl(175,65%,38%)\"/><stop offset=\"1\" stop-color=\"hsl(215,60%,20%)\"/></linearGradient></defs><rect width=\"640\" height=\"360\" fill=\"url(#g)\"/><circle cx=\"90\" cy=\"300\" r=\"70\" fill=\"#fff\" opacity=\".08\"/><circle cx=\"560\" cy=\"60\" r=\"50\" fill=\"#fff\" opacity=\".08\"/><rect x=\"230\" y=\"60\" width=\"180\" height=\"240\" rx=\"12\" fill=\"#fff\"/><path d=\"M260 110H380M260 150H380M260 190H340\" stroke=\"#475569\" stroke-width=\"10\" stroke-linecap=\"round\"/><path d=\"M360 230L400 270L440 230\" fill=\"none\" stroke=\"#fff\" stroke-width=\"14\" stroke-linecap=\"round\" opacity=\".0\"/><circle cx=\"410\" cy=\"270\" r=\"40\" fill=\"#fff\" stroke=\"#1f2937\" stroke-width=\"8\"/><path d=\"M395 255L425 285M425 255L395 285\" stroke=\"#1f2937\" stroke-width=\"10\" stroke-linecap=\"round\"/></svg>"
+      },
+      "blocks": [
+        {
+          "type": "paragraph",
+          "text": "Ghostscript est l'un de ces logiciels discrets que presque personne n'installe volontairement, mais que des centaines d'applications appellent en coulisses : aperçu de pièce jointe, miniature d'un PDF, conversion d'image, file d'impression. Une faille dans cet interpréteur PostScript et PDF a donc une portée bien plus large que son nom ne le laisse croire."
+        },
+        {
+          "type": "paragraph",
+          "text": "C'est ce que démontre Paulos Yibelo, de pwn.ai, avec « Upload2Shell », référencée CVE-2026-125396. Selon son rapport, un document spécialement construit déclenche une utilisation de mémoire après libération (use-after-free) dans le chargeur de polices Type 1. Cette corruption permet de franchir le bac à sable `-dSAFER`, censé empêcher un document d'agir sur le système, puis d'exécuter des commandes avec les droits du processus qui effectue le rendu."
+        },
+        {
+          "type": "heading",
+          "level": 2,
+          "text": "Pourquoi un simple téléversement suffit"
+        },
+        {
+          "type": "paragraph",
+          "text": "Le piège tient à la discrétion de Ghostscript. Un fichier nommé `.png` ou `.jpg` peut être aiguillé vers lui lors d'une conversion passant par ImageMagick, sans que l'extension ne protège de rien. Toute application qui accepte un fichier d'un utilisateur, puis le prévisualise ou le redimensionne, peut donc exposer ce chemin."
+        },
+        {
+          "type": "paragraph",
+          "text": "Le chercheur a vérifié l'exploitation en conditions contrôlées sur de nombreux produits. Il a obtenu l'exécution de commandes sur un Debian 13 avec CUPS (une requête d'impression IPP anonyme sur une file partagée), sur Roundcube 1.7.2 (il suffit que le destinataire ouvre le message), sur Plesk Obsidian 18.0.79 et sur WordPress. Pour ce dernier, la faille touche les branches 7.0.0 à 7.0.3 et 6.9.0 à 6.9.6 ; l'exploitation exige la capacité `upload_files`, que possèdent par défaut les comptes de niveau auteur et au-dessus, et elle est suivie séparément sous la référence CVE-2026-65640."
+        },
+        {
+          "type": "heading",
+          "level": 2,
+          "text": "Qui est touché, et ce qui est corrigé"
+        },
+        {
+          "type": "keyvalue",
+          "items": [
+            {
+              "label": "Correctif amont",
+              "value": "Ghostscript 10.08.0, publié le 8 septembre 2026"
+            },
+            {
+              "label": "Debian 13",
+              "value": "version 10.05.1~dfsg-1+deb13u3 (10 octobre 2026)"
+            },
+            {
+              "label": "Ubuntu",
+              "value": "paquets corrigés pour sept versions prises en charge (USN-8949-1, 21 octobre 2026)"
+            },
+            {
+              "label": "Google",
+              "value": "chemin de production atténué le 10 novembre 2026"
+            },
+            {
+              "label": "Exploitation dans la nature",
+              "value": "non rapportée par le chercheur ; démonstrations en laboratoire et sur une preuve envoyée à Google"
+            }
+          ]
+        },
+        {
+          "type": "paragraph",
+          "text": "La chronologie publiée est instructive : découverte le 27 juillet, correctif amont le 8 septembre, mais attribution du numéro CVE seulement le 6 novembre et publication le 9 novembre. Entre-temps, les distributions avaient déjà diffusé leurs mises à jour. Certaines applications ont aussi verrouillé leur propre porte d'entrée : Roundcube a restreint les types d'images joints dangereux le 19 octobre (CVE-2026-114727) et WordPress a livré un correctif dès le 12 août."
+        },
+        {
+          "type": "paragraph",
+          "text": "Les versions observées ne forment pas une plage officielle : le rapport cite notamment Ghostscript 10.05.0, 10.05.1 et même 9.54.0 chez Plesk. Autrement dit, toute version antérieure à 10.08.0 non corrigée par sa distribution doit être considérée comme suspecte. Plusieurs projets d'IA et de gestion documentaire (Gradio, ComfyUI, Paperless-ngx, Home Assistant) sont aussi listés comme chemins plausibles, mais le rapport ne confirme un enchaînement direct que pour Gradio."
+        },
+        {
+          "type": "heading",
+          "level": 2,
+          "text": "Que faire concrètement"
+        },
+        {
+          "type": "paragraph",
+          "text": "La première mesure consiste à mettre à jour le paquet Ghostscript du système (`apt upgrade` sur Debian et Ubuntu) et à redémarrer les services qui l'utilisent. La deuxième est de vérifier les applications web hébergées : WordPress, Roundcube, wikis et outils de gestion documentaire. La troisième est de limiter ce que l'utilisateur du service peut faire, par exemple avec AppArmor, dont le rapport note qu'il a bloqué le shell dans un essai."
+        },
+        {
+          "type": "diagram",
+          "svg": "<svg xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"0 0 640 220\" font-family=\"system-ui,sans-serif\"><rect width=\"640\" height=\"220\" rx=\"14\" fill=\"#f1f5f9\"/><text x=\"320\" y=\"32\" text-anchor=\"middle\" font-size=\"16\" font-weight=\"700\" fill=\"#0f172a\">Du téléversement à l&#x27;exécution de commandes</text><rect x=\"20\" y=\"60\" width=\"97\" height=\"120\" rx=\"12\" fill=\"hsl(175,60%,88%)\" stroke=\"hsl(175,55%,35%)\" stroke-width=\"2\"/><text x=\"68.5\" y=\"95\" text-anchor=\"middle\" font-size=\"14\" font-weight=\"700\" fill=\"#0f172a\">Fichier piégé</text><text x=\"68.5\" y=\"117\" text-anchor=\"middle\" font-size=\"14\" font-weight=\"400\" fill=\"#0f172a\">« image.png »</text><path d=\"M121 120H141M135 112L143 120L135 128\" stroke=\"#334155\" stroke-width=\"3\" fill=\"none\" stroke-linecap=\"round\"/><rect x=\"145\" y=\"60\" width=\"97\" height=\"120\" rx=\"12\" fill=\"hsl(175,60%,88%)\" stroke=\"hsl(175,55%,35%)\" stroke-width=\"2\"/><text x=\"193.5\" y=\"95\" text-anchor=\"middle\" font-size=\"14\" font-weight=\"700\" fill=\"#0f172a\">Application</text><text x=\"193.5\" y=\"117\" text-anchor=\"middle\" font-size=\"14\" font-weight=\"400\" fill=\"#0f172a\">aperçu / miniature</text><path d=\"M246 120H266M260 112L268 120L260 128\" stroke=\"#334155\" stroke-width=\"3\" fill=\"none\" stroke-linecap=\"round\"/><rect x=\"270\" y=\"60\" width=\"97\" height=\"120\" rx=\"12\" fill=\"hsl(175,60%,88%)\" stroke=\"hsl(175,55%,35%)\" stroke-width=\"2\"/><text x=\"318.5\" y=\"95\" text-anchor=\"middle\" font-size=\"14\" font-weight=\"700\" fill=\"#0f172a\">ImageMagick</text><text x=\"318.5\" y=\"117\" text-anchor=\"middle\" font-size=\"14\" font-weight=\"400\" fill=\"#0f172a\">délégué Ghostscript</text><path d=\"M371 120H391M385 112L393 120L385 128\" stroke=\"#334155\" stroke-width=\"3\" fill=\"none\" stroke-linecap=\"round\"/><rect x=\"395\" y=\"60\" width=\"97\" height=\"120\" rx=\"12\" fill=\"hsl(175,60%,88%)\" stroke=\"hsl(175,55%,35%)\" stroke-width=\"2\"/><text x=\"443.5\" y=\"95\" text-anchor=\"middle\" font-size=\"14\" font-weight=\"700\" fill=\"#0f172a\">Ghostscript</text><text x=\"443.5\" y=\"117\" text-anchor=\"middle\" font-size=\"14\" font-weight=\"400\" fill=\"#0f172a\">use-after-free</text><path d=\"M496 120H516M510 112L518 120L510 128\" stroke=\"#334155\" stroke-width=\"3\" fill=\"none\" stroke-linecap=\"round\"/><rect x=\"520\" y=\"60\" width=\"97\" height=\"120\" rx=\"12\" fill=\"hsl(175,60%,88%)\" stroke=\"hsl(175,55%,35%)\" stroke-width=\"2\"/><text x=\"568.5\" y=\"95\" text-anchor=\"middle\" font-size=\"14\" font-weight=\"700\" fill=\"#0f172a\">Commandes</text><text x=\"568.5\" y=\"117\" text-anchor=\"middle\" font-size=\"14\" font-weight=\"400\" fill=\"#0f172a\">droits du service</text></svg>",
+          "alt": "Schéma en cinq étapes montrant un fichier piégé traversant une application, ImageMagick puis Ghostscript avant d'exécuter des commandes.",
+          "caption": "Le chemin décrit par le chercheur : le fichier ne ressemble pas à un document PostScript, mais finit entre les mains de Ghostscript."
+        },
+        {
+          "type": "usecases",
+          "title": "Exemples d'utilisation",
+          "items": [
+            {
+              "icon": "🛠️",
+              "title": "Administrateur d'un serveur de messagerie",
+              "text": "Un hébergeur qui exploite Roundcube vérifie la version de Ghostscript installée et applique la mise à jour de sa distribution avant que les messages ne soient prévisualisés."
+            },
+            {
+              "icon": "🌐",
+              "title": "Éditeur d'un site WordPress",
+              "text": "Une agence passe en revue les comptes ayant le droit de téléverser des fichiers et retire cette capacité à ceux qui n'en ont pas l'usage."
+            },
+            {
+              "icon": "🖨️",
+              "title": "Responsable d'un parc d'impression",
+              "text": "Un service informatique recense les files CUPS partagées sur le réseau et coupe l'accès anonyme aux imprimantes exposées."
+            }
+          ]
+        },
+        {
+          "type": "timeline",
+          "title": "D'où l'on vient, où l'on va",
+          "items": [
+            {
+              "label": "27 juillet 2026",
+              "text": "Découverte de la faille par le chercheur."
+            },
+            {
+              "label": "8 septembre 2026",
+              "text": "Ghostscript 10.08.0 corrige le défaut."
+            },
+            {
+              "label": "21 octobre 2026",
+              "text": "Ubuntu publie des paquets corrigés pour sept versions."
+            },
+            {
+              "label": "9 novembre 2026",
+              "text": "Publication de la CVE-2026-125396."
+            },
+            {
+              "label": "10 novembre 2026",
+              "text": "Google atténue le chemin de production concerné."
+            }
+          ]
+        },
+        {
+          "type": "opinion",
+          "title": "Notre avis",
+          "paragraphs": [
+            "L'intérêt de cette affaire n'est pas la sophistication de la faille, mais sa diffusion. Ghostscript est une dépendance transitive : on l'oublie, donc on ne la met pas à jour avec le même soin qu'un serveur web. Les distributions ont fait leur travail plus vite que les éditeurs d'applications, ce qui montre l'intérêt des mises à jour automatiques de sécurité.",
+            "À un horizon d'un à trois ans, on peut raisonnablement attendre que davantage d'applications abandonnent l'appel direct à de vieux interpréteurs de documents, au profit de conversions isolées dans des conteneurs sans droits. C'est une opinion, pas un fait : le coût de ce travail reste souvent supérieur à la perception du risque."
+          ],
+          "verdict": "Mettre à jour Ghostscript ne suffit pas à clore le sujet : il faut aussi savoir quelles applications lui confient des fichiers venus de l'extérieur."
+        },
+        {
+          "type": "callout",
+          "title": "À retenir",
+          "text": "La faille est corrigée en amont depuis le 8 septembre (Ghostscript 10.08.0). Aucune exploitation dans la nature n'est rapportée à ce stade ; la mise à jour système reste la mesure essentielle."
+        }
+      ]
+    },
+    {
+      "id": "bazuka-logiciel-malveillant-android-llm",
+      "category": "cybersecurite",
+      "icon": "📱",
+      "title": "Bazuka : un logiciel malveillant Android à 23 modules, dont un panneau de contrôle qui note les victimes grâce à une IA",
+      "summary": "ThreatFabric décrit un cadriciel complet de cheval de Troie bancaire, découvert fin octobre, qui masque ses actions derrière une fausse capture d'écran et s'appuie sur des modèles de langage pour trier ses cibles.",
+      "tags": [
+        "Android",
+        "Bazuka",
+        "ThreatFabric",
+        "cheval de Troie bancaire",
+        "ADB"
+      ],
+      "importance": 4,
+      "readingMinutes": 5,
+      "publishedAt": "2026-11-22T04:17:26+01:00",
+      "sourceDate": "2026-11-20",
+      "sources": [
+        {
+          "title": "Bazuka Android Malware Uses Fake Screen Overlays to Hide Credential Theft and Device Control",
+          "url": "https://thehackernews.com/2026/11/bazuka-android-malware-uses-fake-screen.html",
+          "publisher": "The Hacker News"
+        }
+      ],
+      "illustration": {
+        "svg": "<svg xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"0 0 640 360\"><defs><linearGradient id=\"g\" x1=\"0\" y1=\"0\" x2=\"1\" y2=\"1\"><stop offset=\"0\" stop-color=\"hsl(175,65%,38%)\"/><stop offset=\"1\" stop-color=\"hsl(215,60%,20%)\"/></linearGradient></defs><rect width=\"640\" height=\"360\" fill=\"url(#g)\"/><circle cx=\"90\" cy=\"300\" r=\"70\" fill=\"#fff\" opacity=\".08\"/><circle cx=\"560\" cy=\"60\" r=\"50\" fill=\"#fff\" opacity=\".08\"/><rect x=\"250\" y=\"50\" width=\"140\" height=\"260\" rx=\"24\" fill=\"#fff\"/><rect x=\"266\" y=\"80\" width=\"108\" height=\"190\" rx=\"8\" fill=\"#334155\"/><circle cx=\"320\" cy=\"290\" r=\"9\" fill=\"#94a3b8\"/><path d=\"M285 140H355M285 175H340M285 210H350\" stroke=\"#fff\" stroke-width=\"9\" stroke-linecap=\"round\" opacity=\".8\"/><path d=\"M440 120L500 180L440 240\" fill=\"none\" stroke=\"#fff\" stroke-width=\"12\" stroke-linecap=\"round\" stroke-linejoin=\"round\" opacity=\".7\"/></svg>"
+      },
+      "blocks": [
+        {
+          "type": "paragraph",
+          "text": "Les chevaux de Troie bancaires sur Android évoluent vers de véritables plateformes industrielles. La société néerlandaise ThreatFabric vient d'en décrire une nouvelle, baptisée Bazuka, découverte fin octobre 2026 pendant l'analyse d'un autre logiciel malveillant, spécialisé dans le relais NFC pour les paiements sans contact."
+        },
+        {
+          "type": "paragraph",
+          "text": "La firme parle d'un « cadriciel complet » : un programme d'amorçage, un noyau et 23 modules. Deux détails retiennent l'attention des spécialistes : l'usage d'une fausse capture d'écran pour dissimuler l'activité du malware, et l'intégration de modèles de langage dans le panneau d'administration des opérateurs."
+        },
+        {
+          "type": "heading",
+          "level": 2,
+          "text": "Comment Bazuka s'installe et se cache"
+        },
+        {
+          "type": "paragraph",
+          "text": "La distribution passerait par des « traffers », des intermédiaires chargés d'attirer les victimes avec des publicités sur les réseaux sociaux ou de faux sites, et peut-être par Google Play. Un échantillon observé se faisait passer pour une application TikTok « premium » destinée aux adultes, sous le nom de paquet `com.tiktok.premium`. Deux variantes ont été vues : un dropper qui demande l'autorisation d'installer des applications tierces avant de télécharger un second paquet, et un downloader qui récupère directement la charge principale."
+        },
+        {
+          "type": "paragraph",
+          "text": "Une fois en place, le noyau ouvre deux canaux WebSocket vers le serveur de commande, l'un pour les ordres, l'autre pour l'exfiltration et la diffusion de l'écran. Il abuse des services d'accessibilité et du pont de débogage Android (ADB) pour s'accorder lui-même des permissions, active le débogage sans fil, intercepte le code d'appairage, puis désactive Google Play Protect. Il peut aussi déclencher une routine d'autodestruction qui efface les données locales."
+        },
+        {
+          "type": "paragraph",
+          "text": "La fonction qui donne son nom au rapport est discrète mais efficace : le logiciel peut capturer l'écran d'accueil ou de verrouillage et l'afficher en surimpression à la demande. La victime croit voir un téléphone au repos pendant que des actions se déroulent derrière."
+        },
+        {
+          "type": "heading",
+          "level": 2,
+          "text": "Une boîte à outils modulaire"
+        },
+        {
+          "type": "list",
+          "items": [
+            "**Vol financier et crypto** : remplacement d'adresses de portefeuilles copiées, saisie des numéros de carte et mots de passe, capture des codes à usage unique, lecture de cartes bancaires sans contact.",
+            "**Surveillance** : localisation, caméra et micro, contacts, gestionnaire de fichiers.",
+            "**Contrôle à distance** : commandes ADB, diffusion de l'écran, proxy TCP inverse, capture du code, du mot de passe ou du schéma de verrouillage.",
+            "**Hameçonnage et persistance** : fausses fenêtres HTML, redirection d'appels, protection contre la désinstallation."
+          ]
+        },
+        {
+          "type": "paragraph",
+          "text": "Le panneau des opérateurs mélange anglais et russe, et aucun acteur n'est rattaché à Bazuka à ce jour. L'originalité est ailleurs : le panneau peut interroger un modèle de langage, hébergé localement ou accessible par API, pour évaluer l'intérêt de chaque victime. Un exemple de requête demande de classer les victimes selon leur attrait comme cibles. Zimperium décrit de son côté ArcticRAT, un cheval de Troie à accès distant qui utilise lui aussi des modèles de langage pour analyser les SMS volés et les données d'applications, avec 129 commandes."
+        },
+        {
+          "type": "heading",
+          "level": 2,
+          "text": "Ce que l'article ne dit pas"
+        },
+        {
+          "type": "paragraph",
+          "text": "La source ne propose aucune consigne de détection ou de protection : il faut se reporter au rapport technique de ThreatFabric. Les mesures habituelles restent valables : n'installer des applications que depuis la boutique officielle, refuser l'installation de sources inconnues, se méfier des demandes d'accessibilité et vérifier régulièrement qu'une application de sécurité n'a pas été désactivée."
+        },
+        {
+          "type": "usecases",
+          "title": "Exemples d'utilisation",
+          "items": [
+            {
+              "icon": "🏦",
+              "title": "Client d'une banque en ligne",
+              "text": "Il télécharge une application « premium » vue dans une publicité ; son code de carte et ses codes à usage unique partent vers un serveur sans qu'il voie quoi que ce soit."
+            },
+            {
+              "icon": "🔍",
+              "title": "Analyste d'un centre de sécurité",
+              "text": "Il surveille les demandes d'accessibilité et l'activation du débogage sans fil sur les terminaux d'entreprise, signaux utiles pour repérer ce type de logiciel."
+            },
+            {
+              "icon": "👪",
+              "title": "Parent d'un adolescent",
+              "text": "Il vérifie que l'installation d'applications hors boutique officielle est bloquée sur le téléphone de son enfant."
+            }
+          ]
+        },
+        {
+          "type": "timeline",
+          "title": "D'où l'on vient, où l'on va",
+          "items": [
+            {
+              "label": "Fin octobre 2026",
+              "text": "ThreatFabric découvre Bazuka en analysant un logiciel malveillant de relais NFC."
+            },
+            {
+              "label": "20 novembre 2026",
+              "text": "Publication du rapport et de sa couverture presse."
+            },
+            {
+              "label": "Prochains mois",
+              "text": "Évolution possible des panneaux de contrôle vers davantage d'automatisation, sans date connue."
+            }
+          ]
+        },
+        {
+          "type": "opinion",
+          "title": "Notre avis",
+          "paragraphs": [
+            "Le point inquiétant n'est pas la technique de vol, déjà connue, mais l'industrialisation : un panneau qui forme des « traffers », fabrique des droppers sur mesure et trie les victimes réduit le niveau de compétence exigé des criminels. L'IA ne rend pas le logiciel plus furtif ; elle rend l'exploitation plus rentable.",
+            "À un horizon d'un à trois ans, on peut attendre une généralisation de ces assistants dans les outils criminels, et une réponse symétrique des défenseurs. Il s'agit d'une projection argumentée, pas d'un constat : les rapports publics décrivent pour l'instant des fonctions d'aide à la décision, pas des attaques autonomes."
+          ],
+          "verdict": "Un cheval de Troie bancaire est désormais géré comme un produit, avec modules, panneau d'administration et assistant d'IA."
+        },
+        {
+          "type": "callout",
+          "title": "À retenir",
+          "text": "Bazuka n'est pas attribué à un groupe connu. La parade reste l'hygiène de base : sources officielles uniquement, méfiance envers les droits d'accessibilité."
+        }
+      ]
+    },
+    {
+      "id": "llm-code-machine-octets-hexadecimal",
+      "category": "ia",
+      "icon": "🧮",
+      "title": "Programmer en octets : un modèle d'IA lit, modifie et écrit des exécutables à partir d'un simple vidage hexadécimal",
+      "summary": "Deux chercheurs montrent qu'un modèle généraliste, sans compilateur ni désassembleur, peut comprendre un binaire, y ajouter une fonction et en produire un de zéro. Les résultats portent sur de petits programmes et une seule exécution.",
+      "tags": [
+        "LLM",
+        "rétro-ingénierie",
+        "ELF",
+        "analyse de malware",
+        "binaire"
+      ],
+      "importance": 4,
+      "readingMinutes": 6,
+      "publishedAt": "2026-11-22T04:17:26+01:00",
+      "sourceDate": "2026-11-21",
+      "sources": [
+        {
+          "title": "Machine Code Programming : LLMs reading and writing executables",
+          "url": "https://sgiannopoulos.github.io/blog/machine-code-programming/",
+          "publisher": "Blog de S. Giannopoulos"
+        }
+      ],
+      "illustration": {
+        "svg": "<svg xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"0 0 640 360\"><defs><linearGradient id=\"g\" x1=\"0\" y1=\"0\" x2=\"1\" y2=\"1\"><stop offset=\"0\" stop-color=\"hsl(320,65%,38%)\"/><stop offset=\"1\" stop-color=\"hsl(0,60%,20%)\"/></linearGradient></defs><rect width=\"640\" height=\"360\" fill=\"url(#g)\"/><circle cx=\"90\" cy=\"300\" r=\"70\" fill=\"#fff\" opacity=\".08\"/><circle cx=\"560\" cy=\"60\" r=\"50\" fill=\"#fff\" opacity=\".08\"/><rect x=\"150\" y=\"80\" width=\"340\" height=\"200\" rx=\"14\" fill=\"#fff\"/><g font-family=\"monospace\" font-size=\"26\" fill=\"#1f2937\"><text x=\"175\" y=\"130\">7f 45 4c 46 02 01</text><text x=\"175\" y=\"175\">48 89 e5 b8 3c 00</text><text x=\"175\" y=\"220\">0f 05 90 c3 00 00</text></g><path d=\"M470 300L540 230\" stroke=\"#fff\" stroke-width=\"10\" stroke-linecap=\"round\"/></svg>"
+      },
+      "blocks": [
+        {
+          "type": "paragraph",
+          "text": "Écrire un programme en langage machine, octet par octet, est un exercice que les humains abandonnent depuis des décennies au profit des compilateurs. Un rapport publié en novembre 2026 par George Xenos et Sotiris Giannopoulos pose une question simple : un modèle de langage généraliste peut-il raisonner directement sur des exécutables, sans outil intermédiaire ?"
+        },
+        {
+          "type": "paragraph",
+          "text": "Les auteurs appellent cette approche « Machine Code Programming ». Le modèle principal, GPT-6.1 Sol utilisé via Codex CLI avec un effort de raisonnement élevé, reçoit un vidage `xxd` collé dans la requête, soit environ 2,4 jetons par octet. Un relais retire tous les outils de chaque requête, et le flux est audité pour le vérifier. Chaque tâche n'a droit qu'à une réponse, sans retour ni nouvel essai."
+        },
+        {
+          "type": "heading",
+          "level": 2,
+          "text": "Lire, modifier, écrire"
+        },
+        {
+          "type": "paragraph",
+          "text": "Dans la première expérience, le modèle reçoit les octets de trois programmes écrits par les auteurs (un compteur de mots, un outil AES, un grand livre bancaire) et d'un vrai binaire FreeBSD, `ministat`. Il les identifie tous. Pour `ministat`, dépouillé de ses symboles et lié statiquement, il retrouve la boucle de décodage des chaînes et décrit les huit options. Il repère même, d'après les seuls octets, un défaut réel : l'option étiquetée à 99,5 % de confiance applique en réalité des valeurs critiques proches de 99,8 %. Les auteurs l'ont confirmé dans le code source d'origine."
+        },
+        {
+          "type": "paragraph",
+          "text": "Dans la deuxième, le modèle ajoute une fonction à chaque programme en modifiant les octets sur place : une longueur de ligne maximale (74 octets changés, 1,4 %), une commande de déchiffrement (544 octets, 5,9 %) et un virement (379 octets, 4,3 %). Les trois versions modifiées passent tous les tests cachés. La méthode ressemble à celle d'un humain : rendre exécutable un espace de remplissage en modifiant les en-têtes de segment, y écrire du code, puis détourner des instructions vers ce code."
+        },
+        {
+          "type": "paragraph",
+          "text": "Dans la troisième, sans vidage de départ, il produit des exécutables ELF64 complets à partir d'une spécification écrite. Les trois sortent identiques à la référence sur chaque cas de test. Le compteur de mots pèse 391 octets, contre 5 432 pour la version compilée avec GCC ; l'outil AES, 4 144 octets ; le grand livre, 3 584. Étendre un programme existant a coûté 1,8 à 3,7 fois moins de jetons de sortie que d'en écrire un neuf."
+        },
+        {
+          "type": "heading",
+          "level": 2,
+          "text": "Le cas du logiciel malveillant"
+        },
+        {
+          "type": "paragraph",
+          "text": "La quatrième expérience, non notée formellement, porte sur un fichier Windows de 4 608 octets dont le seul import visible est `Sleep`, les autres appels étant cachés derrière des empreintes. En 211 secondes, le modèle conclut que le fichier télécharge du code machine et l'exécute en mémoire, et il nomme un serveur codé en dur. Les auteurs ont comparé ce résultat au rapport public d'un bac à sable : même adresse, même URL, et les 13 empreintes d'API recalculées correspondent. Le bac à sable a confirmé le fichier d'arrêt d'urgence et le téléchargement, mais pas le délai de nouvelle tentative ni la clé XOR."
+        },
+        {
+          "type": "paragraph",
+          "text": "Une cinquième expérience utilise un modèle à poids ouverts, DeepSeek V4.1 Flash (licence MIT), sur le même échantillon. Il parvient à la même conclusion générale, trouve 9 noms d'API sur 13, mais consomme environ 17 fois plus de jetons de raisonnement (89 902 contre 5 178) et près de quatre fois plus de temps (859 secondes contre 211)."
+        },
+        {
+          "type": "heading",
+          "level": 2,
+          "text": "Les limites annoncées"
+        },
+        {
+          "type": "paragraph",
+          "text": "La contrainte principale est la taille du contexte. À 2,4 jetons par octet, le binaire de 67 Ko a consommé environ 163 000 jetons ; un programme de 10 Mo en exigerait environ 24 millions. Le plus gros test reste donc modeste. Les auteurs mentionnent des modèles récursifs, qui garderaient le binaire hors du contexte, comme piste, et soulignent qu'il s'agit d'un échantillon unique, d'une seule exécution, et que leur recherche bibliographique n'est pas exhaustive."
+        },
+        {
+          "type": "usecases",
+          "title": "Exemples d'utilisation",
+          "items": [
+            {
+              "icon": "🔬",
+              "title": "Analyste de logiciels malveillants",
+              "text": "Il soumet un échantillon inconnu à un modèle pour obtenir en quelques minutes une hypothèse sur son comportement, qu'il vérifie ensuite dans un bac à sable."
+            },
+            {
+              "icon": "🧰",
+              "title": "Mainteneur d'un logiciel ancien",
+              "text": "Il corrige un exécutable dont le code source a disparu, en demandant un correctif ciblé plutôt qu'une réécriture."
+            },
+            {
+              "icon": "🎓",
+              "title": "Enseignant en architecture des ordinateurs",
+              "text": "Il fait construire à ses étudiants un exécutable minimal et compare leur travail à celui d'un modèle, pour discuter de ce que fait réellement un compilateur."
+            }
+          ]
+        },
+        {
+          "type": "timeline",
+          "title": "D'où l'on vient, où l'on va",
+          "items": [
+            {
+              "label": "Années 1950",
+              "text": "Les premiers programmes s'écrivent directement en code machine."
+            },
+            {
+              "label": "2026",
+              "text": "Un modèle généraliste réussit, sans outil, des tâches de lecture et d'écriture sur de petits binaires."
+            },
+            {
+              "label": "Suite possible",
+              "text": "Les auteurs évoquent des essais sur des binaires plus gros, sans résultat publié à ce jour."
+            }
+          ]
+        },
+        {
+          "type": "opinion",
+          "title": "Notre avis",
+          "paragraphs": [
+            "Les résultats sont solides pour ce qu'ils testent, mais ils ne prouvent pas que les désassembleurs vont disparaître. Le rapport reste limité à de petits fichiers et à des essais uniques, et il ne mesure pas la fréquence des erreurs. Sur le logiciel malveillant, la correspondance avec le bac à sable est encourageante, mais les auteurs rappellent eux-mêmes que le schéma de hachage utilisé est courant.",
+            "Plus intéressant : si un modèle peut relire des octets, la distribution de binaires sans source ne protège plus autant la propriété intellectuelle ni les secrets cachés. À un horizon d'un à trois ans, on peut attendre davantage d'outils de rétro-ingénierie assistée, avec un effet probable sur la rapidité des attaquants comme des défenseurs. C'est une opinion argumentée, pas un fait."
+          ],
+          "verdict": "Un modèle sait déjà travailler sur de petits binaires sans compilateur ; la question ouverte est le passage à l'échelle."
+        },
+        {
+          "type": "callout",
+          "title": "À retenir",
+          "text": "Les chiffres viennent d'un rapport non évalué par des pairs, sur de petits programmes et une seule exécution : à confirmer sur des cas plus vastes."
+        }
+      ]
+    },
+    {
+      "id": "openrouter-dragos-incidents-fournisseurs-inference",
+      "category": "ia",
+      "icon": "🔀",
+      "title": "OpenRouter écarte trois fournisseurs d'inférence après des incidents de traitement de données signalés par Dragos",
+      "summary": "Des chercheurs ont relevé des fuites ou des politiques de données non respectées chez certains hébergeurs de modèles. OpenRouter retire 125 points d'accès de son programme « zéro conservation » et avertit les clients concernés.",
+      "tags": [
+        "OpenRouter",
+        "Dragos",
+        "inférence",
+        "confidentialité",
+        "ZDR"
+      ],
+      "importance": 4,
+      "readingMinutes": 5,
+      "publishedAt": "2026-11-22T04:17:26+01:00",
+      "sourceDate": "2026-11-22",
+      "sources": [
+        {
+          "title": "Data Processing Incidents on Inference Providers",
+          "url": "https://openrouter.ai/blog/announcements/data-processing-incidents-on-inference-providers/",
+          "publisher": "OpenRouter"
+        }
+      ],
+      "illustration": {
+        "svg": "<svg xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"0 0 640 360\"><defs><linearGradient id=\"g\" x1=\"0\" y1=\"0\" x2=\"1\" y2=\"1\"><stop offset=\"0\" stop-color=\"hsl(320,65%,38%)\"/><stop offset=\"1\" stop-color=\"hsl(0,60%,20%)\"/></linearGradient></defs><rect width=\"640\" height=\"360\" fill=\"url(#g)\"/><circle cx=\"90\" cy=\"300\" r=\"70\" fill=\"#fff\" opacity=\".08\"/><circle cx=\"560\" cy=\"60\" r=\"50\" fill=\"#fff\" opacity=\".08\"/><path d=\"M210 250C160 250 150 190 200 180C200 130 270 110 300 150C330 120 400 140 400 190C450 190 460 250 410 250Z\" fill=\"#fff\"/><path d=\"M280 220L320 180L360 220\" fill=\"none\" stroke=\"#1f2937\" stroke-width=\"12\" stroke-linecap=\"round\" stroke-linejoin=\"round\"/></svg>"
+      },
+      "blocks": [
+        {
+          "type": "paragraph",
+          "text": "Quand une entreprise envoie une requête à un modèle d'IA via une plateforme d'agrégation, elle ignore souvent quel hébergeur la traite réellement. Cette chaîne de sous-traitance est au cœur d'un billet publié le 22 novembre 2026 par OpenRouter, qui décrit des incidents de traitement de données relevés chez plusieurs fournisseurs d'inférence."
+        },
+        {
+          "type": "paragraph",
+          "text": "Selon la plateforme, des chercheurs de la société Dragos ont signalé que certains fournisseurs avaient vu leurs données compromises, ou présentaient des signes que leurs engagements sur les données n'étaient pas respectés. OpenRouter précise que ces constats ne montrent ni violation ni accès non autorisé chez elle."
+        },
+        {
+          "type": "heading",
+          "level": 2,
+          "text": "Ce que la plateforme a fait"
+        },
+        {
+          "type": "list",
+          "items": [
+            "Trois fournisseurs ont été retirés de la plateforme à l'issue de ses enquêtes ; leurs noms ne sont pas publiés.",
+            "125 points d'accès ont perdu leur éligibilité au programme ZDR (« zero data retention », zéro conservation des données), y compris des points signalés par les chercheurs et d'autres retirés par précaution.",
+            "Tous les clients potentiellement concernés ont été avertis, que le fournisseur ait ou non communiqué publiquement."
+          ]
+        },
+        {
+          "type": "paragraph",
+          "text": "Trois fournisseurs ont publié des annonces liées : Novita a diffusé un avis de confidentialité concernant des requêtes MiniMax ; Phala, un rapport d'incident préliminaire pour novembre ; Together, un incident de sécurité ayant entraîné une fuite de requêtes envoyées en juin et juillet 2026. Le billet ne précise pas si ces trois sociétés sont celles qui ont été retirées, et il ne fournit ni le nombre d'utilisateurs touchés ni le volume de données concernées."
+        },
+        {
+          "type": "heading",
+          "level": 2,
+          "text": "Pourquoi l'affaire dépasse le cas d'OpenRouter"
+        },
+        {
+          "type": "paragraph",
+          "text": "Les passerelles d'inférence vendent une promesse simple : un seul accès pour de nombreux modèles, avec un réglage de confidentialité qui exclut les hébergeurs conservant les requêtes. Cette promesse repose sur des déclarations des fournisseurs, difficiles à vérifier de l'extérieur. L'épisode montre qu'un contrôle continu, et non une simple attestation initiale, devient nécessaire."
+        },
+        {
+          "type": "paragraph",
+          "text": "OpenRouter annonce d'ailleurs trois chantiers : adapter en continu la méthode de test des chercheurs, vérifier les chemins réseau pour détecter les requêtes et réponses transmises à des tiers, et exiger des garanties et une validation avant de rétablir l'éligibilité ZDR d'un point d'accès retiré."
+        },
+        {
+          "type": "paragraph",
+          "text": "Pour les entreprises françaises, la question est aussi juridique : transmettre des données personnelles à un sous-traitant implique de savoir où elles sont traitées et par qui, au titre du RGPD, dont l'autorité de contrôle en France est la CNIL. Ce billet ne dit rien de ces implications, et il s'agit ici d'une information générale à vérifier auprès des sources officielles."
+        },
+        {
+          "type": "usecases",
+          "title": "Exemples d'utilisation",
+          "items": [
+            {
+              "icon": "🏢",
+              "title": "Direction informatique d'une PME",
+              "text": "Elle recense les modèles appelés via des passerelles et vérifie quels hébergeurs reçoivent les requêtes contenant des données clients."
+            },
+            {
+              "icon": "⚖️",
+              "title": "Délégué à la protection des données",
+              "text": "Il demande à ses prestataires la liste des sous-traitants ultérieurs et les preuves de non-conservation des requêtes."
+            },
+            {
+              "icon": "👩‍💻",
+              "title": "Développeuse d'agents d'IA",
+              "text": "Elle supprime des prompts les données sensibles inutiles et privilégie un hébergeur dont le contrat est vérifiable."
+            }
+          ]
+        },
+        {
+          "type": "timeline",
+          "title": "D'où l'on vient, où l'on va",
+          "items": [
+            {
+              "label": "Juin et juillet 2026",
+              "text": "Période des requêtes concernées par l'incident divulgué par Together."
+            },
+            {
+              "label": "Novembre 2026",
+              "text": "Phala publie un rapport préliminaire ; Dragos signale des constats à OpenRouter."
+            },
+            {
+              "label": "22 novembre 2026",
+              "text": "OpenRouter publie son billet et retire trois fournisseurs ainsi que 125 points d'accès du programme ZDR."
+            },
+            {
+              "label": "À venir",
+              "text": "Retour de l'éligibilité ZDR conditionné à des garanties, sans calendrier annoncé."
+            }
+          ]
+        },
+        {
+          "type": "opinion",
+          "title": "Notre avis",
+          "paragraphs": [
+            "La réaction d'OpenRouter est plutôt nette : retrait, notification, engagement de tests continus. Reste une limite évidente : le billet ne nomme pas tous les fournisseurs écartés et n'avance aucun chiffre sur l'ampleur. Les clients doivent donc partir du principe que leurs requêtes peuvent avoir transité par un hébergeur douteux.",
+            "À un horizon d'un à trois ans, on peut penser que les attestations de non-conservation seront progressivement remplacées par des audits indépendants et des clauses contractuelles plus précises. C'est une opinion argumentée : rien dans le billet ne l'annonce."
+          ],
+          "verdict": "Le label « zéro conservation » n'a de valeur que s'il est contrôlé en continu."
+        },
+        {
+          "type": "callout",
+          "title": "À retenir",
+          "text": "Selon OpenRouter, aucune violation n'a touché la plateforme elle-même ; les incidents concernent des fournisseurs tiers, dont trois ont été écartés."
+        }
+      ]
+    },
+    {
+      "id": "zero-csharp-binaires-natifs-sans-runtime",
+      "category": "dev",
+      "icon": "⚡",
+      "title": "Zero C# : compiler du C# en petits programmes natifs, sans runtime .NET ni ramasse-miettes, jusqu'à DOS",
+      "summary": "Ce fork de bflat produit des exécutables de 11 à 64 Ko pour Linux, macOS, Windows, WebAssembly et même DOS, au prix de la perte des exceptions, de la réflexion et de la gestion automatique de la mémoire.",
+      "tags": [
+        "C#",
+        "compilateur",
+        "bflat",
+        "WebAssembly",
+        "mémoire"
+      ],
+      "importance": 3,
+      "readingMinutes": 5,
+      "publishedAt": "2026-11-22T04:17:26+01:00",
+      "sources": [
+        {
+          "title": "Zero C# – C# without a runtime or GC",
+          "url": "https://onurgumus.github.io/zero-csharp/index.html",
+          "publisher": "Zero C#"
+        }
+      ],
+      "illustration": {
+        "svg": "<svg xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"0 0 640 360\"><defs><linearGradient id=\"g\" x1=\"0\" y1=\"0\" x2=\"1\" y2=\"1\"><stop offset=\"0\" stop-color=\"hsl(265,65%,38%)\"/><stop offset=\"1\" stop-color=\"hsl(305,60%,20%)\"/></linearGradient></defs><rect width=\"640\" height=\"360\" fill=\"url(#g)\"/><circle cx=\"90\" cy=\"300\" r=\"70\" fill=\"#fff\" opacity=\".08\"/><circle cx=\"560\" cy=\"60\" r=\"50\" fill=\"#fff\" opacity=\".08\"/><rect x=\"140\" y=\"80\" width=\"360\" height=\"200\" rx=\"14\" fill=\"#fff\"/><path d=\"M230 150L190 180L230 210M410 150L450 180L410 210\" fill=\"none\" stroke=\"#1f2937\" stroke-width=\"14\" stroke-linecap=\"round\" stroke-linejoin=\"round\"/><path d=\"M345 140L295 220\" stroke=\"#1f2937\" stroke-width=\"14\" stroke-linecap=\"round\"/></svg>"
+      },
+      "blocks": [
+        {
+          "type": "paragraph",
+          "text": "Un programme C# qui affiche « Hello world » pèse d'ordinaire plusieurs mégaoctets une fois empaqueté avec son runtime. Le projet Zero C#, présenté sur Hacker News, prend le contre-pied : un fork de bflat qui compile directement vers un petit programme natif, sans runtime .NET, sans ramasse-miettes et sans rien à installer sur la machine cible."
+        },
+        {
+          "type": "paragraph",
+          "text": "Le langage reste du C# : syntaxe, vérification de types et génériques sont conservés. Ce qui change, c'est le contrat avec le programmeur : c'est lui qui décide quand la mémoire est libérée."
+        },
+        {
+          "type": "heading",
+          "level": 2,
+          "text": "Un modèle mémoire par arènes"
+        },
+        {
+          "type": "paragraph",
+          "text": "Chaque durée de vie reçoit son arène : un bloc de mémoire dans lequel les objets sont alloués, puis libérés tous ensemble. Les données éphémères peuvent aller sur la pile, par exemple avec `stackalloc`. Les chaînes qui doivent survivre sont placées dans une arène. `Out.Line` formate directement dans le tampon de sortie, et `In.ReadLine` lit dans une plage mémoire (span). Les collections `List` et `Dict`, avec leurs variantes à clés de référence ou de chaîne, résident elles aussi dans des arènes."
+        },
+        {
+          "type": "paragraph",
+          "text": "Le projet vise plusieurs cibles avec le même code : Linux (x64 et arm64), macOS sur Apple Silicon, Windows x64, WebAssembly (WASI, exécuté avec wasmtime) et DOS sur 386 grâce à l'extenseur HX. La documentation indique que chaque construction passe la même suite de tests, qui exige des sorties identiques sur toutes les cibles."
+        },
+        {
+          "type": "heading",
+          "level": 2,
+          "text": "Ce que l'on garde, ce que l'on perd"
+        },
+        {
+          "type": "keyvalue",
+          "items": [
+            {
+              "label": "Conservé",
+              "value": "fonctions de C# 15 (unions, membres d'extension), génériques réels avec une copie spécialisée par type, interfaces, méthodes virtuelles, records, tuples, types anonymes, lambdas, requêtes via une petite bibliothèque, threads et Parallel.For"
+            },
+            {
+              "label": "Perdu",
+              "value": "ramasse-miettes, runtime .NET, exceptions (throw termine le programme, les erreurs passent par des unions), réflexion et async"
+            },
+            {
+              "label": "Tailles de « Hello world »",
+              "value": "Linux 39 848 octets, macOS 64 728, Windows 10 752, WebAssembly 15 833, DOS 16 384"
+            }
+          ]
+        },
+        {
+          "type": "paragraph",
+          "text": "Ces chiffres sont des tailles de fichiers, pas des mesures de performance : la page ne publie ni résultat d'évaluation comparative, ni date de sortie. La licence est mixte : la bibliothèque centrale est sous licence MIT, mais le compilateur, fork de bflat, est sous AGPL-3.0, ce qui compte si l'on veut le redistribuer ou l'intégrer dans un produit."
+        },
+        {
+          "type": "heading",
+          "level": 2,
+          "text": "À qui cela s'adresse"
+        },
+        {
+          "type": "paragraph",
+          "text": "Le projet intéresse surtout les développeurs C# qui souhaitent produire de petits outils en ligne de commande, des modules WebAssembly légers ou des programmes pour des environnements contraints. Il ne remplace pas .NET pour une application classique : l'absence d'exceptions et de réflexion rend impossible l'usage de la plupart des bibliothèques existantes, et la gestion manuelle des arènes réintroduit des erreurs que le ramasse-miettes évitait."
+        },
+        {
+          "type": "usecases",
+          "title": "Exemples d'utilisation",
+          "items": [
+            {
+              "icon": "🧰",
+              "title": "Auteur d'un outil en ligne de commande",
+              "text": "Il distribue un exécutable de quelques dizaines de kilooctets, sans demander à ses utilisateurs d'installer .NET."
+            },
+            {
+              "icon": "🌐",
+              "title": "Développeur d'un module WebAssembly",
+              "text": "Il compile un petit traitement en C# vers WASI et l'exécute avec wasmtime, avec un fichier d'environ 16 Ko."
+            },
+            {
+              "icon": "🕹️",
+              "title": "Passionné de retrocomputing",
+              "text": "Il construit un programme DOS de 16 Ko à partir du même code que sa version Windows, et le teste dans FreeDOS."
+            }
+          ]
+        },
+        {
+          "type": "timeline",
+          "title": "D'où l'on vient, où l'on va",
+          "items": [
+            {
+              "label": "Avant",
+              "text": "bflat propose déjà de compiler du C# vers du natif sans runtime complet."
+            },
+            {
+              "label": "2026",
+              "text": "Zero C# le prolonge avec des arènes, une bibliothèque minimale et plusieurs cibles, dont DOS."
+            },
+            {
+              "label": "Suite",
+              "text": "Aucune feuille de route ni date de version stable n'est annoncée sur la page."
+            }
+          ]
+        },
+        {
+          "type": "opinion",
+          "title": "Notre avis",
+          "paragraphs": [
+            "L'idée a de l'allure : garder l'ergonomie du langage tout en reprenant le contrôle de la mémoire. Mais le coût est réel : sans exceptions ni réflexion, on écrit un dialecte de C#, pas du C# ordinaire. Le projet est surtout un bel exercice de minimalisme, avec un intérêt pratique pour des niches précises.",
+            "À un horizon d'un à trois ans, on peut imaginer que d'autres projets suivent la même voie, tirés par WebAssembly. Il s'agit d'une opinion argumentée et non d'un fait : l'adoption dépendra de la maturité de la bibliothèque et de la licence du compilateur."
+          ],
+          "verdict": "Un C# sans runtime ni ramasse-miettes, mais aussi sans exceptions : un compromis assumé, adapté aux petits outils."
+        },
+        {
+          "type": "callout",
+          "title": "À retenir",
+          "text": "Les tailles annoncées (11 à 64 Ko) sont celles d'un « Hello world » ; aucune mesure de performance n'est publiée."
+        }
+      ]
+    },
+    {
+      "id": "gopgext-extensions-postgresql-en-go",
+      "category": "dev",
+      "icon": "🐘",
+      "title": "gopgext : écrire des extensions PostgreSQL en Go grâce à TinyGo, avec un avertissement clair : pas pour la production",
+      "summary": "Ce projet expérimental génère le code C, le script d'installation et le fichier de contrôle à partir de simples fonctions Go, et porte plusieurs modules contrib de PostgreSQL qui réussissent leurs tests de régression.",
+      "tags": [
+        "PostgreSQL",
+        "Go",
+        "TinyGo",
+        "extensions",
+        "base de données"
+      ],
+      "importance": 3,
+      "readingMinutes": 5,
+      "publishedAt": "2026-11-22T04:17:26+01:00",
+      "sources": [
+        {
+          "title": "PostgreSQL Extensions in Go",
+          "url": "https://jespino.github.io/gopgext/",
+          "publisher": "gopgext"
+        }
+      ],
+      "illustration": {
+        "svg": "<svg xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"0 0 640 360\"><defs><linearGradient id=\"g\" x1=\"0\" y1=\"0\" x2=\"1\" y2=\"1\"><stop offset=\"0\" stop-color=\"hsl(265,65%,38%)\"/><stop offset=\"1\" stop-color=\"hsl(305,60%,20%)\"/></linearGradient></defs><rect width=\"640\" height=\"360\" fill=\"url(#g)\"/><circle cx=\"90\" cy=\"300\" r=\"70\" fill=\"#fff\" opacity=\".08\"/><circle cx=\"560\" cy=\"60\" r=\"50\" fill=\"#fff\" opacity=\".08\"/><ellipse cx=\"320\" cy=\"110\" rx=\"110\" ry=\"36\" fill=\"#fff\"/><path d=\"M210 110V250C210 270 260 286 320 286C380 286 430 270 430 250V110\" fill=\"#fff\" opacity=\".85\"/><ellipse cx=\"320\" cy=\"170\" rx=\"110\" ry=\"30\" fill=\"none\" stroke=\"#1f2937\" stroke-width=\"6\" opacity=\".4\"/><ellipse cx=\"320\" cy=\"225\" rx=\"110\" ry=\"30\" fill=\"none\" stroke=\"#1f2937\" stroke-width=\"6\" opacity=\".4\"/></svg>"
+      },
+      "blocks": [
+        {
+          "type": "paragraph",
+          "text": "Les extensions de PostgreSQL s'écrivent traditionnellement en C, un langage puissant mais exigeant : une erreur de mémoire dans une extension peut faire tomber tout le serveur. Le projet gopgext propose une autre voie : écrire ces extensions en Go, compilées avec TinyGo."
+        },
+        {
+          "type": "paragraph",
+          "text": "Il suffit de marquer une fonction avec `//gopgext:function`. L'outil génère le code d'interface en C, le script d'installation et le fichier de contrôle de l'extension. Le flux de travail tient en trois commandes : `gopgext init hello` crée le projet, `gopgext install hello` compile et installe, puis `CREATE EXTENSION hello` charge le tout dans la base."
+        },
+        {
+          "type": "heading",
+          "level": 2,
+          "text": "Ce que l'on peut faire"
+        },
+        {
+          "type": "paragraph",
+          "text": "Dans l'exemple de la page, une extension `hello` définit deux fonctions, `Hello` et `Shout` ; la seconde renvoie une erreur si le texte est vide, et `SELECT hello('world')` retourne « Hello, world! ». Au-delà des fonctions simples, la liste des points d'extension pris en charge est large."
+        },
+        {
+          "type": "list",
+          "items": [
+            "**Bibliothèque standard** : `fmt`, `regexp`, `encoding/json`, `crypto/*`, ainsi que maps, génériques, itérateurs, `defer` et `recover`.",
+            "**Types** : chaînes, nombres, tableaux, valeurs NULL, ensembles, lignes, horodatages, UUID et JSON, plus des types de données personnalisés et composites.",
+            "**Requêtes et erreurs** : exécution de SQL via SPI, erreurs avec codes SQLSTATE, journalisation, lecture de paramètres, prise en compte de l'annulation de requête.",
+            "**Extensions avancées** : déclencheurs, agrégats, classes d'opérateurs GiST, GIN, SP-GiST et BRIN, méthodes d'accès aux index, wrappers de données externes et crochets de requête."
+          ]
+        },
+        {
+          "type": "paragraph",
+          "text": "Plusieurs extensions écrites en Go peuvent être chargées dans un même processus serveur. Les erreurs PostgreSQL ne traversent jamais les cadres de pile Go, et les résultats sont copiés dans la mémoire de PostgreSQL."
+        },
+        {
+          "type": "heading",
+          "level": 2,
+          "text": "Une confiance à construire"
+        },
+        {
+          "type": "paragraph",
+          "text": "Les auteurs ont porté plusieurs modules contrib de PostgreSQL, parmi lesquels `pgcrypto`, `hstore`, `pg_stat_statements` et `cube`, qui passent les tests de régression d'origine. C'est un indice sérieux de maturité fonctionnelle, mais pas une garantie de robustesse."
+        },
+        {
+          "type": "paragraph",
+          "text": "Le projet reconnaît lui-même son statut expérimental et déconseille la production : un bogue dans le code généré ou dans le runtime Go s'exécute à l'intérieur du serveur, avec le risque de le faire planter ou d'altérer des données. L'interface de programmation et le SQL généré peuvent aussi changer sans préavis. La page renvoie à une section de limites, dont le contenu n'a pas pu être consulté, et ne donne pas de date de publication."
+        },
+        {
+          "type": "paragraph",
+          "text": "Le mécanisme s'inspire de gokm, un projet analogue qui construit des modules du noyau Linux en Go : une couche cible TinyGo personnalisée, un runtime en C compilé avec le système de construction PGXS de PostgreSQL, et du code d'interface généré. Le tout est sous licence MIT, et les portages contrib restent sous licence PostgreSQL."
+        },
+        {
+          "type": "usecases",
+          "title": "Exemples d'utilisation",
+          "items": [
+            {
+              "icon": "🧪",
+              "title": "Développeur d'une fonction de validation",
+              "text": "Il écrit en Go une fonction qui contrôle un format de numéro et l'appelle directement dans des requêtes SQL, sans service externe."
+            },
+            {
+              "icon": "🔎",
+              "title": "Équipe d'analyse de données",
+              "text": "Elle prototype un type de données personnalisé et un index GIN pour un format maison, avant de décider s'il justifie un développement en C."
+            },
+            {
+              "icon": "🎓",
+              "title": "Formateur en bases de données",
+              "text": "Il montre à ses stagiaires le fonctionnement interne d'une extension sans leur imposer la syntaxe de C."
+            }
+          ]
+        },
+        {
+          "type": "timeline",
+          "title": "D'où l'on vient, où l'on va",
+          "items": [
+            {
+              "label": "Avant",
+              "text": "Les extensions s'écrivent en C ou, plus récemment, avec d'autres cadres comme Rust."
+            },
+            {
+              "label": "2026",
+              "text": "gopgext démontre des portages de modules contrib en Go, à titre expérimental."
+            },
+            {
+              "label": "Suite",
+              "text": "Aucune stabilisation n'est annoncée ; l'avertissement « pas de production » reste en vigueur."
+            }
+          ]
+        },
+        {
+          "type": "opinion",
+          "title": "Notre avis",
+          "paragraphs": [
+            "Rendre l'écriture d'extensions accessible aux équipes qui maîtrisent Go est séduisant, car cela abaisse la barrière d'entrée à un univers très fermé. Mais exécuter un runtime supplémentaire dans le processus de la base de données multiplie les sources de défaillance.",
+            "À un horizon d'un à trois ans, le projet pourrait servir de banc d'essai plus que d'outil de production, et pousser la communauté à réfléchir à des extensions isolées. C'est une opinion argumentée : rien dans la documentation ne l'annonce."
+          ],
+          "verdict": "Une extension en Go, c'est de la commodité pour le développeur, mais du risque à l'intérieur du serveur."
+        },
+        {
+          "type": "callout",
+          "title": "À retenir",
+          "text": "Statut annoncé : expérimental, à ne pas utiliser en production ; licence MIT."
+        }
+      ]
+    },
+    {
+      "id": "adaptateur-usb-ethernet-ecran-debit-reduit",
+      "category": "electronique",
+      "icon": "🔌",
+      "title": "Un écran qui divisait par quatre le débit de téléchargement : la faute à un adaptateur Ethernet USB trop lent à répondre",
+      "summary": "Un utilisateur d'une liaison de 2,5 Gbit/s ne mesurait que 600 Mbit/s en réception. La cause : un adaptateur à puce RTL8156B qui n'envoie que quatre paquets par rafale, et dont le tampon déborde derrière le concentrateur de l'écran.",
+      "tags": [
+        "Ethernet",
+        "USB",
+        "Realtek",
+        "réseau",
+        "diagnostic"
+      ],
+      "importance": 3,
+      "readingMinutes": 6,
+      "publishedAt": "2026-11-22T04:17:26+01:00",
+      "sourceDate": "2026-11-15",
+      "sources": [
+        {
+          "title": "My monitor was cutting my download speed by 75%",
+          "url": "https://blog.tymscar.com/posts/studiodisplayethernet/",
+          "publisher": "Blog de tymscar"
+        }
+      ],
+      "illustration": {
+        "svg": "<svg xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"0 0 640 360\"><defs><linearGradient id=\"g\" x1=\"0\" y1=\"0\" x2=\"1\" y2=\"1\"><stop offset=\"0\" stop-color=\"hsl(30,65%,38%)\"/><stop offset=\"1\" stop-color=\"hsl(70,60%,20%)\"/></linearGradient></defs><rect width=\"640\" height=\"360\" fill=\"url(#g)\"/><circle cx=\"90\" cy=\"300\" r=\"70\" fill=\"#fff\" opacity=\".08\"/><circle cx=\"560\" cy=\"60\" r=\"50\" fill=\"#fff\" opacity=\".08\"/><rect x=\"170\" y=\"190\" width=\"300\" height=\"80\" rx=\"14\" fill=\"#fff\"/><circle cx=\"215\" cy=\"230\" r=\"10\" fill=\"#1f2937\"/><circle cx=\"250\" cy=\"230\" r=\"10\" fill=\"#1f2937\"/><path d=\"M320 170V130M290 150H350M260 120C300 80 340 80 380 120\" fill=\"none\" stroke=\"#fff\" stroke-width=\"10\" stroke-linecap=\"round\"/></svg>"
+      },
+      "blocks": [
+        {
+          "type": "paragraph",
+          "text": "Une liaison fibre de 2,5 Gbit/s symétrique doit offrir environ 2,5 Gbit/s dans les deux sens. Pourtant, l'auteur d'un billet publié le 15 novembre 2026 mesurait environ 600 Mbit/s en téléchargement pour 2,4 Gbit/s en envoi, soit une perte d'environ 75 % passée inaperçue pendant près de six mois. Le début du problème coïncidait avec le raccordement de tous ses appareils à un écran Studio Display XDR, utilisé comme concentrateur à câble unique pour son portable, Ethernet compris, via un adaptateur USB-C."
+        },
+        {
+          "type": "paragraph",
+          "text": "L'enquête qui suit est un modèle de diagnostic méthodique, et la cause finale est plus subtile qu'un câble défectueux."
+        },
+        {
+          "type": "heading",
+          "level": 2,
+          "text": "Les fausses pistes"
+        },
+        {
+          "type": "paragraph",
+          "text": "Le fournisseur d'accès n'a rien trouvé de son côté, et un portable professionnel présentait le même défaut. Pendant les téléchargements en filaire à travers l'écran, environ 10 % des ping vers d'autres machines filaires échouaient, alors qu'en Wi-Fi aucun n'échouait. Les journaux de macOS ne signalaient aucune perte de trame, signe que les paquets disparaissaient avant d'atteindre l'ordinateur. Branché directement sur le Mac, l'adaptateur retrouvait près de 2,2 Gbit/s en réception et 2,3 en envoi : le câble, le routeur et l'adaptateur n'étaient donc pas en cause à eux seuls."
+        },
+        {
+          "type": "paragraph",
+          "text": "Deux palliatifs ont aidé. Installer le pilote du fabricant Realtek a presque doublé le débit, à environ 1,1 Gbit/s. Activer le contrôle de flux Ethernet sur le routeur UniFi l'a fait monter à environ 2 Gbit/s sans toucher à l'envoi, au prix d'une latence accrue pour d'autres appareils, comme un PC de jeu, ce qui obligerait à régler la fonction machine par machine."
+        },
+        {
+          "type": "heading",
+          "level": 2,
+          "text": "La cause : quatre paquets par rafale"
+        },
+        {
+          "type": "paragraph",
+          "text": "Des tests UDP contrôlés, sans contrôle de flux, ont montré que les compteurs de l'adaptateur enregistraient des pertes au-delà d'environ 168 000 trames par seconde, soit à peu près 2 Gbit/s. Au-delà, le tampon déborde, les paquets perdus déclenchent le repli de TCP et le débit s'effondre."
+        },
+        {
+          "type": "paragraph",
+          "text": "La différence tient à la manière dont les données circulent en rafales. La puce RTL8156B n'envoie que quatre paquets avant d'attendre l'autorisation de l'hôte. Un boîtier de SSD externe en envoie seize. L'aller-retour de cette autorisation à travers le concentrateur de l'écran dure environ 7,6 µs, alors que l'envoi de quatre paquets de 4 Ko prend environ 8,2 µs. Ces deux durées plafonnent le débit près de 2 Gbit/s, alors que 2,5 Gbit/s arrivent sur l'adaptateur : le tampon se remplit peu à peu puis déborde."
+        },
+        {
+          "type": "diagram",
+          "svg": "<svg xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"0 0 640 220\" font-family=\"system-ui,sans-serif\"><rect width=\"640\" height=\"220\" rx=\"14\" fill=\"#f1f5f9\"/><text x=\"320\" y=\"32\" text-anchor=\"middle\" font-size=\"16\" font-weight=\"700\" fill=\"#0f172a\">Un goulot d&#x27;étranglement invisible</text><rect x=\"20\" y=\"60\" width=\"97\" height=\"120\" rx=\"12\" fill=\"hsl(30,60%,88%)\" stroke=\"hsl(30,55%,35%)\" stroke-width=\"2\"/><text x=\"68.5\" y=\"95\" text-anchor=\"middle\" font-size=\"14\" font-weight=\"700\" fill=\"#0f172a\">Fibre</text><text x=\"68.5\" y=\"117\" text-anchor=\"middle\" font-size=\"14\" font-weight=\"400\" fill=\"#0f172a\">2,5 Gbit/s</text><path d=\"M121 120H141M135 112L143 120L135 128\" stroke=\"#334155\" stroke-width=\"3\" fill=\"none\" stroke-linecap=\"round\"/><rect x=\"145\" y=\"60\" width=\"97\" height=\"120\" rx=\"12\" fill=\"hsl(30,60%,88%)\" stroke=\"hsl(30,55%,35%)\" stroke-width=\"2\"/><text x=\"193.5\" y=\"95\" text-anchor=\"middle\" font-size=\"14\" font-weight=\"700\" fill=\"#0f172a\">Adaptateur</text><text x=\"193.5\" y=\"117\" text-anchor=\"middle\" font-size=\"14\" font-weight=\"400\" fill=\"#0f172a\">RTL8156B</text><path d=\"M246 120H266M260 112L268 120L260 128\" stroke=\"#334155\" stroke-width=\"3\" fill=\"none\" stroke-linecap=\"round\"/><rect x=\"270\" y=\"60\" width=\"97\" height=\"120\" rx=\"12\" fill=\"hsl(30,60%,88%)\" stroke=\"hsl(30,55%,35%)\" stroke-width=\"2\"/><text x=\"318.5\" y=\"95\" text-anchor=\"middle\" font-size=\"14\" font-weight=\"700\" fill=\"#0f172a\">Rafale de 4</text><text x=\"318.5\" y=\"117\" text-anchor=\"middle\" font-size=\"14\" font-weight=\"400\" fill=\"#0f172a\">paquets</text><path d=\"M371 120H391M385 112L393 120L385 128\" stroke=\"#334155\" stroke-width=\"3\" fill=\"none\" stroke-linecap=\"round\"/><rect x=\"395\" y=\"60\" width=\"97\" height=\"120\" rx=\"12\" fill=\"hsl(30,60%,88%)\" stroke=\"hsl(30,55%,35%)\" stroke-width=\"2\"/><text x=\"443.5\" y=\"95\" text-anchor=\"middle\" font-size=\"14\" font-weight=\"700\" fill=\"#0f172a\">Écran</text><text x=\"443.5\" y=\"117\" text-anchor=\"middle\" font-size=\"14\" font-weight=\"400\" fill=\"#0f172a\">hub USB</text><path d=\"M496 120H516M510 112L518 120L510 128\" stroke=\"#334155\" stroke-width=\"3\" fill=\"none\" stroke-linecap=\"round\"/><rect x=\"520\" y=\"60\" width=\"97\" height=\"120\" rx=\"12\" fill=\"hsl(30,60%,88%)\" stroke=\"hsl(30,55%,35%)\" stroke-width=\"2\"/><text x=\"568.5\" y=\"95\" text-anchor=\"middle\" font-size=\"14\" font-weight=\"700\" fill=\"#0f172a\">Mac</text><text x=\"568.5\" y=\"117\" text-anchor=\"middle\" font-size=\"14\" font-weight=\"400\" fill=\"#0f172a\">~0,6 Gbit/s</text></svg>",
+          "alt": "Schéma montrant la fibre, l'adaptateur Ethernet, la rafale de quatre paquets, le concentrateur de l'écran puis l'ordinateur avec un débit réduit.",
+          "caption": "Chaîne décrite dans le billet : les pertes surviennent dans le tampon de l'adaptateur, avant l'ordinateur."
+        },
+        {
+          "type": "heading",
+          "level": 2,
+          "text": "La solution"
+        },
+        {
+          "type": "paragraph",
+          "text": "L'auteur a acheté un adaptateur UGREEN 5 Gbit/s à puce RTL8157. Il n'a perdu aucune trame à aucun des débits testés, jusqu'à 2,4 Gbit/s envoyés (environ 194 000 trames par seconde). Le descripteur USB indique la raison : `bMaxBurst` vaut 3 pour l'ancien adaptateur (quatre paquets par rafale) et 7 pour le nouveau (huit paquets). La puce plus récente fait en outre tourner la liaison plus vite, ce qui porte le maximum théorique à environ 4,5 Gbit/s, bien au-dessus de l'entrée. Le tampon ne se remplit plus."
+        },
+        {
+          "type": "paragraph",
+          "text": "Les anciens adaptateurs de 1 Gbit/s de sa collection n'étaient d'aucune aide pour tester, car le défaut n'apparaît qu'au-delà d'environ 1 Gbit/s."
+        },
+        {
+          "type": "usecases",
+          "title": "Exemples d'utilisation",
+          "items": [
+            {
+              "icon": "🏠",
+              "title": "Particulier avec une fibre rapide",
+              "text": "Il relie son portable directement au routeur, ou change d'adaptateur, quand ses mesures plafonnent bien en dessous du débit contracté."
+            },
+            {
+              "icon": "🧑‍💼",
+              "title": "Administrateur d'un parc de portables",
+              "text": "Il teste les adaptateurs et stations d'accueil avec un outil de débit UDP avant de les déployer dans des bureaux équipés en 2,5 Gbit/s."
+            },
+            {
+              "icon": "🛒",
+              "title": "Acheteur d'accessoires",
+              "text": "Il choisit un adaptateur dont la fiche indique la puce et la taille des rafales, plutôt que le seul débit annoncé."
+            }
+          ]
+        },
+        {
+          "type": "timeline",
+          "title": "D'où l'on vient, où l'on va",
+          "items": [
+            {
+              "label": "Il y a six mois",
+              "text": "L'auteur relie ses appareils à l'écran et la baisse commence."
+            },
+            {
+              "label": "15 novembre 2026",
+              "text": "Publication du billet avec le diagnostic complet."
+            },
+            {
+              "label": "Ensuite",
+              "text": "Les adaptateurs 5 Gbit/s récents deviennent la solution simple pour les liaisons à 2,5 Gbit/s."
+            }
+          ]
+        },
+        {
+          "type": "opinion",
+          "title": "Notre avis",
+          "paragraphs": [
+            "La leçon est généralisable : le débit annoncé d'une liaison ne dit rien de la manière dont la chaîne gère les rafales et les temps de réponse. Le diagnostic est exemplaire, mais il repose sur une seule installation, et d'autres combinaisons d'écran et d'adaptateur n'ont pas été testées.",
+            "À un horizon d'un à trois ans, la généralisation du 2,5 Gbit/s domestique devrait faire apparaître ce type de goulot plus souvent, d'où l'intérêt de fiches techniques plus explicites. C'est une opinion argumentée, pas une certitude."
+          ],
+          "verdict": "Un câble neuf n'aurait rien changé : le défaut venait de la taille des rafales de l'adaptateur."
+        },
+        {
+          "type": "callout",
+          "title": "À retenir",
+          "text": "Résultats observés sur une installation unique (écran Studio Display XDR, puces Realtek RTL8156B et RTL8157)."
+        }
+      ]
+    }
+  ]
+}
