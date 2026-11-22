@@ -1,0 +1,720 @@
+{
+ "schemaVersion": "1.0",
+ "date": "2026-11-22",
+ "generatedAt": "2026-11-22T18:17:05+01:00",
+ "title": "Tech : fast-anything et les 5 % lents, un serveur de temps sur horloge GPS, un web social ouvert, le fichier NCIC du FBI et un radar passif",
+ "summary": "Cette édition présente un outil qui fait porter en Rust seulement les fonctions lentes d'un programme, le retour d'expérience d'un serveur du pool NTP adossé à une horloge GPS, le projet d'alliance pour un web social ouvert, l'intrusion apparente dans le fichier NCIC du FBI et le radar passif de BAE Systems.",
+ "highlights": [
+  "fast-anything : un agent de code ne porte en Rust que les fonctions lentes, avec vérification par rejeu d'appels réels",
+  "Pool NTP : serveur de strate 2 relié à une horloge GNSS, et panne causée par une mise à jour automatique",
+  "FBI : enquête sur une intrusion apparente dans le fichier NCIC, sans détails confirmés",
+  "Radar passif de BAE Systems : détection sans émission, essais annoncés pour 2027"
+ ],
+ "meta": {
+  "generator": "claude-scheduled-task"
+ },
+ "posts": [
+  {
+   "id": "dev-fast-anything-reecrire-les-5-pour-cent-lents-en-rust",
+   "category": "dev",
+   "icon": "🦀",
+   "title": "fast-anything : plutôt que de tout réécrire en Rust, confier à un agent les 5 % de code qui ralentissent un programme",
+   "summary": "Cet outil libre profile une application, fait porter en Rust uniquement les fonctions les plus coûteuses par un agent de code, vérifie qu'elles se comportent à l'identique et les branche, avec retour arrière en une commande.",
+   "tags": [
+    "Rust",
+    "performance",
+    "agents de code",
+    "profilage",
+    "open source"
+   ],
+   "importance": 3,
+   "readingMinutes": 5,
+   "sourceDate": "2026-11-22",
+   "sources": [
+    {
+     "title": "fast-anything : « Don't rewrite it in Rust. Rewrite the 5% that's slow »",
+     "url": "https://github.com/EL4CTEO/fast-anything",
+     "publisher": "GitHub"
+    },
+    {
+     "title": "Discussion Hacker News du jour",
+     "url": "https://news.ycombinator.com/",
+     "publisher": "Hacker News"
+    }
+   ],
+   "illustration": {
+    "svg": "<svg xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"0 0 640 360\"><defs><linearGradient id=\"g\" x1=\"0\" y1=\"0\" x2=\"1\" y2=\"1\"><stop offset=\"0\" stop-color=\"hsl(265,65%,38%)\"/><stop offset=\"1\" stop-color=\"hsl(305,60%,22%)\"/></linearGradient></defs><rect width=\"640\" height=\"360\" fill=\"url(#g)\"/><circle cx=\"90\" cy=\"300\" r=\"70\" fill=\"#fff\" opacity=\".08\"/><circle cx=\"560\" cy=\"60\" r=\"50\" fill=\"#fff\" opacity=\".08\"/><rect x=\"170\" y=\"90\" width=\"300\" height=\"180\" rx=\"14\" fill=\"none\" stroke=\"#fff\" stroke-width=\"8\"/><path d=\"M200 230L260 170L310 210L380 120L440 150\" stroke=\"#fff\" stroke-width=\"10\" fill=\"none\" stroke-linecap=\"round\"/><circle cx=\"380\" cy=\"120\" r=\"16\" fill=\"#fff\"/><path d=\"M455 255l-30-30\" stroke=\"#fff\" stroke-width=\"8\"/></svg>"
+   },
+   "blocks": [
+    {
+     "type": "paragraph",
+     "text": "Réécrire une application entière dans un langage plus rapide est un vieux fantasme de développeur, rarement une bonne idée : le coût est énorme et la plupart du code n'a jamais posé de problème de vitesse. Le projet **fast-anything**, publié sous licence MIT par un développeur qui signe EL4CTEO et qui affichait environ 1,4 k étoiles sur GitHub le 22 novembre 2026, part de ce constat. Son slogan résume la démarche : ne pas tout réécrire en Rust, mais seulement les 5 % qui sont lents. L'outil automatise ce tri, confie la traduction à un agent de code, puis exige des preuves avant d'activer quoi que ce soit."
+    },
+    {
+     "type": "heading",
+     "level": 2,
+     "text": "Une boucle en cinq temps"
+    },
+    {
+     "type": "paragraph",
+     "text": "La commande `scan` profile le programme et classe les fonctions selon le temps passé et la facilité de portage. `port` enregistre jusqu'à 500 appels réels, génère une petite caisse Rust d'une seule fonction ainsi qu'un fichier `TASK.md` qui sert de cahier des charges à l'agent. `verify` compile le portage en mode release et rejoue les appels enregistrés, en y ajoutant des cas limites dérivés : NaN, infinis, zéro négatif, texte non ASCII, entrées vides ou volumineuses. `enable` et `disable` insèrent ou retirent un unique bloc de code balisé, et `bench` compare les deux versions. Une commande `go` enchaîne toute la boucle, par exemple `fast-anything go --agent claude -- python app.py`."
+    },
+    {
+     "type": "diagram",
+     "svg": "<svg xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"0 0 640 240\"><rect width=\"640\" height=\"240\" rx=\"14\" fill=\"#f3f6fb\"/><text x=\"320\" y=\"30\" text-anchor=\"middle\" font-family=\"system-ui,sans-serif\" font-size=\"16\" font-weight=\"700\" fill=\"#1b2a4a\">La boucle fast-anything</text><rect x=\"20\" y=\"62\" width=\"136\" height=\"110\" rx=\"10\" fill=\"#fff\" stroke=\"#5b7bb5\" stroke-width=\"2\"/><text x=\"88\" y=\"88\" text-anchor=\"middle\" font-family=\"system-ui,sans-serif\" font-size=\"13\" font-weight=\"700\" fill=\"#1b2a4a\">1. scan</text><text x=\"88\" y=\"112\" text-anchor=\"middle\" font-family=\"system-ui,sans-serif\" font-size=\"11.5\" fill=\"#33405c\">Profile et classe</text><text x=\"88\" y=\"129\" text-anchor=\"middle\" font-family=\"system-ui,sans-serif\" font-size=\"11.5\" fill=\"#33405c\">les fonctions lentes</text><path d=\"M158 117h14\" stroke=\"#c27a2c\" stroke-width=\"3\" marker-end=\"url(#a)\"/><rect x=\"174\" y=\"62\" width=\"136\" height=\"110\" rx=\"10\" fill=\"#fff\" stroke=\"#5b7bb5\" stroke-width=\"2\"/><text x=\"243\" y=\"88\" text-anchor=\"middle\" font-family=\"system-ui,sans-serif\" font-size=\"13\" font-weight=\"700\" fill=\"#1b2a4a\">2. port</text><text x=\"243\" y=\"112\" text-anchor=\"middle\" font-family=\"system-ui,sans-serif\" font-size=\"11.5\" fill=\"#33405c\">Enregistre 500 appels,</text><text x=\"243\" y=\"129\" text-anchor=\"middle\" font-family=\"system-ui,sans-serif\" font-size=\"11.5\" fill=\"#33405c\">l'agent écrit en Rust</text><path d=\"M313 117h14\" stroke=\"#c27a2c\" stroke-width=\"3\" marker-end=\"url(#a)\"/><rect x=\"329\" y=\"62\" width=\"136\" height=\"110\" rx=\"10\" fill=\"#fff\" stroke=\"#5b7bb5\" stroke-width=\"2\"/><text x=\"397\" y=\"88\" text-anchor=\"middle\" font-family=\"system-ui,sans-serif\" font-size=\"13\" font-weight=\"700\" fill=\"#1b2a4a\">3. verify</text><text x=\"397\" y=\"112\" text-anchor=\"middle\" font-family=\"system-ui,sans-serif\" font-size=\"11.5\" fill=\"#33405c\">Rejoue les appels</text><text x=\"397\" y=\"129\" text-anchor=\"middle\" font-family=\"system-ui,sans-serif\" font-size=\"11.5\" fill=\"#33405c\">et les cas limites</text><path d=\"M468 117h14\" stroke=\"#c27a2c\" stroke-width=\"3\" marker-end=\"url(#a)\"/><rect x=\"484\" y=\"62\" width=\"136\" height=\"110\" rx=\"10\" fill=\"#fff\" stroke=\"#5b7bb5\" stroke-width=\"2\"/><text x=\"552\" y=\"88\" text-anchor=\"middle\" font-family=\"system-ui,sans-serif\" font-size=\"13\" font-weight=\"700\" fill=\"#1b2a4a\">4. enable</text><text x=\"552\" y=\"112\" text-anchor=\"middle\" font-family=\"system-ui,sans-serif\" font-size=\"11.5\" fill=\"#33405c\">Active seulement</text><text x=\"552\" y=\"129\" text-anchor=\"middle\" font-family=\"system-ui,sans-serif\" font-size=\"11.5\" fill=\"#33405c\">si tout concorde</text><defs><marker id=\"a\" markerWidth=\"6\" markerHeight=\"6\" refX=\"5\" refY=\"3\" orient=\"auto\"><path d=\"M0 0L6 3L0 6Z\" fill=\"#c27a2c\"/></marker></defs><text x=\"320\" y=\"214\" text-anchor=\"middle\" font-family=\"system-ui,sans-serif\" font-size=\"11\" fill=\"#44506b\">Retour arrière immédiat : une commande, ou FAST_ANYTHING_DISABLE=1</text></svg>",
+     "alt": "Schéma en quatre étapes : scan, port, verify, enable.",
+     "caption": "Le portage n'est branché que si tous les cas rejoués donnent le même résultat que le code d'origine."
+    },
+    {
+     "type": "heading",
+     "level": 2,
+     "text": "Des garde-fous plutôt qu'une promesse"
+    },
+    {
+     "type": "paragraph",
+     "text": "Le point intéressant n'est pas la génération de code, mais la discipline qui l'entoure. Un portage n'est activé que si chaque cas de test concorde : les nombres à virgule doivent coïncider à 1e-9 près et les erreurs doivent survenir aux mêmes endroits. Un portage plus lent à l'appel que l'original, parce que le passage vers Rust coûte plus qu'il ne rapporte, est écarté. Le dépôt cite un exemple parlant : un portage d'apparence correcte comparait des octets au lieu de caractères, et 148 des 500 appels enregistrés ont suffi à révéler l'écart."
+    },
+    {
+     "type": "paragraph",
+     "text": "L'outil porte de préférence la boucle externe plutôt qu'une petite fonction interne, afin de ne franchir la frontière vers Rust qu'une fois au lieu de plusieurs millions. Chaque portage est une caisse minimale avec un cache de compilation partagé, ce qui ramène les compilations à quelques secondes."
+    },
+    {
+     "type": "heading",
+     "level": 2,
+     "text": "Chiffres annoncés, à prendre avec prudence"
+    },
+    {
+     "type": "paragraph",
+     "text": "Les mesures proviennent de la machine de l'auteur (un i5-10500 sous Windows 11, sauf pour C et C++, mesurés sur un exécuteur GitHub Actions à quatre cœurs) et portent surtout sur un même type de charge, la déduplication approximative de noms."
+    },
+    {
+     "type": "table",
+     "headers": [
+      "Langage",
+      "Avant",
+      "Après",
+      "Gain"
+     ],
+     "rows": [
+      [
+       "Python (700 noms)",
+       "4,91 s",
+       "42 ms",
+       "116×"
+      ],
+      [
+       "PHP (600 noms)",
+       "2,94 s",
+       "53 ms",
+       "55×"
+      ],
+      [
+       "Go (3 000 noms)",
+       "3,02 s",
+       "144 ms",
+       "21×"
+      ],
+      [
+       "TypeScript (2 000 noms)",
+       "3,11 s",
+       "155 ms",
+       "20×"
+      ],
+      [
+       "Java (4 000 noms)",
+       "3,50 s",
+       "1,18 s",
+       "3×"
+      ],
+      [
+       "C++ (6 000 noms)",
+       "3,02 s",
+       "1,09 s",
+       "2,7×"
+      ]
+     ]
+    },
+    {
+     "type": "paragraph",
+     "text": "Pour Java, l'auteur précise que la fonction elle-même gagne un facteur 11 et que le démarrage de la machine virtuelle explique le reste. Python 3.10 et plus, Node 22, Bun, Deno 2, Ruby 3.3, Java 22, Go 1.22, PHP 8.1, C, C++ et C# sur .NET 8 sont pris en charge, via PyO3, napi-rs ou un pont C échangeant du JSON. Un plugin pour Claude Code et un serveur MCP exposant huit outils sont fournis, et l'outil fonctionne aussi avec Codex ou toute commande lisant une consigne sur son entrée standard."
+    },
+    {
+     "type": "usecases",
+     "title": "Exemples d'utilisation",
+     "items": [
+      {
+       "icon": "🐍",
+       "title": "Un service Python gourmand",
+       "text": "Une équipe dont l'API passe 80 % de son temps dans une fonction de nettoyage de texte peut la faire porter seule, sans toucher au reste du code ni changer de langage d'équipe."
+      },
+      {
+       "icon": "🧪",
+       "title": "Un script d'analyse de données",
+       "text": "Un analyste dont le traitement hebdomadaire dure plusieurs minutes peut mesurer le gain avec `bench` et joindre le rapport au format SVG à sa demande de fusion."
+      },
+      {
+       "icon": "🛟",
+       "title": "Un déploiement prudent",
+       "text": "En production, un responsable d'exploitation peut garder la possibilité de désactiver le portage par une variable d'environnement si un comportement inattendu apparaît."
+      }
+     ]
+    },
+    {
+     "type": "timeline",
+     "title": "D'où l'on vient, où l'on va",
+     "items": [
+      {
+       "label": "Avant",
+       "text": "Réécrire un composant critique en Rust passe par des semaines de travail et de revue ; les extensions natives restent l'apanage de spécialistes."
+      },
+      {
+       "label": "22 novembre 2026",
+       "text": "fast-anything met en avant une boucle automatisée avec vérification par rejeu d'appels réels."
+      },
+      {
+       "label": "À venir",
+       "text": "Rien n'est annoncé dans le dépôt au-delà des langages déjà listés ; la fiabilité sur du code de production reste à démontrer."
+      }
+     ]
+    },
+    {
+     "type": "opinion",
+     "title": "Notre avis",
+     "paragraphs": [
+      "L'idée est sensée : mesurer d'abord, ne traduire que ce qui coûte, puis exiger une équivalence observable. C'est exactement ce qu'on attend d'un code produit par un agent, dont l'apparence de justesse est trompeuse. Le rejeu d'appels réels est plus convaincant qu'un simple test unitaire écrit par la machine elle-même.",
+      "Les limites sont réelles : seules les fonctions de premier niveau, déterministes et manipulant des données simples sont éligibles, et les benchmarks viennent d'un seul poste et d'une charge dominante. À un horizon d'un à trois ans, ce type d'outil pourrait banaliser l'optimisation chirurgicale des langages dynamiques, à condition que les équipes gardent la revue humaine du code généré."
+     ],
+     "verdict": "Une démarche pragmatique et bien outillée, dont les gains annoncés restent à confirmer sur d'autres charges."
+    },
+    {
+     "type": "callout",
+     "title": "À retenir",
+     "text": "Les fonctions éligibles doivent être déterministes et prendre des données simples ; une chaîne d'outils Rust locale (rustup) est nécessaire."
+    }
+   ],
+   "publishedAt": "2026-11-22T18:17:05+01:00"
+  },
+  {
+   "id": "devops-pool-ntp-serveur-strate-2-geerling",
+   "category": "devops",
+   "icon": "🕰️",
+   "title": "Rejoindre le pool NTP : un serveur de strate 2 alimenté par une horloge GPS maison, et la panne qui a suivi",
+   "summary": "Jeff Geerling a ouvert un serveur public de strate 2 relié par WireGuard à son horloge de strate 1 sur Raspberry Pi. Son retour d'expérience détaille la précision obtenue, les pièges de configuration et une panne causée par une mise à jour automatique.",
+   "tags": [
+    "NTP",
+    "synchronisation horaire",
+    "Raspberry Pi",
+    "GNSS",
+    "chrony"
+   ],
+   "importance": 3,
+   "readingMinutes": 5,
+   "sourceDate": "2026-11-17",
+   "sources": [
+    {
+     "title": "I joined the NTP Pool, but not with my Stratum 1 Pi",
+     "url": "https://www.jeffgeerling.com/blog/2026/i-joined-the-ntp-pool/",
+     "publisher": "Jeff Geerling"
+    }
+   ],
+   "illustration": {
+    "svg": "<svg xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"0 0 640 360\"><defs><linearGradient id=\"g\" x1=\"0\" y1=\"0\" x2=\"1\" y2=\"1\"><stop offset=\"0\" stop-color=\"hsl(160,65%,38%)\"/><stop offset=\"1\" stop-color=\"hsl(200,60%,22%)\"/></linearGradient></defs><rect width=\"640\" height=\"360\" fill=\"url(#g)\"/><circle cx=\"90\" cy=\"300\" r=\"70\" fill=\"#fff\" opacity=\".08\"/><circle cx=\"560\" cy=\"60\" r=\"50\" fill=\"#fff\" opacity=\".08\"/><circle cx=\"320\" cy=\"180\" r=\"100\" fill=\"none\" stroke=\"#fff\" stroke-width=\"10\"/><path d=\"M320 180V110M320 180L375 205\" stroke=\"#fff\" stroke-width=\"10\" stroke-linecap=\"round\"/><circle cx=\"320\" cy=\"180\" r=\"9\" fill=\"#fff\"/><path d=\"M130 90l40 40M510 90l-40 40\" stroke=\"#fff\" stroke-width=\"8\" stroke-linecap=\"round\"/></svg>"
+   },
+   "blocks": [
+    {
+     "type": "paragraph",
+     "text": "Faire tourner une horloge de référence à la maison est un classique du bricolage réseau ; la rendre utile à tout Internet l'est moins. Dans un billet daté du 17 novembre 2026, le vidéaste et développeur Jeff Geerling raconte comment il a rejoint le **pool NTP** avec un serveur public, `ntp-01.jeffgeerling.com`, tout en gardant son horloge de précision hors d'atteinte du public. Le texte vaut surtout par ses détails de configuration et par la panne survenue pendant la rédaction, deux sources d'enseignements pour quiconque exploite un service de temps."
+    },
+    {
+     "type": "heading",
+     "level": 2,
+     "text": "L'architecture : une strate 1 privée, une strate 2 publique"
+    },
+    {
+     "type": "paragraph",
+     "text": "À la source se trouve un Raspberry Pi du projet « Time Pi », équipé d'une antenne GNSS externe, d'une carte TimeHAT v6 dotée d'une carte réseau Intel i226 capable d'horodatage matériel, et d'un module GNSS de qualité horloge u-blox ZED-F9T. Le signal PPS du récepteur discipline l'horloge matérielle de la carte réseau (PHC) avec `ts2phc` de linuxptp, à quelques dizaines de nanosecondes de l'UTC. Chrony règle ensuite l'horloge système à partir de cette référence, avec une exactitude d'environ une microseconde, limitée par la latence du bus PCIe."
+    },
+    {
+     "type": "paragraph",
+     "text": "Plutôt que d'exposer ce Pi, l'auteur a installé sur un serveur privé virtuel, à Saint-Louis, un serveur de **strate 2** qui se synchronise sur la strate 1 par un tunnel WireGuard. C'est ce serveur qui est inscrit au pool. La raison est pratique : l'adresse IP d'un serveur du pool est publique, et celle de son domicile avait déjà subi une attaque par déni de service pendant environ un mois."
+    },
+    {
+     "type": "diagram",
+     "svg": "<svg xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"0 0 640 240\"><rect width=\"640\" height=\"240\" rx=\"14\" fill=\"#f3f6fb\"/><text x=\"320\" y=\"30\" text-anchor=\"middle\" font-family=\"system-ui,sans-serif\" font-size=\"16\" font-weight=\"700\" fill=\"#1b2a4a\">Chaîne de synchronisation</text><rect x=\"20\" y=\"62\" width=\"136\" height=\"110\" rx=\"10\" fill=\"#fff\" stroke=\"#5b7bb5\" stroke-width=\"2\"/><text x=\"88\" y=\"88\" text-anchor=\"middle\" font-family=\"system-ui,sans-serif\" font-size=\"13\" font-weight=\"700\" fill=\"#1b2a4a\">GNSS</text><text x=\"88\" y=\"112\" text-anchor=\"middle\" font-family=\"system-ui,sans-serif\" font-size=\"11.5\" fill=\"#33405c\">Antenne et module</text><text x=\"88\" y=\"129\" text-anchor=\"middle\" font-family=\"system-ui,sans-serif\" font-size=\"11.5\" fill=\"#33405c\">u-blox ZED-F9T</text><path d=\"M158 117h14\" stroke=\"#c27a2c\" stroke-width=\"3\" marker-end=\"url(#a)\"/><rect x=\"174\" y=\"62\" width=\"136\" height=\"110\" rx=\"10\" fill=\"#fff\" stroke=\"#5b7bb5\" stroke-width=\"2\"/><text x=\"243\" y=\"88\" text-anchor=\"middle\" font-family=\"system-ui,sans-serif\" font-size=\"13\" font-weight=\"700\" fill=\"#1b2a4a\">Strate 1</text><text x=\"243\" y=\"112\" text-anchor=\"middle\" font-family=\"system-ui,sans-serif\" font-size=\"11.5\" fill=\"#33405c\">Raspberry Pi,</text><text x=\"243\" y=\"129\" text-anchor=\"middle\" font-family=\"system-ui,sans-serif\" font-size=\"11.5\" fill=\"#33405c\">TimeHAT, chrony</text><path d=\"M313 117h14\" stroke=\"#c27a2c\" stroke-width=\"3\" marker-end=\"url(#a)\"/><rect x=\"329\" y=\"62\" width=\"136\" height=\"110\" rx=\"10\" fill=\"#fff\" stroke=\"#5b7bb5\" stroke-width=\"2\"/><text x=\"397\" y=\"88\" text-anchor=\"middle\" font-family=\"system-ui,sans-serif\" font-size=\"13\" font-weight=\"700\" fill=\"#1b2a4a\">WireGuard</text><text x=\"397\" y=\"112\" text-anchor=\"middle\" font-family=\"system-ui,sans-serif\" font-size=\"11.5\" fill=\"#33405c\">Tunnel chiffré</text><text x=\"397\" y=\"129\" text-anchor=\"middle\" font-family=\"system-ui,sans-serif\" font-size=\"11.5\" fill=\"#33405c\">vers le serveur</text><path d=\"M468 117h14\" stroke=\"#c27a2c\" stroke-width=\"3\" marker-end=\"url(#a)\"/><rect x=\"484\" y=\"62\" width=\"136\" height=\"110\" rx=\"10\" fill=\"#fff\" stroke=\"#5b7bb5\" stroke-width=\"2\"/><text x=\"552\" y=\"88\" text-anchor=\"middle\" font-family=\"system-ui,sans-serif\" font-size=\"13\" font-weight=\"700\" fill=\"#1b2a4a\">Strate 2</text><text x=\"552\" y=\"112\" text-anchor=\"middle\" font-family=\"system-ui,sans-serif\" font-size=\"11.5\" fill=\"#33405c\">VPS public inscrit</text><text x=\"552\" y=\"129\" text-anchor=\"middle\" font-family=\"system-ui,sans-serif\" font-size=\"11.5\" fill=\"#33405c\">au pool NTP</text><defs><marker id=\"a\" markerWidth=\"6\" markerHeight=\"6\" refX=\"5\" refY=\"3\" orient=\"auto\"><path d=\"M0 0L6 3L0 6Z\" fill=\"#c27a2c\"/></marker></defs><text x=\"320\" y=\"214\" text-anchor=\"middle\" font-family=\"system-ui,sans-serif\" font-size=\"11\" fill=\"#44506b\">Précision de l'horloge système de la strate 1 : environ 1 µs</text></svg>",
+     "alt": "Schéma de la chaîne allant de l'antenne GNSS au serveur de strate 2 public.",
+     "caption": "Le serveur public ne sert que de relais : l'horloge de référence reste derrière le tunnel."
+    },
+    {
+     "type": "heading",
+     "level": 2,
+     "text": "Pièges rencontrés"
+    },
+    {
+     "type": "list",
+     "items": [
+      "L'option `sourcedir /run/chrony-dhcp` de chrony permettait à un serveur NTP annoncé par DHCP de prendre le pas sur l'heure GNSS ; l'auteur a dû la corriger.",
+      "L'outil `phc2sys` provoquait des sauts d'environ 200 ms, d'où le choix de `refclock PHC` directement dans chrony.",
+      "Le serveur de strate 2 est marqué `noselect` côté strate 1, ce qui permet de mesurer le délai Internet entre les deux sans qu'il serve de source."
+     ]
+    },
+    {
+     "type": "paragraph",
+     "text": "Le suivi compare l'heure à WWV (Fort Collins), au NIST (Boulder) et à Cloudflare toutes les 1 024 secondes ; l'écart avec Cloudflare fluctue, ce que l'auteur attribue aux changements de routage BGP. Le pool ne prend pas encore en charge NTS, et il recommande de ne jamais s'appuyer uniquement sur NTP pour un besoin de synchronisation critique."
+    },
+    {
+     "type": "heading",
+     "level": 2,
+     "text": "La panne : une mise à jour automatique"
+    },
+    {
+     "type": "paragraph",
+     "text": "Pendant la rédaction, le serveur est tombé. Les journaux ont montré qu'une mise à jour automatique avait installé un nouveau noyau Debian puis redémarré la machine, et que ce noyau posait problème. Les mises à jour restent actives, mais les redémarrages sont désormais manuels. Remonter au-dessus d'un score de 10 dans le pool prend environ 6 à 12 heures. L'auteur rappelle aussi que le trafic NTP décroît lentement : des équipements mal configurés continuent d'interroger un serveur pendant des mois, voire des années."
+    },
+    {
+     "type": "usecases",
+     "title": "Exemples d'utilisation",
+     "items": [
+      {
+       "icon": "🏠",
+       "title": "Un laboratoire personnel",
+       "text": "Un passionné peut offrir au pool un serveur fiable depuis un petit serveur loué, sans exposer son matériel de précision ni son adresse domestique."
+      },
+      {
+       "icon": "🏢",
+       "title": "Une PME avec ses propres serveurs",
+       "text": "Une entreprise peut synchroniser ses machines sur un serveur interne de strate 1 ou 2 plutôt que sur des sources externes imprévisibles, et surveiller l'écart avec des références publiques."
+      },
+      {
+       "icon": "🛠️",
+       "title": "Un administrateur système",
+       "text": "En désactivant les redémarrages automatiques tout en gardant les mises à jour de sécurité, il évite qu'un noyau défectueux ne mette un service hors ligne sans surveillance."
+      }
+     ]
+    },
+    {
+     "type": "timeline",
+     "title": "D'où l'on vient, où l'on va",
+     "items": [
+      {
+       "label": "Avant",
+       "text": "Le pool NTP repose sur des volontaires qui s'engagent sur la durée avec des adresses stables."
+      },
+      {
+       "label": "17 novembre 2026",
+       "text": "Publication du billet de Jeff Geerling et inscription du serveur ntp-01."
+      },
+      {
+       "label": "22 novembre 2026",
+       "text": "L'auteur indique que le tableau de bord de son hébergeur était resté défaillant jusqu'à cette date."
+      }
+     ]
+    },
+    {
+     "type": "opinion",
+     "title": "Notre avis",
+     "paragraphs": [
+      "Le billet est un bon rappel : un service de temps se juge à sa disponibilité autant qu'à sa précision, et une mise à jour automatique peut le faire tomber sans prévenir. Séparer l'horloge de référence du serveur public est une bonne pratique de réduction d'exposition.",
+      "Dans un à trois ans, la prise en charge de NTS dans le pool et l'horodatage matériel bon marché pourraient rendre ce type d'installation plus courant, mais le pool continuera de dépendre d'un petit nombre de volontaires."
+     ],
+     "verdict": "Un cas d'école sur l'architecture et l'exploitation, plus instructif par ses erreurs que par ses nanosecondes."
+    },
+    {
+     "type": "callout",
+     "title": "À retenir",
+     "text": "Le pool exige un serveur en ligne en continu, avec une adresse IP stable et une heure fiable ; il ne faut pas s'y inscrire « pour essayer »."
+    }
+   ],
+   "publishedAt": "2026-11-22T18:17:05+01:00"
+  },
+  {
+   "id": "web-open-social-web-alliance-gouvernance-fediverse-atproto",
+   "category": "web",
+   "icon": "🕸️",
+   "title": "Open Social Web Alliance : un projet d'alliance pour gouverner et financer un web social ouvert, entre Fediverse et AT Protocol",
+   "summary": "Un collectif planifie une alliance mêlant société civile, recherche, entreprises et secteur public afin de partager la gouvernance d'une infrastructure sociale décentralisée fondée sur ActivityPub, l'AT Protocol et Matrix.",
+   "tags": [
+    "Fediverse",
+    "ActivityPub",
+    "AT Protocol",
+    "Matrix",
+    "gouvernance"
+   ],
+   "importance": 3,
+   "readingMinutes": 5,
+   "sourceDate": "2026-11-22",
+   "sources": [
+    {
+     "title": "Open Social Web Alliance",
+     "url": "https://osw-alliance.net/en/",
+     "publisher": "OSWA"
+    }
+   ],
+   "cover": {
+    "url": "https://osw-alliance.net/wp-content/uploads/2026/07/cropped-OSWA-Dots-01-freisteller-scaled-1.png",
+    "alt": "Logo à points de l'Open Social Web Alliance",
+    "credit": "osw-alliance.net"
+   },
+   "illustration": {
+    "svg": "<svg xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"0 0 640 360\"><defs><linearGradient id=\"g\" x1=\"0\" y1=\"0\" x2=\"1\" y2=\"1\"><stop offset=\"0\" stop-color=\"hsl(210,65%,38%)\"/><stop offset=\"1\" stop-color=\"hsl(250,60%,22%)\"/></linearGradient></defs><rect width=\"640\" height=\"360\" fill=\"url(#g)\"/><circle cx=\"90\" cy=\"300\" r=\"70\" fill=\"#fff\" opacity=\".08\"/><circle cx=\"560\" cy=\"60\" r=\"50\" fill=\"#fff\" opacity=\".08\"/><circle cx=\"320\" cy=\"180\" r=\"26\" fill=\"#fff\"/><circle cx=\"170\" cy=\"110\" r=\"18\" fill=\"#fff\"/><circle cx=\"470\" cy=\"110\" r=\"18\" fill=\"#fff\"/><circle cx=\"190\" cy=\"270\" r=\"18\" fill=\"#fff\"/><circle cx=\"450\" cy=\"270\" r=\"18\" fill=\"#fff\"/><path d=\"M320 180L170 110M320 180L470 110M320 180L190 270M320 180L450 270M170 110L190 270M470 110L450 270\" stroke=\"#fff\" stroke-width=\"5\"/></svg>"
+   },
+   "blocks": [
+    {
+     "type": "paragraph",
+     "text": "Les réseaux sociaux décentralisés progressent, mais leur avenir dépend de questions peu spectaculaires : qui finance les serveurs, qui arbitre les règles communes, qui répond devant la société ? La page de l'**Open Social Web Alliance** (OSWA), consultée le 22 novembre 2026, présente un projet d'alliance qui entend répondre à ces questions pour un « web social ouvert », une infrastructure de communication décentralisée d'intérêt public. L'initiative est encore à l'état de plan : la page ne nomme aucun membre précis et invite simplement les alliés à se manifester."
+    },
+    {
+     "type": "heading",
+     "level": 2,
+     "text": "Ce que l'alliance veut faire"
+    },
+    {
+     "type": "paragraph",
+     "text": "Le projet réunirait des acteurs de la société civile, de la recherche, des entreprises, des médias, de la culture et du secteur public. Ses objectifs affichés sont de construire et d'exploiter le cœur de l'infrastructure, d'établir une gouvernance partagée avec une charte d'admission des nouveaux membres, de réunir des financements publics et privés, et de publier un premier « rapport sur la santé du web social » mêlant constats d'usage, juridiques, techniques et universitaires. Cinq défis sont identifiés : l'infrastructure, la gouvernance, le financement, l'attractivité et le mandat public."
+    },
+    {
+     "type": "heading",
+     "level": 2,
+     "text": "Trois protocoles, deux familles d'écosystèmes"
+    },
+    {
+     "type": "paragraph",
+     "text": "Sur le plan technique, l'alliance s'appuie sur **ActivityPub** et l'**AT Protocol** pour les réseaux sociaux, et sur **Matrix** pour la messagerie directe. La page chiffre les deux grands écosystèmes : le Fediverse, en développement depuis 2008, compterait plus de 100 applications, plus de 42 000 instances actives et environ 13 millions d'utilisateurs actifs ; l'écosystème AT Protocol, développé depuis 2022, afficherait environ 43 millions de comptes enregistrés et des dizaines d'implémentations. Ces chiffres sont ceux de l'alliance et n'ont pas été vérifiés de façon indépendante."
+    },
+    {
+     "type": "diagram",
+     "svg": "<svg xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"0 0 640 260\"><rect width=\"640\" height=\"260\" rx=\"14\" fill=\"#f3f6fb\"/><text x=\"320\" y=\"30\" text-anchor=\"middle\" font-family=\"system-ui,sans-serif\" font-size=\"16\" font-weight=\"700\" fill=\"#1b2a4a\">Deux écosystèmes, deux mesures</text><rect x=\"135\" y=\"186\" width=\"110\" height=\"20\" rx=\"6\" fill=\"#5b7bb5\"/><text x=\"190\" y=\"178\" text-anchor=\"middle\" font-family=\"system-ui,sans-serif\" font-size=\"14\" font-weight=\"700\" fill=\"#1b2a4a\">≈ 13 M</text><text x=\"190\" y=\"225\" text-anchor=\"middle\" font-family=\"system-ui,sans-serif\" font-size=\"11.5\" fill=\"#1b2a4a\">Fediverse|(actifs)</text><rect x=\"265\" y=\"140\" width=\"110\" height=\"64\" rx=\"6\" fill=\"#5b7bb5\"/><text x=\"320\" y=\"132\" text-anchor=\"middle\" font-family=\"system-ui,sans-serif\" font-size=\"14\" font-weight=\"700\" fill=\"#1b2a4a\">≈ 43 M</text><text x=\"320\" y=\"225\" text-anchor=\"middle\" font-family=\"system-ui,sans-serif\" font-size=\"11.5\" fill=\"#1b2a4a\">AT Protocol|(comptes)</text><rect x=\"395\" y=\"55\" width=\"110\" height=\"150\" rx=\"6\" fill=\"#5b7bb5\"/><text x=\"450\" y=\"47\" text-anchor=\"middle\" font-family=\"system-ui,sans-serif\" font-size=\"14\" font-weight=\"700\" fill=\"#1b2a4a\">> 100 M</text><text x=\"450\" y=\"225\" text-anchor=\"middle\" font-family=\"system-ui,sans-serif\" font-size=\"11.5\" fill=\"#1b2a4a\">Objectif|2028</text><text x=\"320\" y=\"248\" text-anchor=\"middle\" font-family=\"system-ui,sans-serif\" font-size=\"11\" fill=\"#44506b\">Chiffres de l'OSWA : utilisateurs actifs (Fediverse), comptes enregistrés (AT Protocol), cible visée</text></svg>",
+     "alt": "Trois barres : 13 millions, 43 millions et un objectif de plus de 100 millions.",
+     "caption": "Les deux premières valeurs ne mesurent pas la même chose : utilisateurs actifs d'un côté, comptes enregistrés de l'autre."
+    },
+    {
+     "type": "heading",
+     "level": 2,
+     "text": "Un calendrier proposé"
+    },
+    {
+     "type": "paragraph",
+     "text": "Selon la page, un sommet du web social ouvert, éventuellement soutenu par le gouvernement fédéral allemand, pourrait se tenir à l'automne 2026 pour adopter la charte. Un financement public de l'infrastructure et un premier tour de table seraient en place au printemps 2027, avec pour horizon 2028 une vision de plus de 100 millions d'utilisateurs. Ces échéances sont des ambitions, non des engagements confirmés."
+    },
+    {
+     "type": "usecases",
+     "title": "Exemples d'utilisation",
+     "items": [
+      {
+       "icon": "🏛️",
+       "title": "Une collectivité ou un média public",
+       "text": "Elle pourrait publier sur un réseau ouvert sans dépendre des règles d'une seule plateforme privée, en s'appuyant sur une infrastructure gouvernée collectivement."
+      },
+      {
+       "icon": "🧑‍💻",
+       "title": "Un développeur d'application sociale",
+       "text": "Il pourrait compter sur des protocoles stables et une gouvernance commune plutôt que sur l'API changeante d'un acteur unique."
+      },
+      {
+       "icon": "👥",
+       "title": "Un utilisateur ordinaire",
+       "text": "Il pourrait un jour changer de service tout en gardant son réseau de contacts, si l'interopérabilité promise se concrétise."
+      }
+     ]
+    },
+    {
+     "type": "timeline",
+     "title": "D'où l'on vient, où l'on va",
+     "items": [
+      {
+       "label": "2008",
+       "text": "Début du développement du Fediverse, selon l'alliance."
+      },
+      {
+       "label": "2022",
+       "text": "Début de l'écosystème AT Protocol."
+      },
+      {
+       "label": "Automne 2026",
+       "text": "Sommet envisagé pour adopter la charte."
+      },
+      {
+       "label": "Printemps 2027",
+       "text": "Financement public et premier tour de table visés."
+      },
+      {
+       "label": "2028",
+       "text": "Objectif de plus de 100 millions d'utilisateurs."
+      }
+     ]
+    },
+    {
+     "type": "opinion",
+     "title": "Notre avis",
+     "paragraphs": [
+      "L'enjeu est réel : un réseau ouvert sans structure de financement ni arbitre reste fragile, et la fragmentation entre protocoles décourage les usagers. Une alliance pourrait fournir ce qui manque, à condition de ne pas devenir un nouveau centre de pouvoir qui contredirait la promesse de décentralisation.",
+      "À un horizon d'un à trois ans, le principal risque est l'absence de membres de poids et de financements concrets : la page ne cite aucun nom. L'autre défi sera de faire cohabiter deux communautés techniques aux cultures différentes."
+     ],
+     "verdict": "Une ambition légitime, mais encore sans acteurs identifiés ni financement confirmé."
+    },
+    {
+     "type": "callout",
+     "title": "À retenir",
+     "text": "L'alliance reste un projet : aucun membre, charte ou financement n'est confirmé sur la page consultée."
+    }
+   ],
+   "publishedAt": "2026-11-22T18:17:05+01:00"
+  },
+  {
+   "id": "cybersecurite-fbi-ncic-intrusion-apparente",
+   "category": "cybersecurite",
+   "icon": "🚨",
+   "title": "FBI : une intrusion apparente dans le fichier national NCIC, base de données des forces de l'ordre américaines",
+   "summary": "Le FBI enquête sur un piratage apparent de la National Crime Information Center, que consultent les agences locales, d'État et fédérales. Le périmètre, l'auteur et la méthode restent inconnus.",
+   "tags": [
+    "FBI",
+    "NCIC",
+    "intrusion",
+    "données policières",
+    "États-Unis"
+   ],
+   "importance": 4,
+   "readingMinutes": 4,
+   "sourceDate": "2026-11-21",
+   "sources": [
+    {
+     "title": "FBI Investigating Apparent Hack of Its Key National Criminal Justice Database, AP Source Says",
+     "url": "https://www.securityweek.com/fbi-investigating-apparent-hack-of-its-key-national-criminal-justice-database-ap-source-says/",
+     "publisher": "SecurityWeek"
+    }
+   ],
+   "illustration": {
+    "svg": "<svg xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"0 0 640 360\"><defs><linearGradient id=\"g\" x1=\"0\" y1=\"0\" x2=\"1\" y2=\"1\"><stop offset=\"0\" stop-color=\"hsl(175,65%,38%)\"/><stop offset=\"1\" stop-color=\"hsl(215,60%,22%)\"/></linearGradient></defs><rect width=\"640\" height=\"360\" fill=\"url(#g)\"/><circle cx=\"90\" cy=\"300\" r=\"70\" fill=\"#fff\" opacity=\".08\"/><circle cx=\"560\" cy=\"60\" r=\"50\" fill=\"#fff\" opacity=\".08\"/><path d=\"M320 70L450 120V210C450 260 390 290 320 310C250 290 190 260 190 210V120Z\" fill=\"#fff\" opacity=\".92\"/><path d=\"M270 190L305 225L375 150\" stroke=\"hsl(175,65%,30%)\" stroke-width=\"14\" fill=\"none\" stroke-linecap=\"round\"/><path d=\"M130 300L190 240\" stroke=\"#fff\" stroke-width=\"6\"/></svg>"
+   },
+   "blocks": [
+    {
+     "type": "paragraph",
+     "text": "Selon une information de l'agence Associated Press reprise par SecurityWeek le 21 novembre 2026, le FBI enquête sur un piratage apparent du **National Crime Information Center** (NCIC), l'une des bases de données centrales du système judiciaire américain. L'information a d'abord été rapportée par CNN, puis confirmée par une source anonyme proche du dossier. Le FBI a refusé de commenter. Interrogé dans un entretien sur Fox News, le président Donald Trump a déclaré que l'équipe venait de l'apprendre et que ce n'était « pas bon »."
+    },
+    {
+     "type": "heading",
+     "level": 2,
+     "text": "Ce qu'est le NCIC"
+    },
+    {
+     "type": "paragraph",
+     "text": "Le NCIC est une base informatisée d'informations de justice pénale, accessible aux agences locales, d'État et fédérales. Elle contient notamment des fiches sur des fugitifs, des personnes disparues, des antécédents judiciaires et des biens volés. C'est un outil du quotidien pour des policiers qui contrôlent un véhicule ou une identité : une atteinte à sa disponibilité ou à son intégrité aurait des effets opérationnels immédiats, tout comme une fuite de données aurait des conséquences pour les personnes qui y figurent."
+    },
+    {
+     "type": "heading",
+     "level": 2,
+     "text": "Ce qui est connu, et ce qui ne l'est pas"
+    },
+    {
+     "type": "list",
+     "items": [
+      "Connu : le FBI enquête ; l'incident est qualifié d'« apparent » ; la source de l'AP est anonyme ; la nouvelle a été divulguée un samedi.",
+      "Inconnu : l'auteur, la méthode d'intrusion, la nature et le volume des données consultées, la date de début de l'accès.",
+      "Non établi : tout lien avec les pannes numériques étendues récentes, que des responsables ont attribuées à des mises à jour de routine et à des corrections de vulnérabilités, et non à des cyberattaques."
+     ]
+    },
+    {
+     "type": "diagram",
+     "svg": "<svg xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"0 0 640 240\"><rect width=\"640\" height=\"240\" rx=\"14\" fill=\"#f3f6fb\"/><text x=\"320\" y=\"30\" text-anchor=\"middle\" font-family=\"system-ui,sans-serif\" font-size=\"16\" font-weight=\"700\" fill=\"#1b2a4a\">Établi, incertain, inconnu</text><rect x=\"20\" y=\"62\" width=\"136\" height=\"110\" rx=\"10\" fill=\"#fff\" stroke=\"#5b7bb5\" stroke-width=\"2\"/><text x=\"88\" y=\"88\" text-anchor=\"middle\" font-family=\"system-ui,sans-serif\" font-size=\"13\" font-weight=\"700\" fill=\"#1b2a4a\">Établi</text><text x=\"88\" y=\"112\" text-anchor=\"middle\" font-family=\"system-ui,sans-serif\" font-size=\"11.5\" fill=\"#33405c\">Enquête du FBI</text><text x=\"88\" y=\"129\" text-anchor=\"middle\" font-family=\"system-ui,sans-serif\" font-size=\"11.5\" fill=\"#33405c\">annoncée par</text><text x=\"88\" y=\"146\" text-anchor=\"middle\" font-family=\"system-ui,sans-serif\" font-size=\"11.5\" fill=\"#33405c\">des sources</text><path d=\"M158 117h14\" stroke=\"#c27a2c\" stroke-width=\"3\" marker-end=\"url(#a)\"/><rect x=\"174\" y=\"62\" width=\"136\" height=\"110\" rx=\"10\" fill=\"#fff\" stroke=\"#5b7bb5\" stroke-width=\"2\"/><text x=\"243\" y=\"88\" text-anchor=\"middle\" font-family=\"system-ui,sans-serif\" font-size=\"13\" font-weight=\"700\" fill=\"#1b2a4a\">Incertain</text><text x=\"243\" y=\"112\" text-anchor=\"middle\" font-family=\"system-ui,sans-serif\" font-size=\"11.5\" fill=\"#33405c\">« Piratage</text><text x=\"243\" y=\"129\" text-anchor=\"middle\" font-family=\"system-ui,sans-serif\" font-size=\"11.5\" fill=\"#33405c\">apparent »,</text><text x=\"243\" y=\"146\" text-anchor=\"middle\" font-family=\"system-ui,sans-serif\" font-size=\"11.5\" fill=\"#33405c\">source anonyme</text><path d=\"M313 117h14\" stroke=\"#c27a2c\" stroke-width=\"3\" marker-end=\"url(#a)\"/><rect x=\"329\" y=\"62\" width=\"136\" height=\"110\" rx=\"10\" fill=\"#fff\" stroke=\"#5b7bb5\" stroke-width=\"2\"/><text x=\"397\" y=\"88\" text-anchor=\"middle\" font-family=\"system-ui,sans-serif\" font-size=\"13\" font-weight=\"700\" fill=\"#1b2a4a\">Inconnu</text><text x=\"397\" y=\"112\" text-anchor=\"middle\" font-family=\"system-ui,sans-serif\" font-size=\"11.5\" fill=\"#33405c\">Auteur, méthode,</text><text x=\"397\" y=\"129\" text-anchor=\"middle\" font-family=\"system-ui,sans-serif\" font-size=\"11.5\" fill=\"#33405c\">données touchées,</text><text x=\"397\" y=\"146\" text-anchor=\"middle\" font-family=\"system-ui,sans-serif\" font-size=\"11.5\" fill=\"#33405c\">durée</text><path d=\"M468 117h14\" stroke=\"#c27a2c\" stroke-width=\"3\" marker-end=\"url(#a)\"/><rect x=\"484\" y=\"62\" width=\"136\" height=\"110\" rx=\"10\" fill=\"#fff\" stroke=\"#5b7bb5\" stroke-width=\"2\"/><text x=\"552\" y=\"88\" text-anchor=\"middle\" font-family=\"system-ui,sans-serif\" font-size=\"13\" font-weight=\"700\" fill=\"#1b2a4a\">À suivre</text><text x=\"552\" y=\"112\" text-anchor=\"middle\" font-family=\"system-ui,sans-serif\" font-size=\"11.5\" fill=\"#33405c\">Confirmation</text><text x=\"552\" y=\"129\" text-anchor=\"middle\" font-family=\"system-ui,sans-serif\" font-size=\"11.5\" fill=\"#33405c\">officielle et</text><text x=\"552\" y=\"146\" text-anchor=\"middle\" font-family=\"system-ui,sans-serif\" font-size=\"11.5\" fill=\"#33405c\">périmètre</text><defs><marker id=\"a\" markerWidth=\"6\" markerHeight=\"6\" refX=\"5\" refY=\"3\" orient=\"auto\"><path d=\"M0 0L6 3L0 6Z\" fill=\"#c27a2c\"/></marker></defs><text x=\"320\" y=\"214\" text-anchor=\"middle\" font-family=\"system-ui,sans-serif\" font-size=\"11\" fill=\"#44506b\">Situation au 21 novembre 2026, d'après SecurityWeek et l'AP</text></svg>",
+     "alt": "Quatre cases résumant ce qui est établi, incertain, inconnu et à suivre.",
+     "caption": "Beaucoup de questions restent ouvertes : la prudence s'impose tant que le FBI ne s'est pas exprimé."
+    },
+    {
+     "type": "heading",
+     "level": 2,
+     "text": "Un contexte de cibles répétées"
+    },
+    {
+     "type": "paragraph",
+     "text": "L'article rappelle que le FBI est fréquemment visé. En septembre, le groupe criminel ShinyHunters a affirmé avoir obtenu un grand ensemble de données sur des employés et des candidats du bureau, et avoir compromis son portail d'emploi. En mars, le FBI avait déclaré enquêter sur des « activités suspectes » sur un système interne contenant des informations sensibles de surveillance et d'enquête. Ces précédents ne prouvent rien sur l'incident actuel, mais montrent que les systèmes de l'agence sont une cible constante."
+    },
+    {
+     "type": "usecases",
+     "title": "Exemples d'utilisation",
+     "items": [
+      {
+       "icon": "👮",
+       "title": "Un service de police locale",
+       "text": "Il doit prévoir une procédure dégradée au cas où les consultations du fichier seraient suspendues, par exemple en recoupant par d'autres canaux."
+      },
+      {
+       "icon": "🛡️",
+       "title": "Un responsable de la sécurité d'une administration",
+       "text": "Il peut profiter de l'actualité pour vérifier l'authentification renforcée et la journalisation des accès à ses propres fichiers sensibles."
+      },
+      {
+       "icon": "📰",
+       "title": "Un journaliste ou un chercheur",
+       "text": "Il doit distinguer ce que le FBI a confirmé de ce que rapportent des sources anonymes, et attendre un périmètre précis avant de conclure."
+      }
+     ]
+    },
+    {
+     "type": "timeline",
+     "title": "D'où l'on vient, où l'on va",
+     "items": [
+      {
+       "label": "Mars 2026",
+       "text": "Le FBI évoque des activités suspectes sur un système interne sensible."
+      },
+      {
+       "label": "Septembre 2026",
+       "text": "ShinyHunters revendique des données sur des employés et candidats."
+      },
+      {
+       "label": "21 novembre 2026",
+       "text": "Révélation d'un piratage apparent du NCIC."
+      }
+     ]
+    },
+    {
+     "type": "opinion",
+     "title": "Notre avis",
+     "paragraphs": [
+      "Une intrusion dans un fichier aussi central serait grave, mais le mot « apparent » impose de la retenue : en l'état, aucune donnée, aucun auteur, aucune méthode n'est documentée. Les sources anonymes se révèlent parfois incomplètes, voire erronées.",
+      "À un horizon d'un à trois ans, de tels incidents poussent à cloisonner davantage les accès et à renforcer la traçabilité ; reste que les bases partagées entre milliers d'agences multiplient mécaniquement les points d'entrée."
+     ],
+     "verdict": "Un incident à suivre, sur lequel on ne sait presque rien de vérifié."
+    },
+    {
+     "type": "callout",
+     "title": "À retenir",
+     "text": "Le FBI n'a ni confirmé ni détaillé l'incident ; seules des sources anonymes l'ont évoqué."
+    }
+   ],
+   "publishedAt": "2026-11-22T18:17:05+01:00"
+  },
+  {
+   "id": "electronique-bae-radar-passif-signaux-tv-mobile",
+   "category": "electronique",
+   "icon": "📡",
+   "title": "Radar « fantôme » : BAE Systems promet de détecter drones et avions sans émettre, grâce aux signaux de télévision et de téléphonie mobile",
+   "summary": "L'industriel britannique présente un radar passif en composants du commerce, qui exploite les réflexions d'émissions existantes. Les coûts et performances annoncés viennent du constructeur, avec des essais prévus en 2027.",
+   "tags": [
+    "radar passif",
+    "BAE Systems",
+    "drones",
+    "défense",
+    "traitement du signal"
+   ],
+   "importance": 3,
+   "readingMinutes": 5,
+   "sourceDate": "2026-11-22",
+   "sources": [
+    {
+     "title": "Passive 'ghost' radar can detect airborne threats without revealing its own position",
+     "url": "https://www.theregister.com/offbeat/2026/11/22/passive-ghost-radar-can-detect-airborne-threats-without-revealing-its-own-position/5311023",
+     "publisher": "The Register"
+    }
+   ],
+   "cover": {
+    "url": "https://image.theregister.com/5311030.jpg?imageId=5311030&x=0&y=0&cropw=100&croph=100&panox=0&panoy=0&panow=100&panoh=100&width=1200&height=683",
+    "alt": "Illustration de l'article du Register sur le radar passif de BAE Systems",
+    "credit": "theregister.com"
+   },
+   "illustration": {
+    "svg": "<svg xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"0 0 640 360\"><defs><linearGradient id=\"g\" x1=\"0\" y1=\"0\" x2=\"1\" y2=\"1\"><stop offset=\"0\" stop-color=\"hsl(30,65%,38%)\"/><stop offset=\"1\" stop-color=\"hsl(70,60%,22%)\"/></linearGradient></defs><rect width=\"640\" height=\"360\" fill=\"url(#g)\"/><circle cx=\"90\" cy=\"300\" r=\"70\" fill=\"#fff\" opacity=\".08\"/><circle cx=\"560\" cy=\"60\" r=\"50\" fill=\"#fff\" opacity=\".08\"/><path d=\"M200 270A150 150 0 0 1 440 270\" fill=\"none\" stroke=\"#fff\" stroke-width=\"8\"/><path d=\"M240 270A100 100 0 0 1 400 270\" fill=\"none\" stroke=\"#fff\" stroke-width=\"8\"/><path d=\"M280 270A50 50 0 0 1 360 270\" fill=\"none\" stroke=\"#fff\" stroke-width=\"8\"/><circle cx=\"320\" cy=\"270\" r=\"10\" fill=\"#fff\"/><path d=\"M455 110l50 20l-50 20z\" fill=\"#fff\"/></svg>"
+   },
+   "blocks": [
+    {
+     "type": "paragraph",
+     "text": "Un radar classique émet des ondes et analyse leur écho ; c'est efficace, mais l'émission trahit sa position. Le **radar passif** fait l'inverse : il écoute. L'industriel britannique BAE Systems présente, sous le nom de technologie de radar « covert » (discret), un système qui repère des objets en vol à partir des réflexions de diffusions de télévision, de radio et de réseaux mobiles déjà présentes dans l'air. Selon l'article de The Register publié le 22 novembre 2026, le dispositif n'émet aucun signal propre, ce qui le rend plus difficile à détecter."
+    },
+    {
+     "type": "heading",
+     "level": 2,
+     "text": "Un principe ancien, un angle nouveau"
+    },
+    {
+     "type": "paragraph",
+     "text": "Le journal note que le radar passif n'est pas nouveau. L'argument de BAE est d'utiliser du matériel du commerce, ce qui devrait réduire les coûts : le constructeur avance un prix pouvant descendre à un dixième de celui de systèmes actifs comparables. Il indique aussi que l'équipement est assez compact pour être déployé depuis un véhicule de type SUV. Ce sont des affirmations du constructeur, que l'article ne vérifie pas."
+    },
+    {
+     "type": "heading",
+     "level": 2,
+     "text": "Ce qu'il promet de faire"
+    },
+    {
+     "type": "list",
+     "items": [
+      "Suivre des cibles allant de petits drones à des aéronefs plus gros.",
+      "Produire une image aérienne en trois dimensions avec vitesse, cap, distance et altitude.",
+      "Ne pas perturber les équipements existants, un atout dans les aéroports."
+     ]
+    },
+    {
+     "type": "diagram",
+     "svg": "<svg xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"0 0 640 240\"><rect width=\"640\" height=\"240\" rx=\"14\" fill=\"#f3f6fb\"/><text x=\"320\" y=\"30\" text-anchor=\"middle\" font-family=\"system-ui,sans-serif\" font-size=\"16\" font-weight=\"700\" fill=\"#1b2a4a\">Radar actif et radar passif</text><rect x=\"20\" y=\"62\" width=\"188\" height=\"110\" rx=\"10\" fill=\"#fff\" stroke=\"#5b7bb5\" stroke-width=\"2\"/><text x=\"114\" y=\"88\" text-anchor=\"middle\" font-family=\"system-ui,sans-serif\" font-size=\"13\" font-weight=\"700\" fill=\"#1b2a4a\">Radar actif</text><text x=\"114\" y=\"112\" text-anchor=\"middle\" font-family=\"system-ui,sans-serif\" font-size=\"11.5\" fill=\"#33405c\">Émet une onde</text><text x=\"114\" y=\"129\" text-anchor=\"middle\" font-family=\"system-ui,sans-serif\" font-size=\"11.5\" fill=\"#33405c\">puis écoute l'écho</text><text x=\"114\" y=\"146\" text-anchor=\"middle\" font-family=\"system-ui,sans-serif\" font-size=\"11.5\" fill=\"#33405c\">Position révélée</text><path d=\"M210 117h14\" stroke=\"#c27a2c\" stroke-width=\"3\" marker-end=\"url(#a)\"/><rect x=\"226\" y=\"62\" width=\"188\" height=\"110\" rx=\"10\" fill=\"#fff\" stroke=\"#5b7bb5\" stroke-width=\"2\"/><text x=\"320\" y=\"88\" text-anchor=\"middle\" font-family=\"system-ui,sans-serif\" font-size=\"13\" font-weight=\"700\" fill=\"#1b2a4a\">Émetteur existant</text><text x=\"320\" y=\"112\" text-anchor=\"middle\" font-family=\"system-ui,sans-serif\" font-size=\"11.5\" fill=\"#33405c\">TV, radio, mobile</text><text x=\"320\" y=\"129\" text-anchor=\"middle\" font-family=\"system-ui,sans-serif\" font-size=\"11.5\" fill=\"#33405c\">diffusent déjà</text><text x=\"320\" y=\"146\" text-anchor=\"middle\" font-family=\"system-ui,sans-serif\" font-size=\"11.5\" fill=\"#33405c\">autour de la cible</text><path d=\"M416 117h14\" stroke=\"#c27a2c\" stroke-width=\"3\" marker-end=\"url(#a)\"/><rect x=\"432\" y=\"62\" width=\"188\" height=\"110\" rx=\"10\" fill=\"#fff\" stroke=\"#5b7bb5\" stroke-width=\"2\"/><text x=\"526\" y=\"88\" text-anchor=\"middle\" font-family=\"system-ui,sans-serif\" font-size=\"13\" font-weight=\"700\" fill=\"#1b2a4a\">Radar passif</text><text x=\"526\" y=\"112\" text-anchor=\"middle\" font-family=\"system-ui,sans-serif\" font-size=\"11.5\" fill=\"#33405c\">Écoute seulement</text><text x=\"526\" y=\"129\" text-anchor=\"middle\" font-family=\"system-ui,sans-serif\" font-size=\"11.5\" fill=\"#33405c\">les réflexions</text><text x=\"526\" y=\"146\" text-anchor=\"middle\" font-family=\"system-ui,sans-serif\" font-size=\"11.5\" fill=\"#33405c\">Aucune émission</text><defs><marker id=\"a\" markerWidth=\"6\" markerHeight=\"6\" refX=\"5\" refY=\"3\" orient=\"auto\"><path d=\"M0 0L6 3L0 6Z\" fill=\"#c27a2c\"/></marker></defs><text x=\"320\" y=\"214\" text-anchor=\"middle\" font-family=\"system-ui,sans-serif\" font-size=\"11\" fill=\"#44506b\">Principe simplifié : la cible réfléchit des signaux qui existent déjà</text></svg>",
+     "alt": "Comparaison simplifiée entre radar actif, émetteurs existants et radar passif.",
+     "caption": "Le radar passif n'émet rien : il traite les réflexions de signaux déjà diffusés."
+    },
+    {
+     "type": "paragraph",
+     "text": "Les utilisateurs visés sont les aéroports, les centrales électriques, les bases aériennes, les forces de l'ordre, les gardiens d'infrastructures nationales critiques et les militaires, y compris pour la surveillance d'un champ de bataille. Des essais en conditions réelles sont prévus tout au long de 2027 avec des clients potentiels dans la sécurité, la défense et les infrastructures critiques."
+    },
+    {
+     "type": "heading",
+     "level": 2,
+     "text": "Ce qui manque"
+    },
+    {
+     "type": "paragraph",
+     "text": "L'article ne donne ni portées de détection, ni bandes de fréquences, ni précisions de mesure, ni résultats d'essais déjà réalisés. Ces données sont pourtant décisives : un radar passif dépend de la présence, de la puissance et de la géométrie des émetteurs de circonstance, et sa performance varie donc d'un lieu à l'autre. La même page évoque, sans lien avec cette technologie, un projet de suppression de plus de 1 000 postes au siège britannique et à la division aéronautique de BAE, selon le Financial Times."
+    },
+    {
+     "type": "usecases",
+     "title": "Exemples d'utilisation",
+     "items": [
+      {
+       "icon": "✈️",
+       "title": "Un aéroport",
+       "text": "Il pourrait surveiller l'espace aérien proche pour détecter des drones, sans ajouter d'émissions radio susceptibles de perturber ses systèmes."
+      },
+      {
+       "icon": "⚡",
+       "title": "Un opérateur d'infrastructure",
+       "text": "Une centrale ou un site sensible pourrait ajouter une couche de détection discrète autour de son périmètre."
+      },
+      {
+       "icon": "🪖",
+       "title": "Une unité militaire",
+       "text": "Elle pourrait surveiller le ciel sans signaler sa position par une émission, ce qui compte sur un théâtre d'opérations."
+      }
+     ]
+    },
+    {
+     "type": "timeline",
+     "title": "D'où l'on vient, où l'on va",
+     "items": [
+      {
+       "label": "Avant",
+       "text": "Les radars passifs existent depuis longtemps, souvent comme systèmes spécialisés et coûteux."
+      },
+      {
+       "label": "22 novembre 2026",
+       "text": "BAE présente une version fondée sur du matériel du commerce."
+      },
+      {
+       "label": "2027",
+       "text": "Essais en conditions réelles prévus avec des clients potentiels."
+      }
+     ]
+    },
+    {
+     "type": "opinion",
+     "title": "Notre avis",
+     "paragraphs": [
+      "L'idée est séduisante pour la lutte contre les drones : la discrétion et le faible coût comptent plus que la portée maximale sur un site fixe. Mais sans portée, taux de fausses alarmes ni validation indépendante, les promesses restent des arguments commerciaux.",
+      "À un horizon d'un à trois ans, la question sera de savoir si le traitement du signal logiciel et le matériel banalisé suffisent à rivaliser avec des radars actifs dans des environnements encombrés."
+     ],
+     "verdict": "Une approche prometteuse pour la détection discrète, encore à démontrer par des essais publics."
+    },
+    {
+     "type": "callout",
+     "title": "À retenir",
+     "text": "Prix, taille et performances sont des affirmations du constructeur ; aucune portée ni résultat d'essai n'est publié."
+    }
+   ],
+   "publishedAt": "2026-11-22T18:17:05+01:00"
+  }
+ ]
+}
