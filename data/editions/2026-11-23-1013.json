@@ -1,0 +1,1089 @@
+{
+ "schemaVersion": "1.0",
+ "date": "2026-11-23",
+ "generatedAt": "2026-11-23T10:17:27+01:00",
+ "title": "Tech : Rust 1.100, .NET 11, GraphQL over HTTP, Gemini 4 Carbon, faille N-central et cartes Raspberry Pi plus chères",
+ "summary": "Une édition consacrée aux sorties logicielles de mi-novembre, à une exploitation rapide d'une faille d'outil d'administration, à la nouvelle gamme Gemini et à la pénurie de mémoire qui renchérit les cartes de bricolage.",
+ "highlights": [
+  "Rust 1.100 stabilise le type `!` et ajoute un délai de maturation des dépendances dans Cargo",
+  ".NET 11 apporte les unions en C# 15 ; .NET 8 et 9 ne sont plus pris en charge",
+  "GraphQL over HTTP : première spécification, avec un type de média dédié",
+  "N-central : une chaîne de failles exploitée quelques heures après la publication des exploits",
+  "Le Raspberry Pi 5 de 16 Go atteint 385 dollars sous l'effet de la pénurie de mémoire"
+ ],
+ "meta": {
+  "generator": "claude-scheduled-task"
+ },
+ "posts": [
+  {
+   "id": "rust-1-100-type-never-allocator-cargo-cooldown",
+   "category": "dev",
+   "icon": "🦀",
+   "title": "Rust 1.100 : le type « jamais » est enfin stable, et Cargo apprend à laisser mûrir les nouvelles versions de dépendances",
+   "summary": "Publié le 12 novembre 2026, Rust 1.100.0 stabilise le type `!`, le trait `Allocator` et une option de Cargo qui ignore les versions de bibliothèques trop récentes.",
+   "tags": [
+    "Rust",
+    "Cargo",
+    "type never",
+    "chaîne d'approvisionnement"
+   ],
+   "importance": 4,
+   "readingMinutes": 5,
+   "publishedAt": "2026-11-23T10:17:27+01:00",
+   "sourceDate": "2026-11-12",
+   "sources": [
+    {
+     "title": "Rust 1.100.0",
+     "url": "https://blog.rust-lang.org/2026/11/12/Rust-1.100.0/",
+     "publisher": "blog.rust-lang.org"
+    },
+    {
+     "title": "Dev Weekly, 9-15 novembre 2026",
+     "url": "https://singhajit.com/dev-weekly/2026/nov-9-15/dotnet-11-rust-1-100-graphql-http-nitro-gemini-decisions/",
+     "publisher": "singhajit.com"
+    }
+   ],
+   "illustration": {
+    "svg": "<svg xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"0 0 640 360\"><defs><linearGradient id=\"g\" x1=\"0\" y1=\"0\" x2=\"1\" y2=\"1\"><stop offset=\"0\" stop-color=\"hsl(265,65%,38%)\"/><stop offset=\"1\" stop-color=\"hsl(305,70%,22%)\"/></linearGradient></defs><rect width=\"640\" height=\"360\" fill=\"url(#g)\"/><circle cx=\"540\" cy=\"70\" r=\"90\" fill=\"#fff\" opacity=\".08\"/><circle cx=\"90\" cy=\"320\" r=\"120\" fill=\"#fff\" opacity=\".06\"/><rect x=\"170\" y=\"110\" width=\"300\" height=\"150\" rx=\"12\" fill=\"#fff\"/><path d=\"M230 160l-40 30 40 30M410 160l40 30-40 30\" stroke=\"hsl(265,60%,35%)\" stroke-width=\"12\" fill=\"none\" stroke-linecap=\"round\"/><path d=\"M340 150l-40 80\" stroke=\"hsl(265,60%,35%)\" stroke-width=\"10\" stroke-linecap=\"round\"/></svg>"
+   },
+   "blocks": [
+    {
+     "type": "paragraph",
+     "text": "Le 12 novembre 2026, l'équipe du langage Rust a publié la version 1.100.0. Elle ne bouleverse pas le quotidien de la plupart des développeurs, mais elle règle deux sujets anciens : la stabilisation du type `!`, dit « type jamais » (*never type*), et un outil de Cargo qui répond à une inquiétude très actuelle, celle des paquets malveillants publiés à la hâte sur les registres. Pour mettre à jour, la commande habituelle suffit : `rustup update stable`."
+    },
+    {
+     "type": "heading",
+     "level": 2,
+     "text": "Le type jamais, enfin nommable partout"
+    },
+    {
+     "type": "paragraph",
+     "text": "Le type `!` désigne le résultat d'un calcul qui ne revient jamais : un appel à `panic!`, une boucle infinie, un `return` ou un `process::exit`. Le compilateur l'utilisait depuis longtemps en interne, mais les développeurs ne pouvaient pas l'écrire à tous les endroits. Avec la 1.100, on peut désormais le nommer partout, par exemple dans `Result<T, !>` pour exprimer qu'une opération ne peut pas échouer. Le type `Infallible`, utilisé jusqu'ici comme substitut dans la bibliothèque standard, devient un simple alias de `!` : les anciennes interfaces qui s'appuyaient sur lui restent compatibles."
+    },
+    {
+     "type": "paragraph",
+     "text": "Cette stabilisation s'accompagne d'un changement incompatible, limité en pratique. Dans les éditions 2015, 2018 et 2021, le type de repli choisi par le compilateur quand il ne parvient pas à déduire un type passe de `()` à `!`. La publication précise que cela « devrait passer largement inaperçu », mais que de rares morceaux de code peuvent être affectés, notamment ceux qui ignorent un résultat générique. Le compilateur détecte par ailleurs davantage de code inatteignable."
+    },
+    {
+     "type": "heading",
+     "level": 2,
+     "text": "Allocateurs, garde de destruction et autres nouveautés"
+    },
+    {
+     "type": "list",
+     "items": [
+      "**Trait `Allocator`** : il est stabilisé avec les allocateurs `Global` et `System`. Il peut s'utiliser avec `Vec` et `Box` grâce à de nouvelles méthodes comme `Vec::new_in` et `Box::new_in`. C'est la première étape du projet « Allocators 1.0 ».",
+      "**`core::mem::DropGuard`** : ce type exécute une fonction anonyme lorsqu'il est détruit, et `DropGuard::dismiss` permet de récupérer la valeur sans l'exécuter. L'exemple officiel annule les modifications d'un `Vec` quand une analyse échoue.",
+      "**`std::mem::conjure_zst`** : une fonction `unsafe` qui crée une valeur de type de taille nulle, à la place de contournements comme `transmute(())`.",
+      "**Interfaces diverses** : `bool::toggle`, `Box::map`, `Rc::map`, `Arc::map`, `trim_prefix` et `trim_suffix`, `Vec::from_fn`, entre autres, sont stabilisées."
+     ]
+    },
+    {
+     "type": "heading",
+     "level": 2,
+     "text": "Cargo : dépendances inutilisées et délai de maturation"
+    },
+    {
+     "type": "paragraph",
+     "text": "Cargo signale désormais les dépendances déclarées mais jamais utilisées, grâce au lint `cargo::unused_dependencies`, actif par défaut au niveau d'avertissement. Les dépendances de développement ne sont pas concernées. Ces lints se configurent dans une table `[lints.cargo]` de `Cargo.toml`. Le calcul du hash de configuration de compilation est en outre appliqué de façon cohérente dans `build-dir`, ce qui peut casser des contournements existants contre les collisions de cache."
+    },
+    {
+     "type": "paragraph",
+     "text": "Le changement le plus parlant pour la sécurité est l'option `global-min-publish-age`. Écrite dans `.cargo/config.toml`, par exemple `global-min-publish-age = \"3 days\"`, elle indique au résolveur d'ignorer les versions de bibliothèques publiées depuis moins de trois jours. Une version compromise a ainsi moins de chances d'être récupérée avant d'être détectée et retirée. La variable `CARGO_RESOLVER_INCOMPATIBLE_PUBLISH_AGE=allow` permet de passer outre pour une mise à jour précise. Limites à connaître : `cargo install` ignore cette règle, et les versions dépourvues de champ `pubtime` ne sont jamais retenues. Les auteurs rappellent que ce mécanisme ne suffit pas, à lui seul, contre les attaques de la chaîne d'approvisionnement."
+    },
+    {
+     "type": "diagram",
+     "svg": "<svg xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"0 0 640 220\" font-family=\"system-ui,sans-serif\"><rect width=\"640\" height=\"220\" rx=\"14\" fill=\"#f1f5f9\"/><text x=\"320\" y=\"30\" text-anchor=\"middle\" font-size=\"15\" font-weight=\"700\" fill=\"#0f172a\">Délai de maturation des dépendances (Rust 1.100)</text><rect x=\"20\" y=\"60\" width=\"180\" height=\"110\" rx=\"10\" fill=\"#fff\" stroke=\"#334155\" stroke-width=\"2\"/><text x=\"110\" y=\"95\" text-anchor=\"middle\" font-size=\"14\" font-weight=\"700\" fill=\"#0f172a\">Version publiée</text><text x=\"110\" y=\"125\" text-anchor=\"middle\" font-size=\"12\" fill=\"#334155\">jour 0</text><path d=\"M203 115h22m-6-6l6 6-6 6\" stroke=\"#334155\" stroke-width=\"3\" fill=\"none\"/><rect x=\"230\" y=\"60\" width=\"180\" height=\"110\" rx=\"10\" fill=\"#fff\" stroke=\"#334155\" stroke-width=\"2\"/><text x=\"320\" y=\"95\" text-anchor=\"middle\" font-size=\"14\" font-weight=\"700\" fill=\"#0f172a\">Délai de maturation</text><text x=\"320\" y=\"125\" text-anchor=\"middle\" font-size=\"12\" fill=\"#334155\">3 jours</text><path d=\"M413 115h22m-6-6l6 6-6 6\" stroke=\"#334155\" stroke-width=\"3\" fill=\"none\"/><rect x=\"440\" y=\"60\" width=\"180\" height=\"110\" rx=\"10\" fill=\"#fff\" stroke=\"#334155\" stroke-width=\"2\"/><text x=\"530\" y=\"95\" text-anchor=\"middle\" font-size=\"14\" font-weight=\"700\" fill=\"#0f172a\">Version éligible</text><text x=\"530\" y=\"125\" text-anchor=\"middle\" font-size=\"12\" fill=\"#334155\">résolution Cargo</text></svg>",
+     "alt": "Schéma : une version de bibliothèque publiée à J0 n'est retenue par Cargo qu'après le délai de maturation configuré, ici trois jours.",
+     "caption": "Avec `global-min-publish-age`, une nouvelle version n'est sélectionnée qu'après le délai choisi."
+    },
+    {
+     "type": "usecases",
+     "title": "Exemples d'utilisation",
+     "items": [
+      {
+       "icon": "🏭",
+       "title": "Équipe de sécurité",
+       "text": "Elle impose un délai de sept jours sur tous les dépôts de l'entreprise pour réduire l'exposition aux paquets piégés, tout en autorisant une exception ponctuelle pour un correctif urgent."
+      },
+      {
+       "icon": "⚙️",
+       "title": "Développeur de systèmes embarqués",
+       "text": "Il utilise `Allocator` avec `Vec` pour placer des tampons dans une zone mémoire dédiée, sans passer par le tas global."
+      },
+      {
+       "icon": "🧹",
+       "title": "Mainteneur de bibliothèque",
+       "text": "Il lit les nouveaux avertissements sur les dépendances inutilisées et allège son `Cargo.toml` avant la prochaine publication."
+      }
+     ]
+    },
+    {
+     "type": "timeline",
+     "title": "D'où l'on vient, où l'on va",
+     "items": [
+      {
+       "label": "Avant la 1.100",
+       "text": "`Infallible` sert de substitut dans la bibliothèque standard."
+      },
+      {
+       "label": "12 novembre 2026",
+       "text": "Rust 1.100.0 stabilise `!` et `Allocator`."
+      },
+      {
+       "label": "Suite",
+       "text": "Le projet « Allocators 1.0 » se poursuit ; la publication ne donne pas de calendrier."
+      }
+     ]
+    },
+    {
+     "type": "opinion",
+     "title": "Notre avis",
+     "paragraphs": [
+      "Rust 1.100 est une version de maturité : elle termine des chantiers vieux de près de dix ans et ne cherche pas l'effet d'annonce. Le plus intéressant n'est pas le type `!`, que peu d'équipes manipuleront directement, mais le délai de maturation de Cargo. Il reconnaît que le danger vient autant du code que de la vitesse à laquelle il est consommé.",
+      "D'ici un à trois ans, on peut raisonnablement attendre que ce type de garde-fou devienne une valeur par défaut recommandée dans les outils de gestion de paquets, et que `Allocator` ouvre la voie à des collections plus adaptées aux systèmes contraints. Ce sont des perspectives, non des annonces."
+     ],
+     "verdict": "Une version sobre, utile surtout par ses garde-fous."
+    },
+    {
+     "type": "callout",
+     "title": "À retenir",
+     "text": "Rust 1.100.0 stabilise le type `!`, le trait `Allocator` et un délai de maturation configurable des dépendances dans Cargo ; le changement de repli du type jamais peut, rarement, casser du code ancien."
+    }
+   ]
+  },
+  {
+   "id": "dotnet-11-csharp-15-unions-openapi",
+   "category": "dev",
+   "icon": "🟣",
+   "title": ".NET 11 est sorti : unions en C# 15, OpenAPI 3.2 par défaut et fin de support de .NET 8 et 9",
+   "summary": "Microsoft a publié .NET 11 le 10 novembre 2026, une version à support standard de deux ans, qui marque aussi l'arrêt du support de .NET 8 et de .NET 9.",
+   "tags": [
+    ".NET 11",
+    "C# 15",
+    "ASP.NET Core",
+    "OpenAPI"
+   ],
+   "importance": 4,
+   "readingMinutes": 6,
+   "publishedAt": "2026-11-23T10:17:27+01:00",
+   "sourceDate": "2026-11-10",
+   "sources": [
+    {
+     "title": "Annonce de .NET 11",
+     "url": "https://devblogs.microsoft.com/dotnet/announcing-dotnet-11/",
+     "publisher": "devblogs.microsoft.com"
+    },
+    {
+     "title": "Dev Weekly, 9-15 novembre 2026",
+     "url": "https://singhajit.com/dev-weekly/2026/nov-9-15/dotnet-11-rust-1-100-graphql-http-nitro-gemini-decisions/",
+     "publisher": "singhajit.com"
+    }
+   ],
+   "illustration": {
+    "svg": "<svg xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"0 0 640 360\"><defs><linearGradient id=\"g\" x1=\"0\" y1=\"0\" x2=\"1\" y2=\"1\"><stop offset=\"0\" stop-color=\"hsl(265,65%,38%)\"/><stop offset=\"1\" stop-color=\"hsl(305,70%,22%)\"/></linearGradient></defs><rect width=\"640\" height=\"360\" fill=\"url(#g)\"/><circle cx=\"540\" cy=\"70\" r=\"90\" fill=\"#fff\" opacity=\".08\"/><circle cx=\"90\" cy=\"320\" r=\"120\" fill=\"#fff\" opacity=\".06\"/><g fill=\"#fff\"><rect x=\"190\" y=\"180\" width=\"80\" height=\"80\" rx=\"8\"/><rect x=\"280\" y=\"180\" width=\"80\" height=\"80\" rx=\"8\" opacity=\".85\"/><rect x=\"370\" y=\"180\" width=\"80\" height=\"80\" rx=\"8\" opacity=\".7\"/><rect x=\"235\" y=\"90\" width=\"80\" height=\"80\" rx=\"8\" opacity=\".9\"/><rect x=\"325\" y=\"90\" width=\"80\" height=\"80\" rx=\"8\" opacity=\".75\"/></g></svg>"
+   },
+   "blocks": [
+    {
+     "type": "paragraph",
+     "text": "Microsoft a publié .NET 11 le 10 novembre 2026, jour d'ouverture de la conférence .NET Conf, qui se tient jusqu'au 13 novembre. Il s'agit d'une version à support standard (*Standard Term Support*), soutenue pendant deux ans. .NET 10 reste la version à support long. Le même 10 novembre, .NET 8 et .NET 9 atteignent leur fin de support : les équipes qui les utilisent encore ne recevront plus de correctifs de sécurité."
+    },
+    {
+     "type": "heading",
+     "level": 2,
+     "text": "C# 15 : unions et hiérarchies fermées"
+    },
+    {
+     "type": "paragraph",
+     "text": "La nouveauté la plus attendue du langage est l'arrivée des **unions** : une valeur peut appartenir à l'un des types d'un ensemble déclaré. L'exemple de l'annonce s'écrit `public union ProductLookup(Product, ProductNotFound);`. Le compilateur vérifie l'exhaustivité des expressions `switch` : si un cas n'est pas traité, il le signale. Cela évite de recourir à des exceptions ou à des valeurs nulles pour représenter un échec."
+    },
+    {
+     "type": "list",
+     "items": [
+      "**Hiérarchies fermées** (`closed`) : la dérivation directe d'une classe est limitée à l'assembly qui la déclare.",
+      "**Arguments de collection** : on peut passer un comparateur à l'initialisation, par exemple `[with(StringComparer.OrdinalIgnoreCase), ...]`.",
+      "**Sécurité mémoire** : l'extension correspondante reste en préversion."
+     ]
+    },
+    {
+     "type": "heading",
+     "level": 2,
+     "text": "ASP.NET Core : OpenAPI 3.2 et validation asynchrone"
+    },
+    {
+     "type": "paragraph",
+     "text": "Les documents OpenAPI générés suivent désormais par défaut la version 3.2, qui permet de décrire la charge utile de chaque événement d'un flux SSE. Si un outil de la chaîne ne la prend pas en charge, il reste possible de choisir une version antérieure. Les unions C# sont reconnues par `System.Text.Json` pour les corps JSON des API minimales et de MVC, avec un schéma `anyOf` côté OpenAPI ; elles ne s'appliquent pas à la liaison des routes, des paramètres de requête, des en-têtes ou des formulaires."
+    },
+    {
+     "type": "paragraph",
+     "text": "La validation devient asynchrone : on peut attendre une requête en base ou un appel distant pendant la validation d'un modèle. Le rafraîchissement de l'authentification SignalR évite de reconnecter les connexions longues, et le composant `CacheView` met en cache le rendu d'un sous-arbre en rendu statique côté serveur. Les composants Blazor d'IA sont expérimentaux et resteront en préversion pendant toute la durée de .NET 11."
+    },
+    {
+     "type": "heading",
+     "level": 2,
+     "text": "Runtime Async et performances"
+    },
+    {
+     "type": "paragraph",
+     "text": "*Runtime Async* déplace la suspension et la reprise des méthodes asynchrones dans le moteur d'exécution, au lieu des machines à états générées par le compilateur. Les profileurs et les débogueurs affichent une pile d'appels plus lisible. La fonctionnalité reste en préversion et s'active avec `<Features>runtime-async=on</Features>` dans le projet. Côté performances, Microsoft cite des centaines d'optimisations : suppression de vérifications de bornes redondantes, meilleure dévirtualisation, repli de constantes, répartition d'interfaces plus compacte en Native AOT, prise en charge étendue du type `Half`. Les gains réels dépendent des charges de travail : il faut mesurer sur sa propre application."
+    },
+    {
+     "type": "heading",
+     "level": 2,
+     "text": "Migrer sans surprise"
+    },
+    {
+     "type": "list",
+     "items": [
+      "Mettre à jour `global.json` si le dépôt fixe la version du SDK, puis installer le SDK sur les postes et les agents de build.",
+      "Passer les frameworks cibles à .NET 11 et mettre à jour paquets et charges de travail.",
+      "Lire les changements de rupture, y compris les nouvelles exigences minimales de processeur : installer le SDK ne change pas le framework cible d'une application.",
+      "Exécuter les tests et mesurer sous une charge représentative."
+     ]
+    },
+    {
+     "type": "paragraph",
+     "text": "Un lecteur signale, dans les commentaires de l'annonce et non dans l'article lui-même, un changement de conversion de `double` vers `decimal` pouvant faire apparaître du bruit de virgule flottante. Ce point n'est pas confirmé par Microsoft ; il mérite un test avant toute migration d'un code financier."
+    },
+    {
+     "type": "diagram",
+     "svg": "<svg xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"0 0 640 220\" font-family=\"system-ui,sans-serif\"><rect width=\"640\" height=\"220\" rx=\"14\" fill=\"#f1f5f9\"/><text x=\"320\" y=\"30\" text-anchor=\"middle\" font-size=\"15\" font-weight=\"700\" fill=\"#0f172a\">Où migrer après le 10 novembre 2026</text><rect x=\"20\" y=\"60\" width=\"180\" height=\"110\" rx=\"10\" fill=\"#fff\" stroke=\"#334155\" stroke-width=\"2\"/><text x=\"110\" y=\"95\" text-anchor=\"middle\" font-size=\"14\" font-weight=\"700\" fill=\"#0f172a\">.NET 8 et 9</text><text x=\"110\" y=\"125\" text-anchor=\"middle\" font-size=\"12\" fill=\"#334155\">fin de support le 10 nov.</text><path d=\"M203 115h22m-6-6l6 6-6 6\" stroke=\"#334155\" stroke-width=\"3\" fill=\"none\"/><rect x=\"230\" y=\"60\" width=\"180\" height=\"110\" rx=\"10\" fill=\"#fff\" stroke=\"#334155\" stroke-width=\"2\"/><text x=\"320\" y=\"95\" text-anchor=\"middle\" font-size=\"14\" font-weight=\"700\" fill=\"#0f172a\">.NET 10</text><text x=\"320\" y=\"125\" text-anchor=\"middle\" font-size=\"12\" fill=\"#334155\">support long (LTS)</text><path d=\"M413 115h22m-6-6l6 6-6 6\" stroke=\"#334155\" stroke-width=\"3\" fill=\"none\"/><rect x=\"440\" y=\"60\" width=\"180\" height=\"110\" rx=\"10\" fill=\"#fff\" stroke=\"#334155\" stroke-width=\"2\"/><text x=\"530\" y=\"95\" text-anchor=\"middle\" font-size=\"14\" font-weight=\"700\" fill=\"#0f172a\">.NET 11</text><text x=\"530\" y=\"125\" text-anchor=\"middle\" font-size=\"12\" fill=\"#334155\">STS, deux ans</text></svg>",
+     "alt": "Schéma : .NET 8 et 9 ne sont plus pris en charge ; .NET 10 reste la version à support long ; .NET 11 offre deux ans de support.",
+     "caption": "Les trois branches .NET au lendemain de la sortie de .NET 11."
+    },
+    {
+     "type": "usecases",
+     "title": "Exemples d'utilisation",
+     "items": [
+      {
+       "icon": "🧾",
+       "title": "Éditeur de logiciel de facturation",
+       "text": "Il modélise le résultat d'un calcul de TVA avec une union « valide ou erreur » et laisse le compilateur vérifier que chaque cas est géré."
+      },
+      {
+       "icon": "🌐",
+       "title": "Équipe d'API publique",
+       "text": "Elle regénère sa documentation OpenAPI 3.2 pour décrire précisément un flux d'événements serveur."
+      },
+      {
+       "icon": "🏢",
+       "title": "DSI de PME",
+       "text": "Elle planifie la sortie de .NET 8 et .NET 9 avant la fin de support, en choisissant entre .NET 10 (LTS) et .NET 11."
+      }
+     ]
+    },
+    {
+     "type": "timeline",
+     "title": "D'où l'on vient, où l'on va",
+     "items": [
+      {
+       "label": "2024",
+       "text": "Cycle annuel avec alternance de versions à support standard et à support long."
+      },
+      {
+       "label": "10 novembre 2026",
+       "text": "Sortie de .NET 11, fin de support de .NET 8 et .NET 9."
+      },
+      {
+       "label": "Suite",
+       "text": "Runtime Async doit quitter la préversion ; la publication ne donne pas de date."
+      }
+     ]
+    },
+    {
+     "type": "opinion",
+     "title": "Notre avis",
+     "paragraphs": [
+      "Les unions sont la vraie nouveauté : elles rapprochent C# des langages fonctionnels et réduisent une classe entière d'erreurs de gestion des cas d'échec. Mais leur prise en charge reste partielle dans ASP.NET Core, ce qui oblige à lire les limites avant de les utiliser dans une API.",
+      "À un horizon d'un à trois ans, on peut penser que les unions s'installeront dans les nouveaux projets, tandis que Runtime Async simplifiera le diagnostic des applications asynchrones. L'échéance la plus pressante reste pourtant la migration hors de .NET 8 et 9."
+     ],
+     "verdict": "Une version riche pour le langage, surtout une échéance de support pour les équipes."
+    },
+    {
+     "type": "callout",
+     "title": "À retenir",
+     "text": ".NET 11 (STS, deux ans) est sorti le 10 novembre 2026 ; .NET 8 et .NET 9 ne sont plus pris en charge depuis cette date."
+    }
+   ]
+  },
+  {
+   "id": "graphql-over-http-premiere-specification",
+   "category": "web",
+   "icon": "🔗",
+   "title": "GraphQL over HTTP : une première spécification pour mettre fin au « 200 qui ne va pas »",
+   "summary": "Le comité technique de GraphQL a publié le 12 novembre 2026 le premier texte standardisant l'usage de GraphQL sur HTTP, avec un type de média dédié et des codes de statut cohérents.",
+   "tags": [
+    "GraphQL",
+    "HTTP",
+    "API",
+    "standard"
+   ],
+   "importance": 3,
+   "readingMinutes": 5,
+   "publishedAt": "2026-11-23T10:17:27+01:00",
+   "sourceDate": "2026-11-12",
+   "sources": [
+    {
+     "title": "Annonce de la spécification GraphQL over HTTP",
+     "url": "https://graphql.org/blog/2026-11-12-announcing-the-graphql-over-http-spec/",
+     "publisher": "graphql.org"
+    },
+    {
+     "title": "Spécification GraphQL over HTTP (septembre 2026)",
+     "url": "https://http-spec.graphql.org/September2026/",
+     "publisher": "graphql.org"
+    }
+   ],
+   "illustration": {
+    "svg": "<svg xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"0 0 640 360\"><defs><linearGradient id=\"g\" x1=\"0\" y1=\"0\" x2=\"1\" y2=\"1\"><stop offset=\"0\" stop-color=\"hsl(210,65%,38%)\"/><stop offset=\"1\" stop-color=\"hsl(250,70%,22%)\"/></linearGradient></defs><rect width=\"640\" height=\"360\" fill=\"url(#g)\"/><circle cx=\"540\" cy=\"70\" r=\"90\" fill=\"#fff\" opacity=\".08\"/><circle cx=\"90\" cy=\"320\" r=\"120\" fill=\"#fff\" opacity=\".06\"/><g stroke=\"#fff\" stroke-width=\"6\"><path d=\"M320 120L200 240M320 120L440 240M200 240L440 240\"/></g><g fill=\"#fff\"><circle cx=\"320\" cy=\"120\" r=\"34\"/><circle cx=\"200\" cy=\"240\" r=\"34\"/><circle cx=\"440\" cy=\"240\" r=\"34\"/></g></svg>"
+   },
+   "blocks": [
+    {
+     "type": "paragraph",
+     "text": "Depuis 2015, GraphQL se présente comme un langage d'interrogation indépendant du transport. En pratique, presque toutes les API GraphQL passent par HTTP, mais sans règle commune : chaque serveur choisissait ses codes de statut, ses en-têtes et ses formats. Le 12 novembre 2026, le comité technique (TSC) de GraphQL a publié la première version d'une spécification complémentaire, *GraphQL over HTTP*, qui met de l'ordre dans ces usages. La spécification principale reste inchangée et agnostique du transport."
+    },
+    {
+     "type": "heading",
+     "level": 2,
+     "text": "Ce que documente le texte"
+    },
+    {
+     "type": "paragraph",
+     "text": "Le document décrit les fondamentaux éprouvés depuis dix ans : l'URL, les requêtes GET et POST, l'encodage JSON, les en-têtes. Il ajoute des notes non normatives sur la sécurité, le succès partiel et la compatibilité future. L'objectif affiché est d'améliorer l'interopérabilité avec les outils du monde HTTP : serveurs mandataires, caches, outils d'observabilité."
+    },
+    {
+     "type": "heading",
+     "level": 2,
+     "text": "Un type de média dédié : fin du « 200 Not OK »"
+    },
+    {
+     "type": "paragraph",
+     "text": "Jusqu'ici, la plupart des serveurs renvoyaient `application/json`. Un client ne pouvait donc pas distinguer une vraie réponse GraphQL d'une erreur produite par un proxy ou un cache. Le contournement habituel consistait à répondre toujours HTTP 200, même en cas d'erreur — d'où l'expression « 200 Not OK ». La spécification introduit `application/graphql-response+json` : si le client reçoit ce type, il peut analyser le corps comme une réponse GraphQL bien formée, quel que soit le code de statut."
+    },
+    {
+     "type": "heading",
+     "level": 2,
+     "text": "Des codes de statut prévisibles"
+    },
+    {
+     "type": "paragraph",
+     "text": "La règle générale est simple : si la requête renvoie des données, le code est de la famille 2xx ; si elle ne renvoie que des erreurs, il est de la famille 4xx ou 5xx. Le texte formule des recommandations détaillées, et une implémentation peut choisir un autre code tant qu'elle respecte cette règle."
+    },
+    {
+     "type": "table",
+     "headers": [
+      "Code",
+      "Situation"
+     ],
+     "rows": [
+      [
+       "2xx (par exemple 200)",
+       "Des données sont renvoyées"
+      ],
+      [
+       "294 Partial Success",
+       "`data` et `errors` sont présents en même temps (code nouveau)"
+      ],
+      [
+       "405",
+       "Une mutation est tentée en GET"
+      ],
+      [
+       "406",
+       "Type de média demandé non pris en charge (en-tête `Accept`)"
+      ],
+      [
+       "415",
+       "Type de média fourni non pris en charge (`Content-Type`)"
+      ],
+      [
+       "431",
+       "En-têtes trop volumineux"
+      ],
+      [
+       "500",
+       "Erreur du serveur"
+      ]
+     ]
+    },
+    {
+     "type": "paragraph",
+     "text": "Une erreur de requête, comme un champ inexistant, peut par exemple donner un 422 avec le même type de média et un corps contenant uniquement `errors`."
+    },
+    {
+     "type": "diagram",
+     "svg": "<svg xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"0 0 640 220\" font-family=\"system-ui,sans-serif\"><rect width=\"640\" height=\"220\" rx=\"14\" fill=\"#f1f5f9\"/><text x=\"320\" y=\"30\" text-anchor=\"middle\" font-size=\"15\" font-weight=\"700\" fill=\"#0f172a\">Une réponse que les outils HTTP comprennent</text><rect x=\"20\" y=\"60\" width=\"180\" height=\"110\" rx=\"10\" fill=\"#fff\" stroke=\"#334155\" stroke-width=\"2\"/><text x=\"110\" y=\"95\" text-anchor=\"middle\" font-size=\"14\" font-weight=\"700\" fill=\"#0f172a\">Client</text><text x=\"110\" y=\"125\" text-anchor=\"middle\" font-size=\"12\" fill=\"#334155\">POST + Accept</text><path d=\"M203 115h22m-6-6l6 6-6 6\" stroke=\"#334155\" stroke-width=\"3\" fill=\"none\"/><rect x=\"230\" y=\"60\" width=\"180\" height=\"110\" rx=\"10\" fill=\"#fff\" stroke=\"#334155\" stroke-width=\"2\"/><text x=\"320\" y=\"95\" text-anchor=\"middle\" font-size=\"14\" font-weight=\"700\" fill=\"#0f172a\">Serveur GraphQL</text><text x=\"320\" y=\"125\" text-anchor=\"middle\" font-size=\"12\" fill=\"#334155\">exécute la requête</text><path d=\"M413 115h22m-6-6l6 6-6 6\" stroke=\"#334155\" stroke-width=\"3\" fill=\"none\"/><rect x=\"440\" y=\"60\" width=\"180\" height=\"110\" rx=\"10\" fill=\"#fff\" stroke=\"#334155\" stroke-width=\"2\"/><text x=\"530\" y=\"95\" text-anchor=\"middle\" font-size=\"14\" font-weight=\"700\" fill=\"#0f172a\">Réponse</text><text x=\"530\" y=\"125\" text-anchor=\"middle\" font-size=\"12\" fill=\"#334155\">graphql-response+json</text></svg>",
+     "alt": "Schéma : le client envoie une requête POST, le serveur l'exécute et renvoie une réponse au type de média graphql-response+json avec un code de statut cohérent.",
+     "caption": "Le type de média dédié lève l'ambiguïté entre une réponse GraphQL et une erreur d'infrastructure."
+    },
+    {
+     "type": "heading",
+     "level": 2,
+     "text": "Ce qui n'est pas encore là"
+    },
+    {
+     "type": "list",
+     "items": [
+      "**Méthode `QUERY`** de l'IETF : bien adaptée à GraphQL, elle est prévue pour la prochaine révision et a été écartée pour ne pas retarder la sortie.",
+      "**Documents persistés** : utilisés depuis avant l'ouverture du code en 2015 pour la performance et la sécurité, leur standardisation est en cours.",
+      "**Regroupement de requêtes** : utile avec la composition de schémas, comme la fédération."
+     ]
+    },
+    {
+     "type": "paragraph",
+     "text": "L'annonce ne précise pas la durée de la période de transition pour les clients qui attendent encore `application/json` ; il faut le vérifier dans le texte de la spécification. Les règles normatives exactes pour GET et POST n'y sont pas détaillées non plus : elles figurent dans la spécification elle-même."
+    },
+    {
+     "type": "usecases",
+     "title": "Exemples d'utilisation",
+     "items": [
+      {
+       "icon": "🛠️",
+       "title": "Équipe plateforme",
+       "text": "Elle ajuste ses règles de mise en cache et de journalisation pour s'appuyer sur le type de média et le code de statut plutôt que sur le corps de la réponse."
+      },
+      {
+       "icon": "📱",
+       "title": "Développeur d'application mobile",
+       "text": "Son client distingue enfin une panne d'infrastructure d'une erreur de requête et affiche un message adapté."
+      },
+      {
+       "icon": "📈",
+       "title": "Responsable observabilité",
+       "text": "Il peut calculer un taux d'erreur fiable à partir des codes HTTP, ce qui était impossible quand tout répondait 200."
+      }
+     ]
+    },
+    {
+     "type": "timeline",
+     "title": "D'où l'on vient, où l'on va",
+     "items": [
+      {
+       "label": "2015",
+       "text": "Publication de la spécification GraphQL initiale, agnostique du transport."
+      },
+      {
+       "label": "Dix ans d'usage",
+       "text": "GraphQL est utilisé surtout sur HTTP, sans texte commun."
+      },
+      {
+       "label": "12 novembre 2026",
+       "text": "Première version de GraphQL over HTTP."
+      },
+      {
+       "label": "Suite",
+       "text": "La méthode `QUERY` est prévue pour la révision suivante."
+      }
+     ]
+    },
+    {
+     "type": "opinion",
+     "title": "Notre avis",
+     "paragraphs": [
+      "Normaliser ce que tout le monde faisait à peu près est un travail ingrat mais précieux. Le gain principal est pour les outils : un proxy ou un système d'observabilité peut enfin raisonner sur le statut HTTP d'une API GraphQL sans deviner.",
+      "L'adoption dépendra du rythme auquel les bibliothèques et les passerelles basculeront sur le nouveau type de média. À un à trois ans, on peut s'attendre à ce qu'il devienne la valeur par défaut des nouveaux projets, la compatibilité avec l'existant étant le principal frein."
+     ],
+     "verdict": "Un petit texte qui rend GraphQL plus conforme aux usages du web."
+    },
+    {
+     "type": "callout",
+     "title": "À retenir",
+     "text": "Le type `application/graphql-response+json` et la règle « données en 2xx, erreurs seules en 4xx ou 5xx » sont les deux piliers de la nouvelle spécification."
+    }
+   ]
+  },
+  {
+   "id": "kubernetes-1-38-alpha-reprise-election-leader",
+   "category": "devops",
+   "icon": "☸️",
+   "title": "Kubernetes 1.38 : la première préversion arrive, avec une reprise sans redémarrage après perte du leadership",
+   "summary": "La première préversion de Kubernetes 1.38 est sortie, accompagnée de correctifs de sécurité, de nouveaux niveaux de maturité pour l'allocation de périphériques et d'une proposition pour éviter les redémarrages des contrôleurs.",
+   "tags": [
+    "Kubernetes",
+    "DRA",
+    "élection de leader",
+    "sécurité"
+   ],
+   "importance": 3,
+   "readingMinutes": 5,
+   "publishedAt": "2026-11-23T10:17:27+01:00",
+   "sourceDate": "2026-11-07",
+   "sources": [
+    {
+     "title": "Last Week in Kubernetes Development, semaine du 7 novembre 2026",
+     "url": "https://buttondown.com/LastWeekInKubernetes/archive/lwkd-week-ending-november-7-2026/",
+     "publisher": "buttondown.com"
+    }
+   ],
+   "illustration": {
+    "svg": "<svg xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"0 0 640 360\"><defs><linearGradient id=\"g\" x1=\"0\" y1=\"0\" x2=\"1\" y2=\"1\"><stop offset=\"0\" stop-color=\"hsl(160,65%,38%)\"/><stop offset=\"1\" stop-color=\"hsl(200,70%,22%)\"/></linearGradient></defs><rect width=\"640\" height=\"360\" fill=\"url(#g)\"/><circle cx=\"540\" cy=\"70\" r=\"90\" fill=\"#fff\" opacity=\".08\"/><circle cx=\"90\" cy=\"320\" r=\"120\" fill=\"#fff\" opacity=\".06\"/><g fill=\"#fff\"><rect x=\"190\" y=\"180\" width=\"80\" height=\"80\" rx=\"8\"/><rect x=\"280\" y=\"180\" width=\"80\" height=\"80\" rx=\"8\" opacity=\".85\"/><rect x=\"370\" y=\"180\" width=\"80\" height=\"80\" rx=\"8\" opacity=\".7\"/><rect x=\"235\" y=\"90\" width=\"80\" height=\"80\" rx=\"8\" opacity=\".9\"/><rect x=\"325\" y=\"90\" width=\"80\" height=\"80\" rx=\"8\" opacity=\".75\"/></g></svg>"
+   },
+   "blocks": [
+    {
+     "type": "paragraph",
+     "text": "Le bulletin hebdomadaire *Last Week in Kubernetes Development* de la semaine se terminant le 7 novembre 2026 signale la publication de **Kubernetes v1.38.0-alpha.1**, compilée avec Go 1.27.1. Le bulletin ne couvre qu'une semaine de développement : les éléments ci-dessous sont des changements en cours, non des fonctionnalités définitives. Les branches de maintenance v1.37.1, v1.36.5, v1.35.9 et v1.34.12 passent à Go 1.26.8 et embarquent plusieurs corrections."
+    },
+    {
+     "type": "heading",
+     "level": 2,
+     "text": "Deux failles de gravité moyenne corrigées"
+    },
+    {
+     "type": "list",
+     "items": [
+      "**CVE-2026-2270** (5,9, moyenne) : une attaque de type « adjoint confus » (*confused deputy*) dans le contrôleur des StatefulSet permet à un utilisateur ayant des droits d'écriture limités à un espace de noms sur `StatefulSet` et `ControllerRevision` de créer un pod dans un autre espace de noms.",
+      "**CVE-2026-76654** (5,8, moyenne) : une coercition d'authentification NTLM sur les nœuds Windows, quand le `subPath` d'un pod est un lien symbolique vers un partage réseau UNC contrôlé par un attaquant."
+     ]
+    },
+    {
+     "type": "paragraph",
+     "text": "Les deux sont corrigées dans les versions de maintenance v1.34.12, v1.35.9, v1.36.5 et v1.37.1. Par ailleurs, containerd v2.4.1 corrige la CVE-2026-53493. Le bulletin n'indique pas d'exploitation active de ces failles."
+    },
+    {
+     "type": "heading",
+     "level": 2,
+     "text": "Calendrier de la 1.38"
+    },
+    {
+     "type": "paragraph",
+     "text": "Le gel des améliorations (*Enhancements Freeze*) a eu lieu : onze propositions (KEP) ont été retirées du jalon, et 89 sont suivies sur les 100 inscrites. Toute demande supplémentaire doit désormais passer par une exception validée. Le bulletin remarque lui-même que certaines dates mentionnées dans la page semblent incohérentes avec la date de publication ; ces éléments sont donc à vérifier dans le calendrier officiel."
+    },
+    {
+     "type": "heading",
+     "level": 2,
+     "text": "Allocation de périphériques : trois passages en disponibilité générale"
+    },
+    {
+     "type": "paragraph",
+     "text": "L'allocation dynamique de ressources (DRA), qui permet de réserver des GPU et d'autres accélérateurs, avance : **DRADeviceTaints**, **DRADeviceTaintRules** et les conditions de liaison de périphériques (**Device Binding Conditions**, KEP-5007) passent en disponibilité générale. Une correction concerne aussi l'éviction de pods qui utilisent des ressources étendues gérées par DRA lors d'un `NoExecute` déclenché par une règle de teinte de périphérique."
+    },
+    {
+     "type": "heading",
+     "level": 2,
+     "text": "Le KEP de la semaine : reprise après perte du leadership"
+    },
+    {
+     "type": "paragraph",
+     "text": "Aujourd'hui, un contrôleur élu leader qui ne parvient pas à renouveler son bail (*Lease*) avant l'échéance `RenewDeadline` quitte le processus, ce qui force une reconstruction coûteuse de ses caches. Le KEP-6361 propose une autre approche : bloquer les écritures au niveau du transport pendant la perte du leadership, tout en laissant lectures et observations se poursuivre. Si le renouvellement réussit à temps, le contrôleur reprend sans redémarrage. La proposition vise une phase alpha en v1.38, derrière le *feature gate* `LeaderElectionRecovery`, désactivé par défaut."
+    },
+    {
+     "type": "diagram",
+     "svg": "<svg xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"0 0 640 220\" font-family=\"system-ui,sans-serif\"><rect width=\"640\" height=\"220\" rx=\"14\" fill=\"#f1f5f9\"/><text x=\"320\" y=\"30\" text-anchor=\"middle\" font-size=\"15\" font-weight=\"700\" fill=\"#0f172a\">KEP-6361 : reprendre sans redémarrer</text><rect x=\"20\" y=\"60\" width=\"180\" height=\"110\" rx=\"10\" fill=\"#fff\" stroke=\"#334155\" stroke-width=\"2\"/><text x=\"110\" y=\"95\" text-anchor=\"middle\" font-size=\"14\" font-weight=\"700\" fill=\"#0f172a\">Bail perdu</text><text x=\"110\" y=\"125\" text-anchor=\"middle\" font-size=\"12\" fill=\"#334155\">renouvellement tardif</text><path d=\"M203 115h22m-6-6l6 6-6 6\" stroke=\"#334155\" stroke-width=\"3\" fill=\"none\"/><rect x=\"230\" y=\"60\" width=\"180\" height=\"110\" rx=\"10\" fill=\"#fff\" stroke=\"#334155\" stroke-width=\"2\"/><text x=\"320\" y=\"95\" text-anchor=\"middle\" font-size=\"14\" font-weight=\"700\" fill=\"#0f172a\">Écritures bloquées</text><text x=\"320\" y=\"125\" text-anchor=\"middle\" font-size=\"12\" fill=\"#334155\">lectures continuent</text><path d=\"M413 115h22m-6-6l6 6-6 6\" stroke=\"#334155\" stroke-width=\"3\" fill=\"none\"/><rect x=\"440\" y=\"60\" width=\"180\" height=\"110\" rx=\"10\" fill=\"#fff\" stroke=\"#334155\" stroke-width=\"2\"/><text x=\"530\" y=\"95\" text-anchor=\"middle\" font-size=\"14\" font-weight=\"700\" fill=\"#0f172a\">Renouvellement</text><text x=\"530\" y=\"125\" text-anchor=\"middle\" font-size=\"12\" fill=\"#334155\">reprise sans redémarrage</text></svg>",
+     "alt": "Schéma : quand un leader perd son bail, les écritures sont bloquées au niveau du transport ; si le bail est renouvelé à temps, le contrôleur reprend sans redémarrage.",
+     "caption": "Principe du KEP-6361, au stade de proposition alpha."
+    },
+    {
+     "type": "heading",
+     "level": 2,
+     "text": "Autres changements notables"
+    },
+    {
+     "type": "list",
+     "items": [
+      "Suppression des feature gates `WindowsHostNetwork` et `SeparateTaintEvictionController` : ce dernier doit être retiré de `--feature-gates` avant la mise à niveau.",
+      "Prise en charge de ML-DSA dans les demandes de signature de certificat et dans kubeadm (`ML-DSA-44`, `-65`, `-87`).",
+      "Le kubelet ne journalise plus que les noms des en-têtes de `--manifest-url-header`, plus leurs valeurs (jetons compris).",
+      "Les requêtes vers des chemins `/apis/...` inconnus renvoient un objet `Status` JSON au lieu d'un texte brut."
+     ]
+    },
+    {
+     "type": "usecases",
+     "title": "Exemples d'utilisation",
+     "items": [
+      {
+       "icon": "🔧",
+       "title": "Administrateur de cluster",
+       "text": "Il planifie le passage aux correctifs v1.36.5 ou v1.37.1 et retire le feature gate supprimé de ses fichiers de configuration avant la mise à niveau."
+      },
+      {
+       "icon": "🧠",
+       "title": "Équipe d'IA",
+       "text": "Elle suit le passage de DRA en disponibilité générale pour réserver des accélérateurs de façon déclarative."
+      },
+      {
+       "icon": "🛡️",
+       "title": "Équipe sécurité",
+       "text": "Elle vérifie qu'aucun utilisateur n'a de droits d'écriture sur les StatefulSet sans nécessité, en attendant le correctif."
+      }
+     ]
+    },
+    {
+     "type": "timeline",
+     "title": "D'où l'on vient, où l'on va",
+     "items": [
+      {
+       "label": "Septembre 2026",
+       "text": "Les correctifs des deux failles sont publiés dans les versions de maintenance, selon le bulletin."
+      },
+      {
+       "label": "Semaine du 7 novembre 2026",
+       "text": "Publication de la préversion alpha.1 de la 1.38 et gel des améliorations."
+      },
+      {
+       "label": "Suite",
+       "text": "Le KEP-6361 vise l'alpha en 1.38 ; la date de la version finale n'est pas donnée dans la source."
+      }
+     ]
+    },
+    {
+     "type": "opinion",
+     "title": "Notre avis",
+     "paragraphs": [
+      "Ce bulletin illustre le rythme de fond de Kubernetes : peu de nouveautés spectaculaires, beaucoup de détails qui améliorent la fiabilité. L'idée du KEP-6361 est séduisante, car les redémarrages en cascade de contrôleurs sont une cause connue d'instabilité.",
+      "À un horizon d'un à trois ans, la maturité de DRA sera surveillée de près par les équipes qui opèrent des clusters d'IA. Reste une prudence : tout cela repose sur une seule source hebdomadaire, qui signale elle-même des incohérences de dates."
+     ],
+     "verdict": "Peu d'éclat, mais des progrès concrets sur la fiabilité et l'allocation de GPU."
+    },
+    {
+     "type": "callout",
+     "title": "À retenir",
+     "text": "Les deux CVE de gravité moyenne sont corrigées dans les versions de maintenance ; le KEP-6361 reste une proposition alpha."
+    }
+   ]
+  },
+  {
+   "id": "gemini-4-carbon-decisions-api",
+   "category": "ia",
+   "icon": "🧠",
+   "title": "Google lance Gemini 4 Carbon et une API de décision qui ne génère pas de texte",
+   "summary": "Gemini 4 Carbon, présenté par Google comme son modèle le plus performant, est disponible depuis le 10 novembre 2026 ; une API distincte, Gemini Decisions, renvoie des probabilités plutôt que du texte.",
+   "tags": [
+    "Gemini 4",
+    "Google",
+    "API",
+    "modèles"
+   ],
+   "importance": 4,
+   "readingMinutes": 6,
+   "publishedAt": "2026-11-23T10:17:27+01:00",
+   "sourceDate": "2026-11-11",
+   "sources": [
+    {
+     "title": "Gemini 4 Carbon est disponible",
+     "url": "https://blog.google/innovation-and-ai/models-and-research/gemini-models/gemini-4-carbon-now-available/",
+     "publisher": "blog.google"
+    },
+    {
+     "title": "Gemini Decisions API",
+     "url": "https://blog.google/innovation-and-ai/technology/developers-tools/gemini-decisions-api/",
+     "publisher": "blog.google"
+    }
+   ],
+   "illustration": {
+    "svg": "<svg xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"0 0 640 360\"><defs><linearGradient id=\"g\" x1=\"0\" y1=\"0\" x2=\"1\" y2=\"1\"><stop offset=\"0\" stop-color=\"hsl(320,65%,38%)\"/><stop offset=\"1\" stop-color=\"hsl(0,70%,22%)\"/></linearGradient></defs><rect width=\"640\" height=\"360\" fill=\"url(#g)\"/><circle cx=\"540\" cy=\"70\" r=\"90\" fill=\"#fff\" opacity=\".08\"/><circle cx=\"90\" cy=\"320\" r=\"120\" fill=\"#fff\" opacity=\".06\"/><rect x=\"220\" y=\"110\" width=\"200\" height=\"140\" rx=\"20\" fill=\"#fff\"/><circle cx=\"280\" cy=\"170\" r=\"16\" fill=\"hsl(320,60%,35%)\"/><circle cx=\"360\" cy=\"170\" r=\"16\" fill=\"hsl(320,60%,35%)\"/><rect x=\"270\" y=\"205\" width=\"100\" height=\"12\" rx=\"6\" fill=\"hsl(320,60%,35%)\"/><path d=\"M320 110V80M200 180h20M420 180h20\" stroke=\"#fff\" stroke-width=\"8\" stroke-linecap=\"round\"/></svg>"
+   },
+   "blocks": [
+    {
+     "type": "paragraph",
+     "text": "Google a annoncé en novembre 2026 deux nouveautés de sa gamme Gemini : le modèle **Gemini 4 Carbon**, présenté comme le plus performant de la société, et la **Gemini Decisions API**, un point d'accès qui n'écrit pas de texte mais classe des options. Les chiffres cités ci-dessous proviennent de Google ou de ses partenaires ; aucun n'a été vérifié de manière indépendante."
+    },
+    {
+     "type": "heading",
+     "level": 2,
+     "text": "Gemini 4 Carbon : disponibilité et tarifs"
+    },
+    {
+     "type": "paragraph",
+     "text": "Carbon est sorti le 10 novembre 2026. Il se place au-dessus de Gemini 4 Argon, que Google continue de recommander pour la majorité des tâches de développement et de travail intellectuel. L'accès se fait par l'API via Google AI Studio et Android Studio pour les développeurs payants, par Gemini for business, Google Antigravity et CodeMender pour les entreprises, et par l'application Gemini et le mode IA de la recherche pour les abonnés Google AI Ultra, au fil d'un déploiement progressif. Des scientifiques sélectionnés obtiennent six mois d'accès gratuit, et un programme sur candidature, Fairwind, s'adresse aux défenseurs en cybersécurité."
+    },
+    {
+     "type": "keyvalue",
+     "items": [
+      {
+       "label": "Tarif d'introduction",
+       "value": "2 $ par million de jetons en entrée, 10 $ en sortie, jusqu'au 30 novembre 2026"
+      },
+      {
+       "label": "Tarif ensuite",
+       "value": "4 $ par million de jetons en entrée, 20 $ en sortie"
+      },
+      {
+       "label": "Fenêtre de contexte",
+       "value": "non précisée dans l'annonce"
+      }
+     ]
+    },
+    {
+     "type": "heading",
+     "level": 2,
+     "text": "Ce que Google affirme"
+    },
+    {
+     "type": "list",
+     "items": [
+      "**Programmation et flux de travail** : premier sur CursorBench 4.0, WANDR (Perplexity) et AutomationBench (Zapier), pour un coût par tâche supérieur à deux fois inférieur au meilleur modèle externe suivant.",
+      "**Connaissances multimodales** : deuxième rang sur MKA (Artificial Analysis).",
+      "**Honnêteté d'agent** : 92 % de réussite sur 375 tâches, contre 70 % pour Argon.",
+      "**Sécurité** : taux de violation par tentative ramené à 0,8 % contre 3,1 % pour Argon ; Google reconnaît que la robustesse aux injections de consigne indirectes doit encore progresser."
+     ]
+    },
+    {
+     "type": "paragraph",
+     "text": "Le principal compromis est la consommation : Carbon utilise davantage de jetons que Argon pour explorer et vérifier, ce qui le rend moins adapté aux tâches courantes. Certaines fonctions, comme l'orchestration multi-agents `/swarm` d'Antigravity, restent en préversion."
+    },
+    {
+     "type": "heading",
+     "level": 2,
+     "text": "La Gemini Decisions API : classer plutôt que rédiger"
+    },
+    {
+     "type": "paragraph",
+     "text": "Annoncée dans la même période, l'API repose sur le modèle `gemini-decision-1`. Au lieu de produire une réponse jeton par jeton, il attribue des scores à des options candidates en une seule passe et renvoie des probabilités accompagnées d'un indice de confiance entre 0 et 1. Une même entrée multimodale (texte, image, audio, vidéo, PDF, jusqu'à 256 000 jetons) peut être évaluée au regard de 1 000 questions indépendantes. Trois types de questions existent : oui ou non, choix parmi 2 à 255 options, et note sur une échelle ordonnée."
+    },
+    {
+     "type": "paragraph",
+     "text": "Google annonce une latence de 150 à 250 millisecondes de bout en bout, et un tarif de 0,10 $ par million de jetons en entrée, sans facturation de la sortie ; l'entrée partagée n'est facturée qu'une fois par requête. Selon l'entreprise, ce serait environ cinq fois moins cher que Gemini 3.5 Flash-Lite sur sa suite de tests. Elle cite des usages internes : routage de requêtes vers le bon niveau de modèle (jusqu'à 40 % de latence en moins dans Gemini Notebook), sélection d'une réaction emoji parmi plus de 200, ou détection de comportements malveillants dans des outils MCP."
+    },
+    {
+     "type": "diagram",
+     "svg": "<svg xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"0 0 640 220\" font-family=\"system-ui,sans-serif\"><rect width=\"640\" height=\"220\" rx=\"14\" fill=\"#f1f5f9\"/><text x=\"320\" y=\"30\" text-anchor=\"middle\" font-size=\"15\" font-weight=\"700\" fill=\"#0f172a\">Gemini Decisions : des scores, pas du texte</text><rect x=\"20\" y=\"60\" width=\"180\" height=\"110\" rx=\"10\" fill=\"#fff\" stroke=\"#334155\" stroke-width=\"2\"/><text x=\"110\" y=\"95\" text-anchor=\"middle\" font-size=\"14\" font-weight=\"700\" fill=\"#0f172a\">Entrée partagée</text><text x=\"110\" y=\"125\" text-anchor=\"middle\" font-size=\"12\" fill=\"#334155\">texte, image, PDF…</text><path d=\"M203 115h22m-6-6l6 6-6 6\" stroke=\"#334155\" stroke-width=\"3\" fill=\"none\"/><rect x=\"230\" y=\"60\" width=\"180\" height=\"110\" rx=\"10\" fill=\"#fff\" stroke=\"#334155\" stroke-width=\"2\"/><text x=\"320\" y=\"95\" text-anchor=\"middle\" font-size=\"14\" font-weight=\"700\" fill=\"#0f172a\">Decision 1</text><text x=\"320\" y=\"125\" text-anchor=\"middle\" font-size=\"12\" fill=\"#334155\">une seule passe</text><path d=\"M413 115h22m-6-6l6 6-6 6\" stroke=\"#334155\" stroke-width=\"3\" fill=\"none\"/><rect x=\"440\" y=\"60\" width=\"180\" height=\"110\" rx=\"10\" fill=\"#fff\" stroke=\"#334155\" stroke-width=\"2\"/><text x=\"530\" y=\"95\" text-anchor=\"middle\" font-size=\"14\" font-weight=\"700\" fill=\"#0f172a\">Probabilités</text><text x=\"530\" y=\"125\" text-anchor=\"middle\" font-size=\"12\" fill=\"#334155\">+ indice de confiance</text></svg>",
+     "alt": "Schéma : une entrée multimodale partagée est évaluée par le modèle en une passe et produit des probabilités et un indice de confiance par question.",
+     "caption": "Fonctionnement résumé de l'API de décision décrite par Google."
+    },
+    {
+     "type": "usecases",
+     "title": "Exemples d'utilisation",
+     "items": [
+      {
+       "icon": "🧭",
+       "title": "Équipe produit",
+       "text": "Elle utilise l'API pour router chaque demande d'utilisateur vers le modèle le moins coûteux capable de la traiter."
+      },
+      {
+       "icon": "🛑",
+       "title": "Responsable conformité",
+       "text": "Elle contrôle qu'un message respecte une politique interne et envoie les cas à faible confiance vers un relecteur humain."
+      },
+      {
+       "icon": "🧑‍💻",
+       "title": "Éditeur d'outils de développement",
+       "text": "Il compare Carbon et Argon sur ses propres dépôts avant de décider quel modèle lancer en production."
+      }
+     ]
+    },
+    {
+     "type": "timeline",
+     "title": "D'où l'on vient, où l'on va",
+     "items": [
+      {
+       "label": "10 novembre 2026",
+       "text": "Gemini 4 Carbon disponible pour les développeurs payants."
+      },
+      {
+       "label": "30 novembre 2026",
+       "text": "Fin du tarif d'introduction de Carbon."
+      },
+      {
+       "label": "Suite",
+       "text": "La prise en charge de Decisions dans Gemini sur Google Cloud est annoncée comme « bientôt disponible »."
+      }
+     ]
+    },
+    {
+     "type": "opinion",
+     "title": "Notre avis",
+     "paragraphs": [
+      "Ces annonces montrent deux directions : des modèles généralistes toujours plus coûteux en calcul, et des modèles spécialisés très bon marché pour les micro-décisions. La seconde est probablement la plus utile aux entreprises, car beaucoup d'usages d'IA se résument à choisir, pas à écrire.",
+      "À un à trois ans, la question sera la fiabilité de l'indice de confiance : s'il est bien calibré, il permettra d'automatiser sans tout vérifier ; s'il ne l'est pas, il donnera une fausse assurance. C'est une hypothèse à tester, non un acquis."
+     ],
+     "verdict": "Un modèle de pointe de plus, et surtout une idée utile : des décisions rapides et mesurables."
+    },
+    {
+     "type": "callout",
+     "title": "À retenir",
+     "text": "Tous les résultats de performance viennent de Google ou de ses partenaires ; le tarif d'introduction de Carbon s'arrête le 30 novembre 2026."
+    }
+   ]
+  },
+  {
+   "id": "n-able-n-central-4everable2shell-mineurs",
+   "category": "cybersecurite",
+   "icon": "🛡️",
+   "title": "N-able N-central : la faille « 4EverAble2Shell » exploitée quelques heures après la publication de l'exploit",
+   "summary": "Des attaquants utilisent une chaîne de failles de l'outil de gestion à distance N-central pour prendre le contrôle de serveurs et y installer des mineurs de cryptomonnaie ; l'état du correctif reste à vérifier auprès de l'éditeur.",
+   "tags": [
+    "N-able",
+    "N-central",
+    "zero-day",
+    "mineur de cryptomonnaie"
+   ],
+   "importance": 5,
+   "readingMinutes": 6,
+   "publishedAt": "2026-11-23T10:17:27+01:00",
+   "sourceDate": "2026-11-16",
+   "sources": [
+    {
+     "title": "Hackers exploit new N-able 4EverAble2Shell zero-day hours after PoC release",
+     "url": "https://www.bleepingcomputer.com/news/security/new-n-able-4everable2shell-zero-day-exploited-hours-after-poc-released/",
+     "publisher": "BleepingComputer"
+    },
+    {
+     "title": "Weekly Recap",
+     "url": "https://thehackernews.com/2026/11/weekly-recap-n-able-0-days-windows-0.html",
+     "publisher": "The Hacker News"
+    }
+   ],
+   "illustration": {
+    "svg": "<svg xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"0 0 640 360\"><defs><linearGradient id=\"g\" x1=\"0\" y1=\"0\" x2=\"1\" y2=\"1\"><stop offset=\"0\" stop-color=\"hsl(175,65%,38%)\"/><stop offset=\"1\" stop-color=\"hsl(215,70%,22%)\"/></linearGradient></defs><rect width=\"640\" height=\"360\" fill=\"url(#g)\"/><circle cx=\"540\" cy=\"70\" r=\"90\" fill=\"#fff\" opacity=\".08\"/><circle cx=\"90\" cy=\"320\" r=\"120\" fill=\"#fff\" opacity=\".06\"/><path d=\"M320 80l110 40v80c0 60-50 90-110 110-60-20-110-50-110-110v-80z\" fill=\"#fff\"/><path d=\"M270 190l35 35 70-80\" stroke=\"hsl(175,60%,35%)\" stroke-width=\"16\" fill=\"none\" stroke-linecap=\"round\" stroke-linejoin=\"round\"/></svg>"
+   },
+   "blocks": [
+    {
+     "type": "paragraph",
+     "text": "Le 12 novembre 2026, le chercheur Sean Bales a publié des preuves de concept pour deux chaînes de failles visant N-able N-central, une plateforme de supervision et de gestion à distance très utilisée par les prestataires informatiques : **4EverAble2Shell** et **Agent2Shell**, qui regroupent environ une douzaine de vulnérabilités. Selon la presse spécialisée, l'exploitation active a commencé en quelques heures. Cet article s'appuie sur des recoupements de la presse ; la page de l'éditeur n'a pas pu être consultée."
+    },
+    {
+     "type": "heading",
+     "level": 2,
+     "text": "Ce que permet l'attaque"
+    },
+    {
+     "type": "paragraph",
+     "text": "D'après les comptes rendus, la chaîne 4EverAble2Shell permet à un attaquant distant, sans authentification, d'exécuter des commandes avec les droits administrateur (*root*) sur un serveur N-central installé sur site. La société Huntress a observé le téléchargement d'un script qui installe le mineur XMRig, destiné à la cryptomonnaie Monero. Au moins 21 serveurs ont été compromis dans sept pays, dont la France ; 19 d'entre eux étaient à jour du dernier correctif de sécurité, ce qui explique la gravité de l'affaire."
+    },
+    {
+     "type": "list",
+     "items": [
+      "**Mécanisme** : exécution de commandes à distance, sans compte, sur le serveur N-central.",
+      "**Persistance** : service systemd nommé `xvd.service` et tâche cron `xvd` dans `/etc/cron.d/`.",
+      "**Indices à rechercher** : processus de minage inhabituels, fichiers sous `/tmp/.xvd` ou `/var/tmp/.xvd`.",
+      "**Adresse d'attaque signalée** : 157.20.241[.]16."
+     ]
+    },
+    {
+     "type": "heading",
+     "level": 2,
+     "text": "Un état du correctif contradictoire"
+    },
+    {
+     "type": "paragraph",
+     "text": "Les sources divergent. Une analyse affirme que le correctif d'urgence le plus récent (Hotfix 2) n'arrête pas la chaîne. Une autre rapporte que l'éditeur estime que son correctif tient, tant que la fonction « Legacy API » n'est pas activée. WatchTowr indique que les versions où cette interface héritée est active sont exposées. En l'absence de lecture de l'avis de l'éditeur, la conduite prudente est de vérifier l'état de cette option et la dernière version du correctif, et de traiter toute détection comme une compromission complète du serveur."
+    },
+    {
+     "type": "diagram",
+     "svg": "<svg xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"0 0 640 220\" font-family=\"system-ui,sans-serif\"><rect width=\"640\" height=\"220\" rx=\"14\" fill=\"#f1f5f9\"/><text x=\"320\" y=\"30\" text-anchor=\"middle\" font-size=\"15\" font-weight=\"700\" fill=\"#0f172a\">4EverAble2Shell : de l'exposition à la compromission</text><rect x=\"20\" y=\"60\" width=\"180\" height=\"110\" rx=\"10\" fill=\"#fff\" stroke=\"#334155\" stroke-width=\"2\"/><text x=\"110\" y=\"95\" text-anchor=\"middle\" font-size=\"14\" font-weight=\"700\" fill=\"#0f172a\">Serveur N-central</text><text x=\"110\" y=\"125\" text-anchor=\"middle\" font-size=\"12\" fill=\"#334155\">exposé à Internet</text><path d=\"M203 115h22m-6-6l6 6-6 6\" stroke=\"#334155\" stroke-width=\"3\" fill=\"none\"/><rect x=\"230\" y=\"60\" width=\"180\" height=\"110\" rx=\"10\" fill=\"#fff\" stroke=\"#334155\" stroke-width=\"2\"/><text x=\"320\" y=\"95\" text-anchor=\"middle\" font-size=\"14\" font-weight=\"700\" fill=\"#0f172a\">Chaîne de failles</text><text x=\"320\" y=\"125\" text-anchor=\"middle\" font-size=\"12\" fill=\"#334155\">exécution en root</text><path d=\"M413 115h22m-6-6l6 6-6 6\" stroke=\"#334155\" stroke-width=\"3\" fill=\"none\"/><rect x=\"440\" y=\"60\" width=\"180\" height=\"110\" rx=\"10\" fill=\"#fff\" stroke=\"#334155\" stroke-width=\"2\"/><text x=\"530\" y=\"95\" text-anchor=\"middle\" font-size=\"14\" font-weight=\"700\" fill=\"#0f172a\">Charge installée</text><text x=\"530\" y=\"125\" text-anchor=\"middle\" font-size=\"12\" fill=\"#334155\">mineur XMRig</text></svg>",
+     "alt": "Schéma : un serveur N-central exposé est attaqué par une chaîne de failles qui donne un accès root, puis un mineur de cryptomonnaie est installé.",
+     "caption": "Déroulement simplifié de l'attaque décrit par les chercheurs."
+    },
+    {
+     "type": "heading",
+     "level": 2,
+     "text": "Un serveur qui gère les postes des clients"
+    },
+    {
+     "type": "paragraph",
+     "text": "Le risque dépasse le simple minage. Un serveur de supervision pousse des tâches vers les ordinateurs de ses clients. Huntress recommande donc de considérer toute compromission comme celle d'un hôte qui administre des terminaux tiers. Dans le même bulletin hebdomadaire, un mineur XMRig a aussi été installé dans 13 organisations via le logiciel de caméras GeoVision, avec un pilote vulnérable servant à désactiver Microsoft Defender : le minage de cryptomonnaie reste une charge facile à monétiser pour les attaquants."
+    },
+    {
+     "type": "usecases",
+     "title": "Exemples d'utilisation",
+     "items": [
+      {
+       "icon": "🏢",
+       "title": "Prestataire informatique (MSP)",
+       "text": "Il isole immédiatement son serveur N-central d'Internet, désactive l'API héritée et vérifie les indicateurs avant de reprendre la production."
+      },
+      {
+       "icon": "🔎",
+       "title": "Responsable sécurité d'un client",
+       "text": "Il demande à son prestataire la confirmation écrite qu'aucun indicateur de compromission n'a été trouvé."
+      },
+      {
+       "icon": "🧰",
+       "title": "Équipe de réponse à incident",
+       "text": "Elle recherche `xvd.service` et les fichiers temporaires cités, puis considère les mots de passe gérés par l'outil comme à renouveler."
+      }
+     ]
+    },
+    {
+     "type": "timeline",
+     "title": "D'où l'on vient, où l'on va",
+     "items": [
+      {
+       "label": "12 novembre 2026",
+       "text": "Publication des preuves de concept ; exploitation en quelques heures."
+      },
+      {
+       "label": "16 novembre 2026",
+       "text": "Le bulletin hebdomadaire de The Hacker News fait état d'au moins 21 serveurs compromis."
+      },
+      {
+       "label": "Suite",
+       "text": "L'avis de l'éditeur doit être consulté pour connaître le correctif à jour."
+      }
+     ]
+    },
+    {
+     "type": "opinion",
+     "title": "Notre avis",
+     "paragraphs": [
+      "L'affaire rappelle que les outils d'administration à distance sont des cibles de choix : une seule faille ouvre l'accès à des centaines de réseaux. Le délai entre la publication de l'exploit et l'attaque — quelques heures — rend toute stratégie de correction « au prochain cycle » inadaptée.",
+      "À un à trois ans, ces outils seront probablement placés derrière des accès privés, sans exposition directe à Internet. C'est une tendance déjà recommandée, mais encore inégalement appliquée par les prestataires."
+     ],
+     "verdict": "Un cas d'école : un exploit public, un outil central et un correctif discuté."
+    },
+    {
+     "type": "callout",
+     "title": "À retenir",
+     "text": "Ne pas exposer N-central à Internet, vérifier l'option « Legacy API » et rechercher `xvd.service` ; consulter l'avis officiel de N-able pour la version corrigée."
+    }
+   ]
+  },
+  {
+   "id": "raspberry-pi-5-16-go-385-dollars-penurie-memoire",
+   "category": "electronique",
+   "icon": "🍓",
+   "title": "Raspberry Pi 5 de 16 Go à 385 dollars : la pénurie de mémoire frappe encore les cartes de bricolage",
+   "summary": "Début novembre 2026, le Raspberry Pi 5 de 16 Go passe à 385 dollars, plus de trois fois son prix de lancement, et le module Compute Module 5 de 16 Go augmente de 40 dollars.",
+   "tags": [
+    "Raspberry Pi",
+    "mémoire",
+    "DRAM",
+    "prix"
+   ],
+   "importance": 3,
+   "readingMinutes": 5,
+   "publishedAt": "2026-11-23T10:17:27+01:00",
+   "sourceDate": "2026-11-03",
+   "sources": [
+    {
+     "title": "Raspberry Pi 5 16 Go : 385 $ (CNX Software)",
+     "url": "https://www.cnx-software.com/2026/11/03/when-will-this-stop-the-raspberry-pi-5-16gb-sbc-now-sells-for-385/",
+     "publisher": "cnx-software.com"
+    },
+    {
+     "title": "Raspberry Pi : hausses liées à la mémoire (février 2026)",
+     "url": "https://raspberrypi.com/news/more-memory-driven-price-rises",
+     "publisher": "raspberrypi.com"
+    }
+   ],
+   "illustration": {
+    "svg": "<svg xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"0 0 640 360\"><defs><linearGradient id=\"g\" x1=\"0\" y1=\"0\" x2=\"1\" y2=\"1\"><stop offset=\"0\" stop-color=\"hsl(30,65%,38%)\"/><stop offset=\"1\" stop-color=\"hsl(70,70%,22%)\"/></linearGradient></defs><rect width=\"640\" height=\"360\" fill=\"url(#g)\"/><circle cx=\"540\" cy=\"70\" r=\"90\" fill=\"#fff\" opacity=\".08\"/><circle cx=\"90\" cy=\"320\" r=\"120\" fill=\"#fff\" opacity=\".06\"/><rect x=\"230\" y=\"100\" width=\"180\" height=\"160\" rx=\"14\" fill=\"#fff\"/><rect x=\"275\" y=\"140\" width=\"90\" height=\"80\" rx=\"8\" fill=\"hsl(30,60%,35%)\"/><g stroke=\"#fff\" stroke-width=\"8\" stroke-linecap=\"round\"><path d=\"M260 100V70M320 100V70M380 100V70M260 260v30M320 260v30M380 260v30M230 140h-30M230 220h-30M410 140h30M410 220h30\"/></g></svg>"
+   },
+   "blocks": [
+    {
+     "type": "paragraph",
+     "text": "Les amateurs de micro-ordinateurs monocarte paient aujourd'hui leur voisinage avec l'intelligence artificielle. Selon CNX Software, le Raspberry Pi 5 de 16 Go se vend 385 dollars depuis début novembre 2026, soit 80 dollars de plus qu'auparavant (305 dollars, valeur déduite par le site) et plus de trois fois son prix de lancement de janvier 2025, 120 dollars. Les modules Compute Module 5 de 16 Go augmentent de 40 dollars. Le détail exact de l'annonce officielle de novembre n'a pas pu être consulté ; les montants ci-dessous proviennent de CNX Software et de recoupements de la presse."
+    },
+    {
+     "type": "heading",
+     "level": 2,
+     "text": "Les nouveaux prix relevés"
+    },
+    {
+     "type": "table",
+     "headers": [
+      "Produit",
+      "Nouveau prix"
+     ],
+     "rows": [
+      [
+       "Raspberry Pi 5, 16 Go",
+       "385 $"
+      ],
+      [
+       "Compute Module 5, 16 Go, version Lite (sans eMMC), sans Wi-Fi",
+       "375 $"
+      ],
+      [
+       "Compute Module 5, 16 Go, version Lite, avec Wi-Fi",
+       "380 $"
+      ],
+      [
+       "Compute Module 5, 16 Go, avec 16 Go d'eMMC",
+       "400 $ (sans Wi-Fi) ou 405 $ (avec Wi-Fi)"
+      ],
+      [
+       "Raspberry Pi 500+",
+       "410 $ (inchangé)"
+      ]
+     ]
+    },
+    {
+     "type": "paragraph",
+     "text": "Une divergence de presse existe : un média évoque seulement la hausse de 40 dollars du module, alors que la plupart des autres relèvent aussi les 80 dollars de la carte. Il est donc prudent de vérifier les tarifs sur le site du fabricant ou chez un revendeur agréé."
+    },
+    {
+     "type": "heading",
+     "level": 2,
+     "text": "Une succession de hausses depuis décembre 2025"
+    },
+    {
+     "type": "paragraph",
+     "text": "Le prix de lancement de 120 dollars n'a cessé d'être dépassé. D'après CNX Software, une hausse a eu lieu le 1er avril 2026 pour toutes les cartes à partir de 4 Go, puis une autre le 1er octobre pour les Pi 4 et Pi 5 de 2 Go ; en juillet, NVIDIA a relevé de jusqu'à 101 % les prix de ses modules Jetson, et en octobre l'Arduino VENTUNO Q est passé de 299 à 399 dollars. En février 2026, Raspberry Pi avait déjà attribué ses hausses à la « concurrence pour la capacité des usines de mémoire » liée au déploiement des infrastructures d'IA."
+    },
+    {
+     "type": "heading",
+     "level": 2,
+     "text": "Pourquoi la mémoire est devenue rare"
+    },
+    {
+     "type": "paragraph",
+     "text": "Les fabricants de mémoire orientent leur production vers les mémoires de très haute performance destinées aux centres de calcul d'IA, ce qui laisse moins de capacité pour la DRAM classique. Raspberry Pi explique ne pas disposer de fournisseur alternatif pour la mémoire de 16 Go de sa carte. Côté perspectives, CNX Software cite Micron, qui prévoit une pénurie « au moins jusqu'en 2028 », et SK Hynix, qui l'envisage jusqu'en 2030 ; en sens inverse, le cours boursier des fabricants a chuté, signe possible d'une fin de cycle. Raspberry Pi qualifie, de son côté, ces hausses de temporaires."
+    },
+    {
+     "type": "diagram",
+     "svg": "<svg xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"0 0 640 220\" font-family=\"system-ui,sans-serif\"><rect width=\"640\" height=\"220\" rx=\"14\" fill=\"#f1f5f9\"/><text x=\"320\" y=\"30\" text-anchor=\"middle\" font-size=\"15\" font-weight=\"700\" fill=\"#0f172a\">Le Pi 5 de 16 Go multiplié par 3,2</text><rect x=\"20\" y=\"60\" width=\"180\" height=\"110\" rx=\"10\" fill=\"#fff\" stroke=\"#334155\" stroke-width=\"2\"/><text x=\"110\" y=\"95\" text-anchor=\"middle\" font-size=\"14\" font-weight=\"700\" fill=\"#0f172a\">Pi 5, 16 Go</text><text x=\"110\" y=\"125\" text-anchor=\"middle\" font-size=\"12\" fill=\"#334155\">120 $ (jan. 2025)</text><path d=\"M203 115h22m-6-6l6 6-6 6\" stroke=\"#334155\" stroke-width=\"3\" fill=\"none\"/><rect x=\"230\" y=\"60\" width=\"180\" height=\"110\" rx=\"10\" fill=\"#fff\" stroke=\"#334155\" stroke-width=\"2\"/><text x=\"320\" y=\"95\" text-anchor=\"middle\" font-size=\"14\" font-weight=\"700\" fill=\"#0f172a\">Hausses 2026</text><text x=\"320\" y=\"125\" text-anchor=\"middle\" font-size=\"12\" fill=\"#334155\">avril, octobre, nov.</text><path d=\"M413 115h22m-6-6l6 6-6 6\" stroke=\"#334155\" stroke-width=\"3\" fill=\"none\"/><rect x=\"440\" y=\"60\" width=\"180\" height=\"110\" rx=\"10\" fill=\"#fff\" stroke=\"#334155\" stroke-width=\"2\"/><text x=\"530\" y=\"95\" text-anchor=\"middle\" font-size=\"14\" font-weight=\"700\" fill=\"#0f172a\">Prix actuel</text><text x=\"530\" y=\"125\" text-anchor=\"middle\" font-size=\"12\" fill=\"#334155\">385 $</text></svg>",
+     "alt": "Schéma : le Raspberry Pi 5 de 16 Go passe de 120 dollars en janvier 2025 à 385 dollars début novembre 2026 après plusieurs hausses.",
+     "caption": "Évolution du prix du Pi 5 de 16 Go, d'après CNX Software."
+    },
+    {
+     "type": "usecases",
+     "title": "Exemples d'utilisation",
+     "items": [
+      {
+       "icon": "🏫",
+       "title": "Enseignant en informatique",
+       "text": "Il équipe sa classe avec des modèles de 4 ou 8 Go, bien moins touchés, plutôt qu'avec la version de 16 Go."
+      },
+      {
+       "icon": "🏭",
+       "title": "Bureau d'études",
+       "text": "Il compare un module industriel à un mini-PC d'occasion avant de figer le prix d'un produit embarqué."
+      },
+      {
+       "icon": "🧪",
+       "title": "Amateur de serveur domestique",
+       "text": "Il choisit une carte de 8 Go : pour un serveur de fichiers ou de domotique, 16 Go sont rarement nécessaires."
+      }
+     ]
+    },
+    {
+     "type": "timeline",
+     "title": "D'où l'on vient, où l'on va",
+     "items": [
+      {
+       "label": "Janvier 2025",
+       "text": "Lancement du Pi 5 de 16 Go à 120 $."
+      },
+      {
+       "label": "Février 2026",
+       "text": "Annonce de hausses liées à la mémoire."
+      },
+      {
+       "label": "Octobre 2026",
+       "text": "Hausse sur les Pi 4 et Pi 5 de 2 Go."
+      },
+      {
+       "label": "Début novembre 2026",
+       "text": "Pi 5 de 16 Go à 385 $ ; Micron prévoit la pénurie jusqu'en 2028 au moins."
+      }
+     ]
+    },
+    {
+     "type": "opinion",
+     "title": "Notre avis",
+     "paragraphs": [
+      "Le bricolage électronique est devenu un dommage collatéral de l'IA. Au prix actuel, un Pi 5 de 16 Go coûte plus cher que certains mini-PC complets, ce qui sape l'argument historique du micro-ordinateur bon marché.",
+      "D'ici un à trois ans, deux scénarios existent : une pénurie prolongée jusqu'en 2028 ou plus, ou un retournement si le cycle de l'IA ralentit. Dans les deux cas, les créateurs gagneront à surdimensionner moins et à choisir des cartes de capacité adaptée."
+     ],
+     "verdict": "L'ère des cartes à bas coût est mise à l'épreuve par la course à l'IA."
+    },
+    {
+     "type": "callout",
+     "title": "À retenir",
+     "text": "Prix relevés par CNX Software début novembre 2026 : à vérifier chez le fabricant ; la hausse concerne surtout les versions de 16 Go."
+    }
+   ]
+  }
+ ]
+}
