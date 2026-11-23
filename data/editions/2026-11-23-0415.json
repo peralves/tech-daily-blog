@@ -1,0 +1,682 @@
+{
+ "schemaVersion": "1.0",
+ "date": "2026-11-23",
+ "generatedAt": "2026-11-23T04:15:27+01:00",
+ "title": "Tech : routeurs GL.iNet compromis, perplexité selon OpenAI et IA locale",
+ "summary": "Une faille du cloud de GL.iNet a servi à infecter des routeurs et des KVM, OpenAI propose une mesure commune du progrès des modèles, et l'IA locale gagne en simplicité sur PC et Mac.",
+ "highlights": [
+  "GL.iNet : routeurs et KVM infectés via la gestion à distance, mise à jour à faire soi-même",
+  "OpenAI plaide pour des limites communes fondées sur la perplexité",
+  "Un guide pour installer une IA locale selon la mémoire vidéo",
+  "Localcode : un agent de codage 100 % local sur Mac"
+ ],
+ "meta": {
+  "generator": "claude-scheduled-task"
+ },
+ "posts": [
+  {
+   "id": "gl-inet-routeurs-kvm-failles-gestion-cloud-logiciel-malveillant",
+   "category": "cybersecurite",
+   "icon": "📡",
+   "title": "GL.iNet : une faille du service de gestion à distance a permis d'installer un logiciel malveillant sur des routeurs et des KVM",
+   "summary": "Le fabricant affirme avoir corrigé la faille côté cloud, mais les appareils déjà infectés doivent être mis à jour. Un indice simple permet de repérer un processus suspect.",
+   "tags": [
+    "GL.iNet",
+    "routeur",
+    "KVM",
+    "logiciel malveillant",
+    "firmware"
+   ],
+   "importance": 5,
+   "readingMinutes": 5,
+   "publishedAt": "2026-11-23T04:15:27+01:00",
+   "sourceDate": "2026-11-20",
+   "sources": [
+    {
+     "title": "GL.iNet Security Notice 2026-11-20",
+     "url": "https://www.gl-inet.com/en-us/blogs/blog/glinet-security-notice-2026-11-20",
+     "publisher": "GL.iNet"
+    }
+   ],
+   "illustration": {
+    "svg": "<svg xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"0 0 640 360\"><defs><linearGradient id=\"g\" x1=\"0\" y1=\"0\" x2=\"1\" y2=\"1\"><stop offset=\"0\" stop-color=\"hsl(175,65%,38%)\"/><stop offset=\"1\" stop-color=\"hsl(215,70%,22%)\"/></linearGradient></defs><rect width=\"640\" height=\"360\" fill=\"url(#g)\"/><circle cx=\"540\" cy=\"70\" r=\"90\" fill=\"#fff\" opacity=\".08\"/><circle cx=\"90\" cy=\"320\" r=\"120\" fill=\"#fff\" opacity=\".06\"/><rect x=\"180\" y=\"190\" width=\"280\" height=\"70\" rx=\"12\" fill=\"#fff\"/><circle cx=\"220\" cy=\"225\" r=\"8\" fill=\"hsl(175,65%,38%)\"/><circle cx=\"250\" cy=\"225\" r=\"8\" fill=\"hsl(175,65%,38%)\"/><path d=\"M320 190 V120 M270 150 Q320 100 370 150 M240 125 Q320 55 400 125\" stroke=\"#fff\" stroke-width=\"10\" fill=\"none\" stroke-linecap=\"round\"/><path d=\"M470 80 l40 70 h-80z\" fill=\"#ffb4a2\"/></svg>"
+   },
+   "blocks": [
+    {
+     "type": "paragraph",
+     "text": "Le fabricant de routeurs et de boîtiers KVM GL.iNet a publié le 20 novembre 2026 un avis de sécurité qui concerne une partie de ses appareils. Selon cet avis, une faille dans ses services de gestion à distance par le cloud a permis à une partie non autorisée d'accéder à certains équipements et d'y installer un logiciel malveillant. Le constructeur indique avoir corrigé la vulnérabilité côté cloud et bloqué le chemin d'accès utilisé, de sorte que de nouvelles infections par cette voie ne devraient plus se produire. La page a ensuite été mise à jour, le 23 novembre 2026, ce qui montre que l'enquête se poursuit."
+    },
+    {
+     "type": "paragraph",
+     "text": "Le point important pour les utilisateurs est le suivant : la correction côté cloud ne nettoie pas les appareils déjà compromis. Il faut donc agir sur chaque équipement, même si aucun symptôme n'est visible. Cet article résume ce que dit l'avis, sans extrapoler au-delà de ce que GL.iNet a publié."
+    },
+    {
+     "type": "heading",
+     "level": 2,
+     "text": "Ce que dit l'avis de GL.iNet"
+    },
+    {
+     "type": "paragraph",
+     "text": "GL.iNet ne cite aucun identifiant CVE et n'attribue aucun niveau de gravité à cette faille. L'avis ne précise pas non plus la liste des modèles touchés : il avertit seulement qu'un modèle absent des tableaux de firmware « n'est pas nécessairement épargné ». Le constructeur promet d'écrire par courriel, à l'adresse associée au compte cloud GL.iNet, aux clients qu'il aura identifiés comme concernés, tout en précisant qu'il n'est pas nécessaire d'attendre ce message pour vérifier et mettre à jour."
+    },
+    {
+     "type": "paragraph",
+     "text": "L'enquête est toujours en cours, notamment sur la question de savoir si des ordinateurs reliés à des KVM infectés ont été touchés à leur tour. GL.iNet reconnaît aussi avoir identifié d'autres indicateurs de compromission : les vérifications rapides décrites plus bas peuvent donc passer à côté de certains appareils infectés."
+    },
+    {
+     "type": "heading",
+     "level": 2,
+     "text": "Comment vérifier un appareil"
+    },
+    {
+     "type": "paragraph",
+     "text": "L'indicateur principal est un processus en cours d'exécution dont la ligne de commande contient exactement le texte `crond -i /tmp/.log`. La vérification diffère selon le type d'appareil :"
+    },
+    {
+     "type": "list",
+     "items": [
+      "**Routeurs** : dans l'interface LuCI, ouvrir System, Advanced Settings, Status puis Processes et chercher `tmp/.log`, ou lancer `ps | grep tmp` en SSH.",
+      "**KVM RMQ1** : dans le terminal de l'appareil (Toolbox, Terminal, Access), exécuter `ps -a | grep tmp`.",
+      "**Autres KVM** : même terminal, avec la commande `ps -aux | grep tmp`.",
+      "Un résultat qui n'affiche que la commande `grep` elle-même ne constitue pas une correspondance."
+     ]
+    },
+    {
+     "type": "paragraph",
+     "text": "Même si la recherche ne trouve rien, GL.iNet recommande d'installer le firmware de sécurité stable correspondant au modèle exact. Selon l'avis, ce firmware supprime le logiciel malveillant identifié sans réinitialisation d'usine, et les réglages peuvent être conservés."
+    },
+    {
+     "type": "heading",
+     "level": 2,
+     "text": "Versions de firmware minimales"
+    },
+    {
+     "type": "table",
+     "headers": [
+      "Modèles",
+      "Version stable minimale"
+     ],
+     "rows": [
+      [
+       "GL-MG1300, GL-MT3000, GL-MT6000",
+       "4.11.1"
+      ],
+      [
+       "GL-E5800",
+       "4.10.3"
+      ],
+      [
+       "GL-BE3600, GL-BE9300",
+       "4.10.2"
+      ],
+      [
+       "GL-BE14000",
+       "4.9.3"
+      ],
+      [
+       "GL-BE6500, GL-MT3600BE, GL-MT5000",
+       "4.9.1"
+      ],
+      [
+       "GL-BE10000",
+       "4.8.7"
+      ],
+      [
+       "GL-AX1800, GL-AXT1800, GL-SFT1200, GL-X3000, GL-XE3000",
+       "4.8.4"
+      ],
+      [
+       "GL-MT2500 / GL-MT2500A, GL-X2000",
+       "4.7.14"
+      ],
+      [
+       "KVM RM1, RM1V2, RM10, RM10RC, RM1PE, RM4PE",
+       "1.10.3"
+      ],
+      [
+       "KVM RMQ1",
+       "1.8.7"
+      ]
+     ]
+    },
+    {
+     "type": "diagram",
+     "svg": "<svg xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"0 0 640 260\" font-family=\"system-ui,sans-serif\"><rect width=\"640\" height=\"260\" rx=\"16\" fill=\"#f1f5f9\"/><g font-size=\"14\" fill=\"#0f172a\" text-anchor=\"middle\"><rect x=\"20\" y=\"90\" width=\"140\" height=\"70\" rx=\"10\" fill=\"#fecaca\" stroke=\"#b91c1c\"/><text x=\"90\" y=\"120\">Faille du service</text><text x=\"90\" y=\"140\">de gestion cloud</text><rect x=\"250\" y=\"90\" width=\"140\" height=\"70\" rx=\"10\" fill=\"#fed7aa\" stroke=\"#c2410c\"/><text x=\"320\" y=\"120\">Accès non autorisé</text><text x=\"320\" y=\"140\">à des appareils</text><rect x=\"480\" y=\"90\" width=\"140\" height=\"70\" rx=\"10\" fill=\"#fde68a\" stroke=\"#a16207\"/><text x=\"550\" y=\"120\">Logiciel malveillant</text><text x=\"550\" y=\"140\">installé</text><path d=\"M160 125 H250 M390 125 H480\" stroke=\"#334155\" stroke-width=\"3\"/><rect x=\"160\" y=\"195\" width=\"320\" height=\"45\" rx=\"10\" fill=\"#bbf7d0\" stroke=\"#15803d\"/><text x=\"320\" y=\"222\">Cloud corrigé ≠ appareil nettoyé : mise à jour requise</text></g><text x=\"320\" y=\"50\" text-anchor=\"middle\" font-size=\"16\" font-weight=\"700\" fill=\"#0f172a\">Chaîne décrite par GL.iNet</text></svg>",
+     "alt": "Schéma de la chaîne décrite par GL.iNet : faille du cloud, accès non autorisé, logiciel malveillant, puis nécessité de mettre à jour chaque appareil.",
+     "caption": "Le correctif côté cloud bloque les nouvelles infections, mais ne nettoie pas les appareils déjà touchés."
+    },
+    {
+     "type": "usecases",
+     "title": "Exemples d'utilisation",
+     "items": [
+      {
+       "icon": "🏠",
+       "title": "Particulier avec un routeur de voyage",
+       "text": "Un utilisateur qui emporte un GL-MT3000 en déplacement l'a laissé relié à la gestion cloud. Il vérifie les processus, repère ou non l'indice, puis installe la version 4.11.1 ou plus récente."
+      },
+      {
+       "icon": "🧑‍💻",
+       "title": "Administrateur d'un KVM sur IP",
+       "text": "Un technicien qui pilote des serveurs avec un RM10 contrôle le terminal de l'appareil, met à jour vers la version 1.10.3 et inspecte ensuite l'ordinateur relié : extensions, comptes, tâches planifiées."
+      },
+      {
+       "icon": "🏢",
+       "title": "Petite entreprise avec plusieurs routeurs",
+       "text": "Une PME recense ses routeurs GL.iNet, compare chaque modèle au tableau de versions et planifie les mises à jour, y compris pour les modèles absents de la liste."
+      }
+     ]
+    },
+    {
+     "type": "timeline",
+     "title": "D'où l'on vient, où l'on va",
+     "items": [
+      {
+       "label": "20 novembre 2026",
+       "text": "GL.iNet identifie la vulnérabilité et publie son avis de sécurité."
+      },
+      {
+       "label": "23 novembre 2026",
+       "text": "Dernière mise à jour de l'avis, l'enquête étant toujours en cours."
+      },
+      {
+       "label": "Prochains jours",
+       "text": "Courriels aux clients identifiés comme affectés ; possible ajout de nouveaux indicateurs de compromission."
+      }
+     ]
+    },
+    {
+     "type": "opinion",
+     "title": "Notre avis",
+     "paragraphs": [
+      "Le plus instructif dans cet épisode est le rôle du service de gestion à distance : la commodité d'un accès cloud devient, quand il est défaillant, une porte d'entrée vers des équipements placés au cœur d'un réseau domestique ou professionnel. Un routeur ou un KVM voit passer tout le trafic ou donne la main sur des machines entières.",
+      "À un à trois ans, on peut raisonnablement attendre que les constructeurs de matériel grand public rendent ces services désactivables par défaut et mieux cloisonnés. Il s'agit d'une opinion, non d'un fait annoncé par GL.iNet. En attendant, la bonne pratique reste de n'activer l'accès distant que si on en a besoin."
+     ],
+     "verdict": "Un correctif cloud ne remplace pas la mise à jour de l'appareil : vérifiez et mettez à jour sans attendre un courriel."
+    },
+    {
+     "type": "callout",
+     "title": "À retenir",
+     "text": "Cherchez le processus `crond -i /tmp/.log`, installez le firmware stable de votre modèle, et inspectez l'ordinateur relié à un KVM concerné. L'avis ne donne ni CVE ni gravité."
+    }
+   ]
+  },
+  {
+   "id": "openai-perplexite-metrique-commune-limites-communes",
+   "category": "ia",
+   "icon": "📉",
+   "title": "OpenAI propose la perplexité comme mesure commune du progrès des modèles et publie ses propres valeurs",
+   "summary": "Dans un texte du 22 novembre 2026, le directeur scientifique d'OpenAI plaide pour des « limites communes » entre laboratoires et avance qu'une vague d'avancées sur le préentraînement est envisageable dès 2027.",
+   "tags": [
+    "OpenAI",
+    "perplexité",
+    "préentraînement",
+    "sécurité de l'IA",
+    "normes"
+   ],
+   "importance": 4,
+   "readingMinutes": 6,
+   "publishedAt": "2026-11-23T04:15:27+01:00",
+   "sourceDate": "2026-11-22",
+   "sources": [
+    {
+     "title": "Perplexity and Intelligence",
+     "url": "https://openai.com/index/perplexity-and-intelligence/",
+     "publisher": "OpenAI"
+    }
+   ],
+   "cover": {
+    "url": "https://images.ctfassets.net/kftzwdyauwt9/6rIIhCRSKrhIfe385Onmcz/aca2d190553c62fd5d49efb5d5ce1eb6/perplexity-and-intelligence-social.png?w=1600&h=900&fit=fill",
+    "alt": "Visuel de l'article « Perplexity and Intelligence » publié par OpenAI",
+    "credit": "openai.com"
+   },
+   "illustration": {
+    "svg": "<svg xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"0 0 640 360\"><defs><linearGradient id=\"g\" x1=\"0\" y1=\"0\" x2=\"1\" y2=\"1\"><stop offset=\"0\" stop-color=\"hsl(320,65%,38%)\"/><stop offset=\"1\" stop-color=\"hsl(0,70%,22%)\"/></linearGradient></defs><rect width=\"640\" height=\"360\" fill=\"url(#g)\"/><circle cx=\"540\" cy=\"70\" r=\"90\" fill=\"#fff\" opacity=\".08\"/><circle cx=\"90\" cy=\"320\" r=\"120\" fill=\"#fff\" opacity=\".06\"/><path d=\"M110 90 V270 H540\" stroke=\"#fff\" stroke-width=\"6\" fill=\"none\"/><path d=\"M130 110 C220 130 260 210 340 230 S480 250 530 255\" stroke=\"#fff\" stroke-width=\"10\" fill=\"none\" stroke-linecap=\"round\"/><circle cx=\"340\" cy=\"230\" r=\"12\" fill=\"#fde68a\"/><circle cx=\"460\" cy=\"248\" r=\"12\" fill=\"#fde68a\"/></svg>"
+   },
+   "blocks": [
+    {
+     "type": "paragraph",
+     "text": "Le 22 novembre 2026, OpenAI a publié sur son site un texte de Jakub Pachocki, son directeur scientifique, intitulé « Perplexity and Intelligence ». Son idée centrale : l'essentiel des grandes avancées récentes de l'IA découle d'un même procédé, l'entraînement d'un « compresseur », c'est-à-dire d'un prédicteur, sur un très grand jeu de données. La perplexité, qui mesure la qualité de la prédiction, devrait donc servir de repère commun aux développeurs et nourrir des normes de sécurité à l'échelle du secteur. OpenAI publie à cette occasion ses propres mesures internes, même si cela donne à ses concurrents une vision plus nette de sa position."
+    },
+    {
+     "type": "heading",
+     "level": 2,
+     "text": "Ce que mesure la perplexité"
+    },
+    {
+     "type": "paragraph",
+     "text": "La perplexité exprime la capacité d'un modèle à prédire le jeton suivant en moyenne : plus elle est basse, mieux le modèle prédit. L'auteur décrit un schéma simplifié : construire un très grand ordinateur, préentraîner un modèle sur des données non structurées, puis employer l'incitation, le réglage fin et l'apprentissage par renforcement pour faire émerger ses capacités latentes. Il distingue la phase de préentraînement, qui produit des capacités émergentes difficiles à prévoir, de la phase ultérieure de mise en forme ciblée."
+    },
+    {
+     "type": "paragraph",
+     "text": "OpenAI suit cette valeur sur un jeu de données mis de côté, tiré de son propre code interne, depuis GPT-3.5. Le texte associe des seuils de log-perplexité à des paliers de capacités :"
+    },
+    {
+     "type": "list",
+     "items": [
+      "**GPT-3.5 (environ 0,99)** : conversation fluide, base du ChatGPT d'origine.",
+      "**GPT-4 (environ 0,91)** : usage productif du raisonnement par chaîne de pensée, qui a conduit aux modèles de raisonnement.",
+      "**Sous 0,8** : apparition de capacités transformatrices en cybersécurité et en mathématiques.",
+      "**Vers 0,76** : un modèle commence à produire des résultats notables sur des problèmes mathématiques ouverts qu'OpenAI posait depuis plus d'un an."
+     ]
+    },
+    {
+     "type": "paragraph",
+     "text": "L'auteur insiste sur le fait que ces capacités n'étaient pas clairement prévisibles à l'avance. Il évoque une fenêtre située entre 0,68 et 0,7 qui pourrait apporter de nouvelles capacités, sans savoir lesquelles."
+    },
+    {
+     "type": "heading",
+     "level": 2,
+     "text": "Une IA qui participe à la recherche sur l'IA"
+    },
+    {
+     "type": "paragraph",
+     "text": "Le texte affirme que l'IA contribue de plus en plus à son propre développement. Il y voit un possible « changement d'échelle » lorsque l'IA participera à la recherche algorithmique sur le préentraînement, ce qu'il distingue de l'auto-amélioration récursive complète. Par analogie avec les résultats en mathématiques, une vague soudaine d'avancées fondamentales sur le préentraînement serait envisageable « dès 2027 ». Une note précise que l'accélération de la courbe de perte observée en 2026 tient surtout à des investissements de long terme en recherche et en calcul, et plus modestement à l'automatisation."
+    },
+    {
+     "type": "paragraph",
+     "text": "Pachocki s'attend à ce que l'IA aide beaucoup en matière d'alignement et de supervision, mais estime que ces progrès ne suivront probablement pas le rythme d'une éventuelle accélération du préentraînement. Il note aussi une dégradation attendue des méthodes actuelles d'audit de l'alignement, ainsi qu'une prise de conscience croissante des modèles quant aux situations d'évaluation et d'entraînement."
+    },
+    {
+     "type": "heading",
+     "level": 2,
+     "text": "Les propositions : normes et « limites communes »"
+    },
+    {
+     "type": "list",
+     "items": [
+      "Les développeurs de modèles de pointe devraient fixer ensemble des normes d'évaluation, soumettre leurs argumentaires de sûreté à des tests adverses avant la première mise en service, et partager des standards de transparence.",
+      "Ils devraient adopter des « limites communes » fondées sur la perplexité et d'autres mesures, en s'engageant à ne pas les franchir tant qu'un jalon concret de supervision n'est pas atteint, par exemple un successeur des moniteurs de chaîne de pensée."
+     ]
+    },
+    {
+     "type": "heading",
+     "level": 2,
+     "text": "Les limites reconnues de la mesure"
+    },
+    {
+     "type": "list",
+     "items": [
+      "La comparaison entre laboratoires est difficile : les jeux d'évaluation et les mélanges d'entraînement diffèrent.",
+      "La perplexité ne correspond à aucune tâche précise ; sa valeur tient à sa capacité à annoncer des capacités émergentes.",
+      "Elle ignore les gains obtenus après le préentraînement : la chaîne de pensée augmente fortement les capacités sans réduire la perplexité.",
+      "Le plancher est inconnu, puisque l'entropie des données n'est pas connue ; les gains ralentiront en s'en approchant."
+     ]
+    },
+    {
+     "type": "usecases",
+     "title": "Exemples d'utilisation",
+     "items": [
+      {
+       "icon": "🏛️",
+       "title": "Un régulateur européen",
+       "text": "Une autorité chargée de superviser les modèles à usage général dispose d'un chiffre comparable pour demander des engagements, à condition d'obtenir des mesures sur des jeux de données équivalents."
+      },
+      {
+       "icon": "🔬",
+       "title": "Un laboratoire concurrent",
+       "text": "Une équipe de recherche peut situer son modèle par rapport aux valeurs publiées, tout en sachant que les corpus d'évaluation ne sont pas les mêmes."
+      },
+      {
+       "icon": "🏢",
+       "title": "Une direction informatique",
+       "text": "Une entreprise qui choisit un fournisseur obtient un indicateur de plus sur la trajectoire des modèles, sans qu'il remplace des tests sur ses propres cas d'usage."
+      }
+     ]
+    },
+    {
+     "type": "timeline",
+     "title": "D'où l'on vient, où l'on va",
+     "items": [
+      {
+       "label": "GPT-2 et GPT-3",
+       "text": "Cohérence des paragraphes, puis apprentissage en contexte à partir de quelques exemples."
+      },
+      {
+       "label": "GPT-3.5, vers 0,99",
+       "text": "Conversation fluide, point de départ du suivi interne de la perplexité."
+      },
+      {
+       "label": "GPT-4, vers 0,91",
+       "text": "Raisonnement par chaîne de pensée utilisé de façon productive."
+      },
+      {
+       "label": "Sous 0,8, puis 0,76",
+       "text": "Capacités marquantes en cybersécurité et en mathématiques."
+      },
+      {
+       "label": "2027",
+       "text": "Une vague d'avancées sur le préentraînement est jugée envisageable par l'auteur."
+      }
+     ]
+    },
+    {
+     "type": "opinion",
+     "title": "Notre avis",
+     "paragraphs": [
+      "La proposition a le mérite de la transparence : publier ses propres valeurs revient à offrir à tous un point de comparaison, et l'idée de limites communes rappelle les engagements qui structurent d'autres industries à risque. Mais la perplexité mesurée sur du code interne n'est pas auditable de l'extérieur, et le texte reconnaît lui-même que la comparaison entre laboratoires reste difficile. Sans jeu de données partagé et vérifié par un tiers, la mesure commune risque de rester déclarative.",
+      "À un à trois ans, la question sera de savoir si ces seuils deviennent des engagements vérifiables, par exemple dans des cadres réglementaires, ou s'ils restent un langage interne aux grands laboratoires. Cette lecture est une opinion : le texte formule des propositions, pas des décisions."
+     ],
+     "verdict": "Une idée utile pour parler le même langage, qui ne vaudra que si les mesures deviennent comparables et vérifiables."
+    },
+    {
+     "type": "callout",
+     "title": "À retenir",
+     "text": "Le texte est une prise de position d'OpenAI, pas un standard adopté. Les seuils chiffrés viennent de mesures internes sur un jeu de données non public."
+    }
+   ]
+  },
+  {
+   "id": "ia-locale-guide-debutant-unsloth-desktop-inkling-2-mini",
+   "category": "ia",
+   "icon": "🖥️",
+   "title": "IA locale : un guide pour installer un assistant privé avec Unsloth Desktop, Qwen3.8 ou Inkling 2 Mini",
+   "summary": "Un guide détaille comment choisir un modèle selon la mémoire vidéo, régler le contexte et partager le modèle sur un réseau local, avec des chiffres sur la quantification.",
+   "tags": [
+    "IA locale",
+    "Unsloth",
+    "Inkling 2",
+    "quantification",
+    "GPU"
+   ],
+   "importance": 3,
+   "readingMinutes": 6,
+   "publishedAt": "2026-11-23T04:15:27+01:00",
+   "sourceDate": "2026-11-22",
+   "sources": [
+    {
+     "title": "Local AI at Home with Unsloth Desktop",
+     "url": "https://www.gpupartner.com/blog/beginners-guide-local-ai-inkling-qwen-unsloth",
+     "publisher": "GPU Partner"
+    }
+   ],
+   "illustration": {
+    "svg": "<svg xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"0 0 640 360\"><defs><linearGradient id=\"g\" x1=\"0\" y1=\"0\" x2=\"1\" y2=\"1\"><stop offset=\"0\" stop-color=\"hsl(320,65%,38%)\"/><stop offset=\"1\" stop-color=\"hsl(0,70%,22%)\"/></linearGradient></defs><rect width=\"640\" height=\"360\" fill=\"url(#g)\"/><circle cx=\"540\" cy=\"70\" r=\"90\" fill=\"#fff\" opacity=\".08\"/><circle cx=\"90\" cy=\"320\" r=\"120\" fill=\"#fff\" opacity=\".06\"/><rect x=\"170\" y=\"90\" width=\"300\" height=\"170\" rx=\"14\" fill=\"#fff\"/><rect x=\"190\" y=\"110\" width=\"260\" height=\"130\" rx=\"6\" fill=\"hsl(320,60%,30%)\"/><path d=\"M230 220 L270 170 L310 200 L350 150 L410 210\" stroke=\"#fde68a\" stroke-width=\"8\" fill=\"none\" stroke-linejoin=\"round\"/><rect x=\"280\" y=\"260\" width=\"80\" height=\"22\" fill=\"#fff\"/><rect x=\"240\" y=\"282\" width=\"160\" height=\"12\" rx=\"6\" fill=\"#fff\"/></svg>"
+   },
+   "blocks": [
+    {
+     "type": "paragraph",
+     "text": "Faire tourner un assistant d'IA chez soi, sans abonnement ni envoi de données à un tiers, est devenu accessible à un public non spécialiste. Un guide publié par GPU Partner le 22 novembre 2026 en détaille la marche à suivre sur un PC Windows avec carte graphique, au moyen d'Unsloth Desktop, une application gratuite qui sert un modèle à poids ouverts derrière une interface de discussion. L'auteur indique que l'installation prend environ 10 à 15 minutes, hors téléchargements. Voici les points à retenir, en distinguant ce que dit le guide de nos commentaires."
+    },
+    {
+     "type": "heading",
+     "level": 2,
+     "text": "Choisir un modèle selon la mémoire vidéo"
+    },
+    {
+     "type": "paragraph",
+     "text": "Le principe est simple : plus la carte dispose de mémoire vidéo (VRAM), plus le modèle peut être gros. Le guide fournit une grille approximative que l'on peut résumer ainsi :"
+    },
+    {
+     "type": "table",
+     "headers": [
+      "VRAM",
+      "Exemples de modèles",
+      "Contexte indicatif"
+     ],
+     "rows": [
+      [
+       "8 à 12 Go",
+       "Qwen3.5-9B, Gemma 4 12B",
+       "8 000 à 16 000 jetons"
+      ],
+      [
+       "16 Go",
+       "Qwen3-14B, gpt-oss-20b, Gemma 4 26B, Qwen3.6-35B, Inkling 2 Mini",
+       "16 000 à 32 000"
+      ],
+      [
+       "24 Go",
+       "Gemma 4 31B, Qwen3.8-27B, Inkling 2 Mini",
+       "16 000 à 32 000"
+      ],
+      [
+       "32 Go et plus",
+       "Qwen3.8-27B, Inkling 2 Mini",
+       "64 000 à plus de 128 000"
+      ]
+     ]
+    },
+    {
+     "type": "paragraph",
+     "text": "Les Mac à mémoire unifiée peuvent accueillir des modèles plus gros, avec la version MLX pour les puces Apple. Le guide cite aussi des machines à mémoire unifiée comme le MSI PRO MAX EDGE AI+ 11M et le NVIDIA DGX Spark. L'auteur a utilisé une RTX 5090 de 32 Go, qu'il juge coûteuse tout en la considérant comme une option raisonnable."
+    },
+    {
+     "type": "heading",
+     "level": 2,
+     "text": "Quantification, contexte et modèles à experts"
+    },
+    {
+     "type": "paragraph",
+     "text": "La **quantification** compresse les poids à une précision plus faible : on perd un peu de précision, mais le modèle tient sur la carte et va plus vite. Le guide la compare à l'enregistrement d'une photo avec 8, 4 ou 2 bits par pixel. La **fenêtre de contexte** désigne la quantité de conversation que le modèle garde en mémoire. Les modèles à **mélange d'experts** n'activent que quelques milliards de paramètres par jeton ; ils peuvent tourner sur des cartes plus modestes, le reste étant placé dans la mémoire vive, au prix d'une vitesse réduite."
+    },
+    {
+     "type": "paragraph",
+     "text": "Quelques chiffres cités : les poids de Qwen3.8-27B en 16 bits pèsent environ 56 Go, hors de portée des cartes grand public. Avec un contexte de 128 000 jetons, il faut environ 61,0 Go en 16 bits, 36,7 Go en 8 bits et 24,9 Go en 4 bits. Le fichier UD-Q4_K_XL fait environ 18 Go. Pour Qwen3.6-35B sur une RTX 5060 Ti de 16 Go, l'auteur estime environ 47 jetons par seconde avec déport des experts en mémoire vive."
+    },
+    {
+     "type": "heading",
+     "level": 2,
+     "text": "Inkling 2 : deux tailles"
+    },
+    {
+     "type": "paragraph",
+     "text": "Le guide présente Inkling 2 Mini, un modèle de 26,4 milliards de paramètres sous licence Apache 2.0, avec compréhension d'images et un contexte d'un million de jetons, sorti le 17 novembre 2026. Son fichier recommandé fait 17,6 Go, ce qui laisse environ 14 Go de marge pour le contexte sur une carte de 32 Go. Il nécessite une version récente d'Unsloth Desktop. Inkling 2 Small, avec 594 milliards de paramètres et un fichier d'au moins 171,7 Go, exige du matériel à mémoire unifiée, comme un Mac Studio de 256 Go ou un DGX Station."
+    },
+    {
+     "type": "heading",
+     "level": 2,
+     "text": "Les étapes d'installation"
+    },
+    {
+     "type": "list",
+     "items": [
+      "Installer Unsloth Desktop (macOS, Windows et Linux ; modèles GGUF et MLX).",
+      "Choisir dans la liste un modèle quantifié adapté à sa carte, par exemple Qwen3.8-27B en UD-Q4_K_XL.",
+      "Régler la taille du contexte via la roue dentée à côté du modèle, manuellement ou en automatique."
+     ]
+    },
+    {
+     "type": "paragraph",
+     "text": "Pour partager le modèle sur le réseau domestique, il faut ouvrir les réglages, onglet « Remote & LAN », définir un mot de passe distant, puis démarrer l'accès réseau local. Les autres utilisateurs se connectent avec l'identifiant « unsloth ». L'ordinateur doit rester allumé et l'application ouverte."
+    },
+    {
+     "type": "heading",
+     "level": 2,
+     "text": "Limites signalées par l'auteur"
+    },
+    {
+     "type": "list",
+     "items": [
+      "L'accès ne couvre que le réseau local ; l'accès depuis Internet est renvoyé à de futurs volets.",
+      "Selon les tâches, une forte quantification passe bien ou rend le modèle presque inutilisable.",
+      "Les besoins en mémoire donnés pour le modèle seul n'incluent pas les longs contextes.",
+      "Les résultats varient selon le matériel, et l'auteur compte réévaluer ses réglages après quelques semaines d'usage."
+     ]
+    },
+    {
+     "type": "usecases",
+     "title": "Exemples d'utilisation",
+     "items": [
+      {
+       "icon": "🔒",
+       "title": "Travailler sur des documents sensibles",
+       "text": "Un cabinet d'avocats résume des pièces de dossier sans les envoyer à un service en ligne, sur un PC équipé d'une carte de 24 Go."
+      },
+      {
+       "icon": "👨‍👩‍👧",
+       "title": "Partager à la maison",
+       "text": "Une famille laisse un PC allumé et les autres membres s'y connectent depuis leur navigateur sur le réseau local, avec le mot de passe distant."
+      },
+      {
+       "icon": "🧪",
+       "title": "Tester sans abonnement",
+       "text": "Un développeur compare un modèle de 9 milliards et un modèle de 27 milliards de paramètres sur ses propres requêtes avant d'acheter du matériel."
+      }
+     ]
+    },
+    {
+     "type": "timeline",
+     "title": "D'où l'on vient, où l'on va",
+     "items": [
+      {
+       "label": "17 novembre 2026",
+       "text": "Sortie d'Inkling 2 Mini sous licence Apache 2.0."
+      },
+      {
+       "label": "22 novembre 2026",
+       "text": "Publication du guide, premier volet d'une série."
+      },
+      {
+       "label": "À venir",
+       "text": "Selon l'auteur : accès par tunnel depuis Internet, performances et configuration d'agents."
+      }
+     ]
+    },
+    {
+     "type": "opinion",
+     "title": "Notre avis",
+     "paragraphs": [
+      "Ce guide a le mérite de chiffrer les compromis : mémoire, contexte, vitesse. Il rappelle aussi que « gratuit » est relatif quand une carte comme la RTX 5090 coûte cher. Le gain de confidentialité est réel, mais il ne dispense pas de sécuriser l'accès réseau : le partage local suppose un mot de passe solide.",
+      "À un à trois ans, la baisse de taille des modèles utiles et l'arrivée de machines à mémoire unifiée devraient rapprocher l'IA locale du grand public. C'est une projection de notre part, appuyée sur la tendance décrite, non un fait établi."
+     ],
+     "verdict": "Faisable chez soi dès maintenant, mais à dimensionner d'après la mémoire vidéo et à tester sur ses propres usages."
+    },
+    {
+     "type": "callout",
+     "title": "À retenir",
+     "text": "Repères du guide : 8 à 12 Go de VRAM pour des modèles de 9 à 12 milliards de paramètres, 32 Go pour 27 à 35 milliards ; Inkling 2 Mini (17,6 Go en 4 bits) tient sur une carte de 32 Go."
+    }
+   ]
+  },
+  {
+   "id": "localcode-agent-de-codage-local-sur-mac",
+   "category": "dev",
+   "icon": "⌨️",
+   "title": "Localcode : un agent de codage open source qui fait tourner des modèles locaux sur un Mac, en une commande",
+   "summary": "Le projet sous licence Apache 2.0 propose douze modèles locaux et une API compatible OpenAI, mais exige un Mac Apple Silicon avec au moins 16 Go de mémoire.",
+   "tags": [
+    "localcode",
+    "agent de codage",
+    "modèles locaux",
+    "Mac",
+    "Apache 2.0"
+   ],
+   "importance": 3,
+   "readingMinutes": 5,
+   "publishedAt": "2026-11-23T04:15:27+01:00",
+   "sourceDate": "2026-11-22",
+   "sources": [
+    {
+     "title": "mjwsolo/localcode",
+     "url": "https://github.com/mjwsolo/localcode",
+     "publisher": "GitHub"
+    }
+   ],
+   "illustration": {
+    "svg": "<svg xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"0 0 640 360\"><defs><linearGradient id=\"g\" x1=\"0\" y1=\"0\" x2=\"1\" y2=\"1\"><stop offset=\"0\" stop-color=\"hsl(265,65%,38%)\"/><stop offset=\"1\" stop-color=\"hsl(305,70%,22%)\"/></linearGradient></defs><rect width=\"640\" height=\"360\" fill=\"url(#g)\"/><circle cx=\"540\" cy=\"70\" r=\"90\" fill=\"#fff\" opacity=\".08\"/><circle cx=\"90\" cy=\"320\" r=\"120\" fill=\"#fff\" opacity=\".06\"/><rect x=\"150\" y=\"80\" width=\"340\" height=\"200\" rx=\"14\" fill=\"#fff\"/><rect x=\"150\" y=\"80\" width=\"340\" height=\"30\" rx=\"14\" fill=\"hsl(265,40%,80%)\"/><path d=\"M200 160 l30 25 -30 25\" stroke=\"hsl(265,60%,30%)\" stroke-width=\"10\" fill=\"none\" stroke-linecap=\"round\" stroke-linejoin=\"round\"/><rect x=\"250\" y=\"205\" width=\"90\" height=\"10\" rx=\"5\" fill=\"hsl(265,60%,30%)\"/><rect x=\"250\" y=\"150\" width=\"190\" height=\"10\" rx=\"5\" fill=\"hsl(265,40%,60%)\"/></svg>"
+   },
+   "blocks": [
+    {
+     "type": "paragraph",
+     "text": "Les agents de codage, ces assistants qui lisent un projet, modifient des fichiers et lancent des commandes, reposent le plus souvent sur des modèles hébergés par un fournisseur. Localcode, un projet open source publié sur GitHub et discuté sur Hacker News le 22 novembre 2026, prend le parti inverse : tout l'agent tourne avec des modèles exécutés en local sur un Mac. Son slogan résume le programme : codage agentique, modèles locaux, sur votre Mac. Le dépôt est au stade de « premier pas », selon son auteur, et affichait environ 60 étoiles au moment de la consultation."
+    },
+    {
+     "type": "heading",
+     "level": 2,
+     "text": "Ce que fait l'outil"
+    },
+    {
+     "type": "paragraph",
+     "text": "D'après la page du projet, localcode lit et modifie les fichiers du projet, exécute des tests, des compilations, des commandes Git et des commandes shell de manière autonome. Il demande une confirmation avant d'agir hors du projet, recherche du code par nom, contenu ou structure, crée et lance des applications puis vérifie qu'elles répondent, et conserve le fil de la tâche d'un message à l'autre."
+    },
+    {
+     "type": "list",
+     "items": [
+      "Installation : `uv pip install localcode`, mise à jour avec `uv pip install -U localcode`.",
+      "Utilisation : se placer dans le dossier du projet puis lancer `localcode`.",
+      "Mode API : `localcode api` expose un point d'accès compatible OpenAI pour d'autres applications locales."
+     ]
+    },
+    {
+     "type": "heading",
+     "level": 2,
+     "text": "Modèles et matériel"
+    },
+    {
+     "type": "paragraph",
+     "text": "Le projet propose douze modèles et 169 variantes de quantification, couvrant le codage, l'entrée d'images et les décisions typées. Les modèles sont téléchargés depuis Hugging Face. Leur taille va d'environ 4,7 Go (Gemma 4 12B) à environ 162 Go (DeepSeek V4 Flash). La commande `/models` permet de changer de modèle, et le sélecteur met en avant le plus capable de ceux qui tiennent dans la mémoire disponible. Certains modèles utilisent des modèles de brouillon fournis par leurs éditeurs pour accélérer les réponses."
+    },
+    {
+     "type": "paragraph",
+     "text": "Les prérequis sont un Mac avec puce Apple Silicon sous macOS 13 ou plus récent, au moins 16 Go de mémoire unifiée, Python 3.10 ou supérieur, et de l'espace disque pour l'application et le modèle choisi. La page ne nomme pas le moteur d'inférence ; la présence d'un répertoire `llama-cpp-turboquant` dans le dépôt suggère un serveur fondé sur llama.cpp, ce qui reste une déduction."
+    },
+    {
+     "type": "heading",
+     "level": 2,
+     "text": "Ce qu'il faut garder en tête"
+    },
+    {
+     "type": "list",
+     "items": [
+      "L'inférence est locale, mais les téléchargements de modèles, les outils `web_search` et `web_fetch` et les serveurs MCP ajoutés utilisent le réseau.",
+      "Le projet est jeune : 4 tickets et 8 demandes de fusion ouverts, aucun fork, et aucune date de dernière version affichée sur la page consultée.",
+      "Les 16 Go de mémoire constituent un minimum ; les modèles les plus capables en réclament nettement plus."
+     ]
+    },
+    {
+     "type": "usecases",
+     "title": "Exemples d'utilisation",
+     "items": [
+      {
+       "icon": "✈️",
+       "title": "Coder hors connexion",
+       "text": "Un développeur en déplacement demande à l'agent de corriger des tests défaillants sans connexion fiable, tant que le modèle est déjà téléchargé."
+      },
+      {
+       "icon": "🔐",
+       "title": "Garder le code en interne",
+       "text": "Une équipe soumise à des règles strictes évite d'envoyer son code à un fournisseur : l'inférence reste sur la machine, les outils réseau n'étant sollicités qu'au besoin."
+      },
+      {
+       "icon": "🔌",
+       "title": "Brancher d'autres outils",
+       "text": "Un éditeur ou un script compatible OpenAI se connecte au point d'accès local ouvert par `localcode api`."
+      }
+     ]
+    },
+    {
+     "type": "timeline",
+     "title": "D'où l'on vient, où l'on va",
+     "items": [
+      {
+       "label": "2026",
+       "text": "Multiplication des modèles à poids ouverts capables de tourner sur du matériel grand public."
+      },
+      {
+       "label": "22 novembre 2026",
+       "text": "Localcode est présenté sur Hacker News, au stade de premier jalon selon son auteur."
+      },
+      {
+       "label": "À suivre",
+       "text": "Maturité du projet, retours des utilisateurs et choix du moteur d'inférence."
+      }
+     ]
+    },
+    {
+     "type": "opinion",
+     "title": "Notre avis",
+     "paragraphs": [
+      "L'intérêt de localcode est de rendre simple un scénario jusque-là réservé aux bricoleurs : un agent de codage qui ne dépend d'aucun abonnement. La contrepartie est évidente : la qualité dépend du modèle choisi et de la mémoire disponible, et un modèle de 4,7 Go n'offrira pas le même niveau qu'un modèle hébergé de grande taille.",
+      "À un à trois ans, la montée en puissance du matériel à mémoire unifiée pourrait faire de ce type d'outil une option crédible pour les équipes soucieuses de souveraineté. C'est une opinion, que seuls des retours d'usage durables confirmeraient."
+     ],
+     "verdict": "Prometteur et facile à essayer, à juger sur ses propres projets avant d'en faire un outil de production."
+    },
+    {
+     "type": "callout",
+     "title": "À retenir",
+     "text": "Pour essayer : un Mac Apple Silicon avec 16 Go minimum, puis `uv pip install localcode`. Projet jeune, licence Apache 2.0."
+    }
+   ]
+  }
+ ]
+}
