@@ -1,0 +1,443 @@
+{
+ "schemaVersion": "1.0",
+ "date": "2026-11-25",
+ "generatedAt": "2026-11-25T16:30:00+01:00",
+ "title": "Tech : la faille Fail2Install de Drupal, le coût caché de l'admission Kyverno et le surcoût d'OpenTelemetry",
+ "summary": "Cette édition rassemble une faille critique de Drupal déjà exploitée et deux enseignements de performance publiés par la CNCF : l'origine du surcoût d'admission de Kyverno et les réglages d'un pipeline OpenTelemetry.",
+ "highlights": [
+  "Drupal : la faille CVE-2026-132165 est exploitée depuis le 19 novembre, correctifs en 10.6.22, 11.3.22 et 11.4.13",
+  "Kyverno 1.19.2 : conversion unique de l'objet par requête, 4,91 ms contre 0,16 ms pour 16 politiques",
+  "OpenTelemetry : cinq réglages pour limiter le surcoût de la télémétrie"
+ ],
+ "meta": {
+  "generator": "claude-scheduled-task"
+ },
+ "posts": [
+  {
+   "id": "drupal-fail2install-installer-cve-2026-132165",
+   "category": "cybersecurite",
+   "icon": "🩸",
+   "importance": 5,
+   "title": "Drupal : la faille « Fail2Install » du programme d'installation est exploitée sur des sites réels, les mises à jour sont publiées",
+   "summary": "Une faille critique du cœur de Drupal permet, dans certaines conditions, de relancer l'installation d'un site et d'en prendre le contrôle. Elle est exploitée depuis le 19 novembre 2026 selon l'équipe de sécurité, et figure au catalogue KEV de la CISA.",
+   "tags": [
+    "Drupal",
+    "CVE-2026-132165",
+    "exécution de code",
+    "CMS",
+    "correctif"
+   ],
+   "publishedAt": "2026-11-25T16:20:00+01:00",
+   "sourceDate": "2026-11-25",
+   "readingMinutes": 5,
+   "sources": [
+    {
+     "title": "SA-CORE-2026-017 : Drupal core, exécution de code à distance",
+     "url": "https://www.drupal.org/sa-core-2026-017",
+     "publisher": "Drupal.org"
+    },
+    {
+     "title": "Drupal Fail2Install Exploit Details Emerge as Critical RCE Flaw Faces Active Exploitation",
+     "url": "https://thehackernews.com/2026/11/drupal-fail2install-exploit-details.html",
+     "publisher": "The Hacker News"
+    },
+    {
+     "title": "SA-CORE-2026-018 : chaîne de gadgets",
+     "url": "https://www.drupal.org/sa-core-2026-018",
+     "publisher": "Drupal.org"
+    }
+   ],
+   "illustration": {
+    "svg": "<svg xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"0 0 640 360\"><defs><linearGradient id=\"g\" x1=\"0\" y1=\"0\" x2=\"1\" y2=\"1\"><stop offset=\"0\" stop-color=\"hsl(175,65%,42%)\"/><stop offset=\"1\" stop-color=\"hsl(215,70%,22%)\"/></linearGradient></defs><rect width=\"640\" height=\"360\" fill=\"url(#g)\"/><circle cx=\"575\" cy=\"50\" r=\"95\" fill=\"#fff\" opacity=\".08\"/><circle cx=\"55\" cy=\"325\" r=\"120\" fill=\"#fff\" opacity=\".06\"/><g fill=\"none\" stroke=\"#fff\" stroke-width=\"3\" opacity=\".35\"><path d=\"M40 60h120M40 80h80M480 290h120M520 310h80\"/></g><circle cx=\"320\" cy=\"180\" r=\"105\" fill=\"#fff\" opacity=\".92\"/><text x=\"320\" y=\"218\" text-anchor=\"middle\" font-size=\"110\">🩸</text></svg>"
+   },
+   "blocks": [
+    {
+     "type": "paragraph",
+     "text": "Le **18 novembre 2026**, l'équipe de sécurité de Drupal a publié l'avis **SA-CORE-2026-017**, classé « hautement critique » (20 sur 25 dans son barème). La faille, référencée **CVE-2026-132165** et surnommée « Fail2Install » par la presse spécialisée, touche le cœur du gestionnaire de contenu. Elle repose sur un fichier que tout site Drupal possède mais qu'on oublie souvent : `install.php`, le programme d'installation. Selon l'avis, un attaquant non authentifié peut, sous certaines conditions, s'en servir pour tenter de réinstaller le site, ce qui peut conduire à sa prise de contrôle ou à l'exécution de code à distance."
+    },
+    {
+     "type": "paragraph",
+     "text": "Le dossier a pris de l'ampleur depuis. L'équipe de sécurité a ajouté à son avis une mise à jour indiquant qu'un rapport fait état d'une exploitation sur des sites en production dès le **19 novembre 2026 à 19 h UTC**. Selon The Hacker News, l'agence américaine CISA a ajouté la faille à son catalogue des vulnérabilités exploitées (KEV) le mardi 24 novembre, avec une échéance au 27 novembre 2026 pour les agences fédérales américaines, et un score CVSS de 9,8."
+    },
+    {
+     "type": "heading",
+     "level": 2,
+     "text": "Ce que dit l'avis officiel"
+    },
+    {
+     "type": "list",
+     "ordered": false,
+     "items": [
+      "**Composant concerné** : le cœur de Drupal (Drupal core) et son programme d'installation `install.php`.",
+      "**Versions vulnérables** : toutes les versions antérieures à 10.6.22, ainsi que les branches 11.0 à 11.3 avant la 11.3.22 et la branche 11.4 avant la 11.4.13.",
+      "**Versions corrigées** : Drupal 10.6.22, Drupal 11.3.22 et Drupal 11.4.13. Les branches 11.2 et antérieures, 10.5 et antérieures, ainsi que Drupal 8 et 9, ne sont plus prises en charge et ne reçoivent aucun correctif de sécurité.",
+      "**Conditions d'exploitation** : l'avis qualifie la configuration vulnérable d'« inhabituelle » (complexité d'accès élevée) mais aucune authentification n'est requise ; l'exploitation est signalée comme réelle.",
+      "**Atténuation partielle** : certains chemins d'attaque, mais pas tous, sont bloqués lorsque le serveur web ne peut ni écrire dans `settings.php` ni en modifier les droits."
+     ]
+    },
+    {
+     "type": "paragraph",
+     "text": "L'avis précise aussi que la faille a été découverte par l'**OSS Scanner d'Anthropic** (référence interne ANT-2026-GMRPK0BU) et rapportée par des membres de l'équipe de sécurité de Drupal et des contributeurs. Les sites protégés par le service **Drupal Steward** sont déjà couverts contre les vecteurs d'attaque connus, mais l'équipe recommande de mettre à jour malgré tout, au cas où d'autres vecteurs seraient découverts."
+    },
+    {
+     "type": "diagram",
+     "svg": "<svg xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"0 0 640 240\" font-family=\"system-ui,sans-serif\"><rect width=\"640\" height=\"240\" rx=\"16\" fill=\"#f1f5f9\"/><text x=\"320.0\" y=\"30\" text-anchor=\"middle\" font-size=\"15\" font-weight=\"700\" fill=\"#0f172a\">Comment la faille détourne le programme d'installation</text><rect x=\"20.0\" y=\"52\" width=\"130.5\" height=\"160\" rx=\"12\" fill=\"#b45309\"/><text x=\"85.2\" y=\"80\" text-anchor=\"middle\" font-size=\"13\" font-weight=\"700\" fill=\"#fff\">1. Site en place</text><text x=\"85.2\" y=\"106\" text-anchor=\"middle\" font-size=\"11.5\" fill=\"#fff\">Drupal installé,</text><text x=\"85.2\" y=\"125\" text-anchor=\"middle\" font-size=\"11.5\" fill=\"#fff\">install.php encore</text><text x=\"85.2\" y=\"144\" text-anchor=\"middle\" font-size=\"11.5\" fill=\"#fff\">accessible</text><path d=\"M153.5 132 h18 m-6 -6 l6 6 l-6 6\" stroke=\"#334155\" stroke-width=\"3\" fill=\"none\" stroke-linecap=\"round\"/><rect x=\"176.5\" y=\"52\" width=\"130.5\" height=\"160\" rx=\"12\" fill=\"#0f766e\"/><text x=\"241.8\" y=\"80\" text-anchor=\"middle\" font-size=\"13\" font-weight=\"700\" fill=\"#fff\">2. Requête</text><text x=\"241.8\" y=\"106\" text-anchor=\"middle\" font-size=\"11.5\" fill=\"#fff\">Un attaquant sans</text><text x=\"241.8\" y=\"125\" text-anchor=\"middle\" font-size=\"11.5\" fill=\"#fff\">compte sollicite</text><text x=\"241.8\" y=\"144\" text-anchor=\"middle\" font-size=\"11.5\" fill=\"#fff\">l'installateur</text><path d=\"M310.0 132 h18 m-6 -6 l6 6 l-6 6\" stroke=\"#334155\" stroke-width=\"3\" fill=\"none\" stroke-linecap=\"round\"/><rect x=\"333.0\" y=\"52\" width=\"130.5\" height=\"160\" rx=\"12\" fill=\"#1d4ed8\"/><text x=\"398.2\" y=\"80\" text-anchor=\"middle\" font-size=\"13\" font-weight=\"700\" fill=\"#fff\">3. Réinstallation</text><text x=\"398.2\" y=\"106\" text-anchor=\"middle\" font-size=\"11.5\" fill=\"#fff\">Le site tente de</text><text x=\"398.2\" y=\"125\" text-anchor=\"middle\" font-size=\"11.5\" fill=\"#fff\">se réinstaller dans</text><text x=\"398.2\" y=\"144\" text-anchor=\"middle\" font-size=\"11.5\" fill=\"#fff\">certaines conditions</text><path d=\"M466.5 132 h18 m-6 -6 l6 6 l-6 6\" stroke=\"#334155\" stroke-width=\"3\" fill=\"none\" stroke-linecap=\"round\"/><rect x=\"489.5\" y=\"52\" width=\"130.5\" height=\"160\" rx=\"12\" fill=\"#7c3aed\"/><text x=\"554.8\" y=\"80\" text-anchor=\"middle\" font-size=\"13\" font-weight=\"700\" fill=\"#fff\">4. Prise de contrôle</text><text x=\"554.8\" y=\"106\" text-anchor=\"middle\" font-size=\"11.5\" fill=\"#fff\">Site détourné ou</text><text x=\"554.8\" y=\"125\" text-anchor=\"middle\" font-size=\"11.5\" fill=\"#fff\">code exécuté à</text><text x=\"554.8\" y=\"144\" text-anchor=\"middle\" font-size=\"11.5\" fill=\"#fff\">distance</text></svg>",
+     "alt": "Schéma en quatre étapes montrant un site Drupal dont l'installateur reste accessible, puis la requête d'un attaquant, la tentative de réinstallation et la prise de contrôle.",
+     "caption": "Déroulement général décrit par l'avis SA-CORE-2026-017 ; les conditions précises ne sont pas détaillées publiquement."
+    },
+    {
+     "type": "heading",
+     "level": 2,
+     "text": "Que faire concrètement"
+    },
+    {
+     "type": "list",
+     "ordered": true,
+     "items": [
+      "Identifier la version de Drupal de chaque site, y compris les sites oubliés ou de test, puis installer 10.6.22, 11.3.22 ou 11.4.13 selon la branche.",
+      "Si la mise à jour est impossible immédiatement, appliquer les consignes de l'équipe de sécurité pour verrouiller le programme d'installation : l'avis recommande de le sécuriser même après la mise à jour.",
+      "Vérifier que le serveur web n'a pas le droit d'écrire dans `settings.php` ni d'en changer les permissions.",
+      "Chercher dans les journaux d'accès des requêtes vers `install.php` depuis le 19 novembre, et contrôler l'intégrité des fichiers et des comptes administrateurs."
+     ]
+    },
+    {
+     "type": "paragraph",
+     "text": "Un second avis publié le même jour, **SA-CORE-2026-018** (CVE-2026-132166), concerne une « chaîne de gadgets » jugée moyennement critique : elle ne constitue pas une menace directe, mais pourrait servir à exécuter du code si une autre faille permet de désérialiser des données non fiables. Elle est corrigée dans les mêmes versions."
+    },
+    {
+     "type": "usecases",
+     "title": "Exemples d'utilisation",
+     "items": [
+      {
+       "icon": "🏛️",
+       "title": "Une collectivité avec un site institutionnel",
+       "text": "Le service informatique recense ses sites Drupal, applique la version corrigée et demande à l'hébergeur de bloquer l'accès à install.php."
+      },
+      {
+       "icon": "🛍️",
+       "title": "Une agence web qui gère trente sites clients",
+       "text": "Elle automatise la vérification de version, planifie une fenêtre de mise à jour et vérifie les droits sur settings.php de chaque hébergement."
+      },
+      {
+       "icon": "🎓",
+       "title": "Une université avec d'anciens sites de laboratoires",
+       "text": "Elle découvre des sites sur des branches abandonnées, les migre ou les met hors ligne plutôt que de laisser une faille sans correctif."
+      }
+     ]
+    },
+    {
+     "type": "timeline",
+     "title": "D'où l'on vient, où l'on va",
+     "items": [
+      {
+       "label": "14 octobre 2026",
+       "text": "Avis SA-CORE-2026-016 sur le module Navigation, de gravité moyenne."
+      },
+      {
+       "label": "18 novembre 2026",
+       "text": "Publication de SA-CORE-2026-017 et des versions corrigées."
+      },
+      {
+       "label": "19 novembre 2026, 19 h UTC",
+       "text": "Première exploitation connue sur des sites réels, selon la mise à jour de l'avis."
+      },
+      {
+       "label": "24 novembre 2026",
+       "text": "Ajout au catalogue KEV de la CISA, échéance fixée au 27 novembre pour les agences fédérales américaines."
+      }
+     ]
+    },
+    {
+     "type": "opinion",
+     "title": "Notre avis",
+     "paragraphs": [
+      "Cette affaire rappelle une vieille leçon : un fichier d'installation laissé en place est une porte déjà ouverte. Que l'exploitation ait commencé environ un jour après la publication du correctif montre le peu de marge dont disposent les responsables de sites, surtout ceux qui gèrent des dizaines d'instances.",
+      "D'ici un à trois ans, on peut raisonnablement s'attendre à ce que des outils d'analyse automatisés, comme celui qui a signalé cette faille, découvrent davantage de défauts anciens dans des logiciels très répandus. Cela devrait pousser les éditeurs à raccourcir leurs délais de correction, et les hébergeurs à désactiver par défaut les composants d'installation. Il s'agit ici d'une anticipation, non d'un fait établi."
+     ],
+     "verdict": "Mettre à jour tout de suite, puis verrouiller l'installateur : le délai se compte en heures, pas en semaines."
+    },
+    {
+     "type": "callout",
+     "title": "À retenir",
+     "text": "Drupal 10.6.22, 11.3.22 et 11.4.13 corrigent CVE-2026-132165, déjà exploitée. Les branches plus anciennes ne sont plus corrigées : elles doivent être migrées. Les responsables français peuvent aussi suivre les bulletins du CERT-FR."
+    }
+   ]
+  },
+  {
+   "id": "kyverno-cel-admission-cout-conversion-objet",
+   "category": "devops",
+   "icon": "🛡️",
+   "importance": 3,
+   "title": "Kyverno : le coût de l'admission CEL venait de la conversion de l'objet, répétée à chaque politique, et non de l'évaluation",
+   "summary": "Un article de la CNCF montre que 86 % de la mémoire allouée par le moteur CEL de Kyverno servait à préparer le même objet pour chaque politique. Le correctif, livré dans Kyverno 1.19.2, ramène le coût à une conversion par requête.",
+   "tags": [
+    "Kyverno",
+    "Kubernetes",
+    "CEL",
+    "admission",
+    "performance"
+   ],
+   "publishedAt": "2026-11-25T16:20:00+01:00",
+   "sourceDate": "2026-11-18",
+   "readingMinutes": 5,
+   "cover": {
+    "url": "https://www.cncf.io/wp-content/uploads/2026/11/Optimizing-Kubernetes-admission-control.png",
+    "alt": "Visuel de l'article de la CNCF sur l'optimisation du contrôle d'admission Kubernetes",
+    "credit": "cncf.io"
+   },
+   "sources": [
+    {
+     "title": "Optimizing Kubernetes admission control: Where Kyverno's CEL admission cost actually goes",
+     "url": "https://www.cncf.io/blog/2026/11/18/optimizing-kubernetes-admission-control-where-kyvernos-cel-admission-cost-actually-goes/",
+     "publisher": "CNCF"
+    }
+   ],
+   "illustration": {
+    "svg": "<svg xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"0 0 640 360\"><defs><linearGradient id=\"g\" x1=\"0\" y1=\"0\" x2=\"1\" y2=\"1\"><stop offset=\"0\" stop-color=\"hsl(160,65%,42%)\"/><stop offset=\"1\" stop-color=\"hsl(200,70%,22%)\"/></linearGradient></defs><rect width=\"640\" height=\"360\" fill=\"url(#g)\"/><circle cx=\"575\" cy=\"50\" r=\"95\" fill=\"#fff\" opacity=\".08\"/><circle cx=\"55\" cy=\"325\" r=\"120\" fill=\"#fff\" opacity=\".06\"/><g fill=\"#fff\" opacity=\".3\"><rect x=\"60\" y=\"70\" width=\"90\" height=\"12\" rx=\"6\"/><rect x=\"60\" y=\"95\" width=\"60\" height=\"12\" rx=\"6\"/><rect x=\"490\" y=\"270\" width=\"90\" height=\"12\" rx=\"6\"/></g><circle cx=\"320\" cy=\"180\" r=\"105\" fill=\"#fff\" opacity=\".92\"/><text x=\"320\" y=\"218\" text-anchor=\"middle\" font-size=\"110\">🛡️</text></svg>"
+   },
+   "blocks": [
+    {
+     "type": "paragraph",
+     "text": "Dans un cluster Kubernetes, chaque création de Pod passe par un contrôle d'admission : des politiques décident si l'objet est accepté, modifié ou refusé. Kyverno, moteur de politiques très utilisé, évalue ces règles notamment avec **CEL** (Common Expression Language). Dans un billet publié le **18 novembre 2026** par la CNCF, repris du site de Kyverno où il était paru le 19 octobre, l'auteur, Raunak Madan (Nirmata), explique où partait réellement le temps de calcul : pas dans l'évaluation des expressions, mais dans la préparation de l'objet."
+    },
+    {
+     "type": "heading",
+     "level": 2,
+     "text": "Le constat : 86 % des allocations pour préparer l'objet"
+    },
+    {
+     "type": "paragraph",
+     "text": "Selon l'article, environ **86 %** de la mémoire allouée par le moteur servait à préparer l'objet à évaluer. Dans le profil mesuré avant correctif, la fonction `ConvertObjectToUnstructured` représentait 86,8 % des allocations ; après correctif, elle n'en représente plus que 2,9 %. La cause est classique : la conversion était effectuée à l'intérieur de la boucle sur les politiques. Avec les *Pod Security Standards*, environ 16 politiques correspondent à une création de Pod : le même Pod était donc analysé 16 fois. Le coût croissait avec le nombre de politiques au lieu de rester constant."
+    },
+    {
+     "type": "paragraph",
+     "text": "Le correctif consiste à convertir l'objet **une seule fois par requête**, avant la boucle. Il est livré dans **Kyverno 1.19.2**, avec des tests d'équivalence qui comparent la sortie du nouveau code à celle de l'ancien, champ par champ."
+    },
+    {
+     "type": "heading",
+     "level": 2,
+     "text": "Les chiffres du banc d'essai"
+    },
+    {
+     "type": "paragraph",
+     "text": "Les mesures portent sur un Pod d'environ 50 Ko, avec le moteur seul, sur un seul hôte (boucle locale, essai à blanc) : elles excluent donc le réseau et etcd. L'auteur précise lui-même cette limite."
+    },
+    {
+     "type": "table",
+     "headers": [
+      "Cas",
+      "Allocations avant → après",
+      "Temps avant → après"
+     ],
+     "rows": [
+      [
+       "1 politique",
+       "2 327 → 854",
+       "0,31 ms → 0,10 ms"
+      ],
+      [
+       "16 politiques",
+       "37 055 → 2 718",
+       "4,91 ms → 0,16 ms"
+      ],
+      [
+       "64 politiques",
+       "148 131 → 8 672",
+       "20,01 ms → 0,36 ms"
+      ],
+      [
+       "64 politiques de mutation",
+       "258 943 → 52 689",
+       "10,59 ms → 2,97 ms"
+      ]
+     ]
+    },
+    {
+     "type": "diagram",
+     "svg": "<svg xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"0 0 640 256\" font-family=\"system-ui,sans-serif\"><rect width=\"640\" height=\"256\" rx=\"16\" fill=\"#f1f5f9\"/><text x=\"320.0\" y=\"28\" text-anchor=\"middle\" font-size=\"15\" font-weight=\"700\" fill=\"#0f172a\">Temps d'évaluation, avant et après le correctif (moteur seul)</text><rect x=\"20\" y=\"40\" width=\"12\" height=\"12\" fill=\"#b45309\"/><text x=\"38\" y=\"51\" font-size=\"11.5\" fill=\"#0f172a\">Avant</text><rect x=\"90\" y=\"40\" width=\"12\" height=\"12\" fill=\"#0f766e\"/><text x=\"108\" y=\"51\" font-size=\"11.5\" fill=\"#0f172a\">Après</text><text x=\"20\" y=\"76\" font-size=\"12\" font-weight=\"600\" fill=\"#0f172a\">16 politiques</text><rect x=\"150\" y=\"66\" width=\"93.2\" height=\"20\" rx=\"4\" fill=\"#b45309\"/><text x=\"249.2\" y=\"81\" font-size=\"11\" fill=\"#0f172a\">4.91 ms</text><rect x=\"150\" y=\"91\" width=\"3.0\" height=\"20\" rx=\"4\" fill=\"#0f766e\"/><text x=\"159.0\" y=\"106\" font-size=\"11\" fill=\"#0f172a\">0.16 ms</text><text x=\"20\" y=\"138\" font-size=\"12\" font-weight=\"600\" fill=\"#0f172a\">64 politiques</text><rect x=\"150\" y=\"128\" width=\"380.0\" height=\"20\" rx=\"4\" fill=\"#b45309\"/><text x=\"536.0\" y=\"143\" font-size=\"11\" fill=\"#0f172a\">20.01 ms</text><rect x=\"150\" y=\"153\" width=\"6.8\" height=\"20\" rx=\"4\" fill=\"#0f766e\"/><text x=\"162.8\" y=\"168\" font-size=\"11\" fill=\"#0f172a\">0.36 ms</text><text x=\"20\" y=\"200\" font-size=\"12\" font-weight=\"600\" fill=\"#0f172a\">64 mutations</text><rect x=\"150\" y=\"190\" width=\"201.1\" height=\"20\" rx=\"4\" fill=\"#b45309\"/><text x=\"357.1\" y=\"205\" font-size=\"11\" fill=\"#0f172a\">10.59 ms</text><rect x=\"150\" y=\"215\" width=\"56.4\" height=\"20\" rx=\"4\" fill=\"#0f766e\"/><text x=\"212.4\" y=\"230\" font-size=\"11\" fill=\"#0f172a\">2.97 ms</text></svg>",
+     "alt": "Diagramme en barres comparant le temps d'évaluation avant et après le correctif pour 16 politiques, 64 politiques et 64 politiques de mutation.",
+     "caption": "Temps mesurés par l'auteur du billet, sur un Pod d'environ 50 Ko ; les valeurs sont celles du tableau ci-dessus."
+    },
+    {
+     "type": "heading",
+     "level": 2,
+     "text": "Comparaison avec l'admission native et limites"
+    },
+    {
+     "type": "paragraph",
+     "text": "Le billet compare aussi Kyverno à la `ValidatingAdmissionPolicy` native de Kubernetes, avant correctif (Kyverno 1.19.0, 16 politiques). Avec une seule politique, la version native répond en 9,2 ms contre 12,8 ms pour Kyverno ; avec 16 politiques, Kyverno affiche 20 ms contre 29 ms pour la version native. Côté processeur, Kyverno consomme environ 3,2 cœurs contre 8,2 pour la solution native dans ce test. Le moteur historique `ClusterPolicy` avait quant à lui subi une régression de 12 % à 23 % entre les versions 1.16.4 et 1.17.0, corrigée dans la 1.19.2."
+    },
+    {
+     "type": "paragraph",
+     "text": "L'auteur reconnaît des limites : le correctif ne supprime qu'une partie du coût, car un aller-retour JSON par requête subsiste, et la latence au 95e centile sous charge n'est pas traitée. Les résultats d'un banc d'essai local ne se transposent pas tels quels à un cluster de production."
+    },
+    {
+     "type": "usecases",
+     "title": "Exemples d'utilisation",
+     "items": [
+      {
+       "icon": "🏢",
+       "title": "Une équipe plateforme avec des dizaines de politiques",
+       "text": "Elle met à jour Kyverno vers la 1.19.2 et compare la latence d'admission avant et après, sur un cluster de préproduction."
+      },
+      {
+       "icon": "🚀",
+       "title": "Un cluster qui crée beaucoup de Pods à la minute",
+       "text": "Les déploiements massifs ou les mises à l'échelle automatiques sollicitent le contrôle d'admission ; réduire son coût limite le risque de délais d'expiration."
+      },
+      {
+       "icon": "🔍",
+       "title": "Un ingénieur qui soupçonne un goulot d'étranglement",
+       "text": "Il reprend la méthode du billet : profiler les allocations avant de supposer que l'évaluation des règles est coupable."
+      }
+     ]
+    },
+    {
+     "type": "timeline",
+     "title": "D'où l'on vient, où l'on va",
+     "items": [
+      {
+       "label": "19 octobre 2026",
+       "text": "Premier article sur le site de Kyverno."
+      },
+      {
+       "label": "18 novembre 2026",
+       "text": "Republication par la CNCF."
+      },
+      {
+       "label": "Kyverno 1.19.2",
+       "text": "Version qui embarque la conversion unique de l'objet par requête."
+      }
+     ]
+    },
+    {
+     "type": "opinion",
+     "title": "Notre avis",
+     "paragraphs": [
+      "L'intérêt de ce billet tient moins au gain brut qu'à la méthode : un profil mémoire a désigné un coupable inattendu, et une correction de structure a produit un facteur 30 sur le cas à 16 politiques. Le gain doit toutefois être lu avec prudence : il s'agit du moteur isolé, pas d'un cluster complet.",
+      "À un horizon d'un à trois ans, la question sera moins de savoir quel moteur est le plus rapide que de mesurer le coût des politiques au même titre que celui du code applicatif. Cette lecture est une opinion : le billet ne l'affirme pas."
+     ],
+     "verdict": "Avant d'optimiser les règles, mesurer ce que l'on prépare pour les évaluer."
+    }
+   ]
+  },
+  {
+   "id": "opentelemetry-pipeline-surcout-performance",
+   "category": "devops",
+   "icon": "📡",
+   "importance": 3,
+   "title": "OpenTelemetry : cinq réglages pour éviter que le pipeline de télémétrie ne devienne lui-même un goulot d'étranglement",
+   "summary": "Une contributrice de la documentation OpenTelemetry détaille cinq causes courantes de surcoût (lots, attributs inutiles, fréquence d'interrogation, échantillonnage, limiteur de mémoire) et recommande de séparer collecteurs locaux et centraux.",
+   "tags": [
+    "OpenTelemetry",
+    "observabilité",
+    "performance",
+    "échantillonnage",
+    "collecteur"
+   ],
+   "publishedAt": "2026-11-25T16:20:00+01:00",
+   "sourceDate": "2026-11-17",
+   "readingMinutes": 5,
+   "cover": {
+    "url": "https://www.cncf.io/wp-content/uploads/2026/11/OTel-pipeline-a-performance-bottleneck.png",
+    "alt": "Visuel de l'article de la CNCF sur le surcoût des pipelines OpenTelemetry",
+    "credit": "cncf.io"
+   },
+   "sources": [
+    {
+     "title": "Is your OpenTelemetry pipeline becoming a performance bottleneck?",
+     "url": "https://www.cncf.io/blog/2026/11/17/is-your-opentelemetry-pipeline-becoming-a-performance-bottleneck/",
+     "publisher": "CNCF"
+    }
+   ],
+   "illustration": {
+    "svg": "<svg xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"0 0 640 360\"><defs><linearGradient id=\"g\" x1=\"0\" y1=\"0\" x2=\"1\" y2=\"1\"><stop offset=\"0\" stop-color=\"hsl(150,65%,42%)\"/><stop offset=\"1\" stop-color=\"hsl(190,70%,22%)\"/></linearGradient></defs><rect width=\"640\" height=\"360\" fill=\"url(#g)\"/><circle cx=\"575\" cy=\"50\" r=\"95\" fill=\"#fff\" opacity=\".08\"/><circle cx=\"55\" cy=\"325\" r=\"120\" fill=\"#fff\" opacity=\".06\"/><g fill=\"none\" stroke=\"#fff\" stroke-width=\"4\" opacity=\".3\"><path d=\"M40 300q60-60 120 0M40 300q90-90 180 0\"/></g><circle cx=\"320\" cy=\"180\" r=\"105\" fill=\"#fff\" opacity=\".92\"/><text x=\"320\" y=\"218\" text-anchor=\"middle\" font-size=\"110\">📡</text></svg>"
+   },
+   "blocks": [
+    {
+     "type": "paragraph",
+     "text": "Mesurer ses applications a un prix : la collecte de télémétrie consomme du processeur, de la mémoire, de la bande passante et de l'espace de stockage. Dans un billet publié le **17 novembre 2026** sur le blog de la CNCF, Diana Todea, ambassadrice de la CNCF et approbatrice de la documentation OpenTelemetry, reprend une présentation donnée aux Cloud Native Days Austria 2026, intitulée « How to Defeat OTel's Silent Killer: The Performance Overhead ». Son message : un unique pourcentage de surcharge est trompeur, car l'arbitrage réel oppose la protection de l'application à l'exhaustivité des données."
+    },
+    {
+     "type": "paragraph",
+     "text": "La démonstration s'appuie sur **Telemetrygen**, le générateur de télémétrie synthétique du dépôt contrib du collecteur OpenTelemetry, sans application complète, pour réduire le bruit. Le code est publié dans le dépôt GitHub de l'autrice. Le billet ne donne aucun résultat chiffré de consommation : les gains sont décrits de façon qualitative."
+    },
+    {
+     "type": "heading",
+     "level": 2,
+     "text": "Les cinq problèmes de configuration relevés"
+    },
+    {
+     "type": "list",
+     "ordered": true,
+     "items": [
+      "**Des lots mal dimensionnés.** L'exemple utilise une taille minimale de 8 192 éléments et un délai d'envoi de 200 ms dans la file d'envoi de l'exportateur. L'autrice précise qu'il s'agit des valeurs par défaut documentées, non de recommandations universelles. Le processeur de lots autonome est déprécié au profit du traitement par lots intégré à l'exportateur.",
+      "**Des attributs de ressource inutiles.** Conserver `host.name`, `host.arch` et `os.type`, mais désactiver par exemple le modèle de processeur et la taille du cache L2 via le processeur de détection des ressources.",
+      "**Une interrogation trop fréquente des récepteurs d'infrastructure.** Passer l'intervalle de 10 à 30 secondes lorsque le besoin le permet.",
+      "**L'export de toutes les traces.** L'échantillonnage en tête décide tôt ; l'échantillonnage en queue décide après avoir observé la trace, ce qui impose de la mettre en mémoire tampon. L'exemple du billet garde les traces en erreur et 5 % des autres, avec une fenêtre de décision de 10 secondes.",
+      "**Un limiteur de mémoire placé trop tard.** Si des processeurs d'enrichissement s'exécutent avant lui, ils peuvent travailler sur des données qui seront ensuite refusées. Le limiteur protège la stabilité ; ce n'est pas une optimisation du processeur."
+     ]
+    },
+    {
+     "type": "diagram",
+     "svg": "<svg xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"0 0 640 240\" font-family=\"system-ui,sans-serif\"><rect width=\"640\" height=\"240\" rx=\"16\" fill=\"#f1f5f9\"/><text x=\"320.0\" y=\"30\" text-anchor=\"middle\" font-size=\"15\" font-weight=\"700\" fill=\"#0f172a\">Architecture recommandée : deux étages de collecteurs</text><rect x=\"20.0\" y=\"52\" width=\"130.5\" height=\"160\" rx=\"12\" fill=\"#b45309\"/><text x=\"85.2\" y=\"80\" text-anchor=\"middle\" font-size=\"13\" font-weight=\"700\" fill=\"#fff\">Applications</text><text x=\"85.2\" y=\"106\" text-anchor=\"middle\" font-size=\"11.5\" fill=\"#fff\">Peu d'attributs,</text><text x=\"85.2\" y=\"125\" text-anchor=\"middle\" font-size=\"11.5\" fill=\"#fff\">pas de valeurs à</text><text x=\"85.2\" y=\"144\" text-anchor=\"middle\" font-size=\"11.5\" fill=\"#fff\">forte cardinalité</text><path d=\"M153.5 132 h18 m-6 -6 l6 6 l-6 6\" stroke=\"#334155\" stroke-width=\"3\" fill=\"none\" stroke-linecap=\"round\"/><rect x=\"176.5\" y=\"52\" width=\"130.5\" height=\"160\" rx=\"12\" fill=\"#0f766e\"/><text x=\"241.8\" y=\"80\" text-anchor=\"middle\" font-size=\"13\" font-weight=\"700\" fill=\"#fff\">Collecteur local</text><text x=\"241.8\" y=\"106\" text-anchor=\"middle\" font-size=\"11.5\" fill=\"#fff\">Collecte à proximité,</text><text x=\"241.8\" y=\"125\" text-anchor=\"middle\" font-size=\"11.5\" fill=\"#fff\">limiteur de mémoire</text><text x=\"241.8\" y=\"144\" text-anchor=\"middle\" font-size=\"11.5\" fill=\"#fff\">placé en premier</text><path d=\"M310.0 132 h18 m-6 -6 l6 6 l-6 6\" stroke=\"#334155\" stroke-width=\"3\" fill=\"none\" stroke-linecap=\"round\"/><rect x=\"333.0\" y=\"52\" width=\"130.5\" height=\"160\" rx=\"12\" fill=\"#1d4ed8\"/><text x=\"398.2\" y=\"80\" text-anchor=\"middle\" font-size=\"13\" font-weight=\"700\" fill=\"#fff\">Collecteur central</text><text x=\"398.2\" y=\"106\" text-anchor=\"middle\" font-size=\"11.5\" fill=\"#fff\">Échantillonnage en</text><text x=\"398.2\" y=\"125\" text-anchor=\"middle\" font-size=\"11.5\" fill=\"#fff\">queue et traitements</text><text x=\"398.2\" y=\"144\" text-anchor=\"middle\" font-size=\"11.5\" fill=\"#fff\">coûteux</text><path d=\"M466.5 132 h18 m-6 -6 l6 6 l-6 6\" stroke=\"#334155\" stroke-width=\"3\" fill=\"none\" stroke-linecap=\"round\"/><rect x=\"489.5\" y=\"52\" width=\"130.5\" height=\"160\" rx=\"12\" fill=\"#7c3aed\"/><text x=\"554.8\" y=\"80\" text-anchor=\"middle\" font-size=\"13\" font-weight=\"700\" fill=\"#fff\">Stockage</text><text x=\"554.8\" y=\"106\" text-anchor=\"middle\" font-size=\"11.5\" fill=\"#fff\">Traces utiles,</text><text x=\"554.8\" y=\"125\" text-anchor=\"middle\" font-size=\"11.5\" fill=\"#fff\">erreurs conservées,</text><text x=\"554.8\" y=\"144\" text-anchor=\"middle\" font-size=\"11.5\" fill=\"#fff\">coûts maîtrisés</text></svg>",
+     "alt": "Schéma de la chaîne de télémétrie : applications, collecteur local, collecteur central puis stockage.",
+     "caption": "Séparation entre collecte locale et traitement central, telle que la décrit le billet de la CNCF."
+    },
+    {
+     "type": "heading",
+     "level": 2,
+     "text": "Architecture et précautions"
+    },
+    {
+     "type": "paragraph",
+     "text": "L'autrice recommande de distinguer des collecteurs « périphériques », proches des applications, chargés de la collecte locale, et des collecteurs « passerelles » qui réalisent les traitements coûteux. L'échantillonnage en queue exige que tous les segments d'une même trace arrivent sur la même instance. Elle rappelle aussi que les files persistantes ne garantissent pas la livraison dans tous les scénarios de panne, et recommande d'éviter les attributs à forte cardinalité, comme des identifiants de requête uniques, ainsi que les segments superflus. Les configurations présentées sont, selon ses termes, des points de départ et non des réglages prêts pour la production."
+    },
+    {
+     "type": "usecases",
+     "title": "Exemples d'utilisation",
+     "items": [
+      {
+       "icon": "🛒",
+       "title": "Un site de commerce en ligne",
+       "text": "Il garde toutes les traces en erreur lors d'un pic de trafic et seulement une fraction des traces normales, pour contenir la facture de stockage."
+      },
+      {
+       "icon": "☸️",
+       "title": "Une équipe plateforme sur Kubernetes",
+       "text": "Elle déploie un collecteur par nœud et une passerelle centrale, afin que le traitement coûteux ne ralentisse pas les applications."
+      },
+      {
+       "icon": "📉",
+       "title": "Un service dont la latence augmente après l'ajout de l'instrumentation",
+       "text": "Elle compare la consommation du collecteur avant et après la réduction des attributs et de la fréquence d'interrogation."
+      }
+     ]
+    },
+    {
+     "type": "timeline",
+     "title": "D'où l'on vient, où l'on va",
+     "items": [
+      {
+       "label": "17 novembre 2026",
+       "text": "Publication du billet sur le blog de la CNCF."
+      },
+      {
+       "label": "Présentation d'origine",
+       "text": "Cloud Native Days Austria 2026, sur le surcoût de performance d'OpenTelemetry."
+      }
+     ]
+    },
+    {
+     "type": "opinion",
+     "title": "Notre avis",
+     "paragraphs": [
+      "Le billet a le mérite de rappeler une évidence souvent oubliée : l'observabilité n'est pas gratuite, et un pipeline mal réglé peut dégrader ce qu'il est censé surveiller. Son point faible est l'absence de mesures chiffrées, qui oblige chaque équipe à refaire ses propres essais.",
+      "À un horizon d'un à trois ans, on peut s'attendre à voir le coût de la télémétrie suivi comme un indicateur à part entière, avec des budgets par service. Il s'agit d'une projection, non d'un fait."
+     ],
+     "verdict": "Mesurer le coût de la mesure : c'est le premier réglage de tout pipeline de télémétrie."
+    }
+   ]
+  }
+ ]
+}
