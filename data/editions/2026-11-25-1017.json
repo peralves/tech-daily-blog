@@ -1,0 +1,1209 @@
+{
+ "schemaVersion": "1.0",
+ "date": "2026-11-25",
+ "generatedAt": "2026-11-25T10:17:45+01:00",
+ "title": "Tech Daily — Firefox 161, Ladybird en alpha, incident Hex.pm et boucliers eBPF",
+ "summary": "Au sommaire : la version 161 de Firefox, l'alpha du navigateur indépendant Ladybird, un modèle d'agent compressé à 5,9 Go, l'incident de sécurité de Hex.pm, six extensions WordPress piégées, le projet Shirudo d'OpenAI et Cisco, l'outil de mesure fireperf et un démarrage autonome de Rockbox sur iPod nano 5G.",
+ "highlights": [
+  "Firefox 161 apporte random() en CSS, des formats de presse-papiers personnalisés et la compression par dictionnaire.",
+  "Ladybird, navigateur à moteur indépendant, est disponible en alpha sur macOS et Linux, sans garantie de sécurité.",
+  "Hex.pm : une faille de gravité 10 a permis d'exécuter des commandes sur six serveurs ; tous les comptes ont été déconnectés.",
+  "Six extensions WordPress piégées ont été bloquées avant diffusion grâce aux délais de sécurité.",
+  "Shirudo (OpenAI et Cisco) vise à bloquer une faille par des boucliers eBPF avant l'application du correctif."
+ ],
+ "meta": {
+  "generator": "claude-scheduled-task"
+ },
+ "posts": [
+  {
+   "id": "firefox-161-random-clipboard-dictionnaires",
+   "category": "web",
+   "icon": "🦊",
+   "importance": 4,
+   "readingMinutes": 4,
+   "title": "Firefox 161 : fonction CSS random(), presse-papiers personnalisé et compression par dictionnaire",
+   "summary": "La version 161 de Firefox, publiée le 24 novembre 2026, ajoute plusieurs API utiles aux développeurs : la fonction CSS random(), des formats personnalisés dans le presse-papiers et le transport de dictionnaires de compression HTTP.",
+   "tags": [
+    "Firefox",
+    "CSS",
+    "HTTP",
+    "API web",
+    "Mozilla"
+   ],
+   "sources": [
+    {
+     "title": "Firefox 161 release notes for developers",
+     "url": "https://developer.mozilla.org/en-US/docs/Mozilla/Firefox/Releases/161",
+     "publisher": "MDN Web Docs"
+    }
+   ],
+   "blocks": [
+    {
+     "type": "paragraph",
+     "text": "Mozilla a publié le **24 novembre 2026** la version 161 de Firefox. Selon les notes destinées aux développeurs sur MDN, cette livraison ne touche pas au moteur JavaScript, mais elle enrichit sensiblement le CSS, les API web et la couche HTTP. Aucune section de sécurité dédiée n'y figure ; les nouveautés intéressent surtout ceux qui conçoivent des sites et des applications web."
+    },
+    {
+     "type": "heading",
+     "level": 2,
+     "text": "Du côté du CSS"
+    },
+    {
+     "type": "paragraph",
+     "text": "La nouveauté la plus visible est la fonction **`random()`**. Elle produit une valeur aléatoire comprise dans un intervalle, éventuellement arrondie à un pas donné. Une clé optionnelle (`<random-key>`) permet de partager la même valeur de base entre plusieurs appels, ce qui évite que deux propriétés censées rester cohérentes divergent. L'usage typique : varier légèrement la rotation, la taille ou le délai d'animation d'éléments répétés, sans écrire une ligne de JavaScript."
+    },
+    {
+     "type": "paragraph",
+     "text": "Autre évolution : le premier paramètre de `var()`, `attr()` et `env()` accepte désormais des fonctions imbriquées. On peut par exemple écrire `env(var(--safe-area-block-start))` pour calculer le nom d'une variable d'environnement à partir d'une propriété personnalisée. C'est une brique de plus pour les systèmes de thèmes pilotés par des attributs HTML."
+    },
+    {
+     "type": "heading",
+     "level": 2,
+     "text": "Du côté des API web"
+    },
+    {
+     "type": "list",
+     "ordered": false,
+     "items": [
+      "**Presse-papiers** : `Clipboard.write()` et `Clipboard.read()` acceptent des formats personnalisés, préfixés par « web » (par exemple `web text/x-mon-format`). Seules les pages de même origine peuvent les relire, ce qui limite les fuites entre sites.",
+      "**Navigation API** : `NavigationTransition.to` renvoie la destination de la navigation en cours, utile pour un gestionnaire `navigateerror` qui doit savoir quelle navigation a échoué.",
+      "**WebTransport** : deux indications, `anticipatedConcurrentIncomingUnidirectionalStreams` et `anticipatedConcurrentIncomingBidirectionalStreams`, peuvent être passées au constructeur pour annoncer le nombre de flux attendus.",
+      "**WebRTC** : `RTCRtpSender.setParameters()` peut demander une image clé dans le même appel que le changement de paramètres d'encodage.",
+      "**CSS Typed OM** : lecture et écriture typées des valeurs CSS via `computedStyleMap()` et `attributeStyleMap`, sans les interfaces de couleur, absentes de tous les navigateurs."
+     ]
+    },
+    {
+     "type": "heading",
+     "level": 2,
+     "text": "Compression par dictionnaire"
+    },
+    {
+     "type": "paragraph",
+     "text": "Le changement le plus structurant est peut-être le **Compression Dictionary Transport**. Un serveur marque une réponse comme dictionnaire avec l'en-tête `Use-As-Dictionary` ; le navigateur la conserve, puis la déclare dans `Available-Dictionary` lors des requêtes correspondantes. Le serveur peut alors répondre avec un encodage `dcb` (Brotli) ou `dcz` (Zstandard) qui ne transmet que la différence. Le gain concerne surtout les ressources qui changent peu d'une version à l'autre, comme les paquets JavaScript : lors d'un déploiement, le navigateur ne retélécharge qu'un delta."
+    },
+    {
+     "type": "heading",
+     "level": 2,
+     "text": "Fonctions encore expérimentales"
+    },
+    {
+     "type": "paragraph",
+     "text": "Plusieurs fonctions restent désactivées par défaut : `margin-trim`, les transitions de vue entre documents, le blocage du rendu avec `blocking=\"render\"`, `quotes: match-parent`, `text-autospace-size` et la prise en compte de `<meta name=\"color-scheme\">` par `prefers-color-scheme`. Elles ne sont activables que par des préférences, certaines uniquement dans les versions Nightly."
+    },
+    {
+     "type": "paragraph",
+     "text": "Pour les équipes qui testent avec WebDriver BiDi, la version corrige aussi plusieurs défauts : une erreur d'argument est désormais renvoyée pour les valeurs locales de type inconnu au lieu d'être remplacées silencieusement par `undefined`, des blocages lors de navigations imbriquées ont disparu, et `network.continueRequest` met à jour `Content-Length` lorsque le corps est remplacé."
+    },
+    {
+     "type": "usecases",
+     "title": "Exemples d'utilisation",
+     "items": [
+      {
+       "icon": "🎨",
+       "title": "Interface vivante",
+       "text": "Un site de marque fait varier de quelques degrés l'inclinaison des vignettes d'une galerie avec `random()`, sans script et sans surcoût au chargement."
+      },
+      {
+       "icon": "📋",
+       "title": "Copier-coller riche entre onglets",
+       "text": "Un éditeur de diagrammes en ligne copie ses objets dans un format `web` propre ; les autres onglets du même site les collent sans perte, alors qu'un site tiers n'y a pas accès."
+      },
+      {
+       "icon": "📦",
+       "title": "Déploiements plus légers",
+       "text": "Une application dont le paquet JavaScript pèse plusieurs mégaoctets sert des deltas Zstandard : les utilisateurs de mobiles économisent de la bande passante à chaque mise à jour."
+      }
+     ]
+    },
+    {
+     "type": "timeline",
+     "title": "D'où l'on vient, où l'on va",
+     "items": [
+      {
+       "label": "2025–2026",
+       "text": "Les dictionnaires de compression HTTP, d'abord portés par Chromium, gagnent progressivement les autres moteurs."
+      },
+      {
+       "label": "24 novembre 2026",
+       "text": "Sortie de Firefox 161 avec le transport par dictionnaire et le presse-papiers personnalisé."
+      },
+      {
+       "label": "Prochaines versions",
+       "text": "Les fonctions expérimentales (transitions entre documents, blocage du rendu) pourraient être activées par défaut ; aucune date n'est annoncée dans les notes."
+      }
+     ]
+    },
+    {
+     "type": "opinion",
+     "title": "Notre avis",
+     "paragraphs": [
+      "Firefox 161 est une version de rattrapage et de consolidation plus qu'une rupture : `random()`, les types CSS et la navigation relèvent de l'interopérabilité, c'est-à-dire de la possibilité d'écrire une seule fois du code qui fonctionne dans tous les moteurs. La compression par dictionnaire est l'élément le plus concret pour les performances, mais son bénéfice dépend entièrement de la configuration des serveurs et des CDN.",
+      "À un horizon d'un à trois ans, on peut s'attendre à ce que ces mécanismes deviennent des réglages ordinaires des plateformes d'hébergement. Reste une réserve : tant que les fonctions expérimentales restent derrière des préférences, les développeurs devront prévoir des solutions de repli."
+     ],
+     "verdict": "Une version sans éclat, mais qui rapproche encore Firefox de ses concurrents sur des fonctions que les sites utiliseront vraiment."
+    },
+    {
+     "type": "callout",
+     "title": "À retenir",
+     "text": "Firefox 161 (24 novembre 2026) : `random()` en CSS, formats personnalisés dans le presse-papiers, transport de dictionnaires de compression Brotli/Zstandard. Les fonctions expérimentales restent désactivées par défaut."
+    }
+   ],
+   "publishedAt": "2026-11-25T10:17:45+01:00",
+   "illustration": {
+    "svg": "<svg xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"0 0 640 360\"><defs><linearGradient id=\"g\" x1=\"0\" y1=\"0\" x2=\"1\" y2=\"1\"><stop offset=\"0\" stop-color=\"hsl(210,65%,42%)\"/><stop offset=\"1\" stop-color=\"hsl(250,70%,22%)\"/></linearGradient></defs><rect width=\"640\" height=\"360\" fill=\"url(#g)\"/><circle cx=\"570\" cy=\"55\" r=\"90\" fill=\"#fff\" opacity=\".08\"/><circle cx=\"60\" cy=\"320\" r=\"120\" fill=\"#fff\" opacity=\".06\"/><circle cx=\"320\" cy=\"180\" r=\"85\" fill=\"none\" stroke=\"#fff\" stroke-width=\"10\"/><ellipse cx=\"320\" cy=\"180\" rx=\"38\" ry=\"85\" fill=\"none\" stroke=\"#fff\" stroke-width=\"8\"/><path d=\"M235 180h170M250 135h140M250 225h140\" stroke=\"#fff\" stroke-width=\"7\" fill=\"none\"/></svg>"
+   },
+   "sourceDate": "2026-11-25"
+  },
+  {
+   "id": "ladybird-passe-en-alpha",
+   "category": "web",
+   "icon": "🐞",
+   "importance": 4,
+   "readingMinutes": 4,
+   "title": "Ladybird passe en alpha : un navigateur indépendant, enfin téléchargeable sur macOS et Linux",
+   "summary": "Le 23 novembre 2026, Andreas Kling a annoncé que Ladybird, navigateur construit sur un moteur entièrement nouveau, est disponible en version alpha, avec mises à jour automatiques mais sans garantie de sécurité.",
+   "tags": [
+    "Ladybird",
+    "navigateur",
+    "moteur de rendu",
+    "open source",
+    "alpha"
+   ],
+   "sources": [
+    {
+     "title": "Ladybird is now in alpha",
+     "url": "https://ladybird.org/posts/alpha/",
+     "publisher": "Ladybird Browser Initiative"
+    }
+   ],
+   "blocks": [
+    {
+     "type": "paragraph",
+     "text": "Le **23 novembre 2026**, Andreas Kling a annoncé sur le site du projet que **Ladybird est désormais en alpha**. Jusqu'ici, il fallait compiler le navigateur à partir des sources pour l'essayer ; il est maintenant proposé au téléchargement, sur **macOS** et **Linux**, dans un canal en mise à jour continue. Le billet ne mentionne ni Windows ni les mobiles."
+    },
+    {
+     "type": "paragraph",
+     "text": "Ladybird se distingue par son moteur : il n'est dérivé ni de Chromium, ni de WebKit, ni de Gecko, mais construit depuis zéro. Dans un paysage où presque tous les navigateurs reposent sur trois bases de code, c'est la raison pour laquelle le projet attire autant d'attention. Le billet a d'ailleurs dépassé les 2 000 points sur Hacker News le jour de sa publication."
+    },
+    {
+     "type": "heading",
+     "level": 2,
+     "text": "Ce que signifie « alpha »"
+    },
+    {
+     "type": "list",
+     "ordered": false,
+     "items": [
+      "Le navigateur est utilisable, mais **c'est un logiciel jeune** : certains sites ne fonctionnent pas et des plantages surviennent.",
+      "**Aucune promesse de sécurité** : le projet s'attend à ce qu'un navigateur neuf soit attaqué à répétition. Les chercheurs sont invités à signaler les failles via le fichier SECURITY.md du dépôt GitHub.",
+      "Le canal est **continu** : les mises à jour arrivent régulièrement et automatiquement.",
+      "Un site qui ne s'affiche pas peut être signalé depuis le navigateur ; après un plantage, l'utilisateur peut consulter le rapport et décider de l'envoyer ou non, selon la politique de confidentialité du projet."
+     ]
+    },
+    {
+     "type": "heading",
+     "level": 2,
+     "text": "Pour les développeurs"
+    },
+    {
+     "type": "paragraph",
+     "text": "Ladybird prend en charge **WebDriver** pour l'automatisation des tests et le protocole d'outils de développement de Firefox, ce qui permet de brancher des outils existants. Le billet encourage les concepteurs de sites à tester leurs pages et à signaler ce qui casse. Il ne publie en revanche aucun taux de réussite aux tests de conformité ni aucun résultat de performance : il est donc impossible, à ce stade, de mesurer l'écart avec les navigateurs établis."
+    },
+    {
+     "type": "heading",
+     "level": 2,
+     "text": "Gouvernance et financement"
+    },
+    {
+     "type": "paragraph",
+     "text": "Le projet est porté par la Ladybird Browser Initiative et remercie ses sponsors et donateurs. Le billet ne détaille pas le modèle économique ni le calendrier ; Andreas Kling parle seulement d'une « montagne de travail » devant l'équipe, sans jalon précis."
+    },
+    {
+     "type": "usecases",
+     "title": "Exemples d'utilisation",
+     "items": [
+      {
+       "icon": "🧪",
+       "title": "Tests de compatibilité",
+       "text": "Une agence web ouvre ses sites clients dans Ladybird pour repérer les pages qui reposent sur des comportements propres à un moteur, et corrige le code ou signale les défauts au projet."
+      },
+      {
+       "icon": "🎓",
+       "title": "Enseignement et curiosité",
+       "text": "Un enseignant d'informatique montre comment fonctionne un moteur de rendu complet, du réseau à l'affichage, avec un code source lisible et en développement actif."
+      },
+      {
+       "icon": "🛡️",
+       "title": "Veille sur la diversité des moteurs",
+       "text": "Une équipe produit suit l'évolution d'un moteur indépendant pour évaluer, à moyen terme, la dépendance de son parc au seul moteur Chromium."
+      }
+     ]
+    },
+    {
+     "type": "timeline",
+     "title": "D'où l'on vient, où l'on va",
+     "items": [
+      {
+       "label": "2024",
+       "text": "Le projet s'organise autour d'une structure à but non lucratif, avec des sponsors et des dons (le billet cite 2024–2026 comme période de copyright)."
+      },
+      {
+       "label": "23 novembre 2026",
+       "text": "Annonce de l'alpha, avec téléchargement pour macOS et Linux et canal de mises à jour continues."
+      },
+      {
+       "label": "Après l'alpha",
+       "text": "Durcissement de la sécurité à partir des signalements ; aucune date ni étape précise n'est annoncée."
+      }
+     ]
+    },
+    {
+     "type": "opinion",
+     "title": "Notre avis",
+     "paragraphs": [
+      "L'alpha de Ladybird est un jalon symbolique plus que technique : tant qu'aucun indicateur de compatibilité n'est publié, rien ne permet d'affirmer que le navigateur supporte un usage quotidien. L'absence de garantie de sécurité est en outre une raison suffisante pour ne pas lui confier de comptes sensibles.",
+      "L'enjeu est ailleurs. Si le projet tient la distance, il rendra crédible un quatrième moteur indépendant, ce qui réduirait le risque qu'une seule organisation décide seule des standards du web. À un horizon de un à trois ans, la question sera moins celle des fonctions que celle de la ressource humaine : combien de temps une petite équipe peut-elle suivre un web qui évolue chaque mois ?"
+     ],
+     "verdict": "Une alpha prometteuse à observer, pas encore un navigateur à adopter."
+    },
+    {
+     "type": "callout",
+     "title": "À retenir",
+     "text": "Ladybird est en alpha depuis le 23 novembre 2026 sur macOS et Linux : moteur indépendant, mises à jour automatiques, plantages et sites cassés possibles, aucune garantie de sécurité."
+    }
+   ],
+   "publishedAt": "2026-11-25T10:17:45+01:00",
+   "illustration": {
+    "svg": "<svg xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"0 0 640 360\"><defs><linearGradient id=\"g\" x1=\"0\" y1=\"0\" x2=\"1\" y2=\"1\"><stop offset=\"0\" stop-color=\"hsl(210,65%,42%)\"/><stop offset=\"1\" stop-color=\"hsl(250,70%,22%)\"/></linearGradient></defs><rect width=\"640\" height=\"360\" fill=\"url(#g)\"/><circle cx=\"570\" cy=\"55\" r=\"90\" fill=\"#fff\" opacity=\".08\"/><circle cx=\"60\" cy=\"320\" r=\"120\" fill=\"#fff\" opacity=\".06\"/><circle cx=\"320\" cy=\"180\" r=\"85\" fill=\"none\" stroke=\"#fff\" stroke-width=\"10\"/><ellipse cx=\"320\" cy=\"180\" rx=\"38\" ry=\"85\" fill=\"none\" stroke=\"#fff\" stroke-width=\"8\"/><path d=\"M235 180h170M250 135h140M250 225h140\" stroke=\"#fff\" stroke-width=\"7\" fill=\"none\"/></svg>"
+   },
+   "sourceDate": "2026-11-25"
+  },
+  {
+   "id": "ternary-bonsai-2-5-27b-modele-compact",
+   "category": "ia",
+   "icon": "🪴",
+   "importance": 4,
+   "readingMinutes": 5,
+   "title": "Ternary Bonsai 2.5 27B : un modèle d'agent de 5,9 Go qui tourne sur une carte graphique grand public",
+   "summary": "PrismML publie, le 24 novembre 2026, une version « ternaire » d'un modèle de 27 milliards de paramètres : 5,9 Go en mémoire, licence Apache 2.0 et des résultats d'agent de codage proches du modèle d'origine, selon ses propres mesures.",
+   "tags": [
+    "IA",
+    "modèle local",
+    "quantification",
+    "agents",
+    "PrismML"
+   ],
+   "sources": [
+    {
+     "title": "Ternary Bonsai 2.5 27B",
+     "url": "https://prismml.com/news/bonsai-2-5-27b",
+     "publisher": "PrismML"
+    }
+   ],
+   "blocks": [
+    {
+     "type": "paragraph",
+     "text": "La société PrismML a présenté le **24 novembre 2026** *Ternary Bonsai 2.5 27B*, une évolution de Ternary Bonsai 2 27B. Le modèle est construit à partir de **Qwen3.8 27B** ; le terme « ternaire » désigne une compression extrême des poids, ce qui lui permet d'occuper environ **5,9 Go** en mémoire, comme la version précédente. Il vise les usages d'agent : codage, appels d'outils sur plusieurs tours et exécution de tâches en plusieurs étapes."
+    },
+    {
+     "type": "paragraph",
+     "text": "L'éditeur affirme que cette version termine les tâches en moins de tours, consomme moins de jetons, va plus vite et se trompe moins que Bonsai 2. Il dit aussi avoir réduit les réflexions excessives et les boucles répétitives. Ces affirmations reposent sur des mesures **fournies par PrismML** et détaillées dans un livre blanc ; aucune évaluation indépendante n'est citée."
+    },
+    {
+     "type": "heading",
+     "level": 2,
+     "text": "Résultats publiés"
+    },
+    {
+     "type": "table",
+     "headers": [
+      "Test",
+      "Qwen3.8 27B (précision complète)",
+      "Bonsai 2 27B",
+      "Bonsai 2.5 27B"
+     ],
+     "rows": [
+      [
+       "SWE-bench Verified",
+       "80,6",
+       "60,8",
+       "75,6"
+      ],
+      [
+       "DeepSWE v1.1",
+       "30,1",
+       "0",
+       "27"
+      ],
+      [
+       "Terminal-Bench 2.1",
+       "70,8",
+       "52,8",
+       "60,1"
+      ],
+      [
+       "AppWorld",
+       "93,2",
+       "51,2",
+       "90,5"
+      ],
+      [
+       "τ³-Bench",
+       "72,8",
+       "69,1",
+       "73,9"
+      ],
+      [
+       "BigCodeBench",
+       "61,5",
+       "57,2",
+       "60,3"
+      ],
+      [
+       "LiveCodeBench v6",
+       "87,6",
+       "83,8",
+       "83,0"
+      ]
+     ]
+    },
+    {
+     "type": "paragraph",
+     "text": "La lecture est nuancée. Par rapport à Bonsai 2, le gain est net sur la plupart des tests, notamment AppWorld (de 51,2 à 90,5) et SWE-bench Verified (de 60,8 à 75,6). Face au modèle complet, le nouveau venu reste en retrait presque partout, sauf sur τ³-Bench où il le dépasse légèrement (73,9 contre 72,8). L'éditeur parle d'un écart « considérablement réduit », pas comblé."
+    },
+    {
+     "type": "heading",
+     "level": 2,
+     "text": "Vitesse et matériel"
+    },
+    {
+     "type": "keyvalue",
+     "items": [
+      {
+       "label": "NVIDIA H100",
+       "value": "291 jetons/s en génération avec MTP ; 3 200 jetons/s en traitement d'une invite de 2 000 jetons"
+      },
+      {
+       "label": "NVIDIA RTX 4090",
+       "value": "204 jetons/s en génération avec MTP ; environ 3 060 jetons/s en traitement de l'invite"
+      },
+      {
+       "label": "Prise en charge",
+       "value": "cartes NVIDIA et Intel via llama.cpp ; appareils Apple (Mac, iPhone, iPad) via MLX"
+      },
+      {
+       "label": "Licence",
+       "value": "Apache 2.0 pour les poids du modèle"
+      }
+     ]
+    },
+    {
+     "type": "paragraph",
+     "text": "La page signale que les flux d'agent sont particulièrement sensibles à la dégradation : une petite erreur peut s'amplifier au fil d'une longue suite d'appels d'outils. C'est la limite à garder en tête avec un modèle très compressé. Deux démonstrations vidéo présentent la correction d'une régression pytest et la reconstruction d'une page web à partir d'une capture d'écran."
+    },
+    {
+     "type": "usecases",
+     "title": "Exemples d'utilisation",
+     "items": [
+      {
+       "icon": "💻",
+       "title": "Assistant de code hors ligne",
+       "text": "Un développeur fait tourner l'agent sur sa machine pour corriger des tests, sans envoyer le code source à un service distant."
+      },
+      {
+       "icon": "🔒",
+       "title": "Données sensibles sur place",
+       "text": "Un cabinet ou une PME garde ses documents en interne et utilise un modèle local pour automatiser des tâches répétitives de bureautique et de scripts."
+      },
+      {
+       "icon": "📱",
+       "title": "Expérimentation sur appareil Apple",
+       "text": "Une équipe prototype un agent sur Mac ou iPad grâce à MLX pour évaluer ce qu'un modèle de cette taille permet sans connexion."
+      }
+     ]
+    },
+    {
+     "type": "timeline",
+     "title": "D'où l'on vient, où l'on va",
+     "items": [
+      {
+       "label": "Bonsai 2",
+       "text": "Première version ternaire de 27 milliards de paramètres, avec des scores d'agent nettement plus faibles."
+      },
+      {
+       "label": "24 novembre 2026",
+       "text": "Bonsai 2.5 : même empreinte de 5,9 Go, résultats rapprochés du modèle de base."
+      },
+      {
+       "label": "Ensuite",
+       "text": "L'éditeur ne détaille pas de feuille de route dans l'annonce."
+      }
+     ]
+    },
+    {
+     "type": "opinion",
+     "title": "Notre avis",
+     "paragraphs": [
+      "Réduire un modèle de 27 milliards de paramètres à moins de 6 Go sans effondrer ses performances d'agent est un résultat remarquable, s'il se confirme hors des tests de l'éditeur. L'intérêt est concret : coût, confidentialité et fonctionnement sans connexion. Les écarts restants (par exemple 60,1 contre 70,8 sur Terminal-Bench) montrent toutefois qu'un compromis demeure.",
+      "À un à trois ans, l'enjeu sera la fiabilité sur de longues tâches : un agent local qui se trompe une fois sur dix à chaque étape devient vite inutilisable. Il faudra des évaluations indépendantes et des essais en conditions réelles avant de parler de remplaçant des services hébergés."
+     ],
+     "verdict": "Une démonstration technique convaincante sur le papier, à confirmer par des mesures indépendantes."
+    },
+    {
+     "type": "callout",
+     "title": "À retenir",
+     "text": "Bonsai 2.5 27B : 5,9 Go, Apache 2.0, 204 jetons/s sur RTX 4090. Les scores sont ceux de l'éditeur ; le modèle reste derrière sa base sur la plupart des tests."
+    }
+   ],
+   "publishedAt": "2026-11-25T10:17:45+01:00",
+   "illustration": {
+    "svg": "<svg xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"0 0 640 360\"><defs><linearGradient id=\"g\" x1=\"0\" y1=\"0\" x2=\"1\" y2=\"1\"><stop offset=\"0\" stop-color=\"hsl(320,65%,42%)\"/><stop offset=\"1\" stop-color=\"hsl(0,70%,22%)\"/></linearGradient></defs><rect width=\"640\" height=\"360\" fill=\"url(#g)\"/><circle cx=\"570\" cy=\"55\" r=\"90\" fill=\"#fff\" opacity=\".08\"/><circle cx=\"60\" cy=\"320\" r=\"120\" fill=\"#fff\" opacity=\".06\"/><circle cx=\"320\" cy=\"180\" r=\"30\" fill=\"#fff\"/><g stroke=\"#fff\" stroke-width=\"7\"><path d=\"M320 180L230 110M320 180L410 110M320 180L220 240M320 180L420 250M320 180L320 80M320 180L320 285\"/></g><g fill=\"#fff\" opacity=\".92\"><circle cx=\"230\" cy=\"110\" r=\"16\"/><circle cx=\"410\" cy=\"110\" r=\"16\"/><circle cx=\"220\" cy=\"240\" r=\"16\"/><circle cx=\"420\" cy=\"250\" r=\"16\"/><circle cx=\"320\" cy=\"80\" r=\"16\"/><circle cx=\"320\" cy=\"285\" r=\"16\"/></g></svg>"
+   },
+   "sourceDate": "2026-11-25"
+  },
+  {
+   "id": "hex-pm-rce-cvss-10-six-serveurs",
+   "category": "cybersecurite",
+   "icon": "📦",
+   "importance": 5,
+   "readingMinutes": 6,
+   "title": "Hex.pm : une faille de gravité 10 présente depuis 2016 a permis d'exécuter des commandes sur six serveurs du registre Elixir et Erlang",
+   "summary": "Le 23 novembre 2026, un attaquant a exploité la faille CVE-2026-129514 pour lancer des commandes sur six serveurs de production de Hex.pm. Aucune modification de paquet n'est constatée, mais l'accès aux données des comptes ne peut être exclu : tous les utilisateurs ont été déconnectés.",
+   "tags": [
+    "Hex.pm",
+    "Elixir",
+    "Erlang",
+    "chaîne d'approvisionnement",
+    "CVE-2026-129514"
+   ],
+   "sources": [
+    {
+     "title": "Hackers Exploited CVSS 10.0 Hex.pm RCE Flaw to Compromise 6 Package Registry Servers",
+     "url": "https://thehackernews.com/2026/11/hackers-exploited-cvss-100-hexpm-rce.html",
+     "publisher": "The Hacker News"
+    },
+    {
+     "title": "Security incident on hex.pm",
+     "url": "https://hex.pm/blog/security-incident-on-hexpm",
+     "publisher": "Hex.pm"
+    }
+   ],
+   "blocks": [
+    {
+     "type": "paragraph",
+     "text": "Hex.pm, le registre de paquets que les développeurs Elixir et Erlang utilisent pour récupérer leurs dépendances, a publié le **24 novembre 2026** son rapport d'incident. Un attaquant a exécuté des commandes système sur **six serveurs de production** en exploitant une faille de gravité maximale (CVSS 10,0), référencée **CVE-2026-129514**. D'après The Hacker News, l'attaque a eu lieu le lundi 23 novembre, la page du rapport étant la source primaire."
+    },
+    {
+     "type": "heading",
+     "level": 2,
+     "text": "Une faille vieille de dix ans"
+    },
+    {
+     "type": "paragraph",
+     "text": "Le défaut se trouvait dans un analyseur qui lisait le corps des requêtes envoyées dans un format de données Erlang. Il s'exécutait **avant le routage et l'authentification** : une simple requête POST non authentifiée, adressée à n'importe quelle URL du site, pouvait l'atteindre. Le décodeur bloquait les termes dangereux comme les fonctions, mais acceptait des tables associatives contenant une clé `__struct__`. Un corps de requête pouvait donc se faire passer pour n'importe quelle structure Elixir chargée par l'application."
+    },
+    {
+     "type": "paragraph",
+     "text": "Une structure forgée provoquait une erreur ; le code de rapport d'erreurs l'inspectait alors, et, via les bibliothèques Ecto et DBConnection, le serveur finissait par appeler une fonction choisie par l'attaquant, avec les droits du compte de service du registre. La vérification de sécurité manquante avait été supprimée le **23 février 2016**. L'équipe indique que rien n'établit une exploitation avant ce lundi."
+    },
+    {
+     "type": "heading",
+     "level": 2,
+     "text": "Chronologie (UTC)"
+    },
+    {
+     "type": "keyvalue",
+     "items": [
+      {
+       "label": "Fin de la semaine précédente",
+       "value": "activité de deux adresses, que l'équipe interprète comme la construction d'une copie locale du site pour s'entraîner"
+      },
+      {
+       "label": "Lundi, 18 h 16 à 18 h 29",
+       "value": "69 requêtes d'exploitation enregistrées par le répartiteur de charge, toutes issues de deux adresses"
+      },
+      {
+       "label": "18 h 31",
+       "value": "tous les serveurs exécutent le correctif ; trois machines avaient redémarré avec l'ancienne version en cours d'attaque"
+      },
+      {
+       "label": "19 h 07",
+       "value": "un signalement distinct de la même faille arrive par courriel, après la fin de l'attaque"
+      },
+      {
+       "label": "Nuit du lundi",
+       "value": "notification à l'autorité suédoise de protection des données, à la CISA américaine et à l'ENISA"
+      }
+     ]
+    },
+    {
+     "type": "heading",
+     "level": 2,
+     "text": "Ce qui est établi, et ce qui ne l'est pas"
+    },
+    {
+     "type": "list",
+     "ordered": false,
+     "items": [
+      "L'équipe a comparé chaque table de la base avec une copie prise deux minutes avant la première requête : chaque différence correspond à une activité normale.",
+      "Les **23 versions de paquets** publiées pendant l'attaque correspondent au journal d'audit ; aucune version plus ancienne n'a été modifiée. Aucun shell résiduel, nouveau compte ou clé cloud n'a été trouvé.",
+      "Mais les lectures de la base, les commandes shell, les variables d'environnement et les lectures directes du stockage **n'étaient pas journalisées**. L'équipe écrit qu'elle ne peut pas exclure un accès aux données : adresses électroniques, empreintes de mots de passe, empreintes de clés d'API, secrets d'authentification à deux facteurs, sessions, et paquets privés."
+     ]
+    },
+    {
+     "type": "paragraph",
+     "text": "Les mesures prises : correctif du décodeur (rejet de toute table contenant `__struct__`), **déconnexion de tous les comptes** après remplacement des clés de signature des sessions, et renouvellement des identifiants exposables, à l'exception de la clé de signature du registre, dont le remplacement dépend d'un nouveau client annoncé sous quelques jours."
+    },
+    {
+     "type": "heading",
+     "level": 2,
+     "text": "Ce que doivent faire les utilisateurs"
+    },
+    {
+     "type": "list",
+     "ordered": false,
+     "items": [
+      "Changer le mot de passe Hex.pm (haché avec bcrypt, ce qui ralentit mais n'interdit pas les attaques sur des mots de passe faibles).",
+      "Reconfigurer l'authentification à deux facteurs et conserver les nouveaux codes de secours.",
+      "Se reconnecter avec `mix hex.user auth` ou `rebar3 hex user auth`.",
+      "Se méfier de l'hameçonnage et vérifier que les liens des courriels pointent bien vers hex.pm.",
+      "Les clés d'API n'ont pas à être remplacées d'après l'équipe : ce sont des valeurs aléatoires de 128 bits, stockées sous forme d'empreintes HMAC-SHA256.",
+      "En attendant le nouveau client, ne récupérer les paquets que depuis repo.hex.pm et éviter les miroirs tiers."
+     ]
+    },
+    {
+     "type": "paragraph",
+     "text": "Trois bibliothèques de l'écosystème ont par ailleurs corrigé des défauts voisins, liés à des structures construites à partir de données non fiables : Ash (CVE-2026-124283, version 3.38.0), db_connection (CVE-2026-133555, version 2.10.3) et Flop (CVE-2026-130411). Il ne s'agit pas d'attaques supplémentaires contre Hex.pm, et chacune exige des conditions précises. Les organisations qui hébergent leur propre registre hexpm restent exposées tant qu'elles n'ont pas déployé le correctif."
+    },
+    {
+     "type": "usecases",
+     "title": "Ce que cela change concrètement",
+     "items": [
+      {
+       "icon": "🔑",
+       "title": "Équipe qui publie des paquets",
+       "text": "Un mainteneur change son mot de passe, recrée son authentification à deux facteurs et vérifie dans le journal que seules ses publications attendues apparaissent."
+      },
+      {
+       "icon": "🏭",
+       "title": "Entreprise avec un registre interne",
+       "text": "Une société qui exploite son propre serveur hexpm applique immédiatement le correctif du serveur et isole l'instance en attendant."
+      },
+      {
+       "icon": "🚦",
+       "title": "Chaîne d'intégration continue",
+       "text": "Une équipe fige les versions de ses dépendances et surveille les sommes de contrôle pour détecter une éventuelle publication inattendue."
+      }
+     ]
+    },
+    {
+     "type": "timeline",
+     "title": "D'où l'on vient, où l'on va",
+     "items": [
+      {
+       "label": "23 février 2016",
+       "text": "Suppression d'une vérification qui protégeait l'analyseur de requêtes."
+      },
+      {
+       "label": "23 novembre 2026",
+       "text": "Exploitation de la faille sur six serveurs, correctif déployé en quelques minutes."
+      },
+      {
+       "label": "24 novembre 2026",
+       "text": "Publication du rapport et des correctifs des bibliothèques voisines ; un nouveau client avec un nouveau système de signature est annoncé sous quelques jours."
+      }
+     ]
+    },
+    {
+     "type": "opinion",
+     "title": "Notre avis",
+     "paragraphs": [
+      "La rapidité de réaction est notable : une quinzaine de minutes entre le début de l'exploitation et le déploiement du correctif sur toutes les machines, puis un rapport détaillé dès le lendemain. Mais l'incident rappelle qu'une défaillance de conception peut dormir dix ans : la vérification supprimée en 2016 aurait pu l'être par n'importe quel changement jugé anodin.",
+      "Le point faible n'est pas le correctif, c'est l'observabilité. Faute de journaux sur les lectures de la base, l'équipe doit raisonner en hypothèses pessimistes. À un à trois ans, les registres de paquets, cibles de choix de la chaîne d'approvisionnement, devront journaliser les accès aux données sensibles et signer leurs index de façon à isoler la clé de signature des serveurs web."
+     ],
+     "verdict": "Un incident bien géré, mais qui prouve que l'absence de journaux transforme chaque doute en risque à assumer."
+    },
+    {
+     "type": "callout",
+     "title": "À retenir",
+     "text": "Hex.pm : faille CVE-2026-129514 (CVSS 10,0), six serveurs touchés le 23 novembre 2026, aucun paquet modifié d'après les contrôles, accès aux données non exclu. Changer le mot de passe et refaire l'authentification à deux facteurs."
+    }
+   ],
+   "publishedAt": "2026-11-25T10:17:45+01:00",
+   "illustration": {
+    "svg": "<svg xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"0 0 640 360\"><defs><linearGradient id=\"g\" x1=\"0\" y1=\"0\" x2=\"1\" y2=\"1\"><stop offset=\"0\" stop-color=\"hsl(175,65%,42%)\"/><stop offset=\"1\" stop-color=\"hsl(215,70%,22%)\"/></linearGradient></defs><rect width=\"640\" height=\"360\" fill=\"url(#g)\"/><circle cx=\"570\" cy=\"55\" r=\"90\" fill=\"#fff\" opacity=\".08\"/><circle cx=\"60\" cy=\"320\" r=\"120\" fill=\"#fff\" opacity=\".06\"/><path d=\"M320 85l105 45v100l-105 45-105-45V130z\" fill=\"#fff\" opacity=\".92\"/><path d=\"M215 130l105 45 105-45M320 175v100\" stroke=\"hsl(175,60%,30%)\" stroke-width=\"9\" fill=\"none\"/><path d=\"M375 95l-105 47\" stroke=\"hsl(175,60%,30%)\" stroke-width=\"9\"/></svg>"
+   },
+   "sourceDate": "2026-11-25"
+  },
+  {
+   "id": "wordpress-six-extensions-wp-connect-pieges",
+   "category": "cybersecurite",
+   "icon": "🧩",
+   "importance": 3,
+   "readingMinutes": 4,
+   "title": "WordPress : six extensions WP Connect piégées bloquées avant leur diffusion grâce aux nouveaux délais de sécurité",
+   "summary": "Six extensions reliant WordPress à Airtable, Notion ou Brevo ont reçu le 22 novembre 2026 des versions contenant une porte dérobée, probablement après le piratage d'un compte de développeur. L'équipe WordPress les a interceptées avant publication.",
+   "tags": [
+    "WordPress",
+    "extensions",
+    "porte dérobée",
+    "Wordfence",
+    "chaîne d'approvisionnement"
+   ],
+   "sources": [
+    {
+     "title": "WordPress Blocks Six Backdoored WP Connect Plugins Before Malicious Releases Go Live",
+     "url": "https://thehackernews.com/2026/11/wordpress-blocks-six-backdoored-wp.html",
+     "publisher": "The Hacker News"
+    }
+   ],
+   "blocks": [
+    {
+     "type": "paragraph",
+     "text": "Le **22 novembre 2026**, six extensions WordPress de la famille « WP Connect » ont reçu des versions piégées contenant une **porte dérobée**. D'après The Hacker News, qui s'appuie sur une analyse de Wordfence, les versions malveillantes ont été interceptées par l'équipe des extensions de WordPress **avant d'être diffusées au public**. Les six fiches ont ensuite été fermées, définitivement."
+    },
+    {
+     "type": "heading",
+     "level": 2,
+     "text": "Les extensions et versions concernées"
+    },
+    {
+     "type": "list",
+     "ordered": false,
+     "items": [
+      "Air WP Sync (Airtable vers WordPress) : versions 2.9.1 à 2.9.4",
+      "WP Sync for Notion : version 1.7.4",
+      "Add-on Brevo for Gravity Forms : version 2.6.3",
+      "Add-On for Contact Form 7 to Airtable : version 2.5.4",
+      "Add-On for Contact Form 7 to Notion : version 1.6.4",
+      "Orders Sync to Airtable for WooCommerce : version 1.0.2"
+     ]
+    },
+    {
+     "type": "paragraph",
+     "text": "Wordfence indique que ces extensions étaient, au total, installées sur plus de **3 600 sites**. Le problème est suivi sous la référence **CVE-2026-135202** (gravité 9,8) ; il n'existe pas de correctif au sens habituel, puisqu'il s'agit d'un code volontairement malveillant et non d'une erreur de programmation."
+    },
+    {
+     "type": "heading",
+     "level": 2,
+     "text": "Comment l'attaque a été menée"
+    },
+    {
+     "type": "paragraph",
+     "text": "Le code malveillant a été validé dans le dépôt WordPress.org de chaque extension. La chercheuse Chloe Chamberland en conclut que le compte WordPress.org du développeur a très probablement été compromis, et que l'éditeur n'a pas livré ce code de son plein gré. Cette conclusion est une déduction de la chercheuse, pas un fait établi par une enquête publique."
+    },
+    {
+     "type": "heading",
+     "level": 2,
+     "text": "Ce que fait la porte dérobée"
+    },
+    {
+     "type": "list",
+     "ordered": false,
+     "items": [
+      "Elle se trouve dans un fichier `includes/airwp-online.php` et s'exécute à **chaque requête**.",
+      "Elle envoie à un serveur de commande codé en dur des informations sur le site : adresse, versions de PHP, de WordPress et du système, utilisateur du serveur.",
+      "Elle exécute le code PHP renvoyé par ce serveur, ce qui permet d'exécuter des commandes, de lire, écrire et supprimer des fichiers, d'interroger la base et d'extraire la table des utilisateurs avec les empreintes de mots de passe.",
+      "Elle peut déposer des interfaces web (web shells) dans le dossier des téléversements et enregistrer une tâche WP-Cron horaire exécutant du code de l'attaquant."
+     ]
+    },
+    {
+     "type": "paragraph",
+     "text": "Ces mécanismes de persistance peuvent survivre à la suppression de l'extension. Un site réellement compromis ne serait donc pas nettoyé par une simple désinstallation, même si l'article ne détaille pas de procédure de nettoyage."
+    },
+    {
+     "type": "heading",
+     "level": 2,
+     "text": "Pourquoi les sites ne sont probablement pas touchés"
+    },
+    {
+     "type": "paragraph",
+     "text": "Les versions piégées n'ont jamais été publiquement diffusées : elles ont été arrêtées par les nouvelles protections de délai (« cooldown ») de WordPress, qui relèvent de l'initiative « Protect The Shire ». Les propriétaires de sites doivent malgré tout vérifier qu'ils n'exécutent aucune des versions listées, et les retirer sans attendre le cas échéant."
+    },
+    {
+     "type": "usecases",
+     "title": "Exemples d'utilisation",
+     "items": [
+      {
+       "icon": "🔍",
+       "title": "Administrateur de site",
+       "text": "Un administrateur compare la liste de ses extensions avec les six noms et versions ci-dessus, et inspecte le dossier des téléversements à la recherche de fichiers PHP inattendus."
+      },
+      {
+       "icon": "🛒",
+       "title": "Boutique WooCommerce",
+       "text": "Un commerçant qui synchronise ses commandes avec Airtable désactive l'extension concernée et vérifie les tâches planifiées de WP-Cron."
+      },
+      {
+       "icon": "🏢",
+       "title": "Agence web",
+       "text": "Une agence qui gère des dizaines de sites met en place un délai avant d'appliquer les mises à jour des extensions peu connues."
+      }
+     ]
+    },
+    {
+     "type": "timeline",
+     "title": "D'où l'on vient, où l'on va",
+     "items": [
+      {
+       "label": "22 novembre 2026",
+       "text": "Les versions piégées sont validées dans les dépôts WordPress.org et bloquées avant publication."
+      },
+      {
+       "label": "25 novembre 2026",
+       "text": "Wordfence et la presse spécialisée détaillent l'analyse ; les six fiches sont fermées définitivement."
+      }
+     ]
+    },
+    {
+     "type": "opinion",
+     "title": "Notre avis",
+     "paragraphs": [
+      "L'épisode illustre l'intérêt des délais de mise en ligne : un simple temps de latence entre la validation du code et sa diffusion a suffi à empêcher l'attaque d'atteindre les sites. C'est une mesure peu coûteuse et efficace, à comparer avec les compromissions où le code piégé est distribué en quelques minutes.",
+      "Elle ne règle pas le point de départ : un compte de développeur protégé par un seul mot de passe reste une porte d'entrée. À un à trois ans, on peut raisonnablement s'attendre à voir l'authentification renforcée et la signature des publications devenir obligatoires pour les extensions les plus installées."
+     ],
+     "verdict": "Une attaque contenue grâce à un délai, mais qui rappelle que la sécurité du développeur est celle de tous ses utilisateurs."
+    },
+    {
+     "type": "callout",
+     "title": "À retenir",
+     "text": "Six extensions WP Connect (plus de 3 600 sites) ont reçu des versions piégées le 22 novembre 2026, bloquées avant diffusion. Vérifier les versions installées, les fichiers PHP dans les téléversements et les tâches WP-Cron."
+    }
+   ],
+   "publishedAt": "2026-11-25T10:17:45+01:00",
+   "illustration": {
+    "svg": "<svg xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"0 0 640 360\"><defs><linearGradient id=\"g\" x1=\"0\" y1=\"0\" x2=\"1\" y2=\"1\"><stop offset=\"0\" stop-color=\"hsl(175,65%,42%)\"/><stop offset=\"1\" stop-color=\"hsl(215,70%,22%)\"/></linearGradient></defs><rect width=\"640\" height=\"360\" fill=\"url(#g)\"/><circle cx=\"570\" cy=\"55\" r=\"90\" fill=\"#fff\" opacity=\".08\"/><circle cx=\"60\" cy=\"320\" r=\"120\" fill=\"#fff\" opacity=\".06\"/><path d=\"M320 85l95 35v70c0 60-45 98-95 120-50-22-95-60-95-120v-70z\" fill=\"#fff\" opacity=\".92\"/><path d=\"M280 185l30 30 55-65\" stroke=\"hsl(175,60%,30%)\" stroke-width=\"16\" fill=\"none\" stroke-linecap=\"round\" stroke-linejoin=\"round\"/></svg>"
+   },
+   "sourceDate": "2026-11-25"
+  },
+  {
+   "id": "shirudo-openai-cisco-boucliers-ebpf",
+   "category": "cybersecurite",
+   "icon": "🛡️",
+   "importance": 3,
+   "readingMinutes": 5,
+   "title": "Shirudo : OpenAI et Cisco proposent des « boucliers » eBPF générés par des agents pour bloquer une faille avant le correctif",
+   "summary": "Annoncé le 24 novembre 2026, Shirudo est un outil libre pour Linux qui laisse des agents d'IA produire des protections eBPF temporaires, déployées sans redémarrage. Un seul essai public est cité.",
+   "tags": [
+    "eBPF",
+    "Linux",
+    "OpenAI",
+    "Cisco",
+    "Tetragon"
+   ],
+   "sources": [
+    {
+     "title": "OpenAI and Cisco Unveil AI-Assisted Linux Security Tool to Block Exploits Before Patching",
+     "url": "https://thehackernews.com/2026/11/openai-and-cisco-unveil-ai-assisted.html",
+     "publisher": "The Hacker News"
+    },
+    {
+     "title": "Introducing Shirudo",
+     "url": "https://openai.com/index/introducing-shirudo/",
+     "publisher": "OpenAI"
+    }
+   ],
+   "blocks": [
+    {
+     "type": "paragraph",
+     "text": "OpenAI et Cisco ont présenté le **24 novembre 2026** *Shirudo* (« bouclier » en japonais), un environnement d'exécution libre pour Linux. Son principe : permettre à des agents d'IA de générer des protections temporaires contre une vulnérabilité, déployables **sans arrêter le service**, le temps que le correctif officiel soit testé et installé. Les deux entreprises y voient un « premier pas » vers des infrastructures qui se défendent seules."
+    },
+    {
+     "type": "heading",
+     "level": 2,
+     "text": "Le problème visé"
+    },
+    {
+     "type": "paragraph",
+     "text": "Un correctif critique peut mettre des jours, des semaines, voire des mois à atteindre la majorité des systèmes. Entre la divulgation d'une faille et l'application du correctif, les défenseurs sont exposés. Shirudo cherche à réduire cette fenêtre en bloquant un chemin d'attaque précis, sans bloquer les requêtes légitimes qui utilisent la même opération Linux."
+    },
+    {
+     "type": "heading",
+     "level": 2,
+     "text": "Comment cela fonctionne"
+    },
+    {
+     "type": "paragraph",
+     "text": "L'outil repose sur **eBPF**, une technologie qui exécute de petits programmes isolés dans le noyau Linux sans modifier le système ni le redémarrer. Il s'appuie sur *Tetragon*, la plateforme de sécurité eBPF développée par Isovalent et ouverte en mai 2022, mais s'en distingue par sa conception tournée vers les agents et par l'injection de mitigations de code."
+    },
+    {
+     "type": "diagram",
+     "svg": "<svg xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"0 0 640 220\" font-family=\"system-ui,sans-serif\"><rect width=\"640\" height=\"220\" rx=\"16\" fill=\"hsl(175,40%,94%)\"/><text x=\"320\" y=\"34\" text-anchor=\"middle\" font-size=\"17\" font-weight=\"700\" fill=\"hsl(175,50%,22%)\">Du signalement à la protection, sans redémarrage</text><rect x=\"40\" y=\"70\" width=\"126\" height=\"110\" rx=\"12\" fill=\"hsl(175,55%,38%)\"/><text x=\"103.0\" y=\"110\" text-anchor=\"middle\" font-size=\"14\" fill=\"#fff\">1. Un agent repère</text><text x=\"103.0\" y=\"132\" text-anchor=\"middle\" font-size=\"14\" fill=\"#fff\">ou lit une faille</text><path d=\"M168 125h10\" stroke=\"hsl(175,50%,25%)\" stroke-width=\"3\"/><rect x=\"180\" y=\"70\" width=\"126\" height=\"110\" rx=\"12\" fill=\"hsl(175,55%,38%)\"/><text x=\"243.0\" y=\"110\" text-anchor=\"middle\" font-size=\"14\" fill=\"#fff\">2. Shirudo reproduit</text><text x=\"243.0\" y=\"132\" text-anchor=\"middle\" font-size=\"14\" fill=\"#fff\">l'attaque et crée</text><text x=\"243.0\" y=\"154\" text-anchor=\"middle\" font-size=\"14\" fill=\"#fff\">un bouclier eBPF</text><path d=\"M308 125h10\" stroke=\"hsl(175,50%,25%)\" stroke-width=\"3\"/><rect x=\"320\" y=\"70\" width=\"126\" height=\"110\" rx=\"12\" fill=\"hsl(175,55%,38%)\"/><text x=\"383.0\" y=\"110\" text-anchor=\"middle\" font-size=\"14\" fill=\"#fff\">3. Paquet signé .bee</text><text x=\"383.0\" y=\"132\" text-anchor=\"middle\" font-size=\"14\" fill=\"#fff\">via un registre OCI</text><path d=\"M448 125h10\" stroke=\"hsl(175,50%,25%)\" stroke-width=\"3\"/><rect x=\"460\" y=\"70\" width=\"126\" height=\"110\" rx=\"12\" fill=\"hsl(175,55%,38%)\"/><text x=\"523.0\" y=\"110\" text-anchor=\"middle\" font-size=\"14\" fill=\"#fff\">4. Validation par TPM</text><text x=\"523.0\" y=\"132\" text-anchor=\"middle\" font-size=\"14\" fill=\"#fff\">puis approbation</text><text x=\"523.0\" y=\"154\" text-anchor=\"middle\" font-size=\"14\" fill=\"#fff\">d'un opérateur</text></svg>",
+     "alt": "Schéma en quatre étapes : détection, création du bouclier, distribution signée, validation et déploiement.",
+     "caption": "Le processus décrit par OpenAI et Cisco : un opérateur approuve toujours le bouclier avant son activation."
+    },
+    {
+     "type": "list",
+     "ordered": false,
+     "items": [
+      "Un **agent gardien** déploie des boucliers qui bloquent les chemins de code vulnérables ; l'équipe de sécurité peut observer l'effet d'un bouclier avant de l'appliquer réellement.",
+      "Les boucliers sont **signés cryptographiquement** et vérifiés avant chargement, avec une validation par TPM sur la machine cible.",
+      "Un bouclier ne passe en blocage actif que lorsque des éléments montrent qu'il est sans danger, et il est retiré quand le vrai correctif arrive."
+     ]
+    },
+    {
+     "type": "heading",
+     "level": 2,
+     "text": "Ce qui a été démontré"
+    },
+    {
+     "type": "paragraph",
+     "text": "L'article ne rapporte qu'**une seule expérience contrôlée** : selon OpenAI, un bouclier produit avec Codex a bloqué une tentative d'exploitation de type Java4Shell contre un service Elasticsearch en fonctionnement, sans redémarrage. Il n'est question ni de surcoût en performances, ni des classes de failles ou des plateformes prises en charge, ni de la licence exacte, ni d'une date de disponibilité."
+    },
+    {
+     "type": "usecases",
+     "title": "Exemples d'utilisation",
+     "items": [
+      {
+       "icon": "🕐",
+       "title": "Fenêtre entre divulgation et correctif",
+       "text": "Une équipe d'exploitation reçoit un bulletin critique le vendredi soir ; un bouclier temporaire lui permet de patienter jusqu'à la fenêtre de maintenance du lundi."
+      },
+      {
+       "icon": "🏥",
+       "title": "Services difficiles à arrêter",
+       "text": "Un hôpital ou un opérateur dont les serveurs ne peuvent pas redémarrer sans préavis réduit son exposition en attendant la validation du correctif."
+      },
+      {
+       "icon": "🤖",
+       "title": "Veille automatisée",
+       "text": "Un centre de supervision utilise un agent qui traite les avis des éditeurs, prépare des boucliers et ne soumet à l'humain que ceux qui ont été validés en test."
+      }
+     ]
+    },
+    {
+     "type": "timeline",
+     "title": "D'où l'on vient, où l'on va",
+     "items": [
+      {
+       "label": "Mai 2022",
+       "text": "Isovalent ouvre le code de Tetragon, base technique de Shirudo."
+      },
+      {
+       "label": "24 novembre 2026",
+       "text": "Annonce de Shirudo par OpenAI et Cisco, avec un site de projet et une documentation."
+      },
+      {
+       "label": "Après l'annonce",
+       "text": "Aucune version ni calendrier n'est précisé dans l'article."
+      }
+     ]
+    },
+    {
+     "type": "opinion",
+     "title": "Notre avis",
+     "paragraphs": [
+      "L'idée est séduisante, car elle s'attaque à un vrai goulot d'étranglement : le délai d'application des correctifs. Mais un bouclier généré automatiquement est lui-même un code exécuté dans le noyau ; sa fiabilité dépendra de la rigueur des tests et du rôle réellement laissé à l'humain. Un faux positif pourrait couper un service légitime.",
+      "À un à trois ans, la valeur de cette approche dépendra de preuves : nombre de failles couvertes, taux de faux positifs, coût en performances. Tant que l'unique démonstration est celle des éditeurs, il convient de la considérer comme une piste prometteuse plutôt que comme une couche de défense éprouvée."
+     ],
+     "verdict": "Une piste sérieuse contre le retard des correctifs, qui doit encore prouver sa fiabilité hors des démonstrations."
+    },
+    {
+     "type": "callout",
+     "title": "À retenir",
+     "text": "Shirudo (OpenAI et Cisco, 24 novembre 2026) : boucliers eBPF signés, générés par des agents, approuvés par un opérateur. Un seul essai public (Java4Shell sur Elasticsearch) est cité."
+    }
+   ],
+   "publishedAt": "2026-11-25T10:17:45+01:00",
+   "illustration": {
+    "svg": "<svg xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"0 0 640 360\"><defs><linearGradient id=\"g\" x1=\"0\" y1=\"0\" x2=\"1\" y2=\"1\"><stop offset=\"0\" stop-color=\"hsl(175,65%,42%)\"/><stop offset=\"1\" stop-color=\"hsl(215,70%,22%)\"/></linearGradient></defs><rect width=\"640\" height=\"360\" fill=\"url(#g)\"/><circle cx=\"570\" cy=\"55\" r=\"90\" fill=\"#fff\" opacity=\".08\"/><circle cx=\"60\" cy=\"320\" r=\"120\" fill=\"#fff\" opacity=\".06\"/><path d=\"M320 85l95 35v70c0 60-45 98-95 120-50-22-95-60-95-120v-70z\" fill=\"#fff\" opacity=\".92\"/><path d=\"M280 185l30 30 55-65\" stroke=\"hsl(175,60%,30%)\" stroke-width=\"16\" fill=\"none\" stroke-linecap=\"round\" stroke-linejoin=\"round\"/></svg>"
+   },
+   "sourceDate": "2026-11-25"
+  },
+  {
+   "id": "fireperf-ipfire-iperf3-debian",
+   "category": "devops",
+   "icon": "📡",
+   "importance": 3,
+   "readingMinutes": 4,
+   "title": "fireperf : un outil de mesure réseau inspiré d'iperf3, qui sert plusieurs clients sur un même port",
+   "summary": "Le projet IPFire propose fireperf, qui reprend l'idée d'iperf3 avec un serveur multi-clients sur un seul port, io_uring et zero-copy. Il est disponible dans Debian sid, et les paquets iperf gagnent une intégration systemd durcie.",
+   "tags": [
+    "réseau",
+    "iperf3",
+    "Debian",
+    "systemd",
+    "performances"
+   ],
+   "sources": [
+    {
+     "title": "Modernizing iperf/iperf3 and introducing fireperf",
+     "url": "https://blog.daniel-baumann.ch/posts/20261122-1.html",
+     "publisher": "Daniel Baumann"
+    }
+   ],
+   "blocks": [
+    {
+     "type": "paragraph",
+     "text": "Les administrateurs réseau connaissent *iperf3* : l'outil de référence pour mesurer le débit entre deux machines. Un billet de Daniel Baumann, publié autour du **22 novembre 2026** (la date est déduite du nom des images, l'article n'en affiche pas), présente **fireperf**, décrit comme une « version moderne » d'iperf3 issue du projet IPFire, ainsi que de nouveaux paquets Debian pour iperf et iperf3."
+    },
+    {
+     "type": "heading",
+     "level": 2,
+     "text": "Ce que fireperf corrige"
+    },
+    {
+     "type": "paragraph",
+     "text": "La page ne détaille pas les motivations de l'outil ; elles se déduisent de ses fonctions. Premier point : iperf3 n'accepte pas plusieurs connexions simultanées sur un même port, et il faut donc lancer un serveur par port pour servir plusieurs clients. fireperf **sert plusieurs clients en parallèle sur le même port**. Il utilise aussi de nombreux processus de travail, ce qui aide à saturer des liaisons agrégées par LACP, mais pas par ECMP, et peut suivre un grand nombre de sessions pour éprouver un pare-feu."
+    },
+    {
+     "type": "paragraph",
+     "text": "Second point : la consommation de processeur. fireperf s'appuie sur **io_uring** et la copie sans recopie mémoire (*zero-copy*) pour consommer moins de ressources côté client comme côté serveur, ce qui compte lorsque le goulot d'étranglement n'est plus le réseau mais la machine qui le mesure."
+    },
+    {
+     "type": "heading",
+     "level": 2,
+     "text": "Fonctions"
+    },
+    {
+     "type": "list",
+     "ordered": false,
+     "items": [
+      "Mesure du téléversement, du téléchargement, ou des deux en même temps.",
+      "Détection automatique de la cible lorsque fireperf agit comme client d'iperf ou d'iperf3 (il peut aussi servir de client à iperf2 et iperf3, et de serveur iperf3).",
+      "Résultats au format JSON.",
+      "Graphique ncurses en direct, avec interface interactive ou non interactive."
+     ]
+    },
+    {
+     "type": "heading",
+     "level": 2,
+     "text": "Installation et état du projet"
+    },
+    {
+     "type": "keyvalue",
+     "items": [
+      {
+       "label": "Client Debian",
+       "value": "`sudo apt install -yU fireperf-client`"
+      },
+      {
+       "label": "Serveur Debian",
+       "value": "`sudo apt install -yU fireperf-server`"
+      },
+      {
+       "label": "Disponibilité",
+       "value": "Debian sid ; rétroportages pour trixie via Debian Fast Forward"
+      },
+      {
+       "label": "Licence",
+       "value": "non précisée sur la page"
+      },
+      {
+       "label": "Version stable",
+       "value": "non annoncée"
+      }
+     ]
+    },
+    {
+     "type": "paragraph",
+     "text": "Le même billet décrit la refonte des paquets iperf : des paquets distincts `iperf-server`, `iperf-client`, `iperf3-server` et `iperf3-client`, avec intégration à systemd, utilisateurs dynamiques et durcissement du service. Le serveur iperf3 gagne une unité modèle systemd pour lancer plusieurs instances sur des ports différents."
+    },
+    {
+     "type": "usecases",
+     "title": "Exemples d'utilisation",
+     "items": [
+      {
+       "icon": "🔥",
+       "title": "Test de pare-feu",
+       "text": "Un administrateur simule des centaines de sessions parallèles pour vérifier qu'un pare-feu tient la charge avant une mise en production."
+      },
+      {
+       "icon": "🏢",
+       "title": "Mesure d'un lien agrégé",
+       "text": "Une équipe infrastructure vérifie que deux liens LACP se répartissent correctement le trafic en lançant plusieurs flux simultanés."
+      },
+      {
+       "icon": "🧰",
+       "title": "Serveur de mesure partagé",
+       "text": "Un fournisseur local installe un seul serveur de test accessible à tous ses techniciens sur un port unique, géré par systemd."
+      }
+     ]
+    },
+    {
+     "type": "timeline",
+     "title": "D'où l'on vient, où l'on va",
+     "items": [
+      {
+       "label": "Jusqu'ici",
+       "text": "iperf3 impose un port par serveur et une instance par test."
+      },
+      {
+       "label": "Novembre 2026",
+       "text": "fireperf arrive dans Debian sid, avec des rétroportages pour trixie."
+      },
+      {
+       "label": "À venir",
+       "text": "Aucune version stable ni calendrier n'est mentionné par l'auteur."
+      }
+     ]
+    },
+    {
+     "type": "opinion",
+     "title": "Notre avis",
+     "paragraphs": [
+      "fireperf répond à une gêne réelle de quiconque a déjà géré un serveur iperf3 partagé : un port, une session. Le gain annoncé en consommation de processeur est plausible avec io_uring, mais l'article ne publie aucune mesure comparative ; il faudra le vérifier sur son propre matériel.",
+      "À un à trois ans, la question sera l'adoption : tant que l'outil n'est empaqueté que dans Debian et que sa licence reste à préciser, il restera un outil d'administrateurs curieux plutôt qu'un standard de fait. L'intégration systemd durcie des paquets iperf est, elle, un progrès immédiat."
+     ],
+     "verdict": "Une alternative prometteuse pour les tests réseau intensifs, à valider par des mesures indépendantes."
+    },
+    {
+     "type": "callout",
+     "title": "À retenir",
+     "text": "fireperf : plusieurs clients sur un seul port, io_uring et zero-copy, résultats JSON. Disponible dans Debian sid ; licence et version stable non précisées."
+    }
+   ],
+   "publishedAt": "2026-11-25T10:17:45+01:00",
+   "illustration": {
+    "svg": "<svg xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"0 0 640 360\"><defs><linearGradient id=\"g\" x1=\"0\" y1=\"0\" x2=\"1\" y2=\"1\"><stop offset=\"0\" stop-color=\"hsl(160,65%,42%)\"/><stop offset=\"1\" stop-color=\"hsl(200,70%,22%)\"/></linearGradient></defs><rect width=\"640\" height=\"360\" fill=\"url(#g)\"/><circle cx=\"570\" cy=\"55\" r=\"90\" fill=\"#fff\" opacity=\".08\"/><circle cx=\"60\" cy=\"320\" r=\"120\" fill=\"#fff\" opacity=\".06\"/><g stroke=\"#fff\" stroke-width=\"7\"><path d=\"M160 180H480M320 180L230 90M320 180L410 90M320 180L230 270M320 180L410 270\"/></g><g fill=\"#fff\"><circle cx=\"320\" cy=\"180\" r=\"30\"/><circle cx=\"160\" cy=\"180\" r=\"18\"/><circle cx=\"480\" cy=\"180\" r=\"18\"/><circle cx=\"230\" cy=\"90\" r=\"18\"/><circle cx=\"410\" cy=\"90\" r=\"18\"/><circle cx=\"230\" cy=\"270\" r=\"18\"/><circle cx=\"410\" cy=\"270\" r=\"18\"/></g></svg>"
+   },
+   "sourceDate": "2026-11-25"
+  },
+  {
+   "id": "ipod-nano-5g-rockbox-demarrage-autonome",
+   "category": "electronique",
+   "icon": "🎵",
+   "importance": 3,
+   "readingMinutes": 6,
+   "title": "iPod nano 5G : un démarrage autonome de Rockbox obtenu grâce à une faille de police de caractères vieille de seize ans",
+   "summary": "Le 23 novembre 2026, Viktor Krapivin a décrit une chaîne de démarrage permettant de lancer Rockbox sur l'iPod nano de cinquième génération sans ordinateur ni combinaison de boutons, en détournant un enregistrement protégé et une faille FreeType.",
+   "tags": [
+    "iPod",
+    "Rockbox",
+    "rétro-ingénierie",
+    "firmware",
+    "FreeType"
+   ],
+   "sources": [
+    {
+     "title": "Freeing the iPod Nano 5G",
+     "url": "https://viktorkrapivin.com/blog/nano5g-priv-prvd",
+     "publisher": "Viktor Krapivin"
+    }
+   ],
+   "blocks": [
+    {
+     "type": "paragraph",
+     "text": "Les passionnés de rétro-informatique l'attendaient : pouvoir lancer le firmware libre *Rockbox* sur l'iPod nano de cinquième génération **de façon autonome**, c'est-à-dire en allumant simplement l'appareil, sans câble ni manipulation de boutons. Viktor Krapivin décrit, dans un billet daté du **23 novembre 2026**, une « chaîne de démarrage entièrement autonome » qui charge Rockbox depuis la mémoire NAND."
+    },
+    {
+     "type": "heading",
+     "level": 2,
+     "text": "Le point de départ"
+    },
+    {
+     "type": "paragraph",
+     "text": "L'exploit *ipod_sun*, de CUB3D, fonctionnait sur les nano 6G et 7G. Pour la 5G, des exploits en mode DFU, comme *wInd3x* de q3k, donnent bien l'exécution de code, mais **uniquement avec un ordinateur branché à chaque démarrage**. Il fallait donc trouver un moyen de rendre le démarrage persistant."
+    },
+    {
+     "type": "heading",
+     "level": 2,
+     "text": "Deux idées successives"
+    },
+    {
+     "type": "paragraph",
+     "text": "La première piste consistait à échanger les entrées de répertoire `disk` et `osos` : le système normal s'exécutait alors avec la politique de démarrage du mode disque, qui saute la vérification de signature de `rsrc`. Il restait à choisir le mode disque avec les boutons à chaque allumage, ce qui n'était pas satisfaisant."
+    },
+    {
+     "type": "paragraph",
+     "text": "La seconde piste, retenue, exploite un enregistrement du **secteur privé** (PRVD). Le démarrage normal y lit une valeur `FirmwareStatus` ; avec la valeur 2, le chargeur ignore la validation de `rsrc`. L'enregistrement est protégé par une étiquette de 16 octets dérivée de SHA-1 et de la clé AES matérielle de l'appareil. L'auteur remarque donc qu'il faut déjà exécuter du code sur l'appareil pour fabriquer un enregistrement valide."
+    },
+    {
+     "type": "diagram",
+     "svg": "<svg xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"0 0 640 220\" font-family=\"system-ui,sans-serif\"><rect width=\"640\" height=\"220\" rx=\"16\" fill=\"hsl(30,40%,94%)\"/><text x=\"320\" y=\"34\" text-anchor=\"middle\" font-size=\"17\" font-weight=\"700\" fill=\"hsl(30,50%,22%)\">Chaîne de démarrage autonome de l'iPod nano 5G</text><rect x=\"40\" y=\"70\" width=\"126\" height=\"110\" rx=\"12\" fill=\"hsl(30,55%,38%)\"/><text x=\"103.0\" y=\"110\" text-anchor=\"middle\" font-size=\"14\" fill=\"#fff\">Allumage</text><text x=\"103.0\" y=\"132\" text-anchor=\"middle\" font-size=\"14\" fill=\"#fff\">et lecture de</text><text x=\"103.0\" y=\"154\" text-anchor=\"middle\" font-size=\"14\" fill=\"#fff\">l'état PRVD</text><path d=\"M168 125h10\" stroke=\"hsl(30,50%,25%)\" stroke-width=\"3\"/><rect x=\"180\" y=\"70\" width=\"126\" height=\"110\" rx=\"12\" fill=\"hsl(30,55%,38%)\"/><text x=\"243.0\" y=\"110\" text-anchor=\"middle\" font-size=\"14\" fill=\"#fff\">Police piégée</text><text x=\"243.0\" y=\"132\" text-anchor=\"middle\" font-size=\"14\" fill=\"#fff\">(faille FreeType</text><text x=\"243.0\" y=\"154\" text-anchor=\"middle\" font-size=\"14\" fill=\"#fff\">CVE-2010-1797)</text><path d=\"M308 125h10\" stroke=\"hsl(30,50%,25%)\" stroke-width=\"3\"/><rect x=\"320\" y=\"70\" width=\"126\" height=\"110\" rx=\"12\" fill=\"hsl(30,55%,38%)\"/><text x=\"383.0\" y=\"110\" text-anchor=\"middle\" font-size=\"14\" fill=\"#fff\">Stub 808 octets</text><text x=\"383.0\" y=\"132\" text-anchor=\"middle\" font-size=\"14\" fill=\"#fff\">puis chargeur C</text><path d=\"M448 125h10\" stroke=\"hsl(30,50%,25%)\" stroke-width=\"3\"/><rect x=\"460\" y=\"70\" width=\"126\" height=\"110\" rx=\"12\" fill=\"hsl(30,55%,38%)\"/><text x=\"523.0\" y=\"110\" text-anchor=\"middle\" font-size=\"14\" fill=\"#fff\">Rockbox chargé</text><text x=\"523.0\" y=\"132\" text-anchor=\"middle\" font-size=\"14\" fill=\"#fff\">depuis la NAND</text></svg>",
+     "alt": "Schéma en quatre étapes : état PRVD modifié, police piégée, chargeur en deux étages, Rockbox depuis la mémoire NAND.",
+     "caption": "Le chemin de démarrage décrit par l'auteur, de l'allumage au lancement de Rockbox."
+    },
+    {
+     "type": "heading",
+     "level": 2,
+     "text": "La méthode"
+    },
+    {
+     "type": "list",
+     "ordered": false,
+     "items": [
+      "Lecture de l'enregistrement PRVD dans la partition privée (type MBR `0x3e`).",
+      "Adaptation d'*emCORE*, un ancien cadre de travail freemyipod, avec un nouveau pilote NAND, une couche de traduction flash (FTL) et l'accès à l'AES matériel.",
+      "Écriture d'un nouvel enregistrement PRVD avec le statut voulu et une nouvelle étiquette produite par l'appareil, puis relecture de vérification.",
+      "Installation d'une police modifiée contenant la charge utile. Le logement fait environ 165 Ko, mais la charge utile est limitée à **27 874 octets** : chaque octet de code en occupe trois dans la police.",
+      "Au démarrage, la police déclenche la faille FreeType **CVE-2010-1797** (débordement de pile dans l'analyse CFF), puis un amorçage en deux temps prend le relais : un stub assembleur de 808 octets, puis un chargeur en C qui désactive le chien de garde, analyse la NAND, monte le système FAT et saute vers `/.rockbox/rockbox.ipod`."
+     ]
+    },
+    {
+     "type": "heading",
+     "level": 2,
+     "text": "Limites"
+    },
+    {
+     "type": "list",
+     "ordered": false,
+     "items": [
+      "Le pilote NAND est en lecture seule au démarrage ; le noyau Rockbox, lui, réside sur la partition FAT32 et reste modifiable.",
+      "L'installation exige emCORE et un ordinateur hôte ; une fois faite, la modification persiste dans la NAND.",
+      "L'étiquette d'intégrité étant propre à chaque appareil, on ne peut pas produire un enregistrement PRVD sans exécuter du code sur la cible.",
+      "La reconstruction de la correspondance logique de la flash prend plusieurs secondes, d'où la désactivation du chien de garde.",
+      "Version testée : micrologiciel 1.0.2 (34A20020). L'auteur dit que la méthode fonctionne aussi sur la 7G et probablement sur la 6G, sans confirmation complète pour cette dernière."
+     ]
+    },
+    {
+     "type": "usecases",
+     "title": "Exemples d'utilisation",
+     "items": [
+      {
+       "icon": "🎶",
+       "title": "Lecteur libre au quotidien",
+       "text": "Un collectionneur redonne vie à un nano 5G avec Rockbox : démarrage direct, formats audio étendus, sans dépendre d'un ordinateur."
+      },
+      {
+       "icon": "🔬",
+       "title": "Étude de la sécurité embarquée",
+       "text": "Un étudiant en rétro-ingénierie suit la chaîne : politique de démarrage, enregistrement authentifié, faille ancienne dans un composant tiers."
+      },
+      {
+       "icon": "♻️",
+       "title": "Réemploi du matériel",
+       "text": "Une association de réparation prolonge la vie d'anciens lecteurs au lieu de les jeter, en s'appuyant sur des outils documentés publiquement."
+      }
+     ]
+    },
+    {
+     "type": "timeline",
+     "title": "D'où l'on vient, où l'on va",
+     "items": [
+      {
+       "label": "2010",
+       "text": "Découverte de la faille FreeType CVE-2010-1797, réutilisée plus tard dans d'autres exploits d'iPod."
+      },
+      {
+       "label": "Années récentes",
+       "text": "Exploits DFU (wInd3x) et *ipod_sun* pour les générations 6 et 7."
+      },
+      {
+       "label": "23 novembre 2026",
+       "text": "Démarrage autonome de Rockbox sur la 5G ; l'auteur prévoit de stabiliser d'abord les portages 4G et 5G avant de traiter les 6G et 7G."
+      }
+     ]
+    },
+    {
+     "type": "opinion",
+     "title": "Notre avis",
+     "paragraphs": [
+      "L'intérêt du travail dépasse la nostalgie. Il montre comment une protection fondée sur une signature et une clé matérielle cède dès qu'un seul défaut permet d'exécuter du code : l'enregistrement d'état « authentifié » devient alors modifiable. C'est une leçon générale pour les appareils dont la sécurité repose sur une seule chaîne de confiance.",
+      "À un à trois ans, la valeur sera surtout patrimoniale : documentation des puces, outils réutilisables, portages Rockbox plus stables. L'effort demande toutefois une installation technique réservée à des utilisateurs avertis, ce qui limite l'audience."
+     ],
+     "verdict": "Une prouesse de rétro-ingénierie qui rend utile un matériel abandonné, mais réservée aux bricoleurs aguerris."
+    },
+    {
+     "type": "callout",
+     "title": "À retenir",
+     "text": "Rockbox démarre sur l'iPod nano 5G sans ordinateur : enregistrement PRVD modifié, police piégée (CVE-2010-1797), charge utile limitée à 27 874 octets. Installation technique, micrologiciel 1.0.2."
+    }
+   ],
+   "publishedAt": "2026-11-25T10:17:45+01:00",
+   "illustration": {
+    "svg": "<svg xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"0 0 640 360\"><defs><linearGradient id=\"g\" x1=\"0\" y1=\"0\" x2=\"1\" y2=\"1\"><stop offset=\"0\" stop-color=\"hsl(30,65%,42%)\"/><stop offset=\"1\" stop-color=\"hsl(70,70%,22%)\"/></linearGradient></defs><rect width=\"640\" height=\"360\" fill=\"url(#g)\"/><circle cx=\"570\" cy=\"55\" r=\"90\" fill=\"#fff\" opacity=\".08\"/><circle cx=\"60\" cy=\"320\" r=\"120\" fill=\"#fff\" opacity=\".06\"/><rect x=\"255\" y=\"70\" width=\"130\" height=\"220\" rx=\"22\" fill=\"#fff\" opacity=\".92\"/><rect x=\"272\" y=\"88\" width=\"96\" height=\"70\" rx=\"6\" fill=\"hsl(30,60%,30%)\"/><circle cx=\"320\" cy=\"225\" r=\"42\" fill=\"none\" stroke=\"hsl(30,60%,30%)\" stroke-width=\"10\"/><circle cx=\"320\" cy=\"225\" r=\"12\" fill=\"hsl(30,60%,30%)\"/></svg>"
+   },
+   "sourceDate": "2026-11-25"
+  }
+ ]
+}
