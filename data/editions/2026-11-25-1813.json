@@ -1,0 +1,872 @@
+{
+ "schemaVersion": "1.0",
+ "date": "2026-11-25",
+ "generatedAt": "2026-11-25T18:18:52+01:00",
+ "title": "Une IA s'attaque à la factorisation, une faille Juniper exploitée",
+ "summary": "Édition tech du 25 novembre au soir : une démonstration produite par une IA à examiner avec prudence, une faille critique de SD-WAN activement exploitée, la migration CSS de GitHub, Pop!_OS 26.04 LTS et un service de suivi pour microcontrôleurs.",
+ "highlights": [
+  "Google Research publie une borne de factorisation produite par Cogentic, sans effet pratique sur RSA.",
+  "Juniper Session Smart Conductor : la faille CVE-2026-103406 est exploitée, il faut mettre à niveau.",
+  "GitHub annonce un rendu serveur 55 % plus rapide après avoir quitté le CSS-in-JS.",
+  "Pop!_OS 26.04 LTS est disponible ; la mise à niveau depuis la version 24.04 arrive en décembre."
+ ],
+ "meta": {
+  "generator": "claude-scheduled-task"
+ },
+ "posts": [
+  {
+   "id": "cogentic-factorisation-preuve-ia",
+   "category": "ia",
+   "icon": "🧮",
+   "importance": 5,
+   "title": "Factorisation des entiers : Google publie une preuve produite par une IA, qui ne casse pas le chiffrement RSA",
+   "summary": "Le dépôt de Google Research met en ligne, datés du 25 novembre 2026, des articles de mathématiques entièrement produits par le système Cogentic. L'un annonce une borne prouvée d'exposant 1/3 pour la factorisation : un résultat à vérifier, et sans effet pratique sur RSA à ce stade.",
+   "tags": [
+    "Cogentic",
+    "Gemini 4",
+    "factorisation",
+    "cryptographie",
+    "mathématiques"
+   ],
+   "sourceDate": "2026-11-25",
+   "sources": [
+    {
+     "title": "Cogentic Research Papers",
+     "url": "https://github.com/google-research/google-research/tree/master/cogentic_research_papers",
+     "publisher": "Google Research"
+    },
+    {
+     "title": "Unconditional Integer Factorization in Time L_N[1/3, O(1)] (PDF)",
+     "url": "https://raw.githubusercontent.com/google-research/google-research/master/cogentic_research_papers/integer_factorization/paper.pdf",
+     "publisher": "Google Research"
+    },
+    {
+     "title": "Cogentic: Multi-Agent Orchestration for Automated Proof Discovery",
+     "url": "https://arxiv.org/abs/2609.40324",
+     "publisher": "arXiv"
+    }
+   ],
+   "blocks": [
+    {
+     "type": "paragraph",
+     "text": "Une rumeur a agité les forums ce mercredi : des laboratoires d'IA auraient réussi à factoriser efficacement les grands nombres. La réalité est plus précise et plus intéressante. Dans le dépôt public de **Google Research**, un répertoire consacré à **Cogentic**, un système d'agents conçu pour chercher des démonstrations, a reçu le **25 novembre 2026** une série de nouveaux articles. Parmi eux figure un texte au titre technique : *Unconditional Integer Factorization in Time L_N[1/3, O(1)]*."
+    },
+    {
+     "type": "paragraph",
+     "text": "La factorisation consiste à retrouver les nombres premiers dont un entier est le produit. Multiplier deux grands nombres premiers est facile ; faire le chemin inverse est très coûteux avec les méthodes connues. C'est sur cette asymétrie que repose le chiffrement **RSA**, encore très répandu dans les certificats, les signatures et de nombreux protocoles."
+    },
+    {
+     "type": "heading",
+     "level": 2,
+     "text": "Ce que l'article affirme"
+    },
+    {
+     "type": "keyvalue",
+     "items": [
+      {
+       "label": "Temps de calcul annoncé",
+       "value": "L_N[1/3, 105] en moyenne, pour tout entier N, même le plus défavorable"
+      },
+      {
+       "label": "Mémoire",
+       "value": "L_N[1/3, 40]"
+      },
+      {
+       "label": "Type d'algorithme",
+       "value": "Probabiliste « Las Vegas » : le résultat rendu est toujours exact"
+      },
+      {
+       "label": "Hypothèses",
+       "value": "Aucune conjecture non démontrée de théorie des nombres"
+      },
+      {
+       "label": "Meilleure borne prouvée citée auparavant",
+       "value": "L_N[1/2, 1] (Lenstra et Pomerance, 1992)"
+      }
+     ]
+    },
+    {
+     "type": "paragraph",
+     "text": "La notation L_N[a, c] mesure une croissance dite sous-exponentielle. Le premier paramètre est le plus important pour les très grands nombres : passer de 1/2 à 1/3 est un saut théorique. Le **crible algébrique général** (GNFS), la méthode la plus performante en pratique, atteint déjà un exposant 1/3, mais son analyse repose sur des hypothèses heuristiques : il fonctionne, sans que l'on sache le démontrer rigoureusement. L'article revendique donc une garantie mathématique là où il n'y avait qu'un constat appuyé sur des arguments plausibles."
+    },
+    {
+     "type": "paragraph",
+     "text": "Selon la présentation du dépôt, le texte et sa formalisation dans l'assistant de preuve **Lean 4** ont été obtenus par Cogentic avec **Gemini 4** comme modèle de base, sans intervention humaine autre que la consigne initiale. La formalisation doit être publiée ultérieurement. Le même lot comprend un article sur le logarithme discret dans les corps finis de petite caractéristique, ainsi que des travaux sur les équilibres de Nash et la combinatoire."
+    },
+    {
+     "type": "heading",
+     "level": 2,
+     "text": "Pourquoi RSA n'est pas en danger pour autant"
+    },
+    {
+     "type": "paragraph",
+     "text": "Tout se joue dans la seconde valeur, la constante. Celle du crible algébrique heuristique vaut (64/9)^(1/3), soit environ **1,92**. L'article affiche **105**, et ses auteurs précisent avoir préféré des constantes lisibles à des constantes optimisées. À titre purement illustratif, en appliquant les formules à une clé de 2 048 bits et en négligeant les termes correctifs, on obtient un ordre de grandeur d'environ 2 puissance 117 opérations avec 1,92, contre plus de 2 puissance 6 000 avec 105. Ce second chiffre dépasse de très loin le coût de la méthode la plus naïve, qui consiste à essayer tous les diviseurs."
+    },
+    {
+     "type": "paragraph",
+     "text": "Un tel algorithme appartient à ce que les théoriciens appellent parfois les algorithmes « galactiques » : meilleurs à l'infini, inutilisables sur tout nombre que l'on rencontrera. Il ne s'agit pas non plus d'un algorithme en temps polynomial, contrairement à ce que laissait entendre la rumeur."
+    },
+    {
+     "type": "diagram",
+     "svg": "<svg xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"0 0 640 332\" font-family=\"system-ui,sans-serif\"><rect width=\"640\" height=\"332\" rx=\"16\" fill=\"#f1f5f9\"/><rect x=\"40\" y=\"16\" width=\"560\" height=\"58\" rx=\"10\" fill=\"#fff\" stroke=\"#334155\" stroke-width=\"1.5\"/><text x=\"320\" y=\"41\" text-anchor=\"middle\" font-size=\"17\" font-weight=\"700\" fill=\"#0f172a\">1. Article mis en ligne</text><text x=\"320\" y=\"62\" text-anchor=\"middle\" font-size=\"14\" fill=\"#334155\">Démonstration produite par un système d'agents</text><path d=\"M320 75v13m-6-6l6 7 6-7\" stroke=\"#334155\" stroke-width=\"2.5\" fill=\"none\"/><rect x=\"40\" y=\"94\" width=\"560\" height=\"58\" rx=\"10\" fill=\"#fff\" stroke=\"#334155\" stroke-width=\"1.5\"/><text x=\"320\" y=\"119\" text-anchor=\"middle\" font-size=\"17\" font-weight=\"700\" fill=\"#0f172a\">2. Preuve Lean à publier</text><text x=\"320\" y=\"140\" text-anchor=\"middle\" font-size=\"14\" fill=\"#334155\">Vérification mécanique pas encore accessible au public</text><path d=\"M320 153v13m-6-6l6 7 6-7\" stroke=\"#334155\" stroke-width=\"2.5\" fill=\"none\"/><rect x=\"40\" y=\"172\" width=\"560\" height=\"58\" rx=\"10\" fill=\"#fff\" stroke=\"#334155\" stroke-width=\"1.5\"/><text x=\"320\" y=\"197\" text-anchor=\"middle\" font-size=\"17\" font-weight=\"700\" fill=\"#0f172a\">3. Relecture par des spécialistes</text><text x=\"320\" y=\"218\" text-anchor=\"middle\" font-size=\"14\" fill=\"#334155\">L'énoncé formalisé correspond-il au théorème annoncé ?</text><path d=\"M320 231v13m-6-6l6 7 6-7\" stroke=\"#334155\" stroke-width=\"2.5\" fill=\"none\"/><rect x=\"40\" y=\"250\" width=\"560\" height=\"58\" rx=\"10\" fill=\"#fff\" stroke=\"#334155\" stroke-width=\"1.5\"/><text x=\"320\" y=\"275\" text-anchor=\"middle\" font-size=\"17\" font-weight=\"700\" fill=\"#0f172a\">4. Résultat admis</text><text x=\"320\" y=\"296\" text-anchor=\"middle\" font-size=\"14\" fill=\"#334155\">Publication évaluée par les pairs</text></svg>",
+     "alt": "Quatre étapes entre une démonstration mise en ligne et un résultat admis",
+     "caption": "Où en est le résultat : seule la première étape est franchie publiquement."
+    },
+    {
+     "type": "usecases",
+     "title": "Exemples d'utilisation",
+     "items": [
+      {
+       "icon": "🔐",
+       "title": "Responsable sécurité",
+       "text": "Rien à changer dans l'urgence : le calendrier de migration vers la cryptographie post-quantique reste motivé par la menace quantique, pas par cet article."
+      },
+      {
+       "icon": "🎓",
+       "title": "Enseignant-chercheur",
+       "text": "Les quatre ingrédients de la preuve, décrits dans l'introduction, offrent un matériau concret pour un séminaire de théorie algorithmique des nombres."
+      },
+      {
+       "icon": "🧑‍💻",
+       "title": "Utilisateur de Lean",
+       "text": "Quand la formalisation sera publiée, on pourra la compiler soi-même et vérifier que l'énoncé du théorème n'a pas été affaibli."
+      }
+     ]
+    },
+    {
+     "type": "timeline",
+     "title": "D'où l'on vient, où l'on va",
+     "items": [
+      {
+       "label": "1992",
+       "text": "Lenstra et Pomerance démontrent la borne L_N[1/2, 1]."
+      },
+      {
+       "label": "30 septembre 2026",
+       "text": "Dépôt sur arXiv de la présentation de Cogentic, qui annonce des résultats vérifiés par des experts dans d'autres domaines."
+      },
+      {
+       "label": "25 novembre 2026",
+       "text": "Mise en ligne de l'article sur la factorisation."
+      },
+      {
+       "label": "À venir",
+       "text": "Publication annoncée de la formalisation Lean et relectures indépendantes."
+      }
+     ]
+    },
+    {
+     "type": "opinion",
+     "title": "Notre avis",
+     "paragraphs": [
+      "Si la démonstration tient, une machine aura comblé un écart théorique resté ouvert pendant plus de trente ans, ce qui serait bien plus marquant qu'un bon score à un concours. Mais le conditionnel s'impose : les résultats vérifiés par des experts que mentionne la présentation de Cogentic, déposée en septembre, ne couvrent pas ce texte-ci, et un long article peut cacher une erreur subtile.",
+      "À notre avis, d'ici un à trois ans, le goulet d'étranglement de la recherche pourrait se déplacer de la production de preuves vers leur vérification. Les revues et les laboratoires qui exigeront des démonstrations formalisées, avec des spécialistes capables d'en relire les énoncés, auront l'avantage."
+     ],
+     "verdict": "Un événement possible pour les mathématiques, pas une alerte pour vos clés."
+    },
+    {
+     "type": "callout",
+     "title": "À retenir",
+     "text": "Une borne théorique nouvelle est **annoncée**, pas encore validée publiquement. Elle ne rend pas RSA cassable aujourd'hui."
+    }
+   ],
+   "cover": {
+    "url": "https://opengraph.githubassets.com/dbf2226020902f8604ba0bd0037c9b6a7a8a0467d5f8b291ec30c9d526b6069b/google-research/google-research",
+    "alt": "Aperçu du dépôt Google Research sur GitHub",
+    "credit": "github.com"
+   },
+   "illustration": {
+    "svg": "<svg xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"0 0 640 360\"><defs><linearGradient id=\"g\" x1=\"0\" y1=\"0\" x2=\"1\" y2=\"1\"><stop offset=\"0\" stop-color=\"hsl(320,65%,45%)\"/><stop offset=\"1\" stop-color=\"hsl(320,70%,20%)\"/></linearGradient></defs><rect width=\"640\" height=\"360\" fill=\"url(#g)\"/><circle cx=\"575\" cy=\"50\" r=\"95\" fill=\"#fff\" opacity=\".08\"/><circle cx=\"55\" cy=\"325\" r=\"120\" fill=\"#fff\" opacity=\".06\"/><g fill=\"none\" stroke=\"#fff\" stroke-width=\"7\" stroke-linecap=\"round\" stroke-linejoin=\"round\"><circle cx=\"320\" cy=\"90\" r=\"42\"/><circle cx=\"215\" cy=\"260\" r=\"42\"/><circle cx=\"425\" cy=\"260\" r=\"42\"/><path d=\"M298 128L236 223M342 128l62 95M300 90h40M320 70v40M200 260h30M410 260h30\"/></g></svg>"
+   },
+   "readingMinutes": 4,
+   "publishedAt": "2026-11-25T18:18:52+01:00"
+  },
+  {
+   "id": "juniper-session-smart-conductor-cve-2026-103406",
+   "category": "cybersecurite",
+   "icon": "🚨",
+   "importance": 4,
+   "title": "Juniper Session Smart Conductor : une faille de gravité 9,8, corrigée en octobre, est désormais exploitée",
+   "summary": "Juniper a signalé le 24 novembre 2026 une exploitation de la faille CVE-2026-103406, qui permet d'exécuter des commandes en tant que root sans authentification. L'agence américaine CISA l'a inscrite le 25 novembre à son catalogue des vulnérabilités exploitées.",
+   "tags": [
+    "Juniper",
+    "CVE-2026-103406",
+    "SD-WAN",
+    "correctif",
+    "KEV"
+   ],
+   "sourceDate": "2026-11-25",
+   "sources": [
+    {
+     "title": "Juniper Fixes 18 Session Smart Router Vulnerabilities",
+     "url": "https://securityonline.info/juniper-session-smart-router-vulnerabilities/",
+     "publisher": "SecurityOnline"
+    },
+    {
+     "title": "Fiche CVE-2026-103406",
+     "url": "https://cveawg.mitre.org/api/cve/CVE-2026-103406",
+     "publisher": "CVE Program"
+    },
+    {
+     "title": "Known Exploited Vulnerabilities (flux JSON)",
+     "url": "https://www.cisa.gov/sites/default/files/feeds/known_exploited_vulnerabilities.json",
+     "publisher": "CISA"
+    }
+   ],
+   "blocks": [
+    {
+     "type": "paragraph",
+     "text": "Les équipements qui pilotent les réseaux sont des cibles de choix, et un nouveau cas le rappelle. Le **24 novembre 2026**, Juniper Networks, filiale de HPE, a mis à jour son bulletin **JSA112183** pour indiquer qu'au moins un cas d'exploitation malveillante de la faille **CVE-2026-103406** lui avait été signalé. Le lendemain, l'agence américaine de cybersécurité **CISA** l'a ajoutée à son catalogue KEV, qui recense les vulnérabilités effectivement exploitées."
+    },
+    {
+     "type": "paragraph",
+     "text": "La faille touche **Session Smart Conductor**, la plateforme qui gère de façon centralisée les routeurs SD-WAN Session Smart. Le SD-WAN permet à une organisation de relier ses sites en pilotant par logiciel plusieurs types de liaisons. Prendre le contrôle du chef d'orchestre peut donc avoir des conséquences sur de nombreux sites à la fois."
+    },
+    {
+     "type": "heading",
+     "level": 2,
+     "text": "Les faits vérifiés"
+    },
+    {
+     "type": "keyvalue",
+     "items": [
+      {
+       "label": "Identifiant",
+       "value": "CVE-2026-103406"
+      },
+      {
+       "label": "Score CVSS 3.1",
+       "value": "9,8 sur 10 (critique)"
+      },
+      {
+       "label": "Nature",
+       "value": "Injection de commandes système dans le composant AutomatedProvisioner"
+      },
+      {
+       "label": "Prérequis",
+       "value": "Accès réseau ; ni compte ni action d'un utilisateur"
+      },
+      {
+       "label": "Effet",
+       "value": "Commandes arbitraires exécutées en tant que root"
+      },
+      {
+       "label": "Versions corrigées",
+       "value": "7.0.5, 7.1.7, 7.2.3 et versions ultérieures"
+      },
+      {
+       "label": "Contournement",
+       "value": "Aucun, selon la fiche CVE"
+      }
+     ]
+    },
+    {
+     "type": "paragraph",
+     "text": "D'après la fiche officielle, l'attaque passe par un identifiant de « minion » **Salt** spécialement forgé. Salt est un outil d'automatisation dans lequel un serveur central donne des ordres à des agents, appelés minions, qui s'annoncent avec un nom. Dans une injection de commandes, une donnée fournie par l'extérieur, ici ce nom, se retrouve insérée sans neutralisation dans une commande du système : quelques caractères spéciaux suffisent alors à ajouter des instructions."
+    },
+    {
+     "type": "paragraph",
+     "text": "Le correctif n'est pas nouveau. Le bulletin date du **28 octobre 2026** et traite 18 failles, toutes découvertes, selon Juniper, par ses propres équipes. À sa publication, l'éditeur disait n'avoir connaissance d'aucune exploitation. La situation a changé en moins d'un mois. Une deuxième faille notée 9,8, CVE-2026-103409, concerne les routeurs avant leur enrôlement ; l'alerte d'exploitation porte, elle, sur la faille du Conductor."
+    },
+    {
+     "type": "paragraph",
+     "text": "Une précaution de lecture : l'intitulé de l'entrée KEV cite à la fois le Conductor et le routeur, alors que la fiche CVE ne désigne que le Conductor. En cas de doute, c'est le bulletin de l'éditeur qui fait foi, et la mise à niveau des deux produits reste la voie la plus sûre, puisque d'autres failles du même lot affectent les routeurs."
+    },
+    {
+     "type": "heading",
+     "level": 2,
+     "text": "Que faire maintenant"
+    },
+    {
+     "type": "list",
+     "ordered": true,
+     "items": [
+      "**Recenser** les instances de Conductor et relever leur version exacte.",
+      "**Mettre à niveau** vers 7.0.5, 7.1.7, 7.2.3 ou une version ultérieure, selon la branche utilisée.",
+      "**Restreindre** l'accès réseau aux interfaces de gestion aux seuls postes et réseaux d'administration.",
+      "**Chercher des traces** : une mise à jour ferme la porte, mais ne déloge pas un intrus déjà présent. Examiner les agents enregistrés, les comptes et les journaux du système.",
+      "**Renouveler les secrets** si un doute subsiste sur l'intégrité de la plateforme."
+     ]
+    },
+    {
+     "type": "paragraph",
+     "text": "La CISA fixe aux agences fédérales américaines l'échéance du **28 novembre 2026**. Elle ne s'impose pas aux organisations françaises, mais constitue un bon indicateur de priorité. En France, les publications du CERT-FR, rattaché à l'ANSSI, restent la référence à surveiller, et une intrusion qui touche des données personnelles peut devoir être notifiée à la CNIL."
+    },
+    {
+     "type": "usecases",
+     "title": "Exemples d'utilisation",
+     "items": [
+      {
+       "icon": "🏢",
+       "title": "Entreprise multisite",
+       "text": "L'équipe réseau vérifie la version du Conductor avant tout, puis planifie la mise à niveau hors des heures d'ouverture, sans attendre la maintenance mensuelle."
+      },
+      {
+       "icon": "🧰",
+       "title": "Infogérant",
+       "text": "Un prestataire qui administre les réseaux de plusieurs clients dresse la liste des plateformes concernées et informe chacun de l'état d'avancement."
+      },
+      {
+       "icon": "🔎",
+       "title": "Équipe de détection",
+       "text": "Les analystes surveillent les connexions inhabituelles vers l'interface de gestion et les processus lancés avec les droits root sur le serveur."
+      }
+     ]
+    },
+    {
+     "type": "timeline",
+     "title": "D'où l'on vient, où l'on va",
+     "items": [
+      {
+       "label": "28 octobre 2026",
+       "text": "Bulletin JSA112183 : 18 failles corrigées, aucune exploitation connue."
+      },
+      {
+       "label": "24 novembre 2026",
+       "text": "Juniper signale une exploitation de CVE-2026-103406."
+      },
+      {
+       "label": "25 novembre 2026",
+       "text": "Inscription au catalogue KEV de la CISA."
+      },
+      {
+       "label": "28 novembre 2026",
+       "text": "Échéance fixée aux agences fédérales américaines."
+      }
+     ]
+    },
+    {
+     "type": "opinion",
+     "title": "Notre avis",
+     "paragraphs": [
+      "L'épisode illustre un schéma devenu banal : un correctif publié sans exploitation connue, puis des attaques quelques semaines plus tard. Les attaquants lisent les bulletins aussi attentivement que les défenseurs. Les organisations qui classent leurs correctifs uniquement selon le critère « exploité ou non » prennent un retard difficile à rattraper.",
+      "D'ici un à trois ans, nous pensons que les plateformes de gestion centralisée devront être traitées comme les contrôleurs de domaine : isolées, surveillées en permanence et mises à jour en priorité. La commodité d'une console unique a pour contrepartie un point de défaillance unique."
+     ],
+     "verdict": "Si votre Conductor n'a pas été mis à jour depuis octobre, c'est la tâche du jour."
+    },
+    {
+     "type": "callout",
+     "title": "À retenir",
+     "text": "Mettez à niveau vers **7.0.5, 7.1.7 ou 7.2.3** au minimum, fermez l'accès à la gestion et recherchez des traces de compromission."
+    }
+   ],
+   "cover": {
+    "url": "https://securityonline.info/wp-content/uploads/2026/10/juniper-session-smart-router-conductor-cve-2026-103406-exploited.webp",
+    "alt": "Illustration de la faille exploitée dans Juniper Session Smart",
+    "credit": "securityonline.info"
+   },
+   "illustration": {
+    "svg": "<svg xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"0 0 640 360\"><defs><linearGradient id=\"g\" x1=\"0\" y1=\"0\" x2=\"1\" y2=\"1\"><stop offset=\"0\" stop-color=\"hsl(175,65%,45%)\"/><stop offset=\"1\" stop-color=\"hsl(175,70%,20%)\"/></linearGradient></defs><rect width=\"640\" height=\"360\" fill=\"url(#g)\"/><circle cx=\"575\" cy=\"50\" r=\"95\" fill=\"#fff\" opacity=\".08\"/><circle cx=\"55\" cy=\"325\" r=\"120\" fill=\"#fff\" opacity=\".06\"/><g fill=\"none\" stroke=\"#fff\" stroke-width=\"7\" stroke-linecap=\"round\" stroke-linejoin=\"round\"><path d=\"M320 60l95 38v75c0 65-43 108-95 130-52-22-95-65-95-130V98z\"/><path d=\"M320 125v70M320 232v2M110 180h80M450 180h80\"/></g></svg>"
+   },
+   "readingMinutes": 4,
+   "publishedAt": "2026-11-25T18:18:52+01:00"
+  },
+  {
+   "id": "github-css-modules-fin-css-in-js",
+   "category": "web",
+   "icon": "🎨",
+   "importance": 3,
+   "title": "GitHub abandonne le CSS-in-JS pour les CSS Modules et annonce un rendu serveur 55 % plus rapide",
+   "summary": "Après une migration étalée sur trois ans, GitHub dit avoir réduit de 55 % le temps de rendu côté serveur et accéléré de 25 % l'initialisation des composants de son système de design Primer.",
+   "tags": [
+    "CSS",
+    "React",
+    "performance",
+    "Primer",
+    "migration"
+   ],
+   "sourceDate": "2026-11-25",
+   "sources": [
+    {
+     "title": "GitHub Ditches CSS-in-JS for CSS Modules, Reports 55% Faster SSR",
+     "url": "https://www.infoq.com/news/2026/11/github-css-migration/",
+     "publisher": "InfoQ"
+    }
+   ],
+   "blocks": [
+    {
+     "type": "paragraph",
+     "text": "Écrire les styles directement dans le code JavaScript a longtemps séduit les équipes **React** : chaque composant embarque son apparence, qui peut dépendre de ses propriétés. Ce confort a un coût, que GitHub vient de chiffrer. Dans un retour d'expérience relayé par InfoQ le **25 novembre 2026**, les ingénieurs de **Primer**, le système de design de la plateforme, racontent comment github.com a quitté le **CSS-in-JS** au profit des **CSS Modules**."
+    },
+    {
+     "type": "paragraph",
+     "text": "Le problème est apparu en 2023, quand le nombre de composants affichés sur certaines pages s'est envolé. Avec la bibliothèque `styled-components`, les styles sont calculés et injectés à l'exécution : le temps de chargement initial, le rendu serveur et le coût des mises à jour de style augmentaient avec le nombre de composants."
+    },
+    {
+     "type": "heading",
+     "level": 2,
+     "text": "Les chiffres annoncés"
+    },
+    {
+     "type": "keyvalue",
+     "items": [
+      {
+       "label": "Rendu côté serveur",
+       "value": "Temps réduit de 55 %, selon GitHub"
+      },
+      {
+       "label": "Initialisation des composants",
+       "value": "25 % plus rapide"
+      },
+      {
+       "label": "Usages de la propriété sx",
+       "value": "Environ 7 760 répartis dans github.com"
+      },
+      {
+       "label": "Phase principale",
+       "value": "6 419 usages migrés en six mois par une rotation de huit ingénieurs"
+      },
+      {
+       "label": "Dernière ligne droite",
+       "value": "895 usages traités en trois semaines par deux ingénieurs aidés d'agents Copilot"
+      }
+     ]
+    },
+    {
+     "type": "paragraph",
+     "text": "Les gains par page relevés pendant la phase principale vont de **3 % à 22 %** pour le rendu serveur. Il faut donc lire le chiffre de 55 % comme un résultat propre à un périmètre de mesure, et non comme la promesse d'un site deux fois plus rapide."
+    },
+    {
+     "type": "heading",
+     "level": 2,
+     "text": "La méthode, plus instructive que le résultat"
+    },
+    {
+     "type": "paragraph",
+     "text": "Les CSS Modules sont de simples fichiers CSS dont les noms de classes sont rendus uniques à la compilation. Ils conservent la proximité entre composant et style, sans travail à l'exécution : les feuilles sont statiques et livrées avec le HTML. L'équipe les a choisis parce qu'ils préservent les fonctions natives du langage CSS."
+    },
+    {
+     "type": "diagram",
+     "svg": "<svg xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"0 0 640 332\" font-family=\"system-ui,sans-serif\"><rect width=\"640\" height=\"332\" rx=\"16\" fill=\"#f1f5f9\"/><rect x=\"40\" y=\"16\" width=\"560\" height=\"58\" rx=\"10\" fill=\"#fff\" stroke=\"#334155\" stroke-width=\"1.5\"/><text x=\"320\" y=\"41\" text-anchor=\"middle\" font-size=\"17\" font-weight=\"700\" fill=\"#0f172a\">Variante CSS Modules</text><text x=\"320\" y=\"62\" text-anchor=\"middle\" font-size=\"14\" fill=\"#334155\">Ajoutée à côté de la version existante de chaque composant</text><path d=\"M320 75v13m-6-6l6 7 6-7\" stroke=\"#334155\" stroke-width=\"2.5\" fill=\"none\"/><rect x=\"40\" y=\"94\" width=\"560\" height=\"58\" rx=\"10\" fill=\"#fff\" stroke=\"#334155\" stroke-width=\"1.5\"/><text x=\"320\" y=\"119\" text-anchor=\"middle\" font-size=\"17\" font-weight=\"700\" fill=\"#0f172a\">Interrupteur de fonctionnalité</text><text x=\"320\" y=\"140\" text-anchor=\"middle\" font-size=\"14\" fill=\"#334155\">La nouveauté reste désactivable à tout moment</text><path d=\"M320 153v13m-6-6l6 7 6-7\" stroke=\"#334155\" stroke-width=\"2.5\" fill=\"none\"/><rect x=\"40\" y=\"172\" width=\"560\" height=\"58\" rx=\"10\" fill=\"#fff\" stroke=\"#334155\" stroke-width=\"1.5\"/><text x=\"320\" y=\"197\" text-anchor=\"middle\" font-size=\"17\" font-weight=\"700\" fill=\"#0f172a\">Tests de régression visuelle</text><text x=\"320\" y=\"218\" text-anchor=\"middle\" font-size=\"14\" fill=\"#334155\">Comparaison des rendus pour vérifier la parité</text><path d=\"M320 231v13m-6-6l6 7 6-7\" stroke=\"#334155\" stroke-width=\"2.5\" fill=\"none\"/><rect x=\"40\" y=\"250\" width=\"560\" height=\"58\" rx=\"10\" fill=\"#fff\" stroke=\"#334155\" stroke-width=\"1.5\"/><text x=\"320\" y=\"275\" text-anchor=\"middle\" font-size=\"17\" font-weight=\"700\" fill=\"#0f172a\">Déploiement progressif</text><text x=\"320\" y=\"296\" text-anchor=\"middle\" font-size=\"14\" fill=\"#334155\">Équipe Primer, puis salariés, puis tous les utilisateurs</text></svg>",
+     "alt": "Les quatre étapes de migration d'un composant Primer",
+     "caption": "La migration composant par composant décrite par GitHub."
+    },
+    {
+     "type": "paragraph",
+     "text": "En décembre 2024, Primer lui-même était entièrement passé aux CSS Modules. Restait le plus difficile : les milliers de propriétés `sx` disséminées dans le produit, devenues la façon habituelle de styler une page. Un paquet de transition, `@primer/styled-react`, a permis à l'ancienne syntaxe de continuer à fonctionner avec les composants migrés. GitHub a également dû découpler la gestion de ses sept thèmes et de ses variantes à contraste élevé avant de pouvoir retirer `styled-components`. Un module pour VS Code et des scripts de transformation automatique du code ont réduit la part manuelle."
+    },
+    {
+     "type": "heading",
+     "level": 2,
+     "text": "Des réserves à entendre"
+    },
+    {
+     "type": "paragraph",
+     "text": "La discussion rapportée par InfoQ n'est pas unanime. Certains jugent le gain trop faible pour l'utilisateur, d'autres regrettent que les noms de classes illisibles compliquent la vie des bloqueurs de publicité, des feuilles de style personnelles et des extensions de navigateur. D'autres encore rappellent qu'il existe du CSS-in-JS sans coût à l'exécution, qui n'oblige pas à changer d'approche."
+    },
+    {
+     "type": "paragraph",
+     "text": "Le mouvement dépasse néanmoins GitHub : Linear a récemment terminé une migration de 1 000 demandes de fusion, de `styled-components` vers **StyleX**, la bibliothèque de Meta, et d'autres équipes génèrent leurs styles à la compilation avec vanilla-extract ou Tailwind. L'idée commune : payer le coût une fois, à la construction, plutôt qu'à chaque requête. InfoQ note aussi que le passage de `styled-components` en mode maintenance a conforté ce choix."
+    },
+    {
+     "type": "usecases",
+     "title": "Exemples d'utilisation",
+     "items": [
+      {
+       "icon": "📊",
+       "title": "Mesurer avant de migrer",
+       "text": "Une équipe profile ses pages les plus lourdes pour savoir quelle part du rendu serveur revient réellement au calcul des styles, avant d'engager des mois de travail."
+      },
+      {
+       "icon": "🚩",
+       "title": "Migrer sans coupure",
+       "text": "Chaque composant converti est placé derrière un interrupteur, ce qui permet de revenir en arrière sans redéploiement en cas de défaut visuel."
+      },
+      {
+       "icon": "🤖",
+       "title": "Finir la longue traîne",
+       "text": "Les derniers usages, répétitifs, sont confiés à un agent de codage, avec des tests visuels et une relecture humaine de chaque changement."
+      }
+     ]
+    },
+    {
+     "type": "timeline",
+     "title": "D'où l'on vient, où l'on va",
+     "items": [
+      {
+       "label": "2023",
+       "text": "Les limites de performance apparaissent avec la multiplication des composants."
+      },
+      {
+       "label": "Décembre 2024",
+       "text": "Primer est entièrement passé aux CSS Modules."
+      },
+      {
+       "label": "25 novembre 2026",
+       "text": "InfoQ publie le bilan de la migration de github.com."
+      },
+      {
+       "label": "Ensuite",
+       "text": "Les équipes qui suivent la même voie peuvent partir des notes de Primer React v38."
+      }
+     ]
+    },
+    {
+     "type": "opinion",
+     "title": "Notre avis",
+     "paragraphs": [
+      "GitHub opère à une échelle où quelques millisecondes de rendu serveur se traduisent en machines et en confort pour des millions de personnes. Une application d'entreprise comptant quelques dizaines de composants par page ne verra probablement rien de comparable. Le principal bénéfice, pour elle, serait de réduire sa dépendance à une bibliothèque désormais en maintenance.",
+      "Nous pensons que, d'ici un à trois ans, la génération des styles à la compilation deviendra le choix par défaut des nouveaux projets, d'autant que le CSS natif couvre de mieux en mieux les besoins qui justifiaient hier du JavaScript. L'arrivée des agents de codage abaisse en outre le coût de ces migrations longtemps repoussées."
+     ],
+     "verdict": "La bonne leçon n'est pas « bannir le CSS-in-JS », mais mesurer ce qui s'exécute à chaque requête."
+    },
+    {
+     "type": "callout",
+     "title": "À retenir",
+     "text": "Gains annoncés : **55 %** sur le rendu serveur et **25 %** sur l'initialisation des composants, au terme d'une migration progressive de trois ans."
+    }
+   ],
+   "cover": {
+    "url": "https://res.infoq.com/news/2026/11/github-css-migration/en/headerimage/generatedHeaderImage-1795537886697.jpg",
+    "alt": "Illustration de l'article sur la migration CSS de GitHub",
+    "credit": "infoq.com"
+   },
+   "illustration": {
+    "svg": "<svg xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"0 0 640 360\"><defs><linearGradient id=\"g\" x1=\"0\" y1=\"0\" x2=\"1\" y2=\"1\"><stop offset=\"0\" stop-color=\"hsl(210,65%,45%)\"/><stop offset=\"1\" stop-color=\"hsl(210,70%,20%)\"/></linearGradient></defs><rect width=\"640\" height=\"360\" fill=\"url(#g)\"/><circle cx=\"575\" cy=\"50\" r=\"95\" fill=\"#fff\" opacity=\".08\"/><circle cx=\"55\" cy=\"325\" r=\"120\" fill=\"#fff\" opacity=\".06\"/><g fill=\"none\" stroke=\"#fff\" stroke-width=\"7\" stroke-linecap=\"round\" stroke-linejoin=\"round\"><rect x=\"90\" y=\"85\" width=\"180\" height=\"190\" rx=\"18\"/><path d=\"M125 135h110M125 180h75M125 225h95M300 180h75m-24-24l24 24-24 24\"/><path d=\"M405 85h150l-18 160-57 30-57-30z\"/></g></svg>"
+   },
+   "readingMinutes": 4,
+   "publishedAt": "2026-11-25T18:18:52+01:00"
+  },
+  {
+   "id": "pop-os-26-04-lts-cosmic-constellations",
+   "category": "dev",
+   "icon": "🐧",
+   "importance": 3,
+   "title": "Pop!_OS 26.04 LTS est disponible : thèmes « Constellations », tablettes graphiques et mises à jour automatiques",
+   "summary": "System76 a publié la nouvelle version à support long de sa distribution Linux, bâtie sur Ubuntu 26.04 LTS avec le bureau COSMIC. La mise à niveau depuis la version 24.04 sera activée en décembre.",
+   "tags": [
+    "Linux",
+    "Pop!_OS",
+    "COSMIC",
+    "System76",
+    "Ubuntu"
+   ],
+   "sourceDate": "2026-11-24",
+   "sources": [
+    {
+     "title": "Pop!_OS 26.04 LTS Has Landed",
+     "url": "https://system76.com/blog/post/pop_os-26-04-lts-has-landed",
+     "publisher": "System76"
+    },
+    {
+     "title": "Pop!_OS 26.04 LTS released",
+     "url": "https://www.omgubuntu.co.uk/2026/11/pop_os-26-04-lts-released",
+     "publisher": "OMG! Ubuntu"
+    },
+    {
+     "title": "Pop!_OS 26.04 LTS vs. Pop!_OS 24.04 LTS Benchmarks",
+     "url": "https://www.phoronix.com/review/pop-os-2604-benchmarks",
+     "publisher": "Phoronix"
+    }
+   ],
+   "blocks": [
+    {
+     "type": "paragraph",
+     "text": "**System76**, fabricant américain d'ordinateurs sous Linux, a publié **Pop!_OS 26.04 LTS** le 24 novembre 2026. La distribution repose sur **Ubuntu 26.04 LTS** et livre par défaut **COSMIC**, l'environnement de bureau développé par l'entreprise. L'éditeur parle de près d'un an de travail sur les fonctionnalités."
+    },
+    {
+     "type": "paragraph",
+     "text": "Le sigle LTS désigne une version à support de longue durée, destinée à rester en place plusieurs années. Pour qui hésite à suivre les versions intermédiaires, c'est le moment habituel pour installer ou réinstaller un poste de travail."
+    },
+    {
+     "type": "heading",
+     "level": 2,
+     "text": "Les principales nouveautés"
+    },
+    {
+     "type": "list",
+     "ordered": false,
+     "items": [
+      "**Constellations** : des ensembles de thèmes qui changent en un clic le fond d'écran, les couleurs d'accentuation, les icônes et les polices. On peut les modifier, leur appliquer l'effet de verre dépoli, puis les exporter pour les sauvegarder ou les partager.",
+      "**Tablettes graphiques** : prise en charge du stylet, avec la sensibilité à l'inclinaison, pour le dessin, la retouche, l'animation, la prise de notes ou la conception assistée.",
+      "**Mises à jour automatiques** : activables à l'installation ou dans les réglages.",
+      "**Applications natives** : COSMIC Viewer, COSMIC System Monitor et une boutique COSMIC Store entièrement revue.",
+      "**Accessibilité et confort** : clavier virtuel tactile ou à la manette, curseur repérable en secouant la souris, loupe améliorée, taille du pointeur réglable.",
+      "**Autres** : bureau à distance, enchaînement configurable des espaces de travail, meilleur choix automatique du processeur graphique sur les machines hybrides et confinement du pointeur dans les jeux."
+     ]
+    },
+    {
+     "type": "paragraph",
+     "text": "Les habitués ne doivent pas attendre de rupture. COSMIC évolue en continu, et les utilisateurs de Pop!_OS 24.04 ont déjà reçu une bonne partie de ces apports au fil des mises à jour. La version 26.04 les intègre dès l'installation et renouvelle surtout le socle logiciel. System76 conseille néanmoins une installation neuve pour profiter pleinement de l'expérience prévue."
+    },
+    {
+     "type": "heading",
+     "level": 2,
+     "text": "Sous le capot"
+    },
+    {
+     "type": "paragraph",
+     "text": "Le site Phoronix a comparé les deux versions sur un PC compact Thelio Prime équipé d'un processeur Ryzen 7 9800X3D et d'une carte GeForce RTX 5060 Ti. Les deux systèmes à jour utilisent le même noyau **Linux 7.2**, le même pilote NVIDIA et COSMIC 1.11, ce qui limite les écarts. En revanche, le compilateur par défaut passe de **GCC 13.2 à GCC 15.2** et **Python 3.14 remplace Python 3.12**."
+    },
+    {
+     "type": "keyvalue",
+     "items": [
+      {
+       "label": "Base",
+       "value": "Ubuntu 26.04 LTS (au lieu de 24.04 LTS)"
+      },
+      {
+       "label": "Compilateur par défaut",
+       "value": "GCC 15.2"
+      },
+      {
+       "label": "Python",
+       "value": "3.14"
+      },
+      {
+       "label": "Mise à niveau depuis 24.04",
+       "value": "Activation prévue en décembre 2026"
+      },
+      {
+       "label": "Pour profiter de tout",
+       "value": "Installation neuve recommandée par System76"
+      }
+     ]
+    },
+    {
+     "type": "paragraph",
+     "text": "Le changement de version de Python est le point à surveiller pour les développeurs : des environnements virtuels créés avec la version 3.12 devront être recréés, et certaines dépendances compilées peuvent ne pas encore proposer de paquets prêts à l'emploi. De même, un compilateur plus récent peut refuser du code qu'une ancienne version acceptait avec de simples avertissements."
+    },
+    {
+     "type": "heading",
+     "level": 2,
+     "text": "Préparer la transition"
+    },
+    {
+     "type": "list",
+     "ordered": true,
+     "items": [
+      "Sauvegarder le répertoire personnel et vérifier que la sauvegarde se restaure.",
+      "Dresser la liste des paquets et des dépôts tiers ajoutés à la main.",
+      "Essayer la nouvelle image depuis une clé USB pour contrôler l'écran, le Wi-Fi et la carte graphique.",
+      "Choisir entre une installation neuve dès maintenant et la mise à niveau de décembre."
+     ]
+    },
+    {
+     "type": "usecases",
+     "title": "Exemples d'utilisation",
+     "items": [
+      {
+       "icon": "🖌️",
+       "title": "Illustration numérique",
+       "text": "Brancher une tablette graphique et régler le stylet dans les paramètres, pour un poste de dessin entièrement sous Linux."
+      },
+      {
+       "icon": "👨‍👩‍👧",
+       "title": "Ordinateur familial",
+       "text": "Activer les mises à jour automatiques sur le PC d'un proche pour éviter qu'il reste des mois sans correctifs de sécurité."
+      },
+      {
+       "icon": "💻",
+       "title": "Poste de développement",
+       "text": "Tester ses projets Python avec la version 3.14 dans une machine virtuelle avant de réinstaller sa station principale."
+      }
+     ]
+    },
+    {
+     "type": "timeline",
+     "title": "D'où l'on vient, où l'on va",
+     "items": [
+      {
+       "label": "Version précédente",
+       "text": "Pop!_OS 24.04 LTS a reçu au fil des mises à jour une grande partie des apports de COSMIC."
+      },
+      {
+       "label": "24 novembre 2026",
+       "text": "Publication de Pop!_OS 26.04 LTS."
+      },
+      {
+       "label": "Décembre 2026",
+       "text": "Ouverture de la mise à niveau depuis la version 24.04."
+      }
+     ]
+    },
+    {
+     "type": "opinion",
+     "title": "Notre avis",
+     "paragraphs": [
+      "L'intérêt tient moins à une nouveauté spectaculaire qu'à la maturité : un bureau récent, écrit par une entreprise qui vend aussi le matériel, complète peu à peu ses applications de base. La prudence reste de mise pour un poste de production : attendre quelques semaines de retours avant la mise à niveau ne coûte rien.",
+      "D'ici un à trois ans, COSMIC pourrait devenir une troisième voie crédible à côté de GNOME et de KDE, y compris hors de Pop!_OS. Cela dépendra de sa capacité à attirer des contributeurs et à progresser en accessibilité, un terrain où les attentes sont élevées."
+     ],
+     "verdict": "Une version de consolidation, bienvenue surtout pour les nouvelles installations."
+    },
+    {
+     "type": "callout",
+     "title": "À retenir",
+     "text": "Installation neuve possible dès maintenant ; **mise à niveau depuis la version 24.04 en décembre**. Vérifiez vos projets avec Python 3.14."
+    }
+   ],
+   "cover": {
+    "url": "https://images.prismic.io/blog-system76/yb0RwZlAwTylovtU_new-pop-26-04-launched.jpg?auto=format,compress&rect=0,21,1200,600&w=1200&h=600",
+    "alt": "Visuel d'annonce de Pop!_OS 26.04 LTS",
+    "credit": "system76.com"
+   },
+   "illustration": {
+    "svg": "<svg xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"0 0 640 360\"><defs><linearGradient id=\"g\" x1=\"0\" y1=\"0\" x2=\"1\" y2=\"1\"><stop offset=\"0\" stop-color=\"hsl(265,65%,45%)\"/><stop offset=\"1\" stop-color=\"hsl(265,70%,20%)\"/></linearGradient></defs><rect width=\"640\" height=\"360\" fill=\"url(#g)\"/><circle cx=\"575\" cy=\"50\" r=\"95\" fill=\"#fff\" opacity=\".08\"/><circle cx=\"55\" cy=\"325\" r=\"120\" fill=\"#fff\" opacity=\".06\"/><g fill=\"none\" stroke=\"#fff\" stroke-width=\"7\" stroke-linecap=\"round\" stroke-linejoin=\"round\"><rect x=\"110\" y=\"70\" width=\"420\" height=\"220\" rx=\"16\"/><path d=\"M110 115h420M250 320h140M320 290v30\"/><path d=\"M180 240l70-70 70 40 75-65\"/><circle cx=\"180\" cy=\"240\" r=\"8\"/><circle cx=\"250\" cy=\"170\" r=\"8\"/><circle cx=\"320\" cy=\"210\" r=\"8\"/><circle cx=\"395\" cy=\"145\" r=\"8\"/></g></svg>"
+   },
+   "readingMinutes": 4,
+   "publishedAt": "2026-11-25T18:18:52+01:00"
+  },
+  {
+   "id": "pinscope-acces-distant-microcontroleurs-cra",
+   "category": "electronique",
+   "icon": "📡",
+   "importance": 3,
+   "title": "Pinscope : accéder à distance à des cartes ESP32, Pico 2 W ou Zephyr et suivre leurs vulnérabilités",
+   "summary": "Ce service associe journaux, diagnostic des plantages, mises à jour à distance et suivi des failles en vue du règlement européen sur la cyberrésilience. Le code embarqué est publié, mais le serveur reste propriétaire.",
+   "tags": [
+    "ESP32",
+    "Zephyr",
+    "objets connectés",
+    "mise à jour à distance",
+    "Cyber Resilience Act"
+   ],
+   "sourceDate": "2026-11-25",
+   "sources": [
+    {
+     "title": "Pinscope – A web-based remote access and vulnerability tracking solution",
+     "url": "https://www.cnx-software.com/2026/11/25/pinscope-a-web-based-remote-access-and-vulnerability-tracking-solution-for-esp32-zephyr-pico-2-w-and-linux-sbcs/",
+     "publisher": "CNX Software"
+    }
+   ],
+   "blocks": [
+    {
+     "type": "paragraph",
+     "text": "Fabriquer un prototype connecté est devenu facile. Le suivre une fois installé dans une serre, une chaufferie ou chez un client l'est beaucoup moins : il faut lire ses journaux, comprendre ses plantages, le mettre à jour sans se déplacer et savoir si une bibliothèque embarquée présente une faille. **Pinscope**, présenté le **25 novembre 2026** par CNX Software, regroupe ces fonctions dans un service web."
+    },
+    {
+     "type": "heading",
+     "level": 2,
+     "text": "Ce que propose le service"
+    },
+    {
+     "type": "list",
+     "ordered": false,
+     "items": [
+      "**Interface web de l'appareil** accessible en HTTPS, sans redirection de port ni VPN, protégée par un compte, un lien de partage ou un jeton d'API.",
+      "**Santé** : mémoire libre, signal Wi-Fi, température de la puce, causes des redémarrages et espace de pile disponible pour chaque tâche.",
+      "**Journaux** conservés et consultables par date.",
+      "**Plantages** : le motif, la tâche et la trace d'appels survivent au redémarrage ; les noms de fonctions apparaissent après envoi du fichier ELF issu de la compilation.",
+      "**Mises à jour à distance** d'un appareil ou d'un groupe, avec arrêt au premier échec et retour à la version précédente par le chargeur d'amorçage."
+     ]
+    },
+    {
+     "type": "keyvalue",
+     "items": [
+      {
+       "label": "ESP32 et variantes",
+       "value": "ESP-IDF, Arduino ou PlatformIO ; environ 9,4 Ko de RAM"
+      },
+      {
+       "label": "ESP8266",
+       "value": "Environ 7 Ko"
+      },
+      {
+       "label": "Zephyr (bêta)",
+       "value": "Environ 8,6 Ko"
+      },
+      {
+       "label": "Raspberry Pi Pico 2 W (bêta)",
+       "value": "Pico SDK avec FreeRTOS ; environ 9 Ko"
+      },
+      {
+       "label": "Linux (bêta)",
+       "value": "Raspberry Pi et passerelles, avec un agent léger"
+      }
+     ]
+    },
+    {
+     "type": "paragraph",
+     "text": "Sur microcontrôleur, un composant ajouté au micrologiciel ouvre une seule connexion sortante vers le service. Il remplace TLS par le protocole **Noise** (variante NK, avec X25519 et ChaCha20-Poly1305). Comme la connexion part de l'appareil, il fonctionne derrière un partage d'adresse chez l'opérateur ou sur un réseau 4G."
+    },
+    {
+     "type": "diagram",
+     "svg": "<svg xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"0 0 640 254\" font-family=\"system-ui,sans-serif\"><rect width=\"640\" height=\"254\" rx=\"16\" fill=\"#f1f5f9\"/><rect x=\"40\" y=\"16\" width=\"560\" height=\"58\" rx=\"10\" fill=\"#fff\" stroke=\"#334155\" stroke-width=\"1.5\"/><text x=\"320\" y=\"41\" text-anchor=\"middle\" font-size=\"17\" font-weight=\"700\" fill=\"#0f172a\">Appareil</text><text x=\"320\" y=\"62\" text-anchor=\"middle\" font-size=\"14\" fill=\"#334155\">Composant Pinscope, connexion sortante chiffrée</text><path d=\"M320 75v13m-6-6l6 7 6-7\" stroke=\"#334155\" stroke-width=\"2.5\" fill=\"none\"/><rect x=\"40\" y=\"94\" width=\"560\" height=\"58\" rx=\"10\" fill=\"#fff\" stroke=\"#334155\" stroke-width=\"1.5\"/><text x=\"320\" y=\"119\" text-anchor=\"middle\" font-size=\"17\" font-weight=\"700\" fill=\"#0f172a\">Serveur Pinscope</text><text x=\"320\" y=\"140\" text-anchor=\"middle\" font-size=\"14\" fill=\"#334155\">Journaux, métriques, mises à jour, inventaire logiciel</text><path d=\"M320 153v13m-6-6l6 7 6-7\" stroke=\"#334155\" stroke-width=\"2.5\" fill=\"none\"/><rect x=\"40\" y=\"172\" width=\"560\" height=\"58\" rx=\"10\" fill=\"#fff\" stroke=\"#334155\" stroke-width=\"1.5\"/><text x=\"320\" y=\"197\" text-anchor=\"middle\" font-size=\"17\" font-weight=\"700\" fill=\"#0f172a\">Navigateur</text><text x=\"320\" y=\"218\" text-anchor=\"middle\" font-size=\"14\" fill=\"#334155\">Accès authentifié à l'interface de l'appareil</text></svg>",
+     "alt": "Chaîne de communication entre l'appareil, le serveur et le navigateur",
+     "caption": "Principe général du service tel que le décrit CNX Software."
+    },
+    {
+     "type": "heading",
+     "level": 2,
+     "text": "Le volet réglementaire"
+    },
+    {
+     "type": "paragraph",
+     "text": "Pinscope met en avant le **Cyber Resilience Act** (CRA), le règlement européen sur la cyberrésilience, qui impose progressivement aux fabricants de produits comportant des éléments numériques, y compris ceux vendus en France, de gérer les vulnérabilités pendant la période de support. Le service importe l'inventaire des composants logiciels (**SBOM**) de chaque compilation, le compare chaque jour à la base américaine NVD et au catalogue des failles exploitées de la CISA, puis conserve une décision par vulnérabilité, avec une suggestion d'IA qu'un ingénieur doit confirmer."
+    },
+    {
+     "type": "paragraph",
+     "text": "Un tel outil aide à documenter le travail ; il ne rend pas à lui seul un produit conforme. La conformité couvre aussi la conception, la documentation et le signalement des incidents. En France, les publications de l'ANSSI constituent un point de repère utile sur ces sujets."
+    },
+    {
+     "type": "heading",
+     "level": 2,
+     "text": "Tarifs et limites"
+    },
+    {
+     "type": "paragraph",
+     "text": "Une démonstration en lecture seule est accessible sans compte, et un essai est possible dans le simulateur **Wokwi** après création d'un compte gratuit avec une adresse e-mail. L'usage est gratuit jusqu'à trois appareils ; CNX Software cite une offre à 9 euros par mois jusqu'à dix appareils, puis d'autres de 29 à 229 euros par mois. Le code côté carte pour ESP32, Pico, Zephyr et ESP8266 est publié sur GitHub, mais **le serveur est fermé**. À noter : un autre projet, sans lien avec celui-ci, porte le même nom et analyse des schémas électroniques."
+    },
+    {
+     "type": "usecases",
+     "title": "Exemples d'utilisation",
+     "items": [
+      {
+       "icon": "🌡️",
+       "title": "Parc de capteurs",
+       "text": "Une petite société surveille ses capteurs de température installés chez des clients et repère un redémarrage répété avant l'appel au service après-vente."
+      },
+      {
+       "icon": "🛠️",
+       "title": "Atelier ou fablab",
+       "text": "Un projet étudiant partage un lien vers l'interface d'une carte pour une soutenance, sans toucher à la box du lieu."
+      },
+      {
+       "icon": "📋",
+       "title": "Fabricant",
+       "text": "Une équipe garde la trace de ses décisions sur chaque vulnérabilité signalée dans ses dépendances, en vue des obligations du CRA."
+      }
+     ]
+    },
+    {
+     "type": "timeline",
+     "title": "D'où l'on vient, où l'on va",
+     "items": [
+      {
+       "label": "25 novembre 2026",
+       "text": "Présentation de Pinscope par CNX Software, avec plusieurs plateformes encore en bêta."
+      },
+      {
+       "label": "Décembre 2027",
+       "text": "Application générale prévue du règlement européen sur la cyberrésilience."
+      }
+     ]
+    },
+    {
+     "type": "opinion",
+     "title": "Notre avis",
+     "paragraphs": [
+      "L'attrait est réel pour les équipes qui n'ont pas les moyens de bâtir leur propre chaîne de supervision et de mise à jour. La contrepartie est lourde : le service transporte les accès à vos appareils et pilote leur micrologiciel. S'il ferme, change de tarif ou subit une intrusion, vous êtes directement touché. Prévoyez une porte de sortie et vérifiez comment les mises à jour sont authentifiées.",
+      "Nous pensons que le CRA fera de l'inventaire logiciel et du suivi des failles une fonction standard des plateformes d'objets connectés d'ici un à trois ans. Les offres entièrement auto-hébergeables auront alors un argument fort auprès des industriels."
+     ],
+     "verdict": "Un outil pratique pour de petits parcs, à condition d'accepter une dépendance à un serveur tiers."
+    },
+    {
+     "type": "callout",
+     "title": "À retenir",
+     "text": "Gratuit jusqu'à trois appareils, code embarqué public, **serveur propriétaire** : évaluez la dépendance avant d'équiper un parc."
+    }
+   ],
+   "cover": {
+    "url": "https://www.cnx-software.com/wp-content/uploads/2026/11/Pinscope-remote-access-ESP32-S2.jpg",
+    "alt": "Carte de développement ESP32-S2 utilisée pour la démonstration de Pinscope",
+    "credit": "cnx-software.com"
+   },
+   "illustration": {
+    "svg": "<svg xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"0 0 640 360\"><defs><linearGradient id=\"g\" x1=\"0\" y1=\"0\" x2=\"1\" y2=\"1\"><stop offset=\"0\" stop-color=\"hsl(30,65%,45%)\"/><stop offset=\"1\" stop-color=\"hsl(30,70%,20%)\"/></linearGradient></defs><rect width=\"640\" height=\"360\" fill=\"url(#g)\"/><circle cx=\"575\" cy=\"50\" r=\"95\" fill=\"#fff\" opacity=\".08\"/><circle cx=\"55\" cy=\"325\" r=\"120\" fill=\"#fff\" opacity=\".06\"/><g fill=\"none\" stroke=\"#fff\" stroke-width=\"7\" stroke-linecap=\"round\" stroke-linejoin=\"round\"><rect x=\"120\" y=\"105\" width=\"150\" height=\"150\" rx=\"12\"/><rect x=\"165\" y=\"150\" width=\"60\" height=\"60\" rx=\"6\"/><path d=\"M150 105V75M195 105V75M240 105V75M150 255v30M195 255v30M240 255v30M330 180h40\"/><path d=\"M420 140q35 40 0 80M460 115q65 65 0 130M500 90q95 90 0 180\"/></g></svg>"
+   },
+   "readingMinutes": 4,
+   "publishedAt": "2026-11-25T18:18:52+01:00"
+  }
+ ]
+}
