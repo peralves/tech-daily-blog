@@ -1,0 +1,486 @@
+{
+ "schemaVersion": "1.0",
+ "date": "2026-11-25",
+ "generatedAt": "2026-11-25T18:16:30+01:00",
+ "title": "Tech Daily : failles GeoServer exploitées, intrusion au FinCEN et vishing contre les comptes cloud",
+ "summary": "Cette édition suit l'exploitation de deux failles de GeoServer, l'intrusion reconnue par le FinCEN et les campagnes de vishing décrites par Unit 42.",
+ "highlights": [
+  "GeoServer : deux failles déjà exploitées, correctifs en 2.27.7, 2.28.6 et 3.0.2",
+  "FinCEN : accès non autorisé reconnu, dépôts de déclarations reportés au 30 décembre",
+  "Vishing : des groupes de la « Com » détournent des comptes cloud et extorquent les victimes"
+ ],
+ "meta": {
+  "generator": "claude-scheduled-task"
+ },
+ "posts": [
+  {
+   "id": "geoserver-deux-failles-exploitees-chaines-rce",
+   "category": "cybersecurite",
+   "icon": "🗺️",
+   "importance": 5,
+   "title": "GeoServer : deux failles récemment corrigées déjà exploitées, et des chaînes d'attaque menant à l'exécution de code sans authentification",
+   "summary": "Selon watchTowr, des attaquants exploitent deux vulnérabilités de GeoServer corrigées ces dernières semaines. Des chercheurs décrivent aussi comment les enchaîner pour exécuter du code à distance sans compte. La mise à jour vers 2.27.7, 2.28.6 ou 3.0.2 est recommandée.",
+   "tags": [
+    "GeoServer",
+    "CVE-2026-120705",
+    "exécution de code à distance",
+    "watchTowr",
+    "SIG"
+   ],
+   "publishedAt": "2026-11-25T18:16:30+01:00",
+   "sourceDate": "2026-11-25",
+   "readingMinutes": 6,
+   "cover": {
+    "url": "https://blogger.googleusercontent.com/img/b/R29vZ2xl/AVvXsEhi8jBS9UW1bUouUo2cLun5A5rtqPOFJoVQctV4ZsoX9uuMottAxM0HLjLZrvTVGU1GtrewszjOwVMBkvHgyFIBsOndc049nwMidNiVnnoKCOePOhy-XDsjiVjxFvubbxn-Z6ca8VJAxxgLmyQ9KGYBRMWV5GP2et02dmXzcG3jKJw1p_njPdaPuJAaxAz1/s1700-nu-rw-lo-l85-e365/geoserver.png",
+    "alt": "Illustration de l'article sur les failles de GeoServer",
+    "credit": "thehackernews.com"
+   },
+   "sources": [
+    {
+     "title": "Hackers Exploit Two GeoServer Flaws as Researchers Warn of Unauthenticated RCE Chains",
+     "url": "https://thehackernews.com/2026/11/hackers-exploit-two-geoserver-flaws-as.html",
+     "publisher": "The Hacker News"
+    },
+    {
+     "title": "Unauthenticated Remote Code Execution vulnerability in GeoServer",
+     "url": "https://labs.eye.security/unauthenticated-remote-code-execution-vulnerability-in-geoserver/",
+     "publisher": "Eye Security"
+    },
+    {
+     "title": "GeoServer pre-auth RCE : analyse",
+     "url": "https://cryptocat.me/blog/research/analysis/geoserver_preauth_rce/",
+     "publisher": "CryptoCat (Rapid7)"
+    }
+   ],
+   "illustration": {
+    "svg": "<svg xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"0 0 640 360\"><defs><linearGradient id=\"g\" x1=\"0\" y1=\"0\" x2=\"1\" y2=\"1\"><stop offset=\"0\" stop-color=\"hsl(175,65%,42%)\"/><stop offset=\"1\" stop-color=\"hsl(215,70%,22%)\"/></linearGradient></defs><rect width=\"640\" height=\"360\" fill=\"url(#g)\"/><circle cx=\"560\" cy=\"60\" r=\"90\" fill=\"#fff\" opacity=\".08\"/><circle cx=\"70\" cy=\"320\" r=\"110\" fill=\"#fff\" opacity=\".08\"/><circle cx=\"320\" cy=\"180\" r=\"105\" fill=\"none\" stroke=\"#fff\" stroke-width=\"10\"/><ellipse cx=\"320\" cy=\"180\" rx=\"45\" ry=\"105\" fill=\"none\" stroke=\"#fff\" stroke-width=\"6\"/><path d=\"M215 180h210M230 130h180M230 230h180\" stroke=\"#fff\" stroke-width=\"6\" fill=\"none\"/></svg>"
+   },
+   "blocks": [
+    {
+     "type": "paragraph",
+     "text": "GeoServer est un serveur open source écrit en Java qui publie des données géographiques selon les standards de l'Open Geospatial Consortium (services WFS, WMS, etc.). Collectivités, bureaux d'études, opérateurs de réseaux ou services de l'État s'en servent pour diffuser des cartes et des couches de données sur le web. Un composant aussi exposé à Internet est une cible naturelle, et il vient d'être au cœur d'une nouvelle alerte : d'après The Hacker News, qui s'appuie sur les travaux de watchTowr, des attaquants exploitent déjà deux failles récemment corrigées."
+    },
+    {
+     "type": "heading",
+     "level": 2,
+     "text": "Les failles en jeu"
+    },
+    {
+     "type": "paragraph",
+     "text": "Les avis publiés le 24 novembre 2026 décrivent six vulnérabilités. Deux d'entre elles sont, selon watchTowr, activement exploitées : CVE-2026-120705 et CVE-2026-129243. Les autres sont surtout dangereuses lorsqu'elles sont enchaînées avec elles."
+    },
+    {
+     "type": "keyvalue",
+     "items": [
+      {
+       "label": "CVE-2026-120705 (CVSS 8,6)",
+       "value": "Lecture arbitraire de fichiers par une seule requête WFS non authentifiée ; peut aussi faire récupérer des URL HTTP ou HTTPS choisies par l'attaquant. Exploitée."
+      },
+      {
+       "label": "CVE-2026-129243 (CVSS 8,8)",
+       "value": "Contrôle d'autorisation défaillant : un appelant anonyme peut invoquer des opérations OWS normalement protégées par les règles de sécurité. Exploitée."
+      },
+      {
+       "label": "CVE-2026-129245 (CVSS 9,2)",
+       "value": "Clé de signature codée en dur (« geoserver ») dans la fonction « se souvenir de moi », qui permet de forger une authentification d'administrateur."
+      },
+      {
+       "label": "CVE-2026-120704 (CVSS 7,2)",
+       "value": "Génération de code mal contrôlée : un administrateur peut exécuter du code via la configuration JDBC, sous Linux comme sous Windows."
+      },
+      {
+       "label": "CVE-2026-129244 (CVSS 6,9)",
+       "value": "Une exception de requête WFS stockée divulgue le chemin du répertoire de données."
+      },
+      {
+       "label": "CVE-2026-129242 (CVSS 8,6)",
+       "value": "Désérialisation dans les services d'utilisateurs et de rôles JDBC, exploitable par un administrateur pour exécuter du code."
+      }
+     ]
+    },
+    {
+     "type": "paragraph",
+     "text": "Les versions corrigées sont GeoServer **2.27.7**, **2.28.6** et **3.0.2**, ainsi que les bibliothèques GeoTools correspondantes (33.7, 34.6 et 35.2 pour `gt-metadata`). Selon l'article, ces correctifs ont été diffusés au cours du dernier mois ; les avis, eux, n'ont été publiés que le 24 novembre."
+    },
+    {
+     "type": "heading",
+     "level": 2,
+     "text": "Comment on passe de la lecture de fichier à l'exécution de code"
+    },
+    {
+     "type": "paragraph",
+     "text": "Le danger tient moins à chaque faille prise seule qu'à leur combinaison. La société Eye Security, qui a signalé CVE-2026-120705, décrit une chaîne théorique en trois temps : lire le fichier `users.xml` (qui contient l'empreinte du mot de passe) et la clé de signature stockée dans `security/config.xml` ; utiliser la clé codée en dur pour fabriquer un cookie d'administrateur valide sans connaître le mot de passe ; enfin détourner la configuration JDBC, contrôlée par l'administrateur, pour exécuter le code d'une bibliothèque native téléversée."
+    },
+    {
+     "type": "paragraph",
+     "text": "De leur côté, les mainteneurs décrivent une chaîne en cinq étapes, signalée de façon indépendante le 2 août 2026 par Jonah Burgess (CryptoCat, Rapid7) : CVE-2026-129244, puis CVE-2026-129243 (contournement par un nom de service préfixé de type `x/WFS`), CVE-2026-120705, CVE-2026-129245 et CVE-2026-129242. Les attaquants observés par watchTowr envoient pour l'instant des sondes qui créent et invoquent des requêtes stockées afin de repérer les serveurs vulnérables : cette phase de reconnaissance précède souvent une exploitation à plus grande échelle."
+    },
+    {
+     "type": "diagram",
+     "svg": "<svg xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"0 0 640 240\" font-family=\"system-ui,sans-serif\"><rect width=\"640\" height=\"240\" rx=\"16\" fill=\"#f1f5f9\"/><text x=\"320\" y=\"32\" text-anchor=\"middle\" font-size=\"16\" font-weight=\"700\" fill=\"#0f172a\">Chaîne en cinq étapes décrite par les mainteneurs</text><rect x=\"40\" y=\"70\" width=\"98\" height=\"130\" rx=\"12\" fill=\"#fff\" stroke=\"#334155\" stroke-width=\"1.5\"/><text x=\"89\" y=\"100\" text-anchor=\"middle\" font-size=\"22\" font-weight=\"700\" fill=\"#0f172a\">1</text><text x=\"89\" y=\"128\" text-anchor=\"middle\" font-size=\"13\" font-weight=\"700\" fill=\"#0f172a\">Fuite d'information</text><text x=\"89\" y=\"150\" text-anchor=\"middle\" font-size=\"11\" fill=\"#334155\">CVE-2026-129244</text><text x=\"89\" y=\"166\" text-anchor=\"middle\" font-size=\"11\" fill=\"#334155\">chemin du répertoire</text><path d=\"M138 135h14\" stroke=\"#334155\" stroke-width=\"2.5\" marker-end=\"url(#a)\"/><rect x=\"152\" y=\"70\" width=\"98\" height=\"130\" rx=\"12\" fill=\"#fff\" stroke=\"#334155\" stroke-width=\"1.5\"/><text x=\"201\" y=\"100\" text-anchor=\"middle\" font-size=\"22\" font-weight=\"700\" fill=\"#0f172a\">2</text><text x=\"201\" y=\"128\" text-anchor=\"middle\" font-size=\"13\" font-weight=\"700\" fill=\"#0f172a\">Contournement</text><text x=\"201\" y=\"150\" text-anchor=\"middle\" font-size=\"11\" fill=\"#334155\">CVE-2026-129243</text><text x=\"201\" y=\"166\" text-anchor=\"middle\" font-size=\"11\" fill=\"#334155\">préfixe « x/WFS »</text><path d=\"M250 135h14\" stroke=\"#334155\" stroke-width=\"2.5\" marker-end=\"url(#a)\"/><rect x=\"264\" y=\"70\" width=\"98\" height=\"130\" rx=\"12\" fill=\"#fff\" stroke=\"#334155\" stroke-width=\"1.5\"/><text x=\"313\" y=\"100\" text-anchor=\"middle\" font-size=\"22\" font-weight=\"700\" fill=\"#0f172a\">3</text><text x=\"313\" y=\"128\" text-anchor=\"middle\" font-size=\"13\" font-weight=\"700\" fill=\"#0f172a\">Lecture de fichiers</text><text x=\"313\" y=\"150\" text-anchor=\"middle\" font-size=\"11\" fill=\"#334155\">CVE-2026-120705</text><text x=\"313\" y=\"166\" text-anchor=\"middle\" font-size=\"11\" fill=\"#334155\">users.xml, config.xml</text><path d=\"M362 135h14\" stroke=\"#334155\" stroke-width=\"2.5\" marker-end=\"url(#a)\"/><rect x=\"376\" y=\"70\" width=\"98\" height=\"130\" rx=\"12\" fill=\"#fff\" stroke=\"#334155\" stroke-width=\"1.5\"/><text x=\"425\" y=\"100\" text-anchor=\"middle\" font-size=\"22\" font-weight=\"700\" fill=\"#0f172a\">4</text><text x=\"425\" y=\"128\" text-anchor=\"middle\" font-size=\"13\" font-weight=\"700\" fill=\"#0f172a\">Faux admin</text><text x=\"425\" y=\"150\" text-anchor=\"middle\" font-size=\"11\" fill=\"#334155\">CVE-2026-129245</text><text x=\"425\" y=\"166\" text-anchor=\"middle\" font-size=\"11\" fill=\"#334155\">clé « geoserver »</text><path d=\"M474 135h14\" stroke=\"#334155\" stroke-width=\"2.5\" marker-end=\"url(#a)\"/><rect x=\"488\" y=\"70\" width=\"98\" height=\"130\" rx=\"12\" fill=\"#fff\" stroke=\"#334155\" stroke-width=\"1.5\"/><text x=\"537\" y=\"100\" text-anchor=\"middle\" font-size=\"22\" font-weight=\"700\" fill=\"#0f172a\">5</text><text x=\"537\" y=\"128\" text-anchor=\"middle\" font-size=\"13\" font-weight=\"700\" fill=\"#0f172a\">Code exécuté</text><text x=\"537\" y=\"150\" text-anchor=\"middle\" font-size=\"11\" fill=\"#334155\">CVE-2026-129242</text><text x=\"537\" y=\"166\" text-anchor=\"middle\" font-size=\"11\" fill=\"#334155\">JDBC</text><defs><marker id=\"a\" markerWidth=\"8\" markerHeight=\"8\" refX=\"6\" refY=\"4\" orient=\"auto\"><path d=\"M0 0 8 4 0 8z\" fill=\"#334155\"/></marker></defs></svg>",
+     "alt": "Schéma en cinq étapes montrant l'enchaînement de six failles GeoServer jusqu'à l'exécution de code",
+     "caption": "Chaîne d'attaque en cinq étapes décrite par les mainteneurs de GeoServer (source : avis GitHub, via The Hacker News)."
+    },
+    {
+     "type": "heading",
+     "level": 2,
+     "text": "Ce qu'il faut faire"
+    },
+    {
+     "type": "list",
+     "ordered": false,
+     "items": [
+      "Mettre à jour vers GeoServer 2.27.7, 2.28.6 ou 3.0.2 sans attendre, en priorité sur les instances accessibles depuis Internet.",
+      "Ne pas se contenter de changer la clé de signature dans `security/config.xml` : les mainteneurs soulignent que la même lecture de fichier révèle aussi la nouvelle clé.",
+      "Considérer toute divulgation de fichier comme grave : un attaquant qui obtient l'empreinte d'un mot de passe d'administrateur peut s'en servir pour se connecter.",
+      "Si l'instance est restée exposée avant la mise à jour, changer les mots de passe, examiner les journaux de requêtes WFS inhabituelles et vérifier l'absence de bibliothèques natives ou de configurations JDBC inattendues."
+     ]
+    },
+    {
+     "type": "usecases",
+     "title": "Ce que cela change concrètement",
+     "items": [
+      {
+       "icon": "🏛️",
+       "title": "Une collectivité",
+       "text": "Le service SIG d'une métropole publie ses données d'urbanisme via GeoServer. Une instance oubliée sur Internet suffit à exposer ses fichiers de configuration : l'inventaire des serveurs cartographiques devient prioritaire."
+      },
+      {
+       "icon": "🏗️",
+       "title": "Un bureau d'études",
+       "text": "Un prestataire héberge un GeoServer pour ses clients. Une compromission donnerait accès aux données de plusieurs organisations à la fois, d'où l'intérêt d'isoler chaque instance."
+      },
+      {
+       "icon": "🛡️",
+       "title": "Une équipe de sécurité",
+       "text": "Elle recherche dans ses journaux les requêtes WFS contenant des préfixes de service atypiques ou des requêtes stockées créées à la volée, signe possible de reconnaissance."
+      }
+     ]
+    },
+    {
+     "type": "timeline",
+     "title": "D'où l'on vient, où l'on va",
+     "items": [
+      {
+       "label": "Août 2026",
+       "text": "Une chaîne en cinq étapes est signalée aux mainteneurs par CryptoCat (Rapid7)."
+      },
+      {
+       "label": "Octobre et début novembre 2026",
+       "text": "Les correctifs sont diffusés dans les versions 2.27.7, 2.28.6 et 3.0.2, selon l'article."
+      },
+      {
+       "label": "24 novembre 2026",
+       "text": "Les avis de sécurité sont publiés."
+      },
+      {
+       "label": "25 novembre 2026",
+       "text": "watchTowr rapporte l'exploitation active de deux des failles."
+      }
+     ]
+    },
+    {
+     "type": "opinion",
+     "title": "Notre avis",
+     "paragraphs": [
+      "Cet épisode illustre un schéma désormais classique : des correctifs discrets, des avis publiés plus tard, puis une exploitation rapide dès que les détails techniques circulent. L'écart entre la sortie d'un correctif et la publication de l'avis laisse peu de temps aux administrateurs qui ne suivent pas les versions de près. Les services cartographiques, souvent installés une fois puis oubliés, sont particulièrement exposés.",
+      "À un horizon d'un à trois ans, on peut raisonnablement s'attendre à ce que les logiciels de données géographiques soient traités comme des composants critiques de l'infrastructure publique, avec inventaire, durcissement par défaut et suppression des secrets codés en dur. C'est une analyse, pas un fait établi : rien dans les sources ne l'annonce."
+     ],
+     "verdict": "Une mise à jour urgente, car la reconnaissance a déjà commencé et un correctif existe."
+    }
+   ]
+  },
+  {
+   "id": "fincen-intrusion-systemes-hors-ligne",
+   "category": "cybersecurite",
+   "icon": "🏦",
+   "importance": 4,
+   "title": "FinCEN : une intrusion dans des systèmes du Trésor américain, des dépôts de déclarations perturbés depuis le 18 novembre",
+   "summary": "Le service de lutte contre la criminalité financière du Trésor américain reconnaît un accès non autorisé à une partie de ses systèmes et en a coupé certains par précaution. Le lien avec les pannes de dépôt de déclarations n'est pas confirmé, et aucune attribution n'est avancée.",
+   "tags": [
+    "FinCEN",
+    "Trésor américain",
+    "intrusion",
+    "BSA E-Filing",
+    "blanchiment"
+   ],
+   "publishedAt": "2026-11-25T18:16:30+01:00",
+   "sourceDate": "2026-11-25",
+   "readingMinutes": 5,
+   "cover": {
+    "url": "https://blogger.googleusercontent.com/img/b/R29vZ2xl/AVvXsEgJn89Gr-RFxS6UFEzrbUZ5Ys11fK1OwvmMYUPl29eJudnlmmp7Q34p8O0DqV8SvGu4whZke8tiysvZNQWeE4Tm3zRhJSpojYAagBXGUEVM5w6lAw2Z5C-lfRaC2IwOYrnwQSWxwso31woM4CSoluNEjA3N0gFe0RQpsV0r3MCobiKFArLMa1or-QTIBcQ/s1700-nu-rw-lo-l85-e365/fincern.jpg",
+    "alt": "Illustration de l'article sur l'intrusion au FinCEN",
+    "credit": "thehackernews.com"
+   },
+   "sources": [
+    {
+     "title": "U.S. Treasury's Financial Crimes Agency Takes Some Systems Offline After Cyber Intrusion",
+     "url": "https://thehackernews.com/2026/11/us-treasurys-fincen-takes-some-systems.html",
+     "publisher": "The Hacker News"
+    }
+   ],
+   "illustration": {
+    "svg": "<svg xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"0 0 640 360\"><defs><linearGradient id=\"g\" x1=\"0\" y1=\"0\" x2=\"1\" y2=\"1\"><stop offset=\"0\" stop-color=\"hsl(175,65%,42%)\"/><stop offset=\"1\" stop-color=\"hsl(215,70%,22%)\"/></linearGradient></defs><rect width=\"640\" height=\"360\" fill=\"url(#g)\"/><circle cx=\"560\" cy=\"60\" r=\"90\" fill=\"#fff\" opacity=\".08\"/><circle cx=\"70\" cy=\"320\" r=\"110\" fill=\"#fff\" opacity=\".08\"/><path d=\"M200 140 320 80 440 140Z\" fill=\"#fff\"/><rect x=\"220\" y=\"155\" width=\"30\" height=\"100\" fill=\"#fff\"/><rect x=\"290\" y=\"155\" width=\"30\" height=\"100\" fill=\"#fff\"/><rect x=\"360\" y=\"155\" width=\"30\" height=\"100\" fill=\"#fff\"/><rect x=\"190\" y=\"268\" width=\"260\" height=\"22\" rx=\"4\" fill=\"#fff\"/></svg>"
+   },
+   "blocks": [
+    {
+     "type": "paragraph",
+     "text": "Le FinCEN (Financial Crimes Enforcement Network), le service du Trésor américain chargé de lutter contre le blanchiment d'argent et le financement du terrorisme, a annoncé mardi 24 novembre 2026 avoir subi un « accès non autorisé à un sous-ensemble limité » de ses systèmes. Par précaution, certains d'entre eux ont été mis hors ligne. Les informations disponibles proviennent d'un article de The Hacker News, qui cite le communiqué du FinCEN, une ordonnance de dérogation et un avis de service de la plateforme de dépôt."
+    },
+    {
+     "type": "heading",
+     "level": 2,
+     "text": "Ce que l'on sait"
+    },
+    {
+     "type": "paragraph",
+     "text": "Le FinCEN centralise les déclarations de soupçon et les autres documents exigés par le Bank Secrecy Act (BSA) que lui adressent banques et institutions financières. Il les analyse pour détecter blanchiment et financement d'activités illicites. Une atteinte à ses systèmes est donc sensible, car ils concentrent des informations financières confidentielles."
+    },
+    {
+     "type": "list",
+     "ordered": false,
+     "items": [
+      "Le site BSA E-Filing reste en ligne, mais certains services peuvent être temporairement indisponibles.",
+      "Des prestataires de dépôt signalent des échecs de soumissions automatisées par lots depuis le 18 novembre ; un avis sur le mode « Secure Direct Transfer Mode » (SDTM), canal d'envoi direct depuis les serveurs des institutions, a été publié la semaine précédente.",
+      "Les déclarations dues entre le 18 novembre et le 29 décembre peuvent être déposées jusqu'au 30 décembre, selon l'ordonnance de dérogation FIN-2026-R002.",
+      "Cette dérogation vise les institutions utilisant le SDTM au 18 novembre, les sociétés tenues de déposer une déclaration sur les bénéficiaires effectifs et les personnes devant mettre à jour leur identifiant FinCEN.",
+      "Les autres obligations du BSA demeurent, notamment la surveillance des transactions suspectes, et la ligne téléphonique d'urgence pour les institutions financières n'est pas affectée."
+     ]
+    },
+    {
+     "type": "heading",
+     "level": 2,
+     "text": "Ce que l'on ignore"
+    },
+    {
+     "type": "paragraph",
+     "text": "Le FinCEN n'a pas précisé quels systèmes ont été consultés ni lesquels ont été coupés. Il n'a pas indiqué à partir de quand l'accès a eu lieu, ni si des données ont été consultées ou extraites. L'ordonnance de dérogation évoque une « perturbation de service » sans mentionner l'incident : rien ne confirme donc, à ce stade, que les pannes de dépôt du 18 novembre soient liées à l'intrusion. Aucun groupe n'a revendiqué l'attaque, et aucun auteur n'est désigné."
+    },
+    {
+     "type": "paragraph",
+     "text": "L'article rappelle qu'en décembre 2024, un groupe lié à la Chine avait compromis le Trésor via une clé d'API de BeyondTrust. Il ne signale aucun lien connu entre les deux affaires, et il serait hasardeux d'en déduire un."
+    },
+    {
+     "type": "diagram",
+     "svg": "<svg xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"0 0 640 240\" font-family=\"system-ui,sans-serif\"><rect width=\"640\" height=\"240\" rx=\"16\" fill=\"#f1f5f9\"/><text x=\"320\" y=\"32\" text-anchor=\"middle\" font-size=\"16\" font-weight=\"700\" fill=\"#0f172a\">Chronologie connue de l'incident</text><rect x=\"40\" y=\"70\" width=\"126\" height=\"130\" rx=\"12\" fill=\"#fff\" stroke=\"#334155\" stroke-width=\"1.5\"/><text x=\"103\" y=\"100\" text-anchor=\"middle\" font-size=\"22\" font-weight=\"700\" fill=\"#0f172a\">1</text><text x=\"103\" y=\"128\" text-anchor=\"middle\" font-size=\"13\" font-weight=\"700\" fill=\"#0f172a\">18 novembre</text><text x=\"103\" y=\"150\" text-anchor=\"middle\" font-size=\"11\" fill=\"#334155\">échecs de dépôt</text><text x=\"103\" y=\"166\" text-anchor=\"middle\" font-size=\"11\" fill=\"#334155\">par lots (SDTM)</text><path d=\"M166 135h14\" stroke=\"#334155\" stroke-width=\"2.5\" marker-end=\"url(#a)\"/><rect x=\"180\" y=\"70\" width=\"126\" height=\"130\" rx=\"12\" fill=\"#fff\" stroke=\"#334155\" stroke-width=\"1.5\"/><text x=\"243\" y=\"100\" text-anchor=\"middle\" font-size=\"22\" font-weight=\"700\" fill=\"#0f172a\">2</text><text x=\"243\" y=\"128\" text-anchor=\"middle\" font-size=\"13\" font-weight=\"700\" fill=\"#0f172a\">Fin de semaine</text><text x=\"243\" y=\"150\" text-anchor=\"middle\" font-size=\"11\" fill=\"#334155\">avis sur le SDTM</text><path d=\"M306 135h14\" stroke=\"#334155\" stroke-width=\"2.5\" marker-end=\"url(#a)\"/><rect x=\"320\" y=\"70\" width=\"126\" height=\"130\" rx=\"12\" fill=\"#fff\" stroke=\"#334155\" stroke-width=\"1.5\"/><text x=\"383\" y=\"100\" text-anchor=\"middle\" font-size=\"22\" font-weight=\"700\" fill=\"#0f172a\">3</text><text x=\"383\" y=\"128\" text-anchor=\"middle\" font-size=\"13\" font-weight=\"700\" fill=\"#0f172a\">24 novembre</text><text x=\"383\" y=\"150\" text-anchor=\"middle\" font-size=\"11\" fill=\"#334155\">accès non autorisé</text><text x=\"383\" y=\"166\" text-anchor=\"middle\" font-size=\"11\" fill=\"#334155\">reconnu, systèmes coupés</text><path d=\"M446 135h14\" stroke=\"#334155\" stroke-width=\"2.5\" marker-end=\"url(#a)\"/><rect x=\"460\" y=\"70\" width=\"126\" height=\"130\" rx=\"12\" fill=\"#fff\" stroke=\"#334155\" stroke-width=\"1.5\"/><text x=\"523\" y=\"100\" text-anchor=\"middle\" font-size=\"22\" font-weight=\"700\" fill=\"#0f172a\">4</text><text x=\"523\" y=\"128\" text-anchor=\"middle\" font-size=\"13\" font-weight=\"700\" fill=\"#0f172a\">30 décembre</text><text x=\"523\" y=\"150\" text-anchor=\"middle\" font-size=\"11\" fill=\"#334155\">nouvelle date limite</text><text x=\"523\" y=\"166\" text-anchor=\"middle\" font-size=\"11\" fill=\"#334155\">dérogation FIN-2026-R002</text><defs><marker id=\"a\" markerWidth=\"8\" markerHeight=\"8\" refX=\"6\" refY=\"4\" orient=\"auto\"><path d=\"M0 0 8 4 0 8z\" fill=\"#334155\"/></marker></defs></svg>",
+     "alt": "Chronologie en quatre étapes de l'incident au FinCEN, du 18 novembre au 30 décembre",
+     "caption": "Chronologie reconstituée à partir des éléments publics cités par The Hacker News."
+    },
+    {
+     "type": "usecases",
+     "title": "Ce que cela change concrètement",
+     "items": [
+      {
+       "icon": "🏦",
+       "title": "Une banque",
+       "text": "Ses envois automatisés échouent : elle peut profiter du délai jusqu'au 30 décembre, tout en continuant à surveiller les transactions suspectes."
+      },
+      {
+       "icon": "🏢",
+       "title": "Une société déclarante",
+       "text": "Une entreprise soumise à la déclaration sur les bénéficiaires effectifs bénéficie du même report, sans que ses obligations de fond changent."
+      },
+      {
+       "icon": "🇫🇷",
+       "title": "Un établissement français",
+       "text": "Un groupe bancaire français ayant une filiale américaine peut être concerné par ces dépôts ; la situation relève du droit américain et se distingue du dispositif français (Tracfin)."
+      }
+     ]
+    },
+    {
+     "type": "timeline",
+     "title": "D'où l'on vient, où l'on va",
+     "items": [
+      {
+       "label": "Décembre 2024",
+       "text": "Une intrusion liée à la Chine touche le Trésor américain, via une clé d'API de BeyondTrust."
+      },
+      {
+       "label": "18 novembre 2026",
+       "text": "Premiers échecs de dépôts automatisés signalés par des prestataires."
+      },
+      {
+       "label": "24 novembre 2026",
+       "text": "Le FinCEN reconnaît un accès non autorisé et publie une dérogation."
+      },
+      {
+       "label": "30 décembre 2026",
+       "text": "Nouvelle date limite pour les déclarations concernées."
+      }
+     ]
+    },
+    {
+     "type": "opinion",
+     "title": "Notre avis",
+     "paragraphs": [
+      "Le plus frappant est le décalage entre un communiqué volontairement succinct et l'importance des données concernées. Tant que le FinCEN ne dit ni quelles données sont touchées ni depuis quand l'accès existait, il est impossible d'évaluer le risque pour les institutions qui lui transmettent des informations sensibles. La dérogation de plus de quarante jours montre en tout cas que l'agence anticipe une remise en état longue.",
+      "Dans les années à venir, les autorités de lutte contre la criminalité financière pourraient être contraintes à une transparence plus grande après incident, ne serait-ce que pour maintenir la confiance des déclarants. Il s'agit d'une analyse : aucune source ne l'annonce."
+     ],
+     "verdict": "Une intrusion encore opaque : l'essentiel reste à documenter."
+    }
+   ]
+  },
+  {
+   "id": "com-vishing-comptes-cloud-unit42",
+   "category": "cybersecurite",
+   "icon": "📞",
+   "importance": 4,
+   "title": "Vishing : des groupes affiliés à la « Com » détournent des comptes cloud pour voler des données et extorquer leurs victimes, selon Unit 42",
+   "summary": "Palo Alto Networks Unit 42 décrit plusieurs grappes de pirates qui appellent les employés en se faisant passer pour le support informatique, interceptent identifiants et validations d'authentification multifacteur, puis exfiltrent des données Microsoft 365 et SaaS avant de réclamer une rançon.",
+   "tags": [
+    "vishing",
+    "Unit 42",
+    "ShinyHunters",
+    "MFA",
+    "Microsoft 365",
+    "extorsion"
+   ],
+   "publishedAt": "2026-11-25T18:16:30+01:00",
+   "sourceDate": "2026-11-25",
+   "readingMinutes": 5,
+   "cover": {
+    "url": "https://blogger.googleusercontent.com/img/b/R29vZ2xl/AVvXsEgoCQn2zL8-RpfdhDeb1Zmyn46vLk1s9lerpXtGlcMkN5IGF9nlhEejtwoOXwhznjS7JVrix_FeG_G6yJ6Jb8mI31CU4Mi2dndKvLp-4nG4wWsqMaBpI60HFIk5d8_5uIxj6XEjSt4sixJYkJN8Xeqs4OrgSzOPK48esNtXbQ_FgtVe67B_WZkfpuUSEiD7/s1700-nu-rw-lo-l85-e365/vishing.jpg",
+    "alt": "Illustration de l'article sur les attaques de vishing",
+    "credit": "thehackernews.com"
+   },
+   "sources": [
+    {
+     "title": "Com-Affiliated Hackers Hijack Cloud Accounts via Vishing for Data Theft and Extortion",
+     "url": "https://thehackernews.com/2026/11/com-affiliated-hackers-hijack-cloud.html",
+     "publisher": "The Hacker News"
+    },
+    {
+     "title": "Com affiliate vishing attacks",
+     "url": "https://unit42.paloaltonetworks.com/com-affiliate-vishing-attacks/",
+     "publisher": "Palo Alto Networks Unit 42"
+    }
+   ],
+   "illustration": {
+    "svg": "<svg xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"0 0 640 360\"><defs><linearGradient id=\"g\" x1=\"0\" y1=\"0\" x2=\"1\" y2=\"1\"><stop offset=\"0\" stop-color=\"hsl(175,65%,42%)\"/><stop offset=\"1\" stop-color=\"hsl(215,70%,22%)\"/></linearGradient></defs><rect width=\"640\" height=\"360\" fill=\"url(#g)\"/><circle cx=\"560\" cy=\"60\" r=\"90\" fill=\"#fff\" opacity=\".08\"/><circle cx=\"70\" cy=\"320\" r=\"110\" fill=\"#fff\" opacity=\".08\"/><rect x=\"260\" y=\"60\" width=\"120\" height=\"240\" rx=\"20\" fill=\"#fff\"/><rect x=\"274\" y=\"84\" width=\"92\" height=\"170\" rx=\"6\" fill=\"hsl(175,60%,30%)\"/><circle cx=\"320\" cy=\"277\" r=\"9\" fill=\"hsl(175,60%,30%)\"/><path d=\"M420 110q40 30 0 60M450 90q70 50 0 100\" stroke=\"#fff\" stroke-width=\"8\" fill=\"none\"/></svg>"
+   },
+   "blocks": [
+    {
+     "type": "paragraph",
+     "text": "Pas de pièce jointe piégée ni de faille logicielle : l'attaque décrite par l'unité 42 de Palo Alto Networks commence par un simple appel téléphonique. Selon The Hacker News, qui reprend ce rapport, plusieurs grappes d'attaquants affiliés à la « Com » — une nébuleuse de cybercriminels anglophones — mènent depuis août 2026 des vagues de vishing (hameçonnage vocal) pour prendre le contrôle de comptes cloud, voler des données puis extorquer les organisations visées."
+    },
+    {
+     "type": "heading",
+     "level": 2,
+     "text": "Le scénario type"
+    },
+    {
+     "type": "list",
+     "ordered": true,
+     "items": [
+      "Un faux technicien du support informatique appelle un employé et invoque un problème d'authentification.",
+      "La victime est dirigée vers une page d'hameçonnage personnalisée, sur un domaine imitant un portail d'authentification unique, une page de support ou un service de configuration de clés d'accès (passkeys).",
+      "Un proxy d'« adversaire au milieu » capte en temps réel le mot de passe et la validation multifacteur ; le kit « Doko's Panel », décrit par Push Security, vole la session authentifiée.",
+      "En quelques minutes, les attaquants enrôlent leur propre appareil d'authentification, souvent nommé « Pixel 10a », puis créent des identifiants cloud temporaires et autorisent des applications OAuth non approuvées.",
+      "Ils masquent leurs traces (règles de messagerie modifiées, alertes effacées, trafic passant par des proxys résidentiels et des VPN commerciaux), puis extraient des données."
+     ]
+    },
+    {
+     "type": "heading",
+     "level": 2,
+     "text": "Cibles et outils"
+    },
+    {
+     "type": "paragraph",
+     "text": "Les données sont aspirées dans les boîtes aux lettres Microsoft 365, OneDrive et SharePoint à l'aide de scripts Python et du SDK Microsoft Graph, mais aussi dans Salesforce, DocuSign et Slack. L'extorsion suit : messages envoyés sur Teams et par courriel aux employés, avec un lien vers un site de négociation hébergé sur Tor."
+    },
+    {
+     "type": "keyvalue",
+     "items": [
+      {
+       "label": "Grappes citées",
+       "value": "Bling Libra (ShinyHunters), CL-CRI-1116 (Redact), CL-CRI-1147 (Pink), CL-CRI-1182 (Falcon), CL-CRI-1192 (Helix, UNC6671), CL-CRI-1264 (Vortex), CL-CRI-1274 (Cinder)"
+      },
+      {
+       "label": "Début des vagues",
+       "value": "août 2026"
+      },
+      {
+       "label": "Secteurs",
+       "value": "santé (premier secteur visé en septembre, devant la finance), services financiers, juridique, construction, haute technologie, transport, industrie, pharmacie, assurance, immobilier"
+      },
+      {
+       "label": "Zones",
+       "value": "États-Unis, Royaume-Uni et Australie"
+      }
+     ]
+    },
+    {
+     "type": "paragraph",
+     "text": "Pour la grappe UNC6671 (CL-CRI-1192), Unit 42 évalue avec un niveau de confiance modéré l'usage d'une extension de navigateur installée hors boutique et nommée « Google Chrome », capable d'enregistrer les frappes, de voler cookies et données de stockage, de lire des codes QR d'authentification, de diffuser la webcam et de prendre le contrôle du navigateur."
+    },
+    {
+     "type": "diagram",
+     "svg": "<svg xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"0 0 640 240\" font-family=\"system-ui,sans-serif\"><rect width=\"640\" height=\"240\" rx=\"16\" fill=\"#f1f5f9\"/><text x=\"320\" y=\"32\" text-anchor=\"middle\" font-size=\"16\" font-weight=\"700\" fill=\"#0f172a\">Déroulé d'une attaque par vishing</text><rect x=\"40\" y=\"70\" width=\"98\" height=\"130\" rx=\"12\" fill=\"#fff\" stroke=\"#334155\" stroke-width=\"1.5\"/><text x=\"89\" y=\"100\" text-anchor=\"middle\" font-size=\"22\" font-weight=\"700\" fill=\"#0f172a\">1</text><text x=\"89\" y=\"128\" text-anchor=\"middle\" font-size=\"13\" font-weight=\"700\" fill=\"#0f172a\">Appel</text><text x=\"89\" y=\"150\" text-anchor=\"middle\" font-size=\"11\" fill=\"#334155\">faux support</text><text x=\"89\" y=\"166\" text-anchor=\"middle\" font-size=\"11\" fill=\"#334155\">informatique</text><path d=\"M138 135h14\" stroke=\"#334155\" stroke-width=\"2.5\" marker-end=\"url(#a)\"/><rect x=\"152\" y=\"70\" width=\"98\" height=\"130\" rx=\"12\" fill=\"#fff\" stroke=\"#334155\" stroke-width=\"1.5\"/><text x=\"201\" y=\"100\" text-anchor=\"middle\" font-size=\"22\" font-weight=\"700\" fill=\"#0f172a\">2</text><text x=\"201\" y=\"128\" text-anchor=\"middle\" font-size=\"13\" font-weight=\"700\" fill=\"#0f172a\">Hameçonnage</text><text x=\"201\" y=\"150\" text-anchor=\"middle\" font-size=\"11\" fill=\"#334155\">page imitant</text><text x=\"201\" y=\"166\" text-anchor=\"middle\" font-size=\"11\" fill=\"#334155\">le portail SSO</text><path d=\"M250 135h14\" stroke=\"#334155\" stroke-width=\"2.5\" marker-end=\"url(#a)\"/><rect x=\"264\" y=\"70\" width=\"98\" height=\"130\" rx=\"12\" fill=\"#fff\" stroke=\"#334155\" stroke-width=\"1.5\"/><text x=\"313\" y=\"100\" text-anchor=\"middle\" font-size=\"22\" font-weight=\"700\" fill=\"#0f172a\">3</text><text x=\"313\" y=\"128\" text-anchor=\"middle\" font-size=\"13\" font-weight=\"700\" fill=\"#0f172a\">Session volée</text><text x=\"313\" y=\"150\" text-anchor=\"middle\" font-size=\"11\" fill=\"#334155\">mot de passe et MFA</text><text x=\"313\" y=\"166\" text-anchor=\"middle\" font-size=\"11\" fill=\"#334155\">captés en direct</text><path d=\"M362 135h14\" stroke=\"#334155\" stroke-width=\"2.5\" marker-end=\"url(#a)\"/><rect x=\"376\" y=\"70\" width=\"98\" height=\"130\" rx=\"12\" fill=\"#fff\" stroke=\"#334155\" stroke-width=\"1.5\"/><text x=\"425\" y=\"100\" text-anchor=\"middle\" font-size=\"22\" font-weight=\"700\" fill=\"#0f172a\">4</text><text x=\"425\" y=\"128\" text-anchor=\"middle\" font-size=\"13\" font-weight=\"700\" fill=\"#0f172a\">Persistance</text><text x=\"425\" y=\"150\" text-anchor=\"middle\" font-size=\"11\" fill=\"#334155\">nouvel appareil MFA</text><text x=\"425\" y=\"166\" text-anchor=\"middle\" font-size=\"11\" fill=\"#334155\">et app OAuth</text><path d=\"M474 135h14\" stroke=\"#334155\" stroke-width=\"2.5\" marker-end=\"url(#a)\"/><rect x=\"488\" y=\"70\" width=\"98\" height=\"130\" rx=\"12\" fill=\"#fff\" stroke=\"#334155\" stroke-width=\"1.5\"/><text x=\"537\" y=\"100\" text-anchor=\"middle\" font-size=\"22\" font-weight=\"700\" fill=\"#0f172a\">5</text><text x=\"537\" y=\"128\" text-anchor=\"middle\" font-size=\"13\" font-weight=\"700\" fill=\"#0f172a\">Extorsion</text><text x=\"537\" y=\"150\" text-anchor=\"middle\" font-size=\"11\" fill=\"#334155\">vol de données</text><text x=\"537\" y=\"166\" text-anchor=\"middle\" font-size=\"11\" fill=\"#334155\">puis rançon</text><defs><marker id=\"a\" markerWidth=\"8\" markerHeight=\"8\" refX=\"6\" refY=\"4\" orient=\"auto\"><path d=\"M0 0 8 4 0 8z\" fill=\"#334155\"/></marker></defs></svg>",
+     "alt": "Schéma en cinq étapes d'une attaque par vishing, de l'appel à l'extorsion",
+     "caption": "Déroulé type d'une attaque par vishing, d'après le rapport d'Unit 42."
+    },
+    {
+     "type": "heading",
+     "level": 2,
+     "text": "Se protéger"
+    },
+    {
+     "type": "paragraph",
+     "text": "L'article ne détaille pas de recommandations : le rapport d'Unit 42 reste la référence. Les principes de base sont néanmoins connus : ne jamais valider une demande d'authentification issue d'un appel entrant, rappeler le support par un numéro officiel, limiter l'enrôlement de nouveaux appareils MFA et surveiller les autorisations d'applications OAuth. Les clés d'accès liées à un domaine résistent mieux à l'hameçonnage, mais les attaquants imitent désormais aussi leurs pages de configuration."
+    },
+    {
+     "type": "usecases",
+     "title": "Ce que cela change concrètement",
+     "items": [
+      {
+       "icon": "📞",
+       "title": "Un employé en télétravail",
+       "text": "Il reçoit un appel d'un « support » lui demandant de valider une connexion : la bonne réponse est de raccrocher et de rappeler le numéro interne officiel."
+      },
+      {
+       "icon": "🧑‍💻",
+       "title": "Une équipe informatique",
+       "text": "Elle crée une alerte sur tout nouvel appareil MFA enregistré peu après une connexion depuis un fournisseur d'accès résidentiel."
+      },
+      {
+       "icon": "🏥",
+       "title": "Un établissement de santé",
+       "text": "Secteur le plus visé en septembre : il restreint les autorisations OAuth et forme ses standardistes à repérer les appels de « dépannage » inattendus."
+      }
+     ]
+    },
+    {
+     "type": "timeline",
+     "title": "D'où l'on vient, où l'on va",
+     "items": [
+      {
+       "label": "Janvier 2026",
+       "text": "Première observation de la grappe CL-CRI-1116 (Redact)."
+      },
+      {
+       "label": "Août 2026",
+       "text": "Début des vagues d'attaques décrites par Unit 42."
+      },
+      {
+       "label": "Septembre 2026",
+       "text": "La santé devient le secteur le plus ciblé, devant la finance."
+      },
+      {
+       "label": "24 novembre 2026",
+       "text": "Okta relie un groupe associé à ShinyHunters à un nouveau site de fuites, selon The Hacker News."
+      }
+     ]
+    },
+    {
+     "type": "opinion",
+     "title": "Notre avis",
+     "paragraphs": [
+      "Ces attaques contournent précisément les protections jugées solides : l'authentification multifacteur ne vaut que si l'utilisateur ne la valide pas sous la pression d'un interlocuteur convaincant. Elles reposent moins sur la technique que sur l'organisation du support informatique, que les attaquants imitent avec un réalisme croissant.",
+      "À un horizon d'un à trois ans, on peut penser que la parade passera par des procédures de vérification d'identité des appels entrants et par des clés d'accès résistantes à l'hameçonnage, plutôt que par la seule sensibilisation. C'est une opinion argumentée, non un fait établi."
+     ],
+     "verdict": "Le maillon faible n'est pas le logiciel, c'est la conversation téléphonique."
+    }
+   ]
+  }
+ ]
+}
