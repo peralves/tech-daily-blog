@@ -1,0 +1,809 @@
+{
+ "schemaVersion": "1.0",
+ "date": "2026-11-25",
+ "generatedAt": "2026-11-25T04:16:42+01:00",
+ "title": "Tech : intrusion contre des serveurs Check Point, GPT-6 et les protéines, retrait de Quad9 en France",
+ "summary": "Cette édition rassemble cinq sujets : une campagne d'intrusion décrite par GreyNoise contre des serveurs de gestion Check Point, les résultats de conception de protéines publiés par OpenAI, un adaptateur USB-C séparant USB 3 et USB 2, le retrait du DNS Quad9 en France et la fin du relicenciement de LLVM.",
+ "highlights": [
+  "Check Point : au moins 22 organisations visées dans 17 pays, selon GreyNoise",
+  "GPT-6 : environ 11 % de mini-liants conçus se lient à leur cible en laboratoire",
+  "Quad9 refuse les requêtes DNS depuis la France depuis le 24 novembre à 9 h",
+  "Dongle-Pro v2 : USB 3 à 10 Gb/s pour environ 2,93 dollars la carte",
+  "LLVM : plus de 99,5 % du code sous Apache-2.0 avec exception LLVM"
+ ],
+ "meta": {
+  "generator": "claude-scheduled-task"
+ },
+ "posts": [
+  {
+   "id": "check-point-campagne-gt13-serveurs-gestion",
+   "category": "cybersecurite",
+   "icon": "🛡️",
+   "importance": 5,
+   "title": "Check Point : GreyNoise décrit une intrusion de plusieurs semaines contre des serveurs de gestion, via un relais HFS non corrigé",
+   "summary": "Selon GreyNoise, un acteur non identifié, baptisé GT13, a exploité un serveur Rejetto HFS pour rebondir vers des serveurs de gestion Check Point : au moins 22 organisations touchées dans 17 pays, et 24 serveurs dont des données ont été extraites.",
+   "tags": [
+    "Check Point",
+    "GreyNoise",
+    "intrusion",
+    "HFS",
+    "SmartConsole"
+   ],
+   "sourceDate": "2026-11-23",
+   "cover": {
+    "url": "https://cdn.prod.website-files.com/667dd40ebb8095e89f27565d/6b00b96c7176ac8c286ffb00_GreyNoise-Blog-Check-Point-1600x900.png",
+    "alt": "Visuel du rapport de GreyNoise sur la campagne contre les serveurs de gestion Check Point",
+    "credit": "greynoise.io"
+   },
+   "sources": [
+    {
+     "title": "Active intrusion campaign against Check Point security management servers",
+     "url": "https://www.greynoise.io/blog/check-point-security-management-servers-intrusion-campaign",
+     "publisher": "GreyNoise"
+    }
+   ],
+   "illustration": {
+    "svg": "<svg xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"0 0 640 360\"><defs><linearGradient id=\"g\" x1=\"0\" y1=\"0\" x2=\"1\" y2=\"1\"><stop offset=\"0\" stop-color=\"hsl(175,65%,42%)\"/><stop offset=\"1\" stop-color=\"hsl(215,70%,22%)\"/></linearGradient></defs><rect width=\"640\" height=\"360\" fill=\"url(#g)\"/><circle cx=\"570\" cy=\"55\" r=\"90\" fill=\"#fff\" opacity=\".08\"/><circle cx=\"60\" cy=\"320\" r=\"120\" fill=\"#fff\" opacity=\".06\"/><path d=\"M320 90 L410 125 V200 C410 250 370 280 320 300 C270 280 230 250 230 200 V125 Z\" fill=\"#fff\" opacity=\".92\"/><path d=\"M285 190 l28 28 l50 -56\" stroke=\"hsl(175,60%,35%)\" stroke-width=\"16\" fill=\"none\" stroke-linecap=\"round\" stroke-linejoin=\"round\"/></svg>"
+   },
+   "blocks": [
+    {
+     "type": "paragraph",
+     "text": "Le 23 novembre 2026, la société d'analyse de menaces GreyNoise a publié le détail d'une **campagne d'intrusion toujours active**, qu'elle nomme GT13. Sa cible principale : les serveurs de gestion de sécurité de Check Point, c'est-à-dire les consoles qui centralisent les politiques de pare-feu, les certificats et la configuration de parcs entiers de passerelles. Compromettre un tel serveur, c'est obtenir une vue d'ensemble, voire une prise de contrôle, de la défense d'une organisation."
+    },
+    {
+     "type": "heading",
+     "level": 2,
+     "text": "Ce que GreyNoise a observé"
+    },
+    {
+     "type": "paragraph",
+     "text": "D'après le rapport, l'activité s'étend du 2 octobre au 2 novembre 2026, date de la dernière visibilité de GreyNoise. L'éditeur estime l'intrusion toujours en cours, car l'acteur conserve un accès persistant aux équipements compromis. Le bilan chiffré est le suivant :"
+    },
+    {
+     "type": "keyvalue",
+     "items": [
+      {
+       "label": "Organisations touchées",
+       "value": "au moins 22, avec des actifs dans 17 pays (Amériques, Europe, Asie-Pacifique)"
+      },
+      {
+       "label": "Serveurs Check Point dont des données ont été extraites",
+       "value": "24 (le rapport ne réconcilie pas totalement ce chiffre avec celui des organisations)"
+      },
+      {
+       "label": "Secteurs",
+       "value": "services financiers, énergie, administrations, transport, mines, ingénierie, industrie"
+      },
+      {
+       "label": "Infrastructure de l'acteur",
+       "value": "99 adresses IP, surtout des sorties d'un service de VPN grand public"
+      },
+      {
+       "label": "Volume d'activité",
+       "value": "plus de 1 400 sessions réseau, 800 traces de ligne de commande, 1 200 fichiers"
+      },
+      {
+       "label": "Attribution",
+       "value": "aucune : GreyNoise ne peut évaluer ni la motivation ni l'origine"
+      }
+     ]
+    },
+    {
+     "type": "paragraph",
+     "text": "GreyNoise précise que la campagne ne cible ni une zone géographique ni un secteur en particulier. L'éditeur soupçonne en revanche un dispositif offensif « mature » et assisté par l'IA, avec des systèmes agentiques pour le balayage, l'exploitation et le développement d'outils : c'est une hypothèse de l'éditeur, non un fait établi."
+    },
+    {
+     "type": "heading",
+     "level": 2,
+     "text": "La chaîne d'attaque, étape par étape"
+    },
+    {
+     "type": "diagram",
+     "svg": "<svg xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"0 0 640 230\" font-family=\"system-ui,sans-serif\"><rect width=\"640\" height=\"230\" rx=\"16\" fill=\"#f1f5f9\"/><text x=\"320\" y=\"30\" text-anchor=\"middle\" font-size=\"15\" font-weight=\"700\" fill=\"#0f172a\">Chaîne d'intrusion GT13 selon GreyNoise</text><rect x=\"20\" y=\"52\" width=\"127\" height=\"150\" rx=\"12\" fill=\"#b45309\"/><text x=\"83.5\" y=\"82\" text-anchor=\"middle\" font-size=\"13\" font-weight=\"700\" fill=\"#fff\">Relais HFS</text><text x=\"83.5\" y=\"108\" text-anchor=\"middle\" font-size=\"11.5\" fill=\"#fff\">Faille de forge de</text><text x=\"83.5\" y=\"127\" text-anchor=\"middle\" font-size=\"11.5\" fill=\"#fff\">session (CVE-2026-61500)</text><text x=\"83.5\" y=\"146\" text-anchor=\"middle\" font-size=\"11.5\" fill=\"#fff\">2 octobre</text><path d=\"M150 125.0 h22 m-7 -7 l7 7 l-7 7\" stroke=\"#334155\" stroke-width=\"3\" fill=\"none\" stroke-linecap=\"round\"/><rect x=\"177\" y=\"52\" width=\"127\" height=\"150\" rx=\"12\" fill=\"#0f766e\"/><text x=\"240.5\" y=\"82\" text-anchor=\"middle\" font-size=\"13\" font-weight=\"700\" fill=\"#fff\">Tunnel</text><text x=\"240.5\" y=\"108\" text-anchor=\"middle\" font-size=\"11.5\" fill=\"#fff\">Chisel, Nmap,</text><text x=\"240.5\" y=\"127\" text-anchor=\"middle\" font-size=\"11.5\" fill=\"#fff\">serveur de dépôt</text><text x=\"240.5\" y=\"146\" text-anchor=\"middle\" font-size=\"11.5\" fill=\"#fff\">20 octobre</text><path d=\"M307 125.0 h22 m-7 -7 l7 7 l-7 7\" stroke=\"#334155\" stroke-width=\"3\" fill=\"none\" stroke-linecap=\"round\"/><rect x=\"334\" y=\"52\" width=\"127\" height=\"150\" rx=\"12\" fill=\"#1d4ed8\"/><text x=\"397.5\" y=\"82\" text-anchor=\"middle\" font-size=\"13\" font-weight=\"700\" fill=\"#fff\">Console Check Point</text><text x=\"397.5\" y=\"108\" text-anchor=\"middle\" font-size=\"11.5\" fill=\"#fff\">Contournement</text><text x=\"397.5\" y=\"127\" text-anchor=\"middle\" font-size=\"11.5\" fill=\"#fff\">d'authentification</text><text x=\"397.5\" y=\"146\" text-anchor=\"middle\" font-size=\"11.5\" fill=\"#fff\">CVE-2026-16232</text><path d=\"M464 125.0 h22 m-7 -7 l7 7 l-7 7\" stroke=\"#334155\" stroke-width=\"3\" fill=\"none\" stroke-linecap=\"round\"/><rect x=\"491\" y=\"52\" width=\"127\" height=\"150\" rx=\"12\" fill=\"#7c3aed\"/><text x=\"554.5\" y=\"82\" text-anchor=\"middle\" font-size=\"13\" font-weight=\"700\" fill=\"#fff\">Exfiltration</text><text x=\"554.5\" y=\"108\" text-anchor=\"middle\" font-size=\"11.5\" fill=\"#fff\">Base du pare-feu,</text><text x=\"554.5\" y=\"127\" text-anchor=\"middle\" font-size=\"11.5\" fill=\"#fff\">autorité interne,</text><text x=\"554.5\" y=\"146\" text-anchor=\"middle\" font-size=\"11.5\" fill=\"#fff\">24 serveurs visés</text></svg>",
+     "alt": "Schéma en quatre étapes : relais HFS, tunnel, console Check Point, exfiltration.",
+     "caption": "Les quatre grandes phases de la campagne : prise d'un relais HFS, mise en place d'un tunnel, attaque des consoles Check Point puis exfiltration."
+    },
+    {
+     "type": "paragraph",
+     "text": "Le point d'entrée n'est pas Check Point lui-même, mais un serveur de fichiers **Rejetto HFS non corrigé** servant de relais (« hop »). Le 2 octobre, un pipeline automatisé y a recueilli plusieurs réponses de connexion, retrouvé l'état du générateur pseudo-aléatoire utilisé pour les identifiants de session, déduit la clé de signature et forgé un cookie d'administrateur. Le 5 octobre, l'acteur a installé des crochets pour exécuter des commandes et ajouté une clé SSH à l'utilisateur root."
+    },
+    {
+     "type": "paragraph",
+     "text": "Du 20 au 26 octobre, un tunnel Chisel a servi à lancer un script exploitant **CVE-2026-16232**, un contournement d'authentification de SmartConsole permettant d'exécuter des scripts. Plus de cent tâches de gestion ont suivi : copie de la base du pare-feu et de l'autorité de certification interne, création d'un nouveau certificat, déchargement de politiques de sécurité. Le 26 octobre, une tâche groupée a visé 24 serveurs de gestion, mais elle a échoué et GreyNoise n'a pas observé de nouvelle tentative. Le 2 novembre, l'acteur a même ajouté sur le relais une règle nftables bloquant les paquets IPv4 avec options, afin d'empêcher d'autres attaquants d'exploiter la même faille Linux (CVE-2026-98432)."
+    },
+    {
+     "type": "heading",
+     "level": 2,
+     "text": "Ce que le rapport ne dit pas"
+    },
+    {
+     "type": "paragraph",
+     "text": "L'article ne décrit ni réponse de Check Point, ni correctif, ni consigne de défense. GreyNoise indique travailler avec des partenaires gouvernementaux internationaux et des CERT, et avoir averti les victimes directement ou par ce biais. Les défenseurs peuvent exploiter les indicateurs publiés (domaines, empreinte HASSH, adresses IP) pour chercher des traces de compromission."
+    },
+    {
+     "type": "usecases",
+     "title": "Exemples d'utilisation",
+     "items": [
+      {
+       "icon": "🏦",
+       "title": "Une banque avec des dizaines de passerelles",
+       "text": "Son équipe réseau vérifie que la console de gestion n'est jamais joignable depuis Internet et passe en revue les comptes, clés SSH et certificats créés depuis début octobre."
+      },
+      {
+       "icon": "🛠️",
+       "title": "Un prestataire de services managés",
+       "text": "Il recense tous les serveurs de fichiers et outils d'administration oubliés dans ses réseaux de gestion : un simple relais non corrigé a suffi comme porte d'entrée."
+      },
+      {
+       "icon": "🚨",
+       "title": "Une équipe de réponse à incident",
+       "text": "Elle recherche dans ses journaux les domaines et adresses publiés par GreyNoise et vérifie l'intégrité des fichiers sensibles comme /etc/ld.so.preload."
+      }
+     ]
+    },
+    {
+     "type": "timeline",
+     "title": "D'où l'on vient, où l'on va",
+     "items": [
+      {
+       "label": "2 octobre 2026",
+       "text": "Première exploitation du relais HFS observée par GreyNoise."
+      },
+      {
+       "label": "20-26 octobre 2026",
+       "text": "Tunnel, exécution de scripts sur les consoles et tentative d'action groupée sur 24 serveurs."
+      },
+      {
+       "label": "2 novembre 2026",
+       "text": "Dernière visibilité de GreyNoise ; l'acteur durcit le relais."
+      },
+      {
+       "label": "23 novembre 2026",
+       "text": "Publication du rapport et notification des victimes via des partenaires."
+      }
+     ]
+    },
+    {
+     "type": "opinion",
+     "title": "Notre avis",
+     "paragraphs": [
+      "Ce rapport rappelle que les consoles de gestion de sécurité sont des cibles de choix : elles concentrent des secrets (autorités de certification, politiques) et sont rarement exposées à la même vigilance que les passerelles. L'attaque ne repose ici sur aucune faille inconnue du public pour le relais initial, mais sur un logiciel simplement non corrigé. Il faut aussi rester prudent : la thèse d'un acteur « assisté par l'IA » reste une interprétation de GreyNoise, et l'absence de réaction publique de l'éditeur concerné limite ce que l'on peut conclure.",
+      "À un horizon d'un à trois ans, on peut raisonnablement s'attendre à voir davantage d'intrusions automatisées, rapides à adapter d'une cible à l'autre. Cela plaide pour une segmentation stricte des réseaux d'administration, une journalisation centralisée hors des équipements surveillés et un inventaire rigoureux des logiciels secondaires."
+     ],
+     "verdict": "Une intrusion discrète et patiente, qui prouve qu'un maillon secondaire non corrigé peut suffire à atteindre le cœur de la défense."
+    },
+    {
+     "type": "callout",
+     "title": "À retenir",
+     "text": "Rapport de GreyNoise du 23 novembre 2026 : au moins 22 organisations, 24 serveurs de gestion Check Point visés, relais Rejetto HFS non corrigé comme porte d'entrée. Aucune attribution, aucune réponse d'éditeur détaillée dans le rapport."
+    }
+   ],
+   "publishedAt": "2026-11-25T04:16:42+01:00",
+   "readingMinutes": 4
+  },
+  {
+   "id": "gpt-6-conception-de-proteines-resultats",
+   "category": "ia",
+   "icon": "🧬",
+   "importance": 5,
+   "title": "GPT-6 et les protéines : OpenAI publie des résultats de conception, avec des tests en laboratoire et des limites clairement énoncées",
+   "summary": "Dans un préprint publié le 24 novembre 2026, OpenAI affirme que ses modèles GPT-6 savent concevoir des protéines par le raisonnement et du code généraliste. Les tests en laboratoire montrent des liaisons réussies, mais les auteurs reconnaissent que les modèles restent filtrés par des outils spécialisés.",
+   "tags": [
+    "OpenAI",
+    "GPT-6",
+    "protéines",
+    "biologie",
+    "préprint"
+   ],
+   "sourceDate": "2026-11-24",
+   "cover": {
+    "url": "https://images.ctfassets.net/kftzwdyauwt9/Eg5mCwwaA3KqnznOVCh0n/8e6deaef25fd508d9853ff86a95187c1/gpt-6-models-demonstrate-intrinsic-protein-design-capabilities-social.png?w=1600&h=900&fit=fill",
+    "alt": "Visuel d'OpenAI illustrant la conception de protéines par les modèles GPT-6",
+    "credit": "openai.com"
+   },
+   "sources": [
+    {
+     "title": "GPT-6 models demonstrate intrinsic protein-design capabilities",
+     "url": "https://openai.com/index/gpt-6-models-demonstrate-intrinsic-protein-design-capabilities/",
+     "publisher": "OpenAI"
+    }
+   ],
+   "illustration": {
+    "svg": "<svg xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"0 0 640 360\"><defs><linearGradient id=\"g\" x1=\"0\" y1=\"0\" x2=\"1\" y2=\"1\"><stop offset=\"0\" stop-color=\"hsl(320,65%,42%)\"/><stop offset=\"1\" stop-color=\"hsl(0,70%,22%)\"/></linearGradient></defs><rect width=\"640\" height=\"360\" fill=\"url(#g)\"/><circle cx=\"570\" cy=\"55\" r=\"90\" fill=\"#fff\" opacity=\".08\"/><circle cx=\"60\" cy=\"320\" r=\"120\" fill=\"#fff\" opacity=\".06\"/><g fill=\"none\" stroke=\"#fff\" stroke-width=\"10\" stroke-linecap=\"round\"><path d=\"M250 80C400 130 240 230 390 280\"/><path d=\"M390 80C240 130 400 230 250 280\"/></g><g stroke=\"#fff\" stroke-width=\"6\" opacity=\".8\"><path d=\"M285 108h70M270 180h100M285 252h70\"/></g></svg>"
+   },
+   "blocks": [
+    {
+     "type": "paragraph",
+     "text": "Le 24 novembre 2026, OpenAI a présenté un préprint intitulé « GPT-6 as a Universal Foundation Model for Protein Biology: Beyond Specialized Models ». Sa thèse : une famille de modèles généralistes peut concevoir des structures de protéines et des séquences d'acides aminés **en s'appuyant sur le raisonnement et du code généraliste**, sans appeler de modèle biologique dédié pour la conception elle-même. Il s'agit d'un document publié par l'éditeur, dont les résultats n'ont pas, à ce stade, fait l'objet d'une évaluation indépendante décrite dans la source."
+    },
+    {
+     "type": "heading",
+     "level": 2,
+     "text": "Les tests informatiques"
+    },
+    {
+     "type": "paragraph",
+     "text": "Les auteurs comparent leurs modèles (GPT-5.6, GPT-6, GPT-6.2 et un modèle interne non commercialisé) à des outils spécialisés de référence. Les chiffres les plus parlants :"
+    },
+    {
+     "type": "list",
+     "ordered": false,
+     "items": [
+      "**Échafaudage de motifs** (30 défis MotifBench) : 43,7 % de conceptions réussies pour le modèle interne, contre 27,8 % pour RFdiffusion.",
+      "**Conception de repliements** (200 défis CATH) : 18,9 % de réussite, contre 17,1 % pour Proteina.",
+      "**Amarrage de petites molécules** (PoseBusters) : la pose expérimentale est retrouvée dans 93 % des cas par GPT-6.2 et 96 % par le modèle interne, contre 50 % pour DiffDock-L.",
+      "**Amarrage anticorps-cible** : le score DockQ moyen passe d'environ 0,05 (GPT-5.6) à 0,28 (GPT-6), 0,57 (GPT-6.2) et 0,81 (modèle interne).",
+      "**Prédiction de structure complète** : le score TM moyen reste à 0,38 pour le modèle interne, très en deçà des 0,93 d'ESMFold2."
+     ]
+    },
+    {
+     "type": "diagram",
+     "svg": "<svg xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"0 0 640 212\" font-family=\"system-ui,sans-serif\"><rect width=\"640\" height=\"212\" rx=\"16\" fill=\"#f1f5f9\"/><text x=\"320\" y=\"30\" text-anchor=\"middle\" font-size=\"15\" font-weight=\"700\" fill=\"#0f172a\">Amarrage anticorps-cible : score DockQ moyen</text><text x=\"200\" y=\"69\" text-anchor=\"end\" font-size=\"12\" fill=\"#0f172a\">GPT-5.6</text><rect x=\"210\" y=\"53\" width=\"20\" height=\"24\" rx=\"6\" fill=\"#a21caf\"/><text x=\"236\" y=\"70\" font-size=\"12\" font-weight=\"700\" fill=\"#0f172a\">0,05</text><text x=\"200\" y=\"107\" text-anchor=\"end\" font-size=\"12\" fill=\"#0f172a\">GPT-6</text><rect x=\"210\" y=\"91\" width=\"114\" height=\"24\" rx=\"6\" fill=\"#a21caf\"/><text x=\"330\" y=\"108\" font-size=\"12\" font-weight=\"700\" fill=\"#0f172a\">0,28</text><text x=\"200\" y=\"145\" text-anchor=\"end\" font-size=\"12\" fill=\"#0f172a\">GPT-6.2</text><rect x=\"210\" y=\"129\" width=\"232\" height=\"24\" rx=\"6\" fill=\"#a21caf\"/><text x=\"448\" y=\"146\" font-size=\"12\" font-weight=\"700\" fill=\"#0f172a\">0,57</text><text x=\"200\" y=\"183\" text-anchor=\"end\" font-size=\"12\" fill=\"#0f172a\">Modèle interne</text><rect x=\"210\" y=\"167\" width=\"330\" height=\"24\" rx=\"6\" fill=\"#a21caf\"/><text x=\"546\" y=\"184\" font-size=\"12\" font-weight=\"700\" fill=\"#0f172a\">0,81</text></svg>",
+     "alt": "Diagramme en barres montrant la hausse du score DockQ de 0,05 à 0,81.",
+     "caption": "Progression du score DockQ moyen d'une génération de modèles à l'autre, d'après le préprint d'OpenAI."
+    },
+    {
+     "type": "heading",
+     "level": 2,
+     "text": "Les essais en laboratoire"
+    },
+    {
+     "type": "paragraph",
+     "text": "Avec le partenaire de recherche Onava, OpenAI a testé des conceptions réelles. Sur 322 mini-liants conçus contre cinq cibles, **35 (10,9 %)** se sont liés à leur cible, dont 18 pour l'interleukine IL-17A et 8 pour le VEGF-A. Pour des séquences redessinées à partir de structures connues, 75 conceptions sur 88 (85 %) se lient à MDM2, mais seulement 8 sur 59 (14 %) à PD-1. Pour des fragments d'anticorps, 128 conceptions sur 182 (70 %) se lient à leur cible pour six VHH dirigés contre IL-4Rα, et 179 sur 272 (66 %) pour cinq anticorps thérapeutiques redessinés contre PD-1 ou PD-L1."
+    },
+    {
+     "type": "paragraph",
+     "text": "Les auteurs relativisent eux-mêmes : l'étude de RFdiffusion d'origine rapportait des taux de réussite plus élevés, qui dépendent des filtres et de la définition de la liaison."
+    },
+    {
+     "type": "heading",
+     "level": 2,
+     "text": "Des limites annoncées"
+    },
+    {
+     "type": "list",
+     "ordered": false,
+     "items": [
+      "Des modèles spécialisés (Boltz-2, OpenDDE, ESMFold2) ont servi à filtrer les candidats : les résultats ne démontrent donc pas une conception de bout en bout sans accompagnement.",
+      "La prédiction de structure complète reste une faiblesse nette face aux modèles dédiés.",
+      "Certains scores élevés pourraient refléter de la mémorisation ou des régularités dans la construction des jeux de test.",
+      "Se lier à une cible n'est qu'une première étape : spécificité, stabilité, activité biologique, sécurité et efficacité ne sont pas testées."
+     ]
+    },
+    {
+     "type": "paragraph",
+     "text": "Sur la sécurité biologique, OpenAI indique évaluer les risques dans le cadre de son « Preparedness Framework » et tester des garde-fous contre les usages malveillants. Les prochaines étapes annoncées visent des cibles où les tentatives précédentes ont échoué, la mesure d'effets biologiques après liaison (par exemple tuer des cellules cancéreuses), puis des liants multicibles, l'ARN, les petites molécules et les PROTAC."
+    },
+    {
+     "type": "usecases",
+     "title": "Exemples d'utilisation",
+     "items": [
+      {
+       "icon": "🧪",
+       "title": "Un laboratoire de recherche académique",
+       "text": "Il utilise un modèle généraliste pour proposer des dizaines de variantes d'un anticorps, puis ne synthétise que celles qui passent ses propres filtres de structure."
+      },
+      {
+       "icon": "💊",
+       "title": "Une jeune pousse de biotechnologie",
+       "text": "Elle explore plus vite des candidats de mini-liants pour une cible difficile, en gardant des essais en laboratoire comme seul juge."
+      },
+      {
+       "icon": "🎓",
+       "title": "Un enseignant en bio-informatique",
+       "text": "Il montre à ses étudiants la différence entre un score de benchmark et une validation expérimentale, à partir des chiffres du préprint."
+      }
+     ]
+    },
+    {
+     "type": "timeline",
+     "title": "D'où l'on vient, où l'on va",
+     "items": [
+      {
+       "label": "2021-2023",
+       "text": "Les modèles spécialisés de structure et de conception (AlphaFold, RFdiffusion) s'imposent en biologie structurale."
+      },
+      {
+       "label": "Jusqu'en 2026",
+       "text": "Les modèles généralistes progressent sur les tâches de biologie sans être conçus pour elles, comme le montrent les scores de GPT-5.6 à GPT-6.2."
+      },
+      {
+       "label": "24 novembre 2026",
+       "text": "OpenAI publie son préprint et ses premiers essais en laboratoire."
+      },
+      {
+       "label": "À venir",
+       "text": "Cibles difficiles, tests d'effet biologique et conceptions multicibles annoncés par OpenAI."
+      }
+     ]
+    },
+    {
+     "type": "opinion",
+     "title": "Notre avis",
+     "paragraphs": [
+      "Le résultat marquant n'est pas qu'un modèle de langage « fasse de la biologie » : c'est que la progression d'une génération à l'autre est nette sur des tâches de conception, avec des conceptions qui se lient réellement en laboratoire. Mais les chiffres de réussite restent modestes (environ 11 % pour les mini-liants), le filtrage dépend d'outils spécialisés et l'étude vient de l'éditeur lui-même. La prudence s'impose avant d'y voir un remplaçant des pipelines établis.",
+      "À un horizon d'un à trois ans, la valeur probable se situe moins dans le remplacement des outils dédiés que dans leur orchestration par un modèle généraliste capable de raisonner, de lire la littérature et d'écrire le code d'analyse. Cela abaisse le coût d'entrée, mais augmente aussi la question du contrôle des usages à risque."
+     ],
+     "verdict": "Des progrès réels et mesurés en laboratoire, mais un préprint d'éditeur qui demande une validation indépendante."
+    },
+    {
+     "type": "callout",
+     "title": "À retenir",
+     "text": "Préprint d'OpenAI du 24 novembre 2026 : environ 11 % de mini-liants conçus se lient à leur cible en laboratoire ; la prédiction de structure complète reste très en retrait des modèles spécialisés ; les résultats restent à confirmer de façon indépendante."
+    }
+   ],
+   "publishedAt": "2026-11-25T04:16:42+01:00",
+   "readingMinutes": 4
+  },
+  {
+   "id": "dongle-pro-v2-usb-c-usb3-usb2-restorekit",
+   "category": "electronique",
+   "icon": "🔌",
+   "importance": 3,
+   "title": "Dongle-Pro v2 : un adaptateur USB-C qui sépare USB 3 et USB 2 sur un même port, pour moins de 3 dollars la carte",
+   "summary": "Frank Chiarulli Jr. décrit une carte en ligne de 21 × 48 mm qui force le mode DFU d'un Mac ou d'un iPhone tout en laissant passer l'USB 3 à 10 Gb/s, grâce à deux multiplexeurs passifs et un petit concentrateur USB 2.",
+   "tags": [
+    "USB-C",
+    "USB-PD",
+    "DFU",
+    "restorekit",
+    "matériel libre"
+   ],
+   "sourceDate": "2026-11-23",
+   "cover": {
+    "url": "https://frankchiarulli.com/blog/splitting-usb-c/opengraph-image?1da773d5ba88c69c",
+    "alt": "Visuel de l'article sur la séparation de l'USB 3 et de l'USB 2 sur un port USB-C",
+    "credit": "frankchiarulli.com"
+   },
+   "sources": [
+    {
+     "title": "Splitting USB-C: USB 3 and USB 2 on one port",
+     "url": "https://frankchiarulli.com/blog/splitting-usb-c/",
+     "publisher": "frankchiarulli.com"
+    }
+   ],
+   "illustration": {
+    "svg": "<svg xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"0 0 640 360\"><defs><linearGradient id=\"g\" x1=\"0\" y1=\"0\" x2=\"1\" y2=\"1\"><stop offset=\"0\" stop-color=\"hsl(30,65%,42%)\"/><stop offset=\"1\" stop-color=\"hsl(70,70%,22%)\"/></linearGradient></defs><rect width=\"640\" height=\"360\" fill=\"url(#g)\"/><circle cx=\"570\" cy=\"55\" r=\"90\" fill=\"#fff\" opacity=\".08\"/><circle cx=\"60\" cy=\"320\" r=\"120\" fill=\"#fff\" opacity=\".06\"/><rect x=\"250\" y=\"110\" width=\"140\" height=\"140\" rx=\"14\" fill=\"#fff\" opacity=\".92\"/><rect x=\"285\" y=\"145\" width=\"70\" height=\"70\" rx=\"8\" fill=\"hsl(30,60%,35%)\"/><g stroke=\"#fff\" stroke-width=\"8\" stroke-linecap=\"round\" opacity=\".9\"><path d=\"M280 90v20M320 90v20M360 90v20M280 250v20M320 250v20M360 250v20M230 140h20M230 180h20M230 220h20M390 140h20M390 180h20M390 220h20\"/></g></svg>"
+   },
+   "blocks": [
+    {
+     "type": "paragraph",
+     "text": "Le 23 novembre 2026, le développeur Frank Chiarulli Jr. a détaillé la deuxième version de « Dongle-Pro », un petit adaptateur USB-C conçu pour le projet restorekit.org. Placé entre un ordinateur hôte et un Mac cible, il met l'appareil cible en mode **DFU** (Device Firmware Update, mise à jour de micrologiciel d'Apple) par l'intermédiaire de l'USB Power Delivery, sans aucune modification de la cible. La question de conception : comment conserver la vitesse de l'USB 3 sans payer le prix et l'encombrement d'un concentrateur USB 3 complet ?"
+    },
+    {
+     "type": "heading",
+     "level": 2,
+     "text": "Le principe : deux chemins sur un seul connecteur"
+    },
+    {
+     "type": "paragraph",
+     "text": "La première version utilisait un concentrateur USB 3 (GL3510) et deux multiplexeurs SuperSpeed. Trop cher et trop volumineux. La version « Lite », elle, ne gère que l'USB 2. La v2 adopte un compromis : un **petit concentrateur USB 2** reste branché sur les broches D+/D−, tandis que les lignes SuperSpeed traversent **directement** deux multiplexeurs passifs sur le même port. L'appareil cible apparaît donc comme un voisin du concentrateur, et non comme son enfant."
+    },
+    {
+     "type": "paragraph",
+     "text": "Rappel de l'organisation d'un connecteur USB-C : les paires SuperSpeed occupent les bords (une seule paire est active selon l'orientation du câble), les broches D+/D− du centre sont court-circuitées, les broches CC1/CC2 servent à détecter l'orientation et à transporter l'USB-PD, et les broches SBU1/SBU2 portent la liaison série de débogage à 1,2 V utilisée par Apple."
+    },
+    {
+     "type": "heading",
+     "level": 2,
+     "text": "Composants retenus"
+    },
+    {
+     "type": "table",
+     "headers": [
+      "Fonction",
+      "Composant (Pro v2)"
+     ],
+     "rows": [
+      [
+       "Concentrateur USB 2",
+       "CH334P"
+      ],
+      [
+       "Microcontrôleur du dongle",
+       "CH32X035G8U6, oscillateur interne 48 MHz, sans quartz"
+      ],
+      [
+       "Multiplexeurs SuperSpeed 2:1 (×2)",
+       "CH9441P, un par port, pilotés par les lignes CC"
+      ],
+      [
+       "Contrôleur PD côté cible",
+       "HUSB311 (remplace le FUSB302B)"
+      ],
+      [
+       "Adaptation de niveau SBU",
+       "MOSFET HL2302 en grille commune"
+      ],
+      [
+       "Protection contre les décharges",
+       "réseaux H5VU25U"
+      ]
+     ]
+    },
+    {
+     "type": "heading",
+     "level": 2,
+     "text": "Résultats annoncés"
+    },
+    {
+     "type": "keyvalue",
+     "items": [
+      {
+       "label": "Débit USB 3",
+       "value": "iPhone énuméré à 10 Gb/s (USB 3.2 Gen 2) à travers les deux multiplexeurs"
+      },
+      {
+       "label": "Concentrateur et microcontrôleur",
+       "value": "480 Mb/s et 12 Mb/s"
+      },
+      {
+       "label": "Taille",
+       "value": "21 × 48 mm (10,1 cm²), environ 40 % de moins que le Dongle-Lite"
+      },
+      {
+       "label": "Nomenclature",
+       "value": "52 composants posés, 18 références distinctes"
+      },
+      {
+       "label": "Coût",
+       "value": "environ 2,93 dollars par carte pour 15 exemplaires (4,53 dollars avec les frais de bobines), contre 5,03 dollars pour le Lite et 10,44 dollars pour la v1"
+      },
+      {
+       "label": "Gain",
+       "value": "nomenclature réduite de 72 % par rapport à la v1 et de 42 % par rapport au Lite ; débit SuperSpeed doublé de 5 à 10 Gb/s"
+      }
+     ]
+    },
+    {
+     "type": "heading",
+     "level": 2,
+     "text": "Risques identifiés par l'auteur"
+    },
+    {
+     "type": "list",
+     "ordered": false,
+     "items": [
+      "Aucun conditionnement du signal : deux multiplexeurs passifs en série, sans répéteur, ajoutent pertes d'insertion et réflexions.",
+      "Les lignes CC sont partagées entre le contrôleur PD de la cible et le multiplexeur.",
+      "Comportement des systèmes hôtes : il restait à vérifier qu'un concentrateur USB 2 et un appareil USB 3.2 peuvent coexister sur un même port.",
+      "Un banc d'essai limité à un Mac et un iPhone : aucune campagne de compatibilité plus large n'est rapportée."
+     ]
+    },
+    {
+     "type": "paragraph",
+     "text": "Côté logiciel, un appareil SuperSpeed contourne le concentrateur et apparaît comme un pair. Le kit de développement de restorekit doit donc s'appuyer sur les informations de port voisin du système (`UsbProtocolCompanion` sur macOS, `port/peer` dans sysfs sous Linux) pour associer chaque appareil à son dongle."
+    },
+    {
+     "type": "usecases",
+     "title": "Exemples d'utilisation",
+     "items": [
+      {
+       "icon": "🧰",
+       "title": "Un atelier de réparation",
+       "text": "Il restaure plusieurs appareils d'affilée avec un adaptateur peu coûteux, sans ouvrir les machines ni installer d'outil sur la cible."
+      },
+      {
+       "icon": "🔬",
+       "title": "Un amateur d'électronique",
+       "text": "Il étudie la conception comme exemple de partage d'un port USB-C entre deux chemins de signal, avec nomenclature et risques documentés."
+      },
+      {
+       "icon": "🏫",
+       "title": "Un lycée technologique",
+       "text": "Il fait réaliser en projet un adaptateur USB-C pour comprendre les rôles des broches CC, SBU et SuperSpeed."
+      }
+     ]
+    },
+    {
+     "type": "timeline",
+     "title": "D'où l'on vient, où l'on va",
+     "items": [
+      {
+       "label": "v1",
+       "text": "Concentrateur USB 3 plus deux multiplexeurs : 10,44 dollars de composants, jugé trop cher et trop grand."
+      },
+      {
+       "label": "Dongle-Lite",
+       "text": "USB 2 seulement : 5,03 dollars."
+      },
+      {
+       "label": "23 novembre 2026",
+       "text": "Dongle-Pro v2 : USB 3 à 10 Gb/s validé sur banc, avec un Mac et un iPhone."
+      },
+      {
+       "label": "À venir",
+       "text": "Tests de compatibilité plus larges, qui restent à faire d'après l'article."
+      }
+     ]
+    },
+    {
+     "type": "opinion",
+     "title": "Notre avis",
+     "paragraphs": [
+      "L'intérêt de ce projet tient à sa sobriété : en acceptant que l'USB 3 ne passe pas par le concentrateur, l'auteur divise la nomenclature et double le débit. Mais l'absence de répéteur de signal et un banc d'essai restreint rappellent qu'un montage qui fonctionne sur deux appareils n'est pas encore un produit fiable sur tous les ordinateurs et tous les câbles.",
+      "À un horizon d'un à trois ans, la baisse du coût des multiplexeurs et des contrôleurs PD intégrés devrait multiplier ce type d'adaptateurs spécialisés. Reste à savoir si les fabricants d'ordinateurs continueront à laisser ces portes de maintenance accessibles par USB-C."
+     ],
+     "verdict": "Une conception ingénieuse et bon marché, à confirmer par des essais de compatibilité plus larges."
+    },
+    {
+     "type": "callout",
+     "title": "À retenir",
+     "text": "Dongle-Pro v2 : 21 × 48 mm, environ 2,93 dollars la carte (quantité de 15), USB 3 à 10 Gb/s observé sur un iPhone. Un seul banc d'essai (un Mac, un iPhone) : la compatibilité générale reste à démontrer."
+    }
+   ],
+   "publishedAt": "2026-11-25T04:16:42+01:00",
+   "readingMinutes": 4
+  },
+  {
+   "id": "quad9-retire-service-france-bein",
+   "category": "web",
+   "icon": "🌐",
+   "importance": 4,
+   "title": "Quad9 retire son service DNS de France : le résolveur refuse désormais les requêtes depuis le 24 novembre à 9 h",
+   "summary": "Le fournisseur de DNS sécurisé Quad9 a désactivé son service pour les utilisateurs situés en France, à la suite de demandes de blocage de domaines de streaming pirate formulées par beIN et appuyées par des décisions de justice, selon son annonce.",
+   "tags": [
+    "DNS",
+    "Quad9",
+    "blocage",
+    "piratage",
+    "vie privée"
+   ],
+   "sourceDate": "2026-11-24",
+   "cover": {
+    "url": "https://quad9.net/images/cover_c2f081e020.png",
+    "alt": "Visuel de l'annonce de Quad9 sur la désactivation de son service en France",
+    "credit": "quad9.net"
+   },
+   "sources": [
+    {
+     "title": "Quad9 service deactivation in France",
+     "url": "https://quad9.net/news/blog/quad9-service-deactivation-in-france/",
+     "publisher": "Quad9"
+    }
+   ],
+   "illustration": {
+    "svg": "<svg xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"0 0 640 360\"><defs><linearGradient id=\"g\" x1=\"0\" y1=\"0\" x2=\"1\" y2=\"1\"><stop offset=\"0\" stop-color=\"hsl(210,65%,42%)\"/><stop offset=\"1\" stop-color=\"hsl(250,70%,22%)\"/></linearGradient></defs><rect width=\"640\" height=\"360\" fill=\"url(#g)\"/><circle cx=\"570\" cy=\"55\" r=\"90\" fill=\"#fff\" opacity=\".08\"/><circle cx=\"60\" cy=\"320\" r=\"120\" fill=\"#fff\" opacity=\".06\"/><circle cx=\"320\" cy=\"180\" r=\"100\" fill=\"#fff\" opacity=\".92\"/><g fill=\"none\" stroke=\"hsl(210,60%,35%)\" stroke-width=\"7\"><ellipse cx=\"320\" cy=\"180\" rx=\"45\" ry=\"100\"/><path d=\"M220 180h200M235 130h170M235 230h170\"/></g></svg>"
+   },
+   "blocks": [
+    {
+     "type": "paragraph",
+     "text": "Depuis le **24 novembre 2026 à 9 h, heure de Paris**, le résolveur DNS public Quad9 refuse les requêtes provenant de France. L'organisation à but non lucratif, connue pour ses adresses 9.9.9.9 et 149.112.112.112 et pour son filtrage des domaines malveillants, avait annoncé ce retrait un mois plus tôt dans un billet intitulé « au revoir France ». Elle a choisi cette heure pour que les utilisateurs non avertis puissent réagir en journée plutôt que de subir une panne hors des heures de bureau."
+    },
+    {
+     "type": "heading",
+     "level": 2,
+     "text": "Ce qui s'est passé selon Quad9"
+    },
+    {
+     "type": "paragraph",
+     "text": "Selon le billet de Quad9, le détenteur de droits sportifs beIN a exigé le blocage de la résolution de domaines qu'il associe à des sites de streaming pirates. Quad9 écrit que des juridictions françaises ont confirmé ces demandes et qu'elle s'exposait à des amendes en cas de non-respect. Le texte ne précise ni la loi, ni la juridiction, ni le contenu exact des décisions : ces éléments ne peuvent donc être ni confirmés ni détaillés ici."
+    },
+    {
+     "type": "paragraph",
+     "text": "Quad9 refuse de se conformer par un blocage géographique. Elle estime que bloquer des contenus via un résolveur récursif ne stoppe pas le piratage, puisque les contenus restent sur leurs serveurs d'origine, et que cela porte atteinte à l'intégrité de l'espace de noms mondial. Elle ajoute que sa mission consiste à bloquer des risques de cybersécurité, non des contenus, et qu'une décision française pourrait déborder sur d'autres pays. Elle affirme avoir déjà obtenu gain de cause dans une affaire comparable en Allemagne."
+    },
+    {
+     "type": "diagram",
+     "svg": "<svg xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"0 0 640 230\" font-family=\"system-ui,sans-serif\"><rect width=\"640\" height=\"230\" rx=\"16\" fill=\"#f1f5f9\"/><text x=\"320\" y=\"30\" text-anchor=\"middle\" font-size=\"15\" font-weight=\"700\" fill=\"#0f172a\">Que se passe-t-il pour un utilisateur en France ?</text><rect x=\"20\" y=\"52\" width=\"127\" height=\"150\" rx=\"12\" fill=\"#b45309\"/><text x=\"83.5\" y=\"82\" text-anchor=\"middle\" font-size=\"13\" font-weight=\"700\" fill=\"#fff\">Avant</text><text x=\"83.5\" y=\"108\" text-anchor=\"middle\" font-size=\"11.5\" fill=\"#fff\">Le poste interroge</text><text x=\"83.5\" y=\"127\" text-anchor=\"middle\" font-size=\"11.5\" fill=\"#fff\">9.9.9.9 : réponse et</text><text x=\"83.5\" y=\"146\" text-anchor=\"middle\" font-size=\"11.5\" fill=\"#fff\">filtrage des menaces</text><path d=\"M150 125.0 h22 m-7 -7 l7 7 l-7 7\" stroke=\"#334155\" stroke-width=\"3\" fill=\"none\" stroke-linecap=\"round\"/><rect x=\"177\" y=\"52\" width=\"127\" height=\"150\" rx=\"12\" fill=\"#0f766e\"/><text x=\"240.5\" y=\"82\" text-anchor=\"middle\" font-size=\"13\" font-weight=\"700\" fill=\"#fff\">Depuis le 24 novembre</text><text x=\"240.5\" y=\"108\" text-anchor=\"middle\" font-size=\"11.5\" fill=\"#fff\">Quad9 repère la France</text><text x=\"240.5\" y=\"127\" text-anchor=\"middle\" font-size=\"11.5\" fill=\"#fff\">par géolocalisation IP</text><text x=\"240.5\" y=\"146\" text-anchor=\"middle\" font-size=\"11.5\" fill=\"#fff\">et refuse la requête</text><path d=\"M307 125.0 h22 m-7 -7 l7 7 l-7 7\" stroke=\"#334155\" stroke-width=\"3\" fill=\"none\" stroke-linecap=\"round\"/><rect x=\"334\" y=\"52\" width=\"127\" height=\"150\" rx=\"12\" fill=\"#1d4ed8\"/><text x=\"397.5\" y=\"82\" text-anchor=\"middle\" font-size=\"13\" font-weight=\"700\" fill=\"#fff\">Conséquence</text><text x=\"397.5\" y=\"108\" text-anchor=\"middle\" font-size=\"11.5\" fill=\"#fff\">Plus de résolution</text><text x=\"397.5\" y=\"127\" text-anchor=\"middle\" font-size=\"11.5\" fill=\"#fff\">de noms sur ce</text><text x=\"397.5\" y=\"146\" text-anchor=\"middle\" font-size=\"11.5\" fill=\"#fff\">résolveur</text><path d=\"M464 125.0 h22 m-7 -7 l7 7 l-7 7\" stroke=\"#334155\" stroke-width=\"3\" fill=\"none\" stroke-linecap=\"round\"/><rect x=\"491\" y=\"52\" width=\"127\" height=\"150\" rx=\"12\" fill=\"#7c3aed\"/><text x=\"554.5\" y=\"82\" text-anchor=\"middle\" font-size=\"13\" font-weight=\"700\" fill=\"#fff\">Solutions</text><text x=\"554.5\" y=\"108\" text-anchor=\"middle\" font-size=\"11.5\" fill=\"#fff\">Autre résolveur,</text><text x=\"554.5\" y=\"127\" text-anchor=\"middle\" font-size=\"11.5\" fill=\"#fff\">résolveur personnel,</text><text x=\"554.5\" y=\"146\" text-anchor=\"middle\" font-size=\"11.5\" fill=\"#fff\">9.9.9.10 (non filtré)</text></svg>",
+     "alt": "Schéma en quatre étapes décrivant le passage d'un usage normal de Quad9 à son refus en France puis aux solutions de remplacement.",
+     "caption": "Effet du retrait de Quad9 pour un poste configuré avec ses adresses, d'après l'annonce du fournisseur."
+    },
+    {
+     "type": "heading",
+     "level": 2,
+     "text": "Ce que cela change pour les utilisateurs"
+    },
+    {
+     "type": "list",
+     "ordered": false,
+     "items": [
+      "Les adresses concernées sont 9.9.9.9, 149.112.112.112 (IPv4) et 2620:fe::fe, 2620:fe::9 (IPv6) : les requêtes y sont refusées, donc aucune résolution n'aboutit.",
+      "Quad9 identifie les utilisateurs français par géolocalisation IP, une méthode qu'elle reconnaît imprécise : elle admet des cas de sur-blocage et de sous-blocage.",
+      "Les utilisateurs perdent la protection contre les domaines malveillants que fournissait le résolveur.",
+      "Quad9 craint que certains se tournent vers des fournisseurs moins protecteurs de la vie privée.",
+      "Le billet n'indique pas explicitement si l'adresse non filtrée 9.9.9.10 reste accessible depuis la France ; il la cite parmi les alternatives."
+     ]
+    },
+    {
+     "type": "paragraph",
+     "text": "En pratique, un ordinateur, un routeur ou un serveur configuré avec les adresses de Quad9 doit être reconfiguré. Les solutions citées sont un autre résolveur, un résolveur personnel (quelques secondes à installer selon Quad9, mais sans filtrage ni confidentialité équivalents) ou l'adresse sans blocage. Il revient à chacun de vérifier le comportement réel de son réseau après le 24 novembre."
+    },
+    {
+     "type": "usecases",
+     "title": "Exemples d'utilisation",
+     "items": [
+      {
+       "icon": "🏠",
+       "title": "Un particulier qui a réglé son routeur sur Quad9",
+       "text": "Ses sites ne s'ouvrent plus : il change le serveur DNS de la box ou du routeur, ou active le résolveur de son fournisseur d'accès."
+      },
+      {
+       "icon": "🏢",
+       "title": "Une PME qui utilisait Quad9 pour filtrer les menaces",
+       "text": "Elle choisit un autre résolveur de sécurité et vérifie que les journaux DNS ne sont pas transmis à un tiers non souhaité."
+      },
+      {
+       "icon": "👩‍💻",
+       "title": "Un administrateur système",
+       "text": "Il surveille les alertes de résolution, met à jour ses scripts de déploiement et prévoit un résolveur de secours."
+      }
+     ]
+    },
+    {
+     "type": "timeline",
+     "title": "D'où l'on vient, où l'on va",
+     "items": [
+      {
+       "label": "Octobre 2026",
+       "text": "Quad9 annonce son retrait de France dans un billet d'adieu."
+      },
+      {
+       "label": "24 novembre 2026, 9 h",
+       "text": "Les adresses de service refusent les requêtes depuis la France."
+      },
+      {
+       "label": "À venir",
+       "text": "Quad9 dit espérer revenir un jour et demande des dons pour financer sa défense juridique."
+      }
+     ]
+    },
+    {
+     "type": "opinion",
+     "title": "Notre avis",
+     "paragraphs": [
+      "Cette affaire oppose deux logiques légitimes : la protection des droits de diffusion sportive, qui est une préoccupation réelle, et l'argument technique selon lequel un résolveur DNS public n'est pas un outil de police des contenus. Il faut toutefois rester prudent : la présentation des faits provient de Quad9, partie directement concernée, et les décisions de justice ne sont pas détaillées dans la source.",
+      "À un horizon d'un à trois ans, l'enjeu dépasse beaucoup ce cas : si le blocage de contenus s'étend aux résolveurs publics, les petits opérateurs devront choisir entre se conformer, se retirer ou se contourner. Pour les utilisateurs, cela renforce l'intérêt de comprendre où passent leurs requêtes DNS."
+     ],
+     "verdict": "Un retrait spectaculaire qui révèle un conflit entre lutte contre le piratage et neutralité de l'infrastructure, avec des faits juridiques encore à documenter."
+    },
+    {
+     "type": "callout",
+     "title": "À retenir",
+     "text": "Depuis le 24 novembre 2026 à 9 h, Quad9 refuse les requêtes DNS depuis la France, à la suite de demandes de beIN que des juridictions françaises ont confirmées selon Quad9. Les détails juridiques ne figurent pas dans le billet : à vérifier auprès de sources officielles."
+    }
+   ],
+   "publishedAt": "2026-11-25T04:16:42+01:00",
+   "readingMinutes": 4
+  },
+  {
+   "id": "llvm-fin-relicenciement-apache-2",
+   "category": "dev",
+   "icon": "📜",
+   "importance": 3,
+   "title": "LLVM clôt huit ans de relicenciement : plus de 99,5 % du code est désormais sous Apache-2.0 avec exception LLVM",
+   "summary": "Kristof Beyls a annoncé sur le forum du projet que l'effort lancé en 2018 est déclaré réussi. Le code qui n'a pas pu être relicencié sera traité par exception, avec le bon identifiant SPDX.",
+   "tags": [
+    "LLVM",
+    "licence",
+    "Apache-2.0",
+    "logiciel libre",
+    "SPDX"
+   ],
+   "sourceDate": "2026-11-20",
+   "sources": [
+    {
+     "title": "Beyls: Wrapping up LLVM's relicensing effort",
+     "url": "https://lwn.net/Articles/1108818/",
+     "publisher": "LWN.net"
+    }
+   ],
+   "illustration": {
+    "svg": "<svg xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"0 0 640 360\"><defs><linearGradient id=\"g\" x1=\"0\" y1=\"0\" x2=\"1\" y2=\"1\"><stop offset=\"0\" stop-color=\"hsl(265,65%,42%)\"/><stop offset=\"1\" stop-color=\"hsl(305,70%,22%)\"/></linearGradient></defs><rect width=\"640\" height=\"360\" fill=\"url(#g)\"/><circle cx=\"570\" cy=\"55\" r=\"90\" fill=\"#fff\" opacity=\".08\"/><circle cx=\"60\" cy=\"320\" r=\"120\" fill=\"#fff\" opacity=\".06\"/><rect x=\"245\" y=\"75\" width=\"150\" height=\"210\" rx=\"14\" fill=\"#fff\" opacity=\".92\"/><g fill=\"hsl(265,60%,35%)\" opacity=\".85\"><rect x=\"270\" y=\"110\" width=\"100\" height=\"12\" rx=\"6\"/><rect x=\"270\" y=\"140\" width=\"100\" height=\"12\" rx=\"6\"/><rect x=\"270\" y=\"170\" width=\"70\" height=\"12\" rx=\"6\"/><rect x=\"270\" y=\"215\" width=\"100\" height=\"40\" rx=\"8\"/></g></svg>"
+   },
+   "blocks": [
+    {
+     "type": "paragraph",
+     "text": "Le 20 novembre 2026, LWN.net a relayé l'annonce de Kristof Beyls sur le forum de discussion du projet LLVM : après huit ans, le projet « déclare le succès » et clôt son effort de **relicenciement**. Cet effort avait débuté en 2018, lorsque les contributeurs passés avaient été invités à accepter une nouvelle licence pour leur code. Pour qui utilise Clang, LLD ou les bibliothèques d'exécution de LLVM, il s'agit d'une clarification juridique de fond, même si elle passe rarement sur le devant de la scène."
+    },
+    {
+     "type": "heading",
+     "level": 2,
+     "text": "Ce qui change, concrètement"
+    },
+    {
+     "type": "keyvalue",
+     "items": [
+      {
+       "label": "Nouvelle licence",
+       "value": "Apache-2.0 avec l'exception LLVM"
+      },
+      {
+       "label": "Contributions concernées",
+       "value": "celles faites depuis le 19 janvier 2019 relèvent déjà de la nouvelle licence"
+      },
+      {
+       "label": "Code plus ancien",
+       "value": "soumis à l'ancienne licence UIUC/NCSA, et MIT pour certaines bibliothèques d'exécution ; son transfert exigeait l'accord des auteurs"
+      },
+      {
+       "label": "Couverture",
+       "value": "plus de 99,5 % des lignes jamais contribuées sont sous la nouvelle licence, trop petites pour être protégées par le droit d'auteur, ou ne figurent plus dans le dépôt"
+      }
+     ]
+    },
+    {
+     "type": "paragraph",
+     "text": "Plutôt que de poursuivre indéfiniment la fraction restante, le projet met fin à l'opération. Les contributeurs d'avant 2019 qui n'ont pas signé d'accord de relicenciement et ne souhaitent pas placer leur code sous la nouvelle licence peuvent se manifester : l'objectif est alors de s'assurer que ce code porte le bon identifiant de licence SPDX."
+    },
+    {
+     "type": "heading",
+     "level": 2,
+     "text": "Pourquoi c'est un travail aussi long"
+    },
+    {
+     "type": "paragraph",
+     "text": "Changer la licence d'un logiciel libre mature suppose, en principe, l'accord de chaque détenteur de droits sur chaque ligne conservée. Quand des centaines de personnes et d'entreprises ont contribué pendant des années, cela revient à retrouver des auteurs, parfois anciens, et à obtenir leur consentement. D'où la durée : huit ans, et une conclusion fondée sur un seuil de couverture plutôt que sur l'unanimité."
+    },
+    {
+     "type": "heading",
+     "level": 2,
+     "text": "Que signifie l'exception LLVM ?"
+    },
+    {
+     "type": "paragraph",
+     "text": "Un commentaire de lecteur sur LWN, que l'on cite ici avec prudence puisqu'il s'agit d'une lecture rapide et non d'un avis juridique, la décompose en deux volets. Premier volet : lorsqu'un compilateur sous Apache-2.0 insère son propre code dans les programmes qu'il produit, cela n'impose pas les obligations d'Apache-2.0 à ces programmes. Second volet : pour les ouvrages combinés avec du code GPLv2, toute clause d'Apache-2.0 jugée incompatible avec GPLv2 ne s'applique pas. Le commentateur invitait lui-même à corriger son interprétation."
+    },
+    {
+     "type": "usecases",
+     "title": "Exemples d'utilisation",
+     "items": [
+      {
+       "icon": "🏭",
+       "title": "Un éditeur de logiciel qui distribue des binaires",
+       "text": "Il peut s'appuyer sur un régime de licence plus homogène pour documenter les composants LLVM dans sa nomenclature logicielle."
+      },
+      {
+       "icon": "🧑‍⚖️",
+       "title": "Un service juridique d'entreprise",
+       "text": "Il met à jour son inventaire de licences et vérifie les identifiants SPDX des fichiers LLVM utilisés."
+      },
+      {
+       "icon": "🧩",
+       "title": "Un mainteneur de chaîne d'outils",
+       "text": "Il fusionne plus sereinement du code LLVM dans un produit sans devoir traiter séparément trois licences historiques."
+      }
+     ]
+    },
+    {
+     "type": "timeline",
+     "title": "D'où l'on vient, où l'on va",
+     "items": [
+      {
+       "label": "2018",
+       "text": "Début de l'effort de relicenciement du projet LLVM."
+      },
+      {
+       "label": "19 janvier 2019",
+       "text": "Les contributions faites à partir de cette date relèvent de la nouvelle licence."
+      },
+      {
+       "label": "20 novembre 2026",
+       "text": "Le projet déclare son effort terminé : plus de 99,5 % de couverture."
+      },
+      {
+       "label": "À venir",
+       "text": "Traitement au cas par cas du code restant et attribution de l'identifiant SPDX exact."
+      }
+     ]
+    },
+    {
+     "type": "opinion",
+     "title": "Notre avis",
+     "paragraphs": [
+      "Ce n'est pas une annonce spectaculaire, mais c'est le genre de travail qui rend un projet durable : une licence claire réduit le risque juridique pour toutes les entreprises qui bâtissent sur LLVM. Le seuil de 99,5 % est un choix pragmatique, qui laisse une petite zone grise pour le code non relicencié ; la source ne dit pas combien de lignes sont concernées en valeur absolue.",
+      "À un horizon d'un à trois ans, on peut attendre une conformité plus facile à démontrer (nomenclatures logicielles, audits, exigences réglementaires sur la chaîne d'approvisionnement). Cela rejoint une tendance plus large : les licences et leur traçabilité deviennent un sujet de sécurité, pas seulement de droit."
+     ],
+     "verdict": "Un chantier administratif long mais précieux, qui sécurise juridiquement l'un des socles de la compilation moderne."
+    },
+    {
+     "type": "callout",
+     "title": "À retenir",
+     "text": "LLVM clôt, après huit ans, son relicenciement : plus de 99,5 % du code est sous Apache-2.0 avec exception LLVM ; le code restant sera traité au cas par cas avec le bon identifiant SPDX."
+    }
+   ],
+   "publishedAt": "2026-11-25T04:16:42+01:00",
+   "readingMinutes": 3
+  }
+ ]
+}
