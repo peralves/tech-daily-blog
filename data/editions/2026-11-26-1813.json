@@ -1,0 +1,1042 @@
+{
+ "schemaVersion": "1.0",
+ "date": "2026-11-26",
+ "generatedAt": "2026-11-26T17:17:17+00:00",
+ "title": "Tech : PolinRider piège 7 600 dépôts, Rackspace ferme Spot, hotpatch Windows et ChatGPT fusionné",
+ "summary": "Sept sujets techniques de la soirée : une campagne attribuée à la Corée du Nord qui piège des milliers de dépôts GitHub, la fermeture du service Spot de Rackspace après une intrusion, un hotpatch Windows Server défectueux, la fusion de Chat et Work dans ChatGPT, un plaidoyer de Forrester pour la maintenance, une carte 5G Banana Pi et un adaptateur Wi-Fi USB bricolé sur ESP32.",
+ "highlights": [
+  "PolinRider : plus de 7 600 dépôts GitHub piégés, avec des instructions cachées dans la blockchain Ethereum",
+  "Rackspace arrête Spot le 8 décembre après une intrusion dans des clusters Kubernetes clients",
+  "Windows Server 2025 : correctif hors cycle contre un arrêt 0x139 lié aux routes IPv6",
+  "ChatGPT : Chat et Work partagent désormais un seul plafond d'usage"
+ ],
+ "meta": {
+  "generator": "claude-scheduled-task"
+ },
+ "posts": [
+  {
+   "id": "polinrider-7600-depots-github-ethereum",
+   "category": "cybersecurite",
+   "icon": "🪤",
+   "importance": 5,
+   "title": "PolinRider : une campagne liée à la Corée du Nord a piégé plus de 7 600 dépôts GitHub, avec un chargeur qui lit des instructions dans la blockchain Ethereum",
+   "summary": "Des chercheurs décrivent un ver qui réécrit l'historique de dépôts GitHub pour y glisser un chargeur Python, lequel récupère son code sur la blockchain Ethereum. Les développeurs ciblés par de faux entretiens d'embauche sont la porte d'entrée.",
+   "tags": [
+    "PolinRider",
+    "GitHub",
+    "Corée du Nord",
+    "Ethereum",
+    "chaîne d'approvisionnement"
+   ],
+   "readingMinutes": 6,
+   "publishedAt": "2026-11-26T17:17:17+00:00",
+   "sourceDate": "2026-11-26",
+   "sources": [
+    {
+     "title": "North Korea-Linked PolinRider Poisons Over 7,600 GitHub Repositories to Spread Malware",
+     "url": "https://thehackernews.com/2026/11/north-korea-linked-polinrider-poisons.html",
+     "publisher": "The Hacker News"
+    }
+   ],
+   "illustration": {
+    "svg": "<svg xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"0 0 640 360\"><defs><linearGradient id=\"g\" x1=\"0\" y1=\"0\" x2=\"1\" y2=\"1\"><stop offset=\"0\" stop-color=\"hsl(175,65%,42%)\"/><stop offset=\"1\" stop-color=\"hsl(205,70%,22%)\"/></linearGradient></defs><rect width=\"640\" height=\"360\" fill=\"url(#g)\"/><circle cx=\"560\" cy=\"60\" r=\"90\" fill=\"#fff\" opacity=\".07\"/><circle cx=\"70\" cy=\"320\" r=\"110\" fill=\"#fff\" opacity=\".06\"/><circle cx=\"320\" cy=\"180\" r=\"100\" fill=\"#fff\" opacity=\".92\"/><circle cx=\"320\" cy=\"180\" r=\"80\" fill=\"none\" stroke=\"hsl(175,60%,35%)\" stroke-width=\"6\"/><text x=\"320\" y=\"214\" font-size=\"90\" text-anchor=\"middle\">🪤</text></svg>"
+   },
+   "blocks": [
+    {
+     "type": "paragraph",
+     "text": "Un dépôt de code qui semble inoffensif peut cacher, à la fin d'une ligne de configuration, un programme capable de voler des mots de passe et des portefeuilles de cryptomonnaies. C'est ce que décrit la campagne baptisée **PolinRider**, rattachée par plusieurs chercheurs à des acteurs nord-coréens et détaillée le 26 novembre 2026 par The Hacker News. Selon la société Apiiro, elle a touché au moins 7 609 dépôts GitHub appartenant à 2 330 comptes, pour la plupart des comptes de développeurs individuels."
+    },
+    {
+     "type": "heading",
+     "level": 2,
+     "text": "Un chargeur Python qui lit la blockchain"
+    },
+    {
+     "type": "paragraph",
+     "text": "Le mécanisme découvert par SafeDep est ingénieux. Un petit fichier Python, caché dans un paquet utilitaire ou dans un fichier `conftest.py`, se déclenche dès qu'il est importé. Il consulte alors la dernière transaction qu'un portefeuille Ethereum s'est envoyée à lui-même, en décode les données comme du code JavaScript, puis l'exécute avec Node.js. Un second portefeuille permet ensuite de retrouver l'adresse du serveur de commande et de contrôle, encodée dans l'adresse de destination elle-même. Cette technique, connue sous le nom d'*EtherHiding*, rend le blocage difficile : on ne peut pas retirer une transaction d'une blockchain publique."
+    },
+    {
+     "type": "paragraph",
+     "text": "La charge utile de deuxième étape cherche des outils de développement installés sur la machine (GitHub Desktop, Cursor, VS Code, Google Antigravity) et modifie les plus utilisés afin d'exécuter le code de l'attaquant et de déployer des logiciels voleurs d'informations. Les versions précédentes de la campagne installaient un voleur capable de récupérer les secrets présents dans l'environnement, les mots de passe et les témoins de connexion des navigateurs, ainsi que les données de portefeuilles."
+    },
+    {
+     "type": "heading",
+     "level": 2,
+     "text": "Les chiffres relevés par les chercheurs"
+    },
+    {
+     "type": "keyvalue",
+     "items": [
+      {
+       "label": "SafeDep",
+       "value": "chargeur retrouvé dans 375 dépôts publics répartis sur 260 comptes ; aucune diffusion constatée via PyPI ou npm"
+      },
+      {
+       "label": "Apiiro",
+       "value": "au moins 7 609 dépôts et 2 330 comptes touchés"
+      },
+      {
+       "label": "Vague récente",
+       "value": "chargeur poussé dans 2 040 dépôts entre le 27 octobre et le 6 novembre 2026"
+      },
+      {
+       "label": "Traces les plus anciennes",
+       "value": "activité remontant à février 2025 d'après les enregistrements de la blockchain"
+      }
+     ]
+    },
+    {
+     "type": "heading",
+     "level": 2,
+     "text": "Comment le ver se propage"
+    },
+    {
+     "type": "paragraph",
+     "text": "Selon Apiiro, le ver utilise l'accès GitHub volé à une victime pour réécrire des commits que celle-ci avait déjà publiés, en conservant l'auteur, le message et la date. Le chargeur est ajouté après des centaines d'espaces dans un fichier de configuration de construction, de sorte qu'il reste invisible à une lecture rapide. La dernière vague se déclenche simplement à l'ouverture du dossier dans VS Code."
+    },
+    {
+     "type": "paragraph",
+     "text": "L'entrée dans le système passe par l'ingénierie sociale : de faux recruteurs envoient des « tests techniques » à réaliser en local, ou orientent vers de faux portails d'embauche. D'autres vecteurs ont été observés : paquets npm publiés depuis des comptes de mainteneurs détournés, extensions de navigateur à charger en mode développeur, ou instructions de type ClickFix qui demandent de coller une commande dans un terminal."
+    },
+    {
+     "type": "diagram",
+     "svg": "<svg xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"0 0 640 220\" font-family=\"system-ui,sans-serif\"><rect width=\"640\" height=\"220\" rx=\"14\" fill=\"#f4f6fa\"/><text x=\"320\" y=\"30\" text-anchor=\"middle\" font-size=\"16\" font-weight=\"700\" fill=\"#1f2937\">Du faux entretien au dépôt piégé</text><rect x=\"40\" y=\"60\" width=\"98\" height=\"120\" rx=\"10\" fill=\"hsl(175,60%,90%)\" stroke=\"hsl(175,55%,35%)\" stroke-width=\"2\"/><text x=\"89.0\" y=\"92\" text-anchor=\"middle\" font-size=\"13\" font-weight=\"700\" fill=\"#111827\">1. Appât</text><text x=\"89.0\" y=\"118\" text-anchor=\"middle\" font-size=\"11.5\" fill=\"#1f2937\">Faux recruteur,</text><text x=\"89.0\" y=\"135\" text-anchor=\"middle\" font-size=\"11.5\" fill=\"#1f2937\">test technique</text><path d=\"M140 120h10\" stroke=\"hsl(175,55%,35%)\" stroke-width=\"3\"/><path d=\"M144 114l6 6-6 6\" fill=\"none\" stroke=\"hsl(175,55%,35%)\" stroke-width=\"3\"/><rect x=\"152\" y=\"60\" width=\"98\" height=\"120\" rx=\"10\" fill=\"hsl(175,60%,90%)\" stroke=\"hsl(175,55%,35%)\" stroke-width=\"2\"/><text x=\"201.0\" y=\"92\" text-anchor=\"middle\" font-size=\"13\" font-weight=\"700\" fill=\"#111827\">2. Exécution</text><text x=\"201.0\" y=\"118\" text-anchor=\"middle\" font-size=\"11.5\" fill=\"#1f2937\">Ouverture du projet</text><text x=\"201.0\" y=\"135\" text-anchor=\"middle\" font-size=\"11.5\" fill=\"#1f2937\">dans VS Code</text><path d=\"M252 120h10\" stroke=\"hsl(175,55%,35%)\" stroke-width=\"3\"/><path d=\"M256 114l6 6-6 6\" fill=\"none\" stroke=\"hsl(175,55%,35%)\" stroke-width=\"3\"/><rect x=\"264\" y=\"60\" width=\"98\" height=\"120\" rx=\"10\" fill=\"hsl(175,60%,90%)\" stroke=\"hsl(175,55%,35%)\" stroke-width=\"2\"/><text x=\"313.0\" y=\"92\" text-anchor=\"middle\" font-size=\"13\" font-weight=\"700\" fill=\"#111827\">3. Blockchain</text><text x=\"313.0\" y=\"118\" text-anchor=\"middle\" font-size=\"11.5\" fill=\"#1f2937\">Lecture d&#x27;une</text><text x=\"313.0\" y=\"135\" text-anchor=\"middle\" font-size=\"11.5\" fill=\"#1f2937\">transaction Ethereum</text><path d=\"M364 120h10\" stroke=\"hsl(175,55%,35%)\" stroke-width=\"3\"/><path d=\"M368 114l6 6-6 6\" fill=\"none\" stroke=\"hsl(175,55%,35%)\" stroke-width=\"3\"/><rect x=\"376\" y=\"60\" width=\"98\" height=\"120\" rx=\"10\" fill=\"hsl(175,60%,90%)\" stroke=\"hsl(175,55%,35%)\" stroke-width=\"2\"/><text x=\"425.0\" y=\"92\" text-anchor=\"middle\" font-size=\"13\" font-weight=\"700\" fill=\"#111827\">4. Vol</text><text x=\"425.0\" y=\"118\" text-anchor=\"middle\" font-size=\"11.5\" fill=\"#1f2937\">Jetons GitHub,</text><text x=\"425.0\" y=\"135\" text-anchor=\"middle\" font-size=\"11.5\" fill=\"#1f2937\">mots de passe</text><path d=\"M476 120h10\" stroke=\"hsl(175,55%,35%)\" stroke-width=\"3\"/><path d=\"M480 114l6 6-6 6\" fill=\"none\" stroke=\"hsl(175,55%,35%)\" stroke-width=\"3\"/><rect x=\"488\" y=\"60\" width=\"98\" height=\"120\" rx=\"10\" fill=\"hsl(175,60%,90%)\" stroke=\"hsl(175,55%,35%)\" stroke-width=\"2\"/><text x=\"537.0\" y=\"92\" text-anchor=\"middle\" font-size=\"13\" font-weight=\"700\" fill=\"#111827\">5. Propagation</text><text x=\"537.0\" y=\"118\" text-anchor=\"middle\" font-size=\"11.5\" fill=\"#1f2937\">Commits réécrits</text><text x=\"537.0\" y=\"135\" text-anchor=\"middle\" font-size=\"11.5\" fill=\"#1f2937\">dans d&#x27;autres dépôts</text></svg>",
+     "alt": "Schéma en cinq étapes de la campagne PolinRider",
+     "caption": "Enchaînement simplifié de la campagne, d'après la description des chercheurs."
+    },
+    {
+     "type": "usecases",
+     "title": "Exemples d'utilisation",
+     "items": [
+      {
+       "icon": "🧑‍💻",
+       "title": "Développeur freelance",
+       "text": "Il reçoit un test d'embauche par message. Plutôt que de l'ouvrir sur sa machine principale, il l'examine dans une machine virtuelle jetable, sans jeton GitHub ni clé SSH."
+      },
+      {
+       "icon": "🏢",
+       "title": "Équipe de sécurité d'une entreprise",
+       "text": "Elle recherche dans ses dépôts les fichiers `conftest.py` modifiés récemment et les lignes anormalement longues, puis contrôle l'historique des poussées forcées."
+      },
+      {
+       "icon": "📦",
+       "title": "Mainteneur open source",
+       "text": "Il active l'authentification à deux facteurs, limite la durée de vie de ses jetons et surveille les publications de paquets faites en son nom."
+      }
+     ]
+    },
+    {
+     "type": "timeline",
+     "title": "D'où l'on vient, où l'on va",
+     "items": [
+      {
+       "label": "Février 2025",
+       "text": "Premières traces de l'activité du cluster dans les enregistrements de la blockchain, selon les chercheurs."
+      },
+      {
+       "label": "Mai 2025",
+       "text": "Attaque observée contre neuf paquets npm `itsa-*`, via un compte de mainteneur détourné."
+      },
+      {
+       "label": "27 octobre – 6 novembre 2026",
+       "text": "Le chargeur est poussé dans 2 040 dépôts."
+      },
+      {
+       "label": "26 novembre 2026",
+       "text": "Publication des analyses d'Apiiro et de SafeDep ; un compte GitHub utilisé pour de fausses contributions est suspendu."
+      }
+     ]
+    },
+    {
+     "type": "opinion",
+     "title": "Notre avis",
+     "paragraphs": [
+      "L'intérêt de cette campagne tient moins à sa technique qu'à son modèle : au lieu de viser des entreprises directement, elle contamine le poste du développeur, qui détient les clés de tout le reste. Chaque dépôt corrompu devient un relais vers de nouvelles victimes, ce qui explique la progression rapide. Le recours à la blockchain pour héberger les instructions retire en outre aux défenseurs un levier classique, la coupure du serveur.",
+      "À un horizon de un à trois ans, on peut raisonnablement s'attendre à ce que les plateformes de code durcissent les poussées forcées et la protection des jetons, et que les équipes traitent les « tests techniques » comme un risque à part entière. Ce dernier point relève de l'analyse : aucune plateforme n'a, à ce stade, annoncé de mesure précise."
+     ],
+     "verdict": "Le poste du développeur est devenu la cible de choix : le protéger demande autant d'attention que la production."
+    },
+    {
+     "type": "callout",
+     "title": "À retenir",
+     "text": "Ne jamais exécuter un projet reçu d'un recruteur sur sa machine de travail ; vérifier les poussées forcées récentes sur ses dépôts ; renouveler les jetons GitHub en cas de doute. Les attributions à la Corée du Nord sont celles des chercheurs cités et non d'une autorité publique."
+    }
+   ],
+   "cover": {
+    "url": "https://blogger.googleusercontent.com/img/b/R29vZ2xl/AVvXsEgquhPuqGJrSE3xNpn5ZUELVAv-Y7qXqkHgpw7nbVqCay4gyraYO5NNE12rAGzuqk_zhreNwcyzjZf3vZZB5C4teohyuppUP-JlP41PQiLu-hGEFCsqMZO0T6MoaVk-uY818yaTaiJaX-d2O0h0RER22knXbUQc7qnwIcVbleLQrEspMQ8btNa4Q9mFrmue/s1600/gitcat.jpg",
+    "alt": "Illustration d'un chat stylisé évoquant GitHub, utilisée par The Hacker News",
+    "credit": "thehackernews.com"
+   }
+  },
+  {
+   "id": "rackspace-spot-arret-apres-intrusion",
+   "category": "cybersecurite",
+   "icon": "☁️",
+   "importance": 4,
+   "title": "Rackspace arrête son service Spot après une intrusion : les clients ont jusqu'au 8 décembre pour partir et renouveler tous leurs secrets",
+   "summary": "Un identifiant compromis a permis à des attaquants de créer des pods dans des clusters Kubernetes clients et de lire des secrets. Plutôt que de rétablir le service, Rackspace choisit de le fermer le 8 décembre 2026.",
+   "tags": [
+    "Rackspace",
+    "Spot",
+    "Kubernetes",
+    "secrets",
+    "intrusion"
+   ],
+   "readingMinutes": 6,
+   "publishedAt": "2026-11-26T17:17:17+00:00",
+   "sourceDate": "2026-11-26",
+   "sources": [
+    {
+     "title": "Rackspace pulls plug on Spot cloud service after security breach",
+     "url": "https://www.theregister.com/cyber-crime/2026/11/26/rackspace-pulls-plug-on-spot-cloud-service-after-security-breach/5312352",
+     "publisher": "The Register"
+    }
+   ],
+   "illustration": {
+    "svg": "<svg xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"0 0 640 360\"><defs><linearGradient id=\"g\" x1=\"0\" y1=\"0\" x2=\"1\" y2=\"1\"><stop offset=\"0\" stop-color=\"hsl(175,65%,42%)\"/><stop offset=\"1\" stop-color=\"hsl(205,70%,22%)\"/></linearGradient></defs><rect width=\"640\" height=\"360\" fill=\"url(#g)\"/><circle cx=\"560\" cy=\"60\" r=\"90\" fill=\"#fff\" opacity=\".07\"/><circle cx=\"70\" cy=\"320\" r=\"110\" fill=\"#fff\" opacity=\".06\"/><circle cx=\"320\" cy=\"180\" r=\"100\" fill=\"#fff\" opacity=\".92\"/><circle cx=\"320\" cy=\"180\" r=\"80\" fill=\"none\" stroke=\"hsl(175,60%,35%)\" stroke-width=\"6\"/><text x=\"320\" y=\"214\" font-size=\"90\" text-anchor=\"middle\">☁️</text></svg>"
+   },
+   "blocks": [
+    {
+     "type": "paragraph",
+     "text": "Fermer un produit plutôt que le réparer est une décision rare, et lourde de sens. Rackspace a annoncé qu'il arrêtait **Spot**, son service de calcul en nuage à bas prix fonctionnant par enchères, à la suite d'une intrusion survenue la semaine précédente. Les clients disposent d'environ deux semaines pour déplacer leurs charges de travail et récupérer leurs données : l'arrêt est fixé au 8 décembre 2026, à 17 h, heure du centre des États-Unis (23 h UTC)."
+    },
+    {
+     "type": "heading",
+     "level": 2,
+     "text": "Ce qu'est Spot"
+    },
+    {
+     "type": "paragraph",
+     "text": "Spot vend de la capacité de calcul sous forme d'enchères : les clients proposent un prix pour des machines qui peuvent leur être retirées, et Rackspace met en avant des économies pouvant atteindre 90 % par rapport aux offres à la demande, pour les charges tolérant les interruptions. Le service a été développé avec Platform9 et repose sur des clusters Kubernetes."
+    },
+    {
+     "type": "heading",
+     "level": 2,
+     "text": "Le déroulé de l'incident"
+    },
+    {
+     "type": "keyvalue",
+     "items": [
+      {
+       "label": "17 novembre",
+       "value": "des attaquants se servent d'identifiants divulgués pour accéder à des parties de Spot pendant près de 22 heures"
+      },
+      {
+       "label": "18 novembre",
+       "value": "Rackspace découvre l'intrusion après l'alerte d'un client"
+      },
+      {
+       "label": "20 novembre",
+       "value": "Platform9 publie une explication sur GitHub : un système d'observabilité a été compromis par un identifiant détourné"
+      },
+      {
+       "label": "24 novembre",
+       "value": "annonce de l'arrêt du service"
+      },
+      {
+       "label": "8 décembre",
+       "value": "fermeture définitive ; les charges encore actives seront interrompues"
+      }
+     ]
+    },
+    {
+     "type": "paragraph",
+     "text": "D'après le compte rendu de The Register, les intrus se sont fait passer pour des utilisateurs légitimes, ont créé des pods dans des clusters Kubernetes de clients, puis accédé aux objets *Secrets* et listé les nœuds et les volumes de stockage. Rackspace précise que cet accès aurait pu permettre de lire n'importe quel secret des clusters concernés, ainsi que les jetons d'API ou de rafraîchissement détenus par l'utilisateur."
+    },
+    {
+     "type": "paragraph",
+     "text": "L'entreprise affirme avoir révoqué les jetons et sessions touchés, supprimé les pods implantés et changé les clés de la plateforme et du stockage. Elle ne dit pas combien de clients sont concernés, ni pourquoi elle a préféré fermer le service que le rétablir, et n'a pas répondu aux questions du journal."
+    },
+    {
+     "type": "diagram",
+     "svg": "<svg xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"0 0 640 220\" font-family=\"system-ui,sans-serif\"><rect width=\"640\" height=\"220\" rx=\"14\" fill=\"#f4f6fa\"/><text x=\"320\" y=\"30\" text-anchor=\"middle\" font-size=\"16\" font-weight=\"700\" fill=\"#1f2937\">Que faire avant le 8 décembre</text><rect x=\"40\" y=\"60\" width=\"126\" height=\"120\" rx=\"10\" fill=\"hsl(175,60%,90%)\" stroke=\"hsl(175,55%,35%)\" stroke-width=\"2\"/><text x=\"103.0\" y=\"92\" text-anchor=\"middle\" font-size=\"13\" font-weight=\"700\" fill=\"#111827\">1. Migrer</text><text x=\"103.0\" y=\"118\" text-anchor=\"middle\" font-size=\"11.5\" fill=\"#1f2937\">Déplacer les charges</text><text x=\"103.0\" y=\"135\" text-anchor=\"middle\" font-size=\"11.5\" fill=\"#1f2937\">vers un autre cloud</text><path d=\"M168 120h10\" stroke=\"hsl(175,55%,35%)\" stroke-width=\"3\"/><path d=\"M172 114l6 6-6 6\" fill=\"none\" stroke=\"hsl(175,55%,35%)\" stroke-width=\"3\"/><rect x=\"180\" y=\"60\" width=\"126\" height=\"120\" rx=\"10\" fill=\"hsl(175,60%,90%)\" stroke=\"hsl(175,55%,35%)\" stroke-width=\"2\"/><text x=\"243.0\" y=\"92\" text-anchor=\"middle\" font-size=\"13\" font-weight=\"700\" fill=\"#111827\">2. Récupérer</text><text x=\"243.0\" y=\"118\" text-anchor=\"middle\" font-size=\"11.5\" fill=\"#1f2937\">Sauvegarder</text><text x=\"243.0\" y=\"135\" text-anchor=\"middle\" font-size=\"11.5\" fill=\"#1f2937\">les données utiles</text><path d=\"M308 120h10\" stroke=\"hsl(175,55%,35%)\" stroke-width=\"3\"/><path d=\"M312 114l6 6-6 6\" fill=\"none\" stroke=\"hsl(175,55%,35%)\" stroke-width=\"3\"/><rect x=\"320\" y=\"60\" width=\"126\" height=\"120\" rx=\"10\" fill=\"hsl(175,60%,90%)\" stroke=\"hsl(175,55%,35%)\" stroke-width=\"2\"/><text x=\"383.0\" y=\"92\" text-anchor=\"middle\" font-size=\"13\" font-weight=\"700\" fill=\"#111827\">3. Renouveler</text><text x=\"383.0\" y=\"118\" text-anchor=\"middle\" font-size=\"11.5\" fill=\"#1f2937\">Jetons d&#x27;API,</text><text x=\"383.0\" y=\"135\" text-anchor=\"middle\" font-size=\"11.5\" fill=\"#1f2937\">fichiers kubeconfig</text><path d=\"M448 120h10\" stroke=\"hsl(175,55%,35%)\" stroke-width=\"3\"/><path d=\"M452 114l6 6-6 6\" fill=\"none\" stroke=\"hsl(175,55%,35%)\" stroke-width=\"3\"/><rect x=\"460\" y=\"60\" width=\"126\" height=\"120\" rx=\"10\" fill=\"hsl(175,60%,90%)\" stroke=\"hsl(175,55%,35%)\" stroke-width=\"2\"/><text x=\"523.0\" y=\"92\" text-anchor=\"middle\" font-size=\"13\" font-weight=\"700\" fill=\"#111827\">4. Faire tourner</text><text x=\"523.0\" y=\"118\" text-anchor=\"middle\" font-size=\"11.5\" fill=\"#1f2937\">Mots de passe,</text><text x=\"523.0\" y=\"135\" text-anchor=\"middle\" font-size=\"11.5\" fill=\"#1f2937\">clés tierces</text></svg>",
+     "alt": "Schéma des quatre actions demandées aux clients de Spot",
+     "caption": "Actions recommandées par Rackspace aux clients, regroupées en quatre étapes."
+    },
+    {
+     "type": "heading",
+     "level": 2,
+     "text": "Les consignes aux clients"
+    },
+    {
+     "type": "list",
+     "ordered": true,
+     "items": [
+      "Migrer les charges de travail et récupérer les données avant le 8 décembre.",
+      "Émettre de nouveaux jetons d'API.",
+      "Télécharger de nouveaux fichiers de configuration Kubernetes.",
+      "Renouveler tous les identifiants stockés dans les clusters : mots de passe de bases de données, clés d'API de services tiers.",
+      "Suivre les étapes de sécurisation indiquées par Rackspace."
+     ]
+    },
+    {
+     "type": "usecases",
+     "title": "Exemples d'utilisation",
+     "items": [
+      {
+       "icon": "🧪",
+       "title": "Start-up avec des traitements par lots",
+       "text": "Elle déplace ses tâches vers une autre offre à prix variable et renouvelle les clés d'accès à sa base de données, qui étaient dans un secret Kubernetes."
+      },
+      {
+       "icon": "🎓",
+       "title": "Laboratoire de recherche",
+       "text": "Il exporte ses résultats de calcul avant la fermeture et vérifie que ses images de conteneurs n'embarquent aucun identifiant."
+      },
+      {
+       "icon": "🛡️",
+       "title": "Responsable sécurité d'une PME",
+       "text": "Il consulte les journaux des clusters du 17 au 18 novembre à la recherche de pods inconnus, puis considère tout secret présent comme compromis."
+      }
+     ]
+    },
+    {
+     "type": "timeline",
+     "title": "D'où l'on vient, où l'on va",
+     "items": [
+      {
+       "label": "17 novembre 2026",
+       "text": "Accès non autorisé de près de 22 heures."
+      },
+      {
+       "label": "20 novembre 2026",
+       "text": "Explication technique de Platform9."
+      },
+      {
+       "label": "8 décembre 2026",
+       "text": "Fin de Spot ; les clients perdent l'accès à leurs données."
+      }
+     ]
+    },
+    {
+     "type": "opinion",
+     "title": "Notre avis",
+     "paragraphs": [
+      "Cet épisode rappelle qu'un système d'observabilité, censé surveiller l'infrastructure, est aussi un point d'entrée très puissant : il voit tout et a souvent des droits étendus. Qu'un identifiant détourné suffise à créer des pods chez des clients montre un cloisonnement insuffisant entre le plan de gestion et les clusters.",
+      "La fermeture pose une question de confiance : pour un produit à faible marge, le coût d'une remise à niveau complète a sans doute pesé, mais Rackspace ne l'a pas expliqué ; il s'agit d'une hypothèse. À un horizon de un à trois ans, les clients de services bon marché devraient exiger davantage de garanties de réversibilité et de séparation des accès."
+     ],
+     "verdict": "Un service à bas prix reste un service où il faut prévoir la sortie dès le premier jour."
+    },
+    {
+     "type": "callout",
+     "title": "À retenir",
+     "text": "Pour les clients : considérer tout secret présent dans un cluster Spot comme exposé et le renouveler, même après migration."
+    }
+   ],
+   "cover": {
+    "url": "https://image.theregister.com/5242796.jpg?imageId=5242796&x=0&y=0&cropw=100&croph=100&panox=0&panoy=0&panow=100&panoh=100&width=1200&height=683",
+    "alt": "Illustration de The Register illustrant l'article sur Rackspace",
+    "credit": "theregister.com"
+   }
+  },
+  {
+   "id": "windows-server-2025-hotpatch-ipv6-correctif",
+   "category": "dev",
+   "icon": "🪟",
+   "importance": 3,
+   "title": "Windows Server 2025 : un correctif hors cycle pour un « hotpatch » qui pouvait provoquer un arrêt du système à l'expiration d'une route IPv6",
+   "summary": "Microsoft publie KB5138318 pour corriger un défaut de la mise à jour de novembre : l'expiration d'une route IPv6 à durée limitée peut déclencher l'erreur d'arrêt 0x139. Le correctif s'applique sans redémarrage.",
+   "tags": [
+    "Windows Server 2025",
+    "hotpatch",
+    "IPv6",
+    "KB5138318",
+    "correctif"
+   ],
+   "readingMinutes": 5,
+   "publishedAt": "2026-11-26T17:17:17+00:00",
+   "sourceDate": "2026-11-26",
+   "sources": [
+    {
+     "title": "Microsoft hotpatches hotpatch that could crash Windows Server 2025",
+     "url": "https://www.theregister.com/os-platforms/2026/11/26/microsoft-hotpatches-hotpatch-that-could-crash-windows-server-2025/5312301",
+     "publisher": "The Register"
+    }
+   ],
+   "illustration": {
+    "svg": "<svg xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"0 0 640 360\"><defs><linearGradient id=\"g\" x1=\"0\" y1=\"0\" x2=\"1\" y2=\"1\"><stop offset=\"0\" stop-color=\"hsl(265,65%,42%)\"/><stop offset=\"1\" stop-color=\"hsl(295,70%,22%)\"/></linearGradient></defs><rect width=\"640\" height=\"360\" fill=\"url(#g)\"/><circle cx=\"560\" cy=\"60\" r=\"90\" fill=\"#fff\" opacity=\".07\"/><circle cx=\"70\" cy=\"320\" r=\"110\" fill=\"#fff\" opacity=\".06\"/><circle cx=\"320\" cy=\"180\" r=\"100\" fill=\"#fff\" opacity=\".92\"/><circle cx=\"320\" cy=\"180\" r=\"80\" fill=\"none\" stroke=\"hsl(265,60%,35%)\" stroke-width=\"6\"/><text x=\"320\" y=\"214\" font-size=\"90\" text-anchor=\"middle\">🪟</text></svg>"
+   },
+   "blocks": [
+    {
+     "type": "paragraph",
+     "text": "Le principe du *hotpatch* est de corriger un serveur sans le redémarrer. Quand le correctif lui-même est défectueux, l'ironie est complète. Le 25 novembre 2026, Microsoft a publié une mise à jour hors cycle, **KB5138318**, destinée à réparer un défaut de la mise à jour de sécurité de novembre pour Windows Server 2025 (KB5131077) : dans certaines conditions, le serveur peut s'arrêter brutalement."
+    },
+    {
+     "type": "heading",
+     "level": 2,
+     "text": "Le symptôme"
+    },
+    {
+     "type": "paragraph",
+     "text": "Les machines concernées s'arrêtent avec l'erreur **0x139**, nommée KERNEL_SECURITY_CHECK_FAILURE. Elle signale que le noyau a détecté la corruption d'une structure de données critique et a préféré stopper le système plutôt que de continuer. Le déclencheur identifié par Microsoft est l'expiration du minuteur d'une route IPv6 à durée de vie limitée."
+    },
+    {
+     "type": "paragraph",
+     "text": "Ce cas de figure suppose une configuration précise : un serveur Windows Server 2025 portant le hotpatch fautif et recevant, par les annonces de routeur (*Router Advertisement*, RA), des routes IPv6 temporaires. Les parcs sans RA ou sans ce hotpatch ne sont pas concernés. L'éditeur n'a pas détaillé la cause exacte dans le code."
+    },
+    {
+     "type": "heading",
+     "level": 2,
+     "text": "Le correctif"
+    },
+    {
+     "type": "keyvalue",
+     "items": [
+      {
+       "label": "Mise à jour de novembre en cause",
+       "value": "KB5131077 (hotpatch de sécurité)"
+      },
+      {
+       "label": "Correctif hors cycle",
+       "value": "KB5138318, publié le 25 novembre 2026"
+      },
+      {
+       "label": "Redémarrage",
+       "value": "non requis, d'après Microsoft"
+      },
+      {
+       "label": "Erreur à surveiller",
+       "value": "arrêt 0x139 lors de l'expiration d'une route IPv6"
+      }
+     ]
+    },
+    {
+     "type": "paragraph",
+     "text": "Il s'agit du troisième correctif hors cycle pour Windows Server en trois mois, après ceux de septembre et d'octobre. Selon les chiffres de Lansweeper cités par The Register, Windows Server 2025 représente environ 7 % des serveurs observés, contre 32 % pour Windows Server 2022 et 33 % pour Windows Server 2019 : l'exposition reste donc limitée, mais elle touche précisément les organisations qui ont adopté tôt le modèle sans redémarrage."
+    },
+    {
+     "type": "diagram",
+     "svg": "<svg xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"0 0 640 220\" font-family=\"system-ui,sans-serif\"><rect width=\"640\" height=\"220\" rx=\"14\" fill=\"#f4f6fa\"/><text x=\"320\" y=\"30\" text-anchor=\"middle\" font-size=\"16\" font-weight=\"700\" fill=\"#1f2937\">Chaîne de l&#x27;incident</text><rect x=\"40\" y=\"60\" width=\"126\" height=\"120\" rx=\"10\" fill=\"hsl(265,60%,90%)\" stroke=\"hsl(265,55%,35%)\" stroke-width=\"2\"/><text x=\"103.0\" y=\"92\" text-anchor=\"middle\" font-size=\"13\" font-weight=\"700\" fill=\"#111827\">Hotpatch de novembre</text><text x=\"103.0\" y=\"118\" text-anchor=\"middle\" font-size=\"11.5\" fill=\"#1f2937\">KB5131077</text><text x=\"103.0\" y=\"135\" text-anchor=\"middle\" font-size=\"11.5\" fill=\"#1f2937\">installé sans reboot</text><path d=\"M168 120h10\" stroke=\"hsl(265,55%,35%)\" stroke-width=\"3\"/><path d=\"M172 114l6 6-6 6\" fill=\"none\" stroke=\"hsl(265,55%,35%)\" stroke-width=\"3\"/><rect x=\"180\" y=\"60\" width=\"126\" height=\"120\" rx=\"10\" fill=\"hsl(265,60%,90%)\" stroke=\"hsl(265,55%,35%)\" stroke-width=\"2\"/><text x=\"243.0\" y=\"92\" text-anchor=\"middle\" font-size=\"13\" font-weight=\"700\" fill=\"#111827\">Route IPv6 temporaire</text><text x=\"243.0\" y=\"118\" text-anchor=\"middle\" font-size=\"11.5\" fill=\"#1f2937\">Reçue par</text><text x=\"243.0\" y=\"135\" text-anchor=\"middle\" font-size=\"11.5\" fill=\"#1f2937\">Router Advertisement</text><path d=\"M308 120h10\" stroke=\"hsl(265,55%,35%)\" stroke-width=\"3\"/><path d=\"M312 114l6 6-6 6\" fill=\"none\" stroke=\"hsl(265,55%,35%)\" stroke-width=\"3\"/><rect x=\"320\" y=\"60\" width=\"126\" height=\"120\" rx=\"10\" fill=\"hsl(265,60%,90%)\" stroke=\"hsl(265,55%,35%)\" stroke-width=\"2\"/><text x=\"383.0\" y=\"92\" text-anchor=\"middle\" font-size=\"13\" font-weight=\"700\" fill=\"#111827\">Expiration du minuteur</text><text x=\"383.0\" y=\"118\" text-anchor=\"middle\" font-size=\"11.5\" fill=\"#1f2937\">Structure de données</text><text x=\"383.0\" y=\"135\" text-anchor=\"middle\" font-size=\"11.5\" fill=\"#1f2937\">corrompue</text><path d=\"M448 120h10\" stroke=\"hsl(265,55%,35%)\" stroke-width=\"3\"/><path d=\"M452 114l6 6-6 6\" fill=\"none\" stroke=\"hsl(265,55%,35%)\" stroke-width=\"3\"/><rect x=\"460\" y=\"60\" width=\"126\" height=\"120\" rx=\"10\" fill=\"hsl(265,60%,90%)\" stroke=\"hsl(265,55%,35%)\" stroke-width=\"2\"/><text x=\"523.0\" y=\"92\" text-anchor=\"middle\" font-size=\"13\" font-weight=\"700\" fill=\"#111827\">Arrêt 0x139</text><text x=\"523.0\" y=\"118\" text-anchor=\"middle\" font-size=\"11.5\" fill=\"#1f2937\">Le noyau stoppe</text><text x=\"523.0\" y=\"135\" text-anchor=\"middle\" font-size=\"11.5\" fill=\"#1f2937\">le serveur</text></svg>",
+     "alt": "Schéma du déroulement du défaut sur Windows Server 2025",
+     "caption": "Séquence décrite par Microsoft : du hotpatch à l'arrêt du serveur."
+    },
+    {
+     "type": "usecases",
+     "title": "Exemples d'utilisation",
+     "items": [
+      {
+       "icon": "🏥",
+       "title": "Administrateur d'un hôpital",
+       "text": "Il vérifie dans l'inventaire quels serveurs ont reçu KB5131077 et déploie KB5138318 en priorité sur ceux qui exposent des services en continu."
+      },
+      {
+       "icon": "🏭",
+       "title": "Équipe d'exploitation d'un site industriel",
+       "text": "Elle teste le correctif sur un serveur pilote, puis contrôle les journaux pour confirmer l'absence d'arrêt lors de l'expiration de routes."
+      },
+      {
+       "icon": "🧰",
+       "title": "Prestataire d'infogérance",
+       "text": "Il scripte la recherche de la mise à jour sur tous les clients et note les serveurs qui utilisent les annonces de routeur."
+      }
+     ]
+    },
+    {
+     "type": "timeline",
+     "title": "D'où l'on vient, où l'on va",
+     "items": [
+      {
+       "label": "Septembre et octobre 2026",
+       "text": "Deux premiers correctifs hors cycle pour Windows Server."
+      },
+      {
+       "label": "Novembre 2026",
+       "text": "Le hotpatch KB5131077 introduit le défaut."
+      },
+      {
+       "label": "25 novembre 2026",
+       "text": "Publication du correctif KB5138318."
+      }
+     ]
+    },
+    {
+     "type": "opinion",
+     "title": "Notre avis",
+     "paragraphs": [
+      "Le hotpatch tient une promesse séduisante, mais déplace le risque : une erreur n'est plus corrigée par un simple redémarrage et peut toucher des machines qui n'ont jamais été arrêtées. Le fait que le bogue se manifeste à l'expiration d'un minuteur, donc bien après l'installation, rend aussi les tests plus difficiles.",
+      "Dans les mois qui viennent, la multiplication des correctifs hors cycle risque d'user la patience des équipes d'exploitation ; c'est une appréciation, non un fait établi. Une bonne pratique serait d'échelonner les déploiements, même pour des correctifs censés être sans risque."
+     ],
+     "verdict": "Sans redémarrage ne veut pas dire sans test : le déploiement progressif reste la meilleure assurance."
+    },
+    {
+     "type": "callout",
+     "title": "À retenir",
+     "text": "À faire : identifier les serveurs sous Windows Server 2025 qui ont reçu KB5131077, installer KB5138318 et surveiller l'erreur 0x139. Source unique relayée ici : les détails techniques proviennent de The Register et de l'avis de Microsoft qu'il cite."
+    }
+   ],
+   "cover": {
+    "url": "https://image.theregister.com/4093838.jpg?imageId=4093838&x=0&y=0&cropw=100&croph=100&panox=0&panoy=0&panow=100&panoh=100&width=1200&height=683",
+    "alt": "Illustration de The Register sur Windows Server",
+    "credit": "theregister.com"
+   }
+  },
+  {
+   "id": "chatgpt-chat-et-work-fusion-limites",
+   "category": "ia",
+   "icon": "🧮",
+   "importance": 4,
+   "title": "ChatGPT : OpenAI fusionne « Chat » et « Work » sous un compteur d'usage unique, au risque de limites atteintes plus tôt pour les gros utilisateurs",
+   "summary": "OpenAI regroupe Chat et Work dans une seule expérience, avec un seul plafond d'usage. L'entreprise assure que la plupart des utilisateurs ne verront pas de différence, mais certains abonnés craignent de perdre l'accès aux modèles de raisonnement avancés.",
+   "tags": [
+    "OpenAI",
+    "ChatGPT",
+    "limites d'usage",
+    "abonnements",
+    "agents"
+   ],
+   "readingMinutes": 5,
+   "publishedAt": "2026-11-26T17:17:17+00:00",
+   "sourceDate": "2026-11-25",
+   "sources": [
+    {
+     "title": "OpenAI says heavy ChatGPT users may hit limits sooner as it merges Chat and Work",
+     "url": "https://techcrunch.com/2026/11/25/openai-says-heavy-chatgpt-users-may-hit-limits-sooner-as-it-merges-chat-and-work/",
+     "publisher": "TechCrunch"
+    }
+   ],
+   "illustration": {
+    "svg": "<svg xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"0 0 640 360\"><defs><linearGradient id=\"g\" x1=\"0\" y1=\"0\" x2=\"1\" y2=\"1\"><stop offset=\"0\" stop-color=\"hsl(320,65%,42%)\"/><stop offset=\"1\" stop-color=\"hsl(350,70%,22%)\"/></linearGradient></defs><rect width=\"640\" height=\"360\" fill=\"url(#g)\"/><circle cx=\"560\" cy=\"60\" r=\"90\" fill=\"#fff\" opacity=\".07\"/><circle cx=\"70\" cy=\"320\" r=\"110\" fill=\"#fff\" opacity=\".06\"/><circle cx=\"320\" cy=\"180\" r=\"100\" fill=\"#fff\" opacity=\".92\"/><circle cx=\"320\" cy=\"180\" r=\"80\" fill=\"none\" stroke=\"hsl(320,60%,35%)\" stroke-width=\"6\"/><text x=\"320\" y=\"214\" font-size=\"90\" text-anchor=\"middle\">🧮</text></svg>"
+   },
+   "blocks": [
+    {
+     "type": "paragraph",
+     "text": "Discuter avec un assistant et lui confier une tâche longue sont deux usages différents, mais ils consomment les mêmes ressources de calcul. OpenAI en tire la conséquence : l'entreprise fusionne dans ChatGPT les expériences **Chat** et **Work** en une seule, avec un compteur d'usage commun. L'information, rapportée le 25 novembre 2026 par TechCrunch, a suscité des réactions inquiètes chez certains abonnés."
+    },
+    {
+     "type": "heading",
+     "level": 2,
+     "text": "Ce qui change"
+    },
+    {
+     "type": "list",
+     "ordered": false,
+     "items": [
+      "Chat et Work partageront un même plafond d'usage au lieu de deux.",
+      "Le déploiement a commencé auprès d'un petit groupe d'abonnés Pro, d'après le responsable produit Thibault Sottiaux, qui s'est exprimé sur X.",
+      "OpenAI prévoit d'étendre ces limites partagées en décembre, selon sa page d'assistance.",
+      "Les conversations avec le modèle Instant restent illimitées et ne comptent pas dans le plafond ; elles restent disponibles même une fois l'allocation épuisée."
+     ]
+    },
+    {
+     "type": "paragraph",
+     "text": "Un porte-parole d'OpenAI affirme que la plupart des utilisateurs n'auront pas à subir de réinitialisations plus fréquentes, mais reconnaît qu'une petite fraction des plus gros utilisateurs pourrait atteindre ses limites plus vite. L'entreprise promet de continuer à améliorer l'efficacité pour que les abonnés tirent davantage de leurs forfaits."
+    },
+    {
+     "type": "heading",
+     "level": 2,
+     "text": "Les inquiétudes des abonnés"
+    },
+    {
+     "type": "paragraph",
+     "text": "Sur les réseaux sociaux, le forum communautaire d'OpenAI, Reddit et GitHub, des abonnés disent craindre que la fusion réduise leur accès aux modèles de raisonnement avancés, alors que le prix de l'abonnement reste inchangé. TechCrunch rappelle qu'Anthropic a annoncé en septembre une fusion comparable entre son service de discussion Claude et son outil de travail Cowork."
+    },
+    {
+     "type": "paragraph",
+     "text": "Derrière ces annonces, l'article relève la même contrainte : le coût de l'infrastructure et la demande pour des modèles plus capables mettent les capacités de calcul sous tension. Une interface unique permettrait aussi de passer d'une conversation à une tâche complexe sans changer d'onglet."
+    },
+    {
+     "type": "diagram",
+     "svg": "<svg xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"0 0 640 220\" font-family=\"system-ui,sans-serif\"><rect width=\"640\" height=\"220\" rx=\"14\" fill=\"#f4f6fa\"/><text x=\"320\" y=\"30\" text-anchor=\"middle\" font-size=\"16\" font-weight=\"700\" fill=\"#1f2937\">Deux compteurs, puis un seul</text><rect x=\"40\" y=\"60\" width=\"172\" height=\"120\" rx=\"10\" fill=\"hsl(320,60%,90%)\" stroke=\"hsl(320,55%,35%)\" stroke-width=\"2\"/><text x=\"126.0\" y=\"92\" text-anchor=\"middle\" font-size=\"13\" font-weight=\"700\" fill=\"#111827\">Avant</text><text x=\"126.0\" y=\"118\" text-anchor=\"middle\" font-size=\"11.5\" fill=\"#1f2937\">Chat : un plafond</text><text x=\"126.0\" y=\"135\" text-anchor=\"middle\" font-size=\"11.5\" fill=\"#1f2937\">Work : un autre plafond</text><path d=\"M214 120h10\" stroke=\"hsl(320,55%,35%)\" stroke-width=\"3\"/><path d=\"M218 114l6 6-6 6\" fill=\"none\" stroke=\"hsl(320,55%,35%)\" stroke-width=\"3\"/><rect x=\"226\" y=\"60\" width=\"172\" height=\"120\" rx=\"10\" fill=\"hsl(320,60%,90%)\" stroke=\"hsl(320,55%,35%)\" stroke-width=\"2\"/><text x=\"312.0\" y=\"92\" text-anchor=\"middle\" font-size=\"13\" font-weight=\"700\" fill=\"#111827\">Fusion</text><text x=\"312.0\" y=\"118\" text-anchor=\"middle\" font-size=\"11.5\" fill=\"#1f2937\">Une interface,</text><text x=\"312.0\" y=\"135\" text-anchor=\"middle\" font-size=\"11.5\" fill=\"#1f2937\">un compteur commun</text><path d=\"M400 120h10\" stroke=\"hsl(320,55%,35%)\" stroke-width=\"3\"/><path d=\"M404 114l6 6-6 6\" fill=\"none\" stroke=\"hsl(320,55%,35%)\" stroke-width=\"3\"/><rect x=\"412\" y=\"60\" width=\"172\" height=\"120\" rx=\"10\" fill=\"hsl(320,60%,90%)\" stroke=\"hsl(320,55%,35%)\" stroke-width=\"2\"/><text x=\"498.0\" y=\"92\" text-anchor=\"middle\" font-size=\"13\" font-weight=\"700\" fill=\"#111827\">Exception</text><text x=\"498.0\" y=\"118\" text-anchor=\"middle\" font-size=\"11.5\" fill=\"#1f2937\">Modèle Instant :</text><text x=\"498.0\" y=\"135\" text-anchor=\"middle\" font-size=\"11.5\" fill=\"#1f2937\">illimité</text></svg>",
+     "alt": "Schéma du passage de deux plafonds à un seul",
+     "caption": "Principe du compteur partagé annoncé par OpenAI ; l'usage d'Instant reste hors plafond."
+    },
+    {
+     "type": "usecases",
+     "title": "Exemples d'utilisation",
+     "items": [
+      {
+       "icon": "📊",
+       "title": "Analyste qui prépare un rapport",
+       "text": "Elle alterne questions rapides et tâche de recherche longue ; avec un seul compteur, une longue session d'agent réduit ce qui reste pour la discussion."
+      },
+      {
+       "icon": "💻",
+       "title": "Développeur indépendant",
+       "text": "Il utilise Instant pour les questions simples afin de réserver son allocation aux tâches de raisonnement ou de code complexes."
+      },
+      {
+       "icon": "🏢",
+       "title": "Responsable informatique d'une PME",
+       "text": "Il compare le coût par utilisateur des forfaits avant le déploiement général de décembre et prévoit un plan de repli sur une autre offre."
+      }
+     ]
+    },
+    {
+     "type": "timeline",
+     "title": "D'où l'on vient, où l'on va",
+     "items": [
+      {
+       "label": "2 novembre 2026",
+       "text": "Premier courriel d'OpenAI annonçant la fusion, d'après le lien cité par TechCrunch."
+      },
+      {
+       "label": "Septembre 2026",
+       "text": "Anthropic fusionne Claude et Cowork dans une même interface."
+      },
+      {
+       "label": "25 novembre 2026",
+       "text": "Les limites partagées sont testées auprès d'abonnés Pro."
+      },
+      {
+       "label": "Décembre 2026",
+       "text": "Extension prévue des limites partagées à un public plus large."
+      }
+     ]
+    },
+    {
+     "type": "opinion",
+     "title": "Notre avis",
+     "paragraphs": [
+      "Sur le papier, un compteur unique simplifie l'offre. Dans les faits, il rend visible un arbitrage que les éditeurs préféraient laisser flou : le calcul est une ressource rare, et les usages « agent », longs et gourmands, concurrencent les discussions rapides. Le contenu des plafonds reste opaque : sans chiffres publiés, l'abonné ne peut pas comparer.",
+      "Dans un à trois ans, on peut penser que les forfaits évolueront vers une facturation plus proche de la consommation réelle, avec des paliers explicites. C'est une projection, que rien ne confirme encore."
+     ],
+     "verdict": "Un seul compteur clarifie l'interface mais pas le prix réel de l'usage intensif."
+    },
+    {
+     "type": "callout",
+     "title": "À retenir",
+     "text": "La fusion est un déploiement progressif : les conditions peuvent encore évoluer d'ici décembre. Vérifier les conditions du forfait sur la page d'assistance d'OpenAI."
+    }
+   ]
+  },
+  {
+   "id": "forrester-pannes-maintenance-plutot-que-complot",
+   "category": "devops",
+   "icon": "🧯",
+   "importance": 4,
+   "title": "Pannes à répétition : Forrester y voit un déficit de maintenance, pas un complot ni une cyberattaque",
+   "summary": "Après une série de pannes en novembre 2026, des analystes de Forrester soutiennent que la cause est ordinaire : dette technique, interdépendances et sous-investissement dans l'exploitation. Ils recommandent de cartographier les dépendances et de tester les reprises.",
+   "tags": [
+    "pannes",
+    "résilience",
+    "dette technique",
+    "Forrester",
+    "exploitation"
+   ],
+   "readingMinutes": 6,
+   "publishedAt": "2026-11-26T17:17:17+00:00",
+   "sourceDate": "2026-11-26",
+   "sources": [
+    {
+     "title": "Tech's outage problem needs maintenance, not conspiracy theories",
+     "url": "https://www.theregister.com/research/2026/11/26/techs-outage-problem-needs-maintenance-not-conspiracy-theories/5312180",
+     "publisher": "The Register"
+    }
+   ],
+   "illustration": {
+    "svg": "<svg xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"0 0 640 360\"><defs><linearGradient id=\"g\" x1=\"0\" y1=\"0\" x2=\"1\" y2=\"1\"><stop offset=\"0\" stop-color=\"hsl(160,65%,42%)\"/><stop offset=\"1\" stop-color=\"hsl(190,70%,22%)\"/></linearGradient></defs><rect width=\"640\" height=\"360\" fill=\"url(#g)\"/><circle cx=\"560\" cy=\"60\" r=\"90\" fill=\"#fff\" opacity=\".07\"/><circle cx=\"70\" cy=\"320\" r=\"110\" fill=\"#fff\" opacity=\".06\"/><circle cx=\"320\" cy=\"180\" r=\"100\" fill=\"#fff\" opacity=\".92\"/><circle cx=\"320\" cy=\"180\" r=\"80\" fill=\"none\" stroke=\"hsl(160,60%,35%)\" stroke-width=\"6\"/><text x=\"320\" y=\"214\" font-size=\"90\" text-anchor=\"middle\">🧯</text></svg>"
+   },
+   "blocks": [
+    {
+     "type": "paragraph",
+     "text": "Quand plusieurs services majeurs tombent la même semaine, les explications spectaculaires circulent vite : cyberattaque, sabotage, intelligence artificielle déchaînée. Les analystes Lauren Nelson et Mark Moccia, du cabinet Forrester, soutiennent le contraire dans une note relayée le 26 novembre 2026 par The Register : le problème tient à une maintenance trop souvent repoussée."
+    },
+    {
+     "type": "heading",
+     "level": 2,
+     "text": "Une série d'incidents en novembre"
+    },
+    {
+     "type": "paragraph",
+     "text": "Selon l'article, un intervalle de sept jours en novembre a vu des défaillances toucher Microsoft 365, le contrôle aérien américain, des banques et d'autres services critiques. Le journal cite notamment :"
+    },
+    {
+     "type": "list",
+     "ordered": false,
+     "items": [
+      "une panne du nuage de Microsoft début novembre, où un processus central de certains serveurs a été « submergé » et où certains services ont mis environ 24 heures de plus à se rétablir ;",
+      "un « incident d'alimentation » en octobre 2026 en Europe de l'Ouest chez Google Cloud, qui a perturbé BigQuery Data Transfer Service, Cloud Filestore, Cloud Run, App Engine et Google Kubernetes Engine ;",
+      "la panne d'AWS en octobre 2025 dans la région US-East, qui avait touché le site d'Amazon et des dizaines d'autres services ;",
+      "un arrêt des vols au sol à l'échelle des États-Unis le 13 novembre, après une panne de communication."
+     ]
+    },
+    {
+     "type": "paragraph",
+     "text": "D'autres incidents ont été signalés chez JPMorgan Chase, United Airlines, Apple, Workday et Gmail. L'article ne cite pas de statistiques de Forrester ; il s'appuie sur les arguments des analystes."
+    },
+    {
+     "type": "heading",
+     "level": 2,
+     "text": "Pourquoi les pannes se multiplient, selon Forrester"
+    },
+    {
+     "type": "paragraph",
+     "text": "Les organisations financent volontiers ce qui se voit : nouvelles expériences client, migrations vers le nuage, consolidation de plateformes, intelligence artificielle. Ces projets se rattachent à la croissance ou à la productivité. À l'inverse, la mise à jour des systèmes centraux, la simplification des architectures, le retrait de composants obsolètes ou la suppression d'interfaces fragiles trouvent peu de financements, car leur bénéfice, c'est l'absence d'incident."
+    },
+    {
+     "type": "paragraph",
+     "text": "Le résultat serait une façade moderne posée sur un parc ancien, fragile et de plus en plus interconnecté. Forrester avertit que, sans effort de résilience, l'ensemble pourrait « s'effondrer comme un château de cartes »."
+    },
+    {
+     "type": "diagram",
+     "svg": "<svg xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"0 0 640 220\" font-family=\"system-ui,sans-serif\"><rect width=\"640\" height=\"220\" rx=\"14\" fill=\"#f4f6fa\"/><text x=\"320\" y=\"30\" text-anchor=\"middle\" font-size=\"16\" font-weight=\"700\" fill=\"#1f2937\">Trois gestes de résilience</text><rect x=\"40\" y=\"60\" width=\"172\" height=\"120\" rx=\"10\" fill=\"hsl(160,60%,90%)\" stroke=\"hsl(160,55%,35%)\" stroke-width=\"2\"/><text x=\"126.0\" y=\"92\" text-anchor=\"middle\" font-size=\"13\" font-weight=\"700\" fill=\"#111827\">Cartographier</text><text x=\"126.0\" y=\"118\" text-anchor=\"middle\" font-size=\"11.5\" fill=\"#1f2937\">Les dépendances</text><text x=\"126.0\" y=\"135\" text-anchor=\"middle\" font-size=\"11.5\" fill=\"#1f2937\">entre systèmes</text><path d=\"M214 120h10\" stroke=\"hsl(160,55%,35%)\" stroke-width=\"3\"/><path d=\"M218 114l6 6-6 6\" fill=\"none\" stroke=\"hsl(160,55%,35%)\" stroke-width=\"3\"/><rect x=\"226\" y=\"60\" width=\"172\" height=\"120\" rx=\"10\" fill=\"hsl(160,60%,90%)\" stroke=\"hsl(160,55%,35%)\" stroke-width=\"2\"/><text x=\"312.0\" y=\"92\" text-anchor=\"middle\" font-size=\"13\" font-weight=\"700\" fill=\"#111827\">Tester</text><text x=\"312.0\" y=\"118\" text-anchor=\"middle\" font-size=\"11.5\" fill=\"#1f2937\">Pannes et reprises</text><text x=\"312.0\" y=\"135\" text-anchor=\"middle\" font-size=\"11.5\" fill=\"#1f2937\">en conditions réelles</text><path d=\"M400 120h10\" stroke=\"hsl(160,55%,35%)\" stroke-width=\"3\"/><path d=\"M404 114l6 6-6 6\" fill=\"none\" stroke=\"hsl(160,55%,35%)\" stroke-width=\"3\"/><rect x=\"412\" y=\"60\" width=\"172\" height=\"120\" rx=\"10\" fill=\"hsl(160,60%,90%)\" stroke=\"hsl(160,55%,35%)\" stroke-width=\"2\"/><text x=\"498.0\" y=\"92\" text-anchor=\"middle\" font-size=\"13\" font-weight=\"700\" fill=\"#111827\">Apprendre</text><text x=\"498.0\" y=\"118\" text-anchor=\"middle\" font-size=\"11.5\" fill=\"#1f2937\">Analyser incidents</text><text x=\"498.0\" y=\"135\" text-anchor=\"middle\" font-size=\"11.5\" fill=\"#1f2937\">et quasi-incidents</text></svg>",
+     "alt": "Schéma des trois recommandations de Forrester",
+     "caption": "Recommandations de Forrester présentées en trois étapes."
+    },
+    {
+     "type": "usecases",
+     "title": "Exemples d'utilisation",
+     "items": [
+      {
+       "icon": "🏦",
+       "title": "Direction technique d'une banque",
+       "text": "Elle dresse la liste des services qui dépendent d'un même fournisseur de nuage et organise un exercice de bascule annuel."
+      },
+      {
+       "icon": "🛒",
+       "title": "Site de commerce en ligne",
+       "text": "Il simule la perte d'un service de paiement tiers pour vérifier que les commandes sont mises en file au lieu d'être refusées."
+      },
+      {
+       "icon": "🏭",
+       "title": "Équipe d'exploitation d'une PME",
+       "text": "Elle consacre une part fixe de chaque trimestre à retirer des composants obsolètes plutôt qu'à ajouter de nouvelles fonctions."
+      }
+     ]
+    },
+    {
+     "type": "timeline",
+     "title": "D'où l'on vient, où l'on va",
+     "items": [
+      {
+       "label": "Octobre 2025",
+       "text": "Panne d'AWS dans la région US-East."
+      },
+      {
+       "label": "Octobre 2026",
+       "text": "Incident d'alimentation chez Google Cloud en Europe de l'Ouest."
+      },
+      {
+       "label": "Novembre 2026",
+       "text": "Série de pannes touchant Microsoft 365, le contrôle aérien américain et des banques."
+      },
+      {
+       "label": "2027",
+       "text": "Le débat sur la résilience devrait peser sur les budgets d'exploitation ; il s'agit d'une projection."
+      }
+     ]
+    },
+    {
+     "type": "opinion",
+     "title": "Notre avis",
+     "paragraphs": [
+      "La thèse de Forrester est séduisante parce qu'elle est vérifiable à l'échelle d'une entreprise : on peut compter la part du budget consacrée à la maintenance. Elle a toutefois une limite : l'article ne fournit aucune enquête chiffrée, et plusieurs incidents cités ont des causes très différentes (alimentation, communication, surcharge). Les regrouper sous une seule cause est une simplification.",
+      "La vraie leçon est organisationnelle : la résilience se paie avant la panne, et personne ne reçoit de félicitations pour une panne qui n'a pas eu lieu. D'ici un à trois ans, les régulateurs du secteur financier et des opérateurs critiques pourraient imposer davantage d'exercices de reprise ; c'est une anticipation."
+     ],
+     "verdict": "Entretenir l'existant est moins visible que construire, mais c'est ce qui évite les titres de journaux."
+    },
+    {
+     "type": "callout",
+     "title": "À retenir",
+     "text": "Les analyses de Forrester sont des positions d'analystes, non des conclusions d'enquêtes techniques sur chaque incident."
+    }
+   ],
+   "cover": {
+    "url": "https://image.theregister.com/254851.jpg?imageId=254851&x=0&y=0&cropw=100&croph=100&panox=0&panoy=0&panow=100&panoh=100&width=1200&height=683",
+    "alt": "Illustration de The Register sur les pannes informatiques",
+    "credit": "theregister.com"
+   }
+  },
+  {
+   "id": "banana-pi-bpi-m2c-unisoc-5g-npu",
+   "category": "electronique",
+   "icon": "📶",
+   "importance": 3,
+   "title": "Banana Pi BPI-M2C : une carte à base de puce UNISOC avec 5G intégrée et NPU de 8 TOPS, précommandée 239 dollars mais sans système prêt",
+   "summary": "La BPI-M2C associe huit cœurs Arm, 4 Go de mémoire, 128 Go d'eMMC et un modem 5G sur une carte de 85 × 56 mm. Les images Linux et le support logiciel ne sont pas encore publiés.",
+   "tags": [
+    "Banana Pi",
+    "UNISOC",
+    "5G",
+    "NPU",
+    "carte monocarte"
+   ],
+   "readingMinutes": 5,
+   "publishedAt": "2026-11-26T17:17:17+00:00",
+   "sourceDate": "2026-11-26",
+   "sources": [
+    {
+     "title": "Banana Pi BPI-M2C SBC features UNISOC UIS7885 SoC with 5G cellular connectivity, 8 TOPS NPU",
+     "url": "https://www.cnx-software.com/2026/11/26/banana-pi-bpi-m2c-sbc-features-unisoc-uis7885-soc-with-5g-cellular-connectivity-8-tops-npu/",
+     "publisher": "CNX Software"
+    }
+   ],
+   "illustration": {
+    "svg": "<svg xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"0 0 640 360\"><defs><linearGradient id=\"g\" x1=\"0\" y1=\"0\" x2=\"1\" y2=\"1\"><stop offset=\"0\" stop-color=\"hsl(30,65%,42%)\"/><stop offset=\"1\" stop-color=\"hsl(60,70%,22%)\"/></linearGradient></defs><rect width=\"640\" height=\"360\" fill=\"url(#g)\"/><circle cx=\"560\" cy=\"60\" r=\"90\" fill=\"#fff\" opacity=\".07\"/><circle cx=\"70\" cy=\"320\" r=\"110\" fill=\"#fff\" opacity=\".06\"/><circle cx=\"320\" cy=\"180\" r=\"100\" fill=\"#fff\" opacity=\".92\"/><circle cx=\"320\" cy=\"180\" r=\"80\" fill=\"none\" stroke=\"hsl(30,60%,35%)\" stroke-width=\"6\"/><text x=\"320\" y=\"214\" font-size=\"90\" text-anchor=\"middle\">📶</text></svg>"
+   },
+   "blocks": [
+    {
+     "type": "paragraph",
+     "text": "Les ordinateurs monocartes à puce mobile sont rares : la plupart s'appuient sur Rockchip, Broadcom ou Allwinner. La **Banana Pi BPI-M2C**, présentée par CNX Software le 26 novembre 2026, choisit au contraire une puce UNISOC, un fabricant surtout connu pour les téléphones d'entrée de gamme. Son argument principal : un modem cellulaire 5G déjà soudé, qui évite d'ajouter un module M.2."
+    },
+    {
+     "type": "heading",
+     "level": 2,
+     "text": "Les caractéristiques"
+    },
+    {
+     "type": "keyvalue",
+     "items": [
+      {
+       "label": "Processeur",
+       "value": "UNISOC T820 (UIS7885), gravé en 6 nm : un cœur Cortex-A76 à 2,7 GHz, trois cœurs A76 à 2,3 GHz et quatre cœurs Cortex-A55 à 2,1 GHz"
+      },
+      {
+       "label": "Graphique",
+       "value": "Arm Mali-G57, jusqu'à 850 MHz"
+      },
+      {
+       "label": "Intelligence artificielle",
+       "value": "NPU IMG AX3596, jusqu'à 8 TOPS ; DSP VQ7"
+      },
+      {
+       "label": "Mémoire et stockage",
+       "value": "4 Go de LPDDR4X, 128 Go d'eMMC, lecteur microSD"
+      },
+      {
+       "label": "Réseau",
+       "value": "Gigabit Ethernet (PoE via module externe), Wi-Fi 5 bibande, Bluetooth, 5G/4G/3G/2G avec nano-SIM, GNSS"
+      },
+      {
+       "label": "Connectique",
+       "value": "HDMI jusqu'à 1920 × 1080, MIPI DSI, MIPI CSI, 4 ports USB 2.0, GPIO 40 broches"
+      },
+      {
+       "label": "Format",
+       "value": "85 × 56 mm, 60 g, alimentation 5 V par USB-C"
+      }
+     ]
+    },
+    {
+     "type": "paragraph",
+     "text": "La sortie HDMI passe par un pont DSI vers HDMI, la puce ne comportant pas de sortie HDMI native. Quatre connecteurs d'antenne U.FL sont prévus : un pour le Wi-Fi, le Bluetooth et le GPS, trois pour le cellulaire."
+    },
+    {
+     "type": "heading",
+     "level": 2,
+     "text": "Prix et disponibilité"
+    },
+    {
+     "type": "paragraph",
+     "text": "Les précommandes sont ouvertes sur la boutique de Banana Pi au prix de 239 dollars pour la carte seule. Elle n'est pas encore listée sur les boutiques AliExpress de la marque. Surtout, les images Ubuntu et Yocto et le support logiciel Linux n'ont pas été publiés, et l'auteur n'a trouvé aucun dépôt associé sur le GitHub de Banana Pi. Il recommande donc d'attendre l'image du système et le BSP avant d'acheter."
+    },
+    {
+     "type": "paragraph",
+     "text": "Des documents ont bien été mis en ligne, et une démonstration en Qt a tourné sur la carte lors d'un événement UNISOC. L'auteur estime, d'après les caractéristiques, que la puce est comparable au Rockchip RK3588 en puissance, la différence essentielle étant le modem intégré."
+    },
+    {
+     "type": "diagram",
+     "svg": "<svg xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"0 0 640 220\" font-family=\"system-ui,sans-serif\"><rect width=\"640\" height=\"220\" rx=\"14\" fill=\"#f4f6fa\"/><text x=\"320\" y=\"30\" text-anchor=\"middle\" font-size=\"16\" font-weight=\"700\" fill=\"#1f2937\">BPI-M2C en un coup d&#x27;œil</text><rect x=\"40\" y=\"60\" width=\"126\" height=\"120\" rx=\"10\" fill=\"hsl(30,60%,90%)\" stroke=\"hsl(30,55%,35%)\" stroke-width=\"2\"/><text x=\"103.0\" y=\"92\" text-anchor=\"middle\" font-size=\"13\" font-weight=\"700\" fill=\"#111827\">Calcul</text><text x=\"103.0\" y=\"118\" text-anchor=\"middle\" font-size=\"11.5\" fill=\"#1f2937\">8 cœurs Arm</text><text x=\"103.0\" y=\"135\" text-anchor=\"middle\" font-size=\"11.5\" fill=\"#1f2937\">A76 + A55</text><path d=\"M168 120h10\" stroke=\"hsl(30,55%,35%)\" stroke-width=\"3\"/><path d=\"M172 114l6 6-6 6\" fill=\"none\" stroke=\"hsl(30,55%,35%)\" stroke-width=\"3\"/><rect x=\"180\" y=\"60\" width=\"126\" height=\"120\" rx=\"10\" fill=\"hsl(30,60%,90%)\" stroke=\"hsl(30,55%,35%)\" stroke-width=\"2\"/><text x=\"243.0\" y=\"92\" text-anchor=\"middle\" font-size=\"13\" font-weight=\"700\" fill=\"#111827\">IA</text><text x=\"243.0\" y=\"118\" text-anchor=\"middle\" font-size=\"11.5\" fill=\"#1f2937\">NPU 8 TOPS</text><text x=\"243.0\" y=\"135\" text-anchor=\"middle\" font-size=\"11.5\" fill=\"#1f2937\">DSP VQ7</text><path d=\"M308 120h10\" stroke=\"hsl(30,55%,35%)\" stroke-width=\"3\"/><path d=\"M312 114l6 6-6 6\" fill=\"none\" stroke=\"hsl(30,55%,35%)\" stroke-width=\"3\"/><rect x=\"320\" y=\"60\" width=\"126\" height=\"120\" rx=\"10\" fill=\"hsl(30,60%,90%)\" stroke=\"hsl(30,55%,35%)\" stroke-width=\"2\"/><text x=\"383.0\" y=\"92\" text-anchor=\"middle\" font-size=\"13\" font-weight=\"700\" fill=\"#111827\">Réseau</text><text x=\"383.0\" y=\"118\" text-anchor=\"middle\" font-size=\"11.5\" fill=\"#1f2937\">5G + Wi-Fi 5</text><text x=\"383.0\" y=\"135\" text-anchor=\"middle\" font-size=\"11.5\" fill=\"#1f2937\">Ethernet Gigabit</text><path d=\"M448 120h10\" stroke=\"hsl(30,55%,35%)\" stroke-width=\"3\"/><path d=\"M452 114l6 6-6 6\" fill=\"none\" stroke=\"hsl(30,55%,35%)\" stroke-width=\"3\"/><rect x=\"460\" y=\"60\" width=\"126\" height=\"120\" rx=\"10\" fill=\"hsl(30,60%,90%)\" stroke=\"hsl(30,55%,35%)\" stroke-width=\"2\"/><text x=\"523.0\" y=\"92\" text-anchor=\"middle\" font-size=\"13\" font-weight=\"700\" fill=\"#111827\">Logiciel</text><text x=\"523.0\" y=\"118\" text-anchor=\"middle\" font-size=\"11.5\" fill=\"#1f2937\">Images Linux</text><text x=\"523.0\" y=\"135\" text-anchor=\"middle\" font-size=\"11.5\" fill=\"#1f2937\">non publiées</text></svg>",
+     "alt": "Schéma des quatre aspects de la carte BPI-M2C",
+     "caption": "Points forts et point faible de la carte, d'après la fiche de CNX Software."
+    },
+    {
+     "type": "usecases",
+     "title": "Exemples d'utilisation",
+     "items": [
+      {
+       "icon": "📡",
+       "title": "Passerelle IoT en zone blanche",
+       "text": "La 5G intégrée permet de relier un site isolé sans module supplémentaire, sous réserve que le pilote du modem soit disponible."
+      },
+      {
+       "icon": "📹",
+       "title": "Caméra intelligente de chantier",
+       "text": "Le NPU peut détecter des personnes ou des véhicules localement et n'envoyer que des alertes par le réseau cellulaire."
+      },
+      {
+       "icon": "🧪",
+       "title": "Laboratoire d'essais embarqués",
+       "text": "Un bureau d'études compare la carte à une RK3588 pour évaluer le coût d'un produit connecté en 5G."
+      }
+     ]
+    },
+    {
+     "type": "timeline",
+     "title": "D'où l'on vient, où l'on va",
+     "items": [
+      {
+       "label": "Novembre 2026",
+       "text": "Ouverture des précommandes à 239 dollars."
+      },
+      {
+       "label": "Prochainement",
+       "text": "Publication attendue des images Ubuntu et Yocto et du BSP ; aucune date n'est annoncée."
+      }
+     ]
+    },
+    {
+     "type": "opinion",
+     "title": "Notre avis",
+     "paragraphs": [
+      "Le matériel est séduisant sur le papier : une puce de classe RK3588 avec un modem 5G sur la carte résout un vrai problème pour les projets mobiles. Mais le logiciel décide du sort d'une carte monocarte, et Banana Pi a une histoire contrastée en la matière. Un noyau ancien, non mis à jour, peut vite devenir un handicap pour la sécurité.",
+      "Dans un à trois ans, le succès de cette carte dépendra moins de la fiche technique que de la présence d'un noyau Linux à jour et d'une communauté active. C'est une appréciation de rédaction."
+     ],
+     "verdict": "Une belle fiche technique ne vaut qu'avec un logiciel libre et maintenu."
+    },
+    {
+     "type": "callout",
+     "title": "À retenir",
+     "text": "À retenir : 239 dollars, 8 TOPS, 5G intégrée, mais pas encore d'image Linux. Attendre le support logiciel avant d'acheter."
+    }
+   ],
+   "cover": {
+    "url": "https://www.cnx-software.com/wp-content/uploads/2026/11/Banana-Pi-BPI-M2C.jpg",
+    "alt": "Carte Banana Pi BPI-M2C vue de dessus",
+    "credit": "cnx-software.com"
+   }
+  },
+  {
+   "id": "tinywifidongle-esp32-pico-adaptateur-wifi-usb",
+   "category": "electronique",
+   "icon": "🛜",
+   "importance": 2,
+   "title": "TinyWifiDongle : une bibliothèque Arduino transforme un ESP32-S3 ou un Raspberry Pi Pico 2 W en adaptateur Wi-Fi USB, sans pilote",
+   "summary": "Le projet libre fait de la carte un pont réseau de niveau 2 entre Wi-Fi et USB, via le protocole CDC-NCM. Les débits mesurés restent modestes, de l'ordre de 5 Mbit/s sur ESP32-S3.",
+   "tags": [
+    "ESP32",
+    "Raspberry Pi Pico",
+    "USB",
+    "Wi-Fi",
+    "Arduino"
+   ],
+   "readingMinutes": 5,
+   "publishedAt": "2026-11-26T17:17:17+00:00",
+   "sourceDate": "2026-11-24",
+   "sources": [
+    {
+     "title": "TinyWifiDongle Arduino library turns ESP32-S3 and Raspberry Pi Pico 2 W boards into USB WiFi adapters",
+     "url": "https://www.cnx-software.com/2026/11/24/tinywifidongle-arduino-library-turns-esp32-s3-and-raspberry-pi-pico-2-w-boards-into-usb-wifi-adapters/",
+     "publisher": "CNX Software"
+    },
+    {
+     "title": "TinyWifiDongle (dépôt)",
+     "url": "https://github.com/pschatzmann/TinyWifiDongle",
+     "publisher": "GitHub"
+    }
+   ],
+   "illustration": {
+    "svg": "<svg xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"0 0 640 360\"><defs><linearGradient id=\"g\" x1=\"0\" y1=\"0\" x2=\"1\" y2=\"1\"><stop offset=\"0\" stop-color=\"hsl(30,65%,42%)\"/><stop offset=\"1\" stop-color=\"hsl(60,70%,22%)\"/></linearGradient></defs><rect width=\"640\" height=\"360\" fill=\"url(#g)\"/><circle cx=\"560\" cy=\"60\" r=\"90\" fill=\"#fff\" opacity=\".07\"/><circle cx=\"70\" cy=\"320\" r=\"110\" fill=\"#fff\" opacity=\".06\"/><circle cx=\"320\" cy=\"180\" r=\"100\" fill=\"#fff\" opacity=\".92\"/><circle cx=\"320\" cy=\"180\" r=\"80\" fill=\"none\" stroke=\"hsl(30,60%,35%)\" stroke-width=\"6\"/><text x=\"320\" y=\"214\" font-size=\"90\" text-anchor=\"middle\">🛜</text></svg>"
+   },
+   "blocks": [
+    {
+     "type": "paragraph",
+     "text": "Un ordinateur sans Wi-Fi, ou dont le pilote Wi-Fi pose problème, est un cas fréquent dans les projets embarqués. **TinyWifiDongle**, signalé le 24 novembre 2026 par CNX Software, propose une solution inattendue : transformer une carte à quelques euros en adaptateur Wi-Fi USB reconnu directement par le système, sans installer de pilote."
+    },
+    {
+     "type": "heading",
+     "level": 2,
+     "text": "Comment cela fonctionne"
+    },
+    {
+     "type": "paragraph",
+     "text": "La bibliothèque Arduino, publiée sous licence MIT, fait de la carte un pont transparent de niveau 2 entre son interface Wi-Fi et son interface USB. L'ordinateur hôte obtient son adresse IP directement auprès du routeur par DHCP : il n'y a pas de traduction d'adresses (NAT) et le microcontrôleur n'a pas d'adresse propre en fonctionnement normal. Le dialogue avec l'ordinateur utilise la classe USB **CDC-NCM**, prise en charge nativement par Linux, macOS et Windows 11 ; Windows 10 demande un pilote supplémentaire."
+    },
+    {
+     "type": "heading",
+     "level": 2,
+     "text": "Cartes compatibles"
+    },
+    {
+     "type": "keyvalue",
+     "items": [
+      {
+       "label": "ESP32-S3 et ESP32-S2",
+       "value": "USB natif requis ; seul l'ESP32-S3 a été testé"
+      },
+      {
+       "label": "Raspberry Pi Pico 2 W (RP2350) et Pico W (RP2040)",
+       "value": "pris en charge ; seul le Pico 2 W a été testé"
+      },
+      {
+       "label": "ESP32-P4 et ESP32-C6",
+       "value": "prise en charge expérimentale, réseau USB non testé"
+      },
+      {
+       "label": "ESP32 d'origine, ESP32-C3",
+       "value": "non pris en charge, faute d'USB périphérique natif"
+      }
+     ]
+    },
+    {
+     "type": "heading",
+     "level": 2,
+     "text": "Performances et limites"
+    },
+    {
+     "type": "paragraph",
+     "text": "La liaison USB fonctionne en pleine vitesse, à 12 Mbit/s. L'auteur mesure entre 530 et 615 Ko/s (environ 5 Mbit/s) sur ESP32-S3 et entre 110 et 325 Ko/s (environ 2 Mbit/s en moyenne) sur Pico 2 W. Ces chiffres sont ceux du développeur, obtenus sous Linux uniquement."
+    },
+    {
+     "type": "list",
+     "ordered": false,
+     "items": [
+      "L'ESP32-S3 peut parfois se bloquer après le transfert de 100 à 200 Mo.",
+      "Le Pico 2 W a redémarré une fois sans explication pendant les essais.",
+      "Windows 11 et macOS n'ont pas été testés, malgré la prise en charge native de CDC-NCM.",
+      "Le projet est lui-même décrit comme présentant encore des problèmes de stabilité."
+     ]
+    },
+    {
+     "type": "paragraph",
+     "text": "La configuration peut se faire dans le code, avec l'identifiant et le mot de passe du réseau, ou via une interface web : la carte crée alors un point d'accès temporaire, propose une liste des réseaux et enregistre les identifiants en mémoire flash. Cette seconde méthode n'a été essayée que sur le Pico 2 W. Sur ESP32-S2 ou S3, il faut choisir l'option USB-OTG (TinyUSB) dans l'IDE Arduino et brancher le port USB natif."
+    },
+    {
+     "type": "diagram",
+     "svg": "<svg xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"0 0 640 220\" font-family=\"system-ui,sans-serif\"><rect width=\"640\" height=\"220\" rx=\"14\" fill=\"#f4f6fa\"/><text x=\"320\" y=\"30\" text-anchor=\"middle\" font-size=\"16\" font-weight=\"700\" fill=\"#1f2937\">Trajet des paquets</text><rect x=\"40\" y=\"60\" width=\"126\" height=\"120\" rx=\"10\" fill=\"hsl(30,60%,90%)\" stroke=\"hsl(30,55%,35%)\" stroke-width=\"2\"/><text x=\"103.0\" y=\"92\" text-anchor=\"middle\" font-size=\"13\" font-weight=\"700\" fill=\"#111827\">Ordinateur</text><text x=\"103.0\" y=\"118\" text-anchor=\"middle\" font-size=\"11.5\" fill=\"#1f2937\">Voit une carte</text><text x=\"103.0\" y=\"135\" text-anchor=\"middle\" font-size=\"11.5\" fill=\"#1f2937\">réseau USB</text><path d=\"M168 120h10\" stroke=\"hsl(30,55%,35%)\" stroke-width=\"3\"/><path d=\"M172 114l6 6-6 6\" fill=\"none\" stroke=\"hsl(30,55%,35%)\" stroke-width=\"3\"/><rect x=\"180\" y=\"60\" width=\"126\" height=\"120\" rx=\"10\" fill=\"hsl(30,60%,90%)\" stroke=\"hsl(30,55%,35%)\" stroke-width=\"2\"/><text x=\"243.0\" y=\"92\" text-anchor=\"middle\" font-size=\"13\" font-weight=\"700\" fill=\"#111827\">Carte ESP32 / Pico</text><text x=\"243.0\" y=\"118\" text-anchor=\"middle\" font-size=\"11.5\" fill=\"#1f2937\">Pont de niveau 2</text><text x=\"243.0\" y=\"135\" text-anchor=\"middle\" font-size=\"11.5\" fill=\"#1f2937\">CDC-NCM</text><path d=\"M308 120h10\" stroke=\"hsl(30,55%,35%)\" stroke-width=\"3\"/><path d=\"M312 114l6 6-6 6\" fill=\"none\" stroke=\"hsl(30,55%,35%)\" stroke-width=\"3\"/><rect x=\"320\" y=\"60\" width=\"126\" height=\"120\" rx=\"10\" fill=\"hsl(30,60%,90%)\" stroke=\"hsl(30,55%,35%)\" stroke-width=\"2\"/><text x=\"383.0\" y=\"92\" text-anchor=\"middle\" font-size=\"13\" font-weight=\"700\" fill=\"#111827\">Wi-Fi</text><text x=\"383.0\" y=\"118\" text-anchor=\"middle\" font-size=\"11.5\" fill=\"#1f2937\">Point d&#x27;accès</text><text x=\"383.0\" y=\"135\" text-anchor=\"middle\" font-size=\"11.5\" fill=\"#1f2937\">de la maison</text><path d=\"M448 120h10\" stroke=\"hsl(30,55%,35%)\" stroke-width=\"3\"/><path d=\"M452 114l6 6-6 6\" fill=\"none\" stroke=\"hsl(30,55%,35%)\" stroke-width=\"3\"/><rect x=\"460\" y=\"60\" width=\"126\" height=\"120\" rx=\"10\" fill=\"hsl(30,60%,90%)\" stroke=\"hsl(30,55%,35%)\" stroke-width=\"2\"/><text x=\"523.0\" y=\"92\" text-anchor=\"middle\" font-size=\"13\" font-weight=\"700\" fill=\"#111827\">Routeur</text><text x=\"523.0\" y=\"118\" text-anchor=\"middle\" font-size=\"11.5\" fill=\"#1f2937\">Attribue l&#x27;IP</text><text x=\"523.0\" y=\"135\" text-anchor=\"middle\" font-size=\"11.5\" fill=\"#1f2937\">par DHCP</text></svg>",
+     "alt": "Schéma du pont entre USB et Wi-Fi",
+     "caption": "Les paquets traversent la carte sans traduction d'adresse."
+    },
+    {
+     "type": "usecases",
+     "title": "Exemples d'utilisation",
+     "items": [
+      {
+       "icon": "🖥️",
+       "title": "Vieux mini-PC sans Wi-Fi",
+       "text": "Il gagne un accès sans fil sans carte interne ni pilote, branché sur un port USB."
+      },
+      {
+       "icon": "🔧",
+       "title": "Atelier de dépannage",
+       "text": "Un technicien garde une carte configurée dans sa trousse pour connecter temporairement une machine à un réseau."
+      },
+      {
+       "icon": "🎓",
+       "title": "Atelier pédagogique",
+       "text": "Des élèves étudient le fonctionnement d'un pont réseau en lisant le code court de la bibliothèque."
+      }
+     ]
+    },
+    {
+     "type": "timeline",
+     "title": "D'où l'on vient, où l'on va",
+     "items": [
+      {
+       "label": "Projets voisins",
+       "text": "pico-usb-wifi utilise une approche semblable, avec environ 4,75 Mbit/s rapportés ; un portage ESP32-S3 fondé sur ESP-IDF annonce environ 5,7 Mbit/s."
+      },
+      {
+       "label": "24 novembre 2026",
+       "text": "Présentation de TinyWifiDongle par CNX Software."
+      }
+     ]
+    },
+    {
+     "type": "opinion",
+     "title": "Notre avis",
+     "paragraphs": [
+      "Le projet vaut surtout comme démonstration : à ce prix, un adaptateur Wi-Fi USB du commerce reste plus rapide et plus stable. Mais l'idée de réutiliser une carte de développement comme périphérique réseau sans pilote est intelligente, et le code ouvert permet de l'adapter.",
+      "Les problèmes de stabilité signalés par l'auteur limitent un usage quotidien. Si ces défauts sont corrigés, on peut imaginer des variantes plus robustes pour les ordinateurs de service ; c'est une hypothèse."
+     ],
+     "verdict": "Une astuce brillante, pas encore un produit sur lequel compter."
+    },
+    {
+     "type": "callout",
+     "title": "À retenir",
+     "text": "Licence MIT, dépôt public, débit de l'ordre de 5 Mbit/s sur ESP32-S3 : à réserver aux essais et aux dépannages."
+    }
+   ]
+  }
+ ]
+}
