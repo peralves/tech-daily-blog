@@ -1,0 +1,630 @@
+{
+ "schemaVersion": "1.0",
+ "date": "2026-11-26",
+ "generatedAt": "2026-11-26T10:15:42+01:00",
+ "title": "Tech : faille Drupal, faux tests d'embauche .NET, Oryon 3 et code golf",
+ "summary": "Quatre sujets techniques de la matinée : une nouvelle faille d'installeur Drupal déjà exploitée, une campagne de paquets NuGet piégés visant les développeurs, l'analyse du cœur Oryon 3 de Qualcomm et un banc d'essai de code golf où GPT-6.2 Astra dépasse les humains.",
+ "highlights": [
+  "Drupal : nouvelle faille d'installeur (CVE-2026-136716), déjà exploitée",
+  "NuGet : 13 paquets piégés derrière un faux test d'embauche",
+  "Oryon 3 : un cœur Arm à 5 GHz de niveau bureau",
+  "GPT-6.2 Astra bat les records humains de code golf selon un banc indépendant"
+ ],
+ "meta": {
+  "generator": "claude-scheduled-task"
+ },
+ "posts": [
+  {
+   "id": "drupal-cve-2026-136716-installeur-site-takeover",
+   "category": "cybersecurite",
+   "icon": "🧱",
+   "importance": 5,
+   "title": "Drupal : une nouvelle faille « hautement critique » dans l'installeur, déjà exploitée, après Fail2Install",
+   "summary": "Drupal publie l'avis SA-CORE-2026-019 : des sites restés dans un état d'installation incomplet ou inhabituel peuvent encore être pris en main, malgré le correctif de Fail2Install. Des attaques sont en cours.",
+   "tags": [
+    "Drupal",
+    "CVE-2026-136716",
+    "installeur",
+    "exploitation active",
+    "CMS"
+   ],
+   "readingMinutes": 4,
+   "publishedAt": "2026-11-26T10:15:42+01:00",
+   "sourceDate": "2026-11-26",
+   "sources": [
+    {
+     "title": "Drupal Warns of New Highly Critical Site Takeover Vulnerability Under Active Exploitation",
+     "url": "https://thehackernews.com/2026/11/drupal-warns-of-new-highly-critical.html",
+     "publisher": "The Hacker News"
+    },
+    {
+     "title": "Drupal Fail2Install Exploit Details Emerge as Critical RCE Flaw Faces Active Exploitation",
+     "url": "https://thehackernews.com/2026/11/drupal-fail2install-exploit-details.html",
+     "publisher": "The Hacker News"
+    }
+   ],
+   "illustration": {
+    "svg": "<svg xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"0 0 640 360\"><defs><linearGradient id=\"g\" x1=\"0\" y1=\"0\" x2=\"1\" y2=\"1\"><stop offset=\"0\" stop-color=\"hsl(175,65%,40%)\"/><stop offset=\"1\" stop-color=\"hsl(205,70%,22%)\"/></linearGradient></defs><rect width=\"640\" height=\"360\" fill=\"url(#g)\"/><circle cx=\"560\" cy=\"60\" r=\"90\" fill=\"#fff\" opacity=\".07\"/><circle cx=\"70\" cy=\"320\" r=\"110\" fill=\"#fff\" opacity=\".06\"/><circle cx=\"320\" cy=\"180\" r=\"100\" fill=\"#fff\" opacity=\".92\"/><circle cx=\"320\" cy=\"180\" r=\"80\" fill=\"none\" stroke=\"hsl(175,60%,35%)\" stroke-width=\"6\"/><text x=\"320\" y=\"214\" font-size=\"90\" text-anchor=\"middle\">🧱</text></svg>"
+   },
+   "blocks": [
+    {
+     "type": "paragraph",
+     "text": "Un correctif ne ferme pas toujours la porte qu'il vise. Quelques jours après la faille « Fail2Install » (CVE-2026-132165, score CVSS de 9,8, ajoutée au catalogue des vulnérabilités exploitées de la CISA), l'équipe de sécurité de Drupal annonce une seconde vulnérabilité d'installeur, jugée « hautement critique » et déjà exploitée dans la nature. Elle est référencée CVE-2026-136716 et décrite dans l'avis SA-CORE-2026-019."
+    },
+    {
+     "type": "heading",
+     "level": 2,
+     "text": "Ce que l'on sait"
+    },
+    {
+     "type": "paragraph",
+     "text": "Le défaut relève d'une vérification insuffisante des conditions inhabituelles ou exceptionnelles (CWE-754). Concrètement, le correctif précédent avait réglé plusieurs problèmes de l'installeur de Drupal, mais des sites se trouvant dans un état d'installation incomplet ou atypique, y compris des sites en production, restaient vulnérables. Cet état n'est pas visible dans l'interface d'administration : un site peut donc être exposé sans que son exploitant le sache. Drupal précise que les sites ayant déjà sécurisé le fichier `install.php` ne sont pas concernés."
+    },
+    {
+     "type": "paragraph",
+     "text": "Aucun score CVSS officiel n'était disponible au moment de la publication de l'avis, et le détail technique de l'exploitation n'a pas été diffusé. En revanche, Drupal confirme que des attaques ont lieu : un site déjà compromis peut ne plus apparaître comme vulnérable, ce qui complique le diagnostic après coup."
+    },
+    {
+     "type": "heading",
+     "level": 2,
+     "text": "Versions corrigées"
+    },
+    {
+     "type": "keyvalue",
+     "items": [
+      {
+       "label": "Drupal 11.4.x",
+       "value": "mise à jour vers 11.4.14"
+      },
+      {
+       "label": "Drupal 11.3.x",
+       "value": "mise à jour vers 11.3.23"
+      },
+      {
+       "label": "Drupal 10.6.x",
+       "value": "mise à jour vers 10.6.23"
+      },
+      {
+       "label": "Drupal 11.0 à 11.2 et 10.5 et antérieures",
+       "value": "fin de vie : aucun correctif publié"
+      }
+     ]
+    },
+    {
+     "type": "paragraph",
+     "text": "La société StepSecurity estime, au 26 novembre 2026, à environ 55 800 le nombre de sites Drupal exposés sur Internet, dont près de 31 500 tournent sur des branches touchées par Fail2Install et environ 15 000 sur les branches 8 et 9, en fin de vie et sans correctif."
+    },
+    {
+     "type": "diagram",
+     "svg": "<svg xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"0 0 640 220\" font-family=\"system-ui,sans-serif\"><rect width=\"640\" height=\"220\" rx=\"14\" fill=\"#f4f6fa\"/><text x=\"320\" y=\"30\" text-anchor=\"middle\" font-size=\"16\" font-weight=\"700\" fill=\"#1f2937\">Réponse recommandée par Drupal</text><rect x=\"40\" y=\"60\" width=\"116\" height=\"120\" rx=\"10\" fill=\"hsl(175,60%,90%)\" stroke=\"hsl(175,55%,35%)\" stroke-width=\"2\"/><text x=\"98.0\" y=\"95\" text-anchor=\"middle\" font-size=\"14\" font-weight=\"700\" fill=\"#111827\">1. Mise à jour</text><text x=\"98.0\" y=\"120\" text-anchor=\"middle\" font-size=\"12\" fill=\"#1f2937\">Installer 11.4.14,</text><text x=\"98.0\" y=\"138\" text-anchor=\"middle\" font-size=\"12\" fill=\"#1f2937\">11.3.23 ou 10.6.23</text><path d=\"M158 120h18\" stroke=\"hsl(175,55%,35%)\" stroke-width=\"3\" marker-end=\"none\"/><path d=\"M170 113l8 7-8 7\" fill=\"none\" stroke=\"hsl(175,55%,35%)\" stroke-width=\"3\"/><rect x=\"180\" y=\"60\" width=\"116\" height=\"120\" rx=\"10\" fill=\"hsl(175,60%,90%)\" stroke=\"hsl(175,55%,35%)\" stroke-width=\"2\"/><text x=\"238.0\" y=\"95\" text-anchor=\"middle\" font-size=\"14\" font-weight=\"700\" fill=\"#111827\">2. update.php</text><text x=\"238.0\" y=\"120\" text-anchor=\"middle\" font-size=\"12\" fill=\"#1f2937\">Exécuter la mise à</text><text x=\"238.0\" y=\"138\" text-anchor=\"middle\" font-size=\"12\" fill=\"#1f2937\">jour de la base</text><path d=\"M298 120h18\" stroke=\"hsl(175,55%,35%)\" stroke-width=\"3\" marker-end=\"none\"/><path d=\"M310 113l8 7-8 7\" fill=\"none\" stroke=\"hsl(175,55%,35%)\" stroke-width=\"3\"/><rect x=\"320\" y=\"60\" width=\"116\" height=\"120\" rx=\"10\" fill=\"hsl(175,60%,90%)\" stroke=\"hsl(175,55%,35%)\" stroke-width=\"2\"/><text x=\"378.0\" y=\"95\" text-anchor=\"middle\" font-size=\"14\" font-weight=\"700\" fill=\"#111827\">3. Installeur</text><text x=\"378.0\" y=\"120\" text-anchor=\"middle\" font-size=\"12\" fill=\"#1f2937\">Sécuriser install.php</text><text x=\"378.0\" y=\"138\" text-anchor=\"middle\" font-size=\"12\" fill=\"#1f2937\">sur tous les sites</text><path d=\"M438 120h18\" stroke=\"hsl(175,55%,35%)\" stroke-width=\"3\" marker-end=\"none\"/><path d=\"M450 113l8 7-8 7\" fill=\"none\" stroke=\"hsl(175,55%,35%)\" stroke-width=\"3\"/><rect x=\"460\" y=\"60\" width=\"116\" height=\"120\" rx=\"10\" fill=\"hsl(175,60%,90%)\" stroke=\"hsl(175,55%,35%)\" stroke-width=\"2\"/><text x=\"518.0\" y=\"95\" text-anchor=\"middle\" font-size=\"14\" font-weight=\"700\" fill=\"#111827\">4. Vérifier</text><text x=\"518.0\" y=\"120\" text-anchor=\"middle\" font-size=\"12\" fill=\"#1f2937\">Journaux, compte</text><text x=\"518.0\" y=\"138\" text-anchor=\"middle\" font-size=\"12\" fill=\"#1f2937\">utilisateur 1, e-mail</text></svg>",
+     "alt": "Schéma en quatre étapes de la réponse à la faille",
+     "caption": "Les quatre étapes recommandées par l'équipe de sécurité de Drupal pour les sites concernés."
+    },
+    {
+     "type": "heading",
+     "level": 2,
+     "text": "Les gestes recommandés"
+    },
+    {
+     "type": "list",
+     "ordered": true,
+     "items": [
+      "Consulter les journaux à la recherche d'accès non autorisés, notamment de modifications faites sur le compte de l'utilisateur 1 ou par lui.",
+      "Vérifier que l'adresse e-mail de l'utilisateur 1 est bien contrôlée par l'exploitant, et envisager de réinitialiser son mot de passe.",
+      "Appliquer la version corrigée, puis exécuter `update.php` pour régulariser les sites de production déjà concernés.",
+      "Sécuriser l'installeur sur tous les sites, anciens comme nouveaux, en suivant les consignes de Drupal."
+     ]
+    },
+    {
+     "type": "usecases",
+     "title": "Exemples d'utilisation",
+     "items": [
+      {
+       "icon": "🛠️",
+       "title": "Agence web gérant vingt sites",
+       "text": "Elle inventorie tous les sites, applique la version corrigée, lance `update.php` puis contrôle le compte administrateur principal de chacun avant de rendre la main aux clients."
+      },
+      {
+       "icon": "🏫",
+       "title": "Université avec un vieux portail en Drupal 9",
+       "text": "Le portail est en fin de vie et ne recevra aucun correctif : la solution passe par une migration, ou par un retrait d'Internet en attendant, derrière un accès restreint."
+      },
+      {
+       "icon": "🔍",
+       "title": "Équipe de sécurité d'une PME",
+       "text": "Elle recherche dans ses journaux des requêtes vers l'installeur et vérifie les modifications du compte utilisateur 1 depuis la mi-novembre."
+      }
+     ]
+    },
+    {
+     "type": "timeline",
+     "title": "D'où l'on vient, où l'on va",
+     "items": [
+      {
+       "label": "25 novembre 2026",
+       "text": "Fail2Install (CVE-2026-132165) est ajoutée au catalogue des vulnérabilités exploitées de la CISA, avec une échéance de correction au 27 novembre pour les agences fédérales américaines."
+      },
+      {
+       "label": "26 novembre 2026",
+       "text": "Drupal publie SA-CORE-2026-019 et confirme l'exploitation de CVE-2026-136716."
+      },
+      {
+       "label": "Prochains jours",
+       "text": "Les détails techniques et un score CVSS devraient être publiés ; les attaques opportunistes risquent de s'intensifier."
+      }
+     ]
+    },
+    {
+     "type": "opinion",
+     "title": "Notre avis",
+     "paragraphs": [
+      "L'épisode illustre un travers classique : corriger un symptôme sans avoir cartographié tous les états possibles du système. Un installeur laissé accessible est une surface d'attaque connue de longue date, mais la plupart des exploitants imaginent que « le site est installé, donc l'installeur est inoffensif ». Ici, cette hypothèse ne tient pas, et l'état vulnérable est invisible depuis l'interface.",
+      "Dans un an ou deux, on peut espérer que les CMS livrent par défaut un installeur qui se désactive seul, comme le font déjà plusieurs frameworks. En attendant, la gestion de parc reste le vrai sujet : des milliers de sites en fin de vie ne seront jamais corrigés, et ce sont eux qui nourriront les campagnes automatisées."
+     ],
+     "verdict": "Deux failles d'installeur en une semaine rappellent qu'un site non maintenu est un site déjà compromis en puissance."
+    },
+    {
+     "type": "callout",
+     "title": "À retenir",
+     "text": "Mettre à jour vers 11.4.14, 11.3.23 ou 10.6.23, exécuter `update.php`, sécuriser `install.php` et auditer le compte utilisateur 1 : les branches en fin de vie n'ont aucun correctif."
+    }
+   ],
+   "cover": {
+    "url": "https://blogger.googleusercontent.com/img/b/R29vZ2xl/AVvXsEiy2EcytpsKiKLhUfvQEADKBG6Ht2NprR2VIhIXPJcNQMIGqKT20l0afBPUVhehKFhRzpkHvl3Qu_qaPjFL3L4UsLYH3L4C1DM63zqskhJV1UAjaPqONaEbNkBFsxVDX2jpPZrMym52WvBx2pHktUiRfdXOcp_23xjTdUOxxjxJtI906XLMmw258Bjah1J2/s1600/drupal-rce.png",
+    "alt": "Illustration de l'article : Drupal : une nouvelle faille « hautement critique » dans l'installeur, déjà expl",
+    "credit": "thehackernews.com"
+   }
+  },
+  {
+   "id": "nuget-faux-test-embauche-dotnet-13-paquets",
+   "category": "cybersecurite",
+   "icon": "🎣",
+   "importance": 4,
+   "title": "NuGet : 13 paquets piégés derrière un faux test d'embauche pour développeurs .NET",
+   "summary": "Des chercheurs de Socket décrivent une campagne qui cible les développeurs Windows avec un exercice de recrutement truqué, des paquets NuGet malveillants et de faux dépôts imitant Axios. Aucun groupe n'est identifié.",
+   "tags": [
+    "NuGet",
+    ".NET",
+    "chaîne d'approvisionnement",
+    "ingénierie sociale",
+    "Socket"
+   ],
+   "readingMinutes": 4,
+   "publishedAt": "2026-11-26T10:15:42+01:00",
+   "sourceDate": "2026-11-26",
+   "sources": [
+    {
+     "title": "13 Malicious NuGet Packages Turn Fake .NET Job Assessments Into Malware Delivery Traps",
+     "url": "https://thehackernews.com/2026/11/13-malicious-nuget-packages-turn-fake.html",
+     "publisher": "The Hacker News"
+    }
+   ],
+   "illustration": {
+    "svg": "<svg xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"0 0 640 360\"><defs><linearGradient id=\"g\" x1=\"0\" y1=\"0\" x2=\"1\" y2=\"1\"><stop offset=\"0\" stop-color=\"hsl(175,65%,40%)\"/><stop offset=\"1\" stop-color=\"hsl(205,70%,22%)\"/></linearGradient></defs><rect width=\"640\" height=\"360\" fill=\"url(#g)\"/><circle cx=\"560\" cy=\"60\" r=\"90\" fill=\"#fff\" opacity=\".07\"/><circle cx=\"70\" cy=\"320\" r=\"110\" fill=\"#fff\" opacity=\".06\"/><circle cx=\"320\" cy=\"180\" r=\"100\" fill=\"#fff\" opacity=\".92\"/><circle cx=\"320\" cy=\"180\" r=\"80\" fill=\"none\" stroke=\"hsl(175,60%,35%)\" stroke-width=\"6\"/><text x=\"320\" y=\"214\" font-size=\"90\" text-anchor=\"middle\">🎣</text></svg>"
+   },
+   "blocks": [
+    {
+     "type": "paragraph",
+     "text": "Un recruteur vous propose un exercice technique de trois à quatre heures : améliorer un bouton dans un projet WinUI 3. Il suffit de compiler le projet pour exécuter du code malveillant. C'est le scénario décrit par Socket, qui a identifié treize paquets NuGet piégés, désormais retirés de la galerie, et tout un écosystème de faux dépôts autour."
+    },
+    {
+     "type": "heading",
+     "level": 2,
+     "text": "Une chaîne d'infection en quatre temps"
+    },
+    {
+     "type": "list",
+     "ordered": true,
+     "items": [
+      "Le leurre : un dépôt GitHub nommé WinUI3_Home_Assessment, créé le 3 novembre 2026 et annoncé sur la place de marché de freelances LaborX le 7 novembre, avec une rémunération de 8 500 à 10 000 dollars.",
+      "La compilation : le projet référence VS_Builder.MSBuildAnalyzer et VS_Builder.WinUI3Controls, puis, après leur retrait, leurs doubles HappyOne.*.",
+      "Le dépôt de charges : un fichier MSBuild exécute une DLL après chaque compilation, qui télécharge depuis GitHub une bibliothèque nommée OskSupport.dll et copie osk.exe à côté.",
+      "L'exécution : le lancement d'osk.exe charge la DLL malveillante (technique de détournement de bibliothèque), ou bien des exécutables sont téléchargés dans le dossier temporaire."
+     ]
+    },
+    {
+     "type": "diagram",
+     "svg": "<svg xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"0 0 640 220\" font-family=\"system-ui,sans-serif\"><rect width=\"640\" height=\"220\" rx=\"14\" fill=\"#f4f6fa\"/><text x=\"320\" y=\"30\" text-anchor=\"middle\" font-size=\"16\" font-weight=\"700\" fill=\"#1f2937\">Du faux test à l&#x27;infection</text><rect x=\"40\" y=\"60\" width=\"116\" height=\"120\" rx=\"10\" fill=\"hsl(175,60%,90%)\" stroke=\"hsl(175,55%,35%)\" stroke-width=\"2\"/><text x=\"98.0\" y=\"95\" text-anchor=\"middle\" font-size=\"14\" font-weight=\"700\" fill=\"#111827\">Faux recruteur</text><text x=\"98.0\" y=\"120\" text-anchor=\"middle\" font-size=\"12\" fill=\"#1f2937\">Annonce LaborX,</text><text x=\"98.0\" y=\"138\" text-anchor=\"middle\" font-size=\"12\" fill=\"#1f2937\">test de 3 à 4 h</text><path d=\"M158 120h18\" stroke=\"hsl(175,55%,35%)\" stroke-width=\"3\" marker-end=\"none\"/><path d=\"M170 113l8 7-8 7\" fill=\"none\" stroke=\"hsl(175,55%,35%)\" stroke-width=\"3\"/><rect x=\"180\" y=\"60\" width=\"116\" height=\"120\" rx=\"10\" fill=\"hsl(175,60%,90%)\" stroke=\"hsl(175,55%,35%)\" stroke-width=\"2\"/><text x=\"238.0\" y=\"95\" text-anchor=\"middle\" font-size=\"14\" font-weight=\"700\" fill=\"#111827\">Projet piégé</text><text x=\"238.0\" y=\"120\" text-anchor=\"middle\" font-size=\"12\" fill=\"#1f2937\">Dépend de paquets</text><text x=\"238.0\" y=\"138\" text-anchor=\"middle\" font-size=\"12\" fill=\"#1f2937\">NuGet malveillants</text><path d=\"M298 120h18\" stroke=\"hsl(175,55%,35%)\" stroke-width=\"3\" marker-end=\"none\"/><path d=\"M310 113l8 7-8 7\" fill=\"none\" stroke=\"hsl(175,55%,35%)\" stroke-width=\"3\"/><rect x=\"320\" y=\"60\" width=\"116\" height=\"120\" rx=\"10\" fill=\"hsl(175,60%,90%)\" stroke=\"hsl(175,55%,35%)\" stroke-width=\"2\"/><text x=\"378.0\" y=\"95\" text-anchor=\"middle\" font-size=\"14\" font-weight=\"700\" fill=\"#111827\">Compilation</text><text x=\"378.0\" y=\"120\" text-anchor=\"middle\" font-size=\"12\" fill=\"#1f2937\">MSBuild lance une</text><text x=\"378.0\" y=\"138\" text-anchor=\"middle\" font-size=\"12\" fill=\"#1f2937\">DLL de chargement</text><path d=\"M438 120h18\" stroke=\"hsl(175,55%,35%)\" stroke-width=\"3\" marker-end=\"none\"/><path d=\"M450 113l8 7-8 7\" fill=\"none\" stroke=\"hsl(175,55%,35%)\" stroke-width=\"3\"/><rect x=\"460\" y=\"60\" width=\"116\" height=\"120\" rx=\"10\" fill=\"hsl(175,60%,90%)\" stroke=\"hsl(175,55%,35%)\" stroke-width=\"2\"/><text x=\"518.0\" y=\"95\" text-anchor=\"middle\" font-size=\"14\" font-weight=\"700\" fill=\"#111827\">Charge finale</text><text x=\"518.0\" y=\"120\" text-anchor=\"middle\" font-size=\"12\" fill=\"#1f2937\">osk.exe + DLL ou</text><text x=\"518.0\" y=\"138\" text-anchor=\"middle\" font-size=\"12\" fill=\"#1f2937\">exécutable GitHub</text></svg>",
+     "alt": "Schéma de la chaîne d'infection",
+     "caption": "De l'annonce de recrutement à l'exécution de la charge malveillante sur le poste du développeur."
+    },
+    {
+     "type": "heading",
+     "level": 2,
+     "text": "Un écosystème plus large"
+    },
+    {
+     "type": "paragraph",
+     "text": "Les paquets, publiés dès le 23 juillet 2026 pour le plus ancien (WinUI3IconButton), se font passer pour des contrôles de bouton WinUI 3 et WPF. L'un d'eux, WinUI.Button, télécharge un exécutable depuis un dépôt GitHub en utilisant un jeton d'accès intégré, puis l'exécute depuis le dossier temporaire sous le nom Launcher.exe."
+    },
+    {
+     "type": "paragraph",
+     "text": "Socket relève aussi de faux dépôts imitant la bibliothèque Axios, ainsi que six paquets npm publiés du 14 au 23 juillet par des comptes dont l'un singe le pseudonyme d'un mainteneur d'Axios. Les dépôts hébergent un chargeur utilisant GitHub comme canal de commande, un voleur de profils Chrome et une charge qui signale le nom de la machine à un robot Telegram. Une page de type ClickFix, avec un faux reCAPTCHA, invite en outre à coller une commande dans la boîte de dialogue Exécuter de Windows."
+    },
+    {
+     "type": "heading",
+     "level": 2,
+     "text": "Attribution"
+    },
+    {
+     "type": "paragraph",
+     "text": "Aucun acteur n'est nommé. Les méthodes évoquent les campagnes « Contagious Interview » attribuées à la Corée du Nord, mais le chercheur Kush Pandya précise qu'aucun code ni indicateur commun n'a été retrouvé et qu'aucune des familles connues (BeaverTail, InvisibleFerret, OtterCookie) n'apparaît dans les étapes récupérées."
+    },
+    {
+     "type": "usecases",
+     "title": "Exemples d'utilisation",
+     "items": [
+      {
+       "icon": "🧑‍💻",
+       "title": "Développeur freelance",
+       "text": "Il reçoit un test « à faire chez soi » : il l'ouvre dans une machine virtuelle jetable, sans identifiants ni portefeuille crypto, et inspecte les fichiers `.targets` avant toute compilation."
+      },
+      {
+       "icon": "🛡️",
+       "title": "Équipe sécurité d'une entreprise",
+       "text": "Elle surveille les copies d'osk.exe hors de `System32` et les exécutables téléchargés depuis GitHub dans les dossiers temporaires des postes de développement."
+      },
+      {
+       "icon": "🏢",
+       "title": "Service des ressources humaines",
+       "text": "Il sensibilise les candidats : un test d'embauche légitime ne demande jamais d'installer des paquets inconnus ni de coller une commande dans Exécuter."
+      }
+     ]
+    },
+    {
+     "type": "timeline",
+     "title": "D'où l'on vient, où l'on va",
+     "items": [
+      {
+       "label": "14 juillet 2026",
+       "text": "Premiers paquets npm de la campagne."
+      },
+      {
+       "label": "23 juillet 2026",
+       "text": "WinUI3IconButton, premier paquet NuGet."
+      },
+      {
+       "label": "2 novembre 2026",
+       "text": "Retrait de VS_Builder.* par NuGet."
+      },
+      {
+       "label": "4 novembre 2026",
+       "text": "Republication sous le nom HappyOne.*."
+      },
+      {
+       "label": "13 novembre 2026",
+       "text": "Publication d'un faux « Crypto Wallet Analyzer »."
+      }
+     ]
+    },
+    {
+     "type": "opinion",
+     "title": "Notre avis",
+     "paragraphs": [
+      "Le choix de la cible est révélateur : un développeur qui compile un projet reçu exécute du code étranger avec ses droits, sur une machine souvent riche en secrets (jetons, clés, portefeuilles). Le leurre financier de la place de marché cible clairement le vol de cryptomonnaies, ce qui expliquerait le voleur de profils Chrome et l'inventaire des extensions de portefeuille.",
+      "À un horizon d'un à trois ans, les registres de paquets devront ralentir ces opérations : vérification des éditeurs, délais avant diffusion, signalement des scripts exécutés à la compilation. Côté développeurs, l'isolation systématique du code reçu deviendra une hygiène de base, comme la méfiance envers les pièces jointes."
+     ],
+     "verdict": "Compiler un projet reçu, c'est l'exécuter : le faux test d'embauche transforme un réflexe professionnel en vecteur d'attaque."
+    },
+    {
+     "type": "callout",
+     "title": "À retenir",
+     "text": "Treize paquets NuGet ont été retirés ; examinez les fichiers de build de vos dépendances, isolez tout code d'un test d'embauche et ne collez jamais de commande dans la boîte Exécuter."
+    }
+   ],
+   "cover": {
+    "url": "https://blogger.googleusercontent.com/img/b/R29vZ2xl/AVvXsEjt0w3YJQrn6VoUVUTTj46NLfeL_JJE-sDoxKsuBe-_OxBtQ3iX8AZTZ1CEn39-N5TGKYd-0ZKdOT43UwAWUbpIXlFdDwhyphenhyphenEKpkQVVJYJVodQRHyz0pJeKEvJIJgUpAEQqXizajmrriq9Mj1aqioeK1Zug__X26Ra4HwzFg8ImTajGc6b7Ck9LW2OCIpPoa/s1600/dotnet.jpg",
+    "alt": "Illustration de l'article : NuGet : 13 paquets piégés derrière un faux test d'embauche pour développeurs .NE",
+    "credit": "thehackernews.com"
+   }
+  },
+  {
+   "id": "qualcomm-oryon-3-snapdragon-x2-elite-extreme-analyse",
+   "category": "electronique",
+   "icon": "🧠",
+   "importance": 4,
+   "title": "Oryon 3 : l'analyse de Chips and Cheese place le cœur de Qualcomm au niveau des meilleurs processeurs de bureau",
+   "summary": "Le site spécialisé décortique le cœur « prime » du Snapdragon X2 Elite Extreme : 5 GHz, 9 micro-opérations par cycle, un cache L2 de 16 Mo par grappe. Il le juge très compétitif, malgré des vecteurs limités à 128 bits.",
+   "tags": [
+    "Qualcomm",
+    "Oryon",
+    "Snapdragon X2",
+    "architecture ARM",
+    "microarchitecture"
+   ],
+   "readingMinutes": 5,
+   "publishedAt": "2026-11-26T10:15:42+01:00",
+   "sourceDate": "2026-11-25",
+   "sources": [
+    {
+     "title": "Qualcomm's Oryon 3 Reaches the Top",
+     "url": "https://chipsandcheese.com/p/qualcomms-oryon-3-reaches-the-top",
+     "publisher": "Chips and Cheese"
+    }
+   ],
+   "illustration": {
+    "svg": "<svg xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"0 0 640 360\"><defs><linearGradient id=\"g\" x1=\"0\" y1=\"0\" x2=\"1\" y2=\"1\"><stop offset=\"0\" stop-color=\"hsl(30,65%,40%)\"/><stop offset=\"1\" stop-color=\"hsl(60,70%,22%)\"/></linearGradient></defs><rect width=\"640\" height=\"360\" fill=\"url(#g)\"/><circle cx=\"560\" cy=\"60\" r=\"90\" fill=\"#fff\" opacity=\".07\"/><circle cx=\"70\" cy=\"320\" r=\"110\" fill=\"#fff\" opacity=\".06\"/><circle cx=\"320\" cy=\"180\" r=\"100\" fill=\"#fff\" opacity=\".92\"/><circle cx=\"320\" cy=\"180\" r=\"80\" fill=\"none\" stroke=\"hsl(30,60%,35%)\" stroke-width=\"6\"/><text x=\"320\" y=\"214\" font-size=\"90\" text-anchor=\"middle\">🧠</text></svg>"
+   },
+   "blocks": [
+    {
+     "type": "paragraph",
+     "text": "Le Snapdragon X2 Elite Extreme embarque la troisième génération du cœur maison de Qualcomm, baptisée Oryon 3. Chips and Cheese, réputé pour ses analyses au niveau de la microarchitecture, publie une étude détaillée et conclut qu'il s'agit de « l'architecture de processeur la plus compétitive » de la marque à ce jour, au même rang que le Cortex X925 d'Arm comme cœur de classe bureau."
+    },
+    {
+     "type": "heading",
+     "level": 2,
+     "text": "Ce qui change par rapport à Oryon 1"
+    },
+    {
+     "type": "keyvalue",
+     "items": [
+      {
+       "label": "Fréquence",
+       "value": "5 GHz (contre 4,3 GHz, soit environ 16 % de plus)"
+      },
+      {
+       "label": "Largeur",
+       "value": "9 micro-opérations par cycle (contre 8)"
+      },
+      {
+       "label": "Fenêtre d'exécution désordonnée",
+       "value": "plus de 600 micro-opérations (675 mesurées, contre 680)"
+      },
+      {
+       "label": "Cache d'instructions",
+       "value": "192 Ko, 6 voies"
+      },
+      {
+       "label": "Cache L1 de données",
+       "value": "96 Ko, 6 voies, 3 cycles de latence"
+      },
+      {
+       "label": "Cache L2",
+       "value": "16 Mo par grappe de six cœurs « prime » (12 Mo avant)"
+      },
+      {
+       "label": "Jeu d'instructions",
+       "value": "ajout de SVE2 et SME, vecteurs de 128 bits"
+      }
+     ]
+    },
+    {
+     "type": "paragraph",
+     "text": "La partie arrière (registres, files d'ordonnancement mémoire) reste largement celle d'Oryon 1. Les gains viennent surtout de l'avant du pipeline : un emplacement de décodage supplémentaire, un prédicteur de branchements plus capable et des branchements pris sans bulle sur une empreinte de 2 048 branches, contre 8 Ko de code auparavant. Les pénalités de mauvaise prédiction restent à 13 cycles."
+    },
+    {
+     "type": "heading",
+     "level": 2,
+     "text": "Résultats et limites"
+    },
+    {
+     "type": "paragraph",
+     "text": "Sur la suite SPEC CPU2026 compilée avec GCC 14.2.0 et exécutée sous WSL, l'auteur observe des scores entiers de niveau « bureau » et des scores flottants légèrement en retrait de Zen 5 mais devant les cœurs Intel. La précision globale de prédiction des branchements est un peu meilleure que celle de Zen 5. Le test 706.stockfish reste une nette victoire d'AMD, car GCC y exploite largement AVX-512. Les chiffres exacts ne sont présentés que sous forme de graphiques."
+    },
+    {
+     "type": "diagram",
+     "svg": "<svg xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"0 0 640 220\" font-family=\"system-ui,sans-serif\"><rect width=\"640\" height=\"220\" rx=\"14\" fill=\"#f4f6fa\"/><text x=\"320\" y=\"30\" text-anchor=\"middle\" font-size=\"16\" font-weight=\"700\" fill=\"#1f2937\">Oryon 3 en un coup d&#x27;œil</text><rect x=\"40\" y=\"60\" width=\"116\" height=\"120\" rx=\"10\" fill=\"hsl(30,60%,90%)\" stroke=\"hsl(30,55%,35%)\" stroke-width=\"2\"/><text x=\"98.0\" y=\"95\" text-anchor=\"middle\" font-size=\"14\" font-weight=\"700\" fill=\"#111827\">Points forts</text><text x=\"98.0\" y=\"120\" text-anchor=\"middle\" font-size=\"12\" fill=\"#1f2937\">5 GHz, 9 µops</text><text x=\"98.0\" y=\"138\" text-anchor=\"middle\" font-size=\"12\" fill=\"#1f2937\">L1D rapide, L2 large</text><path d=\"M158 120h18\" stroke=\"hsl(30,55%,35%)\" stroke-width=\"3\" marker-end=\"none\"/><path d=\"M170 113l8 7-8 7\" fill=\"none\" stroke=\"hsl(30,55%,35%)\" stroke-width=\"3\"/><rect x=\"180\" y=\"60\" width=\"116\" height=\"120\" rx=\"10\" fill=\"hsl(30,60%,90%)\" stroke=\"hsl(30,55%,35%)\" stroke-width=\"2\"/><text x=\"238.0\" y=\"95\" text-anchor=\"middle\" font-size=\"14\" font-weight=\"700\" fill=\"#111827\">Points faibles</text><text x=\"238.0\" y=\"120\" text-anchor=\"middle\" font-size=\"12\" fill=\"#1f2937\">Vecteurs 128 bits</text><text x=\"238.0\" y=\"138\" text-anchor=\"middle\" font-size=\"12\" fill=\"#1f2937\">1 branche prise/cycle</text><path d=\"M298 120h18\" stroke=\"hsl(30,55%,35%)\" stroke-width=\"3\" marker-end=\"none\"/><path d=\"M310 113l8 7-8 7\" fill=\"none\" stroke=\"hsl(30,55%,35%)\" stroke-width=\"3\"/><rect x=\"320\" y=\"60\" width=\"116\" height=\"120\" rx=\"10\" fill=\"hsl(30,60%,90%)\" stroke=\"hsl(30,55%,35%)\" stroke-width=\"2\"/><text x=\"378.0\" y=\"95\" text-anchor=\"middle\" font-size=\"14\" font-weight=\"700\" fill=\"#111827\">Cache</text><text x=\"378.0\" y=\"120\" text-anchor=\"middle\" font-size=\"12\" fill=\"#1f2937\">2 niveaux : 16 Mo</text><text x=\"378.0\" y=\"138\" text-anchor=\"middle\" font-size=\"12\" fill=\"#1f2937\">contre 32 Mo (Zen 5)</text><path d=\"M438 120h18\" stroke=\"hsl(30,55%,35%)\" stroke-width=\"3\" marker-end=\"none\"/><path d=\"M450 113l8 7-8 7\" fill=\"none\" stroke=\"hsl(30,55%,35%)\" stroke-width=\"3\"/><rect x=\"460\" y=\"60\" width=\"116\" height=\"120\" rx=\"10\" fill=\"hsl(30,60%,90%)\" stroke=\"hsl(30,55%,35%)\" stroke-width=\"2\"/><text x=\"518.0\" y=\"95\" text-anchor=\"middle\" font-size=\"14\" font-weight=\"700\" fill=\"#111827\">Écosystème</text><text x=\"518.0\" y=\"120\" text-anchor=\"middle\" font-size=\"12\" fill=\"#1f2937\">Windows sur Arm,</text><text x=\"518.0\" y=\"138\" text-anchor=\"middle\" font-size=\"12\" fill=\"#1f2937\">Linux en retard</text></svg>",
+     "alt": "Synthèse des forces et faiblesses d'Oryon 3",
+     "caption": "Forces, limites et contexte du cœur Oryon 3 selon l'analyse de Chips and Cheese."
+    },
+    {
+     "type": "paragraph",
+     "text": "Parmi les limites, l'auteur note la largeur vectorielle de 128 bits (moins de débit que Zen 5 ou Lion Cove), l'absence de transfert de stockage à latence nulle, un seul branchement pris par cycle et un cache à deux niveaux qui passe moins bien à l'échelle en capacité. Il n'aborde ni la consommation, ni les températures, ni l'efficacité énergétique, et ne compare pas directement avec Apple."
+    },
+    {
+     "type": "paragraph",
+     "text": "Au quotidien, il décrit un Asus Zenbook A16 utilisé plusieurs semaines comme ordinateur principal, subjectivement aussi rapide que son poste fixe. Il rappelle toutefois que Windows sur Arm reste moins abouti que l'x86-64 natif, que la prise en charge de Linux a pris du retard et que le prix élevé de la mémoire vive freine les achats."
+    },
+    {
+     "type": "usecases",
+     "title": "Exemples d'utilisation",
+     "items": [
+      {
+       "icon": "💻",
+       "title": "Utilisateur d'un ordinateur portable ultrafin",
+       "text": "Il bénéficie de performances monocœur proches d'un poste fixe pour la bureautique, la navigation et la compilation légère, sans sacrifier la finesse."
+      },
+      {
+       "icon": "🧪",
+       "title": "Développeur de logiciels",
+       "text": "Il doit tester ses applications en natif Arm64 : un code très vectorisé en AVX-512 y sera moins avantagé qu'avec une puce AMD."
+      },
+      {
+       "icon": "🎮",
+       "title": "Joueur sur PC",
+       "text": "Il dépend de la traduction binaire x86, que Qualcomm ne maîtrise pas : la compatibilité des jeux reste le principal point d'incertitude."
+      }
+     ]
+    },
+    {
+     "type": "timeline",
+     "title": "D'où l'on vient, où l'on va",
+     "items": [
+      {
+       "label": "2024",
+       "text": "Première génération Oryon dans le Snapdragon X Elite, à 4,3 GHz."
+      },
+      {
+       "label": "2025-2026",
+       "text": "Une deuxième génération n'apparaît que dans les téléphones."
+      },
+      {
+       "label": "26 novembre 2026",
+       "text": "Analyse publique d'Oryon 3, cœur du Snapdragon X2 Elite Extreme."
+      },
+      {
+       "label": "Prochaines années",
+       "text": "La concurrence se joue sur la consommation, le prix de la mémoire et la maturité de Windows sur Arm."
+      }
+     ]
+    },
+    {
+     "type": "opinion",
+     "title": "Notre avis",
+     "paragraphs": [
+      "Le constat est important : Qualcomm n'est plus un simple suiveur d'Arm, mais un concepteur de cœurs qui rivalise avec AMD et Intel sur la performance par cœur. La comparaison reste toutefois incomplète tant que l'efficacité énergétique, argument historique des puces Arm, n'est pas mesurée de façon indépendante.",
+      "L'avenir de la plateforme se jouera moins sur la microarchitecture que sur le logiciel : traduction x86, pilotes, Linux, jeux. Sur un à trois ans, la question est de savoir si les fabricants d'ordinateurs persistent malgré une mémoire soudée et chère."
+     ],
+     "verdict": "Oryon 3 prouve que l'Arm de bureau peut tenir tête à l'x86, mais la bataille se déplace vers le logiciel et l'efficacité."
+    },
+    {
+     "type": "callout",
+     "title": "À retenir",
+     "text": "Oryon 3 : 5 GHz, 9 micro-opérations par cycle, L2 de 16 Mo ; vecteurs de 128 bits et consommation non mesurée dans cette analyse."
+    }
+   ]
+  },
+  {
+   "id": "gpt-6-2-astra-code-golf-benchmark-records-humains",
+   "category": "ia",
+   "icon": "⛳",
+   "importance": 4,
+   "title": "Code golf : GPT-6.2 Astra serait le premier modèle à battre les records humains de Google sur trois langages",
+   "summary": "Un banc d'essai indépendant compare des modèles aux plus courtes solutions humaines d'un concours interne de Google de 2015. GPT-6.2 Astra y atteint 92,3 % en JavaScript, Python et C++, contre 87,5 % pour les humains.",
+   "tags": [
+    "OpenAI",
+    "GPT-6.2",
+    "code golf",
+    "évaluation",
+    "programmation"
+   ],
+   "readingMinutes": 4,
+   "publishedAt": "2026-11-26T10:15:42+01:00",
+   "sourceDate": "2026-11-26",
+   "sources": [
+    {
+     "title": "Go/codegolf benchmark",
+     "url": "https://bjin.github.io/go-codegolf-benchmark/",
+     "publisher": "bjin.github.io"
+    }
+   ],
+   "illustration": {
+    "svg": "<svg xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"0 0 640 360\"><defs><linearGradient id=\"g\" x1=\"0\" y1=\"0\" x2=\"1\" y2=\"1\"><stop offset=\"0\" stop-color=\"hsl(320,65%,40%)\"/><stop offset=\"1\" stop-color=\"hsl(350,70%,22%)\"/></linearGradient></defs><rect width=\"640\" height=\"360\" fill=\"url(#g)\"/><circle cx=\"560\" cy=\"60\" r=\"90\" fill=\"#fff\" opacity=\".07\"/><circle cx=\"70\" cy=\"320\" r=\"110\" fill=\"#fff\" opacity=\".06\"/><circle cx=\"320\" cy=\"180\" r=\"100\" fill=\"#fff\" opacity=\".92\"/><circle cx=\"320\" cy=\"180\" r=\"80\" fill=\"none\" stroke=\"hsl(320,60%,35%)\" stroke-width=\"6\"/><text x=\"320\" y=\"214\" font-size=\"90\" text-anchor=\"middle\">⛳</text></svg>"
+   },
+   "blocks": [
+    {
+     "type": "paragraph",
+     "text": "Écrire un programme correct est une chose, l'écrire en aussi peu d'octets que possible en est une autre. Le banc d'essai « go/codegolf » confronte des modèles d'IA aux meilleures solutions humaines d'un concours interne de Google de 2015. Il a gagné en visibilité aujourd'hui sur Hacker News, avec une conclusion nette : GPT-6.2 Astra serait le premier modèle de pointe à dépasser les records humains sur JavaScript, Python et C++."
+    },
+    {
+     "type": "heading",
+     "level": 2,
+     "text": "Comment le test fonctionne"
+    },
+    {
+     "type": "paragraph",
+     "text": "Le banc d'essai comprend 32 problèmes du concours de 2015, chacun posé dans huit langages (JavaScript, Python, C++, Haskell, Ruby, Raku, Racket et GolfScript), soit 256 cellules. Chaque cellule donne droit à une session de trente minutes avec l'énoncé, tous les cas de test et deux outils : un outil de soumission, qui ne conserve une solution que si elle améliore la précédente, et un « bac à sable » d'exécution."
+    },
+    {
+     "type": "paragraph",
+     "text": "Le score d'une cellule est le carré du rapport entre la meilleure taille connue et la taille obtenue : 100 % pour une égalité, 0 pour un problème non résolu. Les sorties doivent être déterministes, les entrées sont mélangées et chaque exécution est vérifiée deux fois. Les modèles sont lancés avec leur réglage de réflexion le plus élevé, sauf quand il les fait manquer de temps."
+    },
+    {
+     "type": "heading",
+     "level": 2,
+     "text": "Les chiffres"
+    },
+    {
+     "type": "keyvalue",
+     "items": [
+      {
+       "label": "GPT-6.2 Astra, JS/Python/C++",
+       "value": "92,265 %"
+      },
+      {
+       "label": "Humains, JS/Python/C++",
+       "value": "87,533 %"
+      },
+      {
+       "label": "Tous modèles à résultats complets, ensemble",
+       "value": "47,975 % à 91,934 %"
+      },
+      {
+       "label": "JavaScript",
+       "value": "90,555 % contre 80,980 % pour les humains"
+      },
+      {
+       "label": "Python",
+       "value": "93,049 % contre 90,579 %"
+      },
+      {
+       "label": "C++",
+       "value": "93,190 % contre 91,039 %"
+      }
+     ]
+    },
+    {
+     "type": "paragraph",
+     "text": "Sur les 96 cellules JavaScript, Python et C++, des modèles battent le record humain dans 62 cas, tandis que les humains en gardent 14. Les records humains agrègent les meilleures soumissions du concours d'origine et de défis ultérieurs : ce n'est pas la performance d'une seule personne en trente minutes."
+    },
+    {
+     "type": "diagram",
+     "svg": "<svg xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"0 0 640 220\" font-family=\"system-ui,sans-serif\"><rect width=\"640\" height=\"220\" rx=\"14\" fill=\"#f4f6fa\"/><text x=\"320\" y=\"30\" text-anchor=\"middle\" font-size=\"16\" font-weight=\"700\" fill=\"#1f2937\">Principe du banc d&#x27;essai go/codegolf</text><rect x=\"40\" y=\"60\" width=\"116\" height=\"120\" rx=\"10\" fill=\"hsl(320,60%,90%)\" stroke=\"hsl(320,55%,35%)\" stroke-width=\"2\"/><text x=\"98.0\" y=\"95\" text-anchor=\"middle\" font-size=\"14\" font-weight=\"700\" fill=\"#111827\">Problème</text><text x=\"98.0\" y=\"120\" text-anchor=\"middle\" font-size=\"12\" fill=\"#1f2937\">32 énoncés de</text><text x=\"98.0\" y=\"138\" text-anchor=\"middle\" font-size=\"12\" fill=\"#1f2937\">2015, 8 langages</text><path d=\"M158 120h18\" stroke=\"hsl(320,55%,35%)\" stroke-width=\"3\" marker-end=\"none\"/><path d=\"M170 113l8 7-8 7\" fill=\"none\" stroke=\"hsl(320,55%,35%)\" stroke-width=\"3\"/><rect x=\"180\" y=\"60\" width=\"116\" height=\"120\" rx=\"10\" fill=\"hsl(320,60%,90%)\" stroke=\"hsl(320,55%,35%)\" stroke-width=\"2\"/><text x=\"238.0\" y=\"95\" text-anchor=\"middle\" font-size=\"14\" font-weight=\"700\" fill=\"#111827\">Session IA</text><text x=\"238.0\" y=\"120\" text-anchor=\"middle\" font-size=\"12\" fill=\"#1f2937\">30 min, outils</text><text x=\"238.0\" y=\"138\" text-anchor=\"middle\" font-size=\"12\" fill=\"#1f2937\">submit + bac à sable</text><path d=\"M298 120h18\" stroke=\"hsl(320,55%,35%)\" stroke-width=\"3\" marker-end=\"none\"/><path d=\"M310 113l8 7-8 7\" fill=\"none\" stroke=\"hsl(320,55%,35%)\" stroke-width=\"3\"/><rect x=\"320\" y=\"60\" width=\"116\" height=\"120\" rx=\"10\" fill=\"hsl(320,60%,90%)\" stroke=\"hsl(320,55%,35%)\" stroke-width=\"2\"/><text x=\"378.0\" y=\"95\" text-anchor=\"middle\" font-size=\"14\" font-weight=\"700\" fill=\"#111827\">Score</text><text x=\"378.0\" y=\"120\" text-anchor=\"middle\" font-size=\"12\" fill=\"#1f2937\">(meilleure taille /</text><text x=\"378.0\" y=\"138\" text-anchor=\"middle\" font-size=\"12\" fill=\"#1f2937\">taille obtenue)²</text><path d=\"M438 120h18\" stroke=\"hsl(320,55%,35%)\" stroke-width=\"3\" marker-end=\"none\"/><path d=\"M450 113l8 7-8 7\" fill=\"none\" stroke=\"hsl(320,55%,35%)\" stroke-width=\"3\"/><rect x=\"460\" y=\"60\" width=\"116\" height=\"120\" rx=\"10\" fill=\"hsl(320,60%,90%)\" stroke=\"hsl(320,55%,35%)\" stroke-width=\"2\"/><text x=\"518.0\" y=\"95\" text-anchor=\"middle\" font-size=\"14\" font-weight=\"700\" fill=\"#111827\">Verdict</text><text x=\"518.0\" y=\"120\" text-anchor=\"middle\" font-size=\"12\" fill=\"#1f2937\">Astra : 92,3 %</text><text x=\"518.0\" y=\"138\" text-anchor=\"middle\" font-size=\"12\" fill=\"#1f2937\">humains : 87,5 %</text></svg>",
+     "alt": "Schéma du protocole du banc d'essai",
+     "caption": "Du problème au score : le protocole du banc d'essai go/codegolf."
+    },
+    {
+     "type": "paragraph",
+     "text": "Deux précautions s'imposent. La page ne donne pas de date de publication, et le tableau du classement complet n'était pas lisible à la consultation : seuls les chiffres cités dans le texte sont repris ici. Il s'agit en outre d'un projet individuel, non d'une évaluation académique relue par des pairs."
+    },
+    {
+     "type": "usecases",
+     "title": "Exemples d'utilisation",
+     "items": [
+      {
+       "icon": "🧩",
+       "title": "Équipe de compilateurs",
+       "text": "Elle utilise ce type de banc d'essai pour détecter des modèles capables d'optimiser finement, par exemple en réduisant la taille de code embarqué."
+      },
+      {
+       "icon": "🎓",
+       "title": "Enseignant en algorithmique",
+       "text": "Il compare les solutions courtes générées aux solutions humaines pour montrer des astuces de langage, tout en rappelant que la lisibilité compte plus que la taille."
+      },
+      {
+       "icon": "📊",
+       "title": "Équipe d'évaluation de modèles",
+       "text": "Elle observe que l'écart se creuse surtout dans les langages classiques, ce qui oriente le choix des tâches de test au-delà du simple taux de réussite."
+      }
+     ]
+    },
+    {
+     "type": "timeline",
+     "title": "D'où l'on vient, où l'on va",
+     "items": [
+      {
+       "label": "2015",
+       "text": "Concours interne de code golf de Google."
+      },
+      {
+       "label": "Septembre 2026 (inféré)",
+       "text": "Probable rédaction de la page, après le lancement d'Astra ; la date n'est pas indiquée."
+      },
+      {
+       "label": "26 novembre 2026",
+       "text": "Le banc d'essai circule largement sur Hacker News."
+      },
+      {
+       "label": "Prochains mois",
+       "text": "D'autres modèles devraient être mesurés et les records de la dernière catégorie humaine pourraient tomber."
+      }
+     ]
+    },
+    {
+     "type": "opinion",
+     "title": "Notre avis",
+     "paragraphs": [
+      "Le résultat est spectaculaire, mais il mesure une compétence étroite : compresser du code pour des énoncés connus. Un énoncé très médiatisé depuis dix ans peut aussi avoir été vu pendant l'entraînement, et la page ne dit pas comment cette contamination est écartée. Le score ne dit rien de la maintenabilité du code produit.",
+      "Ce qui frappe, c'est la dynamique : des modèles qui, il y a peu, échouaient à des exercices simples, battent désormais des spécialistes sur un exercice d'optimisation. À un à trois ans, on peut s'attendre à ce que ce type d'évaluation serve de signal d'alerte sur la saturation des tests classiques, et pousse à en inventer de plus ouverts."
+     ],
+     "verdict": "Un jalon symbolique, à relativiser : le banc mesure la concision, pas la qualité du logiciel."
+    },
+    {
+     "type": "callout",
+     "title": "À retenir",
+     "text": "Selon ce banc d'essai indépendant, GPT-6.2 Astra bat les records humains en JS, Python et C++ (92,3 % contre 87,5 %), mais la contamination et la portée du test restent à vérifier."
+    }
+   ]
+  }
+ ]
+}
