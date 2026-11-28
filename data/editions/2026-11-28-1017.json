@@ -1,0 +1,735 @@
+{
+ "schemaVersion": "1.0",
+ "date": "2026-11-28",
+ "generatedAt": "2026-11-28T10:17:03+01:00",
+ "title": "Tech Daily — Gestionnaire de mots de passe attaqué, espionnage en Asie, Linux dans le navigateur et électronique de bricoleur",
+ "summary": "Au sommaire : une attaque contre le gestionnaire pCloud Pass, une campagne d'espionnage en Asie du Sud-Est, un noyau Linux qui démarre dans un onglet, un tube Nixie fait maison et un chiffrement léger pour ESP32.",
+ "highlights": [
+  "pCloud Pass : des adresses e-mail exposées, des tentatives de connexion inexpliquées.",
+  "WeaveLotus : cinq intrusions confirmées en Thaïlande et aux Philippines selon SOCRadar.",
+  "Unkernel et Trynix font tourner Debian et NixOS dans un navigateur.",
+  "Un tube Nixie fait maison bute sur l'étanchéité du vide.",
+  "Noise sur ESP32 : 9,4 Ko de mémoire contre 23,6 Ko pour TLS."
+ ],
+ "meta": {
+  "generator": "claude-scheduled-task"
+ },
+ "posts": [
+  {
+   "id": "pcloud-pass-adresses-exposees-tentatives-connexion",
+   "category": "cybersecurite",
+   "title": "pCloud Pass : des adresses e-mail exposées et des tentatives de connexion inexpliquées sur le gestionnaire de mots de passe",
+   "summary": "Le 28 novembre 2026, The Hacker News rapporte une attaque contre pCloud Pass, le gestionnaire de mots de passe de la société suisse pCloud. L'éditeur parle d'une petite quantité d'adresses exposées et affirme que les coffres restent chiffrés ; plusieurs questions demeurent ouvertes.",
+   "tags": [
+    "pCloud",
+    "gestionnaire de mots de passe",
+    "fuite de données",
+    "hameçonnage",
+    "2FA"
+   ],
+   "importance": 4,
+   "readingMinutes": 4,
+   "publishedAt": "2026-11-28T10:17:01+01:00",
+   "sourceDate": "2026-11-28",
+   "icon": "🔑",
+   "illustration": {
+    "svg": "<svg xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"0 0 640 360\"><defs><linearGradient id=\"g\" x1=\"0\" y1=\"0\" x2=\"1\" y2=\"1\"><stop offset=\"0\" stop-color=\"hsl(175,65%,34%)\"/><stop offset=\"1\" stop-color=\"hsl(215,70%,50%)\"/></linearGradient></defs><rect width=\"640\" height=\"360\" fill=\"url(#g)\"/><circle cx=\"520\" cy=\"80\" r=\"110\" fill=\"#fff\" opacity=\".12\"/><circle cx=\"90\" cy=\"300\" r=\"80\" fill=\"#fff\" opacity=\".10\"/><rect x=\"60\" y=\"80\" width=\"273\" height=\"14\" rx=\"7\" fill=\"#fff\" opacity=\".35\"/><rect x=\"60\" y=\"100\" width=\"229\" height=\"14\" rx=\"7\" fill=\"#fff\" opacity=\".25\"/><rect x=\"60\" y=\"130\" width=\"90\" height=\"14\" rx=\"7\" fill=\"#fff\" opacity=\".2\"/><text x=\"320\" y=\"225\" font-size=\"120\" text-anchor=\"middle\" font-family=\"system-ui,sans-serif\">🔑</text></svg>"
+   },
+   "sources": [
+    {
+     "title": "pCloud Password Manager Hit by Cyber Attack Involving Email Address Exposure and Login Attempts",
+     "url": "https://thehackernews.com/2026/11/pcloud-password-manager-hit-by-cyber.html",
+     "publisher": "The Hacker News"
+    }
+   ],
+   "blocks": [
+    {
+     "type": "paragraph",
+     "text": "Le 28 novembre 2026, le site The Hacker News a rapporté une cyberattaque visant **pCloud Pass**, le gestionnaire de mots de passe multiplateforme de la société suisse pCloud. L'incident est apparu lorsque plusieurs utilisateurs ont signalé sur Reddit la connexion d'appareils inconnus à leurs comptes, alors même que l'authentification à deux facteurs était activée. Le service a ensuite envoyé automatiquement une notification aux adresses concernées, et l'éditeur a reconnu un problème limité à ce produit."
+    },
+    {
+     "type": "heading",
+     "level": 2,
+     "text": "Ce que dit l'éditeur, et ce que montrent les utilisateurs"
+    },
+    {
+     "type": "paragraph",
+     "text": "Selon pCloud, une « petite quantité » d'adresses e-mail d'utilisateurs de pCloud Pass a été exposée et des tentatives de connexion ont été effectuées. Les mots de passe, les notes et les autres informations stockées sont chiffrés et ne peuvent être lus qu'avec le mot de passe maître : les données des utilisateurs n'auraient donc pas été compromises. L'entreprise précise que les services de stockage dans le cloud ne sont pas touchés et que l'attaque a été « rapidement contenue ». Elle attribue en partie l'incident à l'accélération de la découverte de failles permise par l'intelligence artificielle, qui permettrait de repérer des vulnérabilités avant même la publication des correctifs."
+    },
+    {
+     "type": "paragraph",
+     "text": "Les témoignages recueillis décrivent un schéma répétitif : un appareil nommé « pd » se connecte depuis deux adresses IP situées au Luxembourg, qui appartiennent à l'infrastructure de pCloud elle-même (les noms eapi1.pcloud.com et onlyoffice.pcloud.com sont cités). Un utilisateur a également relevé que le bouton « Open Settings » du courriel d'alerte renvoyait vers un environnement de test interne qui ne se charge pas, ce qui laisse penser à un accès ou à un mécanisme de notification détourné depuis l'intérieur du système."
+    },
+    {
+     "type": "keyvalue",
+     "items": [
+      {
+       "label": "Produit concerné",
+       "value": "pCloud Pass (gestionnaire de mots de passe)"
+      },
+      {
+       "label": "Données reconnues exposées",
+       "value": "Une petite quantité d'adresses e-mail"
+      },
+      {
+       "label": "Activité observée",
+       "value": "Tentatives de connexion depuis un appareil « pd », via deux adresses IP luxembourgeoises de pCloud"
+      },
+      {
+       "label": "Services non touchés",
+       "value": "Stockage cloud pCloud, selon l'éditeur"
+      }
+     ]
+    },
+    {
+     "type": "heading",
+     "level": 2,
+     "text": "Les zones d'ombre"
+    },
+    {
+     "type": "list",
+     "items": [
+      "On ignore si des tentatives de connexion ont réussi et si des coffres chiffrés ont été consultés ou téléchargés.",
+      "pCloud n'a pas expliqué comment les attaquants sont entrés dans le système.",
+      "La date de l'intrusion et la durée de l'accès avant détection ne sont pas connues.",
+      "The Hacker News indique avoir sollicité l'éditeur et promet une mise à jour en cas de réponse."
+     ]
+    },
+    {
+     "type": "paragraph",
+     "text": "Ces éléments proviennent d'une source unique, qui cite elle-même des messages d'utilisateurs et des déclarations de l'éditeur : ils n'ont pas été vérifiés de façon indépendante. L'incident s'ajoute à d'autres alertes visant des gestionnaires de mots de passe ce mois-ci. Début novembre, mSeven (mSecure) a demandé à ses clients de changer leurs mots de passe après le vol d'une copie chiffrée d'une base d'utilisateurs ; plus récemment, 1Password a signalé qu'un compte GitHub d'employé compromis avait servi à injecter du code malveillant, sans atteindre les coffres selon l'éditeur."
+    },
+    {
+     "type": "usecases",
+     "title": "Ce que cela change concrètement",
+     "items": [
+      {
+       "icon": "🧑‍💻",
+       "title": "Un utilisateur de pCloud Pass",
+       "text": "Il vérifie dans l'application la liste des appareils connectés, supprime ceux qu'il ne reconnaît pas et change son mot de passe maître par précaution, sans passer par un lien reçu par courriel."
+      },
+      {
+       "icon": "🏢",
+       "title": "Un responsable informatique en PME",
+       "text": "Il recense les salariés qui utilisent le produit, leur demande de contrôler leurs sessions et rappelle que personne ne doit jamais communiquer son mot de passe maître ni ses mots de récupération."
+      },
+      {
+       "icon": "📧",
+       "title": "Un destinataire d'une alerte de connexion",
+       "text": "Il ouvre l'application ou le site officiel par ses propres moyens plutôt que de cliquer sur le bouton du message, car des escrocs peuvent imiter ces courriels."
+      }
+     ]
+    },
+    {
+     "type": "timeline",
+     "title": "D'où l'on vient, où l'on va",
+     "items": [
+      {
+       "label": "Début novembre 2026",
+       "text": "mSeven (mSecure) signale le vol d'une copie chiffrée de sa base d'utilisateurs."
+      },
+      {
+       "label": "Mercredi précédant l'article",
+       "text": "1Password signale un incident touchant ses systèmes d'arrière-plan, sans atteinte aux coffres selon l'éditeur."
+      },
+      {
+       "label": "28 novembre 2026",
+       "text": "The Hacker News publie l'alerte sur pCloud Pass ; l'éditeur promet d'informer ses clients, sans calendrier précis."
+      }
+     ]
+    },
+    {
+     "type": "opinion",
+     "title": "Notre avis",
+     "paragraphs": [
+      "Le chiffrement local des coffres est précisément fait pour qu'une intrusion côté serveur ne suffise pas à lire les secrets : si l'éditeur dit vrai, la conception a joué son rôle. Mais la communication est en deçà de ce que l'on attend d'un acteur de ce secteur : aucune explication sur le vecteur, aucune chronologie, et un lien de notification qui pointe vers un environnement de test, détail qui ne rassure pas sur la maîtrise de l'infrastructure.",
+      "D'ici un à trois ans, on peut s'attendre à ce que les éditeurs de gestionnaires de mots de passe publient plus systématiquement des rapports d'incident détaillés et se tournent vers les clés d'accès (passkeys), moins exposées au hameçonnage. L'argument de l'IA qui accélère la découverte de failles est plausible, mais il ne dispense pas d'une transparence rapide : c'est une analyse, pas un fait établi par cette affaire."
+     ],
+     "verdict": "Le chiffrement protège les coffres, mais la confiance dans un gestionnaire de mots de passe se mesure aussi à la clarté de ses explications après un incident."
+    },
+    {
+     "type": "callout",
+     "title": "À retenir",
+     "text": "Ne cliquez jamais sur le lien d'une alerte de connexion : ouvrez l'application officielle, vérifiez la liste des appareils et protégez votre mot de passe maître."
+    }
+   ],
+   "cover": {
+    "url": "https://blogger.googleusercontent.com/img/b/R29vZ2xl/AVvXsEizySCkvtf5mXH_3zoxzuk-QyEdUnYmspglEsVYdqRITloUFrUDZCQJcwtQG09teFmXo2IJOknOQb7CXhUpjKjGnadD6TuOIvVWIoWmKcaxb8-1uwf-3AiXZPYCFf2RzDkHNZ06d2Q5OS6AcCV7JHjTACCJH2f5aipC8vllpOwj1dSBYQJtqJ_wDc5nXQwU/s1600/pcloud.jpg",
+    "alt": "pCloud Pass : des adresses e-mail exposées et des tentatives de connexion inexpliquées sur le gestionnaire de mots de passe",
+    "credit": "thehackernews.com"
+   }
+  },
+  {
+   "id": "weavelotus-espionnage-asie-du-sud-est-geoserver",
+   "category": "cybersecurite",
+   "title": "WeaveLotus : une campagne d'espionnage liée au Vietnam vise des administrations en Thaïlande et aux Philippines",
+   "summary": "Selon SOCRadar, le groupe WeaveLotus a mené cinq intrusions confirmées en Thaïlande et aux Philippines entre août et septembre 2026, en exploitant GeoServer, JasperReports et osTicket. Le rattachement à un État n'est pas établi.",
+   "tags": [
+    "espionnage",
+    "WeaveLotus",
+    "SOCRadar",
+    "GeoServer",
+    "mer de Chine méridionale"
+   ],
+   "importance": 3,
+   "readingMinutes": 5,
+   "publishedAt": "2026-11-28T10:17:01+01:00",
+   "sourceDate": "2026-11-27",
+   "icon": "🕵️",
+   "illustration": {
+    "svg": "<svg xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"0 0 640 360\"><defs><linearGradient id=\"g\" x1=\"0\" y1=\"0\" x2=\"1\" y2=\"1\"><stop offset=\"0\" stop-color=\"hsl(175,65%,34%)\"/><stop offset=\"1\" stop-color=\"hsl(215,70%,50%)\"/></linearGradient></defs><rect width=\"640\" height=\"360\" fill=\"url(#g)\"/><circle cx=\"520\" cy=\"80\" r=\"110\" fill=\"#fff\" opacity=\".12\"/><circle cx=\"90\" cy=\"300\" r=\"80\" fill=\"#fff\" opacity=\".10\"/><rect x=\"60\" y=\"90\" width=\"286\" height=\"14\" rx=\"7\" fill=\"#fff\" opacity=\".35\"/><rect x=\"60\" y=\"100\" width=\"258\" height=\"14\" rx=\"7\" fill=\"#fff\" opacity=\".25\"/><rect x=\"60\" y=\"130\" width=\"90\" height=\"14\" rx=\"7\" fill=\"#fff\" opacity=\".2\"/><text x=\"320\" y=\"225\" font-size=\"120\" text-anchor=\"middle\" font-family=\"system-ui,sans-serif\">🕵️</text></svg>"
+   },
+   "sources": [
+    {
+     "title": "Suspected Vietnam-Linked Hackers Target Southeast Asia in South China Sea Espionage Campaign",
+     "url": "https://thehackernews.com/2026/11/suspected-vietnam-linked-hackers-target.html",
+     "publisher": "The Hacker News"
+    }
+   ],
+   "blocks": [
+    {
+     "type": "paragraph",
+     "text": "Le 27 novembre 2026, The Hacker News a repris une analyse de la société SOCRadar décrivant une campagne d'espionnage baptisée **RedOps**, attribuée à un groupe suivi sous le nom **WeaveLotus** et présenté comme lié au Vietnam. Elle aurait visé des organisations militaires, gouvernementales et législatives d'Asie du Sud-Est, pour collecter des renseignements sur la défense et les accords militaires en mer de Chine méridionale. L'activité a été observée entre août et septembre 2026."
+    },
+    {
+     "type": "heading",
+     "level": 2,
+     "text": "Cibles et ampleur"
+    },
+    {
+     "type": "list",
+     "items": [
+      "Cinq intrusions confirmées : une organisation militaire, une organisation législative et une organisation gouvernementale en Thaïlande, ainsi que deux organisations gouvernementales aux Philippines.",
+      "Une phase de reconnaissance seule contre des organismes publics indonésiens, sans compromission constatée, avec plus de 30 organisations sondées.",
+      "Aucune victime privée identifiée, ce qui, selon SOCRadar, cadre avec une collecte de renseignement à finalité étatique."
+     ]
+    },
+    {
+     "type": "heading",
+     "level": 2,
+     "text": "Des outils ordinaires, des erreurs de configuration"
+    },
+    {
+     "type": "paragraph",
+     "text": "L'enquête met en avant une constante : l'accès initial repose sur des applications web vulnérables et des identifiants par défaut dans des logiciels libres courants, plutôt que sur des outils sophistiqués. Dans le cas du militaire thaïlandais, les attaquants auraient probablement exploité la faille **CVE-2024-36401** de GeoServer (note CVSS de 9,8), puis installé un proxy SOCKS5 et un tunnel SSH inversé. Ils ont ensuite interrogé l'API non authentifiée d'un système de gestion de contenu Directus et appliqué la reconnaissance optique de caractères à des images pour en extraire du texte en anglais et en thaï."
+    },
+    {
+     "type": "paragraph",
+     "text": "Dans l'organisation législative, des identifiants administrateur par défaut sur un serveur JasperReports ont permis de téléverser un rapport piégé qui exécutait des commandes SQL sur Microsoft SQL Server, rapport ensuite supprimé pour effacer les traces. Un tunnel inversé sur le port 443 a été établi, puis un serveur de commande léger en Python a automatisé la suite. Selon SOCRadar, 1 502 enregistrements d'utilisateurs et 5 000 archives ZIP de données sensibles ont été récupérés."
+    },
+    {
+     "type": "paragraph",
+     "text": "Du côté gouvernemental thaïlandais, un accès SSH administrateur à un serveur Keycloak 3.4 a permis d'extraire la base d'identifiants, dont les empreintes PBKDF2-SHA256 ont été déchiffrées hors ligne à l'aide de listes de mots construites autour d'années du calendrier bouddhique. Au total, 349 782 enregistrements auraient été extraits d'une application en aval. Aux Philippines, une injection SQL non authentifiée dans osTicket (**CVE-2021-42235**, également notée 9,8) a livré les noms, adresses et empreintes de mots de passe du personnel d'une organisation, tandis qu'une application Laravel laissée en mode débogage a révélé des chemins de serveur et des fragments de code d'une autre."
+    },
+    {
+     "type": "diagram",
+     "svg": "<svg xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"0 0 640 220\" font-family=\"system-ui,sans-serif\"><rect width=\"640\" height=\"220\" rx=\"14\" fill=\"#f3f5f9\"/><text x=\"320\" y=\"36\" font-size=\"17\" font-weight=\"700\" text-anchor=\"middle\" fill=\"#1b2433\">Du premier accès à l'exfiltration, selon SOCRadar</text><rect x=\"20\" y=\"70\" width=\"136\" height=\"110\" rx=\"10\" fill=\"#fff\" stroke=\"#2b6cb0\" stroke-width=\"2\"/><text x=\"88.0\" y=\"98\" font-size=\"20\" text-anchor=\"middle\" fill=\"#2b6cb0\" font-weight=\"700\">1</text><text x=\"88.0\" y=\"124\" font-size=\"13\" text-anchor=\"middle\" fill=\"#1b2433\">Reconnaissance</text><text x=\"88.0\" y=\"142\" font-size=\"13\" text-anchor=\"middle\" fill=\"#1b2433\">certificats, scans,</text><text x=\"88.0\" y=\"160\" font-size=\"13\" text-anchor=\"middle\" fill=\"#1b2433\">bannières VPN</text><text x=\"163\" y=\"130\" font-size=\"20\" text-anchor=\"middle\" fill=\"#2b6cb0\">›</text><rect x=\"170\" y=\"70\" width=\"136\" height=\"110\" rx=\"10\" fill=\"#fff\" stroke=\"#2b6cb0\" stroke-width=\"2\"/><text x=\"238.0\" y=\"98\" font-size=\"20\" text-anchor=\"middle\" fill=\"#2b6cb0\" font-weight=\"700\">2</text><text x=\"238.0\" y=\"124\" font-size=\"13\" text-anchor=\"middle\" fill=\"#1b2433\">Accès initial</text><text x=\"238.0\" y=\"142\" font-size=\"13\" text-anchor=\"middle\" fill=\"#1b2433\">GeoServer, osTicket,</text><text x=\"238.0\" y=\"160\" font-size=\"13\" text-anchor=\"middle\" fill=\"#1b2433\">identifiants par défaut</text><text x=\"313\" y=\"130\" font-size=\"20\" text-anchor=\"middle\" fill=\"#2b6cb0\">›</text><rect x=\"320\" y=\"70\" width=\"136\" height=\"110\" rx=\"10\" fill=\"#fff\" stroke=\"#2b6cb0\" stroke-width=\"2\"/><text x=\"388.0\" y=\"98\" font-size=\"20\" text-anchor=\"middle\" fill=\"#2b6cb0\" font-weight=\"700\">3</text><text x=\"388.0\" y=\"124\" font-size=\"13\" text-anchor=\"middle\" fill=\"#1b2433\">Tunnels</text><text x=\"388.0\" y=\"142\" font-size=\"13\" text-anchor=\"middle\" fill=\"#1b2433\">SOCKS5, SSH inversé,</text><text x=\"388.0\" y=\"160\" font-size=\"13\" text-anchor=\"middle\" fill=\"#1b2433\">port 443</text><text x=\"463\" y=\"130\" font-size=\"20\" text-anchor=\"middle\" fill=\"#2b6cb0\">›</text><rect x=\"470\" y=\"70\" width=\"136\" height=\"110\" rx=\"10\" fill=\"#fff\" stroke=\"#2b6cb0\" stroke-width=\"2\"/><text x=\"538.0\" y=\"98\" font-size=\"20\" text-anchor=\"middle\" fill=\"#2b6cb0\" font-weight=\"700\">4</text><text x=\"538.0\" y=\"124\" font-size=\"13\" text-anchor=\"middle\" fill=\"#1b2433\">Collecte</text><text x=\"538.0\" y=\"142\" font-size=\"13\" text-anchor=\"middle\" fill=\"#1b2433\">bases, archives ZIP,</text><text x=\"538.0\" y=\"160\" font-size=\"13\" text-anchor=\"middle\" fill=\"#1b2433\">documents</text></svg>",
+     "alt": "Schéma en quatre étapes de la campagne : reconnaissance, accès initial, tunnels, collecte.",
+     "caption": "Chaîne d'attaque simplifiée de la campagne RedOps, d'après la description de SOCRadar."
+    },
+    {
+     "type": "heading",
+     "level": 2,
+     "text": "Une attribution à manier avec prudence"
+    },
+    {
+     "type": "paragraph",
+     "text": "SOCRadar relève des commentaires de code en vietnamien, une activité alignée sur le fuseau UTC+07:00, un ciblage stratégique régional et des scripts sur mesure. L'entreprise estime toutefois que ces indices permettent de suivre WeaveLotus comme un ensemble d'activités distinct, sans établir de façon concluante un parrainage étatique. Il s'agit d'une analyse d'un éditeur de sécurité, non confirmée par une autorité publique."
+    },
+    {
+     "type": "usecases",
+     "title": "Ce que cela change concrètement",
+     "items": [
+      {
+       "icon": "🛠️",
+       "title": "Un administrateur système",
+       "text": "Il recense les applications exposées (GeoServer, osTicket, JasperReports), applique les correctifs publiés et supprime tous les comptes à identifiants par défaut."
+      },
+      {
+       "icon": "🔎",
+       "title": "Une équipe de détection",
+       "text": "Elle surveille les tunnels SSH inversés, les connexions SOCKS sortantes sur le port 443 et l'usage de la procédure SQL `xp_cmdshell`."
+      },
+      {
+       "icon": "🏛️",
+       "title": "Une collectivité française",
+       "text": "Elle en retient une leçon transposable : les failles utilisées ici sont connues depuis 2021 et 2024, et maintenir à jour les logiciels exposés sur Internet reste une règle de base."
+      }
+     ]
+    },
+    {
+     "type": "timeline",
+     "title": "D'où l'on vient, où l'on va",
+     "items": [
+      {
+       "label": "2021",
+       "text": "Publication de la faille CVE-2021-42235 dans osTicket."
+      },
+      {
+       "label": "2024",
+       "text": "Publication de la faille CVE-2024-36401 dans GeoServer."
+      },
+      {
+       "label": "Août à septembre 2026",
+       "text": "Période d'activité de WeaveLotus observée par SOCRadar."
+      },
+      {
+       "label": "27 novembre 2026",
+       "text": "Diffusion publique de l'analyse."
+      }
+     ]
+    },
+    {
+     "type": "opinion",
+     "title": "Notre avis",
+     "paragraphs": [
+      "Ce dossier rappelle que l'espionnage n'exige pas toujours de failles inédites : des correctifs anciens non appliqués et des mots de passe d'usine suffisent. Le risque dépasse l'Asie du Sud-Est, car ces logiciels sont aussi déployés en Europe, y compris dans des administrations françaises.",
+      "À un horizon de un à trois ans, la pression devrait pousser les organisations à mieux cartographier leur surface d'exposition et à automatiser les correctifs, d'autant que les attaquants disposent d'outils de balayage de plus en plus rapides. L'attribution au Vietnam, elle, reste une hypothèse d'éditeur : à traiter comme telle tant qu'aucun organisme public ne la confirme."
+     ],
+     "verdict": "Une grande partie des intrusions décrites repose sur des correctifs en retard et des comptes par défaut : l'hygiène de base reste la première défense."
+    },
+    {
+     "type": "callout",
+     "title": "À retenir",
+     "text": "Correctifs appliqués, comptes par défaut supprimés, interfaces d'administration non exposées : trois mesures simples auraient bloqué plusieurs étapes de cette campagne."
+    }
+   ],
+   "cover": {
+    "url": "https://blogger.googleusercontent.com/img/b/R29vZ2xl/AVvXsEj19T-kU1dmVfKt2PtUQ2I25MGovj8kmv6lMkk6inlif4yLeezJS4kVRTvsARL5UkpTT66jYru6k2b5bmWfjjlkmG4JznSKmkmd4ldXcyxTw3xsU5nP6_jxfWMw9thW37m5usfr-eWAZBHq6bPuS613CIx9XgWxPcSVFcZVgz_9tWd5Nu8YWAxexuqcVPrN/s1600/data.jpg",
+    "alt": "WeaveLotus : une campagne d'espionnage liée au Vietnam vise des administrations en Thaïlande et aux Philippines",
+    "credit": "thehackernews.com"
+   }
+  },
+  {
+   "id": "unkernel-trynix-linux-dans-un-onglet-navigateur",
+   "category": "dev",
+   "title": "Unkernel et Trynix : un vrai noyau Linux démarre dans un onglet de navigateur grâce à WebAssembly",
+   "summary": "Deux projets récents font tourner Debian ou NixOS, avec Wayland, dans un onglet de navigateur, via un runtime Arm64 écrit en Zig et compilé en WebAssembly. The Register y voit une illustration de la prophétie de Gary Bernhardt sur 2035.",
+   "tags": [
+    "WebAssembly",
+    "Linux",
+    "Unkernel",
+    "Trynix",
+    "navigateur"
+   ],
+   "importance": 3,
+   "readingMinutes": 5,
+   "publishedAt": "2026-11-28T10:17:01+01:00",
+   "sourceDate": "2026-11-28",
+   "icon": "🧩",
+   "illustration": {
+    "svg": "<svg xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"0 0 640 360\"><defs><linearGradient id=\"g\" x1=\"0\" y1=\"0\" x2=\"1\" y2=\"1\"><stop offset=\"0\" stop-color=\"hsl(265,65%,34%)\"/><stop offset=\"1\" stop-color=\"hsl(305,70%,50%)\"/></linearGradient></defs><rect width=\"640\" height=\"360\" fill=\"url(#g)\"/><circle cx=\"520\" cy=\"80\" r=\"110\" fill=\"#fff\" opacity=\".12\"/><circle cx=\"90\" cy=\"300\" r=\"80\" fill=\"#fff\" opacity=\".10\"/><rect x=\"60\" y=\"70\" width=\"299\" height=\"14\" rx=\"7\" fill=\"#fff\" opacity=\".35\"/><rect x=\"60\" y=\"100\" width=\"287\" height=\"14\" rx=\"7\" fill=\"#fff\" opacity=\".25\"/><rect x=\"60\" y=\"130\" width=\"90\" height=\"14\" rx=\"7\" fill=\"#fff\" opacity=\".2\"/><text x=\"320\" y=\"225\" font-size=\"120\" text-anchor=\"middle\" font-family=\"system-ui,sans-serif\">🧩</text></svg>"
+   },
+   "sources": [
+    {
+     "title": "Unkernel and Trynix just transported computing to 2035",
+     "url": "https://www.theregister.com/software/2026/11/28/unkernel-and-trynix-just-transported-computing-to-2035/5313200",
+     "publisher": "The Register"
+    }
+   ],
+   "blocks": [
+    {
+     "type": "paragraph",
+     "text": "Un navigateur peut-il devenir une machine complète ? Dans un article publié le 28 novembre 2026, The Register présente deux projets qui donnent une réponse spectaculaire : **Unkernel** et **Trynix** démarrent un véritable noyau Linux dans un onglet, sans machine virtuelle ni hyperviseur installé sur l'ordinateur. Le journal les rapproche de la conférence de 2014 de Gary Bernhardt, « The Birth & Death of JavaScript », qui imaginait un futur 2035 où WebAssembly (Wasm) serait la plateforme universelle."
+    },
+    {
+     "type": "heading",
+     "level": 2,
+     "text": "Deux projets, une même idée"
+    },
+    {
+     "type": "paragraph",
+     "text": "**Unkernel** a été annoncé le 15 novembre 2026 par Pooya Parsa ; sa version 0.2 est sortie le 19 novembre. Le principe : un runtime Arm64 écrit en Zig et compilé en WebAssembly exécute un authentique noyau Linux. La démonstration du site unkernel.dev lance Debian 13 avec 2 Go de mémoire vive, deux cœurs virtuels et une interface graphique Wayland, et le jeu Doom y fonctionne. Le fichier d'accompagnement du projet indique qu'il a été développé avec l'aide d'un grand modèle de langage."
+    },
+    {
+     "type": "paragraph",
+     "text": "**Trynix**, présenté par Farid Zakaria dans le billet « 2035 came early », reprend la même mécanique avec NixOS à la place de Debian. Il ouvre ainsi l'accès à l'écosystème Nix, d'environ un tiers de million de paquets et de versions, et prend en charge Wayland, OpenGL et le son ALSA. Le journaliste a réussi à lancer Doom sur un iMac de quinze ans, ainsi que Firefox sous Linux dans Chrome, lui-même sous Linux, sur une machine plus récente."
+    },
+    {
+     "type": "list",
+     "items": [
+      "**SideBySide** (Michael Lohr) affiche Firefox, Chromium et Epiphany côte à côte dans un seul onglet, pour comparer le rendu d'un site sur trois moteurs.",
+      "**tabc** (Farid Zakaria) transforme les onglets en environnement d'exécution de conteneurs : sous macOS, il permet de lancer de vrais conteneurs Linux sans hyperviseur ni machine virtuelle."
+     ]
+    },
+    {
+     "type": "diagram",
+     "svg": "<svg xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"0 0 640 220\" font-family=\"system-ui,sans-serif\"><rect width=\"640\" height=\"220\" rx=\"14\" fill=\"#f3f5f9\"/><text x=\"320\" y=\"36\" font-size=\"17\" font-weight=\"700\" text-anchor=\"middle\" fill=\"#1b2433\">Empiler les couches : de l'onglet au Linux complet</text><rect x=\"20\" y=\"70\" width=\"136\" height=\"110\" rx=\"10\" fill=\"#fff\" stroke=\"#6b46c1\" stroke-width=\"2\"/><text x=\"88.0\" y=\"98\" font-size=\"20\" text-anchor=\"middle\" fill=\"#6b46c1\" font-weight=\"700\">1</text><text x=\"88.0\" y=\"124\" font-size=\"13\" text-anchor=\"middle\" fill=\"#1b2433\">Navigateur</text><text x=\"88.0\" y=\"142\" font-size=\"13\" text-anchor=\"middle\" fill=\"#1b2433\">moteur WebAssembly</text><text x=\"163\" y=\"130\" font-size=\"20\" text-anchor=\"middle\" fill=\"#6b46c1\">›</text><rect x=\"170\" y=\"70\" width=\"136\" height=\"110\" rx=\"10\" fill=\"#fff\" stroke=\"#6b46c1\" stroke-width=\"2\"/><text x=\"238.0\" y=\"98\" font-size=\"20\" text-anchor=\"middle\" fill=\"#6b46c1\" font-weight=\"700\">2</text><text x=\"238.0\" y=\"124\" font-size=\"13\" text-anchor=\"middle\" fill=\"#1b2433\">Runtime Arm64</text><text x=\"238.0\" y=\"142\" font-size=\"13\" text-anchor=\"middle\" fill=\"#1b2433\">écrit en Zig,</text><text x=\"238.0\" y=\"160\" font-size=\"13\" text-anchor=\"middle\" fill=\"#1b2433\">compilé en Wasm</text><text x=\"313\" y=\"130\" font-size=\"20\" text-anchor=\"middle\" fill=\"#6b46c1\">›</text><rect x=\"320\" y=\"70\" width=\"136\" height=\"110\" rx=\"10\" fill=\"#fff\" stroke=\"#6b46c1\" stroke-width=\"2\"/><text x=\"388.0\" y=\"98\" font-size=\"20\" text-anchor=\"middle\" fill=\"#6b46c1\" font-weight=\"700\">3</text><text x=\"388.0\" y=\"124\" font-size=\"13\" text-anchor=\"middle\" fill=\"#1b2433\">Noyau Linux</text><text x=\"388.0\" y=\"142\" font-size=\"13\" text-anchor=\"middle\" fill=\"#1b2433\">Debian 13 ou NixOS</text><text x=\"463\" y=\"130\" font-size=\"20\" text-anchor=\"middle\" fill=\"#6b46c1\">›</text><rect x=\"470\" y=\"70\" width=\"136\" height=\"110\" rx=\"10\" fill=\"#fff\" stroke=\"#6b46c1\" stroke-width=\"2\"/><text x=\"538.0\" y=\"98\" font-size=\"20\" text-anchor=\"middle\" fill=\"#6b46c1\" font-weight=\"700\">4</text><text x=\"538.0\" y=\"124\" font-size=\"13\" text-anchor=\"middle\" fill=\"#1b2433\">Applications</text><text x=\"538.0\" y=\"142\" font-size=\"13\" text-anchor=\"middle\" fill=\"#1b2433\">Wayland, Doom,</text><text x=\"538.0\" y=\"160\" font-size=\"13\" text-anchor=\"middle\" fill=\"#1b2433\">Firefox</text></svg>",
+     "alt": "Schéma des quatre couches empilées dans l'onglet : navigateur, runtime Arm64, noyau Linux, applications.",
+     "caption": "Principe d'Unkernel et de Trynix, d'après la description de The Register."
+    },
+    {
+     "type": "heading",
+     "level": 2,
+     "text": "Pourquoi cela intéresse les développeurs"
+    },
+    {
+     "type": "paragraph",
+     "text": "L'enjeu avancé est de remplacer, à terme, certains conteneurs et hyperviseurs par des binaires Wasm portables sur n'importe quelle architecture (Arm, x86, RISC-V), exécutables partout où il y a un navigateur. L'article rappelle la formule de Solomon Hykes en 2019 : sans WASM et WASI en 2008, Docker n'aurait peut-être pas été nécessaire. Il souligne aussi que les grands modèles de langage accélèrent ce genre de bricolage ambitieux, ce qui pourrait précipiter son adoption."
+    },
+    {
+     "type": "heading",
+     "level": 2,
+     "text": "Les limites"
+    },
+    {
+     "type": "list",
+     "items": [
+      "Doom sert de démonstration, pas d'usage de production.",
+      "Les machines anciennes montrent vite leurs limites face à ces empilements de couches.",
+      "Unkernel n'en est qu'à une version 0.2 très précoce.",
+      "Le journaliste lui-même ne voit pas de besoin personnel immédiat, même s'il en perçoit le potentiel."
+     ]
+    },
+    {
+     "type": "usecases",
+     "title": "Exemples d'utilisation",
+     "items": [
+      {
+       "icon": "🎓",
+       "title": "Un enseignant en systèmes",
+       "text": "Il fait démarrer un Linux complet dans le navigateur de ses élèves, sans rien installer, pour un travail pratique sur la ligne de commande."
+      },
+      {
+       "icon": "🧪",
+       "title": "Un développeur de logiciels libres",
+       "text": "Il propose une démonstration en un clic de son projet, sur une distribution précise, sans obliger les visiteurs à préparer une machine virtuelle."
+      },
+      {
+       "icon": "🔬",
+       "title": "Une équipe d'intégration continue",
+       "text": "Elle teste le rendu d'un site sur plusieurs navigateurs dans un seul onglet, sur le modèle de SideBySide."
+      }
+     ]
+    },
+    {
+     "type": "timeline",
+     "title": "D'où l'on vient, où l'on va",
+     "items": [
+      {
+       "label": "2014",
+       "text": "Gary Bernhardt présente « The Birth & Death of JavaScript », qui imagine WebAssembly comme plateforme universelle."
+      },
+      {
+       "label": "2015",
+       "text": "Wasm naît de l'évolution d'asm.js."
+      },
+      {
+       "label": "15 novembre 2026",
+       "text": "Annonce d'Unkernel."
+      },
+      {
+       "label": "19 novembre 2026",
+       "text": "Sortie d'Unkernel 0.2."
+      },
+      {
+       "label": "À venir",
+       "text": "Reste à voir si ces démonstrations débouchent sur des usages courants ; aucune échéance n'est annoncée."
+      }
+     ]
+    },
+    {
+     "type": "opinion",
+     "title": "Notre avis",
+     "paragraphs": [
+      "La démonstration est impressionnante, mais elle déplace plus qu'elle ne résout : un Linux dans un onglet reste un Linux émulé, avec le surcoût de performance que cela suppose. Son intérêt immédiat est pédagogique et pour la portabilité des démonstrations, pas pour remplacer les serveurs.",
+      "À un à trois ans, la vraie question est celle de l'écosystème : tant que les entrées-sorties, le réseau et le graphique resteront inégaux selon les navigateurs, ces projets resteront des vitrines. L'idée d'un binaire portable partout est séduisante ; elle suppose cependant des standards stables, ce qui n'est pas acquis."
+     ],
+     "verdict": "Une vitrine technique remarquable, encore loin d'un remplacement des conteneurs : à suivre pour la portabilité plus que pour la performance."
+    },
+    {
+     "type": "callout",
+     "title": "À retenir",
+     "text": "Unkernel et Trynix lancent un vrai Linux dans un onglet ; le potentiel est réel, mais les projets sont jeunes."
+    }
+   ],
+   "cover": {
+    "url": "https://image.theregister.com/5313212.jpg?imageId=5313212&x=0&y=0&cropw=100&croph=100&panox=0&panoy=0&panow=100&panoh=100&width=1200&height=683",
+    "alt": "Unkernel et Trynix : un vrai noyau Linux démarre dans un onglet de navigateur grâce à WebAssembly",
+    "credit": "www.theregister.com"
+   }
+  },
+  {
+   "id": "tube-nixie-fait-maison-polymatt-fuite-vide",
+   "category": "electronique",
+   "title": "Fabriquer un tube Nixie soi-même : deux semaines de travail, un système de vide qui fuit, et une suite attendue",
+   "summary": "Le vidéaste polymatt a tenté de construire un tube Nixie de A à Z. Hackaday raconte un projet abouti jusqu'au scellage, mais interrompu par des fuites du système de vide, avec un choix inhabituel : de l'argon pur.",
+   "tags": [
+    "Nixie",
+    "DIY",
+    "vide",
+    "rétro",
+    "Hackaday"
+   ],
+   "importance": 2,
+   "readingMinutes": 5,
+   "publishedAt": "2026-11-28T10:17:01+01:00",
+   "sourceDate": "2026-11-27",
+   "icon": "🔢",
+   "illustration": {
+    "svg": "<svg xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"0 0 640 360\"><defs><linearGradient id=\"g\" x1=\"0\" y1=\"0\" x2=\"1\" y2=\"1\"><stop offset=\"0\" stop-color=\"hsl(30,65%,34%)\"/><stop offset=\"1\" stop-color=\"hsl(70,70%,50%)\"/></linearGradient></defs><rect width=\"640\" height=\"360\" fill=\"url(#g)\"/><circle cx=\"520\" cy=\"80\" r=\"110\" fill=\"#fff\" opacity=\".12\"/><circle cx=\"90\" cy=\"300\" r=\"80\" fill=\"#fff\" opacity=\".10\"/><rect x=\"60\" y=\"80\" width=\"312\" height=\"14\" rx=\"7\" fill=\"#fff\" opacity=\".35\"/><rect x=\"60\" y=\"100\" width=\"216\" height=\"14\" rx=\"7\" fill=\"#fff\" opacity=\".25\"/><rect x=\"60\" y=\"130\" width=\"90\" height=\"14\" rx=\"7\" fill=\"#fff\" opacity=\".2\"/><text x=\"320\" y=\"225\" font-size=\"120\" text-anchor=\"middle\" font-family=\"system-ui,sans-serif\">🔢</text></svg>"
+   },
+   "sources": [
+    {
+     "title": "How To Make A Nixie Tube",
+     "url": "https://hackaday.com/2026/11/27/how-to-make-a-nixie-tube/",
+     "publisher": "Hackaday"
+    }
+   ],
+   "blocks": [
+    {
+     "type": "paragraph",
+     "text": "Les tubes Nixie, ces indicateurs numériques à cathodes en forme de chiffres qui ont équipé les instruments de mesure avant l'arrivée des afficheurs à vide fluorescent puis des LED, fascinent toujours les amateurs. Dans un article publié le 27 novembre 2026, Hackaday raconte la tentative de **polymatt**, créateur de vidéos, de fabriquer un tube de zéro en s'imposant un délai de deux semaines. Le résultat : un tube construit et scellé, mais pas encore fonctionnel, faute d'un système de vide étanche."
+    },
+    {
+     "type": "heading",
+     "level": 2,
+     "text": "Comment fonctionne un tube Nixie"
+    },
+    {
+     "type": "paragraph",
+     "text": "Un Nixie est, en substance, une lampe au néon à plusieurs cathodes. Chaque chiffre ou symbole possède sa propre cathode ; lorsqu'elle est alimentée, le gaz qui l'entoure s'illumine. Une anode en forme de grillage entoure l'ensemble. Sa conception n'est pas beaucoup plus complexe que celle d'un simple voyant au néon, mais il y a davantage de pièces internes, qu'il faut concevoir, usiner et assembler avec soin. Il faut ensuite évacuer l'air de l'enveloppe en verre puis la remplir d'un mélange gazeux."
+    },
+    {
+     "type": "heading",
+     "level": 2,
+     "text": "Les choix du projet"
+    },
+    {
+     "type": "list",
+     "items": [
+      "**Enveloppe** : des tubes de verre de laboratoire en borosilicate, ce qui évite de fabriquer le verre soi-même.",
+      "**Pièces internes** : base et éléments découpés au laser, dont l'anode en grillage, particulièrement délicate à réaliser avec les moyens disponibles.",
+      "**Gaz** : de l'argon pur plutôt que le mélange néon-argon dit de Penning, ce qui exige une tension plus élevée. L'article ne précise pas la raison et suppose une simplification : une seule bouteille de gaz suffit.",
+      "**Calendrier** : deux semaines de travail, avec plusieurs têtes de découpe laser pour les détails les plus fins."
+     ]
+    },
+    {
+     "type": "paragraph",
+     "text": "Les étapes décrites sont la conception de la base et des cathodes, la découpe des pièces, la préparation de l'enveloppe en borosilicate, l'assemblage des éléments, le scellage, puis le vidage et le remplissage en gaz. Cette dernière étape n'a pas été atteinte dans le délai fixé : le premier essai sérieux du système de vide, réalisé après l'échéance, a montré qu'il fuyait de partout. Le tube n'a donc pas pu être finalisé, et la suite est annoncée dans une vidéo de suivi."
+    },
+    {
+     "type": "heading",
+     "level": 2,
+     "text": "Ce que disent les lecteurs"
+    },
+    {
+     "type": "paragraph",
+     "text": "Les commentaires apportent des précisions utiles. Un lecteur estime que le néon coûte cher et que l'auteur ne voulait pas le gaspiller pour une preuve de concept. Un autre juge que le laser n'est pas la solution idéale pour le verre : une gravure laser ne guide pas la cassure comme une incision à la molette, et le verre se brise dans une direction imprévisible ; il suggère une coupe à la molette lubrifiée. Un troisième note que la coupe manuelle devient difficile au-delà d'environ 19 millimètres de diamètre, où une scie diamantée sur tour est préférable."
+    },
+    {
+     "type": "usecases",
+     "title": "Exemples d'utilisation",
+     "items": [
+      {
+       "icon": "⏰",
+       "title": "Un amateur d'horlogerie électronique",
+       "text": "Il s'inspire du projet pour comprendre pourquoi les horloges à tubes Nixie restent coûteuses, la fabrication d'un tube neuf étant très exigeante."
+      },
+      {
+       "icon": "🏫",
+       "title": "Un club de physique de lycée",
+       "text": "Il étudie la décharge luminescente dans un gaz raréfié à partir d'un montage plus simple, avant de s'attaquer à un tube complet."
+      },
+      {
+       "icon": "🔧",
+       "title": "Un bricoleur du vide",
+       "text": "Il en retient une leçon pratique : tester l'étanchéité du système de pompage avant de monter l'enveloppe, afin d'éviter les mauvaises surprises en fin de chantier."
+      }
+     ]
+    },
+    {
+     "type": "timeline",
+     "title": "D'où l'on vient, où l'on va",
+     "items": [
+      {
+       "label": "Autrefois",
+       "text": "Les tubes Nixie équipaient les instruments de mesure, avant d'être supplantés par les afficheurs à vide fluorescent puis les LED."
+      },
+      {
+       "label": "27 novembre 2026",
+       "text": "Hackaday relate la tentative de polymatt : tube assemblé, vide non étanche."
+      },
+      {
+       "label": "À venir",
+       "text": "Une vidéo de suivi est annoncée, sans date précise."
+      }
+     ]
+    },
+    {
+     "type": "opinion",
+     "title": "Notre avis",
+     "paragraphs": [
+      "Ce projet a le mérite de montrer l'envers du décor : un tube Nixie n'est pas qu'une pièce de décoration, c'est un objet de physique du vide et du verre qui demande des compétences rares. Qu'un projet de deux semaines bute sur l'étanchéité n'a rien de déshonorant ; c'est même l'étape où se joue l'essentiel.",
+      "À un à trois ans, la fabrication à la maison de tubes fonctionnels restera réservée à des passionnés très équipés. L'intérêt réel est ailleurs : documenter publiquement un savoir-faire en voie de disparition, ce que fait ce genre de vidéo, avec ses échecs inclus. Les remarques de la communauté sur la découpe du verre montrent d'ailleurs la valeur de cette transmission."
+     ],
+     "verdict": "Un échec instructif : la fabrication d'un tube Nixie se joue dans l'étanchéité, et le projet a désormais besoin de sa suite pour juger du résultat."
+    },
+    {
+     "type": "callout",
+     "title": "À retenir",
+     "text": "Le tube de polymatt est construit mais pas encore allumé : le système de vide fuit, et la suite est attendue en vidéo."
+    }
+   ],
+   "cover": {
+    "url": "https://hackaday.com/wp-content/uploads/2026/11/diy_nixie_tube_polymatt_youtube.jpg",
+    "alt": "Fabriquer un tube Nixie soi-même : deux semaines de travail, un système de vide qui fuit, et une suite attendue",
+    "credit": "hackaday.com"
+   }
+  },
+  {
+   "id": "esp32-sans-tls-protocole-noise-pinscope",
+   "category": "electronique",
+   "title": "ESP32 : Pinscope remplace TLS par le protocole Noise et divise par 2,5 la mémoire nécessaire",
+   "summary": "Faute de RAM, l'équipe de Pinscope a abandonné TLS pour le protocole Noise sur ESP32 : 9,4 Ko de mémoire au lieu de 23,6 Ko, une poignée de main d'environ 0,3 seconde et une centaine d'octets échangés. Hackaday détaille ce choix.",
+   "tags": [
+    "ESP32",
+    "Noise",
+    "TLS",
+    "chiffrement",
+    "embarqué"
+   ],
+   "importance": 3,
+   "readingMinutes": 5,
+   "publishedAt": "2026-11-28T10:17:01+01:00",
+   "sourceDate": "2026-11-27",
+   "icon": "📟",
+   "illustration": {
+    "svg": "<svg xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"0 0 640 360\"><defs><linearGradient id=\"g\" x1=\"0\" y1=\"0\" x2=\"1\" y2=\"1\"><stop offset=\"0\" stop-color=\"hsl(30,65%,34%)\"/><stop offset=\"1\" stop-color=\"hsl(70,70%,50%)\"/></linearGradient></defs><rect width=\"640\" height=\"360\" fill=\"url(#g)\"/><circle cx=\"520\" cy=\"80\" r=\"110\" fill=\"#fff\" opacity=\".12\"/><circle cx=\"90\" cy=\"300\" r=\"80\" fill=\"#fff\" opacity=\".10\"/><rect x=\"60\" y=\"90\" width=\"325\" height=\"14\" rx=\"7\" fill=\"#fff\" opacity=\".35\"/><rect x=\"60\" y=\"100\" width=\"245\" height=\"14\" rx=\"7\" fill=\"#fff\" opacity=\".25\"/><rect x=\"60\" y=\"130\" width=\"90\" height=\"14\" rx=\"7\" fill=\"#fff\" opacity=\".2\"/><text x=\"320\" y=\"225\" font-size=\"120\" text-anchor=\"middle\" font-family=\"system-ui,sans-serif\">📟</text></svg>"
+   },
+   "sources": [
+    {
+     "title": "ESP32 Remote Access Done Light",
+     "url": "https://hackaday.com/2026/11/27/esp32-remote-access-done-light/",
+     "publisher": "Hackaday"
+    }
+   ],
+   "blocks": [
+    {
+     "type": "paragraph",
+     "text": "Maintenir un microcontrôleur connecté en permanence à un serveur, de façon sécurisée, est un exercice délicat lorsque la mémoire est comptée. C'est le problème qu'a rencontré l'équipe de **Pinscope** avec un ESP32, comme le raconte Hackaday dans un article du 27 novembre 2026. La puce ne disposait pas d'assez de mémoire vive pour TLS, compte tenu des autres tâches qu'elle devait mener. Leur solution : changer de protocole."
+    },
+    {
+     "type": "heading",
+     "level": 2,
+     "text": "Un besoin plus étroit que celui de TLS"
+    },
+    {
+     "type": "paragraph",
+     "text": "TLS est conçu pour des échanges généraux entre n'importe quel client et n'importe quel serveur, avec une chaîne de certificats. Or l'appareil de Pinscope ne dialogue qu'avec un seul serveur, pour de la maintenance à distance. L'équipe a ramené ses exigences à trois points : vérifier que le serveur est le bon, chiffrer les identifiants transmis, et empêcher qu'un tiers rejoue, lise, réordonne ou modifie les messages en transit."
+    },
+    {
+     "type": "heading",
+     "level": 2,
+     "text": "Noise, une poignée de main sur mesure"
+    },
+    {
+     "type": "paragraph",
+     "text": "Le choix s'est porté sur le protocole **Noise**, dans la variante nommée `Noise_NK_25519_ChaChaPoly_SHA256`. Dans ce mode, le serveur possède une clé statique que l'appareil connaît à l'avance : seul le détenteur de la clé privée correspondante peut terminer l'échange, ce qui permet à l'appareil de confirmer l'identité du serveur. Les messages sont chiffrés avec ChaCha20-Poly1305, l'échange de clés repose sur la courbe 25519 et le hachage sur SHA-256. Le résultat reste protégé contre le rejeu et la modification, tout en étant plus léger."
+    },
+    {
+     "type": "keyvalue",
+     "items": [
+      {
+       "label": "Mémoire nécessaire avec TLS",
+       "value": "23,6 Ko"
+      },
+      {
+       "label": "Mémoire nécessaire avec Noise",
+       "value": "9,4 Ko"
+      },
+      {
+       "label": "Durée de la poignée de main",
+       "value": "Environ 0,3 seconde"
+      },
+      {
+       "label": "Données échangées",
+       "value": "Environ 100 octets"
+      }
+     ]
+    },
+    {
+     "type": "diagram",
+     "svg": "<svg xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"0 0 640 186\" font-family=\"system-ui,sans-serif\"><rect width=\"640\" height=\"186\" rx=\"14\" fill=\"#f3f5f9\"/><text x=\"320\" y=\"32\" font-size=\"17\" font-weight=\"700\" text-anchor=\"middle\" fill=\"#1b2433\">Mémoire vive utilisée sur l'ESP32</text><text x=\"20\" y=\"80\" font-size=\"14\" fill=\"#1b2433\">TLS</text><rect x=\"190\" y=\"60\" width=\"380\" height=\"28\" rx=\"6\" fill=\"#c05621\"/><text x=\"576\" y=\"80\" font-size=\"14\" font-weight=\"700\" fill=\"#1b2433\">23,6 Ko</text><text x=\"20\" y=\"128\" font-size=\"14\" fill=\"#1b2433\">Noise</text><rect x=\"190\" y=\"108\" width=\"151\" height=\"28\" rx=\"6\" fill=\"#2b6cb0\"/><text x=\"347\" y=\"128\" font-size=\"14\" font-weight=\"700\" fill=\"#1b2433\">9,4 Ko</text><text x=\"320\" y=\"176\" font-size=\"12\" text-anchor=\"middle\" fill=\"#4a5568\">Gain d'environ 14 Ko, soit près de 60 %, selon Pinscope</text></svg>",
+     "alt": "Deux barres comparant la mémoire utilisée : 23,6 Ko pour TLS et 9,4 Ko pour Noise.",
+     "caption": "Comparaison de la mémoire nécessaire sur ESP32, d'après les chiffres de Pinscope relayés par Hackaday."
+    },
+    {
+     "type": "paragraph",
+     "text": "Le gain est d'environ 14 Ko, soit près de 60 % de la mémoire requise par TLS. L'équipe a publié le code de son implémentation dans un dépôt public, selon l'article. Les lecteurs ont proposé d'autres pistes : Tailscale, qui fonctionne aussi sur ESP32 mais ajoute un service tiers donc un point de défaillance supplémentaire, ou Reticulum Network, une pile réseau maillée pouvant rester légère."
+    },
+    {
+     "type": "heading",
+     "level": 2,
+     "text": "Les limites de l'approche"
+    },
+    {
+     "type": "list",
+     "items": [
+      "Noise convient parce que l'appareil ne parle qu'à un seul serveur : la clé du serveur doit être connue à l'avance, et sa rotation demande une mise à jour du micrologiciel.",
+      "Une implémentation maison de cryptographie reste délicate : il vaut mieux s'appuyer sur des bibliothèques éprouvées et des revues extérieures.",
+      "Les chiffres de mémoire sont ceux de l'équipe, mesurés dans son propre contexte ; ils peuvent varier selon la configuration."
+     ]
+    },
+    {
+     "type": "usecases",
+     "title": "Exemples d'utilisation",
+     "items": [
+      {
+       "icon": "🌡️",
+       "title": "Une sonde connectée à distance",
+       "text": "Un capteur agricole dialogue avec un seul serveur de collecte : Noise libère de la mémoire pour la mesure et le stockage local."
+      },
+      {
+       "icon": "🏭",
+       "title": "Une maintenance à distance en atelier",
+       "text": "Un petit boîtier de supervision se connecte à une passerelle unique, sans gérer de certificats sur chaque appareil."
+      },
+      {
+       "icon": "🧰",
+       "title": "Un projet de loisir sur ESP32",
+       "text": "Un bricoleur sécurise ses échanges avec son propre serveur sans saturer la puce déjà occupée par une interface graphique."
+      }
+     ]
+    },
+    {
+     "type": "timeline",
+     "title": "D'où l'on vient, où l'on va",
+     "items": [
+      {
+       "label": "Jusqu'ici",
+       "text": "Les appareils embarqués utilisent surtout TLS pour sécuriser leurs échanges, même lorsque la mémoire est limitée."
+      },
+      {
+       "label": "27 novembre 2026",
+       "text": "Hackaday relaie le choix de Pinscope : Noise sur ESP32, avec 9,4 Ko de mémoire."
+      },
+      {
+       "label": "À venir",
+       "text": "Aucune généralisation n'est annoncée ; l'approche reste à confirmer par d'autres retours d'expérience."
+      }
+     ]
+    },
+    {
+     "type": "opinion",
+     "title": "Notre avis",
+     "paragraphs": [
+      "Le raisonnement est sain : ne pas payer pour des fonctions dont on n'a pas besoin. Un protocole conçu pour le web ouvert est surdimensionné pour un appareil qui ne parle qu'à un serveur, et le gain de mémoire de 14 Ko est considérable sur une puce de ce type.",
+      "À un à trois ans, on peut s'attendre à voir Noise plus souvent dans l'embarqué, en particulier pour des appareils à faible mémoire, mais cela restera une niche : pour tout ce qui touche au web, TLS demeurera la norme. La vigilance reste de mise sur la gestion des clés, plus que sur le protocole lui-même."
+     ],
+     "verdict": "Un compromis intelligent pour un cas d'usage précis, à condition de bien gérer les clés et d'éviter toute cryptographie improvisée."
+    },
+    {
+     "type": "callout",
+     "title": "À retenir",
+     "text": "Noise remplace TLS pour un appareil qui ne parle qu'à un serveur : 9,4 Ko de mémoire au lieu de 23,6 Ko."
+    }
+   ],
+   "cover": {
+    "url": "https://hackaday.com/wp-content/uploads/2026/11/ESP32-remote-access-in-9.4-KB-of-RAM_-logs-crashes-and-OTA-updates-_-Pinscope-2-15-screenshot-e1795678010431.png",
+    "alt": "ESP32 : Pinscope remplace TLS par le protocole Noise et divise par 2,5 la mémoire nécessaire",
+    "credit": "hackaday.com"
+   }
+  }
+ ]
+}
