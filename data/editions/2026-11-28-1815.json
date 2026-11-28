@@ -1,0 +1,810 @@
+{
+ "schemaVersion": "1.0",
+ "date": "2026-11-28",
+ "generatedAt": "2026-11-28T18:18:04+01:00",
+ "title": "Modèles piégés, panne de Spotify et transparence de l'IA",
+ "summary": "Des fichiers de modèles transportent un cheval de Troie, Spotify explique sa panne de septembre et des élus britanniques veulent lire un rapport caviardé.",
+ "highlights": [
+  "Cinq modèles GGUF malveillants repérés sur Hugging Face, téléchargés 2 428 fois",
+  "Spotify : un conflit de déploiement ramenait sans cesse les instances au minimum",
+  "Les Communes réclament à Anthropic un rapport de METR non caviardé",
+  "Interfaces optimistes : le débat sur l'« intention immédiate »",
+  "Luciole Mono adapte une police pour malvoyants aux terminaux"
+ ],
+ "meta": {
+  "generator": "claude-scheduled-task"
+ },
+ "posts": [
+  {
+   "id": "gguf-hugging-face-modeles-pieges",
+   "category": "cybersecurite",
+   "icon": "🧬",
+   "importance": 5,
+   "title": "Hugging Face : cinq modèles GGUF piégés, téléchargés 2 428 fois, visent les utilisateurs d'IA locale",
+   "summary": "Une analyse de plus de 3 millions de dépôts publics met au jour deux campagnes qui détournent le gabarit de conversation des modèles, dont l'une cache un cheval de Troie dans le fichier lui-même.",
+   "tags": [
+    "Hugging Face",
+    "GGUF",
+    "LLM local",
+    "malware",
+    "chaîne d'approvisionnement"
+   ],
+   "sources": [
+    {
+     "title": "GGUF LLM Models with Hidden Malware on Hugging Face",
+     "url": "https://malspark.com/blog/malicious-gguf-models-hugging-face/",
+     "publisher": "Malspark"
+    }
+   ],
+   "blocks": [
+    {
+     "type": "paragraph",
+     "text": "Faire tourner un grand modèle de langage sur sa propre machine passe le plus souvent par un fichier au format **GGUF**, lu par `llama.cpp`, LM Studio ou Ollama. On le considère volontiers comme un simple paquet de poids, donc inoffensif. Une étude publiée le 27 novembre 2026 par l'équipe de recherche Malspark montre que ce n'est pas toujours le cas : des modèles disponibles sur Hugging Face contenaient des instructions cachées et, pour certains, un programme malveillant complet."
+    },
+    {
+     "type": "heading",
+     "text": "Les faits relevés par l'étude"
+    },
+    {
+     "type": "paragraph",
+     "text": "Les chercheurs ont passé en revue, le 26 novembre, l'ensemble des **3 273 389 dépôts publics** de Hugging Face, dont 226 310 dépôts GGUF, et analysé de manière statique 572 184 gabarits de conversation. Après vérification manuelle, cinq dépôts malveillants subsistaient, encore en ligne le 27 novembre."
+    },
+    {
+     "type": "keyvalue",
+     "items": [
+      {
+       "label": "Modèles malveillants",
+       "value": "5, publiés par 2 comptes"
+      },
+      {
+       "label": "Téléchargements au 27 novembre",
+       "value": "2 428 (1 502 la veille)"
+      },
+      {
+       "label": "Comptes mis en cause",
+       "value": "Mir2k et timdedid"
+      },
+      {
+       "label": "Portée du chiffre",
+       "value": "des téléchargements, pas des personnes : le nombre de victimes peut être bien inférieur"
+      }
+     ]
+    },
+    {
+     "type": "heading",
+     "text": "Le gabarit de conversation, porte d'entrée"
+    },
+    {
+     "type": "paragraph",
+     "text": "Chaque fichier GGUF embarque un petit programme écrit en langage de gabarit Jinja2, rangé sous la clé `tokenizer.chat_template`. Avant chaque réponse, le moteur d'inférence y fait passer la conversation pour construire le texte exact que lit le modèle. Ce programme peut ajouter des consignes que la fenêtre de discussion n'affiche jamais. Il n'a pas besoin de sortir de son bac à sable : il lui suffit de mentir au modèle."
+    },
+    {
+     "type": "paragraph",
+     "text": "La campagne **timdedid** vise les agents de programmation. Elle diffuse trois copies identiques d'un modèle Qwen3 de 1,7 milliard de paramètres, présenté comme destiné à la sécurité informatique. Lorsque le message de l'utilisateur contient les mots « What is », le gabarit insère une fausse directive système qui ordonne à un agent disposant d'un terminal de télécharger puis d'exécuter un script PowerShell. Le second étage n'a pas été récupéré : on ignore ce qu'il aurait installé."
+    },
+    {
+     "type": "paragraph",
+     "text": "La campagne **Mir2k**, qui présente de nombreuses traces en français, va plus loin. Un exécutable Windows est ajouté après le dernier tenseur, dans une zone que les moteurs ne lisent jamais. Le gabarit demande ensuite au modèle de commencer chaque réponse par une ligne PowerShell, que la personne risque de copier et de lancer. Cette commande retrouve le fichier du modèle sur le disque, en extrait les derniers mégaoctets et les exécute."
+    },
+    {
+     "type": "paragraph",
+     "text": "Le calendrier est révélateur : les fichiers ont d'abord été mis en ligne avec un gabarit propre les 22 et 24 novembre, puis le piège a été activé le 26. Ce compte avait aussi créé douze dépôts vides portant le nom de modèles attendus, comme `Qwen4-27B` ou `DeepSeek-V4`, prêts à être remplis."
+    },
+    {
+     "type": "diagram",
+     "svg": "<svg xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"0 0 640 412\" font-family=\"system-ui,sans-serif\"><rect width=\"640\" height=\"412\" rx=\"16\" fill=\"#f6f7f9\"/><text x=\"320\" y=\"36\" text-anchor=\"middle\" font-size=\"19\" font-weight=\"700\" fill=\"#1a1d23\">Campagne Mir2k : du téléchargement à l'infection</text><rect x=\"60\" y=\"56\" width=\"520\" height=\"60\" rx=\"10\" fill=\"#fff\" stroke=\"hsl(175,60%,40%)\" stroke-width=\"2\"/><text x=\"320\" y=\"81\" text-anchor=\"middle\" font-size=\"16\" font-weight=\"700\" fill=\"#1a1d23\">1. Dépôt du modèle</text><text x=\"320\" y=\"103\" text-anchor=\"middle\" font-size=\"13\" fill=\"#3d434d\">Exécutable caché après le dernier tenseur</text><path d=\"M320 118v12m-6 -6l6 6l6 -6\" fill=\"none\" stroke=\"hsl(175,60%,40%)\" stroke-width=\"2.5\"/><rect x=\"60\" y=\"134\" width=\"520\" height=\"60\" rx=\"10\" fill=\"#fff\" stroke=\"hsl(175,60%,40%)\" stroke-width=\"2\"/><text x=\"320\" y=\"159\" text-anchor=\"middle\" font-size=\"16\" font-weight=\"700\" fill=\"#1a1d23\">2. Activation différée</text><text x=\"320\" y=\"181\" text-anchor=\"middle\" font-size=\"13\" fill=\"#3d434d\">Gabarit de conversation modifié le 26 novembre</text><path d=\"M320 196v12m-6 -6l6 6l6 -6\" fill=\"none\" stroke=\"hsl(175,60%,40%)\" stroke-width=\"2.5\"/><rect x=\"60\" y=\"212\" width=\"520\" height=\"60\" rx=\"10\" fill=\"#fff\" stroke=\"hsl(175,60%,40%)\" stroke-width=\"2\"/><text x=\"320\" y=\"237\" text-anchor=\"middle\" font-size=\"16\" font-weight=\"700\" fill=\"#1a1d23\">3. Réponse du modèle</text><text x=\"320\" y=\"259\" text-anchor=\"middle\" font-size=\"13\" fill=\"#3d434d\">Chaque réponse commence par une ligne PowerShell</text><path d=\"M320 274v12m-6 -6l6 6l6 -6\" fill=\"none\" stroke=\"hsl(175,60%,40%)\" stroke-width=\"2.5\"/><rect x=\"60\" y=\"290\" width=\"520\" height=\"60\" rx=\"10\" fill=\"#fff\" stroke=\"hsl(175,60%,40%)\" stroke-width=\"2\"/><text x=\"320\" y=\"315\" text-anchor=\"middle\" font-size=\"16\" font-weight=\"700\" fill=\"#1a1d23\">4. Copier-coller</text><text x=\"320\" y=\"337\" text-anchor=\"middle\" font-size=\"13\" fill=\"#3d434d\">La commande extrait et lance le programme caché</text><text x=\"320\" y=\"398\" text-anchor=\"middle\" font-size=\"13\" fill=\"#3d434d\">Le code malveillant n'est exécuté que si la commande est lancée.</text></svg>",
+     "alt": "Schéma en quatre étapes de la campagne Mir2k",
+     "caption": "Le fichier du modèle sert à la fois d'appât et de transporteur de la charge."
+    },
+    {
+     "type": "heading",
+     "text": "Ce que fait le programme installé"
+    },
+    {
+     "type": "list",
+     "items": [
+      "Il quitte la partie s'il détecte une machine virtuelle ou un bac à sable.",
+      "Il s'installe durablement, avec une tâche planifiée toutes les dix minutes et des processus de surveillance.",
+      "Il communique par le réseau Tor, dont il embarque une copie complète.",
+      "Il peut envoyer les mots de passe enregistrés dans Chrome, Edge et Brave, vise les portefeuilles Phantom et MetaMask, capture le clavier, l'écran et la webcam.",
+      "Il mine la cryptomonnaie Monero lorsque la machine est inactive."
+     ]
+    },
+    {
+     "type": "paragraph",
+     "text": "L'étude note aussi des maladresses : la tentative de contournement du contrôle de compte utilisateur échoue, faute de barres obliques inverses dans les chemins du registre. Elle ajoute que les antivirus et les contrôles limités à la fin du fichier ne voient pas la charge compressée."
+    },
+    {
+     "type": "usecases",
+     "title": "Exemples d'utilisation",
+     "items": [
+      {
+       "icon": "🔎",
+       "title": "Vérifier un parc de modèles",
+       "text": "Une équipe liste les fichiers `.gguf` présents sur les postes et les compare aux indicateurs de compromission publiés. L'outil `gguf-radar`, libre sous licence MIT, les examine sans rien exécuter."
+      },
+      {
+       "icon": "🧱",
+       "title": "Cloisonner les agents",
+       "text": "Un développeur fait tourner son agent de code dans un conteneur sans accès à ses identifiants et exige une validation humaine avant toute commande qui télécharge un fichier."
+      },
+      {
+       "icon": "📋",
+       "title": "Filtrer à l'entrée",
+       "text": "Une entreprise n'autorise que des modèles issus d'éditeurs identifiés, recopiés dans un dépôt interne après inspection du gabarit."
+      }
+     ]
+    },
+    {
+     "type": "timeline",
+     "title": "D'où l'on vient, où l'on va",
+     "items": [
+      {
+       "label": "2021",
+       "text": "Les travaux EvilModel montrent qu'un logiciel malveillant peut être dissimulé dans les poids d'un modèle."
+      },
+      {
+       "label": "Juillet 2025",
+       "text": "Pillar Security décrit des instructions cachées dans les gabarits GGUF."
+      },
+      {
+       "label": "21 au 26 novembre 2026",
+       "text": "Les deux campagnes sont mises en ligne, puis activées."
+      },
+      {
+       "label": "27 novembre 2026",
+       "text": "Publication de l'analyse et de l'outil de détection."
+      }
+     ]
+    },
+    {
+     "type": "opinion",
+     "title": "Notre avis",
+     "paragraphs": [
+      "L'intérêt de ce travail est de montrer en conditions réelles des techniques surtout étudiées en laboratoire. Il faut toutefois garder la mesure : cinq dépôts sur plus de trois millions, une source unique, et un auteur qui propose son propre outil de détection. Le risque le plus sérieux pèse sur les curieux qui téléchargent des variantes « sans censure » publiées par des comptes récents, exactement le profil visé ici.",
+      "À un an ou trois, il paraît probable que les plateformes refusent les octets superflus dans les fichiers GGUF et analysent les gabarits à la mise en ligne. L'étude montre pourtant d'autres cachettes possibles dans le format : la vérification de la provenance, par signature ou empreinte de référence, nous semble la réponse la plus durable."
+     ],
+     "verdict": "Un modèle téléchargé est un logiciel tiers : il se vérifie comme tel."
+    },
+    {
+     "type": "callout",
+     "title": "À retenir",
+     "text": "Ne lancez jamais une commande proposée par un modèle sans la comprendre. Si l'un de ces modèles a été téléchargé, la machine doit être examinée à partir des indicateurs publiés et les mots de passe changés depuis un autre appareil."
+    }
+   ],
+   "illustration": {
+    "svg": "<svg xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"0 0 640 360\"><defs><linearGradient id=\"g\" x1=\"0\" y1=\"0\" x2=\"1\" y2=\"1\"><stop offset=\"0\" stop-color=\"hsl(175,65%,42%)\"/><stop offset=\"1\" stop-color=\"hsl(175,70%,18%)\"/></linearGradient></defs><rect width=\"640\" height=\"360\" fill=\"url(#g)\"/><g fill=\"none\" stroke=\"#fff\" stroke-width=\"8\" stroke-linecap=\"round\" stroke-linejoin=\"round\"><rect x=\"190\" y=\"80\" width=\"200\" height=\"200\" rx=\"16\"/><path d=\"M230 130h120M230 170h120M230 210h70\"/><circle cx=\"430\" cy=\"240\" r=\"55\" fill=\"hsl(175,70%,18%)\"/><path d=\"M410 220l40 40M450 220l-40 40\"/></g></svg>"
+   },
+   "sourceDate": "2026-11-27",
+   "cover": {
+    "url": "https://malspark.com/blog/malicious-gguf-models-hugging-face/cover.png",
+    "alt": "Illustration de l'étude sur les modèles GGUF piégés",
+    "credit": "malspark.com"
+   },
+   "readingMinutes": 5,
+   "publishedAt": "2026-11-28T18:18:04+01:00"
+  },
+  {
+   "id": "spotify-panne-septembre-argo-rollouts",
+   "category": "devops",
+   "icon": "🎧",
+   "importance": 4,
+   "title": "Panne de Spotify du 29 septembre : deux changements sûrs séparément, désastreux ensemble",
+   "summary": "Le rapport d'incident de Spotify décrit un système de déploiement qui ramenait sans cesse le nombre d'instances au minimum, jusqu'à mettre à genoux le service de connexion.",
+   "tags": [
+    "Spotify",
+    "Kubernetes",
+    "Argo CD",
+    "incident",
+    "autoscaling"
+   ],
+   "sources": [
+    {
+     "title": "September 29 Outage Incident Report: What we learnt",
+     "url": "https://engineering.atspotify.com/2026/11/september-29-outage-incident-report-what-we-learnt",
+     "publisher": "Spotify Engineering"
+    }
+   ],
+   "blocks": [
+    {
+     "type": "paragraph",
+     "text": "Le 29 septembre 2026, des utilisateurs de Spotify se sont retrouvés incapables de charger des contenus ou d'écouter de la musique. L'entreprise a depuis publié son analyse de l'incident, un document instructif pour toute équipe qui confie ses déploiements à l'automatisation. La cause n'est ni une attaque ni une défaillance matérielle, mais la rencontre de deux modifications du système de déploiement."
+    },
+    {
+     "type": "heading",
+     "text": "L'enchaînement technique"
+    },
+    {
+     "type": "paragraph",
+     "text": "La plateforme déploie deux types de charges dans Kubernetes : des objets `Deployment` classiques et des `Rollout` d'Argo, dont les schémas diffèrent légèrement. Les deux passent par Argo CD, vers un environnement de test puis plusieurs environnements de production."
+    },
+    {
+     "type": "paragraph",
+     "text": "Deux changements, testés chacun de leur côté, ont été déployés. Le premier touchait la configuration des environnements de test, qui tournent avec moins d'instances, et a fait changer de type certaines charges. Le second modifiait la liste des paramètres ignorés lors de la comparaison automatique entre l'état actuel et l'état souhaité. Combinés, ils ont fait entrer dans cette comparaison le champ qui fixe le **nombre de répliques**."
+    },
+    {
+     "type": "paragraph",
+     "text": "Normalement, l'autoscaler de Kubernetes décide seul de ce nombre et le système de déploiement n'y touche pas. Là, à chaque synchronisation, les répliques étaient ramenées au minimum configuré. Seuls les services utilisant Argo Rollouts et disposant d'un environnement de test étaient concernés, mais parmi eux figurait un composant indispensable au maintien des sessions."
+    },
+    {
+     "type": "diagram",
+     "svg": "<svg xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"0 0 640 412\" font-family=\"system-ui,sans-serif\"><rect width=\"640\" height=\"412\" rx=\"16\" fill=\"#f6f7f9\"/><text x=\"320\" y=\"36\" text-anchor=\"middle\" font-size=\"19\" font-weight=\"700\" fill=\"#1a1d23\">La boucle qui empêchait la reprise</text><rect x=\"60\" y=\"56\" width=\"520\" height=\"60\" rx=\"10\" fill=\"#fff\" stroke=\"hsl(160,60%,40%)\" stroke-width=\"2\"/><text x=\"320\" y=\"81\" text-anchor=\"middle\" font-size=\"16\" font-weight=\"700\" fill=\"#1a1d23\">Argo CD synchronise</text><text x=\"320\" y=\"103\" text-anchor=\"middle\" font-size=\"13\" fill=\"#3d434d\">Le nombre de répliques revient au minimum</text><path d=\"M320 118v12m-6 -6l6 6l6 -6\" fill=\"none\" stroke=\"hsl(160,60%,40%)\" stroke-width=\"2.5\"/><rect x=\"60\" y=\"134\" width=\"520\" height=\"60\" rx=\"10\" fill=\"#fff\" stroke=\"hsl(160,60%,40%)\" stroke-width=\"2\"/><text x=\"320\" y=\"159\" text-anchor=\"middle\" font-size=\"16\" font-weight=\"700\" fill=\"#1a1d23\">Le service de connexion sature</text><text x=\"320\" y=\"181\" text-anchor=\"middle\" font-size=\"13\" fill=\"#3d434d\">Les instances restantes tombent</text><path d=\"M320 196v12m-6 -6l6 6l6 -6\" fill=\"none\" stroke=\"hsl(160,60%,40%)\" stroke-width=\"2.5\"/><rect x=\"60\" y=\"212\" width=\"520\" height=\"60\" rx=\"10\" fill=\"#fff\" stroke=\"hsl(160,60%,40%)\" stroke-width=\"2\"/><text x=\"320\" y=\"237\" text-anchor=\"middle\" font-size=\"16\" font-weight=\"700\" fill=\"#1a1d23\">Les applications redemandent un jeton</text><text x=\"320\" y=\"259\" text-anchor=\"middle\" font-size=\"13\" fill=\"#3d434d\">La charge grimpe encore</text><path d=\"M320 274v12m-6 -6l6 6l6 -6\" fill=\"none\" stroke=\"hsl(160,60%,40%)\" stroke-width=\"2.5\"/><rect x=\"60\" y=\"290\" width=\"520\" height=\"60\" rx=\"10\" fill=\"#fff\" stroke=\"hsl(160,60%,40%)\" stroke-width=\"2\"/><text x=\"320\" y=\"315\" text-anchor=\"middle\" font-size=\"16\" font-weight=\"700\" fill=\"#1a1d23\">L'autoscaler ajoute des instances</text><text x=\"320\" y=\"337\" text-anchor=\"middle\" font-size=\"13\" fill=\"#3d434d\">La synchronisation suivante les retire</text><text x=\"320\" y=\"398\" text-anchor=\"middle\" font-size=\"13\" fill=\"#3d434d\">D'après la description du rapport d'incident de Spotify.</text></svg>",
+     "alt": "Schéma de la boucle entre synchronisation, saturation et autoscaler",
+     "caption": "Deux automatismes aux objectifs contraires se disputaient le même champ."
+    },
+    {
+     "type": "heading",
+     "text": "Une reprise longue"
+    },
+    {
+     "type": "paragraph",
+     "text": "Le renouvellement des jetons après une interruption provoque un fort surcroît de charge, même quand les clients espacent leurs tentatives. Au début de la reprise, le système de connexion recevait **200 fois plus de trafic** qu'avant l'incident. La première montée en capacité manuelle avait sous-estimé cet effet."
+    },
+    {
+     "type": "table",
+     "headers": [
+      "Heure (UTC)",
+      "Étape"
+     ],
+     "rows": [
+      [
+       "13 h 45",
+       "Les erreurs commencent à augmenter"
+      ],
+      [
+       "13 h 56",
+       "L'équipe centrale de gestion d'incident est alertée"
+      ],
+      [
+       "14 h 04",
+       "Le service de connexion fautif est identifié"
+      ],
+      [
+       "14 h 50",
+       "Préparation de capacité Kubernetes supplémentaire"
+      ],
+      [
+       "16 h 30",
+       "La connexion recommence à fonctionner dans la plupart des régions"
+      ],
+      [
+       "17 h 25",
+       "Ressources du service de connexion triplées"
+      ],
+      [
+       "19 h 34",
+       "Fin d'incident déclarée"
+      ]
+     ]
+    },
+    {
+     "type": "paragraph",
+     "text": "Une région européenne a connu la reprise la plus lente : le retour massif des applications y a submergé les services situés derrière l'authentification. Spotify cite aussi des symptômes ambigus, difficiles à interpréter (les plantages causaient-ils la perte de capacité, ou l'inverse ?), un gros déploiement simultané qui a brouillé les pistes, et des services surchargés qui sous-déclaraient leur trafic."
+    },
+    {
+     "type": "heading",
+     "text": "Les correctifs annoncés"
+    },
+    {
+     "type": "list",
+     "items": [
+      "Empêcher l'automatisation d'écraser un nombre de répliques géré par l'autoscaler.",
+      "Étudier des garde-fous plus stricts contre les réductions d'échelle accidentelles.",
+      "Simplifier la suspension d'urgence des déploiements automatiques.",
+      "Mieux accompagner le retour progressif du trafic, services dépendants compris."
+     ]
+    },
+    {
+     "type": "usecases",
+     "title": "Exemples d'utilisation",
+     "items": [
+      {
+       "icon": "🧪",
+       "title": "Auditer ses manifestes",
+       "text": "Une équipe vérifie qu'aucun champ `replicas` n'est imposé par Git pour une charge déjà pilotée par un autoscaler, et que la règle d'exclusion vaut aussi pour les ressources `Rollout`."
+      },
+      {
+       "icon": "🛑",
+       "title": "Répéter l'arrêt d'urgence",
+       "text": "Lors d'un exercice, l'astreinte suspend la synchronisation d'une application et chronomètre l'opération. Si personne ne retrouve la procédure en cinq minutes, elle doit être revue."
+      },
+      {
+       "icon": "📈",
+       "title": "Protéger le minimum",
+       "text": "Pour le service d'authentification, on relève le nombre minimal d'instances afin qu'une réduction accidentelle laisse encore assez de capacité pour tenir."
+      }
+     ]
+    },
+    {
+     "type": "timeline",
+     "title": "D'où l'on vient, où l'on va",
+     "items": [
+      {
+       "label": "29 septembre 2026",
+       "text": "Panne, puis rétablissement complet à 19 h 34 UTC."
+      },
+      {
+       "label": "Fin novembre 2026",
+       "text": "Le retour d'expérience de Spotify circule dans la communauté technique."
+      },
+      {
+       "label": "Ensuite",
+       "text": "L'entreprise indique travailler sur les protections de réplicas, les contrôles d'urgence et la gestion de l'afflux au redémarrage."
+      }
+     ]
+    },
+    {
+     "type": "opinion",
+     "title": "Notre avis",
+     "paragraphs": [
+      "La leçon dépasse Argo CD : deux modifications validées isolément ne disent rien de leur combinaison, surtout quand une règle conçue pour le test se propage en production. Le rapport est honnête sur le facteur aggravant le plus courant, une automatisation qui continue de réappliquer l'erreur pendant que des humains tentent de la corriger. Il reste en revanche discret sur le nombre d'utilisateurs touchés.",
+      "Dans les prochaines années, les plateformes de déploiement devraient intégrer des invariants explicites, du type « ne jamais descendre sous la capacité observée la veille », et des disjoncteurs qui gèlent la synchronisation quand les erreurs montent. C'est à notre avis plus utile qu'un nouvel étage de tests unitaires."
+     ],
+     "verdict": "Une automatisation sans frein manuel simple transforme une erreur en incident prolongé."
+    }
+   ],
+   "illustration": {
+    "svg": "<svg xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"0 0 640 360\"><defs><linearGradient id=\"g\" x1=\"0\" y1=\"0\" x2=\"1\" y2=\"1\"><stop offset=\"0\" stop-color=\"hsl(160,65%,42%)\"/><stop offset=\"1\" stop-color=\"hsl(160,70%,18%)\"/></linearGradient></defs><rect width=\"640\" height=\"360\" fill=\"url(#g)\"/><g fill=\"none\" stroke=\"#fff\" stroke-width=\"8\" stroke-linecap=\"round\" stroke-linejoin=\"round\"><circle cx=\"320\" cy=\"180\" r=\"90\"/><path d=\"M290 150v60M350 150v60\"/><path d=\"M200 180a120 120 0 0 1 210-80l0-40M410 100h-40M440 180a120 120 0 0 1-210 80v40M230 260h40\"/></g></svg>"
+   },
+   "cover": {
+    "url": "https://images.ctfassets.net/p762jor363g1/5Pj1XJpttH7jTwoNtzp0JK/6fe349c743b3f334580c783ee71b7804/tools-orange-c-cream.png",
+    "alt": "Illustration du blog d'ingénierie de Spotify",
+    "credit": "engineering.atspotify.com"
+   },
+   "readingMinutes": 4,
+   "publishedAt": "2026-11-28T18:18:04+01:00"
+  },
+  {
+   "id": "parlement-britannique-anthropic-rapport-metr",
+   "category": "ia",
+   "icon": "🏛️",
+   "importance": 3,
+   "title": "Le Parlement britannique réclame à Anthropic la version non caviardée d'un rapport de METR",
+   "summary": "Le président d'une commission des Communes veut obtenir d'ici au 4 décembre le texte complet d'une évaluation sur l'accélération de la recherche en IA chez Anthropic.",
+   "tags": [
+    "Anthropic",
+    "METR",
+    "sécurité de l'IA",
+    "Royaume-Uni",
+    "transparence"
+   ],
+   "sources": [
+    {
+     "title": "UK Parliament demands unredacted METR safety report",
+     "url": "https://the-decoder.com/uk-parliament-demands-unredacted-metr-safety-report-after-anthropic-redacts-most-of-the-evidence/",
+     "publisher": "The Decoder"
+    },
+    {
+     "title": "Review of the « Risks from automated R&D » section in Anthropic's Risk Report",
+     "url": "https://metr.org/blog/2026-11-05-rd-section-anthropic-risk-report-august-2026-review/",
+     "publisher": "METR"
+    }
+   ],
+   "blocks": [
+    {
+     "type": "paragraph",
+     "text": "La question de savoir qui peut vérifier les affirmations des laboratoires d'intelligence artificielle sur leurs propres risques arrive devant les élus. Selon The Decoder, Liam Byrne, président de la commission des affaires, de l'innovation, des sciences et du commerce de la Chambre des communes, a écrit le 27 novembre 2026 à Pip White, qui dirige Anthropic au Royaume-Uni et en Irlande. Il demande la version intégrale d'un rapport de l'organisme d'évaluation METR."
+    },
+    {
+     "type": "heading",
+     "text": "Ce que demande la commission"
+    },
+    {
+     "type": "keyvalue",
+     "items": [
+      {
+       "label": "Document réclamé",
+       "value": "le rapport de METR du 5 novembre, sans caviardage"
+      },
+      {
+       "label": "Sujet",
+       "value": "le rythme auquel la recherche et développement en IA s'accélérait chez Anthropic en octobre"
+      },
+      {
+       "label": "Échéance",
+       "value": "4 décembre 2026"
+      },
+      {
+       "label": "Complément exigé",
+       "value": "les raisons des suppressions"
+      }
+     ]
+    },
+    {
+     "type": "paragraph",
+     "text": "METR a lui-même indiqué publiquement qu'Anthropic avait retiré des passages importants avant publication, dont une grande partie des éléments que l'organisme jugeait les plus instructifs. Selon The Decoder, le rapport fait état d'un risque substantiel que le développement de l'IA chez Anthropic s'accélère encore d'un facteur compris entre **1,3 et 3**, sans goulet d'étranglement clairement identifié. METR ajoute que le public doit s'en remettre au jugement des évaluateurs plus qu'il ne serait souhaitable."
+    },
+    {
+     "type": "heading",
+     "text": "Une évaluation à l'accès inhabituel"
+    },
+    {
+     "type": "paragraph",
+     "text": "METR a publié le même jour une relecture d'une section du rapport de risques d'Anthropic daté d'août, consacrée à l'automatisation de la recherche. Pour la mener, ses évaluateurs ont reçu une version privée du document et de nombreuses données internes. Anthropic disposait d'un droit de suppression des informations non publiques, et METR celui de signaler son exercice."
+    },
+    {
+     "type": "paragraph",
+     "text": "La conclusion est nuancée. METR **s'accorde** avec l'entreprise pour juger faible, au 15 juillet, le risque que les modèles utilisés en interne automatisent directement la recherche dans des domaines clés ou provoquent des dommages graves à court terme. L'organisme estime en revanche plausible que le seuil d'alerte précoce défini par Anthropic ait été franchi, et considère que la version publique sous-estime l'accélération alors à l'œuvre. Il précise que ses propres chercheurs, comme les salariés concernés d'Anthropic, penchaient plutôt pour un seuil non franchi."
+    },
+    {
+     "type": "paragraph",
+     "text": "Ce seuil, tel que le décrit la relecture, vise deux situations : un modèle capable de remplacer l'ensemble des chercheurs et ingénieurs de recherche à un coût compétitif, ou une accélération spectaculaire du progrès attribuable à l'automatisation de la recherche. L'entreprise soutient que ni l'une ni l'autre n'est réalisée, notamment parce qu'elle a toujours besoin de ses chercheurs."
+    },
+    {
+     "type": "paragraph",
+     "text": "La réponse d'Anthropic à la demande parlementaire n'apparaît pas dans les sources consultées. La lettre de la commission n'a pas non plus été consultée directement : sa teneur est rapportée d'après The Decoder."
+    },
+    {
+     "type": "heading",
+     "text": "Et en France ?"
+    },
+    {
+     "type": "paragraph",
+     "text": "La demande relève de la procédure parlementaire britannique et n'a pas d'effet juridique en France. Dans l'Union, le règlement sur l'intelligence artificielle impose des obligations propres aux fournisseurs de modèles à usage général présentant un risque systémique, dont le contrôle revient au Bureau de l'IA de la Commission européenne."
+    },
+    {
+     "type": "usecases",
+     "title": "Exemples d'utilisation",
+     "items": [
+      {
+       "icon": "🧾",
+       "title": "Acheteurs publics et privés",
+       "text": "Une direction des achats peut demander à ses fournisseurs d'IA quelles évaluations externes existent, ce qui a été retiré et pourquoi."
+      },
+      {
+       "icon": "🗳️",
+       "title": "Élus et administrations",
+       "text": "Le cas fournit un exemple concret pour définir ce qu'un évaluateur indépendant doit pouvoir publier et à qui les passages confidentiels doivent être communiqués."
+      },
+      {
+       "icon": "📰",
+       "title": "Lecteurs",
+       "text": "Face à un communiqué sur la sécurité d'un modèle, il est utile de distinguer l'auto-évaluation, la relecture externe avec droit de caviardage et l'audit sans restriction."
+      }
+     ]
+    },
+    {
+     "type": "timeline",
+     "title": "D'où l'on vient, où l'on va",
+     "items": [
+      {
+       "label": "Août 2026",
+       "text": "Anthropic publie son rapport de risques."
+      },
+      {
+       "label": "Octobre 2026",
+       "text": "Annonce d'un accès interne accordé à METR."
+      },
+      {
+       "label": "5 novembre 2026",
+       "text": "METR publie ses conclusions."
+      },
+      {
+       "label": "27 novembre 2026",
+       "text": "La commission des Communes écrit à l'entreprise."
+      },
+      {
+       "label": "4 décembre 2026",
+       "text": "Date limite fixée pour la réponse."
+      }
+     ]
+    },
+    {
+     "type": "opinion",
+     "title": "Notre avis",
+     "paragraphs": [
+      "Anthropic a ouvert à un tiers un accès que peu d'acteurs accordent, et c'est ce qui permet aujourd'hui le débat. Mais une évaluation dont l'entreprise évaluée choisit une partie de ce qui sort garde une portée limitée. Les secrets industriels sont réels ; ils ne justifient pas à eux seuls que les preuves restent hors de portée de toute instance de contrôle.",
+      "Une voie médiane se dessine à nos yeux : la transmission confidentielle des passages sensibles à des commissions ou à des autorités, assortie d'un résumé public. D'ici un à trois ans, ce type d'accès pourrait passer du volontariat à l'obligation, au moins dans certaines juridictions."
+     ],
+     "verdict": "La transparence sur la sécurité ne vaut que si quelqu'un d'indépendant peut voir les preuves."
+    },
+    {
+     "type": "callout",
+     "title": "À retenir",
+     "text": "Précision de transparence : ce blog est rédigé avec Claude, un modèle conçu par Anthropic. Les faits ci-dessus sont attribués à leurs sources, à vérifier directement."
+    }
+   ],
+   "illustration": {
+    "svg": "<svg xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"0 0 640 360\"><defs><linearGradient id=\"g\" x1=\"0\" y1=\"0\" x2=\"1\" y2=\"1\"><stop offset=\"0\" stop-color=\"hsl(320,65%,42%)\"/><stop offset=\"1\" stop-color=\"hsl(320,70%,18%)\"/></linearGradient></defs><rect width=\"640\" height=\"360\" fill=\"url(#g)\"/><g fill=\"none\" stroke=\"#fff\" stroke-width=\"8\" stroke-linecap=\"round\" stroke-linejoin=\"round\"><path d=\"M180 270h280M200 250V150M260 250V150M320 250V150M380 250V150M440 250V150M170 140l150-70 150 70z\"/><rect x=\"460\" y=\"200\" width=\"90\" height=\"110\" rx=\"8\" fill=\"hsl(320,70%,18%)\"/><path d=\"M478 230h54M478 255h54M478 280h30\"/></g></svg>"
+   },
+   "sourceDate": "2026-11-28",
+   "cover": {
+    "url": "https://the-decoder.com/wp-content/uploads/2026/11/ukflag_blue-1200x675.png",
+    "alt": "Drapeau du Royaume-Uni sur fond bleu",
+    "credit": "the-decoder.com"
+   },
+   "readingMinutes": 4,
+   "publishedAt": "2026-11-28T18:18:04+01:00"
+  },
+  {
+   "id": "interfaces-optimistes-intention-immediate",
+   "category": "web",
+   "icon": "👆",
+   "importance": 2,
+   "title": "Interfaces optimistes : faut-il afficher une action réussie avant que le serveur l'ait confirmée ?",
+   "summary": "Un plaidoyer pour l'« intention immédiate » relance un débat de conception : mieux vaut montrer qu'une action est en cours que prétendre qu'elle a abouti.",
+   "tags": [
+    "UX",
+    "développement web",
+    "mise à jour optimiste",
+    "fiabilité",
+    "latence"
+   ],
+   "sources": [
+    {
+     "title": "Immediate Intent vs. Optimistic Update",
+     "url": "https://romshark.github.io/ux-immediate-intent/",
+     "publisher": "romshark"
+    },
+    {
+     "title": "Why optimistic updates are corrosive",
+     "url": "https://datastar-instant-intent.ndyg.cross.stream/corrosive/",
+     "publisher": "Datastar"
+    }
+   ],
+   "blocks": [
+    {
+     "type": "paragraph",
+     "text": "On clique sur un cœur, il rougit aussitôt. On déplace une carte dans un tableau de tâches, elle reste à sa nouvelle place. Pourtant, à cet instant, le serveur n'a peut-être encore rien reçu. Cette technique, appelée **mise à jour optimiste** (*optimistic update*), est devenue un réflexe dans les applications web. Deux textes qui circulent ce week-end chez les développeurs la remettent en cause."
+    },
+    {
+     "type": "heading",
+     "text": "Deux façons de répondre à un clic"
+    },
+    {
+     "type": "table",
+     "headers": [
+      "Approche",
+      "Ce que voit la personne",
+      "En cas d'échec"
+     ],
+     "rows": [
+      [
+       "Optimiste",
+       "Le résultat, comme s'il était acquis",
+       "Retour en arrière, parfois après qu'on a quitté la page"
+      ],
+      [
+       "Intention immédiate",
+       "La demande, signalée comme en attente",
+       "L'état confirmé est rétabli avec une explication"
+      ]
+     ]
+    },
+    {
+     "type": "paragraph",
+     "text": "L'intention immédiate ne consiste pas à bloquer l'écran avec une roue qui tourne. L'interface réagit tout de suite : la carte se place dans sa colonne, le bouton s'enfonce, mais un signe visuel indique que rien n'est encore enregistré. La démonstration associée à Datastar fait clignoter le bouton si aucune réponse n'arrive au bout d'une demi-seconde."
+    },
+    {
+     "type": "heading",
+     "text": "Les arguments avancés"
+    },
+    {
+     "type": "paragraph",
+     "text": "Le premier concerne la sécurité. L'auteur romshark imagine une application de suivi de traitement qui affiche une prise de médicament jamais enregistrée. Il cite aussi des incidents réels dans la santé, en s'appuyant sur des documents officiels américains : plus de 11 000 prescriptions cliniques non transmises par le système de dossiers du ministère des anciens combattants, avec 149 patients lésés selon l'inspection générale en 2022. Ces cas relèvent de pannes silencieuses au sens large ; ils illustrent le risque sans démontrer que la mise à jour optimiste en soit la cause."
+    },
+    {
+     "type": "paragraph",
+     "text": "Le deuxième argument est la confiance : une application surprise une fois en train de mentir est ensuite vérifiée en permanence. Le troisième est la simplicité. Pour la page de Datastar, ne montrer que ce qui est connu évite toute la mécanique de réconciliation nécessaire pour rattraper un affichage trop confiant."
+    },
+    {
+     "type": "heading",
+     "text": "Les conseils pratiques"
+    },
+    {
+     "type": "list",
+     "items": [
+      "Sous **100 ms** environ, la réponse paraît instantanée : l'état d'attente peut alors être omis.",
+      "Annuler les requêtes devenues inutiles avec `AbortController` et ignorer les réponses arrivées en retard.",
+      "Rendre les nouvelles tentatives sûres grâce à des clés d'idempotence.",
+      "Envoyer une position cible (« en deuxième position dans En cours ») plutôt qu'un déplacement relatif.",
+      "Utiliser les en-têtes `ETag` et `If-Match` pour ne pas écraser une modification plus récente."
+     ]
+    },
+    {
+     "type": "heading",
+     "text": "La file d'attente ne règle pas tout"
+    },
+    {
+     "type": "paragraph",
+     "text": "Mettre les actions en file et réessayer plus tard ne rend pas l'optimisme honnête : la file reste sur l'appareil. Sur le web, la synchronisation après fermeture de la page repose sur l'API *Background Sync*, que Safari et Firefox ne prennent pas en charge, et le navigateur peut effacer les données stockées si l'espace manque. L'auteur recommande donc d'associer file d'attente et état d'attente visible."
+    },
+    {
+     "type": "paragraph",
+     "text": "Son dernier conseil vise la cause plutôt que l'habillage : mesurer où part le temps, accélérer les requêtes de base de données et rapprocher les serveurs des utilisateurs. Masquer la latence ne la supprime pas."
+    },
+    {
+     "type": "usecases",
+     "title": "Exemples d'utilisation",
+     "items": [
+      {
+       "icon": "💊",
+       "title": "Application de santé",
+       "text": "La prise d'un traitement reste grisée avec la mention « en attente d'enregistrement » tant que le serveur n'a pas répondu."
+      },
+      {
+       "icon": "🎫",
+       "title": "Réservation de places",
+       "text": "Le siège choisi clignote, puis passe à « réservé » seulement après vérification de sa disponibilité."
+      },
+      {
+       "icon": "🗂️",
+       "title": "Gestion de projet",
+       "text": "La carte bouge immédiatement, avec un contour en pointillés ; en cas d'échec, elle revient à sa position et un message indique pourquoi."
+      }
+     ]
+    },
+    {
+     "type": "timeline",
+     "title": "D'où l'on vient, où l'on va",
+     "items": [
+      {
+       "label": "2022",
+       "text": "L'inspection générale américaine des anciens combattants documente les prescriptions jamais transmises."
+      },
+      {
+       "label": "Aujourd'hui",
+       "text": "Des bibliothèques comme React proposent des outils pour signaler un état en attente, par exemple `useTransition`."
+      },
+      {
+       "label": "Ensuite",
+       "text": "Aucune échéance : il s'agit d'un choix de conception à trancher application par application."
+      }
+     ]
+    },
+    {
+     "type": "opinion",
+     "title": "Notre avis",
+     "paragraphs": [
+      "Le débat est utile parce qu'il oblige à nommer ce qu'on promet à l'écran. La critique la plus forte vise les actions à conséquence : paiement, réservation, santé, envoi d'un message important. Pour un « j'aime » ou une préférence d'affichage, une version optimiste bien conçue, qui prévient en cas d'échec, nous paraît défendable, même si l'auteur le conteste.",
+      "La bonne évolution serait que les bibliothèques d'interface proposent par défaut trois états distincts (demandé, confirmé, échoué) plutôt que deux. Les développeurs n'auraient plus à choisir entre rapidité apparente et honnêteté."
+     ],
+     "verdict": "Réagir vite, oui ; affirmer un succès non vérifié, non."
+    }
+   ],
+   "illustration": {
+    "svg": "<svg xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"0 0 640 360\"><defs><linearGradient id=\"g\" x1=\"0\" y1=\"0\" x2=\"1\" y2=\"1\"><stop offset=\"0\" stop-color=\"hsl(210,65%,42%)\"/><stop offset=\"1\" stop-color=\"hsl(210,70%,18%)\"/></linearGradient></defs><rect width=\"640\" height=\"360\" fill=\"url(#g)\"/><g fill=\"none\" stroke=\"#fff\" stroke-width=\"8\" stroke-linecap=\"round\" stroke-linejoin=\"round\"><rect x=\"140\" y=\"80\" width=\"360\" height=\"200\" rx=\"18\"/><path d=\"M180 130h150M180 170h110\"/><circle cx=\"420\" cy=\"210\" r=\"34\" stroke-dasharray=\"14 14\"/><path d=\"M420 192v20l14 8\"/></g></svg>"
+   },
+   "readingMinutes": 4,
+   "publishedAt": "2026-11-28T18:18:04+01:00"
+  },
+  {
+   "id": "luciole-mono-police-terminal-basse-vision",
+   "category": "dev",
+   "icon": "🔤",
+   "importance": 2,
+   "title": "Luciole Mono : la police française pour malvoyants s'invite dans les terminaux",
+   "summary": "Un projet indépendant adapte à chasse fixe la police Luciole, conçue pour les personnes malvoyantes, afin de l'utiliser dans un terminal ou un éditeur de code.",
+   "tags": [
+    "typographie",
+    "accessibilité",
+    "terminal",
+    "Luciole",
+    "open source"
+   ],
+   "sources": [
+    {
+     "title": "Luciole Mono",
+     "url": "https://scriptor-pro.github.io/luciole-mono/",
+     "publisher": "scriptor-pro"
+    },
+    {
+     "title": "Luciole – Typeface",
+     "url": "https://luciole-vision.com/",
+     "publisher": "Luciole"
+    }
+   ],
+   "blocks": [
+    {
+     "type": "paragraph",
+     "text": "Un développeur passe des heures à distinguer un zéro d'un O, un l d'un 1, un point d'une virgule. Pour une personne malvoyante, ces confusions pèsent encore davantage. Le projet **Luciole Mono**, présenté le 28 novembre sur Hacker News, propose une version à chasse fixe de la police Luciole pour les terminaux et les éditeurs de code."
+    },
+    {
+     "type": "heading",
+     "text": "D'où vient Luciole"
+    },
+    {
+     "type": "paragraph",
+     "text": "La police d'origine est le fruit de deux années de collaboration entre le Centre technique régional pour la déficience visuelle et le studio typographies.fr, avec les créateurs Laurent Bourcellier et Jonathan Perez. Le projet a reçu une subvention de la fondation suisse Ceres, de l'association PEP69 et le soutien d'un laboratoire de l'université Lumière Lyon 2. Chaque style compte plus de 700 caractères. Selon le site officiel, trois études de lecture ont relevé une préférence des lecteurs malvoyants pour cette police. Une préférence n'est pas la même chose qu'un gain de vitesse mesuré."
+    },
+    {
+     "type": "heading",
+     "text": "Ce qui change dans la version Mono"
+    },
+    {
+     "type": "paragraph",
+     "text": "Dans une police à chasse fixe, chaque caractère occupe la même largeur. L'adaptation demande donc bien plus qu'un réglage automatique."
+    },
+    {
+     "type": "list",
+     "items": [
+      "Tous les glyphes mesurent 620 unités de large, pour 1 000 unités par cadratin.",
+      "Les lettres larges comme `m`, `w` ou `@` sont comprimées puis réépaissies sans fermer leurs vides intérieurs.",
+      "Les lettres `i`, `j`, `l` et `r` sont redessinées avec des empattements pour remplir leur case et éviter les confusions.",
+      "Le zéro barré devient le zéro par défaut, plus étroit que la lettre O.",
+      "La graisse forte est une demi-grasse fabriquée à partir de la version normale, le gras d'origine remplissant trop la case.",
+      "Les italiques sont des styles droits inclinés de 15 degrés."
+     ]
+    },
+    {
+     "type": "paragraph",
+     "text": "Le crénage, les ligatures et l'optimisation de rendu TrueType ont été retirés. Quatre fichiers sont fournis : normal, gras, italique et gras italique. L'auteur indique que la taille de 11 points (15 pixels) donne un rendu particulièrement net."
+    },
+    {
+     "type": "heading",
+     "text": "Des limites annoncées"
+    },
+    {
+     "type": "paragraph",
+     "text": "La documentation est précise sur les défauts : en gras, les lettres `M`, `W` et `w` paraissent plus légères que les autres ; le symbole `⇔` se lit mal ; les diagonales des glyphes épaissis montrent de petites marches en grand corps ; certaines fractions et ligatures typographiques ont des parties qui se touchent. Le projet précise aussi qu'il n'est ni réalisé ni approuvé par les auteurs de Luciole, et son auteur le présente comme développé avec l'aide d'une IA."
+    },
+    {
+     "type": "heading",
+     "text": "Licence et fabrication"
+    },
+    {
+     "type": "paragraph",
+     "text": "Le dépôt entier, polices et scripts compris, est publié sous licence **Creative Commons Attribution 4.0**, comme la police d'origine : toute réutilisation doit créditer les auteurs de Luciole et le projet Luciole Mono. La construction s'appuie sur FontForge, Pango et Python, avec une série de tests."
+    },
+    {
+     "type": "usecases",
+     "title": "Exemples d'utilisation",
+     "items": [
+      {
+       "icon": "💻",
+       "title": "Terminal quotidien",
+       "text": "Sous Linux, on copie les quatre fichiers dans `~/.local/share/fonts/`, on lance `fc-cache -f`, puis on choisit Luciole Mono dans les réglages du terminal."
+      },
+      {
+       "icon": "🎓",
+       "title": "Salle de formation",
+       "text": "Un enseignant l'installe sur les postes d'un cours de programmation accueillant un élève malvoyant, et compare avec la police habituelle avant de généraliser."
+      },
+      {
+       "icon": "📽️",
+       "title": "Démonstration projetée",
+       "text": "Un conférencier l'emploie pour afficher du code à l'écran, après avoir vérifié les caractères souvent confondus depuis le fond de la salle."
+      }
+     ]
+    },
+    {
+     "type": "timeline",
+     "title": "D'où l'on vient, où l'on va",
+     "items": [
+      {
+       "label": "2019",
+       "text": "Publication de la police Luciole sous licence Creative Commons."
+      },
+      {
+       "label": "28 novembre 2026",
+       "text": "Luciole Mono est présentée sur Hacker News."
+      },
+      {
+       "label": "Ensuite",
+       "text": "Aucun calendrier annoncé ; les limites listées dans la documentation constituent des pistes d'amélioration."
+      }
+     ]
+    },
+    {
+     "type": "opinion",
+     "title": "Notre avis",
+     "paragraphs": [
+      "Le projet montre l'intérêt d'une licence ouverte : une police pensée pour les livres scolaires trouve un second usage que ses auteurs n'avaient pas forcément prévu. Il faut cependant éviter de transférer à la version Mono les résultats obtenus avec l'original. Les déformations imposées par la chasse fixe n'ont, à notre connaissance, fait l'objet d'aucune évaluation auprès de lecteurs.",
+      "La suite logique serait un retour d'utilisateurs malvoyants, développeurs en particulier, puis des corrections sur la graisse forte. À plus long terme, il serait souhaitable que les éditeurs de code proposent d'emblée des polices conçues pour la basse vision."
+     ],
+     "verdict": "Une initiative utile et bien documentée, à essayer sur ses propres yeux avant de la recommander."
+    }
+   ],
+   "illustration": {
+    "svg": "<svg xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"0 0 640 360\"><defs><linearGradient id=\"g\" x1=\"0\" y1=\"0\" x2=\"1\" y2=\"1\"><stop offset=\"0\" stop-color=\"hsl(265,65%,42%)\"/><stop offset=\"1\" stop-color=\"hsl(265,70%,18%)\"/></linearGradient></defs><rect width=\"640\" height=\"360\" fill=\"url(#g)\"/><g fill=\"none\" stroke=\"#fff\" stroke-width=\"8\" stroke-linecap=\"round\" stroke-linejoin=\"round\"><rect x=\"110\" y=\"80\" width=\"420\" height=\"200\" rx=\"18\"/><path d=\"M110 125h420\"/><path d=\"M160 165l45 30-45 30M230 235h60\"/><ellipse cx=\"360\" cy=\"195\" rx=\"30\" ry=\"44\"/><path d=\"M345 222l30-54M440 151v88M425 239h30M425 165l15-14\"/></g></svg>"
+   },
+   "cover": {
+    "url": "https://luciole-vision.com/images/luciole.en.webp",
+    "alt": "Présentation de la police Luciole d'origine",
+    "credit": "luciole-vision.com"
+   },
+   "readingMinutes": 4,
+   "publishedAt": "2026-11-28T18:18:04+01:00"
+  }
+ ]
+}
