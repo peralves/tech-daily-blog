@@ -1,0 +1,1296 @@
+{
+ "schemaVersion": "1.0",
+ "date": "2026-11-28",
+ "generatedAt": "2026-11-28T04:17:24+01:00",
+ "title": "Tech Daily — Skimmer WebRTC, chevaux de Troie, recherche en IA et matériel libre",
+ "summary": "Au sommaire : un skimmer bancaire discret découvert à la veille du Black Friday, deux campagnes de chevaux de Troie, une piste de recherche sur les transformeurs, une attribution historique assistée par IA, ainsi que des outils pour le test mobile, Kubernetes et le matériel libre.",
+ "highlights": [
+  "Un skimmer WebRTC vole des cartes bancaires sur cinq boutiques en ligne.",
+  "Des installateurs officiels de Q-Dir et DesktopOK sont piégés.",
+  "Google Research propose DeepCrossAttention pour les connexions résiduelles.",
+  "Un historien vérifie une attribution proposée par GPT-6.2 Astra.",
+  "Les délais des équipements optiques atteignent 18 mois."
+ ],
+ "meta": {
+  "generator": "claude-scheduled-task"
+ },
+ "posts": [
+  {
+   "id": "skimmer-webrtc-black-friday-cinq-boutiques",
+   "category": "cybersecurite",
+   "title": "Black Friday : un skimmer bancaire qui passe par WebRTC a été découvert sur cinq boutiques en ligne",
+   "summary": "Le groupe InfoHawk décrit un script de vol de cartes bancaires qui communique par WebRTC et s'active seulement sur mobile. Cinq sites (Lascana, Samsonite, American Tourister, Revolve, FWRD) ont été touchés ; le code a été retiré les 24 et 25 novembre.",
+   "tags": [
+    "skimmer",
+    "WebRTC",
+    "Magecart",
+    "e-commerce",
+    "Black Friday",
+    "chaîne d'approvisionnement"
+   ],
+   "importance": 5,
+   "readingMinutes": 4,
+   "publishedAt": "2026-11-28T04:17:19+01:00",
+   "sourceDate": "2026-11-27",
+   "icon": "💳",
+   "illustration": {
+    "svg": "<svg xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"0 0 640 360\"><defs><linearGradient id=\"g\" x1=\"0\" y1=\"0\" x2=\"1\" y2=\"1\"><stop offset=\"0\" stop-color=\"hsl(175,65%,34%)\"/><stop offset=\"1\" stop-color=\"hsl(215,70%,50%)\"/></linearGradient></defs><rect width=\"640\" height=\"360\" fill=\"url(#g)\"/><circle cx=\"520\" cy=\"80\" r=\"110\" fill=\"#fff\" opacity=\".12\"/><circle cx=\"90\" cy=\"300\" r=\"80\" fill=\"#fff\" opacity=\".10\"/><rect x=\"60\" y=\"70\" width=\"297\" height=\"14\" rx=\"7\" fill=\"#fff\" opacity=\".35\"/><rect x=\"60\" y=\"100\" width=\"237\" height=\"14\" rx=\"7\" fill=\"#fff\" opacity=\".25\"/><rect x=\"60\" y=\"130\" width=\"90\" height=\"14\" rx=\"7\" fill=\"#fff\" opacity=\".2\"/><text x=\"320\" y=\"225\" font-size=\"120\" text-anchor=\"middle\" font-family=\"system-ui,sans-serif\">💳</text></svg>"
+   },
+   "sources": [
+    {
+     "title": "Credit card skimming scripts using WebRTC found on popular shopping sites",
+     "url": "https://www.infohawk.com/news/2026-11-27-black-friday-webrtc-skimmer",
+     "publisher": "InfoHawk"
+    }
+   ],
+   "blocks": [
+    {
+     "type": "paragraph",
+     "text": "À quelques heures du Black Friday, la société InfoHawk a publié le 27 novembre 2026 l'analyse d'un script de vol de données de paiement installé sur cinq boutiques en ligne : Lascana, Samsonite, American Tourister, Revolve et FWRD. Le code a été retiré les 24 et 25 novembre, après signalement. Le nombre de clients dont les données ont pu être captées reste inconnu, et la société n'a observé une exfiltration réelle que sur un seul site, Lascana, avec une carte de test."
+    },
+    {
+     "type": "paragraph",
+     "text": "L'intérêt de cette découverte tient moins au nombre de sites qu'à la technique. Le script utilise **WebRTC**, la technologie des navigateurs qui sert aux appels vidéo, pour recevoir son code et renvoyer les données volées. Or les outils de surveillance du trafic web regardent peu ce canal, et une règle de sécurité classique sur les requêtes sortantes ne le voit pas."
+    },
+    {
+     "type": "heading",
+     "level": 2,
+     "text": "Comment le script s'installe et se déclenche"
+    },
+    {
+     "type": "paragraph",
+     "text": "Selon InfoHawk, les attaquants ont utilisé trois voies d'entrée différentes, toutes reliées à la même infrastructure. Sur Lascana, c'est un pixel publicitaire de la plateforme Quorum qui a été modifié. Sur Samsonite et American Tourister, la configuration d'un bandeau de consentement aux cookies (Seers) a été altérée. Sur Revolve et FWRD, c'est un fichier hébergé sur le réseau de diffusion de contenu de Revolve qui a été changé."
+    },
+    {
+     "type": "list",
+     "items": [
+      "Le chargeur télécharge un fichier (`Insds.js` ou `gtage.js`) depuis un seau de stockage Amazon S3.",
+      "Il ne s'exécute que sur les écrans de petite taille ou tactiles ; sur Samsonite, uniquement sur la page `/checkout`.",
+      "Les échanges transitent par les serveurs de relais TURN de Cloudflare, ce qui masque la destination réelle.",
+      "Le code arrive par morceaux, est vérifié par une empreinte SHA-256, puis exécuté.",
+      "Les données saisies (numéro de carte, date d'expiration, cryptogramme, nom, adresse, téléphone, courriel) partent avant même la validation du paiement."
+     ]
+    },
+    {
+     "type": "paragraph",
+     "text": "Cette dernière caractéristique est importante : une carte peut être captée alors que la commande est ensuite refusée ou annulée, sans aucun signe visible pour l'acheteur. Et comme le script se réserve au mobile, un contrôle fait depuis un ordinateur ou une simple analyse de la page d'accueil passe à côté."
+    },
+    {
+     "type": "diagram",
+     "svg": "<svg xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"0 0 640 300\" font-family=\"system-ui,sans-serif\"><rect width=\"640\" height=\"300\" rx=\"14\" fill=\"#f3f5f9\"/><text x=\"320\" y=\"34\" font-size=\"17\" font-weight=\"700\" text-anchor=\"middle\" fill=\"#1b2433\">Le skimmer WebRTC : un canal discret jusqu'au paiement</text><rect x=\"20\" y=\"70\" width=\"126\" height=\"130\" rx=\"10\" fill=\"#fff\" stroke=\"#8a97ad\" stroke-width=\"1.5\"/><text x=\"83.0\" y=\"100\" font-size=\"13\" font-weight=\"700\" text-anchor=\"middle\" fill=\"#1b2433\"><tspan x=\"83.0\" dy=\"0\">1. Injection</tspan></text><text x=\"83.0\" y=\"150\" font-size=\"11\" text-anchor=\"middle\" fill=\"#3a475c\"><tspan x=\"83.0\" dy=\"0\">Cookie, pixel</tspan><tspan x=\"83.0\" dy=\"14\">ou fichier CDN</tspan></text><path d=\"M148 135 h20\" stroke=\"#5b6b85\" stroke-width=\"2.5\" marker-end=\"url(#a)\"/><rect x=\"170\" y=\"70\" width=\"126\" height=\"130\" rx=\"10\" fill=\"#fff\" stroke=\"#8a97ad\" stroke-width=\"1.5\"/><text x=\"233.0\" y=\"100\" font-size=\"13\" font-weight=\"700\" text-anchor=\"middle\" fill=\"#1b2433\"><tspan x=\"233.0\" dy=\"0\">2. Chargement</tspan></text><text x=\"233.0\" y=\"150\" font-size=\"11\" text-anchor=\"middle\" fill=\"#3a475c\"><tspan x=\"233.0\" dy=\"0\">Script depuis</tspan><tspan x=\"233.0\" dy=\"14\">un seau S3</tspan></text><path d=\"M298 135 h20\" stroke=\"#5b6b85\" stroke-width=\"2.5\" marker-end=\"url(#a)\"/><rect x=\"320\" y=\"70\" width=\"126\" height=\"130\" rx=\"10\" fill=\"#fff\" stroke=\"#8a97ad\" stroke-width=\"1.5\"/><text x=\"383.0\" y=\"100\" font-size=\"13\" font-weight=\"700\" text-anchor=\"middle\" fill=\"#1b2433\"><tspan x=\"383.0\" dy=\"0\">3. Relais</tspan></text><text x=\"383.0\" y=\"150\" font-size=\"11\" text-anchor=\"middle\" fill=\"#3a475c\"><tspan x=\"383.0\" dy=\"0\">WebRTC via les</tspan><tspan x=\"383.0\" dy=\"14\">serveurs TURN</tspan><tspan x=\"383.0\" dy=\"14\">de Cloudflare</tspan></text><path d=\"M448 135 h20\" stroke=\"#5b6b85\" stroke-width=\"2.5\" marker-end=\"url(#a)\"/><rect x=\"470\" y=\"70\" width=\"126\" height=\"130\" rx=\"10\" fill=\"#fff\" stroke=\"#8a97ad\" stroke-width=\"1.5\"/><text x=\"533.0\" y=\"100\" font-size=\"13\" font-weight=\"700\" text-anchor=\"middle\" fill=\"#1b2433\"><tspan x=\"533.0\" dy=\"0\">4. Vol</tspan></text><text x=\"533.0\" y=\"150\" font-size=\"11\" text-anchor=\"middle\" fill=\"#3a475c\"><tspan x=\"533.0\" dy=\"0\">Données saisies</tspan><tspan x=\"533.0\" dy=\"14\">au paiement</tspan></text><defs><marker id=\"a\" markerWidth=\"8\" markerHeight=\"8\" refX=\"6\" refY=\"4\" orient=\"auto\"><path d=\"M0 0 L8 4 L0 8 z\" fill=\"#5b6b85\"/></marker></defs><text x=\"320\" y=\"250\" font-size=\"12\" text-anchor=\"middle\" fill=\"#3a475c\">Source : analyse d'InfoHawk, 27 novembre 2026</text></svg>",
+     "alt": "Schéma en quatre étapes : injection du code, chargement depuis un seau S3, relais WebRTC via Cloudflare, vol des données au paiement.",
+     "caption": "Les quatre étapes du skimmer décrit par InfoHawk."
+    },
+    {
+     "type": "heading",
+     "level": 2,
+     "text": "Ce que recommandent les chercheurs"
+    },
+    {
+     "type": "paragraph",
+     "text": "Pour les exploitants de sites, InfoHawk conseille de définir une règle `connect-src` (politique de sécurité du contenu) sur chaque page de paiement, afin de n'autoriser que les domaines réellement utilisés ; seule l'étape de négociation de connexion est une requête web ordinaire, donc bloquable. Il recommande aussi de revoir ou retirer les pixels de suivi tiers sur les pages de paiement, de limiter qui peut les modifier, et d'isoler les champs de carte dans un cadre de paiement dédié."
+    },
+    {
+     "type": "paragraph",
+     "text": "Pour les clients, la consigne est de vérifier ses relevés, de contacter sa banque au moindre débit inconnu et de demander un nouveau numéro de carte. L'article cite des règles de responsabilité propres aux États-Unis ; en France, les modalités de contestation d'une opération non autorisée relèvent du code monétaire et financier, et la banque est le premier interlocuteur."
+    },
+    {
+     "type": "usecases",
+     "title": "Exemples d'utilisation",
+     "items": [
+      {
+       "icon": "🛒",
+       "title": "Un e-commerçant français",
+       "text": "Il recense les scripts tiers de sa page de paiement, supprime les pixels inutiles et ajoute une politique `connect-src` stricte."
+      },
+      {
+       "icon": "🔎",
+       "title": "Une équipe sécurité",
+       "text": "Elle recherche dans les journaux les requêtes vers `/_cf/ice` et `/_cf/rel` depuis des écrans de téléphone, ainsi que les chaînes `KghRtc` ou `rtc-signal-v1`."
+      },
+      {
+       "icon": "📱",
+       "title": "Un acheteur sur mobile",
+       "text": "Il surveille ses relevés bancaires après les achats du Black Friday et fait opposition à sa carte en cas de débit suspect."
+      }
+     ]
+    },
+    {
+     "type": "timeline",
+     "title": "D'où l'on vient, où l'on va",
+     "items": [
+      {
+       "label": "16 novembre 2026",
+       "text": "Selon InfoHawk, un attaquant aurait exploité une faille d'Optimizely pour injecter du code chez 178 organisations."
+      },
+      {
+       "label": "24 novembre 2026",
+       "text": "InfoHawk prévient les entreprises concernées ; le code est retiré de Lascana, Samsonite et American Tourister."
+      },
+      {
+       "label": "25 novembre 2026",
+       "text": "Revolve confirme avoir retiré le fichier modifié de son réseau de diffusion."
+      },
+      {
+       "label": "27 novembre 2026",
+       "text": "Publication de l'analyse, la veille du Black Friday."
+      }
+     ]
+    },
+    {
+     "type": "opinion",
+     "title": "Notre avis",
+     "paragraphs": [
+      "Ce cas illustre un problème ancien du commerce en ligne : la page de paiement charge du code que la boutique ne contrôle pas, celui de ses prestataires de marketing et de consentement. Compromettre un seul de ces fournisseurs suffit à atteindre plusieurs enseignes à la fois, comme l'a montré la découverte de trois voies d'entrée pour une seule infrastructure.",
+      "Le recours à WebRTC et à des relais Cloudflare laisse prévoir une course entre attaquants et défenseurs : d'ici un à trois ans, les politiques de sécurité du contenu et l'isolation des champs de paiement deviendront probablement la norme, non par choix mais par nécessité. C'est une projection, pas un fait établi."
+     ],
+     "verdict": "Le maillon faible n'est plus la boutique, mais la chaîne de scripts tiers qu'elle charge."
+    },
+    {
+     "type": "callout",
+     "title": "À retenir",
+     "text": "Sur les pages de paiement, chaque script tiers est un risque : limitez-les, isolez les champs de carte et surveillez aussi le trafic WebRTC."
+    }
+   ],
+   "cover": {
+    "url": "https://www.infohawk.com/_app/immutable/assets/2026-11-27-black-friday-webrtc-skimmer.BQAmEGg5.png",
+    "alt": "Black Friday : un skimmer bancaire qui passe par WebRTC a été découvert sur cinq boutiques en ligne",
+    "credit": "www.infohawk.com"
+   }
+  },
+  {
+   "id": "q-dir-desktopok-installateurs-pieges",
+   "category": "cybersecurite",
+   "title": "Q-Dir et DesktopOK : des installateurs officiels piégés diffusent un cheval de Troie d'accès à distance",
+   "summary": "AhnLab révèle que des installateurs de Q-Dir et DesktopOK, servis par le site officiel de SoftwareOK, ont été modifiés pour installer un outil de contrôle à distance écrit en Python. La méthode d'intrusion n'est pas connue.",
+   "tags": [
+    "chaîne d'approvisionnement",
+    "RAT",
+    "Q-Dir",
+    "DesktopOK",
+    "AhnLab",
+    "Windows"
+   ],
+   "importance": 4,
+   "readingMinutes": 3,
+   "publishedAt": "2026-11-28T04:17:19+01:00",
+   "sourceDate": "2026-11-27",
+   "icon": "🧰",
+   "illustration": {
+    "svg": "<svg xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"0 0 640 360\"><defs><linearGradient id=\"g\" x1=\"0\" y1=\"0\" x2=\"1\" y2=\"1\"><stop offset=\"0\" stop-color=\"hsl(175,65%,34%)\"/><stop offset=\"1\" stop-color=\"hsl(215,70%,50%)\"/></linearGradient></defs><rect width=\"640\" height=\"360\" fill=\"url(#g)\"/><circle cx=\"520\" cy=\"80\" r=\"110\" fill=\"#fff\" opacity=\".12\"/><circle cx=\"90\" cy=\"300\" r=\"80\" fill=\"#fff\" opacity=\".10\"/><rect x=\"60\" y=\"70\" width=\"297\" height=\"14\" rx=\"7\" fill=\"#fff\" opacity=\".35\"/><rect x=\"60\" y=\"100\" width=\"237\" height=\"14\" rx=\"7\" fill=\"#fff\" opacity=\".25\"/><rect x=\"60\" y=\"130\" width=\"90\" height=\"14\" rx=\"7\" fill=\"#fff\" opacity=\".2\"/><text x=\"320\" y=\"225\" font-size=\"120\" text-anchor=\"middle\" font-family=\"system-ui,sans-serif\">🧰</text></svg>"
+   },
+   "sources": [
+    {
+     "title": "Hackers Trojanize Official Q-Dir and DesktopOK Downloads to Deliver Remote Access Malware",
+     "url": "https://thehackernews.com/2026/11/hackers-trojanize-official-q-dir-and.html",
+     "publisher": "The Hacker News"
+    }
+   ],
+   "blocks": [
+    {
+     "type": "paragraph",
+     "text": "Les chercheurs de la société sud-coréenne AhnLab ont révélé le 27 novembre 2026 une attaque sur la chaîne d'approvisionnement logicielle : des installateurs de **Q-Dir** et de **DesktopOK**, proposés sur le site officiel de l'éditeur SoftwareOK, ont été modifiés pour installer discrètement un cheval de Troie d'accès à distance. Q-Dir est un gestionnaire de fichiers gratuit pour Windows ; DesktopOK enregistre et restaure la position des icônes du bureau. Deux outils modestes, mais très répandus chez les administrateurs et les utilisateurs avancés."
+    },
+    {
+     "type": "heading",
+     "level": 2,
+     "text": "Versions touchées et portée"
+    },
+    {
+     "type": "paragraph",
+     "text": "Selon AhnLab, des fichiers piégés ont été servis aussi bien lors d'un téléchargement direct depuis la page officielle que pendant la mise à jour de programmes déjà installés. Les versions identifiées comme compromises sont les suivantes."
+    },
+    {
+     "type": "list",
+     "items": [
+      "Q-Dir 12.85.0.0, 12.84.0.0 et 12.83.0.0.",
+      "DesktopOK 12.85.0.0 et 12.82.0.0."
+     ]
+    },
+    {
+     "type": "paragraph",
+     "text": "Les chercheurs ont repéré ces fichiers grâce à des empreintes SHA-256 qui ne correspondaient pas à celles des versions légitimes et à du code supplémentaire déclenchant des téléchargements. Le mode d'intrusion, c'est-à-dire la manière dont les installateurs ont été remplacés, n'est pas expliqué dans l'article consulté."
+    },
+    {
+     "type": "heading",
+     "level": 2,
+     "text": "La chaîne d'infection"
+    },
+    {
+     "type": "paragraph",
+     "text": "L'installateur piégé lance d'abord le vrai programme, pour que l'utilisateur ne remarque rien. En arrière-plan, il télécharge depuis le domaine `mail.c1a2[.]top` deux fichiers : `7zr.exe`, un exécutable légitime de 7-Zip servant à décompresser, et une archive contenant le cheval de Troie avec un environnement Python. La persistance est assurée par une tâche planifiée déguisée en composant de Microsoft Edge, qui exécute un script nommé `py_client_dsv2.py`."
+    },
+    {
+     "type": "paragraph",
+     "text": "Le programme contacte ensuite un serveur de commande à l'adresse 8.210.69[.]51, sur le port 9876. Il peut exécuter des commandes système et du code Python, envoyer et recevoir des fichiers, faire des captures d'écran et collecter des informations sur le système. Il examine aussi les processus en cours pour repérer des produits de sécurité, dont ceux d'AhnLab, CrowdStrike, SentinelOne, Kaspersky ou ESET, et transmet le résultat aux opérateurs, ce qui peut servir à adapter les étapes suivantes."
+    },
+    {
+     "type": "paragraph",
+     "text": "Aucun acteur n'est identifié. AhnLab note des commentaires en chinois dans le code, ce qui indique un environnement de développement sinophone sans suffire à une attribution."
+    },
+    {
+     "type": "heading",
+     "level": 2,
+     "text": "Que faire"
+    },
+    {
+     "type": "paragraph",
+     "text": "AhnLab recommande de vérifier les empreintes des fichiers téléchargés, de rechercher des environnements Python inhabituels, des tâches planifiées inconnues et du trafic sortant inattendu, puis de mettre à jour son antivirus et de lancer une analyse complète. Point important : réinstaller le programme ne suffit pas, car le cheval de Troie peut survivre à une désinstallation."
+    },
+    {
+     "type": "usecases",
+     "title": "Exemples d'utilisation",
+     "items": [
+      {
+       "icon": "🧑‍💻",
+       "title": "Un administrateur système",
+       "text": "Il liste les postes où Q-Dir ou DesktopOK sont installés, compare les empreintes avec celles publiées et cherche une tâche planifiée « Edge » inhabituelle."
+      },
+      {
+       "icon": "🏢",
+       "title": "Une PME sans service informatique",
+       "text": "Elle bloque les domaines et l'adresse IP cités dans l'alerte au niveau du pare-feu et demande à son prestataire une analyse des postes concernés."
+      },
+      {
+       "icon": "🔐",
+       "title": "Un responsable de la sécurité",
+       "text": "Il ajoute aux règles de surveillance les lancements de `7zr.exe` suivis d'un script Python depuis un dossier utilisateur."
+      }
+     ]
+    },
+    {
+     "type": "timeline",
+     "title": "D'où l'on vient, où l'on va",
+     "items": [
+      {
+       "label": "Juin à novembre 2026",
+       "text": "Les versions piégées citées s'échelonnent de la 12.82 à la 12.85 ; la date exacte de la compromission n'est pas précisée."
+      },
+      {
+       "label": "27 novembre 2026",
+       "text": "AhnLab publie son analyse ; aucun acteur n'est attribué."
+      },
+      {
+       "label": "Prochainement",
+       "text": "L'éditeur devra expliquer comment ses installateurs ont été remplacés ; l'article ne donne pas encore cette information."
+      }
+     ]
+    },
+    {
+     "type": "opinion",
+     "title": "Notre avis",
+     "paragraphs": [
+      "L'attaque rappelle qu'un site officiel n'est pas une garantie : si le serveur de distribution est compromis, la confiance dans le domaine ne protège plus. Les victimes les plus exposées sont ici des profils techniques, qui installent volontiers de petits utilitaires hors des circuits de gestion centralisés.",
+      "Dans un à trois ans, la vérification systématique des empreintes ou des signatures, et la liste des logiciels autorisés en entreprise, devraient se généraliser. Les petits éditeurs indépendants, qui n'ont pas les moyens de sécuriser leur chaîne de publication, resteront des cibles attractives."
+     ],
+     "verdict": "Un téléchargement depuis le site officiel doit désormais être vérifié, pas seulement supposé sûr."
+    },
+    {
+     "type": "callout",
+     "title": "À retenir",
+     "text": "Si vous avez installé ou mis à jour Q-Dir ou DesktopOK récemment, vérifiez la version et les tâches planifiées avant de simplement réinstaller."
+    }
+   ],
+   "cover": {
+    "url": "https://blogger.googleusercontent.com/img/b/R29vZ2xl/AVvXsEhSXVfewkMqSKHEHRrAVXFHFOsMisOpBVnJ_sWbNNQQXuSWTHU5Y8AZW18gdQq7eI5N4l1dXoeBXVuqGGNClEK0U55LHgLYUxmopN9JHaMrYtrt4QrtWmk3uIvX8FzE2jL7Rf-oOG2fiDzj4g99wYn1Ih9uAOmyD0DtWN7ZqkG5UTd3xRYSRnIurQuT437O/s1600/trojan.jpg",
+    "alt": "Q-Dir et DesktopOK : des installateurs officiels piégés diffusent un cheval de Troie d'accès à distance",
+    "credit": "thehackernews.com"
+   }
+  },
+  {
+   "id": "vinci-rat-application-microsoft-store",
+   "category": "cybersecurite",
+   "title": "Vinci RAT : une application du Microsoft Store sert de porte d'entrée à un cheval de Troie d'accès à distance",
+   "summary": "D'après eSentire, une fausse application « Setup Assistant » publiée sur le Microsoft Store, promue via un faux site d'outil de capture, déploie un outil PowerShell de contrôle à distance. Microsoft aurait répondu que l'application ne violait pas ses conditions.",
+   "tags": [
+    "Vinci RAT",
+    "Microsoft Store",
+    "PowerShell",
+    "eSentire",
+    "Electron",
+    "hameçonnage"
+   ],
+   "importance": 3,
+   "readingMinutes": 3,
+   "publishedAt": "2026-11-28T04:17:19+01:00",
+   "sourceDate": "2026-11-27",
+   "icon": "🪟",
+   "illustration": {
+    "svg": "<svg xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"0 0 640 360\"><defs><linearGradient id=\"g\" x1=\"0\" y1=\"0\" x2=\"1\" y2=\"1\"><stop offset=\"0\" stop-color=\"hsl(175,65%,34%)\"/><stop offset=\"1\" stop-color=\"hsl(215,70%,50%)\"/></linearGradient></defs><rect width=\"640\" height=\"360\" fill=\"url(#g)\"/><circle cx=\"520\" cy=\"80\" r=\"110\" fill=\"#fff\" opacity=\".12\"/><circle cx=\"90\" cy=\"300\" r=\"80\" fill=\"#fff\" opacity=\".10\"/><rect x=\"60\" y=\"70\" width=\"297\" height=\"14\" rx=\"7\" fill=\"#fff\" opacity=\".35\"/><rect x=\"60\" y=\"100\" width=\"237\" height=\"14\" rx=\"7\" fill=\"#fff\" opacity=\".25\"/><rect x=\"60\" y=\"130\" width=\"90\" height=\"14\" rx=\"7\" fill=\"#fff\" opacity=\".2\"/><text x=\"320\" y=\"225\" font-size=\"120\" text-anchor=\"middle\" font-family=\"system-ui,sans-serif\">🪟</text></svg>"
+   },
+   "sources": [
+    {
+     "title": "Microsoft Store App Found Delivering Vinci RAT Capable of Remote System Control",
+     "url": "https://thehackernews.com/2026/11/microsoft-store-app-found-delivering.html",
+     "publisher": "The Hacker News"
+    }
+   ],
+   "blocks": [
+    {
+     "type": "paragraph",
+     "text": "La société canadienne eSentire a décrit le 27 novembre 2026 une campagne qui combine redirection depuis des moteurs de recherche, faux sites de téléchargement et application publiée sur un canal de distribution de confiance : le **Microsoft Store**. L'objectif est d'installer un cheval de Troie d'accès à distance baptisé Vinci RAT, entièrement écrit en PowerShell."
+    },
+    {
+     "type": "heading",
+     "level": 2,
+     "text": "Du faux outil de capture au cheval de Troie"
+    },
+    {
+     "type": "paragraph",
+     "text": "Tout commence par un site qui imite un outil de capture d'écran (`snipp.codes-team[.]com`). Il fournit un installateur nommé `Snipping-Tool.exe`, décrit comme signé par Microsoft. Son exécution installe une application Electron nommée « Setup Assistant », publiée sur le Microsoft Store par un éditeur appelé ETPS Ltd. et mise en ligne pour la première fois le 1er juin 2026. Au moment de la publication de l'article, elle n'est plus accessible."
+    },
+    {
+     "type": "paragraph",
+     "text": "L'application contient un code JavaScript très obscurci. Elle contacte `setup-assistant[.]com` pour récupérer du code PowerShell ou JavaScript arbitraire. Deux mécanismes le déclenchent : la surveillance du dossier Téléchargements, qui réagit à l'arrivée de fichiers nommés `MSTeamsSetup.exe` ou `Reader_install.exe`, et une commande de mise à jour poussée par le serveur."
+    },
+    {
+     "type": "list",
+     "items": [
+      "Un chargeur PowerShell désactive AMSI, l'interface d'analyse des scripts de Windows.",
+      "Il génère un identifiant unique de victime et contacte `monkeysholder[.]info/api.php`.",
+      "Il crée une tâche planifiée qui s'exécute toutes les 10 minutes pour télécharger la charge utile."
+     ]
+    },
+    {
+     "type": "heading",
+     "level": 2,
+     "text": "Ce que peut faire Vinci RAT"
+    },
+    {
+     "type": "paragraph",
+     "text": "Le cheval de Troie recense la machine et les outils de sécurité installés, ouvre un shell à distance ou inversé, dépose des fichiers et exécute des charges de type shellcode, DLL, EXE ou PowerShell. Les chercheurs ont aussi relevé des sous-domaines qui imitent des téléchargements de Microsoft Teams et de Roblox, sur le domaine racine `codes-team[.]com`, enregistré fin mars 2026."
+    },
+    {
+     "type": "heading",
+     "level": 2,
+     "text": "Une réponse de Microsoft qui interroge"
+    },
+    {
+     "type": "paragraph",
+     "text": "eSentire a signalé l'application à Microsoft le 10 novembre 2026 via le formulaire d'abus. Selon l'entreprise, Microsoft a répondu qu'il ne s'agissait pas d'une violation de ses conditions. On ne sait pas si l'application a ensuite été retirée par Microsoft ou par les attaquants."
+    },
+    {
+     "type": "usecases",
+     "title": "Exemples d'utilisation",
+     "items": [
+      {
+       "icon": "🛡️",
+       "title": "Une équipe de détection",
+       "text": "Elle crée une alerte sur les tâches planifiées exécutées toutes les 10 minutes et sur les scripts PowerShell qui désactivent AMSI."
+      },
+      {
+       "icon": "🏢",
+       "title": "Un service informatique",
+       "text": "Il restreint l'installation d'applications du Store aux éditeurs approuvés et bloque les domaines indiqués par eSentire."
+      },
+      {
+       "icon": "👤",
+       "title": "Un utilisateur de Windows",
+       "text": "Il télécharge ses outils depuis le site de l'éditeur ou le magasin géré par son entreprise, et se méfie des résultats de recherche sponsorisés."
+      }
+     ]
+    },
+    {
+     "type": "timeline",
+     "title": "D'où l'on vient, où l'on va",
+     "items": [
+      {
+       "label": "Fin mars 2026",
+       "text": "Enregistrement du domaine racine `codes-team[.]com`."
+      },
+      {
+       "label": "1er juin 2026",
+       "text": "Première publication de « Setup Assistant » sur le Microsoft Store."
+      },
+      {
+       "label": "10 novembre 2026",
+       "text": "eSentire signale l'application à Microsoft."
+      },
+      {
+       "label": "27 novembre 2026",
+       "text": "Publication de l'analyse ; l'application n'est plus accessible."
+      }
+     ]
+    },
+    {
+     "type": "opinion",
+     "title": "Notre avis",
+     "paragraphs": [
+      "L'épisode montre les limites d'une confiance accordée au simple fait de passer par un magasin officiel. Une signature ou une présence sur le Store prouve une origine, pas une intention. Le plus gênant est la réponse attribuée à Microsoft, qui laisse entendre que le contrôle porte sur les conditions d'utilisation plus que sur le comportement réel du logiciel.",
+      "À un horizon d'un à trois ans, on peut s'attendre à des analyses dynamiques plus poussées des applications publiées et à une pression accrue des entreprises pour restreindre les magasins applicatifs. Ce n'est qu'une projection fondée sur la tendance, pas une annonce."
+     ],
+     "verdict": "Le Store n'est pas un label de sécurité : il faut juger une application sur ce qu'elle fait."
+    },
+    {
+     "type": "callout",
+     "title": "À retenir",
+     "text": "Méfiez-vous des outils « utilitaires » trouvés via une recherche : vérifiez l'éditeur et préférez les sources officielles de l'outil."
+    }
+   ],
+   "cover": {
+    "url": "https://blogger.googleusercontent.com/img/b/R29vZ2xl/AVvXsEjpD815FTK1v-12AKbFYOz3fplAY5EWVRrb1mh5LOUSmUmG7u7mdgGnppCpL9-ZaG-3CyWm_2KP4icW3UY1Q3AYG6lEe03ezqY9Jx49mW9SC4D0JqiUhT-Rmet7lin7u1bHdyppzeay-bTKDty53IDUI_P9md3iUp5xaY-ko1U2uBRTkNdPhAVTYuW9hDmO/s1600/ms-store.png",
+    "alt": "Vinci RAT : une application du Microsoft Store sert de porte d'entrée à un cheval de Troie d'accès à distance",
+    "credit": "thehackernews.com"
+   }
+  },
+  {
+   "id": "deepcrossattention-google-connexions-residuelles",
+   "category": "ia",
+   "title": "DeepCrossAttention : Google Research veut remplacer les connexions résiduelles des transformeurs par un routage appris",
+   "summary": "Dans un billet daté du 23 novembre 2026, Google Research présente DCA, une modification des connexions résiduelles qui permet d'atteindre une qualité équivalente en moins d'étapes d'entraînement, avec moins de 0,2 % de paramètres supplémentaires.",
+   "tags": [
+    "transformeurs",
+    "Google Research",
+    "architecture",
+    "apprentissage",
+    "DCA",
+    "recherche"
+   ],
+   "importance": 3,
+   "readingMinutes": 3,
+   "publishedAt": "2026-11-28T04:17:19+01:00",
+   "sourceDate": "2026-11-23",
+   "icon": "🧠",
+   "illustration": {
+    "svg": "<svg xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"0 0 640 360\"><defs><linearGradient id=\"g\" x1=\"0\" y1=\"0\" x2=\"1\" y2=\"1\"><stop offset=\"0\" stop-color=\"hsl(320,65%,34%)\"/><stop offset=\"1\" stop-color=\"hsl(0,70%,50%)\"/></linearGradient></defs><rect width=\"640\" height=\"360\" fill=\"url(#g)\"/><circle cx=\"520\" cy=\"80\" r=\"110\" fill=\"#fff\" opacity=\".12\"/><circle cx=\"90\" cy=\"300\" r=\"80\" fill=\"#fff\" opacity=\".10\"/><rect x=\"60\" y=\"70\" width=\"297\" height=\"14\" rx=\"7\" fill=\"#fff\" opacity=\".35\"/><rect x=\"60\" y=\"100\" width=\"237\" height=\"14\" rx=\"7\" fill=\"#fff\" opacity=\".25\"/><rect x=\"60\" y=\"130\" width=\"90\" height=\"14\" rx=\"7\" fill=\"#fff\" opacity=\".2\"/><text x=\"320\" y=\"225\" font-size=\"120\" text-anchor=\"middle\" font-family=\"system-ui,sans-serif\">🧠</text></svg>"
+   },
+   "sources": [
+    {
+     "title": "Supercharging transformer residual connections",
+     "url": "https://research.google/blog/supercharging-transformer-residual-connections/",
+     "publisher": "Google Research"
+    }
+   ],
+   "blocks": [
+    {
+     "type": "paragraph",
+     "text": "Les modèles de langage actuels reposent sur des empilements de dizaines de couches, reliées par des **connexions résiduelles** : la sortie d'une couche est simplement ajoutée à son entrée, avec le même poids. Dans un billet daté du 23 novembre 2026, deux chercheurs de Google Research, Kyriakos Axiotis et Thomas Fu, défendent l'idée de remplacer cette addition fixe par un routage appris. Leur méthode, nommée **DeepCrossAttention** (DCA), a été présentée à la conférence ICML 2025 (arXiv : 2502.06785)."
+    },
+    {
+     "type": "heading",
+     "level": 2,
+     "text": "Le problème : une information qui se dilue"
+    },
+    {
+     "type": "paragraph",
+     "text": "Selon les auteurs, l'addition à poids égaux provoque une « dilution de l'information » : les caractéristiques fines des premières couches sont moyennées ou déformées en profondeur, et le réseau doit les réapprendre, ce qui ralentit l'apprentissage. L'idée de DCA est de laisser chaque jeton choisir, couche après couche, quelles sorties antérieures il réutilise."
+    },
+    {
+     "type": "heading",
+     "level": 2,
+     "text": "Comment DCA fonctionne"
+    },
+    {
+     "type": "list",
+     "items": [
+      "**Routage dynamique des couches** : pour chaque jeton, des poids de mélange sont calculés à partir d'une base apprise et d'une projection dépendant de l'entrée. Le réseau peut ainsi passer d'un traitement séquentiel à un traitement plus parallèle selon le contexte.",
+      "**Attention en profondeur** : l'attention ne porte plus sur les jetons, mais sur les couches. Chaque jeton interroge un mélange pondéré de toutes les sorties précédentes, avec des projections séparées pour les requêtes, les clés et les valeurs."
+     ]
+    },
+    {
+     "type": "paragraph",
+     "text": "DCA peut être initialisé de façon à se comporter comme un réseau résiduel classique, ce qui permet de l'ajouter à un modèle déjà entraîné."
+    },
+    {
+     "type": "heading",
+     "level": 2,
+     "text": "Les résultats annoncés"
+    },
+    {
+     "type": "list",
+     "items": [
+      "Sur les corpus C4 et LM1B, DCA atteint la qualité d'un transformeur standard en jusqu'à cinq fois moins d'étapes d'entraînement.",
+      "À budget égal, la perplexité est plus basse. Pour passer sous 14 sur LM1B, il faut 42 couches avec un transformeur standard contre 30 avec DCA, soit 29 % de profondeur et de paramètres en moins.",
+      "Le surcoût est inférieur à 0,2 % des paramètres totaux.",
+      "Greffé sur un transformeur préentraîné, puis entraîné brièvement, DCA réduit la perplexité sur LM1B de 0,19, contre 0,02 pour la poursuite d'un entraînement classique."
+     ]
+    },
+    {
+     "type": "callout",
+     "title": "Prudence sur les chiffres",
+     "text": "Le billet est incohérent sur certains chiffres : l'accélération est donnée tantôt comme « jusqu'à trois fois », tantôt comme « jusqu'à cinq fois », et l'économie de paramètres tantôt à 29 %, tantôt à 30-40 %. Les résultats détaillés sont dans l'article scientifique."
+    },
+    {
+     "type": "usecases",
+     "title": "Exemples d'utilisation",
+     "items": [
+      {
+       "icon": "🏭",
+       "title": "Un laboratoire qui entraîne un modèle",
+       "text": "Il cherche à atteindre une qualité cible avec moins d'étapes, donc moins d'heures de calcul."
+      },
+      {
+       "icon": "📲",
+       "title": "Une équipe qui vise des modèles plus compacts",
+       "text": "Elle réduit la profondeur du réseau à qualité comparable, ce qui allège la mémoire nécessaire à l'inférence."
+      },
+      {
+       "icon": "🔬",
+       "title": "Un groupe de recherche",
+       "text": "Il greffe DCA sur un modèle préentraîné pour tester le gain sans repartir de zéro."
+      }
+     ]
+    },
+    {
+     "type": "timeline",
+     "title": "D'où l'on vient, où l'on va",
+     "items": [
+      {
+       "label": "2025",
+       "text": "Présentation de DCA à la conférence ICML ; l'article est publié sur arXiv sous la référence 2502.06785."
+      },
+      {
+       "label": "23 novembre 2026",
+       "text": "Google Research publie un billet de synthèse et le situe parmi d'autres approches : attention sur les couches, hyper-connexions et variantes contraintes."
+      },
+      {
+       "label": "À venir",
+       "text": "Les auteurs ne précisent pas de calendrier d'intégration dans des modèles de production."
+      }
+     ]
+    },
+    {
+     "type": "opinion",
+     "title": "Notre avis",
+     "paragraphs": [
+      "DCA s'attaque à un composant que l'on ne remet presque jamais en cause. Si les gains sur des corpus de taille modeste se confirment à très grande échelle, l'économie serait réelle : moins d'étapes pour une qualité équivalente, c'est du calcul et de l'énergie en moins. Mais les benchmarks cités restent des modèles de langage de taille limitée, et le billet reste vague sur les protocoles.",
+      "Sur un à trois ans, on peut raisonnablement attendre une cohabitation de plusieurs variantes de routage entre couches, la plus simple et la plus stable l'emportant dans les modèles industriels. C'est une anticipation, non un résultat."
+     ],
+     "verdict": "Une piste prometteuse et peu coûteuse, à confirmer à l'échelle des grands modèles."
+    }
+   ],
+   "cover": {
+    "url": "https://storage.googleapis.com/gweb-research2023-media/images/HO_previewImage1.width-800.format-jpeg.jpg",
+    "alt": "DeepCrossAttention : Google Research veut remplacer les connexions résiduelles des transformeurs par un routage appris",
+    "credit": "research.google"
+   }
+  },
+  {
+   "id": "gpt-6-2-astra-carnet-esquisses-1808",
+   "category": "ia",
+   "title": "Un modèle d'IA identifie l'auteur d'un carnet d'esquisses de 1808 : un historien raconte comment il a vérifié le résultat",
+   "summary": "L'historien Mark Humphries affirme que GPT-6.2 Astra, un modèle d'OpenAI en préversion, a désigné en 22 minutes le vicomte de Chabot comme l'auteur d'un carnet conservé à Yale. L'historien a ensuite recoupé les archives, mais il s'agit d'un billet de blog, non d'une étude évaluée.",
+   "tags": [
+    "OpenAI",
+    "histoire",
+    "archives",
+    "GPT-6.2",
+    "recherche",
+    "vérification"
+   ],
+   "importance": 4,
+   "readingMinutes": 3,
+   "publishedAt": "2026-11-28T04:17:19+01:00",
+   "sourceDate": "2026-11-24",
+   "icon": "📜",
+   "illustration": {
+    "svg": "<svg xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"0 0 640 360\"><defs><linearGradient id=\"g\" x1=\"0\" y1=\"0\" x2=\"1\" y2=\"1\"><stop offset=\"0\" stop-color=\"hsl(320,65%,34%)\"/><stop offset=\"1\" stop-color=\"hsl(0,70%,50%)\"/></linearGradient></defs><rect width=\"640\" height=\"360\" fill=\"url(#g)\"/><circle cx=\"520\" cy=\"80\" r=\"110\" fill=\"#fff\" opacity=\".12\"/><circle cx=\"90\" cy=\"300\" r=\"80\" fill=\"#fff\" opacity=\".10\"/><rect x=\"60\" y=\"70\" width=\"297\" height=\"14\" rx=\"7\" fill=\"#fff\" opacity=\".35\"/><rect x=\"60\" y=\"100\" width=\"237\" height=\"14\" rx=\"7\" fill=\"#fff\" opacity=\".25\"/><rect x=\"60\" y=\"130\" width=\"90\" height=\"14\" rx=\"7\" fill=\"#fff\" opacity=\".2\"/><text x=\"320\" y=\"225\" font-size=\"120\" text-anchor=\"middle\" font-family=\"system-ui,sans-serif\">📜</text></svg>"
+   },
+   "sources": [
+    {
+     "title": "GPT 6.2 Astra Solves a Historical Mystery",
+     "url": "https://generativehistory.substack.com/p/gpt-62-astra-solves-a-historical",
+     "publisher": "Generative History"
+    }
+   ],
+   "blocks": [
+    {
+     "type": "paragraph",
+     "text": "L'historien canadien Mark Humphries, spécialiste de l'histoire du Canada et de la traite des fourrures, raconte dans un billet publié le 24 novembre 2026 comment un modèle d'IA l'a aidé à résoudre une énigme qui l'occupait depuis des années : qui a dessiné un carnet d'esquisses anonyme conservé à la bibliothèque Beinecke de l'université Yale (cote WA MSS S-4271) ? Le billet a suscité beaucoup de réactions sur les forums techniques, d'où l'intérêt de distinguer ce qui est établi de ce qui est simplement raconté."
+    },
+    {
+     "type": "heading",
+     "level": 2,
+     "text": "L'énigme"
+    },
+    {
+     "type": "paragraph",
+     "text": "Le carnet compte 84 pages, dont 34 portent des dessins ou des aquarelles. Il relate un voyage de 1808 entre Montréal et Fort William, puis le retour. Ses images représentent des sites des Grands Lacs aujourd'hui détruits, ce qui lui donne une valeur historique. Mais des milliers de personnes ont fait ce trajet cette année-là : l'auteur pouvait être presque n'importe qui."
+    },
+    {
+     "type": "heading",
+     "level": 2,
+     "text": "Ce que le modèle a fait"
+    },
+    {
+     "type": "paragraph",
+     "text": "Humphries a fourni à GPT-6.2 Astra, un modèle d'OpenAI qu'il décrit comme une préversion, les images du carnet, une consigne demandant d'identifier l'artiste et son propre article sur les mémoires d'Alexander Henry. Il avait aussi cité deux candidats, Kendall et Berczy. Le modèle les a écartés en les situant ailleurs aux dates des dessins, puis a consulté des sources primaires et secondaires. En une vingtaine de minutes (22 selon l'historien), il a conclu que l'auteur était probablement Louis-Guy-Charles-Guillaume de Rohan-Chabot, vicomte de Chabot (1780-1875), et suggéré de commander un journal sur microfilm."
+    },
+    {
+     "type": "list",
+     "items": [
+      "Le journal de Joseph Frobisher, qui note le départ de Chabot de Lachine le 6 juin 1808.",
+      "Une lettre de John Askin Jr., publiée il y a un siècle, qui place Chabot au fort Saint-Joseph à la mi-juin.",
+      "Une note de bas de page d'une thèse de l'université de Leeds (2014) de Juliette Reboul, qui cite un journal de Chabot."
+     ]
+    },
+    {
+     "type": "heading",
+     "level": 2,
+     "text": "La vérification"
+    },
+    {
+     "type": "paragraph",
+     "text": "Humphries a commandé les documents. L'écriture correspond aux formes de lettres particulières du carnet, l'itinéraire du journal coïncide avec les dessins datés, et une entrée du 18 juin 1808 au fort Saint-Joseph indique que Chabot a « pris un croquis » du fort, ce qui correspond à un dessin du carnet. La partie du journal consacrée au Haut-Pays compte environ 162 pages ; l'autre partie, sur le Bas-Canada, est détenue par des archives familiales privées en France."
+    },
+    {
+     "type": "callout",
+     "title": "Limites",
+     "text": "Il s'agit d'un billet de blog, non d'une publication évaluée par des pairs. L'historien reconnaît que le raisonnement du modèle n'est visible que par résumés. Un second modèle (Fable 5.2) serait arrivé à la même identification en environ 35 minutes, mais sans trouver le journal. Un commentateur, Timothy Burke, rappelle qu'il s'agit d'attribution documentaire, non d'interprétation historique."
+    },
+    {
+     "type": "usecases",
+     "title": "Exemples d'utilisation",
+     "items": [
+      {
+       "icon": "🏛️",
+       "title": "Un service d'archives",
+       "text": "Il fait chercher parmi ses fonds anonymes des attributions probables, puis fait vérifier chaque piste par un archiviste."
+      },
+      {
+       "icon": "🎓",
+       "title": "Un historien",
+       "text": "Il utilise le modèle pour proposer des pistes de sources à commander, en contrôlant lui-même chaque document avant de conclure."
+      },
+      {
+       "icon": "📚",
+       "title": "Une bibliothèque patrimoniale",
+       "text": "Elle enrichit les notices de manuscrits non signés en marquant clairement les attributions suggérées par un outil."
+      }
+     ]
+    },
+    {
+     "type": "timeline",
+     "title": "D'où l'on vient, où l'on va",
+     "items": [
+      {
+       "label": "1808",
+       "text": "Voyage de Montréal à Fort William documenté par le carnet."
+      },
+      {
+       "label": "2014",
+       "text": "Thèse de Juliette Reboul (Leeds), dont une note citait le journal de Chabot."
+      },
+      {
+       "label": "24 novembre 2026",
+       "text": "Mark Humphries publie son récit."
+      }
+     ]
+    },
+    {
+     "type": "opinion",
+     "title": "Notre avis",
+     "paragraphs": [
+      "Le résultat est séduisant : l'IA agit ici comme un chercheur de pistes, pas comme un oracle, puisque l'historien a commandé les documents et vérifié l'écriture et l'itinéraire. C'est précisément cette boucle de vérification qui rend le récit crédible, bien plus que la rapidité annoncée.",
+      "À un horizon d'un à trois ans, ce type d'assistance pourrait devenir courant dans les archives, avec un risque : des attributions séduisantes mais fausses, si l'étape humaine est supprimée. Cette lecture est une opinion, pas un fait."
+     ],
+     "verdict": "Utile pour trouver des pistes, à condition que l'humain vérifie chaque pièce."
+    }
+   ],
+   "cover": {
+    "url": "https://substackcdn.com/image/fetch/$s_!mr1c!,w_1200,h_675,c_fill,f_jpg,q_auto:good,fl_progressive:steep,g_auto/https%3A%2F%2Fsubstack-post-media.s3.amazonaws.com%2Fpublic%2Fimages%2F85c196c7-1cc6-440f-b086-de25bf788ac1_1672x941.png",
+    "alt": "Un modèle d'IA identifie l'auteur d'un carnet d'esquisses de 1808 : un historien raconte comment il a vérifié le résultat",
+    "credit": "generativehistory.substack.com"
+   }
+  },
+  {
+   "id": "aws-device-farm-appareils-virtuels-ios-android",
+   "category": "devops",
+   "title": "AWS Device Farm ajoute des appareils virtuels iOS et Android pour les premières étapes des tests",
+   "summary": "Annoncés le 25 novembre 2026, les appareils virtuels de Device Farm (Pixel 10, tablette Pixel, iPhone 16) visent les tests de demandes de fusion et de fumée, les appareils réels restant réservés aux tests de recette. La sélection de modèles est jugée limitée.",
+   "tags": [
+    "AWS",
+    "Device Farm",
+    "tests mobiles",
+    "CI/CD",
+    "iOS",
+    "Android"
+   ],
+   "importance": 3,
+   "readingMinutes": 3,
+   "publishedAt": "2026-11-28T04:17:19+01:00",
+   "sourceDate": "2026-11-27",
+   "icon": "📱",
+   "illustration": {
+    "svg": "<svg xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"0 0 640 360\"><defs><linearGradient id=\"g\" x1=\"0\" y1=\"0\" x2=\"1\" y2=\"1\"><stop offset=\"0\" stop-color=\"hsl(160,65%,34%)\"/><stop offset=\"1\" stop-color=\"hsl(200,70%,50%)\"/></linearGradient></defs><rect width=\"640\" height=\"360\" fill=\"url(#g)\"/><circle cx=\"520\" cy=\"80\" r=\"110\" fill=\"#fff\" opacity=\".12\"/><circle cx=\"90\" cy=\"300\" r=\"80\" fill=\"#fff\" opacity=\".10\"/><rect x=\"60\" y=\"70\" width=\"297\" height=\"14\" rx=\"7\" fill=\"#fff\" opacity=\".35\"/><rect x=\"60\" y=\"100\" width=\"237\" height=\"14\" rx=\"7\" fill=\"#fff\" opacity=\".25\"/><rect x=\"60\" y=\"130\" width=\"90\" height=\"14\" rx=\"7\" fill=\"#fff\" opacity=\".2\"/><text x=\"320\" y=\"225\" font-size=\"120\" text-anchor=\"middle\" font-family=\"system-ui,sans-serif\">📱</text></svg>"
+   },
+   "sources": [
+    {
+     "title": "AWS adds virtual iPhones to its cloud",
+     "url": "https://www.theregister.com/off-prem/2026/11/27/aws-adds-virtual-iphones-to-its-cloud/5312457",
+     "publisher": "The Register"
+    }
+   ],
+   "blocks": [
+    {
+     "type": "paragraph",
+     "text": "Tester une application mobile sur de vrais téléphones coûte cher et prend du temps. Amazon Web Services vient d'ajouter à son service **Device Farm** des appareils virtuels, Android et iOS, pour les premières étapes du cycle de développement. Selon The Register, l'annonce date du mercredi 25 novembre 2026. Jusqu'ici, Device Farm donnait accès, dans le nuage, à des appareils physiques."
+    },
+    {
+     "type": "heading",
+     "level": 2,
+     "text": "Ce qui est proposé"
+    },
+    {
+     "type": "list",
+     "items": [
+      "**Android** : un téléphone Google Pixel 10, sous Android 15, 16 ou 17, et une tablette Pixel sous Android 17.",
+      "**iOS** : un iPhone 16, dont les versions listées sont iOS 18.6, une entrée « 23.61 » qui ressemble à une coquille, et iOS 27.0."
+     ]
+    },
+    {
+     "type": "paragraph",
+     "text": "Pour les appareils physiques, le service propose notamment des Galaxy A17 et trois versions de l'iPhone 17, mais aucun appareil pliable. Le prix et les régions disponibles ne sont pas précisés dans l'article consulté."
+    },
+    {
+     "type": "heading",
+     "level": 2,
+     "text": "Quelle place dans une chaîne d'intégration continue"
+    },
+    {
+     "type": "paragraph",
+     "text": "AWS positionne les appareils virtuels pour les étapes précoces : demandes de fusion, fusions de code et tests de fumée. Les appareils réels restent recommandés pour les étapes qui exigent une grande fidélité, comme les tests de régression et de recette avant publication. Selon AWS, les appareils et versions du système les plus récents démarrent en quelques secondes, les autres en environ une minute. Les API et les cadres de test existants fonctionnent avec les deux types d'appareils, sans modification du code."
+    },
+    {
+     "type": "heading",
+     "level": 2,
+     "text": "Les réserves"
+    },
+    {
+     "type": "paragraph",
+     "text": "The Register juge la sélection « courte et fade ». Le journal remarque que le classement des dix smartphones les plus vendus au deuxième trimestre 2026, selon Counterpoint, ne comprend aucun Pixel, que plusieurs Galaxy populaires manquent à l'appel, et s'interroge sur le choix d'une tablette Pixel alors que Google ne figure pas parmi les cinq premiers vendeurs de tablettes d'IDC. Un test sur un modèle absent du parc réel des utilisateurs ne dit pas grand-chose de leur expérience."
+    },
+    {
+     "type": "usecases",
+     "title": "Exemples d'utilisation",
+     "items": [
+      {
+       "icon": "🔀",
+       "title": "Une équipe mobile",
+       "text": "Elle lance sur des appareils virtuels, à chaque demande de fusion, un jeu de tests rapide, et réserve les appareils réels à la veille de la mise en production."
+      },
+      {
+       "icon": "💶",
+       "title": "Une start-up",
+       "text": "Elle limite ses coûts de test en gardant les appareils physiques pour quelques scénarios critiques."
+      },
+      {
+       "icon": "🧪",
+       "title": "Un service d'assurance qualité",
+       "text": "Il vérifie le comportement de l'application sur les nouvelles versions des systèmes dès leur disponibilité."
+      }
+     ]
+    },
+    {
+     "type": "timeline",
+     "title": "D'où l'on vient, où l'on va",
+     "items": [
+      {
+       "label": "Avant novembre 2026",
+       "text": "Device Farm propose des appareils physiques iOS et Android dans le nuage."
+      },
+      {
+       "label": "25 novembre 2026",
+       "text": "AWS annonce des appareils virtuels pour les premières étapes de test."
+      },
+      {
+       "label": "À venir",
+       "text": "Prix, régions et extension de la liste de modèles ne sont pas précisés."
+      }
+     ]
+    },
+    {
+     "type": "opinion",
+     "title": "Notre avis",
+     "paragraphs": [
+      "L'approche est classique : on réserve le matériel coûteux aux validations finales et on automatise le reste. L'intérêt réel dépendra du prix, qui n'est pas indiqué, et de la représentativité des modèles. Tant que la liste reste courte, un test réussi sur un Pixel ne garantit rien sur les téléphones les plus vendus.",
+      "Sur un à trois ans, les fournisseurs devraient élargir les catalogues et proposer des tarifs à la minute. Cette évolution est probable mais non annoncée."
+     ],
+     "verdict": "Une bonne idée pour la vitesse, mais le catalogue actuel limite la portée des tests."
+    }
+   ],
+   "cover": {
+    "url": "https://image.theregister.com/5312462.jpg?imageId=5312462&x=0&y=0&cropw=100&croph=100&panox=0&panoy=0&panow=100&panoh=100&width=1200&height=683",
+    "alt": "AWS Device Farm ajoute des appareils virtuels iOS et Android pour les premières étapes des tests",
+    "credit": "www.theregister.com"
+   }
+  },
+  {
+   "id": "tabernetes-cluster-onglets-navigateur",
+   "category": "devops",
+   "title": "Tabernetes : un cluster Kubernetes dont les nœuds sont des onglets de navigateur",
+   "summary": "Le projet de Farid Zakaria transforme chaque onglet ouvert en nœud Kubernetes, grâce à un noyau Linux compilé en WebAssembly. Une expérience ludique qui montre ce que le navigateur sait désormais exécuter.",
+   "tags": [
+    "Kubernetes",
+    "WebAssembly",
+    "navigateur",
+    "expérimentation",
+    "open source",
+    "conteneurs"
+   ],
+   "importance": 2,
+   "readingMinutes": 3,
+   "publishedAt": "2026-11-28T04:17:19+01:00",
+   "sourceDate": "2026-11-27",
+   "icon": "🧩",
+   "illustration": {
+    "svg": "<svg xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"0 0 640 360\"><defs><linearGradient id=\"g\" x1=\"0\" y1=\"0\" x2=\"1\" y2=\"1\"><stop offset=\"0\" stop-color=\"hsl(160,65%,34%)\"/><stop offset=\"1\" stop-color=\"hsl(200,70%,50%)\"/></linearGradient></defs><rect width=\"640\" height=\"360\" fill=\"url(#g)\"/><circle cx=\"520\" cy=\"80\" r=\"110\" fill=\"#fff\" opacity=\".12\"/><circle cx=\"90\" cy=\"300\" r=\"80\" fill=\"#fff\" opacity=\".10\"/><rect x=\"60\" y=\"70\" width=\"297\" height=\"14\" rx=\"7\" fill=\"#fff\" opacity=\".35\"/><rect x=\"60\" y=\"100\" width=\"237\" height=\"14\" rx=\"7\" fill=\"#fff\" opacity=\".25\"/><rect x=\"60\" y=\"130\" width=\"90\" height=\"14\" rx=\"7\" fill=\"#fff\" opacity=\".2\"/><text x=\"320\" y=\"225\" font-size=\"120\" text-anchor=\"middle\" font-family=\"system-ui,sans-serif\">🧩</text></svg>"
+   },
+   "sources": [
+    {
+     "title": "Tabernetes : A Kubernetes cluster whose nodes are browser tabs",
+     "url": "https://tabernet.es/",
+     "publisher": "Tabernetes"
+    }
+   ],
+   "blocks": [
+    {
+     "type": "paragraph",
+     "text": "Et si un cluster Kubernetes n'avait pas besoin de machines dédiées, mais seulement d'onglets de navigateur ? C'est le pari, à la fois sérieux dans sa conception et ludique dans son ambition, de **Tabernetes**, projet signé Farid Zakaria et repéré sur Hacker News le 27 novembre 2026. Ouvrez la page sur un téléphone ou un ordinateur : l'appareil rejoint le cluster comme nœud, l'ordonnanceur peut lui envoyer un pod, et celui-ci s'exécute sur un noyau Linux démarré dans l'onglet."
+    },
+    {
+     "type": "paragraph",
+     "text": "Comme le dit le site, fermer l'onglet fait disparaître le nœud, et Kubernetes relance alors le pod ailleurs. Cette volatilité est au cœur du fonctionnement : les nœuds apparaissent et disparaissent au gré des visiteurs."
+    },
+    {
+     "type": "heading",
+     "level": 2,
+     "text": "Le fonctionnement technique"
+    },
+    {
+     "type": "list",
+     "items": [
+      "**Inscription** : la page garde une connexion (socket) ouverte vers un agent placé à côté du serveur d'API, qui enregistre un objet Node pour l'onglet.",
+      "**Ordonnancement** : l'agent démarre le conteneur du pod grâce à `tabc`, un environnement d'exécution de conteneurs dont les conteneurs tournent dans des onglets.",
+      "**Exécution** : un noyau Linux compilé en WebAssembly exécute le programme du pod avec le processeur et la mémoire de l'onglet. Les fichiers et l'adresse réseau du pod restent sur la machine du cluster.",
+      "**Choix volontaire** : un pod demande à tourner sur un onglet avec `runtimeClassName: tab`. Les autres pods restent sur les machines du cluster."
+     ]
+    },
+    {
+     "type": "heading",
+     "level": 2,
+     "text": "Les limites annoncées"
+    },
+    {
+     "type": "paragraph",
+     "text": "Rejoindre le cluster télécharge environ 5 Mo et mobilise un cœur de processeur. Comme un nœud n'existe que tant que l'onglet est ouvert, les pods peuvent migrer à tout moment. Et puisque les fichiers et les adresses vivent côté cluster, un onglet fournit de la puissance de calcul, mais ni stockage ni réseau propres. Le code est publié sous licence MIT : `github.com/fzakaria/tabernetes` pour le projet et `github.com/fzakaria/tabc` pour l'environnement d'exécution."
+    },
+    {
+     "type": "usecases",
+     "title": "Exemples d'utilisation",
+     "items": [
+      {
+       "icon": "🎓",
+       "title": "Un cours sur Kubernetes",
+       "text": "Un enseignant fait rejoindre le cluster par les ordinateurs d'une salle pour montrer l'ordonnancement et la reprise après panne, sans installer quoi que ce soit."
+      },
+      {
+       "icon": "🧮",
+       "title": "Un calcul ponctuel",
+       "text": "Un chercheur teste une tâche courte et interruptible sur des onglets prêtés par des volontaires, en acceptant qu'ils puissent disparaître."
+      },
+      {
+       "icon": "🛠️",
+       "title": "Un développeur curieux",
+       "text": "Il explore ce que les environnements d'exécution de conteneurs peuvent faire dans un bac à sable de navigateur."
+      }
+     ]
+    },
+    {
+     "type": "timeline",
+     "title": "D'où l'on vient, où l'on va",
+     "items": [
+      {
+       "label": "Ces dernières années",
+       "text": "Les navigateurs savent exécuter du code WebAssembly à des vitesses proches du natif ; la date exacte de leur maturité n'est pas établie ici."
+      },
+      {
+       "label": "27 novembre 2026",
+       "text": "Tabernetes attire l'attention sur Hacker News, avec 46 points au moment de la consultation."
+      }
+     ]
+    },
+    {
+     "type": "opinion",
+     "title": "Notre avis",
+     "paragraphs": [
+      "Tabernetes n'a pas vocation à héberger de la production, et ses auteurs ne le prétendent pas. Sa valeur est pédagogique : il rend visibles les rouages de Kubernetes (nœud, ordonnanceur, classe d'exécution) et la capacité des navigateurs à faire tourner un vrai noyau.",
+      "À un à trois ans, l'idée de nœuds éphémères et très dispersés pourrait nourrir des usages de calcul opportuniste, mais la sécurité, l'isolation et la confiance dans des machines inconnues restent des obstacles sérieux. Cette perspective est une opinion."
+     ],
+     "verdict": "Un jouet instructif, qui rappelle que le navigateur est devenu une vraie plateforme d'exécution."
+    }
+   ]
+  },
+  {
+   "id": "usb-rea-pilote-linux-peripherique-windows",
+   "category": "electronique",
+   "title": "usb-rea : un outil open source génère un pilote Linux à partir du trafic USB d'un périphérique réservé à Windows",
+   "summary": "Sous licence MIT, usb-rea analyse une capture du trafic USB pendant l'usage du logiciel du fabricant, puis produit un rapport de protocole, un pilote pyusb et un dissecteur Wireshark. L'auteur l'a validé sur deux appareils déjà pris en charge.",
+   "tags": [
+    "USB",
+    "Linux",
+    "rétro-ingénierie",
+    "pilote",
+    "Wireshark",
+    "open source"
+   ],
+   "importance": 3,
+   "readingMinutes": 3,
+   "publishedAt": "2026-11-28T04:17:19+01:00",
+   "sourceDate": "2026-11-27",
+   "icon": "🔌",
+   "illustration": {
+    "svg": "<svg xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"0 0 640 360\"><defs><linearGradient id=\"g\" x1=\"0\" y1=\"0\" x2=\"1\" y2=\"1\"><stop offset=\"0\" stop-color=\"hsl(30,65%,34%)\"/><stop offset=\"1\" stop-color=\"hsl(70,70%,50%)\"/></linearGradient></defs><rect width=\"640\" height=\"360\" fill=\"url(#g)\"/><circle cx=\"520\" cy=\"80\" r=\"110\" fill=\"#fff\" opacity=\".12\"/><circle cx=\"90\" cy=\"300\" r=\"80\" fill=\"#fff\" opacity=\".10\"/><rect x=\"60\" y=\"70\" width=\"297\" height=\"14\" rx=\"7\" fill=\"#fff\" opacity=\".35\"/><rect x=\"60\" y=\"100\" width=\"237\" height=\"14\" rx=\"7\" fill=\"#fff\" opacity=\".25\"/><rect x=\"60\" y=\"130\" width=\"90\" height=\"14\" rx=\"7\" fill=\"#fff\" opacity=\".2\"/><text x=\"320\" y=\"225\" font-size=\"120\" text-anchor=\"middle\" font-family=\"system-ui,sans-serif\">🔌</text></svg>"
+   },
+   "sources": [
+    {
+     "title": "usb-rea generates a Linux driver for your Windows-only USB gadget",
+     "url": "https://www.cnx-software.com/2026/11/27/usb-rea-generates-a-linux-driver-for-your-windows-only-usb-gadget/",
+     "publisher": "CNX Software"
+    }
+   ],
+   "blocks": [
+    {
+     "type": "paragraph",
+     "text": "Combien de ventilateurs RGB, de refroidisseurs à eau ou de souris à écran ne fonctionnent que grâce à un logiciel Windows du fabricant ? Pour ceux qui voudraient les utiliser sous Linux, un nouvel outil, **usb-rea**, propose de faire le travail de rétro-ingénierie à leur place. Présenté le 27 novembre 2026 par CNX Software, il est publié sous licence MIT sur `github.com/emirmrkaljevic/usb-rea`."
+    },
+    {
+     "type": "heading",
+     "level": 2,
+     "text": "Le principe"
+    },
+    {
+     "type": "paragraph",
+     "text": "L'utilisateur capture le trafic USB avec USBPcap (sous Windows) ou usbmon (sous Linux) pendant qu'il manipule le logiciel du fabricant, et il étiquette chacune de ses actions. L'outil déduit ensuite la structure des commandes : constantes, compteurs, champs de valeurs, tables de correspondance et sommes de contrôle CRC. Il produit trois éléments."
+    },
+    {
+     "type": "list",
+     "items": [
+      "Un rapport de protocole au format Markdown.",
+      "Un pilote Linux autonome, fondé sur la bibliothèque Python pyusb.",
+      "Un dissecteur Lua pour Wireshark."
+     ]
+    },
+    {
+     "type": "paragraph",
+     "text": "Il peut aussi fonctionner comme serveur MCP, afin qu'un assistant de programmation fondé sur l'IA pilote l'analyse. L'installation se fait avec `pip install usb-rea` dans un environnement virtuel ; l'auteur a testé sous Ubuntu 26.04. La capture se fait sous Windows, l'analyse sous Windows, Linux ou macOS."
+    },
+    {
+     "type": "heading",
+     "level": 2,
+     "text": "Les commandes et les exemples"
+    },
+    {
+     "type": "paragraph",
+     "text": "La ligne de commande comprend notamment `capture`, `mark`, `infer`, `report`, `scaffold`, `dissector`, `replay` et `lookup`. La commande `usb-rea demo --device fan` génère une capture synthétique d'un ventilateur émulé, avec rapport, pilote `fan_driver.py` et dissecteur `fan.lua`. `usb-rea lookup 0416:7395` vérifie si un couple identifiant constructeur et produit est déjà documenté, ici un écran LCD Lian Li déjà pris en charge par liquidctl."
+    },
+    {
+     "type": "heading",
+     "level": 2,
+     "text": "Ce qui a été validé, et ce qui ne l'est pas"
+    },
+    {
+     "type": "paragraph",
+     "text": "L'auteur dit avoir testé l'outil sur un refroidisseur NZXT Kraken X et sur une souris SteelSeries Rival 100, tous deux déjà gérés par des outils Linux. Pour le refroidisseur, l'outil aurait retrouvé octet pour octet la commande de ventilateur envoyée par liquidctl. En revanche, un même identifiant ne garantit pas un même protocole, la commande `replay` envoie un paquet à un vrai appareil et exige l'option `--yes`, et la qualité du résultat dépend de celle de la capture et de l'étiquetage. La couverture d'autres appareils n'est pas vérifié."
+    },
+    {
+     "type": "usecases",
+     "title": "Exemples d'utilisation",
+     "items": [
+      {
+       "icon": "🌬️",
+       "title": "Un passionné de matériel",
+       "text": "Il capture les commandes de son ventilateur RGB réservé à Windows et obtient un script Linux pour le piloter."
+      },
+      {
+       "icon": "🧑‍🔬",
+       "title": "Un mainteneur de bibliothèque",
+       "text": "Il utilise les rapports de protocole pour documenter un nouvel appareil dans un projet comme liquidctl."
+      },
+      {
+       "icon": "🏫",
+       "title": "Un atelier de rétro-ingénierie",
+       "text": "Un enseignant montre à des étudiants comment passer d'une capture brute à un protocole documenté."
+      }
+     ]
+    },
+    {
+     "type": "timeline",
+     "title": "D'où l'on vient, où l'on va",
+     "items": [
+      {
+       "label": "Avant",
+       "text": "La prise en charge Linux d'un périphérique repose sur la rétro-ingénierie manuelle de volontaires."
+      },
+      {
+       "label": "27 novembre 2026",
+       "text": "CNX Software présente usb-rea ; l'auteur indique deux appareils testés."
+      },
+      {
+       "label": "À venir",
+       "text": "Davantage d'appareils testés seraient nécessaires pour juger de la fiabilité générale ; aucun calendrier n'est annoncé."
+      }
+     ]
+    },
+    {
+     "type": "opinion",
+     "title": "Notre avis",
+     "paragraphs": [
+      "L'idée est utile : automatiser la partie répétitive de la rétro-ingénierie USB libère du temps pour l'essentiel, la validation sur le matériel. Deux appareils testés, déjà connus, constituent toutefois un test de cohérence plus qu'une preuve de généralité.",
+      "À un horizon d'un à trois ans, l'assistance par IA devrait faciliter l'écriture de pilotes pour des périphériques de niche, avec le risque d'envoyer de mauvaises commandes à du matériel réel. C'est une opinion argumentée."
+     ],
+     "verdict": "Un bon outil d'amorçage, qui ne dispense pas de tester prudemment sur le matériel."
+    }
+   ],
+   "cover": {
+    "url": "https://www.cnx-software.com/wp-content/uploads/2026/11/usb-rea-reverse-engineer-tool-for-USB-device.jpg",
+    "alt": "usb-rea : un outil open source génère un pilote Linux à partir du trafic USB d'un périphérique réservé à Windows",
+    "credit": "www.cnx-software.com"
+   }
+  },
+  {
+   "id": "phosphor-firmware-libre-esp32-s3-touch-lcd",
+   "category": "electronique",
+   "title": "Phosphor : un micrologiciel libre transforme l'écran tactile ESP32-S3 de Waveshare en horloge, radio et console rétro",
+   "summary": "Publié sous licence GPL 3.0 par Melih Koray, Phosphor ajoute à la carte Waveshare ESP32-S3-Touch-LCD-3.49 une horloge à alarme, une radio Internet, des jeux et quatre thèmes d'inspiration rétro.",
+   "tags": [
+    "ESP32-S3",
+    "Waveshare",
+    "micrologiciel",
+    "rétro",
+    "GPL",
+    "Arduino"
+   ],
+   "importance": 2,
+   "readingMinutes": 3,
+   "publishedAt": "2026-11-28T04:17:19+01:00",
+   "sourceDate": "2026-11-27",
+   "icon": "📻",
+   "illustration": {
+    "svg": "<svg xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"0 0 640 360\"><defs><linearGradient id=\"g\" x1=\"0\" y1=\"0\" x2=\"1\" y2=\"1\"><stop offset=\"0\" stop-color=\"hsl(30,65%,34%)\"/><stop offset=\"1\" stop-color=\"hsl(70,70%,50%)\"/></linearGradient></defs><rect width=\"640\" height=\"360\" fill=\"url(#g)\"/><circle cx=\"520\" cy=\"80\" r=\"110\" fill=\"#fff\" opacity=\".12\"/><circle cx=\"90\" cy=\"300\" r=\"80\" fill=\"#fff\" opacity=\".10\"/><rect x=\"60\" y=\"70\" width=\"297\" height=\"14\" rx=\"7\" fill=\"#fff\" opacity=\".35\"/><rect x=\"60\" y=\"100\" width=\"237\" height=\"14\" rx=\"7\" fill=\"#fff\" opacity=\".25\"/><rect x=\"60\" y=\"130\" width=\"90\" height=\"14\" rx=\"7\" fill=\"#fff\" opacity=\".2\"/><text x=\"320\" y=\"225\" font-size=\"120\" text-anchor=\"middle\" font-family=\"system-ui,sans-serif\">📻</text></svg>"
+   },
+   "sources": [
+    {
+     "title": "Waveshare ESP32-S3-Touch-LCD-3.49 gets open-source retro firmware with clock, internet radio, games",
+     "url": "https://www.cnx-software.com/2026/11/27/waveshare-esp32-s3-touch-lcd-3-49-gets-open-source-retro-firmware-with-clock-internet-radio-games/",
+     "publisher": "CNX Software"
+    }
+   ],
+   "blocks": [
+    {
+     "type": "paragraph",
+     "text": "Les cartes de développement à écran tactile sont souvent livrées avec une démonstration qui impressionne dix minutes avant d'être oubliée. Le projet **Phosphor**, repéré par CNX Software le 27 novembre 2026, tente de faire de la carte Waveshare ESP32-S3-Touch-LCD-3.49 un véritable petit appareil de bureau : horloge à alarme, radio Internet, jeux et animations, le tout avec une esthétique rétro. Le micrologiciel est développé par Melih Koray et publié sous licence GPL 3.0 sur `github.com/melihkoray/phosphor`."
+    },
+    {
+     "type": "heading",
+     "level": 2,
+     "text": "Le matériel visé"
+    },
+    {
+     "type": "paragraph",
+     "text": "La carte dispose d'un écran tactile large de 640 × 172 pixels, de 8 Mo de PSRAM, de boutons, d'un capteur de mouvement capable de détecter inclinaison, secousse et coup, et d'un haut-parleur. Elle se trouve à environ 35 dollars sur AliExpress, 42,99 dollars sur Amazon et entre 29,99 et 31,99 dollars sur la boutique de Waveshare, selon les relevés de l'article ; Waveshare vend aussi des boîtiers pour une pile 18650 ou une batterie LiPo 3,7 V."
+    },
+    {
+     "type": "heading",
+     "level": 2,
+     "text": "Ce que fait le micrologiciel"
+    },
+    {
+     "type": "list",
+     "items": [
+      "Une horloge avec alarme, la météo, des minuteurs et des scènes de pixels tactiles.",
+      "Une radio Internet avec boutons de genres, animation et égaliseur, qui s'appuie sur Radio Browser et lit les flux MP3 et AAC.",
+      "Trois jeux (blackjack, Lighthouse Keeper et Runner). Au blackjack, un coup sur l'appareil signifie « rester » et deux coups « tirer », grâce au capteur de mouvement.",
+      "Des écrans décoratifs : aquarium, phare, paquebot, minuteur de concentration, cabane enneigée, sablier ou pile ou face.",
+      "Quatre thèmes : VFD, C64 (16 couleurs), Amiga (32 couleurs parmi 4 096) et un style Atari 2600 (4 couleurs par ligne)."
+     ]
+    },
+    {
+     "type": "paragraph",
+     "text": "Le code est écrit en C++ pour Arduino : la radio Internet tourne sur un cœur de l'ESP32-S3, l'interface sur l'autre. L'installation se fait depuis un navigateur Chrome ou Edge par USB-C, puis le réglage du Wi-Fi s'effectue depuis un téléphone grâce à un code QR affiché sur l'appareil. Une API HTTP permet de commander l'appareil (état, écran, radio, mises à jour)."
+    },
+    {
+     "type": "heading",
+     "level": 2,
+     "text": "Les réserves"
+    },
+    {
+     "type": "paragraph",
+     "text": "Le testeur note que certaines valeurs sont codées en dur, ce qui rend l'adaptation à d'autres résolutions d'écran peu aisée. L'API HTTP est prévue pour un réseau local et ne doit pas être exposée sur Internet."
+    },
+    {
+     "type": "usecases",
+     "title": "Exemples d'utilisation",
+     "items": [
+      {
+       "icon": "🛏️",
+       "title": "Réveil de chevet",
+       "text": "Un utilisateur installe le micrologiciel, règle l'alarme et choisit le thème VFD pour un affichage sobre."
+      },
+      {
+       "icon": "🎮",
+       "title": "Cadeau pour un amateur de rétro",
+       "text": "Un bricoleur offre une carte préinstallée avec le thème C64 et les trois jeux."
+      },
+      {
+       "icon": "🏠",
+       "title": "Domotique légère",
+       "text": "Un utilisateur pilote l'appareil via l'API HTTP de son réseau domestique pour changer de station ou afficher un état."
+      }
+     ]
+    },
+    {
+     "type": "timeline",
+     "title": "D'où l'on vient, où l'on va",
+     "items": [
+      {
+       "label": "Avant",
+       "text": "La carte est livrée avec les démonstrations de son fabricant."
+      },
+      {
+       "label": "27 novembre 2026",
+       "text": "Phosphor est présenté publiquement sous licence GPL 3.0."
+      },
+      {
+       "label": "À venir",
+       "text": "L'adaptation à d'autres écrans n'est pas annoncée."
+      }
+     ]
+    },
+    {
+     "type": "opinion",
+     "title": "Notre avis",
+     "paragraphs": [
+      "Phosphor illustre bien l'intérêt des cartes à bas prix : un matériel générique devient un objet fini dès qu'un logiciel soigné lui donne un usage. Le choix de thèmes rétro est plus qu'un gadget : il rend l'appareil reconnaissable et agréable à regarder en permanence.",
+      "À un horizon d'un à trois ans, ce genre de projets communautaires devrait se multiplier autour des cartes à écran intégré. La contrepartie est la fragilité des projets à un seul auteur et les valeurs codées en dur, qui freinent la réutilisation. C'est une opinion."
+     ],
+     "verdict": "Un projet soigné et amusant, à réserver pour l'instant à cette carte précise."
+    }
+   ],
+   "cover": {
+    "url": "https://www.cnx-software.com/wp-content/uploads/2026/11/Phosphor-fimware-Waveshare-ESP32-S3-Touch-LCD-3.49.jpg",
+    "alt": "Phosphor : un micrologiciel libre transforme l'écran tactile ESP32-S3 de Waveshare en horloge, radio et console rétro",
+    "credit": "www.cnx-software.com"
+   }
+  },
+  {
+   "id": "reseaux-optiques-delais-livraison-18-mois",
+   "category": "electronique",
+   "title": "L'essor de l'IA allonge jusqu'à 18 mois les délais de livraison des équipements optiques des opérateurs",
+   "summary": "Selon l'opérateur RETN, cité par The Register, les prix des équipements optiques ont augmenté d'environ 50 % en 2026 et les délais sont passés de trois mois à 12-15 mois, parfois 18 : les opérateurs sont en concurrence avec les centres de données d'IA.",
+   "tags": [
+    "réseaux",
+    "fibre optique",
+    "centres de données",
+    "pénurie",
+    "RETN",
+    "composants"
+   ],
+   "importance": 3,
+   "readingMinutes": 3,
+   "publishedAt": "2026-11-28T04:17:19+01:00",
+   "sourceDate": "2026-11-27",
+   "icon": "🔦",
+   "illustration": {
+    "svg": "<svg xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"0 0 640 360\"><defs><linearGradient id=\"g\" x1=\"0\" y1=\"0\" x2=\"1\" y2=\"1\"><stop offset=\"0\" stop-color=\"hsl(30,65%,34%)\"/><stop offset=\"1\" stop-color=\"hsl(70,70%,50%)\"/></linearGradient></defs><rect width=\"640\" height=\"360\" fill=\"url(#g)\"/><circle cx=\"520\" cy=\"80\" r=\"110\" fill=\"#fff\" opacity=\".12\"/><circle cx=\"90\" cy=\"300\" r=\"80\" fill=\"#fff\" opacity=\".10\"/><rect x=\"60\" y=\"70\" width=\"297\" height=\"14\" rx=\"7\" fill=\"#fff\" opacity=\".35\"/><rect x=\"60\" y=\"100\" width=\"237\" height=\"14\" rx=\"7\" fill=\"#fff\" opacity=\".25\"/><rect x=\"60\" y=\"130\" width=\"90\" height=\"14\" rx=\"7\" fill=\"#fff\" opacity=\".2\"/><text x=\"320\" y=\"225\" font-size=\"120\" text-anchor=\"middle\" font-family=\"system-ui,sans-serif\">🔦</text></svg>"
+   },
+   "sources": [
+    {
+     "title": "AI boom leaves network operators waiting up to 18 months for kit",
+     "url": "https://www.theregister.com/networks/2026/11/27/ai-boom-leaves-network-operators-waiting-up-to-18-months-for-kit/5312366",
+     "publisher": "The Register"
+    }
+   ],
+   "blocks": [
+    {
+     "type": "paragraph",
+     "text": "La course aux centres de données d'intelligence artificielle ne pèse pas seulement sur les puces et la mémoire : elle commence à bloquer les réseaux qui doivent les relier. D'après un article de The Register publié le 27 novembre 2026, qui s'appuie sur l'opérateur de télécommunications RETN, les équipements de transmission optique coûtent environ 50 % plus cher depuis le début de l'année 2026, et leur livraison peut prendre jusqu'à 18 mois."
+    },
+    {
+     "type": "heading",
+     "level": 2,
+     "text": "Les chiffres cités"
+    },
+    {
+     "type": "list",
+     "items": [
+      "Un matériel optique livré en trois mois en moyenne demande désormais 12 à 15 mois, et certaines commandes jusqu'à 18 mois.",
+      "Les prix de la mémoire ont été multipliés par quatre à cinq en un an, selon un article précédent du même journal.",
+      "Un circuit « diversifié » (avec chemin de secours) peut coûter 1 800 euros par mois contre 600 euros pour un circuit non diversifié, selon RETN, qui juge que le prix d'une panne serait bien supérieur.",
+      "Les clients qui souhaitaient deux routes vers des destinations lointaines en veulent désormais quatre ou plus."
+     ]
+    },
+    {
+     "type": "paragraph",
+     "text": "RETN compare la situation à celle de la pénurie de l'époque de la pandémie, qu'il juge « aussi grave, voire pire »."
+    },
+    {
+     "type": "heading",
+     "level": 2,
+     "text": "Les causes"
+    },
+    {
+     "type": "paragraph",
+     "text": "Les opérateurs se retrouvent en concurrence directe avec les géants du nuage et les campus d'IA pour les mêmes composants. S'ajoutent des pénuries de matières premières et de main-d'œuvre qualifiée, des contraintes d'approvisionnement en énergie, des tensions géopolitiques et des difficultés logistiques. Beaucoup d'opérateurs avaient aussi repoussé leurs mises à niveau pour économiser : elles ne peuvent plus attendre."
+    },
+    {
+     "type": "heading",
+     "level": 2,
+     "text": "Des centres de données loin des villes"
+    },
+    {
+     "type": "paragraph",
+     "text": "Les nouveaux sites s'installent là où la terre, l'électricité et l'eau sont bon marché, par exemple dans les pays nordiques. Ces endroits manquent souvent de fibre pour se relier aux autres centres de données et aux clients. Près des villes, les promoteurs financent parfois la fibre eux-mêmes, pour quelques points de pourcentage du coût du projet ; sur de longues distances, les opérateurs hésitent à construire une route pour un seul site. RETN recommande donc d'associer les opérateurs deux à cinq ans avant l'ouverture, dans son rapport « AI, Connected »."
+    },
+    {
+     "type": "usecases",
+     "title": "Exemples d'utilisation",
+     "items": [
+      {
+       "icon": "🏗️",
+       "title": "Un promoteur de centre de données",
+       "text": "Il associe un opérateur dès la phase de conception pour réserver le matériel optique et les routes de fibre."
+      },
+      {
+       "icon": "🏢",
+       "title": "Une entreprise qui sécurise sa connectivité",
+       "text": "Elle commande plus tôt ses liaisons redondantes et budgète le surcoût des chemins diversifiés."
+      },
+      {
+       "icon": "📡",
+       "title": "Un opérateur régional",
+       "text": "Il anticipe ses commandes d'équipements et échelonne ses mises à niveau pour éviter d'être pris de court."
+      }
+     ]
+    },
+    {
+     "type": "timeline",
+     "title": "D'où l'on vient, où l'on va",
+     "items": [
+      {
+       "label": "Début 2026",
+       "text": "Début de la hausse d'environ 50 % des prix des équipements optiques, selon RETN."
+      },
+      {
+       "label": "27 novembre 2026",
+       "text": "Publication de l'article de The Register, sur la base du rapport de RETN."
+      },
+      {
+       "label": "Prochaines années",
+       "text": "RETN conseille d'impliquer les opérateurs deux à cinq ans avant l'ouverture d'un site."
+      }
+     ]
+    },
+    {
+     "type": "opinion",
+     "title": "Notre avis",
+     "paragraphs": [
+      "Cette pénurie rappelle une évidence souvent oubliée : l'IA est une industrie physique, faite de fibre, d'optique et de câbles autant que de processeurs. Le goulot d'étranglement se déplace d'un composant à l'autre à mesure que chacun est saturé.",
+      "À un horizon d'un à trois ans, les projets qui sécuriseront tôt leur connectivité auront un avantage, et les territoires mal desservis risquent d'être écartés. Le chiffre de RETN reste celui d'un opérateur, non une statistique indépendante. Cette perspective est une opinion."
+     ],
+     "verdict": "L'IA a besoin de réseaux autant que de puces, et les réseaux sont déjà en retard."
+    }
+   ]
+  }
+ ]
+}
